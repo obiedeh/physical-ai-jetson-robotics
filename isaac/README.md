@@ -58,13 +58,29 @@ BLENDER=/path/to/blender bash scripts/linux_rtx/render_factory_cell_blender.sh
 
 ## Current Platform Note
 
-Isaac Sim 5.1.0 currently crashes during RTX renderer startup on the Linux RTX workstation with NVIDIA driver `595.58.03`. The crash is documented in:
+Isaac Sim 5.1.0 crashes during RTX renderer startup on the Linux RTX workstation. Root cause
+diagnosed 2026-05-14: the installed RTX 5090 uses Blackwell architecture (sm_120), and Isaac Sim
+5.1.0's bundled RTX stack (CUDA 12.0, Kit 107.3.3) has no compiled shaders for sm_120. A second
+issue — gfxstream Vulkan ICD presenting a duplicate GPU — was also found and fixed in the render
+script via `VK_ICD_FILENAMES`.
+
+Fix: **upgrade to Isaac Sim 6.0.0**, which ships Blackwell support.
+
+```bash
+python3.10 -m venv ~/.venv/isaacsim6
+source ~/.venv/isaacsim6/bin/activate
+pip install isaacsim==6.0.0.0 \
+  --extra-index-url https://pypi.nvidia.com \
+  --extra-index-url https://pypi.ngc.nvidia.com
+```
+
+Full diagnosis and install steps:
 
 ```text
 reports/isaac/2026-05-14-linux-rtx-openusd-bringup.md
 ```
 
-The issue is parked for now. Alternate paths for screenshots and robot simulation are tracked in:
+Alternate paths while the upgrade is pending:
 
 ```text
 docs/SIMULATION_ALTERNATIVES.md

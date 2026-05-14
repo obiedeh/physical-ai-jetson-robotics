@@ -75,12 +75,50 @@ bash scripts/linux_rtx/render_factory_cell.sh
 
 The current Linux RTX workstation is suitable for the OpenUSD track: the RTX 5090 and Isaac Sim 5.1.0 install are present, and the repo now contains a first OpenUSD factory-cell scene. This v0 digital twin starts reducing real robot risk by making the workcell layout, camera viewpoints, safety zone, mobile base proxy, and arm proxy explicit before real Yahboom/Synria hardware motion. Isaac Sim rendering is parked as a platform issue so scene and robot asset work can continue through OpenUSD-first and ROS/Gazebo-compatible paths.
 
-## Parked Platform Issue
+## Isaac Sim Crash Root Cause (Diagnosed 2026-05-14)
 
-- Isaac Sim 5.1.0 reaches startup on this workstation, but crashes in `librtx.scenedb.plugin.so` during RTX renderer initialization on driver `595.58.03`.
-- The crash reproduces after `./isaac-sim.sh --reset-user`, so it is not being treated as a user-config problem.
-- Driver rollback to the 580 branch is intentionally not in scope for this workstream.
-- Keep the smoke script and logs as evidence, but do not block scene modeling, asset conversion, or ROS simulation planning on Isaac Sim screenshot capture.
+Two separate issues were found and investigated:
+
+**Issue 1 — Duplicate Vulkan GPU enumeration (fixed)**
+
+`mesa-vulkan-drivers` installs `gfxstream_vk_icd.json` alongside `nvidia_icd.json`. The
+gfxstream ICD is an Android-emulation passthrough layer that re-presents the physical RTX 5090
+as a second virtual Vulkan device with the same UUID and bus ID. Isaac Sim's crash report
+showed three Vulkan devices (RTX 5090 × 2 + Intel ARL iGPU) instead of one.
+
+Fix: set `VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json` before launching Isaac Sim.
+This is now baked into `scripts/linux_rtx/render_factory_cell.sh`. After the fix, the crash
+report correctly shows one GPU.
+
+**Issue 2 — sm_120 (Blackwell) not supported by Isaac Sim 5.1.0 (root crash)**
+
+Isaac Sim 5.1.0 ships Kit 107.3.3 with CUDA 12.0.107. The RTX 5090 uses Blackwell architecture
+(GB202, CUDA compute capability `sm_120`). Blackwell support requires CUDA 12.5+. Isaac Sim's
+bundled `librtx.scenedb.plugin.so` crashes in `carbOnPluginStartup` at the same vector
+initialization site regardless of the Vulkan ICD count, because the RTX shader database has no
+compiled kernels for sm_120. This is a closed-source binary; there is no configuration or
+environment variable workaround.
+
+**Fix: upgrade to Isaac Sim 6.0.0**, which ships Blackwell support:
+
+```bash
+# Install Isaac Sim 6.0 into a Python 3.10 venv
+python3.10 -m venv ~/.venv/isaacsim6
+source ~/.venv/isaacsim6/bin/activate
+pip install isaacsim==6.0.0.0 \
+  --extra-index-url https://pypi.nvidia.com \
+  --extra-index-url https://pypi.ngc.nvidia.com
+```
+
+After install, update `ISAAC_PYTHON` in the render script to point to the new venv's Python,
+or set it in the shell before calling the script:
+
+```bash
+ISAAC_PYTHON=~/.venv/isaacsim6/bin/python \
+  bash scripts/linux_rtx/render_factory_cell.sh
+```
+
+Both Vulkan ICD fixes apply to the 6.0 install as well and should be kept.
 
 ## Alternative Path
 
@@ -103,4 +141,7 @@ Detailed comparison: `docs/SIMULATION_ALTERNATIVES.md`
 - [x] Install/source ROS 2 and Gazebo Harmonic, then run `ros2 launch physical_ai_gazebo factory_cell.launch.py`
 - [x] Add approximate Synria 6DOF arm ROS 2 description, ROS 2 control, and MoveIt 2 scaffolds
 - [x] Validate Synria mock control and MoveIt planning launch smoke tests
+- [x] Diagnose Isaac Sim 5.1.0 crash: identified two root causes (gfxstream Vulkan duplicate + sm_120 not in 5.1 RTX stack)
+- [x] Fix duplicate Vulkan ICD: VK_ICD_FILENAMES pin added to render_factory_cell.sh
+- [ ] Install Isaac Sim 6.0.0 (Blackwell support) and re-run render smoke test
 - [ ] Replace placeholder Yahboom robo car and Synria arm geometry with asset references or converted USD assets
