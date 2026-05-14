@@ -9,6 +9,7 @@ This repository is designed as a real-world robotics engineering portfolio proje
 - autonomous robo car navigation and SLAM
 - robotic arm manipulation and sim-to-real transfer
 - OpenUSD digital twin scenes for synthetic data and validation
+- LeRobot / ALOHA-compatible imitation learning for Synria arm demonstrations
 - Jetson Thor/Orin edge inference and benchmarking
 - robot operations telemetry, RAG, and agentic diagnostics
 - AI-RAN/private 5G readiness for smart factory and edge robotics workloads
@@ -71,6 +72,8 @@ Planned capabilities:
 
 - Synria AI Robotic Arm Kit support, 6DOF, 650 mm reach, 1 kg payload
 - Synria C10 wrist-camera perception
+- ROS 2 Jazzy, MoveIt 2, and ROS 2 control simulation scaffolds
+- LeRobot / ALOHA-compatible ACT policy training path
 - OpenUSD robot asset and workcell setup
 - Isaac Lab reaching, pick-place, and sorting tasks
 - domain randomization for lighting, object pose, friction, and mass
@@ -205,6 +208,7 @@ Then complete the relevant report template:
 - [Yahboom Bring-Up Template](reports/yahboom/BRINGUP_TEMPLATE.md)
 - [Synria Bring-Up Template](reports/synria/BRINGUP_TEMPLATE.md)
 - [OpenUSD / Isaac Template](reports/isaac/OPENUSD_TEMPLATE.md)
+- [LeRobot / ALOHA Workflow](docs/LEROBOT_ALOHA.md)
 
 List the signature non-generic demo scenarios:
 

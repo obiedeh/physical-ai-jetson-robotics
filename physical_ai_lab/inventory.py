@@ -107,7 +107,7 @@ def collect_inventory(target: str) -> InventoryReport:
     else:
         commands["linux_video_devices"] = _run(["bash", "-lc", "ls -1 /dev/video* 2>/dev/null"])
         commands["linux_usb_devices"] = _run(["lsusb"])
-        commands["linux_release"] = _run(["bash", "-lc", "cat /etc/os-release"])
+        commands["linux_release"] = _run(["cat", "/etc/os-release"])
 
     return InventoryReport(
         target=target,

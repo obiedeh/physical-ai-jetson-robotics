@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<sdf version="1.10">
+  <world name="factory_cell">
+    <physics name="default_physics" type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <gravity>0 0 -9.81</gravity>
+
+    <light name="key_light" type="directional">
+      <pose>0 0 5 0.8 0.0 0.6</pose>
+      <diffuse>0.9 0.9 0.85 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.3 -1.0</direction>
+    </light>
+
+    <model name="floor">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>4.5 3.0 0.05</size>
+            </box>
+          </geometry>
+          <material>
+            <diffuse>0.45 0.48 0.46 1</diffuse>
+          </material>
+        </visual>
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>4.5 3.0 0.05</size>
+            </box>
+          </geometry>
+        </collision>
+      </link>
+      <pose>0 0 -0.025 0 0 0</pose>
+    </model>
+
+    <model name="safety_zone_marker">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>2.3 1.55 0.01</size>
+            </box>
+          </geometry>
+          <material>
+            <diffuse>0.95 0.82 0.10 0.45</diffuse>
+          </material>
+        </visual>
+      </link>
+      <pose>0 0 0.012 0 0 0</pose>
+    </model>
+
+    <model name="inspection_table">
+      <static>true</static>
+      <link name="link">
+        <visual name="table_top">
+          <pose>0 0 0.52 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.5 0.9 0.12</size>
+            </box>
+          </geometry>
+          <material>
+            <diffuse>0.18 0.21 0.24 1</diffuse>
+          </material>
+        </visual>
+        <collision name="table_top_collision">
+          <pose>0 0 0.52 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>1.5 0.9 0.12</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="pedestal">
+          <pose>0 0 0.25 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.24 0.24 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <diffuse>0.12 0.14 0.16 1</diffuse>
+          </material>
+        </visual>
+      </link>
+      <pose>0.85 0 0 0 0 0</pose>
+    </model>
+
+    <model name="pick_bin">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.56 0.40 0.22</size>
+            </box>
+          </geometry>
+          <material>
+            <diffuse>0.05 0.42 0.70 1</diffuse>
+          </material>
+        </visual>
+      </link>
+      <pose>0.52 -0.28 0.67 0 0 0</pose>
+    </model>
+
+    <model name="place_bin">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.56 0.40 0.22</size>
+            </box>
+          </geometry>
+          <material>
+            <diffuse>0.15 0.58 0.28 1</diffuse>
+          </material>
+        </visual>
+      </link>
+      <pose>1.18 0.28 0.67 0 0 0</pose>
+    </model>
+
+    <model name="yahboom_mobile_base_proxy">
+      <pose>-0.95 -0.55 0.12 0 0 0</pose>
+      <link name="base_link">
+        <visual name="chassis">
+          <geometry>
+            <box>
+              <size>0.64 0.48 0.18</size>
+            </box>
+          </geometry>
+          <material>
+            <diffuse>0.08 0.11 0.16 1</diffuse>
+          </material>
+        </visual>
+        <collision name="chassis_collision">
+          <geometry>
+            <box>
+              <size>0.64 0.48 0.18</size>
+            </box>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+  </world>
+</sdf>

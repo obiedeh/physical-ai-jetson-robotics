@@ -42,7 +42,7 @@ def profile(
 def demo_telemetry(
     robot_id: str = "robo-car-01",
     samples: int = typer.Option(12, min=1, max=288),
-    json_output: bool = False,
+    json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     """Generate synthetic robot telemetry and summarize operational risk."""
     telemetry = generate_demo_telemetry(robot_id=robot_id, samples=samples)
@@ -97,7 +97,7 @@ def list_scenarios() -> None:
 @app.command("scenario")
 def show_scenario(
     identifier: str = typer.Argument(..., help="Scenario ID from list-scenarios."),
-    json_output: bool = False,
+    json_output: bool = typer.Option(False, "--json"),
 ) -> None:
     """Show a signature demo scenario and the evidence it needs."""
     scenario = scenario_by_id(identifier)

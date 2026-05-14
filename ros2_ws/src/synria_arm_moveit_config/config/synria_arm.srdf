@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot name="synria_6dof_arm">
+  <group name="synria_arm">
+    <chain base_link="base_link" tip_link="tool0"/>
+  </group>
+  <group name="synria_arm_with_camera">
+    <chain base_link="base_link" tip_link="c10_camera_link"/>
+  </group>
+  <end_effector name="tool0" parent_link="tool0" group="synria_arm"/>
+  <disable_collisions link1="base_link" link2="shoulder_link" reason="Adjacent"/>
+  <disable_collisions link1="shoulder_link" link2="upper_arm_link" reason="Adjacent"/>
+  <disable_collisions link1="upper_arm_link" link2="forearm_link" reason="Adjacent"/>
+  <disable_collisions link1="forearm_link" link2="wrist_1_link" reason="Adjacent"/>
+  <disable_collisions link1="wrist_1_link" link2="wrist_2_link" reason="Adjacent"/>
+  <disable_collisions link1="wrist_2_link" link2="tool0" reason="Adjacent"/>
+  <disable_collisions link1="tool0" link2="c10_camera_link" reason="Adjacent"/>
+</robot>

@@ -1,0 +1,292 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    doc = "Repo-local OpenUSD factory-cell v0 for the Physical AI Operations Stack for Mobile Manipulation."
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "World" (
+    kind = "component"
+)
+{
+    def PhysicsScene "PhysicsScene"
+    {
+        vector3f physicsScene:gravityDirection = (0, 0, -1)
+        float physicsScene:gravityMagnitude = 9.81
+    }
+
+    def Xform "FactoryCell"
+    {
+        def Cube "Floor"
+        {
+            double size = 1
+            float3[] primvars:displayColor = [(0.45, 0.48, 0.46)] (
+                interpolation = "constant"
+            )
+            double3 xformOp:scale = (4.5, 3.0, 0.025)
+            double3 xformOp:translate = (0, 0, -0.025)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Cube "SafetyZone"
+        {
+            double size = 1
+            float3[] primvars:displayColor = [(0.95, 0.82, 0.10)] (
+                interpolation = "constant"
+            )
+            double3 xformOp:scale = (2.3, 1.55, 0.01)
+            double3 xformOp:translate = (0, 0, 0.012)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+
+        def Xform "WorkcellObjects"
+        {
+            def Cube "InspectionTable"
+            {
+                double size = 1
+                float3[] primvars:displayColor = [(0.18, 0.21, 0.24)] (
+                    interpolation = "constant"
+                )
+                double3 xformOp:scale = (0.75, 0.45, 0.06)
+                double3 xformOp:translate = (0.85, 0.0, 0.52)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "TablePedestal"
+            {
+                double size = 1
+                float3[] primvars:displayColor = [(0.12, 0.14, 0.16)] (
+                    interpolation = "constant"
+                )
+                double3 xformOp:scale = (0.12, 0.12, 0.5)
+                double3 xformOp:translate = (0.85, 0.0, 0.25)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "PickBin"
+            {
+                double size = 1
+                float3[] primvars:displayColor = [(0.05, 0.42, 0.70)] (
+                    interpolation = "constant"
+                )
+                double3 xformOp:scale = (0.28, 0.20, 0.11)
+                double3 xformOp:translate = (0.52, -0.28, 0.67)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "PlaceBin"
+            {
+                double size = 1
+                float3[] primvars:displayColor = [(0.15, 0.58, 0.28)] (
+                    interpolation = "constant"
+                )
+                double3 xformOp:scale = (0.28, 0.20, 0.11)
+                double3 xformOp:translate = (1.18, 0.28, 0.67)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Cube "InspectionPartA"
+            {
+                double size = 1
+                float3[] primvars:displayColor = [(0.86, 0.22, 0.16)] (
+                    interpolation = "constant"
+                )
+                double3 xformOp:scale = (0.08, 0.08, 0.08)
+                double3 xformOp:translate = (0.67, -0.18, 0.82)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+
+            def Sphere "InspectionPartB"
+            {
+                double radius = 0.09
+                float3[] primvars:displayColor = [(0.90, 0.52, 0.12)] (
+                    interpolation = "constant"
+                )
+                double3 xformOp:translate = (1.02, 0.16, 0.82)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+            }
+        }
+
+        def Xform "Robots"
+        {
+            def Xform "YahboomMobileBaseProxy"
+            {
+                double3 xformOp:translate = (-0.95, -0.55, 0.12)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+
+                def Cube "Chassis"
+                {
+                    double size = 1
+                    float3[] primvars:displayColor = [(0.08, 0.11, 0.16)] (
+                        interpolation = "constant"
+                    )
+                    double3 xformOp:scale = (0.32, 0.24, 0.09)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                }
+
+                def Cube "TopPlate"
+                {
+                    double size = 1
+                    float3[] primvars:displayColor = [(0.12, 0.32, 0.58)] (
+                        interpolation = "constant"
+                    )
+                    double3 xformOp:scale = (0.26, 0.18, 0.025)
+                    double3 xformOp:translate = (0, 0, 0.115)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                }
+
+                def Cylinder "FrontLeftWheel"
+                {
+                    double height = 0.07
+                    double radius = 0.075
+                    float3[] primvars:displayColor = [(0.02, 0.02, 0.02)] (
+                        interpolation = "constant"
+                    )
+                    float3 xformOp:rotateXYZ = (90, 0, 0)
+                    double3 xformOp:translate = (0.22, 0.25, -0.04)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+                }
+
+                def Cylinder "FrontRightWheel"
+                {
+                    double height = 0.07
+                    double radius = 0.075
+                    float3[] primvars:displayColor = [(0.02, 0.02, 0.02)] (
+                        interpolation = "constant"
+                    )
+                    float3 xformOp:rotateXYZ = (90, 0, 0)
+                    double3 xformOp:translate = (0.22, -0.25, -0.04)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+                }
+
+                def Cylinder "RearLeftWheel"
+                {
+                    double height = 0.07
+                    double radius = 0.075
+                    float3[] primvars:displayColor = [(0.02, 0.02, 0.02)] (
+                        interpolation = "constant"
+                    )
+                    float3 xformOp:rotateXYZ = (90, 0, 0)
+                    double3 xformOp:translate = (-0.22, 0.25, -0.04)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+                }
+
+                def Cylinder "RearRightWheel"
+                {
+                    double height = 0.07
+                    double radius = 0.075
+                    float3[] primvars:displayColor = [(0.02, 0.02, 0.02)] (
+                        interpolation = "constant"
+                    )
+                    float3 xformOp:rotateXYZ = (90, 0, 0)
+                    double3 xformOp:translate = (-0.22, -0.25, -0.04)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+                }
+            }
+
+            def Xform "SynriaArmProxy"
+            {
+                double3 xformOp:translate = (0.20, 0.75, 0.07)
+                uniform token[] xformOpOrder = ["xformOp:translate"]
+
+                def Cylinder "Base"
+                {
+                    double height = 0.14
+                    double radius = 0.16
+                    float3[] primvars:displayColor = [(0.16, 0.17, 0.18)] (
+                        interpolation = "constant"
+                    )
+                    double3 xformOp:translate = (0, 0, 0.07)
+                    uniform token[] xformOpOrder = ["xformOp:translate"]
+                }
+
+                def Cube "ShoulderLink"
+                {
+                    double size = 1
+                    float3[] primvars:displayColor = [(0.74, 0.76, 0.72)] (
+                        interpolation = "constant"
+                    )
+                    float3 xformOp:rotateXYZ = (0, 26, 0)
+                    double3 xformOp:scale = (0.07, 0.07, 0.34)
+                    double3 xformOp:translate = (0.12, 0, 0.36)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+                }
+
+                def Cube "ElbowLink"
+                {
+                    double size = 1
+                    float3[] primvars:displayColor = [(0.63, 0.66, 0.62)] (
+                        interpolation = "constant"
+                    )
+                    float3 xformOp:rotateXYZ = (0, -36, 18)
+                    double3 xformOp:scale = (0.06, 0.06, 0.30)
+                    double3 xformOp:translate = (0.35, 0.05, 0.62)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+                }
+
+                def Cube "WristCamera"
+                {
+                    double size = 1
+                    float3[] primvars:displayColor = [(0.04, 0.04, 0.04)] (
+                        interpolation = "constant"
+                    )
+                    double3 xformOp:scale = (0.08, 0.04, 0.04)
+                    double3 xformOp:translate = (0.52, 0.12, 0.80)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+                }
+            }
+        }
+
+        def Xform "CollisionZones"
+        {
+            def Cube "ArmReachEnvelope"
+            {
+                double size = 1
+                float3[] primvars:displayColor = [(0.70, 0.16, 0.12)] (
+                    interpolation = "constant"
+                )
+                double3 xformOp:scale = (0.85, 0.85, 0.015)
+                double3 xformOp:translate = (0.35, 0.55, 0.035)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+        }
+
+        def Xform "CameraViewpoints"
+        {
+            def Camera "OverviewCamera"
+            {
+                float2 clippingRange = (0.1, 1000)
+                float focalLength = 24
+                float horizontalAperture = 20.955
+                double3 xformOp:translate = (2.35, -2.25, 2.05)
+                float3 xformOp:rotateXYZ = (62, 0, 43)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+            }
+
+            def Camera "RobotCamera"
+            {
+                float2 clippingRange = (0.1, 1000)
+                float focalLength = 28
+                float horizontalAperture = 20.955
+                double3 xformOp:translate = (-1.60, -1.25, 0.90)
+                float3 xformOp:rotateXYZ = (64, 0, -36)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+            }
+        }
+
+        def DistantLight "KeyLight"
+        {
+            float inputs:angle = 0.55
+            float inputs:intensity = 450
+            float3 xformOp:rotateXYZ = (315, 0, 35)
+            uniform token[] xformOpOrder = ["xformOp:rotateXYZ"]
+        }
+
+        def DomeLight "AmbientLight"
+        {
+            float inputs:intensity = 180
+        }
+    }
+}

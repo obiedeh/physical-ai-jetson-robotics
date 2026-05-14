@@ -2,7 +2,22 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+import json
+from dataclasses import asdict, dataclass, field, replace
+from pathlib import Path
+
+_PROGRESS_FILE = Path(__file__).parent.parent / "reports" / "progress.json"
+
+
+def _load_progress() -> dict[str, dict[str, bool]]:
+    """Read reports/progress.json; return empty dict if absent or malformed."""
+    if not _PROGRESS_FILE.exists():
+        return {}
+    try:
+        data = json.loads(_PROGRESS_FILE.read_text(encoding="utf-8"))
+        return {k: v for k, v in data.items() if isinstance(v, dict)}
+    except (json.JSONDecodeError, OSError):
+        return {}
 
 
 @dataclass(frozen=True)
@@ -39,9 +54,23 @@ class MissionScenario:
         return data
 
 
+def _apply_progress(
+    scenarios: list[MissionScenario], progress: dict[str, dict[str, bool]]
+) -> list[MissionScenario]:
+    result = []
+    for scenario in scenarios:
+        done = progress.get(scenario.identifier, {})
+        updated = [
+            replace(req, complete=done.get(req.name, req.complete))
+            for req in scenario.requirements
+        ]
+        result.append(replace(scenario, requirements=updated))
+    return result
+
+
 def signature_scenarios() -> list[MissionScenario]:
     """Return the project's signature non-generic demo scenarios."""
-    return [
+    scenarios = [
         MissionScenario(
             identifier="yahboom-mobile-manipulation",
             title="Yahboom Orin NX Mobile Manipulation Bring-Up",
@@ -164,6 +193,7 @@ def signature_scenarios() -> list[MissionScenario]:
             ],
         ),
     ]
+    return _apply_progress(scenarios, _load_progress())
 
 
 def scenario_by_id(identifier: str) -> MissionScenario:

@@ -19,6 +19,7 @@ venv/
 # Data and generated assets
 data/raw/
 data/generated/
+data/lerobot/
 outputs/
 runs/
 mlruns/
@@ -30,6 +31,11 @@ reports/inventory/*.json
 # Isaac / USD generated cache
 isaac/cache/
 isaac/outputs/
+
+# ROS 2 generated workspace artifacts
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
 
 # OS / editors
 .DS_Store

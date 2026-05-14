@@ -1,0 +1,23 @@
+{
+  "yahboom-mobile-manipulation": {
+    "inventory": false,
+    "ros-topic-map": false,
+    "mecanum-calibration": false,
+    "camera-proof": false,
+    "slam-proof": false
+  },
+  "synria-eye-in-hand": {
+    "inventory": false,
+    "camera-calibration": false,
+    "moveit-mock-plan": false,
+    "joint-state-proof": false,
+    "demo-dataset": false
+  },
+  "openusd-digital-twin": {
+    "rtx-inventory": false,
+    "usd-scene": false,
+    "render-proof": false,
+    "synthetic-data-sample": false,
+    "sim-real-notes": false
+  }
+}
