@@ -273,6 +273,32 @@ Then complete the relevant report templates:
 
 ---
 
+List the signature non-generic demo scenarios:
+
+```bash
+physical-ai-lab list-scenarios
+physical-ai-lab scenario yahboom-mobile-manipulation
+```
+
+Run the RTX workstation simulation and training track:
+
+```bash
+physical-ai-lab rtx-projects
+physical-ai-lab train-synria-reach --device cuda --samples 8192 --epochs 40
+bash scripts/linux_rtx/run_rtx_training_suite.sh
+```
+
+See [RTX Simulation and Training](docs/RTX_SIMULATION_TRAINING.md).
+
+## Hardware Targets
+
+- NVIDIA Jetson Thor
+- NVIDIA Jetson Orin
+- robo car platform
+- robotic arm platform
+- USB/CSI cameras
+- optional IMU, wheel encoders, and LiDAR
+
 ## Execution Environments
 
 This repository is intentionally split across three execution environments:

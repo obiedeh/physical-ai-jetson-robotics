@@ -18,3 +18,4 @@ Top-level `*.urdf` and `*.usda` files are convenience entrypoints for existing i
 Other folders:
 
 - `meshes/`: shared mesh assets used by robot descriptions.
+- `_archive/`: non-active reference material or stale assets kept out of the active robot folders.
