@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import asyncio
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -31,20 +30,28 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-async def _capture_viewport(output: Path) -> None:
+def _capture_viewport_sync(output: Path, simulation_app) -> None:
+    """Capture the active viewport by driving the Kit update loop explicitly."""
     import omni.kit.app
-    import omni.renderer_capture
+    import omni.kit.renderer_capture
     from omni.kit.viewport.utility import capture_viewport_to_file, get_active_viewport
 
     viewport = get_active_viewport()
     capture = capture_viewport_to_file(viewport, file_path=str(output))
-    await capture.wait_for_result()
+    capture_interface = omni.kit.renderer_capture.acquire_renderer_capture_interface()
 
-    app = omni.kit.app.get_app()
-    capture_interface = omni.renderer_capture.acquire_renderer_capture_interface()
+    # Drive Kit's update loop so that next_update_async() futures can resolve.
+    # wait_for_result(completion_frames=N) awaits N next_update_async() calls;
+    # those futures only resolve when app.update() is called from the main thread.
+    for _ in range(60):
+        simulation_app.update()
+        if output.exists() and output.stat().st_size > 0:
+            break
+
+    # Flush any remaining async capture work.
     for _ in range(3):
         capture_interface.wait_async_capture()
-        await app.next_update_async()
+        simulation_app.update()
 
 
 def main() -> None:
@@ -100,7 +107,7 @@ def main() -> None:
         for _ in range(5):
             app.update()
 
-        asyncio.get_event_loop().run_until_complete(_capture_viewport(output_path))
+        _capture_viewport_sync(output_path, simulation_app)
         if not output_path.exists() or output_path.stat().st_size == 0:
             raise RuntimeError(f"Screenshot was not written: {output_path}")
 
