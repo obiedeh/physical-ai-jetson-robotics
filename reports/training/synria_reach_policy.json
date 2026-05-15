@@ -1,0 +1,13 @@
+{
+  "batch_size": 512,
+  "checkpoint_path": "runs/rtx_training/synria_reach_policy.pt",
+  "device": "cuda",
+  "elapsed_seconds": 0.991,
+  "epochs": 40,
+  "gpu": "NVIDIA GeForce RTX 5090",
+  "mean_abs_joint_delta_error_rad": 0.127384,
+  "samples": 8192,
+  "train_loss": 0.012606,
+  "validation_loss": 0.013353,
+  "workload": "synria-synthetic-reaching-policy"
+}
