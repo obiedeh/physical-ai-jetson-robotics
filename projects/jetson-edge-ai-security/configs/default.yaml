@@ -1,0 +1,17 @@
+runtime:
+  window_size: 50
+  step: 10
+  replay_delay_seconds: 0.0
+  strict_csv: false
+
+detector:
+  packet_count_threshold: 500
+  event_rate_threshold: 200.0
+  unique_source_ip_threshold: 100
+  attack_count_threshold: 1
+  use_isolation_forest: false
+
+alerts:
+  source: edge-security-runtime
+  default_recommended_action: Review source telemetry, correlate with IDS logs, and isolate affected lab systems if confirmed.
+
