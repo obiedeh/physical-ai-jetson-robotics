@@ -13,6 +13,11 @@ from rich.table import Table
 
 from jetson_edge_ai_security.alerts import AlertBuilder
 from jetson_edge_ai_security.config import load_config
+from jetson_edge_ai_security.datasets import (
+    DatasetDownloadError,
+    list_datasets,
+    prepare_dataset,
+)
 from jetson_edge_ai_security.detection import BaselineDetector, BaselineThresholds
 from jetson_edge_ai_security.runtime import PipelineRunner
 from jetson_edge_ai_security.sources import CsvReplaySource
@@ -32,6 +37,48 @@ def validate_config(
     console.print(json.dumps(loaded.model_dump(mode="json"), indent=2))
 
 
+@app.command("list-datasets")
+def list_public_datasets() -> None:
+    """List known public defensive datasets and download support status."""
+
+    table = Table(title="Known Public Defensive Telemetry Datasets")
+    table.add_column("Key")
+    table.add_column("Dataset")
+    table.add_column("Auto")
+    table.add_column("Homepage")
+    table.add_column("Notes")
+
+    for dataset in list_datasets():
+        table.add_row(
+            dataset.key,
+            dataset.name,
+            "yes" if dataset.direct_download_url else "manual",
+            dataset.homepage_url,
+            dataset.notes,
+        )
+    console.print(table)
+
+
+@app.command("fetch-dataset")
+def fetch_dataset(
+    dataset: Annotated[str, typer.Argument(help="Dataset key from list-datasets.")],
+    cache_dir: Annotated[Path, typer.Option(help="Directory for downloaded datasets.")] = Path("data/datasets"),
+    force: Annotated[bool, typer.Option(help="Re-download and re-extract the dataset.")] = False,
+    csv_glob: Annotated[str | None, typer.Option(help="Optional CSV glob to select a specific file.")] = None,
+) -> None:
+    """Download, extract, and locate a CSV from an allowlisted public dataset."""
+
+    try:
+        prepared = prepare_dataset(dataset, cache_dir=cache_dir, force=force, csv_glob=csv_glob)
+    except (DatasetDownloadError, KeyError) as exc:
+        raise typer.BadParameter(str(exc)) from exc
+
+    console.print(f"Dataset: {prepared.spec.name}", markup=False)
+    console.print(f"Archive: {prepared.archive_path}", markup=False)
+    console.print(f"Extracted: {prepared.extract_dir}", markup=False)
+    console.print(f"CSV: {prepared.csv_path}", markup=False)
+
+
 @app.command("replay-csv")
 def replay_csv(
     path: Annotated[Path, typer.Option(help="CSV telemetry file to replay.")],
@@ -43,6 +90,74 @@ def replay_csv(
     """Replay a CSV telemetry file through the detection pipeline."""
 
     configure_logging()
+    alerts, runner, source = _run_csv_pipeline(
+        path=path,
+        limit=limit,
+        config=config,
+        strict=strict,
+    )
+
+    if json_output:
+        for alert in alerts:
+            console.print(json.dumps(alert.model_dump(mode="json"), sort_keys=True))
+        return
+
+    _print_alert_table(alerts)
+    console.print(
+        f"events={runner.metrics.events_seen} windows={runner.metrics.windows_seen} "
+        f"alerts={runner.metrics.alerts_emitted} skipped_rows={source.rows_skipped}",
+        markup=False,
+    )
+
+
+@app.command("replay-dataset")
+def replay_dataset(
+    dataset: Annotated[str, typer.Argument(help="Dataset key from list-datasets.")],
+    limit: Annotated[int | None, typer.Option(help="Maximum rows to replay.")] = 1000,
+    cache_dir: Annotated[Path, typer.Option(help="Directory for downloaded datasets.")] = Path("data/datasets"),
+    config: Annotated[Path, typer.Option(help="Path to YAML config file.")] = Path("configs/default.yaml"),
+    strict: Annotated[bool | None, typer.Option(help="Fail on malformed rows.")] = None,
+    force: Annotated[bool, typer.Option(help="Re-download and re-extract the dataset.")] = False,
+    csv_glob: Annotated[str | None, typer.Option(help="Optional CSV glob to select a specific file.")] = None,
+    json_output: Annotated[bool, typer.Option(help="Print alerts as JSON lines.")] = False,
+) -> None:
+    """Download a known dataset, find a CSV, and replay it through the pipeline."""
+
+    configure_logging()
+    try:
+        prepared = prepare_dataset(dataset, cache_dir=cache_dir, force=force, csv_glob=csv_glob)
+    except (DatasetDownloadError, KeyError) as exc:
+        raise typer.BadParameter(str(exc)) from exc
+
+    console.print(f"Using dataset CSV: {prepared.csv_path}", markup=False)
+    alerts, runner, source = _run_csv_pipeline(
+        path=prepared.csv_path,
+        limit=limit,
+        config=config,
+        strict=strict,
+    )
+
+    if json_output:
+        for alert in alerts:
+            console.print(json.dumps(alert.model_dump(mode="json"), sort_keys=True))
+        return
+
+    _print_alert_table(alerts)
+    console.print(
+        f"dataset={prepared.spec.key} events={runner.metrics.events_seen} "
+        f"windows={runner.metrics.windows_seen} alerts={runner.metrics.alerts_emitted} "
+        f"skipped_rows={source.rows_skipped}",
+        markup=False,
+    )
+
+
+def _run_csv_pipeline(
+    *,
+    path: Path,
+    limit: int | None,
+    config: Path,
+    strict: bool | None,
+) -> tuple[list[object], PipelineRunner, CsvReplaySource]:
     loaded = load_config(config)
     detector = _detector_from_config(loaded)
     alert_builder = AlertBuilder(
@@ -66,17 +181,7 @@ def replay_csv(
         )
         alerts = runner.run()
 
-    if json_output:
-        for alert in alerts:
-            console.print(json.dumps(alert.model_dump(mode="json"), sort_keys=True))
-        return
-
-    _print_alert_table(alerts)
-    console.print(
-        f"events={runner.metrics.events_seen} windows={runner.metrics.windows_seen} "
-        f"alerts={runner.metrics.alerts_emitted} skipped_rows={source.rows_skipped}",
-        markup=False,
-    )
+    return alerts, runner, source
 
 
 @app.command("run-demo")

@@ -80,6 +80,23 @@ For malformed-row enforcement during data quality checks:
 edge-security replay-csv --path data/sample.csv --strict
 ```
 
+## Public Dataset Mode
+
+You can list known public defensive datasets:
+
+```bash
+edge-security list-datasets
+```
+
+For datasets with an allowlisted direct archive URL, the runtime can download, extract, find a CSV, and replay it:
+
+```bash
+edge-security fetch-dataset wustl-iiot-2021
+edge-security replay-dataset wustl-iiot-2021 --limit 1000
+```
+
+The first auto-download target is `wustl-iiot-2021`, because its official project page exposes a direct ZIP archive. Other noteworthy datasets, such as CICIoT2023, ToN_IoT, BoT-IoT, and Edge-IIoTset, are listed for awareness but may require manual download through forms or SharePoint. For those, download the dataset yourself and use `replay-csv --path <local.csv>`.
+
 ## Run Demo
 
 ```bash
@@ -96,4 +113,3 @@ The runtime is designed so Jetson deployment can add hardware-specific packaging
 - Add live capture or broker-based telemetry adapters.
 - Export alerts to a local file, MQTT topic, SIEM forwarder, or edge dashboard.
 - Benchmark CPU, memory, latency, and alert throughput on Jetson Orin-class hardware.
-

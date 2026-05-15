@@ -18,18 +18,43 @@ LOGGER = logging.getLogger(__name__)
 
 
 COLUMN_ALIASES: dict[str, tuple[str, ...]] = {
-    "timestamp": ("timestamp", "frame.time", "frame.time_epoch", "time", "ts"),
-    "source_ip": ("source_ip", "ip.src", "ip.src_host", "src_ip", "srcip", "id.orig_h"),
-    "dest_ip": ("dest_ip", "ip.dst", "ip.dst_host", "dst_ip", "dstip", "id.resp_h"),
-    "source_port": ("source_port", "tcp.srcport", "udp.srcport", "src_port", "sport", "id.orig_p"),
-    "dest_port": ("dest_port", "tcp.dstport", "udp.dstport", "dst_port", "dport", "id.resp_p"),
-    "protocol": ("protocol", "_ws.col.protocol", "proto", "ip.proto"),
-    "packet_size": ("packet_size", "frame.len", "length", "packet_length", "bytes"),
+    "timestamp": ("timestamp", "frame.time", "frame.time_epoch", "time", "ts", "starttime", "stime"),
+    "source_ip": ("source_ip", "ip.src", "ip.src_host", "src_ip", "srcip", "srcaddr", "saddr", "id.orig_h"),
+    "dest_ip": ("dest_ip", "ip.dst", "ip.dst_host", "dst_ip", "dstip", "dstaddr", "daddr", "id.resp_h"),
+    "source_port": (
+        "source_port",
+        "tcp.srcport",
+        "udp.srcport",
+        "src_port",
+        "sport",
+        "srcport",
+        "id.orig_p",
+    ),
+    "dest_port": (
+        "dest_port",
+        "tcp.dstport",
+        "udp.dstport",
+        "dst_port",
+        "dport",
+        "dstport",
+        "id.resp_p",
+    ),
+    "protocol": ("protocol", "_ws.col.protocol", "proto", "ip.proto", "protocol type"),
+    "packet_size": (
+        "packet_size",
+        "frame.len",
+        "length",
+        "packet_length",
+        "bytes",
+        "totbytes",
+        "tot size",
+        "totalsize",
+    ),
     "tcp_flags": ("tcp_flags", "tcp.flags", "flags"),
     "icmp_type": ("icmp_type", "icmp.type"),
     "flow_id": ("flow_id", "flow.id", "uid", "tcp.stream", "udp.stream"),
-    "attack_label": ("attack_label", "label", "attack_label", "Attack_label", "class"),
-    "attack_type": ("attack_type", "attack_type", "Attack_type", "category", "subcategory"),
+    "attack_label": ("attack_label", "label", "attack_label", "Attack_label", "class", "target"),
+    "attack_type": ("attack_type", "attack_type", "Attack_type", "category", "subcategory", "traffic"),
 }
 
 
@@ -131,4 +156,3 @@ def _optional_int(value: Any) -> int | None:
     if value in (None, ""):
         return None
     return int(float(str(value).strip()))
-
