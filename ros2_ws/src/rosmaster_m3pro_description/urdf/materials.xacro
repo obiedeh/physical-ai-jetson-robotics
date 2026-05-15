@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <material name="m3pro_black">
+    <color rgba="0.02 0.025 0.03 1.0"/>
+  </material>
+  <material name="m3pro_dark_gray">
+    <color rgba="0.12 0.13 0.14 1.0"/>
+  </material>
+  <material name="m3pro_aluminum">
+    <color rgba="0.62 0.64 0.62 1.0"/>
+  </material>
+  <material name="m3pro_green">
+    <color rgba="0.05 0.45 0.22 1.0"/>
+  </material>
+  <material name="m3pro_blue">
+    <color rgba="0.05 0.20 0.45 1.0"/>
+  </material>
+  <material name="m3pro_lidar">
+    <color rgba="0.01 0.01 0.01 1.0"/>
+  </material>
+  <material name="m3pro_camera">
+    <color rgba="0.03 0.035 0.04 1.0"/>
+  </material>
+</robot>
