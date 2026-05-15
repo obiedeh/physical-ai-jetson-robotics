@@ -89,22 +89,41 @@ def test_mesh_references_resolve_to_repo_files() -> None:
     unresolved: list[str] = []
     mesh_refs = 0
 
-    for xacro_file in sorted(ROS_SRC.glob("*_description/urdf/*.xacro")):
-        root = parse_xml(xacro_file)
-        for mesh in root.findall(".//mesh"):
+    mesh_pattern = re.compile(
+        r"(?:package://([^/]+)/([^\s\"']+)|(?:\.{1,2}/)?([^\s\"'@]+?\.(?:stl|STL)))"
+    )
+
+    candidate_files = (
+        sorted((REPO_ROOT / "ros2_ws" / "src").glob("**/*.urdf"))
+        + sorted((REPO_ROOT / "ros2_ws" / "src").glob("**/*.xacro"))
+        + sorted((REPO_ROOT / "isaac" / "usd").glob("**/*.urdf"))
+        + sorted((REPO_ROOT / "isaac" / "usd").glob("**/*.xacro"))
+        + sorted((REPO_ROOT / "isaac" / "usd").glob("**/*.usda"))
+    )
+
+    for asset_file in candidate_files:
+        if not asset_file.exists():
+            continue
+
+        text = asset_file.read_text(encoding="utf-8", errors="ignore")
+        for match in mesh_pattern.finditer(text):
             mesh_refs += 1
-            filename = mesh.attrib.get("filename", "")
-            match = re.fullmatch(r"package://([^/]+)/(.+)", filename)
-            if not match:
-                unresolved.append(f"{xacro_file}: unsupported mesh URI {filename}")
+            package_name, package_relative, direct_relative = match.groups()
+            if package_name:
+                package_dir = PACKAGE_DIRS.get(package_name)
+                if package_dir is None or not (package_dir / package_relative).exists():
+                    unresolved.append(f"{asset_file}: missing mesh package://{package_name}/{package_relative}")
                 continue
 
-            package_name, relative_path = match.groups()
-            package_dir = PACKAGE_DIRS.get(package_name)
-            if package_dir is None or not (package_dir / relative_path).exists():
-                unresolved.append(f"{xacro_file}: missing mesh {filename}")
+            candidates = [
+                (asset_file.parent / direct_relative).resolve(),
+                (asset_file.parent.parent / direct_relative).resolve(),
+                (REPO_ROOT / "isaac" / "usd" / "robots" / direct_relative).resolve(),
+            ]
+            if not any(candidate.exists() for candidate in candidates):
+                unresolved.append(f"{asset_file}: missing mesh {direct_relative}")
 
-    assert mesh_refs >= 2
+    assert mesh_refs >= 10
     assert unresolved == []
 
 
