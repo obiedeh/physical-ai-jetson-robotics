@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="rosmaster_m3pro_dual_tof_lidar" params="
+      front_parent rear_parent
+      front_xyz front_rpy rear_xyz rear_rpy
+      radius height mass">
+    <xacro:macro name="tof_lidar" params="name parent xyz rpy">
+      <link name="${name}_link">
+        <visual>
+          <origin xyz="0 0 ${height / 2.0}" rpy="0 0 0"/>
+          <geometry>
+            <cylinder radius="${radius}" length="${height}"/>
+          </geometry>
+          <material name="m3pro_lidar"/>
+        </visual>
+        <visual>
+          <origin xyz="0 0 ${height + 0.004}" rpy="0 0 0"/>
+          <geometry>
+            <cylinder radius="${radius * 0.72}" length="0.008"/>
+          </geometry>
+          <material name="m3pro_dark_gray"/>
+        </visual>
+        <visual>
+          <origin xyz="${radius * 0.62} 0 ${height * 0.62}" rpy="0 0 0"/>
+          <geometry>
+            <box size="0.010 ${radius * 0.85} ${height * 0.28}"/>
+          </geometry>
+          <material name="m3pro_green"/>
+        </visual>
+        <collision>
+          <origin xyz="0 0 ${height / 2.0}" rpy="0 0 0"/>
+          <geometry>
+            <cylinder radius="${radius}" length="${height}"/>
+          </geometry>
+        </collision>
+        <xacro:cylinder_inertial_z mass="${mass}" radius="${radius}" length="${height}">
+          <origin xyz="0 0 ${height / 2.0}" rpy="0 0 0"/>
+        </xacro:cylinder_inertial_z>
+      </link>
+      <joint name="${name}_joint" type="fixed">
+        <parent link="${parent}"/>
+        <child link="${name}_link"/>
+        <origin xyz="${xyz}" rpy="${rpy}"/>
+      </joint>
+      <link name="${name}_scan_frame"/>
+      <joint name="${name}_scan_joint" type="fixed">
+        <parent link="${name}_link"/>
+        <child link="${name}_scan_frame"/>
+        <origin xyz="0 0 ${height}" rpy="0 0 0"/>
+      </joint>
+    </xacro:macro>
+
+    <xacro:tof_lidar name="front_tof_lidar" parent="${front_parent}" xyz="${front_xyz}" rpy="${front_rpy}"/>
+    <xacro:tof_lidar name="rear_tof_lidar" parent="${rear_parent}" xyz="${rear_xyz}" rpy="${rear_rpy}"/>
+  </xacro:macro>
+
+  <xacro:macro name="rosmaster_m3pro_depth_camera" params="parent xyz rpy body_size baseline mass">
+    <xacro:property name="sx" value="${float(body_size.split()[0])}"/>
+    <xacro:property name="sy" value="${float(body_size.split()[1])}"/>
+    <xacro:property name="sz" value="${float(body_size.split()[2])}"/>
+    <link name="depth_camera_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${body_size}"/>
+        </geometry>
+        <material name="m3pro_camera"/>
+      </visual>
+      <visual>
+        <origin xyz="${sx / 2.0 + 0.004} ${baseline / 2.0} 0" rpy="0 ${pi / 2.0} 0"/>
+        <geometry>
+          <cylinder radius="${sz * 0.32}" length="0.008"/>
+        </geometry>
+        <material name="m3pro_lidar"/>
+      </visual>
+      <visual>
+        <origin xyz="${sx / 2.0 + 0.004} -${baseline / 2.0} 0" rpy="0 ${pi / 2.0} 0"/>
+        <geometry>
+          <cylinder radius="${sz * 0.32}" length="0.008"/>
+        </geometry>
+        <material name="m3pro_lidar"/>
+      </visual>
+      <visual>
+        <origin xyz="0 0 -${sz * 0.70}" rpy="0 0 0"/>
+        <geometry>
+          <box size="${sx * 0.38} ${sy * 0.55} ${sz * 0.28}"/>
+        </geometry>
+        <material name="m3pro_dark_gray"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${body_size}"/>
+        </geometry>
+      </collision>
+      <xacro:box_inertial mass="${mass}" x="${sx}" y="${sy}" z="${sz}">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </xacro:box_inertial>
+    </link>
+    <joint name="depth_camera_mount_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="depth_camera_link"/>
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+    </joint>
+
+    <link name="depth_camera_rgb_frame"/>
+    <joint name="depth_camera_rgb_joint" type="fixed">
+      <parent link="depth_camera_link"/>
+      <child link="depth_camera_rgb_frame"/>
+      <origin xyz="0 ${baseline / 2.0} 0" rpy="0 0 0"/>
+    </joint>
+
+    <link name="depth_camera_depth_frame"/>
+    <joint name="depth_camera_depth_joint" type="fixed">
+      <parent link="depth_camera_link"/>
+      <child link="depth_camera_depth_frame"/>
+      <origin xyz="0 -${baseline / 2.0} 0" rpy="0 0 0"/>
+    </joint>
+
+    <link name="depth_camera_optical_frame"/>
+    <joint name="depth_camera_optical_joint" type="fixed">
+      <parent link="depth_camera_rgb_frame"/>
+      <child link="depth_camera_optical_frame"/>
+      <origin xyz="0 0 0" rpy="${-pi / 2.0} 0 ${-pi / 2.0}"/>
+    </joint>
+  </xacro:macro>
+</robot>
