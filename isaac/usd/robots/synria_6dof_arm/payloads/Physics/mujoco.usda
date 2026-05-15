@@ -1,0 +1,256 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    defaultPrim = "synria_6dof_arm"
+    doc = """Generated from Composed Stage of root layer /tmp/tmpjzjpssn1/synria_6dof_arm.usdc
+
+
+Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/usdex/synria_6dof_arm.usdc
+
+
+Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/temp/synria_6dof_arm.usd
+
+
+Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/synria_6dof_arm/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    subLayers = [
+        @./physics.usda@
+    ]
+    upAxis = "Z"
+)
+
+over "synria_6dof_arm"
+{
+    over "Physics"
+    {
+        def MjcActuator "joint_1_actuator"
+        {
+            uniform double[] mjc:biasPrm = [0, 0, -0.5, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:biasType = "affine"
+            uniform double mjc:forceRange:max = 30
+            uniform double mjc:forceRange:min = -30
+            uniform double[] mjc:gainPrm = [0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:gainType = "fixed"
+            custom rel mjc:target = </synria_6dof_arm/Physics/joint_1>
+        }
+
+        def MjcActuator "joint_2_actuator"
+        {
+            uniform double[] mjc:biasPrm = [0, 0, -0.5, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:biasType = "affine"
+            uniform double mjc:forceRange:max = 30
+            uniform double mjc:forceRange:min = -30
+            uniform double[] mjc:gainPrm = [0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:gainType = "fixed"
+            custom rel mjc:target = </synria_6dof_arm/Physics/joint_2>
+        }
+
+        def MjcActuator "joint_3_actuator"
+        {
+            uniform double[] mjc:biasPrm = [0, 0, -0.5, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:biasType = "affine"
+            uniform double mjc:forceRange:max = 25
+            uniform double mjc:forceRange:min = -25
+            uniform double[] mjc:gainPrm = [0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:gainType = "fixed"
+            custom rel mjc:target = </synria_6dof_arm/Physics/joint_3>
+        }
+
+        def MjcActuator "joint_4_actuator"
+        {
+            uniform double[] mjc:biasPrm = [0, 0, -0.30000001192092896, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:biasType = "affine"
+            uniform double mjc:forceRange:max = 15
+            uniform double mjc:forceRange:min = -15
+            uniform double[] mjc:gainPrm = [0.30000001192092896, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:gainType = "fixed"
+            custom rel mjc:target = </synria_6dof_arm/Physics/joint_4>
+        }
+
+        def MjcActuator "joint_5_actuator"
+        {
+            uniform double[] mjc:biasPrm = [0, 0, -0.30000001192092896, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:biasType = "affine"
+            uniform double mjc:forceRange:max = 15
+            uniform double mjc:forceRange:min = -15
+            uniform double[] mjc:gainPrm = [0.30000001192092896, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:gainType = "fixed"
+            custom rel mjc:target = </synria_6dof_arm/Physics/joint_5>
+        }
+
+        def MjcActuator "joint_6_actuator"
+        {
+            uniform double[] mjc:biasPrm = [0, 0, -0.20000000298023224, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:biasType = "affine"
+            uniform double mjc:forceRange:max = 10
+            uniform double mjc:forceRange:min = -10
+            uniform double[] mjc:gainPrm = [0.20000000298023224, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            uniform token mjc:gainType = "fixed"
+            custom rel mjc:target = </synria_6dof_arm/Physics/joint_6>
+        }
+
+        over "joint_1" (
+            delete apiSchemas = ["PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            custom float mjc:frictionloss = 0.1
+        }
+
+        over "joint_2" (
+            delete apiSchemas = ["PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            custom float mjc:frictionloss = 0.1
+        }
+
+        over "joint_3" (
+            delete apiSchemas = ["PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            custom float mjc:frictionloss = 0.1
+        }
+
+        over "joint_4" (
+            delete apiSchemas = ["PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            custom float mjc:frictionloss = 0.05
+        }
+
+        over "joint_5" (
+            delete apiSchemas = ["PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            custom float mjc:frictionloss = 0.05
+        }
+
+        over "joint_6" (
+            delete apiSchemas = ["PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
+        )
+        {
+            custom float mjc:frictionloss = 0.05
+        }
+
+        over "root_joint"
+        {
+        }
+
+        over "c10_camera_fixed"
+        {
+            over "dont_collapse"
+            {
+            }
+        }
+    }
+
+    over "Geometry"
+    {
+        over "base_link"
+        {
+            over "shoulder_link"
+            {
+                over "upper_arm_link"
+                {
+                    over "forearm_link"
+                    {
+                        over "wrist_1_link"
+                        {
+                            over "wrist_2_link"
+                            {
+                                over "tool0"
+                                {
+                                    over "c10_camera_link"
+                                    {
+                                        over "box"
+                                        {
+                                        }
+
+                                        over "box_1"
+                                        {
+                                        }
+                                    }
+
+                                    over "box"
+                                    {
+                                    }
+
+                                    over "box_1"
+                                    {
+                                    }
+                                }
+
+                                over "box"
+                                {
+                                }
+
+                                over "box_1"
+                                {
+                                }
+                            }
+
+                            over "box"
+                            {
+                            }
+
+                            over "box_1"
+                            {
+                            }
+                        }
+
+                        over "box"
+                        {
+                        }
+
+                        over "box_1"
+                        {
+                        }
+                    }
+
+                    over "box"
+                    {
+                    }
+
+                    over "box_1"
+                    {
+                    }
+                }
+
+                over "box"
+                {
+                }
+
+                over "box_1"
+                {
+                }
+            }
+
+            over "cylinder"
+            {
+            }
+
+            over "cylinder_1"
+            {
+            }
+        }
+    }
+
+    over "Materials"
+    {
+        over "synria_dark"
+        {
+        }
+
+        over "synria_silver"
+        {
+        }
+
+        over "synria_blue"
+        {
+        }
+    }
+}
+
