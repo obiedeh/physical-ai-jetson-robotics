@@ -1,0 +1,496 @@
+#usda 1.0
+(
+    defaultPrim = "Alicia_D_v5_6_gripper_50mm"
+    doc = "Synria Alicia-D v5.6 50mm gripper — USD physics articulation for Isaac Sim 5.x"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+# ── Quaternion reference (RPY → w,x,y,z) ──────────────────────────────────
+# Joint1  rpy(0,0,0)             → (1, 0, 0, 0)
+# Joint2  rpy(1.5708,1.5708,0)   → (0.5, 0.5, 0.5, -0.5)
+# Joint3  rpy(0,0,2.3562)        → (0.3827, 0, 0, 0.9239)
+# Joint4  rpy(-1.5708,0,-3.1416) → (0, 0, 0.7071, -0.7071)
+# Joint5  rpy(-1.5708,0,0)       → (0.7071, -0.7071, 0, 0)
+# Joint6  rpy(-1.5708,0,0)       → (0.7071, -0.7071, 0, 0)
+# l_fing  rpy(-1.5708,0,-3.1416) → (0, 0, 0.7071, -0.7071)
+# r_fing  rpy(1.5708,0,0)        → (0.7071, 0.7071, 0, 0)
+# ──────────────────────────────────────────────────────────────────────────
+
+def Xform "Alicia_D_v5_6_gripper_50mm" (
+    prepend apiSchemas = ["PhysicsArticulationRootAPI"]
+    kind = "component"
+)
+{
+    # ── World anchor (no body0 = fixed to world) ──────────────────────────
+    def PhysicsFixedJoint "fix_root"
+    {
+        rel physics:body1 = </Alicia_D_v5_6_gripper_50mm/base_link>
+        point3f physics:localPos0 = (0, 0, 0)
+        quatf physics:localRot0 = (1, 0, 0, 0)
+        point3f physics:localPos1 = (0, 0, 0)
+        quatf physics:localRot1 = (1, 0, 0, 0)
+    }
+
+    # ── base_link ─────────────────────────────────────────────────────────
+    def Xform "base_link" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        float physics:mass = 0.733961424024115
+        point3f physics:centerOfMass = (-0.00082623480513569, -0.00797844274231199, 0.0457675129193652)
+        float3 physics:diagonalInertia = (0.00138410344770525, 0.00173617223701657, 0.00274667683202573)
+        quatf physics:principalAxes = (1, 0, 0, 0)
+
+        def Mesh "visual" (
+            prepend references = @./meshes/Alicia_D_v5_6/follower_standard/base_link.STL@
+        )
+        {
+            float3[] primvars:displayColor = [(0.15, 0.15, 0.15)]
+            uniform token purpose = "render"
+        }
+
+        def Cylinder "collision" (
+            prepend apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            double radius = 0.063
+            double height = 0.130
+            double3 xformOp:translate = (0, 0, 0.065)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+            uniform token purpose = "guide"
+        }
+    }
+
+    # ── link1 ─────────────────────────────────────────────────────────────
+    def Xform "link1" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        float physics:mass = 0.195233453613076
+        point3f physics:centerOfMass = (0.000230595970657381, 1.29045409715261E-5, 0.00303135669887118)
+        float3 physics:diagonalInertia = (0.000258351125080287, 0.000149307709395501, 0.000339791274038166)
+        quatf physics:principalAxes = (1, 0, 0, 0)
+
+        def Mesh "visual" (
+            prepend references = @./meshes/Alicia_D_v5_6/follower_standard/link1.STL@
+        )
+        {
+            float3[] primvars:displayColor = [(0.15, 0.15, 0.15)]
+            uniform token purpose = "render"
+        }
+
+        def Cylinder "collision" (
+            prepend apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            double radius = 0.030
+            double height = 0.050
+            double3 xformOp:translate = (0, 0, 0.025)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+            uniform token purpose = "guide"
+        }
+    }
+
+    # ── link2 ─────────────────────────────────────────────────────────────
+    def Xform "link2" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        float physics:mass = 0.207033693061784
+        point3f physics:centerOfMass = (-0.15058869562262, 0.000866069014338703, -0.00065095059586996)
+        float3 physics:diagonalInertia = (0.000128135500181764, 0.000205708390605209, 0.000122721347332604)
+        quatf physics:principalAxes = (1, 0, 0, 0)
+
+        def Mesh "visual" (
+            prepend references = @./meshes/Alicia_D_v5_6/follower_standard/link2.STL@
+        )
+        {
+            float3[] primvars:displayColor = [(0.15, 0.15, 0.15)]
+            uniform token purpose = "render"
+        }
+
+        def Capsule "collision" (
+            prepend apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            double radius = 0.025
+            double height = 0.200
+            float3 xformOp:rotateXYZ = (0, 90, 0)
+            double3 xformOp:translate = (-0.100, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+            uniform token purpose = "guide"
+        }
+    }
+
+    # ── link3 ─────────────────────────────────────────────────────────────
+    def Xform "link3" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        float physics:mass = 0.0845575681430809
+        point3f physics:centerOfMass = (0.00248143782929389, -0.055786319810667, 0.000269720725051862)
+        float3 physics:diagonalInertia = (7.61918370068429E-5, 2.87941478239853E-5, 8.04370664405606E-5)
+        quatf physics:principalAxes = (1, 0, 0, 0)
+
+        def Mesh "visual" (
+            prepend references = @./meshes/Alicia_D_v5_6/follower_standard/link3.STL@
+        )
+        {
+            float3[] primvars:displayColor = [(0.15, 0.15, 0.15)]
+            uniform token purpose = "render"
+        }
+
+        def Capsule "collision" (
+            prepend apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            double radius = 0.022
+            double height = 0.080
+            double3 xformOp:translate = (0, -0.050, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+            uniform token purpose = "guide"
+        }
+    }
+
+    # ── link4 ─────────────────────────────────────────────────────────────
+    def Xform "link4" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        float physics:mass = 0.0653695951968861
+        point3f physics:centerOfMass = (0.000298365499180664, -0.000601368964523881, 0.0659740390649536)
+        float3 physics:diagonalInertia = (7.03004188045845E-5, 6.87470297844684E-5, 1.68226189346781E-5)
+        quatf physics:principalAxes = (1, 0, 0, 0)
+
+        def Mesh "visual" (
+            prepend references = @./meshes/Alicia_D_v5_6/follower_standard/link4.STL@
+        )
+        {
+            float3[] primvars:displayColor = [(0.15, 0.15, 0.15)]
+            uniform token purpose = "render"
+        }
+
+        def Cylinder "collision" (
+            prepend apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            double radius = 0.025
+            double height = 0.130
+            double3 xformOp:translate = (0, 0, 0.065)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+            uniform token purpose = "guide"
+        }
+    }
+
+    # ── link5 ─────────────────────────────────────────────────────────────
+    def Xform "link5" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        float physics:mass = 0.0507639016868948
+        point3f physics:centerOfMass = (-0.0113684233807493, -0.0308687469815376, 0.000870449932961739)
+        float3 physics:diagonalInertia = (1.87701017075205E-5, 2.5102103446527E-5, 1.72571710040125E-5)
+        quatf physics:principalAxes = (1, 0, 0, 0)
+
+        def Mesh "visual" (
+            prepend references = @./meshes/Alicia_D_v5_6/follower_standard/link5.STL@
+        )
+        {
+            float3[] primvars:displayColor = [(0.15, 0.15, 0.15)]
+            uniform token purpose = "render"
+        }
+
+        def Capsule "collision" (
+            prepend apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            double radius = 0.020
+            double height = 0.050
+            double3 xformOp:translate = (0, -0.030, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+            uniform token purpose = "guide"
+        }
+    }
+
+    # ── link6 ─────────────────────────────────────────────────────────────
+    def Xform "link6" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        float physics:mass = 0.130364883211194
+        point3f physics:centerOfMass = (-0.0274897808293123, 1.7881629110631E-5, -0.0342551063340634)
+        float3 physics:diagonalInertia = (7.59035802571275E-5, 3.53175388318204E-5, 8.31976009590605E-5)
+        quatf physics:principalAxes = (1, 0, 0, 0)
+
+        def Mesh "visual" (
+            prepend references = @./meshes/Alicia_D_v5_6/follower_standard/link6.STL@
+        )
+        {
+            float3[] primvars:displayColor = [(0.15, 0.15, 0.15)]
+            uniform token purpose = "render"
+        }
+
+        def Cylinder "collision" (
+            prepend apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            double radius = 0.028
+            double height = 0.070
+            double3 xformOp:translate = (-0.025, 0, -0.030)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+            uniform token purpose = "guide"
+        }
+    }
+
+    # ── left_gripper ──────────────────────────────────────────────────────
+    def Xform "left_gripper" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        float physics:mass = 0.025646112167786
+        point3f physics:centerOfMass = (2.97087521250461E-8, -0.0434087591943519, -0.0106558526512254)
+        float3 physics:diagonalInertia = (6.46830326573765E-6, 5.13428741941792E-6, 8.03606347912564E-6)
+        quatf physics:principalAxes = (1, 0, 0, 0)
+
+        def Mesh "visual" (
+            prepend references = @./meshes/Alicia_D_v5_6/follower_standard/left_gripper_50mm.STL@
+        )
+        {
+            float3[] primvars:displayColor = [(0.15, 0.15, 0.15)]
+            uniform token purpose = "render"
+        }
+
+        def Cube "collision" (
+            prepend apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            double size = 1
+            double3 xformOp:scale = (0.012, 0.040, 0.050)
+            double3 xformOp:translate = (0, -0.040, -0.025)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            uniform token purpose = "guide"
+        }
+    }
+
+    # ── right_gripper ─────────────────────────────────────────────────────
+    def Xform "right_gripper" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+    )
+    {
+        float physics:mass = 0.025646112167786
+        point3f physics:centerOfMass = (2.97087521805572E-8, 0.0434087591943518, 0.0106558526512254)
+        float3 physics:diagonalInertia = (6.46830326573765E-6, 5.13428741941794E-6, 8.03606347912563E-6)
+        quatf physics:principalAxes = (1, 0, 0, 0)
+
+        def Mesh "visual" (
+            prepend references = @./meshes/Alicia_D_v5_6/follower_standard/right_gripper_50mm.STL@
+        )
+        {
+            float3[] primvars:displayColor = [(0.15, 0.15, 0.15)]
+            uniform token purpose = "render"
+        }
+
+        def Cube "collision" (
+            prepend apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            double size = 1
+            double3 xformOp:scale = (0.012, 0.040, 0.050)
+            double3 xformOp:translate = (0, 0.040, 0.025)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            uniform token purpose = "guide"
+        }
+    }
+
+    # ── tool0 (virtual TCP, massless marker) ──────────────────────────────
+    def Xform "tool0"
+    {
+        def Sphere "tcp_marker"
+        {
+            double radius = 0.005
+            float3[] primvars:displayColor = [(0, 1, 0)]
+            uniform token purpose = "render"
+        }
+    }
+
+    # ══════════════════════════════════════════════════════════════════════
+    # JOINTS
+    # localPos0/Rot0 = URDF joint origin expressed in parent link frame
+    # localPos1/Rot1 = identity (child link origin coincides with joint frame)
+    # Revolute limits in DEGREES; prismatic limits in metres
+    # ══════════════════════════════════════════════════════════════════════
+
+    # ── Joint1: base_link → link1, Z-axis ────────────────────────────────
+    def PhysicsRevoluteJoint "Joint1" (
+        prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+    )
+    {
+        uniform token physics:axis = "Z"
+        rel physics:body0 = </Alicia_D_v5_6_gripper_50mm/base_link>
+        rel physics:body1 = </Alicia_D_v5_6_gripper_50mm/link1>
+        point3f physics:localPos0 = (0, 0, 0.1295)
+        quatf physics:localRot0 = (1, 0, 0, 0)
+        point3f physics:localPos1 = (0, 0, 0)
+        quatf physics:localRot1 = (1, 0, 0, 0)
+        float physics:lowerLimit = -157.45
+        float physics:upperLimit = 157.45
+        float drive:angular:physics:stiffness = 100.0
+        float drive:angular:physics:damping = 10.0
+        float drive:angular:physics:targetPosition = 0.0
+        uniform token drive:angular:physics:type = "force"
+    }
+
+    # ── Joint2: link1 → link2, rpy(1.5708,1.5708,0) ──────────────────────
+    def PhysicsRevoluteJoint "Joint2" (
+        prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+    )
+    {
+        uniform token physics:axis = "Z"
+        rel physics:body0 = </Alicia_D_v5_6_gripper_50mm/link1>
+        rel physics:body1 = </Alicia_D_v5_6_gripper_50mm/link2>
+        point3f physics:localPos0 = (0, 0, 0.04287)
+        quatf physics:localRot0 = (0.5, 0.5, 0.5, -0.5)
+        point3f physics:localPos1 = (0, 0, 0)
+        quatf physics:localRot1 = (1, 0, 0, 0)
+        float physics:lowerLimit = -114.59
+        float physics:upperLimit = 114.59
+        float drive:angular:physics:stiffness = 100.0
+        float drive:angular:physics:damping = 10.0
+        float drive:angular:physics:targetPosition = 0.0
+        uniform token drive:angular:physics:type = "force"
+    }
+
+    # ── Joint3: link2 → link3, rpy(0,0,2.3562) ───────────────────────────
+    def PhysicsRevoluteJoint "Joint3" (
+        prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+    )
+    {
+        uniform token physics:axis = "Z"
+        rel physics:body0 = </Alicia_D_v5_6_gripper_50mm/link2>
+        rel physics:body1 = </Alicia_D_v5_6_gripper_50mm/link3>
+        point3f physics:localPos0 = (-0.22367, 0.022492, -5e-05)
+        quatf physics:localRot0 = (0.3827, 0, 0, 0.9239)
+        point3f physics:localPos1 = (0, 0, 0)
+        quatf physics:localRot1 = (1, 0, 0, 0)
+        float physics:lowerLimit = -28.65
+        float physics:upperLimit = 180.0
+        float drive:angular:physics:stiffness = 100.0
+        float drive:angular:physics:damping = 8.0
+        float drive:angular:physics:targetPosition = 0.0
+        uniform token drive:angular:physics:type = "force"
+    }
+
+    # ── Joint4: link3 → link4, rpy(-1.5708,0,-3.1416) ────────────────────
+    # URDF axis=0 0 -1; symmetric limits are equivalent with +Z
+    def PhysicsRevoluteJoint "Joint4" (
+        prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+    )
+    {
+        uniform token physics:axis = "Z"
+        rel physics:body0 = </Alicia_D_v5_6_gripper_50mm/link3>
+        rel physics:body1 = </Alicia_D_v5_6_gripper_50mm/link4>
+        point3f physics:localPos0 = (-0.00211, -0.099, 0.0002)
+        quatf physics:localRot0 = (0, 0, 0.7071, -0.7071)
+        point3f physics:localPos1 = (0, 0, 0)
+        quatf physics:localRot1 = (1, 0, 0, 0)
+        float physics:lowerLimit = -159.82
+        float physics:upperLimit = 159.82
+        float drive:angular:physics:stiffness = 80.0
+        float drive:angular:physics:damping = 6.0
+        float drive:angular:physics:targetPosition = 0.0
+        uniform token drive:angular:physics:type = "force"
+    }
+
+    # ── Joint5: link4 → link5, rpy(-1.5708,0,0) ──────────────────────────
+    # URDF axis=0 0 -1; symmetric limits are equivalent with +Z
+    def PhysicsRevoluteJoint "Joint5" (
+        prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+    )
+    {
+        uniform token physics:axis = "Z"
+        rel physics:body0 = </Alicia_D_v5_6_gripper_50mm/link4>
+        rel physics:body1 = </Alicia_D_v5_6_gripper_50mm/link5>
+        point3f physics:localPos0 = (0, -0.0005, 0.12235)
+        quatf physics:localRot0 = (0.7071, -0.7071, 0, 0)
+        point3f physics:localPos1 = (0, 0, 0)
+        quatf physics:localRot1 = (1, 0, 0, 0)
+        float physics:lowerLimit = -89.95
+        float physics:upperLimit = 89.95
+        float drive:angular:physics:stiffness = 80.0
+        float drive:angular:physics:damping = 6.0
+        float drive:angular:physics:targetPosition = 0.0
+        uniform token drive:angular:physics:type = "force"
+    }
+
+    # ── Joint6: link5 → link6, rpy(-1.5708,0,0) ──────────────────────────
+    def PhysicsRevoluteJoint "Joint6" (
+        prepend apiSchemas = ["PhysicsDriveAPI:angular"]
+    )
+    {
+        uniform token physics:axis = "Z"
+        rel physics:body0 = </Alicia_D_v5_6_gripper_50mm/link5>
+        rel physics:body1 = </Alicia_D_v5_6_gripper_50mm/link6>
+        point3f physics:localPos0 = (-0.00385, -0.0575, 0.001)
+        quatf physics:localRot0 = (0.7071, -0.7071, 0, 0)
+        point3f physics:localPos1 = (0, 0, 0)
+        quatf physics:localRot1 = (1, 0, 0, 0)
+        float physics:lowerLimit = -180.0
+        float physics:upperLimit = 180.0
+        float drive:angular:physics:stiffness = 60.0
+        float drive:angular:physics:damping = 4.0
+        float drive:angular:physics:targetPosition = 0.0
+        uniform token drive:angular:physics:type = "force"
+    }
+
+    # ── left_finger: link6 → left_gripper, prismatic Z ───────────────────
+    def PhysicsPrismaticJoint "left_finger" (
+        prepend apiSchemas = ["PhysicsDriveAPI:linear"]
+    )
+    {
+        uniform token physics:axis = "Z"
+        rel physics:body0 = </Alicia_D_v5_6_gripper_50mm/link6>
+        rel physics:body1 = </Alicia_D_v5_6_gripper_50mm/left_gripper>
+        point3f physics:localPos0 = (0.0002, 0.0255, -0.13098)
+        quatf physics:localRot0 = (0, 0, 0.7071, -0.7071)
+        point3f physics:localPos1 = (0, 0, 0)
+        quatf physics:localRot1 = (1, 0, 0, 0)
+        float physics:lowerLimit = 0.0
+        float physics:upperLimit = 0.025
+        float drive:linear:physics:stiffness = 200.0
+        float drive:linear:physics:damping = 20.0
+        float drive:linear:physics:targetPosition = 0.0
+        uniform token drive:linear:physics:type = "force"
+    }
+
+    # ── right_finger: link6 → right_gripper, prismatic Z ─────────────────
+    def PhysicsPrismaticJoint "right_finger" (
+        prepend apiSchemas = ["PhysicsDriveAPI:linear"]
+    )
+    {
+        uniform token physics:axis = "Z"
+        rel physics:body0 = </Alicia_D_v5_6_gripper_50mm/link6>
+        rel physics:body1 = </Alicia_D_v5_6_gripper_50mm/right_gripper>
+        point3f physics:localPos0 = (0.0002, -0.0255, -0.13098)
+        quatf physics:localRot0 = (0.7071, 0.7071, 0, 0)
+        point3f physics:localPos1 = (0, 0, 0)
+        quatf physics:localRot1 = (1, 0, 0, 0)
+        float physics:lowerLimit = -0.025
+        float physics:upperLimit = 0.0
+        float drive:linear:physics:stiffness = 200.0
+        float drive:linear:physics:damping = 20.0
+        float drive:linear:physics:targetPosition = 0.0
+        uniform token drive:linear:physics:type = "force"
+    }
+
+    # ── tool0_fixed_joint: link6 → tool0 ─────────────────────────────────
+    def PhysicsFixedJoint "tool0_fixed_joint"
+    {
+        rel physics:body0 = </Alicia_D_v5_6_gripper_50mm/link6>
+        rel physics:body1 = </Alicia_D_v5_6_gripper_50mm/tool0>
+        point3f physics:localPos0 = (0, 0, -0.13)
+        quatf physics:localRot0 = (1, 0, 0, 0)
+        point3f physics:localPos1 = (0, 0, 0)
+        quatf physics:localRot1 = (1, 0, 0, 0)
+    }
+}

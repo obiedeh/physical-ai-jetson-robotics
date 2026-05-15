@@ -1,0 +1,346 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    defaultPrim = "synria_6dof_arm"
+    doc = """Generated from Composed Stage of root layer /tmp/tmpjjtferws/synria_6dof_arm.usdc
+
+
+Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/usdex/synria_6dof_arm.usdc
+
+
+Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/temp/synria_6dof_arm.usd
+
+
+Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/synria_6dof_arm/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    subLayers = [
+        @./robot.usda@
+    ]
+    upAxis = "Z"
+)
+
+def Xform "synria_6dof_arm" (
+    prepend apiSchemas = ["GeomModelAPI"]
+    assetInfo = {
+        string name = "synria_6dof_arm"
+    }
+    kind = "component"
+)
+{
+    float3[] extentsHint = [(-0.1175, -0.095, -0.0275), (0.5525, 0.095, 0.5575), (3.4028235e38, 3.4028235e38, 3.4028235e38), (-3.4028235e38, -3.4028235e38, -3.4028235e38), (3.4028235e38, 3.4028235e38, 3.4028235e38), (-3.4028235e38, -3.4028235e38, -3.4028235e38), (-0.1175, -0.095, -0.0275), (0.5525, 0.095, 0.5575)]
+
+    def Scope "Materials"
+    {
+        def Material "synria_dark" (
+            instanceable = true
+            prepend references = @./materials.usda@</Materials/synria_dark>
+        )
+        {
+        }
+
+        def Material "synria_silver" (
+            instanceable = true
+            prepend references = @./materials.usda@</Materials/synria_silver>
+        )
+        {
+        }
+
+        def Material "synria_blue" (
+            instanceable = true
+            prepend references = @./materials.usda@</Materials/synria_blue>
+        )
+        {
+        }
+    }
+
+    def Scope "Geometry"
+    {
+        def Xform "base_link"
+        {
+            def Cylinder "cylinder" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                uniform token axis = "Z"
+                float3[] extent = [(-0.095, -0.095, -0.045), (0.095, 0.095, 0.045)]
+                double height = 0.09
+                rel material:binding = </synria_6dof_arm/Materials/synria_dark>
+                double radius = 0.095
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0.045)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Xform "shoulder_link"
+            {
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0.09)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                def Cube "box" (
+                    prepend apiSchemas = ["MaterialBindingAPI"]
+                )
+                {
+                    float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                    rel material:binding = </synria_6dof_arm/Materials/synria_silver>
+                    double size = 1
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (0.09, 0.09, 0.235)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+
+                def Xform "upper_arm_link"
+                {
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (1, 1, 1)
+                    double3 xformOp:translate = (0, 0, 0.235)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                    def Cube "box" (
+                        prepend apiSchemas = ["MaterialBindingAPI"]
+                    )
+                    {
+                        float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                        rel material:binding = </synria_6dof_arm/Materials/synria_silver>
+                        double size = 1
+                        quatf xformOp:orient = (1, 0, 0, 0)
+                        float3 xformOp:scale = (0.235, 0.075, 0.075)
+                        double3 xformOp:translate = (0, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+
+                    def Xform "forearm_link"
+                    {
+                        quatf xformOp:orient = (1, 0, 0, 0)
+                        float3 xformOp:scale = (1, 1, 1)
+                        double3 xformOp:translate = (0.235, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                        def Cube "box" (
+                            prepend apiSchemas = ["MaterialBindingAPI"]
+                        )
+                        {
+                            float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                            rel material:binding = </synria_6dof_arm/Materials/synria_silver>
+                            double size = 1
+                            quatf xformOp:orient = (1, 0, 0, 0)
+                            float3 xformOp:scale = (0.22, 0.065, 0.065)
+                            double3 xformOp:translate = (0, 0, 0)
+                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                        }
+
+                        def Xform "wrist_1_link"
+                        {
+                            quatf xformOp:orient = (1, 0, 0, 0)
+                            float3 xformOp:scale = (1, 1, 1)
+                            double3 xformOp:translate = (0.22, 0, 0)
+                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                            def Cube "box" (
+                                prepend apiSchemas = ["MaterialBindingAPI"]
+                            )
+                            {
+                                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                                rel material:binding = </synria_6dof_arm/Materials/synria_blue>
+                                double size = 1
+                                quatf xformOp:orient = (1, 0, 0, 0)
+                                float3 xformOp:scale = (0.06, 0.06, 0.105)
+                                double3 xformOp:translate = (0, 0, 0)
+                                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                            }
+
+                            def Xform "wrist_2_link"
+                            {
+                                quatf xformOp:orient = (1, 0, 0, 0)
+                                float3 xformOp:scale = (1, 1, 1)
+                                double3 xformOp:translate = (0, 0, 0.105)
+                                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                                def Cube "box" (
+                                    prepend apiSchemas = ["MaterialBindingAPI"]
+                                )
+                                {
+                                    float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                                    rel material:binding = </synria_6dof_arm/Materials/synria_blue>
+                                    double size = 1
+                                    quatf xformOp:orient = (1, 0, 0, 0)
+                                    float3 xformOp:scale = (0.055, 0.055, 0.075)
+                                    double3 xformOp:translate = (0, 0, 0)
+                                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                                }
+
+                                def Xform "tool0"
+                                {
+                                    quatf xformOp:orient = (1, 0, 0, 0)
+                                    float3 xformOp:scale = (1, 1, 1)
+                                    double3 xformOp:translate = (0, 0, 0.075)
+                                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                                    def Cube "box" (
+                                        prepend apiSchemas = ["MaterialBindingAPI"]
+                                    )
+                                    {
+                                        float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                                        rel material:binding = </synria_6dof_arm/Materials/synria_dark>
+                                        double size = 1
+                                        quatf xformOp:orient = (1, 0, 0, 0)
+                                        float3 xformOp:scale = (0.09, 0.04, 0.04)
+                                        double3 xformOp:translate = (0, 0, 0)
+                                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                                    }
+
+                                    def Xform "c10_camera_link"
+                                    {
+                                        quatf xformOp:orient = (1, 0, 0, 0)
+                                        float3 xformOp:scale = (1, 1, 1)
+                                        double3 xformOp:translate = (0.07, 0, 0.035)
+                                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+                                        def Cube "box" (
+                                            prepend apiSchemas = ["MaterialBindingAPI"]
+                                        )
+                                        {
+                                            float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                                            rel material:binding = </synria_6dof_arm/Materials/synria_dark>
+                                            double size = 1
+                                            quatf xformOp:orient = (1, 0, 0, 0)
+                                            float3 xformOp:scale = (0.055, 0.035, 0.035)
+                                            double3 xformOp:translate = (0, 0, 0)
+                                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                                        }
+
+                                        def Cube "box_1" (
+                                            prepend apiSchemas = ["PhysicsCollisionAPI"]
+                                            displayName = "box"
+                                        )
+                                        {
+                                            float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                                            uniform token purpose = "guide"
+                                            double size = 1
+                                            quatf xformOp:orient = (1, 0, 0, 0)
+                                            float3 xformOp:scale = (0.055, 0.035, 0.035)
+                                            double3 xformOp:translate = (0, 0, 0)
+                                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                                        }
+                                    }
+
+                                    def Cube "box_1" (
+                                        prepend apiSchemas = ["PhysicsCollisionAPI"]
+                                        displayName = "box"
+                                    )
+                                    {
+                                        float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                                        uniform token purpose = "guide"
+                                        double size = 1
+                                        quatf xformOp:orient = (1, 0, 0, 0)
+                                        float3 xformOp:scale = (0.09, 0.04, 0.04)
+                                        double3 xformOp:translate = (0, 0, 0)
+                                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                                    }
+                                }
+
+                                def Cube "box_1" (
+                                    prepend apiSchemas = ["PhysicsCollisionAPI"]
+                                    displayName = "box"
+                                )
+                                {
+                                    float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                                    uniform token purpose = "guide"
+                                    double size = 1
+                                    quatf xformOp:orient = (1, 0, 0, 0)
+                                    float3 xformOp:scale = (0.055, 0.055, 0.075)
+                                    double3 xformOp:translate = (0, 0, 0)
+                                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                                }
+                            }
+
+                            def Cube "box_1" (
+                                prepend apiSchemas = ["PhysicsCollisionAPI"]
+                                displayName = "box"
+                            )
+                            {
+                                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                                uniform token purpose = "guide"
+                                double size = 1
+                                quatf xformOp:orient = (1, 0, 0, 0)
+                                float3 xformOp:scale = (0.06, 0.06, 0.105)
+                                double3 xformOp:translate = (0, 0, 0)
+                                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                            }
+                        }
+
+                        def Cube "box_1" (
+                            prepend apiSchemas = ["PhysicsCollisionAPI"]
+                            displayName = "box"
+                        )
+                        {
+                            float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                            uniform token purpose = "guide"
+                            double size = 1
+                            quatf xformOp:orient = (1, 0, 0, 0)
+                            float3 xformOp:scale = (0.22, 0.065, 0.065)
+                            double3 xformOp:translate = (0, 0, 0)
+                            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                        }
+                    }
+
+                    def Cube "box_1" (
+                        prepend apiSchemas = ["PhysicsCollisionAPI"]
+                        displayName = "box"
+                    )
+                    {
+                        float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                        uniform token purpose = "guide"
+                        double size = 1
+                        quatf xformOp:orient = (1, 0, 0, 0)
+                        float3 xformOp:scale = (0.235, 0.075, 0.075)
+                        double3 xformOp:translate = (0, 0, 0)
+                        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                    }
+                }
+
+                def Cube "box_1" (
+                    prepend apiSchemas = ["PhysicsCollisionAPI"]
+                    displayName = "box"
+                )
+                {
+                    float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                    uniform token purpose = "guide"
+                    double size = 1
+                    quatf xformOp:orient = (1, 0, 0, 0)
+                    float3 xformOp:scale = (0.09, 0.09, 0.235)
+                    double3 xformOp:translate = (0, 0, 0)
+                    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+                }
+            }
+
+            def Cylinder "cylinder_1" (
+                prepend apiSchemas = ["PhysicsCollisionAPI"]
+                displayName = "cylinder"
+            )
+            {
+                uniform token axis = "Z"
+                float3[] extent = [(-0.095, -0.095, -0.045), (0.095, 0.095, 0.045)]
+                double height = 0.09
+                uniform token purpose = "guide"
+                double radius = 0.095
+                quatf xformOp:orient = (1, 0, 0, 0)
+                float3 xformOp:scale = (1, 1, 1)
+                double3 xformOp:translate = (0, 0, 0.045)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+        }
+    }
+
+    def Scope "Physics"
+    {
+    }
+}
+
