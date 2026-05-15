@@ -1,5 +1,94 @@
 # Physical AI Jetson Robotics Lab
 
+Robotics lab for building, simulating, training, and deploying mobile manipulation systems with ROS 2, Isaac Sim, OpenUSD, LeRobot, and NVIDIA Jetson edge hardware.
+
+This repo is a practical engineering portfolio: robot descriptions, Isaac assets, simulation smoke tests, training configs, edge AI utilities, telemetry tooling, and operator-facing documentation live together so the path from digital twin to real hardware stays reproducible.
+
+## What This Builds
+
+- ROS 2 robot stacks for Yahboom ROSMASTER M3 Pro and Synria 6DOF arm workflows.
+- Isaac Sim / OpenUSD robot assets and factory-cell scenes.
+- MoveIt 2 and Gazebo smoke-test paths for robot description validation.
+- LeRobot-style training and reporting scaffolds for manipulation policies.
+- Jetson-oriented inventory, deployment, edge inference, and operations tooling.
+- RAG/agentic operations copilot experiments over robot telemetry and docs.
+
+## Current Proof Points
+
+| Area | Status | Evidence |
+| --- | --- | --- |
+| Python package and CLI | Working | `physical_ai_lab/`, `tests/` |
+| RTX simulation track | Working scaffold | `scripts/linux_rtx/`, `reports/simulation/` |
+| Synria ROS 2 description | Working scaffold | `ros2_ws/src/synria_arm_description/` |
+| Synria Isaac asset | Imported asset present | `isaac/usd/robots/synria_6dof_arm/` |
+| Yahboom ROS 2 description | In progress | `ros2_ws/src/rosmaster_m3pro_description/` |
+| Yahboom Isaac URDF | Generated and parses | `isaac/usd/robots/yahboom-rosmaster-m3-pro/` |
+| LeRobot training path | Working scaffold | `reports/training/synria_reach_policy.json` |
+
+## Robot Asset Layout
+
+Robot assets are organized under `isaac/usd/robots/`.
+
+```text
+isaac/usd/robots/
+├── synria_6dof_arm/
+│   ├── synria_6dof_arm.urdf
+│   ├── synria_6dof_arm.usd
+│   ├── synria_6dof_arm.usda
+│   ├── source_urdf/
+│   ├── configuration/
+│   └── payloads/
+├── yahboom-rosmaster-m3-pro/
+│   ├── rosmaster_m3pro.urdf
+│   └── source_urdf/
+└── meshes/
+```
+
+Canonical editable ROS 2 sources stay in `ros2_ws/src/*_description/urdf/`. The Isaac folders keep generated/import-ready copies.
+
+## Demo Commands
+
+Python package smoke test:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+pytest -q
+physical-ai-lab demo-telemetry
+```
+
+ROS 2 / Isaac workstation checks:
+
+```bash
+bash scripts/linux_rtx/check_nvidia_stack.sh
+bash scripts/linux_rtx/run_synria_moveit_smoke.sh
+bash scripts/linux_rtx/run_ros_gazebo_factory_cell.sh
+bash scripts/linux_rtx/render_factory_cell_blender.sh
+```
+
+Training scaffold:
+
+```bash
+physical-ai-lab rtx-projects
+physical-ai-lab train-synria-reach --device cuda --samples 8192 --epochs 40
+bash scripts/linux_rtx/run_rtx_training_suite.sh
+```
+
+## Signature Demos
+
+The public-facing demo tracks are documented in [docs/SIGNATURE_DEMOS.md](docs/SIGNATURE_DEMOS.md):
+
+- Yahboom mobile manipulation bring-up
+- Synria eye-in-hand manipulation
+- OpenUSD digital twin v0
+- Edge AI runtime benchmark
+- Robot operations copilot
+- AI-RAN robotics readiness
+
+Milestone tracking lives in [docs/MILESTONES.md](docs/MILESTONES.md).
+
 Production-ready Physical AI lab for NVIDIA Jetson Thor and Jetson Orin robotics: OpenUSD digital twins, Isaac Sim/Isaac Lab training, ROS 2 SLAM, edge vision, robotic arm control, and sim-to-real deployment.
 
 ## Mission
@@ -216,6 +305,16 @@ List the signature non-generic demo scenarios:
 physical-ai-lab list-scenarios
 physical-ai-lab scenario yahboom-mobile-manipulation
 ```
+
+Run the RTX workstation simulation and training track:
+
+```bash
+physical-ai-lab rtx-projects
+physical-ai-lab train-synria-reach --device cuda --samples 8192 --epochs 40
+bash scripts/linux_rtx/run_rtx_training_suite.sh
+```
+
+See [RTX Simulation and Training](docs/RTX_SIMULATION_TRAINING.md).
 
 ## Hardware Targets
 

@@ -30,6 +30,10 @@
 - Synria 6DOF arm ROS 2 / MoveIt 2 bring-up
 - Synria C10 wrist-camera calibration and eye-in-hand perception
 - LeRobot / ALOHA-style demonstration dataset workflow
+- Synria upstream parity TODOs from `docs/SYNRIA_UPSTREAM_TODO.md`
+- vendor robot-description audit before replacing the approximate arm model
+- ROS 2 Humble-to-Jazzy compatibility pass for Synria-style packages
+- simulated cube sorting and hand-eye calibration before real robot motion
 
 ## Milestone 4: OpenUSD Digital Twin
 
