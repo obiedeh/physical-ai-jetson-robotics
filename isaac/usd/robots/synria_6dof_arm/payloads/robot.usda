@@ -1,0 +1,145 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    defaultPrim = "synria_6dof_arm"
+    doc = """Generated from Composed Stage of root layer /tmp/tmpjzjpssn1/synria_6dof_arm.usdc
+
+
+Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/usdex/synria_6dof_arm.usdc
+
+
+Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/temp/synria_6dof_arm.usd
+
+
+Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/synria_6dof_arm/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+over "synria_6dof_arm" (
+    prepend apiSchemas = ["IsaacRobotAPI", "IsaacLinkAPI"]
+)
+{
+    custom rel isaac:physics:robotJoints
+    prepend rel isaac:physics:robotJoints = [
+        </synria_6dof_arm/Physics/joint_1>,
+        </synria_6dof_arm/Physics/root_joint>,
+        </synria_6dof_arm/Physics/joint_2>,
+        </synria_6dof_arm/Physics/joint_3>,
+        </synria_6dof_arm/Physics/joint_4>,
+        </synria_6dof_arm/Physics/joint_5>,
+        </synria_6dof_arm/Physics/joint_6>,
+        </synria_6dof_arm/Physics/c10_camera_fixed>,
+    ]
+    custom rel isaac:physics:robotLinks
+    prepend rel isaac:physics:robotLinks = [
+        </synria_6dof_arm/Geometry/base_link>,
+        </synria_6dof_arm/Geometry/base_link/shoulder_link>,
+        </synria_6dof_arm/Geometry/base_link/shoulder_link/upper_arm_link>,
+        </synria_6dof_arm/Geometry/base_link/shoulder_link/upper_arm_link/forearm_link>,
+        </synria_6dof_arm/Geometry/base_link/shoulder_link/upper_arm_link/forearm_link/wrist_1_link>,
+        </synria_6dof_arm/Geometry/base_link/shoulder_link/upper_arm_link/forearm_link/wrist_1_link/wrist_2_link>,
+        </synria_6dof_arm/Geometry/base_link/shoulder_link/upper_arm_link/forearm_link/wrist_1_link/wrist_2_link/tool0>,
+        </synria_6dof_arm/Geometry/base_link/shoulder_link/upper_arm_link/forearm_link/wrist_1_link/wrist_2_link/tool0/c10_camera_link>,
+    ]
+
+    over "Physics"
+    {
+        over "joint_1" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "root_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "joint_2" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "joint_3" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "joint_4" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "joint_5" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "joint_6" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "c10_camera_fixed" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+    }
+
+    over "Geometry"
+    {
+        over "base_link" (
+            prepend apiSchemas = ["IsaacLinkAPI"]
+        )
+        {
+            over "shoulder_link" (
+                prepend apiSchemas = ["IsaacLinkAPI"]
+            )
+            {
+                over "upper_arm_link" (
+                    prepend apiSchemas = ["IsaacLinkAPI"]
+                )
+                {
+                    over "forearm_link" (
+                        prepend apiSchemas = ["IsaacLinkAPI"]
+                    )
+                    {
+                        over "wrist_1_link" (
+                            prepend apiSchemas = ["IsaacLinkAPI"]
+                        )
+                        {
+                            over "wrist_2_link" (
+                                prepend apiSchemas = ["IsaacLinkAPI"]
+                            )
+                            {
+                                over "tool0" (
+                                    prepend apiSchemas = ["IsaacLinkAPI"]
+                                )
+                                {
+                                    over "c10_camera_link" (
+                                        prepend apiSchemas = ["IsaacLinkAPI"]
+                                    )
+                                    {
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+

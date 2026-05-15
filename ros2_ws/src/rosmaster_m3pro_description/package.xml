@@ -1,15 +1,13 @@
 <?xml version="1.0"?>
-<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rosmaster_m3pro_description</name>
-  <version>1.0.0</version>
-  <description>URDF/xacro description for the Yahboom ROSMASTER M3 Pro (mecanum base + 6-DOF arm)</description>
-  <maintainer email="obiedeh@gmail.com">oedeh</maintainer>
-  <license>Apache-2.0</license>
+  <version>0.1.0</version>
+  <description>Yahboom ROSMASTER M3 Pro robot description for RViz, Gazebo, ros2_control, and MoveIt.</description>
+  <maintainer email="oedeh@example.com">oedeh</maintainer>
+  <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <exec_depend>joint_state_publisher</exec_depend>
   <exec_depend>joint_state_publisher_gui</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>rviz2</exec_depend>
