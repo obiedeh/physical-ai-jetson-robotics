@@ -62,12 +62,15 @@ physical-ai-lab collect-inventory --target synria-host --output reports/inventor
 
 Goals:
 
+- compare against Synria upstream Alicia-D ROS 2 package structure
+- document ROS 2 Humble-to-Jazzy compatibility gaps
 - launch arm description
 - validate joint states
 - run planning scene
 - execute simple joint-space moves
 - execute simple Cartesian pose targets
 - define collision objects for a tabletop workcell
+- add mock parity for gripper command, torque enable, zeroing, and speed limits
 
 Outputs:
 
@@ -80,11 +83,13 @@ Outputs:
 
 Goals:
 
+- define C10 OpenCV capture and ROS image topic contract
 - launch C10 camera as a ROS 2 image source
 - calibrate camera intrinsics
 - estimate camera-to-end-effector transform
 - detect fiducials or objects
 - publish object pose into the planning frame
+- simulate ArUco hand-eye calibration before real C10 capture
 
 Outputs:
 
@@ -114,6 +119,7 @@ Outputs:
 
 Goals:
 
+- align with Synria/Alicia-D LeRobot recording schema
 - record teleoperation or scripted demonstrations
 - store synchronized camera, joint state, action, and task metadata
 - define dataset cards for reproducibility
@@ -150,3 +156,16 @@ Outputs:
 - Use mock hardware planning before real execution.
 - Require explicit operator confirmation for new autonomous tasks.
 - Log all real robot commands with timestamps.
+
+## Upstream Alignment
+
+Detailed vendor-derived TODOs are tracked in:
+
+```text
+docs/SYNRIA_UPSTREAM_TODO.md
+```
+
+The current priority is RTX-first: description parity, Jazzy port notes,
+simulation-only `ros2_control`, C10 camera contract, simulated hand-eye
+calibration, cube sorting, LeRobot schema, and kinematics benchmarks. Real
+serial bring-up and first motion stay in the hardware-later phase.

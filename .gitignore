@@ -31,6 +31,7 @@ reports/inventory/*.json
 # Isaac / USD generated cache
 isaac/cache/
 isaac/outputs/
+isaac/usd/robots/yahboom-rosmaster-m3-pro/ROSMASTER-M3Pro.x_t
 
 # ROS 2 generated workspace artifacts
 ros2_ws/build/

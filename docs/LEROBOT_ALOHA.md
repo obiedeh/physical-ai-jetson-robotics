@@ -100,6 +100,8 @@ Do not commit generated datasets, raw camera recordings, or trained model checkp
 ## Next Steps
 
 - map Synria vendor joint names to `joint_1` through `joint_6`
+- align synthetic records with Synria/Alicia-D LeRobot camera, state, action, FPS, and episode timing fields
+- generate a synthetic RTX dataset before recording real C10 camera data
 - connect the C10 camera to LeRobot camera discovery
 - add a ROS 2 bridge script that samples `/joint_states`, TF, and camera frames into the LeRobot observation/action contract
 - record a small calibration dataset
