@@ -22,7 +22,34 @@ Location:
 - ROS distro:
 - MoveIt / MoveIt 2:
 - Vendor SDK:
+- Simulation packages built:
 - Repo commit:
+
+## Simulation-First Evidence
+
+Complete this section before enabling motors or connecting to a serial controller.
+
+Commands:
+
+```bash
+pytest -q tests/test_simulation_foundation.py
+bash scripts/linux_rtx/smoke_robot_descriptions.sh
+```
+
+Results:
+
+- `synria_arm_description` Xacro rendered:
+- C10 camera frame present:
+- Mock ros2_control system present:
+- MoveIt config present:
+- Hardware dependencies intentionally excluded:
+
+Evidence paths:
+
+- Static test log:
+- URDF render log:
+- RViz screenshot:
+- Known model approximations:
 
 ## Inventory Evidence
 
@@ -59,6 +86,8 @@ physical-ai-lab collect-inventory --target synria-host --output reports/inventor
 
 ## Real Hardware Motion
 
+Only complete after mock control and MoveIt planning evidence are captured.
+
 - Joint states visible:
 - Servo/motor enable:
 - Reduced speed used:
@@ -81,6 +110,14 @@ physical-ai-lab collect-inventory --target synria-host --output reports/inventor
 - Joint/action synchronized:
 - Demonstration count:
 - Task:
+
+## Platform Integration Notes
+
+- Upstream vendor source/version:
+- Repo-owned files changed:
+- Vendor files copied:
+- Simulation gaps before hardware:
+- Hardware-only assumptions found:
 
 ## Business Relevance
 

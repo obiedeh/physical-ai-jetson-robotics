@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rosmaster_m3pro">
+  <xacro:arg name="hardware_type" default="fake"/>
+  <xacro:arg name="fixed_odom" default="true"/>
+
+  <xacro:include filename="$(find rosmaster_m3pro_description)/urdf/materials.xacro"/>
+  <xacro:include filename="$(find rosmaster_m3pro_description)/urdf/inertials.xacro"/>
+  <xacro:include filename="$(find rosmaster_m3pro_description)/urdf/common_geometry.xacro"/>
+  <xacro:include filename="$(find rosmaster_m3pro_description)/urdf/mecanum_base.xacro"/>
+  <xacro:include filename="$(find rosmaster_m3pro_description)/urdf/arm_6dof.xacro"/>
+  <xacro:include filename="$(find rosmaster_m3pro_description)/urdf/sensors.xacro"/>
+  <xacro:include filename="$(find rosmaster_m3pro_description)/urdf/ros2_control.xacro"/>
+
+  <!-- Yahboom ROSMASTER M3 Pro hardware parameters (80 mm Mecanum wheels confirmed) -->
+  <xacro:property name="wheel_radius"   value="0.040"/>
+  <xacro:property name="wheel_width"    value="0.038"/>
+  <xacro:property name="chassis_length" value="0.360"/>
+  <xacro:property name="chassis_width"  value="0.300"/>
+  <xacro:property name="chassis_height" value="0.090"/>
+  <xacro:property name="chassis_mass"   value="5.5"/>
+  <xacro:property name="wheel_x"        value="0.145"/>
+  <xacro:property name="wheel_y"        value="0.130"/>
+  <xacro:property name="wheel_z"        value="-0.010"/>
+
+  <xacro:property name="deck_height"       value="0.115"/>
+  <xacro:property name="arm_x"            value="0.035"/>
+  <xacro:property name="shoulder_height"  value="0.090"/>
+  <xacro:property name="upper_arm_length" value="0.210"/>
+  <xacro:property name="forearm_length"   value="0.190"/>
+  <xacro:property name="wrist_length"     value="0.085"/>
+  <xacro:property name="tool_length"      value="0.090"/>
+
+  <link name="odom"/>
+  <xacro:if value="$(arg fixed_odom)">
+    <joint name="odom_to_base_footprint" type="fixed">
+      <parent link="odom"/>
+      <child link="base_footprint"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+  </xacro:if>
+
+  <xacro:rosmaster_m3pro_mecanum_base
+    chassis_length="${chassis_length}"
+    chassis_width="${chassis_width}"
+    chassis_height="${chassis_height}"
+    chassis_mass="${chassis_mass}"
+    wheel_radius="${wheel_radius}"
+    wheel_width="${wheel_width}"
+    wheel_x="${wheel_x}"
+    wheel_y="${wheel_y}"
+    wheel_z="${wheel_z}"
+    wheel_mass="0.35"/>
+
+  <!-- Upper deck (keeps arm mount in correct position; no separate visual needed) -->
+  <link name="upper_deck_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="1.1"/>
+      <inertia ixx="0.004549" ixy="0" ixz="0" iyy="0.008362" iyz="0" izz="0.012687"/>
+    </inertial>
+  </link>
+  <joint name="upper_deck_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="upper_deck_link"/>
+    <origin rpy="0 0 0" xyz="0 0 ${deck_height}"/>
+  </joint>
+
+  <xacro:rosmaster_m3pro_arm_6dof
+    parent="upper_deck_link"
+    origin_xyz="${arm_x} 0 0.030"
+    origin_rpy="0 0 0"
+    shoulder_height="${shoulder_height}"
+    upper_arm_length="${upper_arm_length}"
+    forearm_length="${forearm_length}"
+    wrist_length="${wrist_length}"
+    tool_length="${tool_length}"/>
+
+  <xacro:rosmaster_m3pro_depth_camera
+    parent="tool0"
+    xyz="${tool_length} 0 0.045"
+    rpy="0 0 0"
+    body_size="0.075 0.030 0.030"
+    baseline="0.055"
+    mass="0.08"/>
+
+  <xacro:rosmaster_m3pro_dual_tof_lidar
+    front_parent="upper_deck_link"
+    rear_parent="upper_deck_link"
+    front_xyz="${chassis_length/2.0 - 0.060} ${chassis_width/2.0 - 0.060} 0.040"
+    front_rpy="0 0 0"
+    rear_xyz="-${chassis_length/2.0 - 0.060} -${chassis_width/2.0 - 0.060} 0.040"
+    rear_rpy="0 0 ${pi}"
+    radius="0.035"
+    height="0.040"
+    mass="0.12"/>
+
+  <xacro:rosmaster_m3pro_ros2_control hardware_type="$(arg hardware_type)"/>
+</robot>

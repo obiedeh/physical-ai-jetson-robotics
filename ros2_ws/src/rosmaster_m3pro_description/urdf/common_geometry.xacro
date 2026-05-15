@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Simple box link with visual, collision, and inertia -->
+  <xacro:macro name="box_link" params="name size mass material">
+    <link name="${name}">
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry><box size="${size}"/></geometry>
+        <material name="${material}"/>
+      </visual>
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry><box size="${size}"/></geometry>
+      </collision>
+      <xacro:property name="dims" value="${size.split()}"/>
+      <inertial>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <mass value="${mass}"/>
+        <inertia
+          ixx="${mass*(float(dims[1])**2+float(dims[2])**2)/12}"
+          ixy="0" ixz="0"
+          iyy="${mass*(float(dims[0])**2+float(dims[2])**2)/12}"
+          iyz="0"
+          izz="${mass*(float(dims[0])**2+float(dims[1])**2)/12}"/>
+      </inertial>
+    </link>
+  </xacro:macro>
+</robot>

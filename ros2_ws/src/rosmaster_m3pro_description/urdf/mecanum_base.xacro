@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!--
+    Mecanum base for ROSMASTER M3 Pro.
+    Visuals use real-geometry STL meshes exported from the official Parasolid CAD file.
+
+    Mesh coordinate frame (CAD/STL):  X = left/right, Y = up, Z = forward
+    URDF link frame:                  X = forward, Y = left, Z = up
+    Visual origin rpy="1.5708 0 1.5708" performs the Y-up→Z-up + axis permutation.
+
+    Translation xyz="-0.128 0 -0.036":
+      Derived by fitting all 4 wheel-region centroids from the CAD mesh to the URDF
+      wheel joint positions (wheel_x=±0.145, wheel_y=±0.130, wheel_z=-0.010).
+      -0.128 m  aligns chassis front-back with base_link X origin
+      -0.036 m  aligns chassis height so wheel-centre plane sits at wheel_z
+
+    If the visual is still misaligned, adjust xyz:
+      X is wrong → xyz[0] (forward/back)
+      Y is wrong → xyz[1] (left/right, should stay 0 — mesh is symmetric)
+      Z is wrong → xyz[2] (up/down)
+  -->
+  <xacro:macro name="rosmaster_m3pro_mecanum_base"
+    params="chassis_length chassis_width chassis_height chassis_mass
+            wheel_radius wheel_width wheel_x wheel_y wheel_z wheel_mass">
+
+    <link name="base_footprint"/>
+
+    <link name="base_link">
+      <!-- CAD mesh visual: full chassis body (wheels excluded) -->
+      <visual>
+        <origin rpy="1.5708 0 1.5708" xyz="-0.128 0 -0.036"/>
+        <geometry>
+          <mesh filename="package://rosmaster_m3pro_description/meshes/chassis.stl"/>
+        </geometry>
+        <material name="m3pro_black"/>
+      </visual>
+      <!-- Simple box collision (fast, accurate enough for physics) -->
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0 0.045"/>
+        <geometry>
+          <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin rpy="0 0 0" xyz="0 0 0.045"/>
+        <mass value="${chassis_mass}"/>
+        <inertia
+          ixx="${chassis_mass*(chassis_width**2+chassis_height**2)/12}"
+          ixy="0" ixz="0"
+          iyy="${chassis_mass*(chassis_length**2+chassis_height**2)/12}"
+          iyz="0"
+          izz="${chassis_mass*(chassis_length**2+chassis_width**2)/12}"/>
+      </inertial>
+    </link>
+
+    <joint name="base_footprint_joint" type="fixed">
+      <parent link="base_footprint"/>
+      <child link="base_link"/>
+      <origin rpy="0 0 0" xyz="0 0 0.04"/>
+    </joint>
+
+    <!-- Wheel macro: procedural Mecanum wheel mesh, axis along STL-X = URDF-Y after transform -->
+    <xacro:macro name="mecanum_wheel_link" params="name">
+      <link name="${name}">
+        <visual>
+          <origin rpy="1.5708 0 1.5708" xyz="0 0 0"/>
+          <geometry>
+            <mesh filename="package://rosmaster_m3pro_description/meshes/mecanum_wheel_cad.stl"/>
+          </geometry>
+          <material name="m3pro_dark_gray"/>
+        </visual>
+        <!-- Cylinder collision for physics (fast, stable) -->
+        <collision>
+          <origin rpy="1.5707963267948966 0 0" xyz="0 0 0"/>
+          <geometry>
+            <cylinder length="${wheel_width}" radius="${wheel_radius}"/>
+          </geometry>
+        </collision>
+        <inertial>
+          <origin rpy="1.5707963267948966 0 0" xyz="0 0 0"/>
+          <mass value="${wheel_mass}"/>
+          <inertia
+            ixx="${wheel_mass*(3*wheel_radius**2+wheel_width**2)/12}"
+            ixy="0" ixz="0"
+            iyy="${wheel_mass*(3*wheel_radius**2+wheel_width**2)/12}"
+            iyz="0"
+            izz="${wheel_mass*wheel_radius**2/2}"/>
+        </inertial>
+      </link>
+    </xacro:macro>
+
+    <xacro:mecanum_wheel_link name="front_left_wheel_link"/>
+    <joint name="front_left_wheel_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="front_left_wheel_link"/>
+      <origin rpy="0 0 0" xyz="${wheel_x} ${wheel_y} ${wheel_z}"/>
+      <axis xyz="0 1 0"/>
+      <limit effort="20.0" velocity="20.0"/>
+      <dynamics damping="0.05" friction="0.02"/>
+    </joint>
+
+    <xacro:mecanum_wheel_link name="front_right_wheel_link"/>
+    <joint name="front_right_wheel_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="front_right_wheel_link"/>
+      <origin rpy="0 0 0" xyz="${wheel_x} ${-wheel_y} ${wheel_z}"/>
+      <axis xyz="0 1 0"/>
+      <limit effort="20.0" velocity="20.0"/>
+      <dynamics damping="0.05" friction="0.02"/>
+    </joint>
+
+    <xacro:mecanum_wheel_link name="rear_left_wheel_link"/>
+    <joint name="rear_left_wheel_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="rear_left_wheel_link"/>
+      <origin rpy="0 0 0" xyz="${-wheel_x} ${wheel_y} ${wheel_z}"/>
+      <axis xyz="0 1 0"/>
+      <limit effort="20.0" velocity="20.0"/>
+      <dynamics damping="0.05" friction="0.02"/>
+    </joint>
+
+    <xacro:mecanum_wheel_link name="rear_right_wheel_link"/>
+    <joint name="rear_right_wheel_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="rear_right_wheel_link"/>
+      <origin rpy="0 0 0" xyz="${-wheel_x} ${-wheel_y} ${wheel_z}"/>
+      <axis xyz="0 1 0"/>
+      <limit effort="20.0" velocity="20.0"/>
+      <dynamics damping="0.05" friction="0.02"/>
+    </joint>
+
+  </xacro:macro>
+</robot>

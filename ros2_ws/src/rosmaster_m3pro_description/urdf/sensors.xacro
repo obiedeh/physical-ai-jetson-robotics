@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="rosmaster_m3pro_depth_camera"
+    params="parent xyz rpy body_size baseline mass">
+    <xacro:property name="bs" value="${body_size.split()}"/>
+    <xacro:property name="bx" value="${float(bs[0])}"/>
+    <xacro:property name="by" value="${float(bs[1])}"/>
+    <xacro:property name="bz" value="${float(bs[2])}"/>
+    <xacro:property name="bl" value="${float(baseline)}"/>
+
+    <link name="depth_camera_link">
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry><box size="${bx} ${by} ${bz}"/></geometry>
+        <material name="m3pro_camera"/>
+      </visual>
+      <!-- Two lens cylinders -->
+      <visual>
+        <origin rpy="0 1.5707963 0" xyz="${bx/2*0.83} ${bl/2} 0"/>
+        <geometry><cylinder length="0.008" radius="0.0096"/></geometry>
+        <material name="m3pro_lidar"/>
+      </visual>
+      <visual>
+        <origin rpy="0 1.5707963 0" xyz="${bx/2*0.83} ${-bl/2} 0"/>
+        <geometry><cylinder length="0.008" radius="0.0096"/></geometry>
+        <material name="m3pro_lidar"/>
+      </visual>
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry><box size="${bx} ${by} ${bz}"/></geometry>
+      </collision>
+      <inertial>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <mass value="${mass}"/>
+        <inertia
+          ixx="${mass*(by**2+bz**2)/12}" ixy="0" ixz="0"
+          iyy="${mass*(bx**2+bz**2)/12}" iyz="0"
+          izz="${mass*(bx**2+by**2)/12}"/>
+      </inertial>
+    </link>
+
+    <joint name="depth_camera_mount_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="depth_camera_link"/>
+      <origin rpy="${rpy}" xyz="${xyz}"/>
+    </joint>
+
+    <link name="depth_camera_rgb_frame"/>
+    <joint name="depth_camera_rgb_joint" type="fixed">
+      <parent link="depth_camera_link"/>
+      <child link="depth_camera_rgb_frame"/>
+      <origin rpy="0 0 0" xyz="0 ${bl/2} 0"/>
+    </joint>
+
+    <link name="depth_camera_depth_frame"/>
+    <joint name="depth_camera_depth_joint" type="fixed">
+      <parent link="depth_camera_link"/>
+      <child link="depth_camera_depth_frame"/>
+      <origin rpy="0 0 0" xyz="0 ${-bl/2} 0"/>
+    </joint>
+
+    <link name="depth_camera_optical_frame"/>
+    <joint name="depth_camera_optical_joint" type="fixed">
+      <parent link="depth_camera_rgb_frame"/>
+      <child link="depth_camera_optical_frame"/>
+      <origin rpy="-1.5707963 0 -1.5707963" xyz="0 0 0"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro name="rosmaster_m3pro_dual_tof_lidar"
+    params="front_parent rear_parent front_xyz front_rpy rear_xyz rear_rpy
+            radius height mass">
+    <xacro:property name="r" value="${float(radius)}"/>
+    <xacro:property name="h" value="${float(height)}"/>
+    <xacro:property name="m" value="${float(mass)}"/>
+
+    <!-- Front LiDAR -->
+    <link name="front_tof_lidar_link">
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 ${h/2}"/>
+        <geometry><cylinder length="${h}" radius="${r}"/></geometry>
+        <material name="m3pro_lidar"/>
+      </visual>
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 ${h+0.004}"/>
+        <geometry><cylinder length="0.008" radius="${r*0.72}"/></geometry>
+        <material name="m3pro_dark_gray"/>
+      </visual>
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0 ${h/2}"/>
+        <geometry><cylinder length="${h}" radius="${r}"/></geometry>
+      </collision>
+      <inertial>
+        <origin rpy="0 0 0" xyz="0 0 ${h/2}"/>
+        <mass value="${m}"/>
+        <inertia
+          ixx="${m*(3*r**2+h**2)/12}" ixy="0" ixz="0"
+          iyy="${m*(3*r**2+h**2)/12}" iyz="0"
+          izz="${m*r**2/2}"/>
+      </inertial>
+    </link>
+
+    <joint name="front_tof_lidar_joint" type="fixed">
+      <parent link="${front_parent}"/>
+      <child link="front_tof_lidar_link"/>
+      <origin rpy="${front_rpy}" xyz="${front_xyz}"/>
+    </joint>
+
+    <link name="front_tof_lidar_scan_frame"/>
+    <joint name="front_tof_lidar_scan_joint" type="fixed">
+      <parent link="front_tof_lidar_link"/>
+      <child link="front_tof_lidar_scan_frame"/>
+      <origin rpy="0 0 0" xyz="0 0 ${h}"/>
+    </joint>
+
+    <!-- Rear LiDAR -->
+    <link name="rear_tof_lidar_link">
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 ${h/2}"/>
+        <geometry><cylinder length="${h}" radius="${r}"/></geometry>
+        <material name="m3pro_lidar"/>
+      </visual>
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 ${h+0.004}"/>
+        <geometry><cylinder length="0.008" radius="${r*0.72}"/></geometry>
+        <material name="m3pro_dark_gray"/>
+      </visual>
+      <collision>
+        <origin rpy="0 0 0" xyz="0 0 ${h/2}"/>
+        <geometry><cylinder length="${h}" radius="${r}"/></geometry>
+      </collision>
+      <inertial>
+        <origin rpy="0 0 0" xyz="0 0 ${h/2}"/>
+        <mass value="${m}"/>
+        <inertia
+          ixx="${m*(3*r**2+h**2)/12}" ixy="0" ixz="0"
+          iyy="${m*(3*r**2+h**2)/12}" iyz="0"
+          izz="${m*r**2/2}"/>
+      </inertial>
+    </link>
+
+    <joint name="rear_tof_lidar_joint" type="fixed">
+      <parent link="${rear_parent}"/>
+      <child link="rear_tof_lidar_link"/>
+      <origin rpy="${rear_rpy}" xyz="${rear_xyz}"/>
+    </joint>
+
+    <link name="rear_tof_lidar_scan_frame"/>
+    <joint name="rear_tof_lidar_scan_joint" type="fixed">
+      <parent link="rear_tof_lidar_link"/>
+      <child link="rear_tof_lidar_scan_frame"/>
+      <origin rpy="0 0 0" xyz="0 0 ${h}"/>
+    </joint>
+  </xacro:macro>
+
+</robot>
