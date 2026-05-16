@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 
+from physical_ai_lab.config import TriageThresholds
 from physical_ai_lab.telemetry import RobotTelemetrySample, summarize_operational_risk
+
+_DEFAULT_THRESHOLDS = TriageThresholds()
 
 
 @dataclass(frozen=True)
@@ -36,14 +39,17 @@ class TriageReport:
         }
 
 
-def triage_telemetry(samples: list[RobotTelemetrySample]) -> TriageReport:
+def triage_telemetry(
+    samples: list[RobotTelemetrySample],
+    thresholds: TriageThresholds = _DEFAULT_THRESHOLDS,
+) -> TriageReport:
     """Create a deterministic operations triage report from robot telemetry."""
     summary = summarize_operational_risk(samples)
     latest = samples[-1]
     findings: list[TriageFinding] = []
 
     total_latency_ms = latest.edge_latency_ms + latest.network_latency_ms
-    if latest.battery_percent < 25.0:
+    if latest.battery_percent < thresholds.battery_critical_pct:
         findings.append(
             TriageFinding(
                 severity="critical",
@@ -52,7 +58,7 @@ def triage_telemetry(samples: list[RobotTelemetrySample]) -> TriageReport:
                 recommended_action="Return to dock before starting a new manipulation task.",
             )
         )
-    elif latest.battery_percent < 40.0:
+    elif latest.battery_percent < thresholds.battery_watch_pct:
         findings.append(
             TriageFinding(
                 severity="watch",
@@ -62,7 +68,7 @@ def triage_telemetry(samples: list[RobotTelemetrySample]) -> TriageReport:
             )
         )
 
-    if latest.motor_temp_c >= 72.0:
+    if latest.motor_temp_c >= thresholds.motor_temp_watch_c:
         findings.append(
             TriageFinding(
                 severity="watch",
@@ -74,7 +80,7 @@ def triage_telemetry(samples: list[RobotTelemetrySample]) -> TriageReport:
             )
         )
 
-    if total_latency_ms >= 95.0:
+    if total_latency_ms >= thresholds.latency_watch_ms:
         findings.append(
             TriageFinding(
                 severity="watch",
@@ -84,7 +90,7 @@ def triage_telemetry(samples: list[RobotTelemetrySample]) -> TriageReport:
             )
         )
 
-    if latest.localization_quality < 0.72:
+    if latest.localization_quality < thresholds.localization_critical:
         findings.append(
             TriageFinding(
                 severity="critical",

@@ -40,3 +40,17 @@ class LabProfile(BaseModel):
             f"platforms=[{platforms}], ros_domain_id={self.ros_domain_id}, "
             f"safety_gate={safety}"
         )
+
+
+class TriageThresholds(BaseModel):
+    """Configurable telemetry thresholds for the operations triage copilot.
+
+    Defaults match the Yahboom ROSMASTER M3 Pro + Synria arm operating envelope.
+    Override per-robot or per-deployment as hardware evidence is collected.
+    """
+
+    battery_critical_pct: float = Field(default=25.0, ge=0.0, le=100.0)
+    battery_watch_pct: float = Field(default=40.0, ge=0.0, le=100.0)
+    motor_temp_watch_c: float = Field(default=72.0, ge=0.0)
+    latency_watch_ms: float = Field(default=95.0, ge=0.0)
+    localization_critical: float = Field(default=0.72, ge=0.0, le=1.0)

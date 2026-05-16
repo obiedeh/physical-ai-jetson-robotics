@@ -39,3 +39,32 @@ jobs:
 
       - name: Test
         run: pytest -q
+
+  ros2-lint:
+    name: ROS 2 package lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ROS 2 Jazzy
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: jazzy
+
+      - name: Install colcon
+        run: pip install colcon-common-extensions
+
+      - name: Build ROS 2 workspace
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          colcon build --packages-select \
+            rosmaster_m3pro_description \
+            rosmaster_m3pro_gazebo \
+            rosmaster_m3pro_moveit_config \
+            rosmaster_m3pro_bringup \
+            synria_arm_description \
+            synria_arm_moveit_config \
+            --cmake-args -DCMAKE_BUILD_TYPE=Release
+        working-directory: ros2_ws
+        shell: bash

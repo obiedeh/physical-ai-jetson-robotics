@@ -15,6 +15,7 @@ build/
 venv/
 .env
 .env.*
+!.env.example
 
 # Data and generated assets
 data/raw/
