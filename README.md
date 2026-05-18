@@ -311,6 +311,19 @@ See [RTX Simulation and Training](docs/RTX_SIMULATION_TRAINING.md).
 - USB/CSI cameras
 - optional IMU, wheel encoders, and LiDAR
 
+---
+
+## Evidence Artifacts
+
+- [Evidence Standard](docs/evidence_standard.md)
+- [Jetson Evidence Reports](reports/jetson/README.md)
+- [Jetson Metrics Schema](reports/jetson/sample_metrics_schema.json)
+- [Robotics Evidence Reports](reports/robotics/README.md)
+
+These files define where future Jetson and robotics validation artifacts belong. They do not claim Thor, Jetson, or robot validation until matching logs, metrics, screenshots, and notes are committed.
+
+---
+
 ## Execution Environments
 
 This repository is intentionally split across three execution environments:

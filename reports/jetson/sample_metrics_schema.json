@@ -1,0 +1,16 @@
+{
+  "device": "string",
+  "jetpack_version": "string",
+  "cuda_version": "string",
+  "model_name": "string",
+  "precision": "string",
+  "gpu_memory_utilization": "number",
+  "max_model_len": "integer",
+  "run_duration_minutes": "number",
+  "p95_latency_ms": "number",
+  "p99_latency_ms": "number",
+  "tokens_per_second": "number",
+  "peak_memory_gib": "number",
+  "failure_mode": "string|null",
+  "notes": "string"
+}

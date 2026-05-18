@@ -8,12 +8,15 @@ Suggested structure:
 
 ```text
 reports/
-├── demo/
-├── inventory/
-├── yahboom/
-├── synria/
-├── isaac/
-└── benchmarks/
+|-- demo/
+|-- inventory/
+|-- isaac/
+|-- jetson/
+|-- robotics/
+|-- simulation/
+|-- synria/
+|-- training/
+`-- yahboom/
 ```
 
 Use [SIGNATURE_DEMO_TEMPLATE.md](SIGNATURE_DEMO_TEMPLATE.md) when publishing a polished demo report.
