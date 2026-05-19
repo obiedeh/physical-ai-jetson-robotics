@@ -6,6 +6,25 @@ This repository is the flagship project in my AI systems portfolio. It connects 
 
 ---
 
+## Core Stack
+
+**Implemented:** Python · ROS 2 · RViz · robot telemetry scaffolding · GitHub evidence docs
+
+**Planned / integration path:** NVIDIA Jetson · Isaac Sim · OpenUSD · TensorRT · vLLM · AI-RAN/private 5G readiness
+
+<p>
+  <img src="https://img.shields.io/badge/Python-3.x-blue" alt="Python" />
+  <img src="https://img.shields.io/badge/ROS%202-robotics-22314E" alt="ROS 2" />
+  <img src="https://img.shields.io/badge/Jetson-integration%20path-76B900" alt="NVIDIA Jetson integration path" />
+  <img src="https://img.shields.io/badge/Isaac%20Sim-planned-76B900" alt="Isaac Sim planned" />
+  <img src="https://img.shields.io/badge/OpenUSD-assets-5B6C8F" alt="OpenUSD" />
+  <img src="https://img.shields.io/badge/Docker-dev%20path-2496ED" alt="Docker" />
+  <img src="https://img.shields.io/badge/Pytest-tested-brightgreen" alt="Pytest" />
+  <img src="https://img.shields.io/badge/RViz-visualization-4B8BBE" alt="RViz" />
+</p>
+
+---
+
 ## Core Thesis
 
 Physical AI systems need more than models.
