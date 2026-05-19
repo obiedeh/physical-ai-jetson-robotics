@@ -38,6 +38,14 @@ This repository is the flagship project in my AI systems portfolio. It connects 
 
 ---
 
+## Recommended GitHub About
+
+- **Suggested short description:** Physical AI platform for Jetson, ROS 2, robot telemetry, edge inference, and sim-to-real robotics workflows.
+- **Suggested topics/tags:** `physical-ai`, `robotics`, `ros2`, `jetson`, `edge-ai`, `isaac-sim`, `openusd`, `runtime-observability`, `telemetry`
+- **Positioning category:** Flagship
+
+---
+
 ## Core Thesis
 
 Physical AI systems need more than models.
