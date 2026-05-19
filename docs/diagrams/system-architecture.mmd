@@ -1,0 +1,37 @@
+flowchart TB
+    subgraph Inputs["Implemented input assets"]
+        vendor["Vendor robot docs and CAD"]
+        rosdesc["ROS 2 descriptions\nros2_ws/src"]
+        usd["OpenUSD assets\nisaac/usd"]
+    end
+
+    subgraph Validation["Runnable scaffold"]
+        cli["Python CLI\nphysical_ai_lab"]
+        tests["pytest and static checks"]
+        rviz["RViz display configs"]
+        reports["Evidence reports\nreports/"]
+    end
+
+    subgraph Edge["Planned Jetson deployment"]
+        jetson["Jetson runtime"]
+        inference["Edge inference\nTensorRT / VLM / LLM planned"]
+        telemetry["Runtime telemetry\nlatency, memory, sustained run"]
+    end
+
+    subgraph Hardware["Future hardware validation"]
+        robots["Yahboom / Synria robots"]
+        safety["Safety and readiness gates"]
+    end
+
+    vendor --> rosdesc
+    rosdesc --> rviz
+    rosdesc --> tests
+    usd --> tests
+    cli --> reports
+    tests --> reports
+    reports --> jetson
+    jetson --> inference
+    inference --> telemetry
+    telemetry --> reports
+    reports --> safety
+    safety --> robots

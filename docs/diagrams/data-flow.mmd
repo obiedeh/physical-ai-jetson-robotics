@@ -1,0 +1,14 @@
+flowchart LR
+    inputs["Robot models, configs,\nOpenUSD scenes, run commands"]
+    checks["Validation scripts and tests"]
+    metrics["Runtime metrics planned\nlatency, memory, queue depth"]
+    logs["Logs and screenshots"]
+    artifacts["Evidence artifacts\nreports/ and artifacts/"]
+    review["Reviewer / operator inspection"]
+
+    inputs --> checks
+    checks --> logs
+    checks --> artifacts
+    metrics -. "planned Jetson evidence" .-> artifacts
+    logs --> artifacts
+    artifacts --> review

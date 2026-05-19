@@ -1,0 +1,31 @@
+flowchart TB
+    subgraph Local["Implemented local development"]
+        py["Python package and tests"]
+        ros["ROS 2 description workspace"]
+        rviz["RViz / display launch configs"]
+        usdlocal["OpenUSD asset staging"]
+    end
+
+    subgraph RTX["Runnable workstation path"]
+        openusd["OpenUSD inspection"]
+        isaac["Isaac Sim / rendering path\nhost-dependent"]
+        simreports["Simulation reports"]
+    end
+
+    subgraph Jetson["Planned Jetson deployment"]
+        device["Jetson device"]
+        edge["Edge inference service"]
+        telem["Telemetry capture"]
+        bench["Benchmark artifact\nfuture hardware validation"]
+    end
+
+    subgraph Robots["Future robot hardware"]
+        yahboom["Yahboom mobile robot"]
+        synria["Synria arm"]
+        safety["Safety gate and operator review"]
+    end
+
+    Local --> RTX
+    RTX --> Jetson
+    Jetson --> Robots
+    safety --> simreports

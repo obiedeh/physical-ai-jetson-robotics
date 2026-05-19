@@ -25,6 +25,19 @@ This repository is the flagship project in my AI systems portfolio. It connects 
 
 ---
 
+## Architecture and Evidence
+
+- [Architecture overview](docs/architecture.md)
+- [System architecture diagram](docs/diagrams/system-architecture.mmd)
+- [Runtime flow diagram](docs/diagrams/runtime-flow.mmd)
+- [Data flow diagram](docs/diagrams/data-flow.mmd)
+- [Deployment view diagram](docs/diagrams/deployment-view.mmd)
+- [Sample outputs](artifacts/sample-outputs/)
+- [Logs](artifacts/logs/)
+- [Reports](artifacts/reports/)
+
+---
+
 ## Core Thesis
 
 Physical AI systems need more than models.

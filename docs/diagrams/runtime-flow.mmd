@@ -1,0 +1,10 @@
+flowchart LR
+    start["Run validation command\npytest / ROS 2 smoke / OpenUSD check"]
+    load["Load robot descriptions\nURDF, Xacro, meshes, configs"]
+    validate["Validate structure\nlinks, joints, launch files, assets"]
+    simulate["Inspect simulation assets\nRViz / Gazebo / OpenUSD"]
+    collect["Collect logs and notes"]
+    report["Write evidence report\nreports/ or artifacts/reports"]
+    next["Next gate\nJetson or hardware only after evidence"]
+
+    start --> load --> validate --> simulate --> collect --> report --> next
