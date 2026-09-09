@@ -1,0 +1,279 @@
+[
+ {
+  "pitch_deg": 0.0,
+  "grasp_z_mm": 40.0,
+  "pad_bottom_clear_mm": 3.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 6,
+  "trials": 6,
+  "stage_trace": [
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 17.5,
+     "cup_above_table_mm": 126.5,
+     "cup_minus_pad_z_mm": -9.7,
+     "cup_xy_vs_pad_mm": 7.7
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 17.5,
+     "cup_above_table_mm": 126.6,
+     "cup_minus_pad_z_mm": -9.7,
+     "cup_xy_vs_pad_mm": 7.7
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 10.2,
+     "cup_above_table_mm": 39.0,
+     "cup_minus_pad_z_mm": -10.6,
+     "cup_xy_vs_pad_mm": 6.4
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 9.6,
+     "cup_above_table_mm": 38.7,
+     "cup_minus_pad_z_mm": -10.6,
+     "cup_xy_vs_pad_mm": 6.3
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 17.7,
+     "cup_above_table_mm": 189.7,
+     "cup_minus_pad_z_mm": -9.6,
+     "cup_xy_vs_pad_mm": 7.8
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 17.6,
+     "cup_above_table_mm": 126.7,
+     "cup_minus_pad_z_mm": -9.7,
+     "cup_xy_vs_pad_mm": 7.4
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 17.7,
+     "cup_above_table_mm": 126.8,
+     "cup_minus_pad_z_mm": -9.7,
+     "cup_xy_vs_pad_mm": 7.4
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 10.3,
+     "cup_above_table_mm": 38.5,
+     "cup_minus_pad_z_mm": -10.6,
+     "cup_xy_vs_pad_mm": 6.0
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 9.9,
+     "cup_above_table_mm": 38.2,
+     "cup_minus_pad_z_mm": -10.6,
+     "cup_xy_vs_pad_mm": 6.0
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 17.8,
+     "cup_above_table_mm": 189.1,
+     "cup_minus_pad_z_mm": -9.7,
+     "cup_xy_vs_pad_mm": 7.4
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 18.3,
+     "cup_above_table_mm": 126.6,
+     "cup_minus_pad_z_mm": -9.9,
+     "cup_xy_vs_pad_mm": 7.1
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 18.3,
+     "cup_above_table_mm": 126.7,
+     "cup_minus_pad_z_mm": -9.9,
+     "cup_xy_vs_pad_mm": 7.2
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 11.4,
+     "cup_above_table_mm": 37.5,
+     "cup_minus_pad_z_mm": -10.7,
+     "cup_xy_vs_pad_mm": 5.9
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 10.9,
+     "cup_above_table_mm": 37.2,
+     "cup_minus_pad_z_mm": -10.7,
+     "cup_xy_vs_pad_mm": 5.8
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 18.4,
+     "cup_above_table_mm": 188.7,
+     "cup_minus_pad_z_mm": -9.9,
+     "cup_xy_vs_pad_mm": 7.2
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 18.2,
+     "cup_above_table_mm": 126.7,
+     "cup_minus_pad_z_mm": -9.9,
+     "cup_xy_vs_pad_mm": 7.7
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 18.2,
+     "cup_above_table_mm": 126.7,
+     "cup_minus_pad_z_mm": -9.9,
+     "cup_xy_vs_pad_mm": 7.7
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 11.4,
+     "cup_above_table_mm": 36.8,
+     "cup_minus_pad_z_mm": -10.7,
+     "cup_xy_vs_pad_mm": 6.4
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 11.0,
+     "cup_above_table_mm": 36.5,
+     "cup_minus_pad_z_mm": -10.8,
+     "cup_xy_vs_pad_mm": 6.4
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 18.4,
+     "cup_above_table_mm": 188.2,
+     "cup_minus_pad_z_mm": -9.8,
+     "cup_xy_vs_pad_mm": 7.7
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 17.9,
+     "cup_above_table_mm": 127.5,
+     "cup_minus_pad_z_mm": -9.1,
+     "cup_xy_vs_pad_mm": 8.8
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 18.0,
+     "cup_above_table_mm": 127.5,
+     "cup_minus_pad_z_mm": -9.1,
+     "cup_xy_vs_pad_mm": 8.8
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 11.3,
+     "cup_above_table_mm": 36.6,
+     "cup_minus_pad_z_mm": -10.1,
+     "cup_xy_vs_pad_mm": 7.7
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 11.1,
+     "cup_above_table_mm": 36.3,
+     "cup_minus_pad_z_mm": -10.1,
+     "cup_xy_vs_pad_mm": 7.6
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 18.1,
+     "cup_above_table_mm": 188.1,
+     "cup_minus_pad_z_mm": -9.1,
+     "cup_xy_vs_pad_mm": 8.8
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 17.4,
+     "cup_above_table_mm": 126.7,
+     "cup_minus_pad_z_mm": -9.1,
+     "cup_xy_vs_pad_mm": 8.9
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 17.5,
+     "cup_above_table_mm": 126.8,
+     "cup_minus_pad_z_mm": -9.1,
+     "cup_xy_vs_pad_mm": 8.9
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 11.0,
+     "cup_above_table_mm": 36.2,
+     "cup_minus_pad_z_mm": -10.1,
+     "cup_xy_vs_pad_mm": 7.7
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 11.6,
+     "cup_above_table_mm": 35.8,
+     "cup_minus_pad_z_mm": -10.1,
+     "cup_xy_vs_pad_mm": 7.7
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 17.9,
+     "cup_above_table_mm": 187.4,
+     "cup_minus_pad_z_mm": -9.1,
+     "cup_xy_vs_pad_mm": 8.9
+    }
+   ]
+  ]
+ }
+]

@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "physical-ai-jetson-robotics-lab"
+version = "0.1.0"
+description = "Physical AI lab for Jetson robotics, OpenUSD simulation, ROS 2 SLAM, edge AI, and sim-to-real deployment."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+  {name = "Obinna Edeh", email = "obiedeh@gmail.com"}
+]
+keywords = [
+  "physical-ai",
+  "robotics",
+  "jetson",
+  "isaac-sim",
+  "openusd",
+  "slam",
+  "edge-ai",
+  "sim-to-real",
+  "ros2"
+]
+dependencies = [
+  "numpy>=1.24",
+  "pydantic>=2.7",
+  "typer>=0.12",
+  "rich>=13.7"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.5",
+  "mypy>=1.10",
+  "lark>=1.2",
+  "python-chess>=1.999",
+  "click>=8.1"
+]
+vision = [
+  "opencv-python>=4.9"
+]
+ml = [
+  "onnxruntime>=1.17",
+  "scikit-learn>=1.4"
+]
+robot-learning = [
+  "lerobot>=0.5,<0.6"
+]
+llm = [
+  "anthropic>=0.34"
+]
+
+[project.scripts]
+physical-ai-lab = "physical_ai_lab.cli:app"
+
+[tool.setuptools.packages.find]
+include = ["physical_ai_lab*", "arm_control*", "edge_ai*", "slam*", "agents*", "lerobot*", "isaac*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+# Standalone diagnostics execute GPU/hardware code at import; collect unit suites only.
+testpaths = ["tests", "game_core", "ludo_engine"]
+
+[tool.mypy]
+# No python_version pin: check against the running interpreter so current numpy
+# stubs (PEP 695 syntax on 3.12+) type-check on every matrix job.
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true

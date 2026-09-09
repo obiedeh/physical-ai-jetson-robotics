@@ -1,0 +1,8 @@
+hardware:
+  backend: vendor_control_board
+  status: scaffold_only
+  required_before_real_robot:
+    - verify serial protocol and device permissions
+    - map wheel encoder signs to base frame
+    - map arm servo units to joint radians
+    - measure joint soft limits after calibration

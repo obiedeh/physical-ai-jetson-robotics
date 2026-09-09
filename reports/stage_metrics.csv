@@ -1,0 +1,2 @@
+takeover_stage,fixed_spawn,instruction,episodes,successes,rate,ci_lo,ci_hi,top_failure,median_min_hand_cup_xy,median_max_cup_z
+none,False,"pick up the cup, carry it, and set it ba",40,0,0.0,0.0,0.0876,premature_gripper_close,0.0195,0.0283

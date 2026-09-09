@@ -1,0 +1,14 @@
+flowchart TB
+    vendor["External vendor inputs"] --> fetch["Local fetch / conversion"]
+    fetch --> sim["RTX 5090: Isaac Sim\nPPO + scripted Ludo executor"]
+    gr00t["External GR00T checkout / checkpoint"] --> ge["Separate simulated GR00T eval"]
+    gr00t --> thor["Thor: measured eager / TensorRT inference"]
+    client["RTX: LeRobot keyboard recorder"] <-->|ZMQ| host["Orin: ROS 2 hardware host"]
+    host <-->|"Commands / odometry / battery\nNo joint feedback"| board["Yahboom vendor board runtime"]
+    sim --> evidence["Reports + provenance + corrections"]
+    ge --> evidence
+    thor --> evidence
+    host --> evidence
+    evidence --> review["Operator / reviewer"]
+    pending["Not established: autonomous real-arm pick/place\nNumeric parity / sustained thermal and safety validation"]
+    review -. "Next validation work" .-> pending

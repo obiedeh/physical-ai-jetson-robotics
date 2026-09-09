@@ -1,0 +1,200 @@
+[
+ {
+  "pitch_deg": 0.0,
+  "grasp_z_mm": 46.0,
+  "pad_bottom_clear_mm": 9.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 6,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 0.0,
+  "grasp_z_mm": 44.0,
+  "pad_bottom_clear_mm": 7.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 6,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 0.0,
+  "grasp_z_mm": 42.0,
+  "pad_bottom_clear_mm": 5.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 6,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 0.0,
+  "grasp_z_mm": 40.0,
+  "pad_bottom_clear_mm": 3.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 1,
+  "upright_at_place": 1,
+  "tipped": 5,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 0.0,
+  "grasp_z_mm": 38.0,
+  "pad_bottom_clear_mm": 1.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 1,
+  "upright_at_place": 1,
+  "tipped": 5,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 0.0,
+  "grasp_z_mm": 37.0,
+  "pad_bottom_clear_mm": 0.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 6,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 45.0,
+  "grasp_z_mm": 46.0,
+  "pad_bottom_clear_mm": 9.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 6,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 45.0,
+  "grasp_z_mm": 44.0,
+  "pad_bottom_clear_mm": 7.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 6,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 45.0,
+  "grasp_z_mm": 42.0,
+  "pad_bottom_clear_mm": 5.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 1,
+  "upright_at_place": 1,
+  "tipped": 5,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 45.0,
+  "grasp_z_mm": 40.0,
+  "pad_bottom_clear_mm": 3.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 6,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 45.0,
+  "grasp_z_mm": 38.0,
+  "pad_bottom_clear_mm": 1.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 1,
+  "upright_at_place": 1,
+  "tipped": 5,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 45.0,
+  "grasp_z_mm": 37.0,
+  "pad_bottom_clear_mm": 0.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 6,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 135.0,
+  "grasp_z_mm": 46.0,
+  "pad_bottom_clear_mm": 9.9,
+  "grasped": 0,
+  "upright_at_grasp": 0,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 0,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 135.0,
+  "grasp_z_mm": 44.0,
+  "pad_bottom_clear_mm": 7.9,
+  "grasped": 0,
+  "upright_at_grasp": 0,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 0,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 135.0,
+  "grasp_z_mm": 42.0,
+  "pad_bottom_clear_mm": 5.9,
+  "grasped": 0,
+  "upright_at_grasp": 0,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 0,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 135.0,
+  "grasp_z_mm": 40.0,
+  "pad_bottom_clear_mm": 3.9,
+  "grasped": 0,
+  "upright_at_grasp": 0,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 0,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 135.0,
+  "grasp_z_mm": 38.0,
+  "pad_bottom_clear_mm": 1.9,
+  "grasped": 1,
+  "upright_at_grasp": 0,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 1,
+  "trials": 6
+ },
+ {
+  "pitch_deg": 135.0,
+  "grasp_z_mm": 37.0,
+  "pad_bottom_clear_mm": 0.9,
+  "grasped": 0,
+  "upright_at_grasp": 0,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 0,
+  "trials": 6
+ }
+]

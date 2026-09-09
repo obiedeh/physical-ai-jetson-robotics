@@ -1,0 +1,112 @@
+[
+ {
+  "trial": 0,
+  "mode": "hover",
+  "stall_left_mm": 3.5,
+  "stall_right_mm": 1.2,
+  "contacted": true,
+  "symmetric": true,
+  "drop_mm": 47.5,
+  "held": true,
+  "success": true
+ },
+ {
+  "trial": 1,
+  "mode": "hover",
+  "stall_left_mm": 1.3,
+  "stall_right_mm": 0.5,
+  "contacted": true,
+  "symmetric": true,
+  "drop_mm": 47.3,
+  "held": true,
+  "success": true
+ },
+ {
+  "trial": 2,
+  "mode": "hover",
+  "stall_left_mm": 1.3,
+  "stall_right_mm": 0.5,
+  "contacted": true,
+  "symmetric": true,
+  "drop_mm": 47.3,
+  "held": true,
+  "success": true
+ },
+ {
+  "trial": 3,
+  "mode": "hover",
+  "stall_left_mm": 1.3,
+  "stall_right_mm": 0.5,
+  "contacted": true,
+  "symmetric": true,
+  "drop_mm": 47.3,
+  "held": true,
+  "success": true
+ },
+ {
+  "trial": 4,
+  "mode": "hover",
+  "stall_left_mm": 1.3,
+  "stall_right_mm": 0.5,
+  "contacted": true,
+  "symmetric": true,
+  "drop_mm": 47.3,
+  "held": true,
+  "success": true
+ },
+ {
+  "trial": 5,
+  "mode": "hover",
+  "stall_left_mm": 1.3,
+  "stall_right_mm": 0.5,
+  "contacted": true,
+  "symmetric": true,
+  "drop_mm": 47.3,
+  "held": true,
+  "success": true
+ },
+ {
+  "trial": 6,
+  "mode": "hover",
+  "stall_left_mm": 1.3,
+  "stall_right_mm": 0.5,
+  "contacted": true,
+  "symmetric": true,
+  "drop_mm": 47.3,
+  "held": true,
+  "success": true
+ },
+ {
+  "trial": 7,
+  "mode": "hover",
+  "stall_left_mm": 1.3,
+  "stall_right_mm": 0.5,
+  "contacted": true,
+  "symmetric": true,
+  "drop_mm": 47.3,
+  "held": true,
+  "success": true
+ },
+ {
+  "trial": 8,
+  "mode": "hover",
+  "stall_left_mm": 1.3,
+  "stall_right_mm": 0.5,
+  "contacted": true,
+  "symmetric": true,
+  "drop_mm": 47.3,
+  "held": true,
+  "success": true
+ },
+ {
+  "trial": 9,
+  "mode": "hover",
+  "stall_left_mm": 1.3,
+  "stall_right_mm": 0.5,
+  "contacted": true,
+  "symmetric": true,
+  "drop_mm": 47.3,
+  "held": true,
+  "success": true
+ }
+]

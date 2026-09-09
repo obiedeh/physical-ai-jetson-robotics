@@ -1,0 +1,46 @@
+# Joint limits for the Synria 6DOF arm.
+# Key names match the vendor URDF joint names (capital-J, SolidWorks export).
+# Velocity and acceleration values are conservative planning limits;
+# the URDF encodes the hardware limits (vel=12 rad/s, eff=5 Nm for all joints).
+
+joint_limits:
+  Joint1:
+    has_velocity_limits: true
+    max_velocity: 1.5
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  Joint2:
+    has_velocity_limits: true
+    max_velocity: 1.5
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  Joint3:
+    has_velocity_limits: true
+    max_velocity: 1.5
+    has_acceleration_limits: true
+    max_acceleration: 2.0
+  Joint4:
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  Joint5:
+    has_velocity_limits: true
+    max_velocity: 2.0
+    has_acceleration_limits: true
+    max_acceleration: 3.0
+  Joint6:
+    has_velocity_limits: true
+    max_velocity: 2.5
+    has_acceleration_limits: true
+    max_acceleration: 3.5
+  left_finger:
+    has_velocity_limits: true
+    max_velocity: 0.05
+    has_acceleration_limits: false
+    max_acceleration: 0.0
+  right_finger:
+    has_velocity_limits: true
+    max_velocity: 0.05
+    has_acceleration_limits: false
+    max_acceleration: 0.0

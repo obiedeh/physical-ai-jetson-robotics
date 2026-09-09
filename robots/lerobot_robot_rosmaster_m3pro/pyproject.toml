@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lerobot_robot_rosmaster_m3pro"
+version = "0.1.0"
+description = "LeRobot plugin: Yahboom ROSMASTER M3 Pro (Jetson Orin NX) mobile manipulator — 6DOF bus-servo arm + mecanum base over the vendor micro-ROS bridge"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Obinna Edeh", email = "obiedeh@gmail.com"}]
+dependencies = ["lerobot>=0.6.2", "numpy>=1.24"]
+# rclpy, geometry_msgs, nav_msgs, std_msgs, arm_msgs come from the ROS 2 Humble
+# environment on the robot (source /opt/ros/humble/setup.bash + the vendor
+# yahboomcar_ws), NOT from pip.
+
+[project.optional-dependencies]
+teleop = ["pynput>=1.7"]
+
+[project.scripts]
+m3pro-host = "lerobot_robot_rosmaster_m3pro.m3pro_host:main"
+m3pro-smoke = "lerobot_robot_rosmaster_m3pro.smoke:main"
+
+[tool.setuptools.packages.find]
+include = ["lerobot_robot_rosmaster_m3pro*"]

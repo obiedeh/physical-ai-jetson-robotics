@@ -1,0 +1,214 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="rosmaster_m3pro_arm_6dof" params="
+      parent origin_xyz origin_rpy
+      shoulder_height upper_arm_length forearm_length wrist_length tool_length">
+    <link name="arm_base_link">
+      <visual>
+        <origin xyz="0 0 ${shoulder_height / 2.0}" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.055" length="${shoulder_height}"/>
+        </geometry>
+        <material name="m3pro_dark_gray"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${shoulder_height / 2.0}" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.055" length="${shoulder_height}"/>
+        </geometry>
+      </collision>
+      <xacro:cylinder_inertial_z mass="0.70" radius="0.055" length="${shoulder_height}">
+        <origin xyz="0 0 ${shoulder_height / 2.0}" rpy="0 0 0"/>
+      </xacro:cylinder_inertial_z>
+    </link>
+
+    <link name="shoulder_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="${pi / 2.0} 0 0"/>
+        <geometry>
+          <cylinder radius="0.045" length="0.095"/>
+        </geometry>
+        <material name="m3pro_aluminum"/>
+      </visual>
+      <visual>
+        <origin xyz="0 0 0.040" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.075 0.060 0.080"/>
+        </geometry>
+        <material name="m3pro_blue"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.095 0.095 0.090"/>
+        </geometry>
+      </collision>
+      <xacro:box_inertial mass="0.45" x="0.095" y="0.095" z="0.090">
+        <origin xyz="0 0 0.020" rpy="0 0 0"/>
+      </xacro:box_inertial>
+    </link>
+
+    <link name="upper_arm_link">
+      <visual>
+        <origin xyz="${upper_arm_length / 2.0} 0 0" rpy="0 ${pi / 2.0} 0"/>
+        <geometry>
+          <cylinder radius="0.028" length="${upper_arm_length}"/>
+        </geometry>
+        <material name="m3pro_aluminum"/>
+      </visual>
+      <visual>
+        <origin xyz="${upper_arm_length * 0.50} 0 0.030" rpy="0 ${pi / 2.0} 0"/>
+        <geometry>
+          <cylinder radius="0.018" length="${upper_arm_length * 0.82}"/>
+        </geometry>
+        <material name="m3pro_blue"/>
+      </visual>
+      <collision>
+        <origin xyz="${upper_arm_length / 2.0} 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${upper_arm_length} 0.060 0.070"/>
+        </geometry>
+      </collision>
+      <xacro:box_inertial mass="0.55" x="${upper_arm_length}" y="0.060" z="0.070">
+        <origin xyz="${upper_arm_length / 2.0} 0 0" rpy="0 0 0"/>
+      </xacro:box_inertial>
+    </link>
+
+    <link name="forearm_link">
+      <visual>
+        <origin xyz="${forearm_length / 2.0} 0 0" rpy="0 ${pi / 2.0} 0"/>
+        <geometry>
+          <cylinder radius="0.024" length="${forearm_length}"/>
+        </geometry>
+        <material name="m3pro_aluminum"/>
+      </visual>
+      <visual>
+        <origin xyz="${forearm_length * 0.50} 0 -0.026" rpy="0 ${pi / 2.0} 0"/>
+        <geometry>
+          <cylinder radius="0.015" length="${forearm_length * 0.80}"/>
+        </geometry>
+        <material name="m3pro_blue"/>
+      </visual>
+      <collision>
+        <origin xyz="${forearm_length / 2.0} 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${forearm_length} 0.055 0.060"/>
+        </geometry>
+      </collision>
+      <xacro:box_inertial mass="0.45" x="${forearm_length}" y="0.055" z="0.060">
+        <origin xyz="${forearm_length / 2.0} 0 0" rpy="0 0 0"/>
+      </xacro:box_inertial>
+    </link>
+
+    <link name="wrist_1_link">
+      <visual>
+        <origin xyz="0 0 ${wrist_length / 2.0}" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.032" length="${wrist_length}"/>
+        </geometry>
+        <material name="m3pro_blue"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${wrist_length / 2.0}" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.032" length="${wrist_length}"/>
+        </geometry>
+      </collision>
+      <xacro:cylinder_inertial_z mass="0.20" radius="0.032" length="${wrist_length}">
+        <origin xyz="0 0 ${wrist_length / 2.0}" rpy="0 0 0"/>
+      </xacro:cylinder_inertial_z>
+    </link>
+
+    <link name="wrist_2_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="${pi / 2.0} 0 0"/>
+        <geometry>
+          <cylinder radius="0.030" length="0.070"/>
+        </geometry>
+        <material name="m3pro_blue"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.055 0.070 0.055"/>
+        </geometry>
+      </collision>
+      <xacro:box_inertial mass="0.18" x="0.055" y="0.070" z="0.055">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+      </xacro:box_inertial>
+    </link>
+
+    <link name="tool0">
+      <visual>
+        <origin xyz="${tool_length / 2.0} 0 0" rpy="0 ${pi / 2.0} 0"/>
+        <geometry>
+          <cylinder radius="0.020" length="${tool_length}"/>
+        </geometry>
+        <material name="m3pro_black"/>
+      </visual>
+      <collision>
+        <origin xyz="${tool_length / 2.0} 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${tool_length} 0.045 0.045"/>
+        </geometry>
+      </collision>
+      <xacro:box_inertial mass="0.12" x="${tool_length}" y="0.045" z="0.045">
+        <origin xyz="${tool_length / 2.0} 0 0" rpy="0 0 0"/>
+      </xacro:box_inertial>
+    </link>
+
+    <joint name="arm_mount_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="arm_base_link"/>
+      <origin xyz="${origin_xyz}" rpy="${origin_rpy}"/>
+    </joint>
+
+    <joint name="joint_1" type="revolute">
+      <parent link="arm_base_link"/>
+      <child link="shoulder_link"/>
+      <origin xyz="0 0 ${shoulder_height}" rpy="0 0 0"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-${pi}" upper="${pi}" effort="30.0" velocity="1.5"/>
+    </joint>
+
+    <joint name="joint_2" type="revolute">
+      <parent link="shoulder_link"/>
+      <child link="upper_arm_link"/>
+      <origin xyz="0 0 0.040" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="-1.5708" upper="1.5708" effort="30.0" velocity="1.5"/>
+    </joint>
+
+    <joint name="joint_3" type="revolute">
+      <parent link="upper_arm_link"/>
+      <child link="forearm_link"/>
+      <origin xyz="${upper_arm_length} 0 0" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="-2.3562" upper="2.3562" effort="25.0" velocity="1.5"/>
+    </joint>
+
+    <joint name="joint_4" type="revolute">
+      <parent link="forearm_link"/>
+      <child link="wrist_1_link"/>
+      <origin xyz="${forearm_length} 0 0" rpy="0 0 0"/>
+      <axis xyz="1 0 0"/>
+      <limit lower="-${pi}" upper="${pi}" effort="15.0" velocity="2.0"/>
+    </joint>
+
+    <joint name="joint_5" type="revolute">
+      <parent link="wrist_1_link"/>
+      <child link="wrist_2_link"/>
+      <origin xyz="0 0 ${wrist_length}" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="-1.5708" upper="1.5708" effort="15.0" velocity="2.0"/>
+    </joint>
+
+    <joint name="joint_6" type="revolute">
+      <parent link="wrist_2_link"/>
+      <child link="tool0"/>
+      <origin xyz="0 0 0.070" rpy="0 0 0"/>
+      <axis xyz="1 0 0"/>
+      <limit lower="-${pi}" upper="${pi}" effort="10.0" velocity="2.5"/>
+    </joint>
+  </xacro:macro>
+</robot>

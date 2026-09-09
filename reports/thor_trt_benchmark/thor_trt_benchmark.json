@@ -1,0 +1,62 @@
+{
+  "run_id": "thor-trt-recovery-2026-08-20",
+  "generated_utc": "2026-08-20T05:14:10Z",
+  "data_kind": "REAL hardware measurement (Jetson AGX Thor); model inputs drawn from the simulated e46 LeRobot dataset (single data point mode, not trajectory)",
+  "device": "NVIDIA Jetson AGX Thor 128GB",
+  "l4t_release": "# R38 (release), REVISION: 4.0, GCID: 43443517, BOARD: generic, EABI: aarch64, DATE: Wed Dec 31 00:15:19 UTC 2025\n# KERNEL_VARIANT: oot\nTARGET_USERSPACE_LIB_DIR=nvidia\nTARGET_USERSPACE_LIB_DIR_PATH=usr/lib/aarch64-linux-gnu/nvidia\nINSTALL_TYPE=openrm",
+  "power_mode": "120W (nvpmodel -q: 'NV Power Mode: 120W', mode 1)",
+  "model": "gr00t_synria_thor_v6_merged40k/checkpoint-35000 (E48 ckpt-35k, gr00t n1d7 code family)",
+  "engines": "7 engines at ~/github/Isaac-GR00T/gr00t_trt_deployment/engines/ (bf16, batch 1, built 2026-08-16)",
+  "conditions": {
+    "num_iterations": 100,
+    "warmup": 10,
+    "seed": 42,
+    "batch_size": 1,
+    "precision": "bf16",
+    "action_horizon": 40,
+    "denoising_steps": 4,
+    "warm_or_cold": "warm (10 warmup iterations before timing)"
+  },
+  "pytorch_eager": {
+    "e2e": {
+      "median_ms": 126.6,
+      "mean_ms": 126.9,
+      "std_ms": 2.5,
+      "min_ms": 122.2,
+      "max_ms": 139.0,
+      "hz": 7.9
+    },
+    "data_processing_ms_median": 7.95,
+    "backbone_ms_median": 48.19,
+    "action_head_ms_median": 70.44
+  },
+  "tensorrt_n17_full_pipeline": {
+    "e2e": {
+      "median_ms": 101.6,
+      "mean_ms": 101.8,
+      "std_ms": 2.0,
+      "min_ms": 97.8,
+      "max_ms": 107.8,
+      "hz": 9.8
+    },
+    "data_processing_ms_median": 7.95,
+    "backbone_ms_median": 31.69,
+    "action_head_ms_median": 61.73
+  },
+  "thermal": {
+    "gpu_temp_c_samples": 31,
+    "gpu_temp_c_peak": 42.0,
+    "gpu_temp_c_sustained_median": 38.218,
+    "throttling_observed": false,
+    "throttling_basis": "tegrastats 1Hz log: all CPU clocks pinned at nominal, tj peak ~40.5C, far below throttle thresholds",
+    "power_peak_mw": {
+      "VDD_GPU": 10676,
+      "VIN_total": 39937
+    }
+  },
+  "accuracy_verification": {
+    "deltas_vs_pytorch": null,
+    "note": "NEVER RECORDED. The 2026-08-16 build log contains no parity output and the benchmark harness computes none; the ledger's 'accuracy-verified vs PyTorch' claim (commit ec660af) has no recorded numeric evidence. A tolerance-checked parity run remains TODO before any accuracy-equivalence claim."
+  },
+  "correction_of_record": "The ledger/PIPELINE.md figure 'E2E 128 ms (7.8 Hz)' was the torch.compile BASELINE from the 2026-08-16 run whose TensorRT step failed on a missing matplotlib import. This 2026-08-20 recovery run is the first successful TensorRT benchmark: E2E median 101.6 ms (9.8 Hz)."
+}

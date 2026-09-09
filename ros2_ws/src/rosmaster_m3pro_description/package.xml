@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>rosmaster_m3pro_description</name>
+  <version>0.1.0</version>
+  <description>
+    ROS 2 description package for the Yahboom ROSMASTER M3 Pro mobile manipulator.
+    Wraps the vendor URDF (yahboom_M3Pro_description) with a world link, xacro
+    composition, ros2_control mock hardware, and RViz display launch.
+  </description>
+  <maintainer email="oedeh@example.com">oedeh</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- Vendor package that provides the URDF and STL meshes -->
+  <exec_depend>yahboom_M3Pro_description</exec_depend>
+
+  <!-- Display launch dependencies -->
+  <exec_depend>joint_state_publisher_gui</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>xacro</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

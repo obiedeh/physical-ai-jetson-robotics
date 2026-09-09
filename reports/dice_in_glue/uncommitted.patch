@@ -1,0 +1,106 @@
+diff --git a/isaac/isaaclab_tasks/synria_pickplace/recorder_env_cfg.py b/isaac/isaaclab_tasks/synria_pickplace/recorder_env_cfg.py
+index 71f8371..4e61761 100644
+--- a/isaac/isaaclab_tasks/synria_pickplace/recorder_env_cfg.py
++++ b/isaac/isaaclab_tasks/synria_pickplace/recorder_env_cfg.py
+@@ -92,7 +92,7 @@ if _ISAACLAB_AVAILABLE:
+     #: die footprint (m) — a small cube read by its rest orientation
+     DIE_SIZE = 0.018
+ 
+-    def add_die(cfg, pos=(0.15, 0.21, None)):
++    def add_die(cfg, pos=(0.08, 0.12, None)):
+         """Attach a pickable/rollable die (18 mm cube) adjacent to the board.
+         Opt-in (demos only) — never added to the training env. The die value
+         is read from its rest orientation (game_core.dice)."""
+@@ -117,7 +117,7 @@ if _ISAACLAB_AVAILABLE:
+         )
+         return cfg
+ 
+-    def add_cup(cfg, pos=(0.15, -0.15, None)):
++    def add_cup(cfg, pos=(0.08, -0.12, None)):
+         """Attach the hollow dice cup (isaac/usd/props/dice_cup.usda) as a
+         pickable rigid body. Opt-in (demos only). convexDecomposition collision
+         (baked in the USD) makes it CONTAIN the die."""
+diff --git a/isaac/scripts/ludo_turn_executor.py b/isaac/scripts/ludo_turn_executor.py
+index 3c45a71..cd3a5f2 100644
+--- a/isaac/scripts/ludo_turn_executor.py
++++ b/isaac/scripts/ludo_turn_executor.py
+@@ -1510,29 +1510,67 @@ def _run(args: argparse.Namespace) -> int:
+                 if cap and float(torch.norm(tgt - gc)) < tol:
+                     break
+ 
++        # kinematic carry (same convention as the A/A+ token/cup carry): the die
++        # is glued to the grasp center while the fingers are closed, then freed
++        # over the cup. The level-IK stalls ~28-41mm short of any point, so a
++        # friction grip is unreliable; gluing to the grasp-center matches how the
++        # accepted pick-place demos already move objects.
++        def glue_die(pos3):
++            root = die_obj.data.default_root_state.clone()
++            root[0, 0], root[0, 1], root[0, 2] = float(pos3[0]), float(pos3[1]), float(pos3[2])
++            root[0, 3:7] = torch.tensor([1.0, 0, 0, 0], device=_dev)
++            root[0, 7:] = 0.0
++            die_obj.write_root_pose_to_sim(root[:, :7])
++            die_obj.write_root_velocity_to_sim(root[:, 7:])
++
++        def servo_glue(tx, ty, tz, grip, steps, tol=0.010):
++            tgt = torch.tensor([[tx, ty, tz]], device=_dev, dtype=torch.float32)
++            at = robot.data.joint_pos[:, arm_ids].clone()
++            for _ in range(steps):
++                dq = level_dq(tgt, _up, _ph)
++                at = at + dq
++                meas = robot.data.joint_pos[:, arm_ids]
++                at = torch.clamp(at, meas - 0.55, meas + 0.55).clamp(
++                    jlim[:, 0], jlim[:, 1])
++                a = torch.zeros(1, 7, device=_dev)
++                a[:, :6] = at - _def
++                a[:, 6] = grip
++                wrapper.step(a)
++                glue_die(mdp._grasp_center_local(env)[0])          # die follows gripper
++                dump_frame("dice-in carry")
++                if float(torch.norm(tgt - mdp._grasp_center_local(env))) < tol:
++                    break
++
+         ok = 0
+         for k in range(args.dice_in):
+             d = die_obj.data.root_pos_w[0].cpu().numpy()
+             c = cup_obj.data.root_pos_w[0].cpu().numpy()
+             servo(d[0], d[1], GZ + 0.09, OPEN_CMD, 200)            # above die, level
+-            servo(d[0], d[1], GZ, OPEN_CMD, 200, tol=0.006)        # descend to die
+-            gc = mdp._grasp_center_local(env)[0].cpu().numpy()
+-            print(f"[dicein] att{k+1} at-die gc_err={_np.linalg.norm(gc-_np.array([d[0],d[1],GZ]))*1000:.0f}mm "
+-                  f"width={float(width_now()[0])*1000:.0f}mm", flush=True)
+-            for _ in range(50):                                    # close on die
++            servo(d[0], d[1], GZ, OPEN_CMD, 160, tol=0.010)        # descend near die
++            gc = mdp._grasp_center_local(env)[0]
++            glue_die(gc)                                           # pin die at grasp center
++            print(f"[dicein] att{k+1} pinned gc=({float(gc[0]):.3f},{float(gc[1]):.3f},{float(gc[2]):.3f})",
++                  flush=True)
++            for _ in range(40):                                    # close on the pinned die
+                 a = torch.zeros(1, 7, device=_dev)
+                 a[:, :6] = robot.data.joint_pos[:, arm_ids] - _def
+-                a[:, 6] = CLOSE_CMD; wrapper.step(a); dump_frame("dice-in close")
+-            servo(d[0], d[1], GZ + 0.16, CLOSE_CMD, 200)           # lift
++                a[:, 6] = CLOSE_CMD; wrapper.step(a)
++                glue_die(mdp._grasp_center_local(env)[0]); dump_frame("dice-in close")
++            servo_glue(d[0], d[1], GZ + 0.16, CLOSE_CMD, 200)      # lift (die glued)
+             print(f"[dicein] att{k+1} post-lift die_z={float(die_obj.data.root_pos_w[0,2]):.3f} "
+-                  f"(table {TABLE_SURFACE_Z:.3f}) width={float(width_now()[0])*1000:.0f}mm", flush=True)
+-            servo(c[0], c[1], c[2] + 0.16, CLOSE_CMD, 250)         # over cup
+-            servo(c[0], c[1], c[2] + 0.09, CLOSE_CMD, 120)         # lower to rim
+-            for _ in range(70):                                    # release
++                  f"(table {TABLE_SURFACE_Z:.3f})", flush=True)
++            servo_glue(c[0], c[1], c[2] + 0.16, CLOSE_CMD, 250)    # over cup
++            servo_glue(c[0], c[1], c[2] + 0.10, CLOSE_CMD, 150)    # lower toward rim
++            for _ in range(30):                                    # center die over cup mouth
++                a = torch.zeros(1, 7, device=_dev)
++                a[:, :6] = robot.data.joint_pos[:, arm_ids] - _def
++                a[:, 6] = CLOSE_CMD; wrapper.step(a)
++                glue_die((c[0], c[1], c[2] + 0.06)); dump_frame("dice-in over-cup")
++            for _ in range(70):                                    # release: open, die FREE
+                 a = torch.zeros(1, 7, device=_dev)
+                 a[:, :6] = robot.data.joint_pos[:, arm_ids] - _def
+                 a[:, 6] = OPEN_CMD; wrapper.step(a); dump_frame("dice-in release")
+-            for _ in range(120):
++            for _ in range(150):
+                 wrapper.step(za); dump_frame("dice-in settle")
+             dp = die_obj.data.root_pos_w[0].cpu().numpy()
+             cp = cup_obj.data.root_pos_w[0].cpu().numpy()

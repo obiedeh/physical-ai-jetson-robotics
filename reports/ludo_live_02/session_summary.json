@@ -1,0 +1,33 @@
+{
+  "scoring_rule": "OK iff final cup-to-square error < 35mm AND final cup tilt-from-vertical < 15deg; cup position read post-hold, post-withdrawal; misses never rescued by sim authority",
+  "data_kind": "simulated",
+  "turns": 4,
+  "commands": 4,
+  "first_try_ok": 4,
+  "first_try_rate": 1.0,
+  "with_retry_ok": 4,
+  "retries_used": 0,
+  "ok_err_mm_p50": 19.7,
+  "ok_err_mm_p95": 20.0,
+  "lane_counts": {
+    "policy": 2,
+    "fallback": 2
+  },
+  "failures": [],
+  "wall_clock_s": 1228.5,
+  "sim_steps_total": 21881,
+  "infer_ms_session": {
+    "p50_of_attempt_p50s": 0.21175481379032135,
+    "worst_attempt_p95": 0.23391097784042358,
+    "total_calls": 21885
+  },
+  "gpu_health": {
+    "samples": 4,
+    "temp_c_peak": 49.0,
+    "temp_c_mean": 48.2,
+    "power_w_peak": 128.72,
+    "throttle_events": [],
+    "throttled": false,
+    "note": "sampled at command boundaries only; not continuous"
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "captured_at": "2026-08-20T17:31:45.144071+00:00",
+  "commands": {
+    "git_version": {
+      "available": true,
+      "command": [
+        "git",
+        "--version"
+      ],
+      "return_code": 0,
+      "stderr": "",
+      "stdout": "git version 2.34.1"
+    },
+    "linux_release": {
+      "available": true,
+      "command": [
+        "cat",
+        "/etc/os-release"
+      ],
+      "return_code": 0,
+      "stderr": "",
+      "stdout": "PRETTY_NAME=\"Ubuntu 22.04.5 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"22.04\"\nVERSION=\"22.04.5 LTS (Jammy Jellyfish)\"\nVERSION_CODENAME=jammy\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=jammy"
+    },
+    "linux_usb_devices": {
+      "available": true,
+      "command": [
+        "lsusb"
+      ],
+      "return_code": 0,
+      "stderr": "",
+      "stdout": "Bus 002 Device 003: ID 2109:0817 VIA Labs, Inc. USB3.0 Hub             \nBus 002 Device 002: ID 2109:0822 VIA Labs, Inc. USB3.1 Hub             \nBus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub\nBus 001 Device 003: ID 0bda:c822 Realtek Semiconductor Corp. Bluetooth Radio \nBus 001 Device 010: ID 2109:8817 VIA Labs, Inc. USB Billboard Device   \nBus 001 Device 013: ID 2bc5:0561 Orbbec 3D Technology International, Inc Orbbec DaBai DCW2 RGB Camera\nBus 001 Device 011: ID 2bc5:06a0 Orbbec 3D Technology International, Inc ORBBEC Depth Sensor\nBus 001 Device 008: ID 1a40:0101 Terminus Technology Inc. Hub\nBus 001 Device 017: ID 1a86:7522 QinHeng Electronics USB Serial\nBus 001 Device 016: ID 0d8c:0012 C-Media Electronics, Inc. USB Audio Device\nBus 001 Device 015: ID 1a86:8091 QinHeng Electronics USB HUB\nBus 001 Device 006: ID 2109:2817 VIA Labs, Inc. USB2.0 Hub             \nBus 001 Device 005: ID 10c4:ea60 Silicon Labs CP210x UART Bridge\nBus 001 Device 004: ID 0484:5750 Specialix MPI7003\nBus 001 Device 002: ID 2109:2822 VIA Labs, Inc. USB2.0 Hub             \nBus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub"
+    },
+    "linux_video_devices": {
+      "available": true,
+      "command": [
+        "bash",
+        "-lc",
+        "ls -1 /dev/video* 2>/dev/null"
+      ],
+      "return_code": 0,
+      "stderr": "",
+      "stdout": "/dev/video0\n/dev/video1"
+    },
+    "nvcc_version": {
+      "available": false,
+      "command": [
+        "nvcc",
+        "--version"
+      ],
+      "return_code": null,
+      "stderr": "",
+      "stdout": ""
+    },
+    "nvidia_smi": {
+      "available": true,
+      "command": [
+        "nvidia-smi"
+      ],
+      "return_code": 0,
+      "stderr": "",
+      "stdout": "Fri Aug 21 01:31:39 2026       \n+---------------------------------------------------------------------------------------+\n| NVIDIA-SMI 540.4.0                Driver Version: 540.4.0      CUDA Version: 12.6     |\n|-----------------------------------------+----------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |\n|                                         |                      |               MIG M. |\n|=========================================+======================+======================|\n|   0  Orin (nvgpu)                  N/A  | N/A              N/A |                  N/A |\n| N/A   N/A  N/A               N/A /  N/A | Not Supported        |     N/A          N/A |\n|                                         |                      |                  N/A |\n+-----------------------------------------+----------------------+----------------------+\n                                                                                         \n+---------------------------------------------------------------------------------------+\n| Processes:                                                                            |\n|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |\n|        ID   ID                                                             Usage      |\n|=======================================================================================|\n|  No running processes found                                                           |\n+---------------------------------------------------------------------------------------+"
+    },
+    "ros2_topic_list": {
+      "available": false,
+      "command": [
+        "ros2",
+        "topic",
+        "list"
+      ],
+      "return_code": null,
+      "stderr": "",
+      "stdout": ""
+    },
+    "ros2_version": {
+      "available": false,
+      "command": [
+        "ros2",
+        "--version"
+      ],
+      "return_code": null,
+      "stderr": "",
+      "stdout": ""
+    },
+    "tegrastats": {
+      "available": true,
+      "command": [
+        "tegrastats"
+      ],
+      "return_code": null,
+      "stderr": "Command timed out after 5s",
+      "stdout": "08-21-2026 01:31:40 RAM 2018/7620MB (lfb 5x4MB) SWAP 0/12002MB (cached 0MB) CPU [8%@729,10%@729,7%@729,6%@729,2%@729,2%@729] GR3D_FREQ 0% cv0@56.625C cpu@60.187C soc2@56.625C soc0@58.062C cv1@58.093C gpu@61.156C tj@61.156C soc1@57.906C cv2@55.343C VDD_IN 5460mW/5460mW VDD_CPU_GPU_CV 909mW/909mW VDD_SOC 1547mW/1547mW\n08-21-2026 01:31:41 RAM 2018/7620MB (lfb 5x4MB) SWAP 0/12002MB (cached 0MB) CPU [8%@729,3%@729,4%@729,8%@729,2%@729,2%@729] GR3D_FREQ 0% cv0@56.562C cpu@60.218C soc2@56.562C soc0@58.093C cv1@57.937C gpu@61.125C tj@61.125C soc1@57.968C cv2@55.375C VDD_IN 5278mW/5369mW VDD_CPU_GPU_CV 819mW/864mW VDD_SOC 1547mW/1547mW\n08-21-2026 01:31:42 RAM 2018/7620MB (lfb 5x4MB) SWAP 0/12002MB (cached 0MB) CPU [9%@1984,5%@1984,8%@1984,3%@1984,3%@729,2%@729] GR3D_FREQ 0% cv0@56.593C cpu@59.906C soc2@56.406C soc0@58.156C cv1@57.875C gpu@61.312C tj@61.312C soc1@57.75C cv2@55.5C VDD_IN 5282mW/5340mW VDD_CPU_GPU_CV 819mW/849mW VDD_SOC 1548mW/1547mW\n08-21-2026 01:31:43 RAM 2019/7620MB (lfb 5x4MB) SWAP 0/12002MB (cached 0MB) CPU [10%@1984,5%@1984,7%@1984,4%@1984,3%@729,2%@729] GR3D_FREQ 0% cv0@56.687C cpu@60.062C soc2@56.531C soc0@57.968C cv1@57.906C gpu@61.375C tj@61.375C soc1@57.781C cv2@55.218C VDD_IN 5282mW/5326mW VDD_CPU_GPU_CV 819mW/842mW VDD_SOC 1548mW/1548mW\n"
+    }
+  },
+  "environment": {
+    "CUDA_HOME": null,
+    "LD_LIBRARY_PATH": null,
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+    "ROS_DISTRO": null
+  },
+  "host": {
+    "machine": "aarch64",
+    "processor": "aarch64",
+    "python": "3.10.12 (main, May 27 2025, 17:12:29) [GCC 11.4.0]",
+    "release": "5.15.148-tegra",
+    "system": "Linux",
+    "version": "#1 SMP PREEMPT Mon Jun 16 08:24:48 PDT 2025"
+  },
+  "target": "jetson-orin"
+}

@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "inspect-robots-rosmaster"
+version = "0.1.0"
+description = "Inspect Robots embodiment adapter for the Yahboom ROSMASTER M3 Pro (Jetson Orin NX) — the first mobile-manipulator-class arm registered in the open physical-AI eval framework"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Obinna Edeh", email = "obiedeh@gmail.com"}]
+dependencies = ["inspect-robots>=0.57", "lerobot-robot-rosmaster-m3pro"]
+
+# Inspect Robots discovers out-of-tree embodiments via this entry-point group.
+[project.entry-points."inspect_robots.embodiments"]
+rosmaster_m3pro = "inspect_robots_rosmaster:make_embodiment"
+
+[project.entry-points."inspect_robots.scorers"]
+m3pro_pickplace = "inspect_robots_rosmaster.scorer:m3pro_pickplace"
+
+[tool.setuptools.packages.find]
+include = ["inspect_robots_rosmaster*"]

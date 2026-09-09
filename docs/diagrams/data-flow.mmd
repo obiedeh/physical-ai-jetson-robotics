@@ -1,0 +1,11 @@
+flowchart LR
+    inputs["Local external geometry / checkpoints\nFirst-party configuration + commands"] --> sim["Simulation attempts"]
+    device["Thor inference / Orin probes"] --> metrics["Recorded latency / thermal / power"]
+    host["Orin board commands / camera"] --> recorder["RTX recording path\nArm state is commanded, not measured"]
+    sim --> raw["Raw records + provenance"]
+    metrics --> raw
+    recorder --> raw
+    raw --> rules["Select campaign and scoring rule\nDo not pool incompatible results"]
+    rules --> report["Reported results + explicit corrections"]
+    report --> review["Operator / reviewer"]
+    gap["Unestablished: physical object success\nNumerical parity / sustained validation"] --> review

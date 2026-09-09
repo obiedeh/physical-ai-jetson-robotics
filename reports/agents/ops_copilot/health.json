@@ -1,0 +1,11 @@
+{
+  "checks": {
+    "enrichment": true,
+    "serialisation": true,
+    "telemetry_generation": true,
+    "triage": true
+  },
+  "errors": [],
+  "robot_id": "robo-car-01",
+  "status": "healthy"
+}

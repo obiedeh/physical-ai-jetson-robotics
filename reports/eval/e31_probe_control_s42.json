@@ -1,0 +1,189 @@
+{
+  "checkpoint": "reports/training/synria_chess_pickplace_v5_exploitfix_s42/model_final.pt",
+  "upright_arrivals": 16,
+  "placed": 4,
+  "failed": 12,
+  "failure_causes": {
+    "NEVER_LOWERED": 5,
+    "TIPPED": 6,
+    "OTHER": 1
+  },
+  "episodes": [
+    {
+      "placed": true,
+      "tilt_arrival_deg": 7.58,
+      "tilt_max_setdown_deg": 9.04,
+      "tilt_at_lowest_z_deg": 1.03,
+      "lowest_z_above_rest_mm": 0.5,
+      "ever_resting": true,
+      "ever_rest_gentle": false,
+      "ever_placeable": false,
+      "ever_detached": true
+    },
+    {
+      "placed": true,
+      "tilt_arrival_deg": 8.37,
+      "tilt_max_setdown_deg": 17.16,
+      "tilt_at_lowest_z_deg": 4.33,
+      "lowest_z_above_rest_mm": 0.8,
+      "ever_resting": true,
+      "ever_rest_gentle": true,
+      "ever_placeable": true,
+      "ever_detached": true
+    },
+    {
+      "placed": true,
+      "tilt_arrival_deg": 9.15,
+      "tilt_max_setdown_deg": 9.15,
+      "tilt_at_lowest_z_deg": 4.54,
+      "lowest_z_above_rest_mm": 1.6,
+      "ever_resting": true,
+      "ever_rest_gentle": false,
+      "ever_placeable": false,
+      "ever_detached": true
+    },
+    {
+      "placed": false,
+      "tilt_arrival_deg": 5.15,
+      "tilt_max_setdown_deg": 5.15,
+      "tilt_at_lowest_z_deg": 5.15,
+      "lowest_z_above_rest_mm": 94.7,
+      "ever_resting": false,
+      "ever_rest_gentle": false,
+      "ever_placeable": false,
+      "ever_detached": false
+    },
+    {
+      "placed": false,
+      "tilt_arrival_deg": 8.17,
+      "tilt_max_setdown_deg": 8.17,
+      "tilt_at_lowest_z_deg": 8.17,
+      "lowest_z_above_rest_mm": 36.3,
+      "ever_resting": false,
+      "ever_rest_gentle": false,
+      "ever_placeable": false,
+      "ever_detached": false
+    },
+    {
+      "placed": false,
+      "tilt_arrival_deg": 7.96,
+      "tilt_max_setdown_deg": 90.62,
+      "tilt_at_lowest_z_deg": 90.06,
+      "lowest_z_above_rest_mm": -5.0,
+      "ever_resting": true,
+      "ever_rest_gentle": true,
+      "ever_placeable": false,
+      "ever_detached": true
+    },
+    {
+      "placed": false,
+      "tilt_arrival_deg": 7.91,
+      "tilt_max_setdown_deg": 97.73,
+      "tilt_at_lowest_z_deg": 90.0,
+      "lowest_z_above_rest_mm": -60.9,
+      "ever_resting": true,
+      "ever_rest_gentle": true,
+      "ever_placeable": false,
+      "ever_detached": true
+    },
+    {
+      "placed": false,
+      "tilt_arrival_deg": 8.71,
+      "tilt_max_setdown_deg": 8.71,
+      "tilt_at_lowest_z_deg": 8.71,
+      "lowest_z_above_rest_mm": 55.3,
+      "ever_resting": false,
+      "ever_rest_gentle": false,
+      "ever_placeable": false,
+      "ever_detached": false
+    },
+    {
+      "placed": false,
+      "tilt_arrival_deg": 9.32,
+      "tilt_max_setdown_deg": 9.32,
+      "tilt_at_lowest_z_deg": 9.32,
+      "lowest_z_above_rest_mm": 76.5,
+      "ever_resting": false,
+      "ever_rest_gentle": false,
+      "ever_placeable": false,
+      "ever_detached": false
+    },
+    {
+      "placed": false,
+      "tilt_arrival_deg": 7.65,
+      "tilt_max_setdown_deg": 90.0,
+      "tilt_at_lowest_z_deg": 55.16,
+      "lowest_z_above_rest_mm": -25.9,
+      "ever_resting": true,
+      "ever_rest_gentle": true,
+      "ever_placeable": false,
+      "ever_detached": true
+    },
+    {
+      "placed": false,
+      "tilt_arrival_deg": 7.72,
+      "tilt_max_setdown_deg": 7.72,
+      "tilt_at_lowest_z_deg": 7.72,
+      "lowest_z_above_rest_mm": 285.7,
+      "ever_resting": false,
+      "ever_rest_gentle": false,
+      "ever_placeable": false,
+      "ever_detached": false
+    },
+    {
+      "placed": false,
+      "tilt_arrival_deg": 7.07,
+      "tilt_max_setdown_deg": 7.07,
+      "tilt_at_lowest_z_deg": 7.07,
+      "lowest_z_above_rest_mm": 4.1,
+      "ever_resting": true,
+      "ever_rest_gentle": true,
+      "ever_placeable": false,
+      "ever_detached": false
+    },
+    {
+      "placed": true,
+      "tilt_arrival_deg": 8.07,
+      "tilt_max_setdown_deg": 30.75,
+      "tilt_at_lowest_z_deg": 4.88,
+      "lowest_z_above_rest_mm": -0.6,
+      "ever_resting": true,
+      "ever_rest_gentle": true,
+      "ever_placeable": false,
+      "ever_detached": true
+    },
+    {
+      "placed": false,
+      "tilt_arrival_deg": 10.96,
+      "tilt_max_setdown_deg": 90.0,
+      "tilt_at_lowest_z_deg": 90.0,
+      "lowest_z_above_rest_mm": -71.0,
+      "ever_resting": true,
+      "ever_rest_gentle": true,
+      "ever_placeable": false,
+      "ever_detached": true
+    },
+    {
+      "placed": false,
+      "tilt_arrival_deg": 8.33,
+      "tilt_max_setdown_deg": 90.0,
+      "tilt_at_lowest_z_deg": 90.0,
+      "lowest_z_above_rest_mm": -5.0,
+      "ever_resting": true,
+      "ever_rest_gentle": true,
+      "ever_placeable": false,
+      "ever_detached": true
+    },
+    {
+      "placed": false,
+      "tilt_arrival_deg": 9.22,
+      "tilt_max_setdown_deg": 90.87,
+      "tilt_at_lowest_z_deg": 90.87,
+      "lowest_z_above_rest_mm": -5.0,
+      "ever_resting": true,
+      "ever_rest_gentle": true,
+      "ever_placeable": false,
+      "ever_detached": true
+    }
+  ]
+}

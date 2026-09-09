@@ -1,0 +1,219 @@
+{
+  "meta": {
+    "date": "2026-05-28",
+    "mode": "rtx_simulation",
+    "solver": "planar_fk_geometric",
+    "note": "Planar FK covers joint_2 (shoulder) and joint_3 (elbow) in the sagittal plane. Full 3D FK with DH table is deferred to hardware bringup."
+  },
+  "link_lengths_m": {
+    "base_height": 0.09,
+    "upper_arm": 0.235,
+    "forearm": 0.22,
+    "wrist": 0.105,
+    "tool": 0.09,
+    "geometric_max_reach": 0.65,
+    "vendor_stated_max_reach": 0.65
+  },
+  "fk_cases": [
+    {
+      "case": "home",
+      "q2_rad": 0.0,
+      "q3_rad": 0.0,
+      "x_m": 0.0,
+      "z_m": 0.545,
+      "reach_m": 0.545,
+      "within_geometric_max": true,
+      "within_vendor_max": true
+    },
+    {
+      "case": "shoulder_up_45",
+      "q2_rad": 0.785398,
+      "q3_rad": 0.0,
+      "x_m": 0.32173,
+      "z_m": 0.41173,
+      "reach_m": 0.52253,
+      "within_geometric_max": true,
+      "within_vendor_max": true
+    },
+    {
+      "case": "elbow_bent_90",
+      "q2_rad": 0.0,
+      "q3_rad": -1.570796,
+      "x_m": -0.22,
+      "z_m": 0.325,
+      "reach_m": 0.39246,
+      "within_geometric_max": true,
+      "within_vendor_max": true
+    },
+    {
+      "case": "board_approach",
+      "q2_rad": 0.6,
+      "q3_rad": -1.2,
+      "x_m": 0.00847,
+      "z_m": 0.46553,
+      "reach_m": 0.4656,
+      "within_geometric_max": true,
+      "within_vendor_max": true
+    },
+    {
+      "case": "carry",
+      "q2_rad": 1.0,
+      "q3_rad": -1.5,
+      "x_m": 0.09227,
+      "z_m": 0.41004,
+      "reach_m": 0.42029,
+      "within_geometric_max": true,
+      "within_vendor_max": true
+    },
+    {
+      "case": "extended",
+      "q2_rad": 0.785398,
+      "q3_rad": 0.785398,
+      "x_m": 0.38617,
+      "z_m": 0.25617,
+      "reach_m": 0.46341,
+      "within_geometric_max": true,
+      "within_vendor_max": true
+    }
+  ],
+  "workspace_checks": [
+    {
+      "case": "board_centre",
+      "target_xyz_m": [
+        0.3,
+        0.0,
+        0.15
+      ],
+      "radial_distance_m": 0.3354,
+      "reachable": true,
+      "message": "Target 0.335 m from base \u2014 within workspace [0.050 m, 0.650 m]."
+    },
+    {
+      "case": "left_staging",
+      "target_xyz_m": [
+        0.2,
+        0.25,
+        0.12
+      ],
+      "radial_distance_m": 0.3419,
+      "reachable": true,
+      "message": "Target 0.342 m from base \u2014 within workspace [0.050 m, 0.650 m]."
+    },
+    {
+      "case": "right_staging",
+      "target_xyz_m": [
+        0.2,
+        -0.25,
+        0.12
+      ],
+      "radial_distance_m": 0.3419,
+      "reachable": true,
+      "message": "Target 0.342 m from base \u2014 within workspace [0.050 m, 0.650 m]."
+    },
+    {
+      "case": "overhead_far",
+      "target_xyz_m": [
+        0.0,
+        0.0,
+        0.7
+      ],
+      "radial_distance_m": 0.7,
+      "reachable": false,
+      "message": "Target is 0.700 m from base, exceeds max reach 0.650 m."
+    },
+    {
+      "case": "too_close",
+      "target_xyz_m": [
+        0.01,
+        0.0,
+        0.0
+      ],
+      "radial_distance_m": 0.01,
+      "reachable": false,
+      "message": "Target is 0.010 m from base, closer than minimum reach 0.050 m (singularity buffer)."
+    },
+    {
+      "case": "max_extended_safe",
+      "target_xyz_m": [
+        0.55,
+        0.0,
+        0.1
+      ],
+      "radial_distance_m": 0.559,
+      "reachable": true,
+      "message": "Target 0.559 m from base \u2014 within workspace [0.050 m, 0.650 m]."
+    }
+  ],
+  "named_pose_fk": [
+    {
+      "pose": "HOME",
+      "joint_2_rad": 0.0,
+      "joint_3_rad": 0.0,
+      "planar_x_m": 0.0,
+      "planar_z_m": 0.545,
+      "planar_reach_m": 0.545
+    },
+    {
+      "pose": "CARRY",
+      "joint_2_rad": 1.0,
+      "joint_3_rad": -1.5,
+      "planar_x_m": 0.09227,
+      "planar_z_m": 0.41004,
+      "planar_reach_m": 0.42029
+    },
+    {
+      "pose": "BOARD_APPROACH",
+      "joint_2_rad": 0.6,
+      "joint_3_rad": -1.2,
+      "planar_x_m": 0.00847,
+      "planar_z_m": 0.46553,
+      "planar_reach_m": 0.4656
+    }
+  ],
+  "trajectory_validation": {
+    "summary": [
+      {
+        "trajectory": "synria_home",
+        "errors": [],
+        "passed": true
+      },
+      {
+        "trajectory": "synria_board_approach",
+        "errors": [],
+        "passed": true
+      },
+      {
+        "trajectory": "synria_staging_left",
+        "errors": [],
+        "passed": true
+      },
+      {
+        "trajectory": "synria_staging_right",
+        "errors": [],
+        "passed": true
+      },
+      {
+        "trajectory": "synria_staging_top",
+        "errors": [],
+        "passed": true
+      },
+      {
+        "trajectory": "synria_staging_bottom",
+        "errors": [],
+        "passed": true
+      },
+      {
+        "trajectory": "synria_return_from_left",
+        "errors": [],
+        "passed": true
+      },
+      {
+        "trajectory": "synria_board_to_home",
+        "errors": [],
+        "passed": true
+      }
+    ],
+    "passed": 8,
+    "total": 8
+  }
+}

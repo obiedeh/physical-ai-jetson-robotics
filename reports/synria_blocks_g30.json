@@ -1,0 +1,122 @@
+[
+ {
+  "block_mm": 20,
+  "trial": 0,
+  "left_travel_mm": 24.99,
+  "right_travel_mm": 24.98,
+  "measured_width_mm": 0.03,
+  "width_err_mm": -19.97,
+  "symmetric": true,
+  "ok": false
+ },
+ {
+  "block_mm": 20,
+  "trial": 1,
+  "left_travel_mm": 24.99,
+  "right_travel_mm": 24.98,
+  "measured_width_mm": 0.03,
+  "width_err_mm": -19.97,
+  "symmetric": true,
+  "ok": false
+ },
+ {
+  "block_mm": 20,
+  "trial": 2,
+  "left_travel_mm": 24.99,
+  "right_travel_mm": 24.98,
+  "measured_width_mm": 0.03,
+  "width_err_mm": -19.97,
+  "symmetric": true,
+  "ok": false
+ },
+ {
+  "block_mm": 28,
+  "trial": 0,
+  "left_travel_mm": 24.99,
+  "right_travel_mm": 24.98,
+  "measured_width_mm": 0.03,
+  "width_err_mm": -27.97,
+  "symmetric": true,
+  "ok": false
+ },
+ {
+  "block_mm": 28,
+  "trial": 1,
+  "left_travel_mm": 24.99,
+  "right_travel_mm": 24.98,
+  "measured_width_mm": 0.03,
+  "width_err_mm": -27.97,
+  "symmetric": true,
+  "ok": false
+ },
+ {
+  "block_mm": 28,
+  "trial": 2,
+  "left_travel_mm": 24.99,
+  "right_travel_mm": 24.98,
+  "measured_width_mm": 0.03,
+  "width_err_mm": -27.97,
+  "symmetric": true,
+  "ok": false
+ },
+ {
+  "block_mm": 30,
+  "trial": 0,
+  "left_travel_mm": 24.99,
+  "right_travel_mm": 24.98,
+  "measured_width_mm": 0.03,
+  "width_err_mm": -29.97,
+  "symmetric": true,
+  "ok": false
+ },
+ {
+  "block_mm": 30,
+  "trial": 1,
+  "left_travel_mm": 24.99,
+  "right_travel_mm": 24.98,
+  "measured_width_mm": 0.03,
+  "width_err_mm": -29.97,
+  "symmetric": true,
+  "ok": false
+ },
+ {
+  "block_mm": 30,
+  "trial": 2,
+  "left_travel_mm": 24.99,
+  "right_travel_mm": 24.98,
+  "measured_width_mm": 0.03,
+  "width_err_mm": -29.97,
+  "symmetric": true,
+  "ok": false
+ },
+ {
+  "block_mm": 40,
+  "trial": 0,
+  "left_travel_mm": 24.99,
+  "right_travel_mm": 24.98,
+  "measured_width_mm": 0.03,
+  "width_err_mm": -39.97,
+  "symmetric": true,
+  "ok": false
+ },
+ {
+  "block_mm": 40,
+  "trial": 1,
+  "left_travel_mm": 24.99,
+  "right_travel_mm": 24.98,
+  "measured_width_mm": 0.03,
+  "width_err_mm": -39.97,
+  "symmetric": true,
+  "ok": false
+ },
+ {
+  "block_mm": 40,
+  "trial": 2,
+  "left_travel_mm": 24.99,
+  "right_travel_mm": 24.98,
+  "measured_width_mm": 0.03,
+  "width_err_mm": -39.97,
+  "symmetric": true,
+  "ok": false
+ }
+]

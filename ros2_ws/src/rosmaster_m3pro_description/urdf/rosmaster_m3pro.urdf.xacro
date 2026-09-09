@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<!--
+  rosmaster_m3pro.urdf.xacro
+  ==========================
+  ROS 2 composition wrapper for the Yahboom ROSMASTER M3 Pro.
+
+  Structure
+  =========
+  Adds a world link and a fixed world to base_link joint so the robot
+  has a global reference frame for RViz and joint_state_publisher.
+  Includes the vendor URDF (yahboom_M3Pro_description/urdf/M3Pro.urdf)
+  which provides all links, joints, inertials, and STL mesh references.
+  Adds a ros2_control block using mock_components/GenericSystem for
+  simulation and development bringup without real hardware.
+
+  Vendor URDF notes (preserved as-is)
+  ====================================
+  Arm joints: arm1_Joint to arm5_Joint (5-DOF revolute, half-pi limits)
+  Gripper joints: rlink1_Joint (revolute, [-0.95, 0]), rlink2 and llink1-3
+    (continuous, no limits = finger parallel linkage)
+  Mecanum wheels: lwheel1, lwheel2, rwheel1, rwheel2 as revolute [0,0]
+    = effectively fixed in the vendor URDF; no odometry in this package.
+  Camera: Camera_Joint revolute [0,0] = fixed position on base.
+  Typo preserved: joint "arm4_Joiint" (double i) = vendor URDF uses
+    this name; M3Pro_config ros2_control and joint_limits.yaml both use
+    the same spelling. Do not correct it here.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rosmaster_m3pro">
+
+  <!-- World frame -->
+  <link name="world"/>
+
+  <joint name="world_to_base" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!--
+    Vendor URDF: all links, joints, inertials, and STL mesh references.
+    M3Pro_config/config/M3Pro.urdf.xacro uses the same include pattern.
+  -->
+  <xacro:include filename="$(find yahboom_M3Pro_description)/urdf/M3Pro.urdf"/>
+
+  <!--
+    ros2_control using mock hardware for simulation and development bringup.
+    Covers the 5 arm joints + gripper (rlink1_Joint).
+    Wheel joints are not exposed here; a diff-drive or mecanum controller
+    would be added separately for mobile-base operation.
+  -->
+  <ros2_control name="RosmasterM3ProSystem" type="system">
+    <hardware>
+      <plugin>mock_components/GenericSystem</plugin>
+    </hardware>
+
+    <!-- 5-DOF onboard arm (arm4_Joiint typo is intentional, matches vendor URDF) -->
+    <joint name="arm1_Joint">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="arm2_Joint">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="arm3_Joint">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="arm4_Joiint">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="arm5_Joint">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <!-- Gripper: rlink1_Joint controls the jaw open/close -->
+    <joint name="rlink1_Joint">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+</robot>

@@ -1,0 +1,143 @@
+{
+  "scoring_rule": "OK iff final cup-to-square error < 35mm AND final cup tilt-from-vertical < 15deg; cup position read post-hold, post-withdrawal; misses never rescued by sim authority",
+  "data_kind": "simulated",
+  "turns": 15,
+  "commands": 7,
+  "first_try_ok": 5,
+  "first_try_rate": 0.714,
+  "with_retry_ok": 5,
+  "retries_used": 2,
+  "ok_err_mm_p50": 17.4,
+  "ok_err_mm_p95": 19.6,
+  "lane_counts": {
+    "policy": 0,
+    "fallback": 7,
+    "groot17": 0
+  },
+  "failures": [
+    {
+      "ok": false,
+      "err_mm": 113.1,
+      "final_tilt_deg": 0.0,
+      "carry_tilt_max_deg": 0.0,
+      "steps": 8999,
+      "timed_out": true,
+      "lane": "fallback",
+      "far_pick": true,
+      "far_place": false,
+      "hold_armed": false,
+      "grasped": false,
+      "pick_xy": [
+        0.286,
+        -0.0227
+      ],
+      "place_xy": [
+        0.1953,
+        -0.0227
+      ],
+      "closest_approach_mm": 9900.0,
+      "decided_at_step": -1,
+      "infer_ms_p50": 0.1505599939264357,
+      "infer_ms_p95": 0.1942810049513355,
+      "infer_n": 9000,
+      "attempt": 1
+    },
+    {
+      "ok": false,
+      "err_mm": 89.7,
+      "final_tilt_deg": 43.9,
+      "carry_tilt_max_deg": 0.0,
+      "steps": 8999,
+      "timed_out": true,
+      "lane": "fallback",
+      "far_pick": true,
+      "far_place": false,
+      "hold_armed": false,
+      "grasped": false,
+      "pick_xy": [
+        0.286,
+        -0.0227
+      ],
+      "place_xy": [
+        0.1953,
+        -0.0227
+      ],
+      "closest_approach_mm": 9900.0,
+      "decided_at_step": -1,
+      "infer_ms_p50": 0.14318501052912325,
+      "infer_ms_p95": 0.18408401228953153,
+      "infer_n": 9000,
+      "attempt": 2
+    },
+    {
+      "ok": false,
+      "err_mm": 40.1,
+      "final_tilt_deg": 0.7,
+      "carry_tilt_max_deg": 25.3,
+      "steps": 8999,
+      "timed_out": true,
+      "lane": "fallback",
+      "far_pick": false,
+      "far_place": false,
+      "hold_armed": false,
+      "grasped": true,
+      "pick_xy": [
+        0.1727,
+        -0.1587
+      ],
+      "place_xy": [
+        0.15,
+        -0.0907
+      ],
+      "closest_approach_mm": 9900.0,
+      "decided_at_step": 3050,
+      "infer_ms_p50": 0.14556999667547643,
+      "infer_ms_p95": 0.18820200057234615,
+      "infer_n": 9000,
+      "attempt": 1
+    },
+    {
+      "ok": false,
+      "err_mm": 74.1,
+      "final_tilt_deg": 0.0,
+      "carry_tilt_max_deg": 0.0,
+      "steps": 8999,
+      "timed_out": true,
+      "lane": "policy",
+      "far_pick": false,
+      "far_place": false,
+      "hold_armed": false,
+      "grasped": false,
+      "pick_xy": [
+        0.1727,
+        -0.1587
+      ],
+      "place_xy": [
+        0.15,
+        -0.0907
+      ],
+      "closest_approach_mm": 9900.0,
+      "decided_at_step": -1,
+      "infer_ms_p50": 0.14353200094774365,
+      "infer_ms_p95": 0.18634498701430857,
+      "infer_n": 9000,
+      "attempt": 2
+    }
+  ],
+  "wall_clock_s": 2327.2,
+  "sim_steps_total": 56706,
+  "infer_ms_session": {
+    "p50_of_attempt_p50s": 0.14405400725081563,
+    "worst_attempt_p95": 0.1942810049513355,
+    "total_calls": 56715
+  },
+  "gpu_health": {
+    "samples": 7,
+    "temp_c_peak": 50.0,
+    "temp_c_mean": 49.4,
+    "power_w_peak": 131.1,
+    "throttle_events": [],
+    "throttled": false,
+    "note": "sampled at command boundaries only; not continuous"
+  }
+}
