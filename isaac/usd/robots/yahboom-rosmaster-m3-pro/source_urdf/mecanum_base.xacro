@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="rosmaster_m3pro_mecanum_base" params="
+      chassis_length chassis_width chassis_height chassis_mass
+      wheel_radius wheel_width wheel_x wheel_y wheel_z wheel_mass">
+    <link name="base_footprint"/>
+
+    <link name="base_link">
+      <visual>
+        <origin xyz="0 0 ${chassis_height * 0.35}" rpy="0 0 0"/>
+        <geometry>
+          <box size="${chassis_length} ${chassis_width} ${chassis_height * 0.38}"/>
+        </geometry>
+        <material name="m3pro_black"/>
+      </visual>
+      <visual>
+        <origin xyz="0 0 ${chassis_height * 0.78}" rpy="0 0 0"/>
+        <geometry>
+          <box size="${chassis_length * 0.88} ${chassis_width * 0.78} ${chassis_height * 0.16}"/>
+        </geometry>
+        <material name="m3pro_green"/>
+      </visual>
+      <visual>
+        <origin xyz="${chassis_length * 0.18} 0 ${chassis_height * 1.02}" rpy="0 0 0"/>
+        <geometry>
+          <box size="${chassis_length * 0.32} ${chassis_width * 0.55} ${chassis_height * 0.20}"/>
+        </geometry>
+        <material name="m3pro_dark_gray"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${chassis_height / 2.0}" rpy="0 0 0"/>
+        <geometry>
+          <box size="${chassis_length} ${chassis_width} ${chassis_height}"/>
+        </geometry>
+      </collision>
+      <xacro:box_inertial mass="${chassis_mass}" x="${chassis_length}" y="${chassis_width}" z="${chassis_height}">
+        <origin xyz="0 0 ${chassis_height / 2.0}" rpy="0 0 0"/>
+      </xacro:box_inertial>
+    </link>
+
+    <joint name="base_footprint_joint" type="fixed">
+      <parent link="base_footprint"/>
+      <child link="base_link"/>
+      <origin xyz="0 0 ${wheel_radius}" rpy="0 0 0"/>
+    </joint>
+
+    <xacro:macro name="mecanum_wheel" params="name x y">
+      <link name="${name}_wheel_link">
+        <visual>
+          <origin xyz="0 0 0" rpy="${pi / 2.0} 0 0"/>
+          <geometry>
+            <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+          </geometry>
+          <material name="m3pro_black"/>
+        </visual>
+        <visual>
+          <origin xyz="0 0 0" rpy="${pi / 2.0} 0 0"/>
+          <geometry>
+            <cylinder radius="${wheel_radius * 0.45}" length="${wheel_width * 1.10}"/>
+          </geometry>
+          <material name="m3pro_aluminum"/>
+        </visual>
+        <visual>
+          <origin xyz="0 0 0" rpy="0.70 0 0.70"/>
+          <geometry>
+            <box size="${wheel_width * 1.15} ${wheel_radius * 0.20} ${wheel_radius * 1.55}"/>
+          </geometry>
+          <material name="m3pro_dark_gray"/>
+        </visual>
+        <visual>
+          <origin xyz="0 0 0" rpy="-0.70 0 -0.70"/>
+          <geometry>
+            <box size="${wheel_width * 1.15} ${wheel_radius * 0.20} ${wheel_radius * 1.55}"/>
+          </geometry>
+          <material name="m3pro_dark_gray"/>
+        </visual>
+        <visual>
+          <origin xyz="0 0 0" rpy="0.70 0 2.35"/>
+          <geometry>
+            <box size="${wheel_width * 1.15} ${wheel_radius * 0.20} ${wheel_radius * 1.55}"/>
+          </geometry>
+          <material name="m3pro_dark_gray"/>
+        </visual>
+        <visual>
+          <origin xyz="0 0 0" rpy="-0.70 0 -2.35"/>
+          <geometry>
+            <box size="${wheel_width * 1.15} ${wheel_radius * 0.20} ${wheel_radius * 1.55}"/>
+          </geometry>
+          <material name="m3pro_dark_gray"/>
+        </visual>
+        <collision>
+          <origin xyz="0 0 0" rpy="${pi / 2.0} 0 0"/>
+          <geometry>
+            <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+          </geometry>
+        </collision>
+        <xacro:cylinder_inertial_z mass="${wheel_mass}" radius="${wheel_radius}" length="${wheel_width}">
+          <origin xyz="0 0 0" rpy="${pi / 2.0} 0 0"/>
+        </xacro:cylinder_inertial_z>
+      </link>
+      <joint name="${name}_wheel_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="${name}_wheel_link"/>
+        <origin xyz="${x} ${y} ${wheel_z}" rpy="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="20.0" velocity="20.0"/>
+        <dynamics damping="0.05" friction="0.02"/>
+      </joint>
+    </xacro:macro>
+
+    <xacro:mecanum_wheel name="front_left" x="${wheel_x}" y="${wheel_y}"/>
+    <xacro:mecanum_wheel name="front_right" x="${wheel_x}" y="-${wheel_y}"/>
+    <xacro:mecanum_wheel name="rear_left" x="-${wheel_x}" y="${wheel_y}"/>
+    <xacro:mecanum_wheel name="rear_right" x="-${wheel_x}" y="-${wheel_y}"/>
+  </xacro:macro>
+</robot>

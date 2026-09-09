@@ -1,0 +1,74 @@
+[WARN][AppLauncher]: There are no arguments attached to the ArgumentParser object. If you have your own arguments, please load your own arguments before calling the `AppLauncher.add_app_launcher_args` method. This allows the method to check the validity of the arguments and perform checks for argument names.
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-30_11-12-41.log[0m
+[36m======================================================================================[0m
+
+[33m11:12:41 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260730_111237.log
+2026-07-30T16:12:37Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-07-30T16:12:37Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+2026-07-30T16:12:37Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+2026-07-30T16:12:37Z [120ms] [Warning] [omni.usd_config.extension] Enable omni.materialx.libs extension to use MaterialX
+2026-07-30T16:12:38Z [381ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-07-30T16:12:38Z [386ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 22706
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 5350
+|---------------------------------------------------------------------------------------------|
+2026-07-30T16:12:41Z [3,543ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-07-30T16:12:41Z [3,550ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.
+2026-07-30T16:12:41Z [3,577ms] [Warning] [omni.kvdb.plugin] Disabling key-value database because another kit process is locking it
+2026-07-30T16:12:41Z [4,063ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/Robot/Robotiq_2F_85/left_outer_knuckle/visuals>: Unresolved reference prim path @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Flattened_Prototype_6> introduced by @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Robotiq_2F_85/left_outer_knuckle/visuals> (recomposing stage on stage @anon:0x2a3ecd00:World0.usd@ <0x2a3f21e0>)
+
+2026-07-30T16:12:41Z [4,063ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/Robot/Robotiq_2F_85/left_outer_finger/visuals>: Unresolved reference prim path @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Flattened_Prototype_4> introduced by @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Robotiq_2F_85/left_outer_finger/visuals> (recomposing stage on stage @anon:0x2a3ecd00:World0.usd@ <0x2a3f21e0>)
+
+2026-07-30T16:12:41Z [4,063ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/Robot/Robotiq_2F_85/left_inner_finger/visuals>: Unresolved reference prim path @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Flattened_Prototype_3> introduced by @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Robotiq_2F_85/left_inner_finger/visuals> (recomposing stage on stage @anon:0x2a3ecd00:World0.usd@ <0x2a3f21e0>)
+
+2026-07-30T16:12:41Z [4,063ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/Robot/Robotiq_2F_85/right_inner_knuckle/visuals>: Unresolved reference prim path @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Flattened_Prototype_5> introduced by @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Robotiq_2F_85/right_inner_knuckle/visuals> (recomposing stage on stage @anon:0x2a3ecd00:World0.usd@ <0x2a3f21e0>)
+
+2026-07-30T16:12:41Z [4,063ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/Robot/Robotiq_2F_85/right_outer_knuckle/visuals>: Unresolved reference prim path @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Flattened_Prototype_6> introduced by @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Robotiq_2F_85/right_outer_knuckle/visuals> (recomposing stage on stage @anon:0x2a3ecd00:World0.usd@ <0x2a3f21e0>)
+
+2026-07-30T16:12:41Z [4,063ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/Robot/Robotiq_2F_85/base_link/visuals>: Unresolved reference prim path @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Flattened_Prototype_7> introduced by @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Robotiq_2F_85/base_link/visuals> (recomposing stage on stage @anon:0x2a3ecd00:World0.usd@ <0x2a3f21e0>)
+
+2026-07-30T16:12:41Z [4,063ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/Robot/Robotiq_2F_85/right_inner_finger/visuals>: Unresolved reference prim path @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Flattened_Prototype_3> introduced by @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Robotiq_2F_85/right_inner_finger/visuals> (recomposing stage on stage @anon:0x2a3ecd00:World0.usd@ <0x2a3f21e0>)
+
+2026-07-30T16:12:41Z [4,063ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/Robot/Robotiq_2F_85/right_outer_finger/visuals>: Unresolved reference prim path @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Flattened_Prototype_4> introduced by @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Robotiq_2F_85/right_outer_finger/visuals> (recomposing stage on stage @anon:0x2a3ecd00:World0.usd@ <0x2a3f21e0>)
+
+[r4] bodies: ['base_link', 'link1', 'link2', 'link3', 'link4', 'link5', 'link6', 'tool0', 'base_link_0', 'left_outer_knuckle', 'right_outer_knuckle', 'left_outer_finger', 'right_outer_finger', 'left_inner_finger', 'right_inner_finger', 'left_inner_knuckle', 'right_inner_knuckle']
+[r4] joints: ['Joint1', 'Joint2', 'Joint3', 'Joint4', 'Joint5', 'Joint6', 'finger_joint', 'right_outer_knuckle_joint', 'left_inner_finger_joint', 'right_inner_finger_joint', 'left_inner_finger_knuckle_joint', 'right_inner_finger_knuckle_joint']
+[r4] gripper base at [6.402842700481415e-10, 4.6566128730773926e-09, -3.3527612686157227e-08]
+[r4] descended: base_z=-0.000 (target 0.181) xy-off=0.004
+[r4] closed: finger_joint=0.696 cup z=0.020
+[r4] after lift: cup z 0.020 -> 0.020
+[r4] RESULT: not lifted
+2026-07-30T16:12:41Z [4,063ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/Robot/Robotiq_2F_85/left_inner_knuckle/visuals>: Unresolved reference prim path @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Flattened_Prototype_5> introduced by @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@</Robotiq_2F_85/left_inner_knuckle/visuals> (recomposing stage on stage @anon:0x2a3ecd00:World0.usd@ <0x2a3f21e0>)
+
+2026-07-30T16:12:41Z [4,074ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/Robot/Robotiq_2F_85/base_link/AssemblerFixedJoint.physics:body0>: The relationship target </panda/panda_hand> from </Robotiq_2F_85/base_link/AssemblerFixedJoint.physics:body0> in layer @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@ refers to a path outside the scope of the reference from </Alicia_D_v5_6_gripper_50mm/Robotiq_2F_85>.  Ignoring. (getting targets for relationship </World/Robot/Robotiq_2F_85/base_link/AssemblerFixedJoint.physics:body0> on stage @anon:0x2a3ecd00:World0.usd@ <0x2a3f21e0>)
+
+2026-07-30T16:12:42Z [4,375ms] [Warning] [omni.usd] Warning: in _ReportErrors at line 3172 of /builds/omniverse/usd-ci/USD/pxr/usd/usd/stage.cpp -- In </World/Robot/Robotiq_2F_85/base_link/AssemblerFixedJoint.physics:body0>: The relationship target </panda/panda_hand> from </Robotiq_2F_85/base_link/AssemblerFixedJoint.physics:body0> in layer @/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd@ refers to a path outside the scope of the reference from </Alicia_D_v5_6_gripper_50mm/Robotiq_2F_85>.  Ignoring. (getting targets for relationship </World/Robot/Robotiq_2F_85/base_link/AssemblerFixedJoint.physics:body0> on stage @anon:0x2a3ecd00:World0.usd@ <0x2a3f21e0>)
+
+2026-07-30T16:12:42Z [4,375ms] [Warning] [omni.physx.plugin] PhysicsUSD: CreateJoint - found a joint with disjointed body transforms, the simulation will most likely snap objects together: /World/Robot/Robotiq_2F_85/base_link/AssemblerFixedJoint
+2026-07-30T16:12:42Z [4,377ms] [Warning] [omni.physx.plugin] The rigid body at /World/Robot/Robotiq_2F_85/base_link has a possibly invalid inertia tensor of {1.0, 1.0, 1.0} and a negative mass, small sphere approximated inertia was used. Either specify correct values in the mass properties, or add collider(s) to any shape(s) that you wish to automatically compute mass properties for.
+2026-07-30T16:12:42Z [4,377ms] [Warning] [omni.physx.plugin] The rigid body at /World/Robot/Robotiq_2F_85/left_outer_knuckle has a possibly invalid inertia tensor of {1.0, 1.0, 1.0} and a negative mass, small sphere approximated inertia was used. Either specify correct values in the mass properties, or add collider(s) to any shape(s) that you wish to automatically compute mass properties for.
+2026-07-30T16:12:42Z [4,377ms] [Warning] [omni.physx.plugin] The rigid body at /World/Robot/Robotiq_2F_85/right_outer_knuckle has a possibly invalid inertia tensor of {1.0, 1.0, 1.0} and a negative mass, small sphere approximated inertia was used. Either specify correct values in the mass properties, or add collider(s) to any shape(s) that you wish to automatically compute mass properties for.
+R4_EXIT=0

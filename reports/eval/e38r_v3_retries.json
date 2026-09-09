@@ -1,0 +1,87 @@
+{
+  "episodes": 40,
+  "eval_seed": 123,
+  "port": 5599,
+  "retries": 3,
+  "horizon_scale": 1.6,
+  "retry_events": 117,
+  "stages": {
+    "reach": {
+      "successes": 40,
+      "trials": 40,
+      "rate": 1.0,
+      "ci95_low": 0.9123783988027135,
+      "ci95_high": 1.0
+    },
+    "align": {
+      "successes": 0,
+      "trials": 40,
+      "rate": 0.0,
+      "ci95_low": 0.0,
+      "ci95_high": 0.08762160119728664
+    },
+    "grasp": {
+      "successes": 12,
+      "trials": 40,
+      "rate": 0.3,
+      "ci95_low": 0.18074845229746528,
+      "ci95_high": 0.45430018818144935
+    },
+    "grasp_upright": {
+      "successes": 5,
+      "trials": 40,
+      "rate": 0.125,
+      "ci95_low": 0.05459500250945401,
+      "ci95_high": 0.261121198388511
+    },
+    "lift": {
+      "successes": 12,
+      "trials": 40,
+      "rate": 0.3,
+      "ci95_low": 0.18074845229746528,
+      "ci95_high": 0.45430018818144935
+    },
+    "transport": {
+      "successes": 10,
+      "trials": 40,
+      "rate": 0.25,
+      "ci95_low": 0.14187118639096302,
+      "ci95_high": 0.40193961420768026
+    },
+    "at_plate": {
+      "successes": 7,
+      "trials": 40,
+      "rate": 0.175,
+      "ci95_low": 0.0874541374603592,
+      "ci95_high": 0.31949990331787714
+    },
+    "at_plate_upright": {
+      "successes": 3,
+      "trials": 40,
+      "rate": 0.075,
+      "ci95_low": 0.025836025774588198,
+      "ci95_high": 0.19864233524310543
+    },
+    "place": {
+      "successes": 0,
+      "trials": 40,
+      "rate": 0.0,
+      "ci95_low": 0.0,
+      "ci95_high": 0.08762160119728664
+    },
+    "upright": {
+      "successes": 0,
+      "trials": 40,
+      "rate": 0.0,
+      "ci95_low": 0.0,
+      "ci95_high": 0.08762160119728664
+    },
+    "full": {
+      "successes": 0,
+      "trials": 40,
+      "rate": 0.0,
+      "ci95_low": 0.0,
+      "ci95_high": 0.08762160119728664
+    }
+  }
+}

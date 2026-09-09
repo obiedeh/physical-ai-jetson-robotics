@@ -1,0 +1,130 @@
+{
+  "scoring_rule": "OK iff final cup-to-square error < 35mm AND final cup tilt-from-vertical < 15deg; cup position read post-hold, post-withdrawal; misses never rescued by sim authority",
+  "data_kind": "simulated",
+  "turns": 12,
+  "commands": 12,
+  "first_try_ok": 8,
+  "first_try_rate": 0.667,
+  "with_retry_ok": 11,
+  "retries_used": 4,
+  "ok_err_mm_p50": 19.8,
+  "ok_err_mm_p95": 30.1,
+  "lane_counts": {
+    "policy": 7,
+    "fallback": 5
+  },
+  "failures": [
+    {
+      "ok": false,
+      "err_mm": 65.6,
+      "final_tilt_deg": 0.0,
+      "carry_tilt_max_deg": 0.0,
+      "steps": 8999,
+      "timed_out": true,
+      "lane": "fallback",
+      "far_pick": true,
+      "hold_armed": false,
+      "grasped": false,
+      "pick_xy": [
+        0.286,
+        -0.0227
+      ],
+      "place_xy": [
+        0.218,
+        -0.0227
+      ],
+      "closest_approach_mm": 9900.0,
+      "attempt": 1
+    },
+    {
+      "ok": false,
+      "err_mm": 20.3,
+      "final_tilt_deg": 23.7,
+      "carry_tilt_max_deg": 31.6,
+      "steps": 8999,
+      "timed_out": true,
+      "lane": "policy",
+      "far_pick": false,
+      "hold_armed": false,
+      "grasped": true,
+      "pick_xy": [
+        0.0367,
+        0.0227
+      ],
+      "place_xy": [
+        0.0593,
+        0.0227
+      ],
+      "closest_approach_mm": 51.4,
+      "attempt": 1
+    },
+    {
+      "ok": false,
+      "err_mm": 28.2,
+      "final_tilt_deg": 22.2,
+      "carry_tilt_max_deg": 27.3,
+      "steps": 8999,
+      "timed_out": true,
+      "lane": "policy",
+      "far_pick": false,
+      "hold_armed": false,
+      "grasped": true,
+      "pick_xy": [
+        0.0367,
+        0.0227
+      ],
+      "place_xy": [
+        0.0593,
+        0.0227
+      ],
+      "closest_approach_mm": 54.7,
+      "attempt": 2
+    },
+    {
+      "ok": false,
+      "err_mm": 17.5,
+      "final_tilt_deg": 16.5,
+      "carry_tilt_max_deg": 16.8,
+      "steps": 8999,
+      "timed_out": true,
+      "lane": "policy",
+      "far_pick": false,
+      "hold_armed": false,
+      "grasped": true,
+      "pick_xy": [
+        0.082,
+        -0.0227
+      ],
+      "place_xy": [
+        -0.0087,
+        -0.0227
+      ],
+      "closest_approach_mm": 59.3,
+      "attempt": 1
+    },
+    {
+      "ok": false,
+      "err_mm": 56.2,
+      "final_tilt_deg": 0.0,
+      "carry_tilt_max_deg": 150.0,
+      "steps": 6363,
+      "timed_out": false,
+      "lane": "policy",
+      "far_pick": false,
+      "hold_armed": true,
+      "grasped": true,
+      "pick_xy": [
+        0.1273,
+        0.1133
+      ],
+      "place_xy": [
+        0.15,
+        0.1587
+      ],
+      "closest_approach_mm": 49.2,
+      "attempt": 1
+    }
+  ],
+  "wall_clock_s": 2657.2,
+  "sim_steps_total": 84027
+}

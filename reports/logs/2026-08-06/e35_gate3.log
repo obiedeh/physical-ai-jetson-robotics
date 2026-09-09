@@ -1,0 +1,175 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[INFO]: Parsing configuration from: <class 'isaac.isaaclab_tasks.synria_pickplace.env_cfg.SynriaChessPickPlaceEnvCfg'>
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-08-08_21-56-13.log[0m
+[36m======================================================================================[0m
+
+[33m21:56:13 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 7
+	Physics step-size     : 0.016666666666666666
+	Rendering step-size   : 0.016666666666666666
+	Environment step-size : 0.03333333333333333
+[33m21:56:13 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 0.503701 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 8
+	Environment spacing   : 2.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : False
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 0.441210 seconds
+[INFO] Command Manager:  <CommandManager> contains 0 active terms.
++------------------------+
+|  Active Command Terms  |
++--------+-------+-------+
+| Index  | Name  |  Type |
++--------+-------+-------+
++--------+-------+-------+
+
+[INFO] Event Manager:  <EventManager> contains 2 active terms.
++----------------------------------+
+| Active Event Terms in Mode: 'reset' |
++-----------+----------------------+
+|   Index   | Name                 |
++-----------+----------------------+
+|     0     | reset_trial          |
++-----------+----------------------+
++--------------------------------------------------+
+|      Active Event Terms in Mode: 'interval'      |
++-------+----------------+-------------------------+
+| Index | Name           | Interval time range (s) |
++-------+----------------+-------------------------+
+|   0   | hold_staged    |       (0.03, 0.04)      |
+|   1   | attach_carried |       (0.03, 0.04)      |
++-------+----------------+-------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++-----------------------------------+
+|   Active Action Terms (shape: 7)  |
++-------+---------------+-----------+
+| Index | Name          | Dimension |
++-------+---------------+-----------+
+|   0   | arm_joint_pos |         6 |
+|   1   | gripper       |         1 |
++-------+---------------+-----------+
+
+[gripper_geometry] pad colliders verified against USD (2/2 sides, tolerance 0.5 mm) at /World/envs/env_0/SynriaArm
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++---------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (68,)) |
++------------+-------------------------------+------------+
+|   Index    | Name                          |   Shape    |
++------------+-------------------------------+------------+
+|     0      | joint_state                   |   (13,)    |
+|     1      | ee_pose                       |    (7,)    |
+|     2      | piece_pos                     |    (3,)    |
+|     3      | target_piece_id               |   (32,)    |
+|     4      | target_zone_id                |    (4,)    |
+|     5      | target_pos                    |    (4,)    |
+|     6      | trial_phase                   |    (5,)    |
++------------+-------------------------------+------------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 4 active terms.
++----------------------------------------+
+|        Active Termination Terms        |
++-------+---------------------+----------+
+| Index | Name                | Time Out |
++-------+---------------------+----------+
+|   0   | time_out            |   True   |
+|   1   | piece_dropped       |  False   |
+|   2   | piece_out_of_bounds |  False   |
+|   3   | collision           |  False   |
++-------+---------------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 20 active terms.
++-------------------------------------------------+
+|               Active Reward Terms               |
++-------+--------------------------------+--------+
+| Index | Name                           | Weight |
++-------+--------------------------------+--------+
+|   0   | piece_to_target_distance       |  600.0 |
+|   1   | ee_to_piece_distance           |  300.0 |
+|   2   | piece_lift                     |    1.5 |
+|   3   | gripper_to_piece_when_grasping |    0.3 |
+|   4   | hold_maintenance               |    1.0 |
+|   5   | carry_drop                     |   15.0 |
+|   6   | release_at_zone                |   90.0 |
+|   7   | upright_descent                |  100.0 |
+|   8   | lower_at_zone                  |   15.0 |
+|   9   | approach_guidance              |   0.15 |
+|   10  | carry_guidance                 |    0.2 |
+|   11  | hold_at_zone                   |    0.0 |
+|   12  | action_norm_penalty            |  -0.01 |
+|   13  | grasp_confirmed                |  300.0 |
+|   14  | return_home                    |   60.0 |
+|   15  | setdown_approach               |  600.0 |
+|   16  | cycle_complete                 |  900.0 |
+|   17  | piece_in_zone                  |  300.0 |
+|   18  | piece_dropped                  |   30.0 |
+|   19  | collision                      |   30.0 |
++-------+--------------------------------+--------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 0 active terms.
++----------------------+
+| Active Curriculum Terms |
++-----------+----------+
+|   Index   | Name     |
++-----------+----------+
++-----------+----------+
+
+[INFO]: Completed setting up the environment...
+[e33rec] fully scripted expert (E35)
+[e33rec] polarity: -1 -> 31.0 mm, +1 -> 50.0 mm
+[sdbg] ph=['s_yaw', 's_yaw', 's_yaw', 's_yaw', 's_yaw', 's_yaw', 's_yaw', 's_yaw'] az_err=[-0.987, -0.433, 0.564, -0.584, -0.653, 0.64, -0.817, -0.987] r_err_mm=[-51.3, -81.7, -131.2, -129.4, -53.5, -54.7, -18.0, -51.3] z_mm=[849.1, 849.1, 849.1, 849.1, 849.1, 849.1, 849.1, 849.1]
+[e33rec] step=0 saved=0 phases={'s_yaw': 8} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[sdbg] ph=['s_plane', 's_descend', 's_descend', 's_descend', 's_plane', 's_descend', 's_plane', 's_plane'] az_err=[-0.355, -0.077, 0.041, 0.188, -0.205, 0.124, -0.228, -0.36] r_err_mm=[46.2, 27.6, 25.8, 18.2, 21.2, 22.3, 56.7, 46.0] z_mm=[893.4, 887.7, 884.3, 906.7, 913.3, 899.1, 893.2, 888.7]
+[e33rec] step=300 saved=0 phases={'s_plane': 4, 's_descend': 4} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[sdbg] ph=['s_plane', 's_lift', 's_descend', 's_descend', 's_plane', 's_descend', 's_plane', 's_plane'] az_err=[-0.023, -0.096, 0.169, -0.07, -0.023, -0.021, -0.025, -0.021] r_err_mm=[55.4, 18.7, 53.8, -32.9, 46.0, 47.7, 70.9, 51.4] z_mm=[882.8, 821.1, 826.1, 845.0, 887.3, 837.1, 876.2, 884.7]
+[e33rec] step=600 saved=0 phases={'s_plane': 4, 's_descend': 3, 's_lift': 1} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[sdbg] ph=['s_plane', 's_lift', 's_yaw', 's_plane', 's_plane', 's_lift', 's_plane', 's_plane'] az_err=[-0.01, -0.075, -0.036, -0.021, -0.008, -0.012, -0.012, -0.008] r_err_mm=[55.3, 29.6, 79.2, -32.6, 46.0, 17.2, 70.9, 51.2] z_mm=[882.8, 896.3, 827.0, 844.8, 887.3, 915.1, 876.2, 884.8]
+[e33rec] step=900 saved=0 phases={'s_yaw': 1, 's_plane': 5, 's_lift': 2} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[sdbg] ph=['s_plane', 's_yaw', 's_yaw', 's_plane', 's_plane', 's_lift', 's_plane', 's_plane'] az_err=[-0.004, -0.064, -0.051, 0.028, -0.003, 0.084, -0.006, -0.003] r_err_mm=[55.3, 30.6, 74.0, 13.4, 46.0, 32.8, 70.9, 51.2] z_mm=[882.9, 895.8, 827.0, 907.7, 887.3, 894.4, 876.2, 884.8]
+[e33rec] step=1200 saved=0 phases={'s_yaw': 2, 's_plane': 5, 's_lift': 1} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[death] env=0 in=s_plane taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.80rad
+[death] env=1 in=s_yaw taskphase=0 cup_tilt=0deg cup_z=876mm home_err=2.71rad
+[death] env=2 in=s_yaw taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.50rad
+[death] env=3 in=s_plane taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.80rad
+[death] env=4 in=s_plane taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.80rad
+[death] env=5 in=s_yaw taskphase=0 cup_tilt=0deg cup_z=876mm home_err=2.71rad
+[death] env=6 in=s_plane taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.80rad
+[death] env=7 in=s_plane taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.80rad
+[sdbg] ph=['policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy'] az_err=[-0.844, 0.804, -0.825, 0.625, 0.794, -0.197, 0.797, -0.254] r_err_mm=[-17.7, -91.9, -93.2, -54.8, -18.6, -148.8, -93.8, -151.0] z_mm=[846.1, 845.5, 845.9, 847.5, 847.0, 845.4, 846.0, 846.3]
+[e33rec] step=1500 saved=0 phases={'policy': 8} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 8}
+[sdbg] ph=['policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy'] az_err=[-0.816, 0.819, -0.823, 0.643, 0.807, -0.209, 0.82, -0.227] r_err_mm=[-18.8, -95.0, -95.0, -54.0, -18.5, -152.1, -95.0, -151.9] z_mm=[847.5, 847.5, 847.5, 847.4, 847.4, 847.5, 847.5, 847.4]
+[e33rec] step=1800 saved=0 phases={'policy': 8} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 8}
+[sdbg] ph=['policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy'] az_err=[-0.813, 0.822, -0.823, 0.646, 0.808, -0.211, 0.823, -0.224] r_err_mm=[-18.8, -95.0, -95.0, -54.1, -18.5, -152.1, -95.0, -151.9] z_mm=[847.4, 847.4, 847.4, 847.4, 847.4, 847.4, 847.4, 847.4]
+[e33rec] step=2100 saved=0 phases={'policy': 8} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 8}
+[sdbg] ph=['policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy'] az_err=[-0.813, 0.823, -0.823, 0.646, 0.808, -0.212, 0.823, -0.224] r_err_mm=[-18.8, -95.0, -95.0, -54.1, -18.5, -152.1, -95.0, -151.9] z_mm=[847.4, 847.4, 847.4, 847.4, 847.4, 847.4, 847.4, 847.4]
+[e33rec] step=2400 saved=0 phases={'policy': 8} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 8}
+[sdbg] ph=['policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy'] az_err=[-0.813, 0.823, -0.823, 0.646, 0.808, -0.212, 0.823, -0.224] r_err_mm=[-18.8, -95.0, -95.0, -54.1, -18.5, -152.1, -95.0, -151.9] z_mm=[847.4, 847.4, 847.4, 847.4, 847.4, 847.4, 847.4, 847.4]
+[e33rec] step=2700 saved=0 phases={'policy': 8} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 8}
+[sdbg] ph=['policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy'] az_err=[0.817, 0.432, -0.811, -0.641, -0.201, 0.817, 0.823, 0.809] r_err_mm=[-95.9, -82.4, -18.8, -54.9, -152.2, -96.2, -95.0, -18.6] z_mm=[847.4, 847.4, 847.4, 847.4, 847.4, 847.4, 847.4, 847.4]
+[e33rec] step=3000 saved=0 phases={'policy': 8} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 8}
+[sdbg] ph=['policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy'] az_err=[0.816, 0.432, -0.811, -0.641, -0.201, 0.817, 0.823, 0.809] r_err_mm=[-95.9, -82.4, -18.8, -54.9, -152.2, -96.2, -95.0, -18.6] z_mm=[847.4, 847.4, 847.4, 847.4, 847.4, 847.4, 847.4, 847.4]
+[e33rec] step=3300 saved=0 phases={'policy': 8} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 8}
+[sdbg] ph=['policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy'] az_err=[0.816, 0.432, -0.811, -0.641, -0.201, 0.817, 0.823, 0.809] r_err_mm=[-95.9, -82.4, -18.8, -54.9, -152.2, -96.2, -95.0, -18.6] z_mm=[847.4, 847.4, 847.4, 847.4, 847.4, 847.4, 847.4, 847.4]
+[e33rec] step=3600 saved=0 phases={'policy': 8} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 8}
+[sdbg] ph=['policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy'] az_err=[0.816, 0.432, -0.811, -0.641, -0.201, 0.817, 0.823, 0.809] r_err_mm=[-95.9, -82.4, -18.8, -54.9, -152.2, -96.2, -95.0, -18.6] z_mm=[847.4, 847.4, 847.4, 847.4, 847.4, 847.4, 847.4, 847.4]
+[e33rec] step=3900 saved=0 phases={'policy': 8} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 8}
+[sdbg] ph=['policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy', 'policy'] az_err=[0.816, 0.432, -0.811, -0.641, -0.201, 0.817, 0.823, 0.809] r_err_mm=[-95.9, -82.4, -18.8, -54.9, -152.2, -96.2, -95.0, -18.6] z_mm=[847.4, 847.4, 847.4, 847.4, 847.4, 847.4, 847.4, 847.4]
+[e33rec] step=4200 saved=0 phases={'policy': 8} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 8}
+[gate] ======== episodes=24 grasp=2 (0.08) upright_of_grasps=0.00 mean|dtarget|=0.76 mrad ========
+[e33rec] DONE saved=0 funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 8}

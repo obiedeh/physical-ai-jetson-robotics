@@ -1,0 +1,28 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-08-06_15-12-45.log[0m
+[36m======================================================================================[0m
+
+[33m15:12:45 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[sweep] pitch=    0deg z= 46.0mm (pad clears table by   9.9mm) -> grasp 6/6 upright@grasp 6 PLACED 0 tipped 6
+[sweep] pitch=    0deg z= 44.0mm (pad clears table by   7.9mm) -> grasp 6/6 upright@grasp 6 PLACED 0 tipped 6
+[sweep] pitch=    0deg z= 42.0mm (pad clears table by   5.9mm) -> grasp 6/6 upright@grasp 6 PLACED 0 tipped 6
+[sweep] pitch=    0deg z= 40.0mm (pad clears table by   3.9mm) -> grasp 6/6 upright@grasp 6 PLACED 1 tipped 5
+[sweep] pitch=    0deg z= 38.0mm (pad clears table by   1.9mm) -> grasp 6/6 upright@grasp 6 PLACED 1 tipped 5
+[sweep] pitch=    0deg z= 37.0mm (pad clears table by   0.9mm) -> grasp 6/6 upright@grasp 6 PLACED 0 tipped 6
+[sweep] pitch=   45deg z= 46.0mm (pad clears table by   9.9mm) -> grasp 6/6 upright@grasp 6 PLACED 0 tipped 6
+[sweep] pitch=   45deg z= 44.0mm (pad clears table by   7.9mm) -> grasp 6/6 upright@grasp 6 PLACED 0 tipped 6
+[sweep] pitch=   45deg z= 42.0mm (pad clears table by   5.9mm) -> grasp 6/6 upright@grasp 6 PLACED 1 tipped 5
+[sweep] pitch=   45deg z= 40.0mm (pad clears table by   3.9mm) -> grasp 6/6 upright@grasp 6 PLACED 0 tipped 6
+[sweep] pitch=   45deg z= 38.0mm (pad clears table by   1.9mm) -> grasp 6/6 upright@grasp 6 PLACED 1 tipped 5
+[sweep] pitch=   45deg z= 37.0mm (pad clears table by   0.9mm) -> grasp 6/6 upright@grasp 6 PLACED 0 tipped 6
+[sweep] pitch=  135deg z= 46.0mm (pad clears table by   9.9mm) -> grasp 0/6 upright@grasp 0 PLACED 0 tipped 0
+[sweep] pitch=  135deg z= 44.0mm (pad clears table by   7.9mm) -> grasp 0/6 upright@grasp 0 PLACED 0 tipped 0
+[sweep] pitch=  135deg z= 42.0mm (pad clears table by   5.9mm) -> grasp 0/6 upright@grasp 0 PLACED 0 tipped 0
+[sweep] pitch=  135deg z= 40.0mm (pad clears table by   3.9mm) -> grasp 0/6 upright@grasp 0 PLACED 0 tipped 0
+[sweep] pitch=  135deg z= 38.0mm (pad clears table by   1.9mm) -> grasp 1/6 upright@grasp 0 PLACED 0 tipped 1
+[sweep] pitch=  135deg z= 37.0mm (pad clears table by   0.9mm) -> grasp 0/6 upright@grasp 0 PLACED 0 tipped 0
+[sweep] ======== BEST: pitch=0.0deg z=40.0mm placed 1/6 ========
+[sweep] wrote /home/oedeh/github/physical-ai-jetson-robotics/reports/synria_grasp_geometry_sweep.json

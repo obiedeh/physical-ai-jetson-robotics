@@ -1,0 +1,30 @@
+{
+  "timestamp_utc": "2026-08-22T03:08:58Z",
+  "git_sha": "f0de6db4ad3cd18cbdbbd3e3e8cd06c458b8cbe7",
+  "git_dirty": true,
+  "host": "aimlstation",
+  "platform": "Linux-6.17.0-22-generic-x86_64-with-glibc2.39",
+  "python": "3.11.13",
+  "gpu": "NVIDIA GeForce RTX 5090, 580.178.04",
+  "cuda_runtime": "Cuda compilation tools, release 13.2, V13.2.86",
+  "seed": 2,
+  "checkpoint": "reports/training/synria_chess_pickplace_v6_e26_s43/model_final.pt",
+  "argv": [
+    "isaac/scripts/ludo_turn_executor.py",
+    "--headless",
+    "--dice-in",
+    "1",
+    "--seed",
+    "2",
+    "--out",
+    "reports/dice_in"
+  ],
+  "control_hz": 30,
+  "data_kind": "simulated (Isaac Sim; kinematic attach glue + release-hold sim-authority patches active \u2014 see ledger; NOT real-hardware data)",
+  "scoring_rule": "OK iff final cup-to-square error < 35mm AND final cup tilt-from-vertical < 15deg; cup position read post-hold, post-withdrawal; misses never rescued by sim authority",
+  "torch_cuda_device": "NVIDIA GeForce RTX 5090",
+  "torch_version": "2.7.0+cu128",
+  "onnxruntime_available_providers": null,
+  "uncommitted_patch": "uncommitted.5.patch",
+  "uncommitted_patch_sha256": "51abc214d4a062489a75ec6343bff7527ff592127f4ac07e7b1019b46d78f0c3"
+}

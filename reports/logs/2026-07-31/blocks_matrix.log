@@ -1,0 +1,56 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[feas] asset: synria_6dof_arm_g30.usd
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-31_20-15-16.log[0m
+[36m======================================================================================[0m
+
+[33m20:15:16 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[feas] joints: ['Joint1', 'Joint2', 'Joint3', 'Joint4', 'Joint5', 'Joint6', 'left_finger', 'right_finger']
+[feas] left_finger limits: [0.0, 25.0] mm, right: [-25.0, 0.0] mm
+[feas] finger defaults: 0.0 / 0.0 mm
+[feas] teleport-to-20mm test: fingers now at 20.0 / -20.0 mm
+[feas] gripper bodies: ['left_gripper', 'right_gripper']
+[block] {'block_mm': 20, 'trial': 0, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -19.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 20, 'trial': 1, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -19.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 20, 'trial': 2, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -19.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 28, 'trial': 0, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -27.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 28, 'trial': 1, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -27.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 28, 'trial': 2, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -27.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 30, 'trial': 0, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -29.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 30, 'trial': 1, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -29.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 30, 'trial': 2, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -29.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 40, 'trial': 0, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -39.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 40, 'trial': 1, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -39.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 40, 'trial': 2, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -39.97, 'symmetric': True, 'ok': False}
+[block] ======== BLOCKS 0/12 OK (asset=g30) ========
+EXIT_g30=4
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[feas] asset: synria_6dof_arm_padfix2.usd
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-31_20-15-43.log[0m
+[36m======================================================================================[0m
+
+[33m20:15:43 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[feas] joints: ['Joint1', 'Joint2', 'Joint3', 'Joint4', 'Joint5', 'Joint6', 'left_finger', 'right_finger']
+[feas] left_finger limits: [0.0, 25.0] mm, right: [-25.0, 0.0] mm
+[feas] finger defaults: 0.0 / 0.0 mm
+[feas] teleport-to-20mm test: fingers now at 20.0 / -20.0 mm
+[feas] gripper bodies: ['left_gripper', 'right_gripper']
+[block] {'block_mm': 20, 'trial': 0, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -19.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 20, 'trial': 1, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -19.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 20, 'trial': 2, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -19.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 28, 'trial': 0, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -27.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 28, 'trial': 1, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -27.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 28, 'trial': 2, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -27.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 30, 'trial': 0, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -29.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 30, 'trial': 1, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -29.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 30, 'trial': 2, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -29.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 40, 'trial': 0, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -39.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 40, 'trial': 1, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -39.97, 'symmetric': True, 'ok': False}
+[block] {'block_mm': 40, 'trial': 2, 'left_travel_mm': 24.99, 'right_travel_mm': 24.98, 'measured_width_mm': 0.03, 'width_err_mm': -39.97, 'symmetric': True, 'ok': False}
+[block] ======== BLOCKS 0/12 OK (asset=padfix2) ========
+EXIT_padfix2=4

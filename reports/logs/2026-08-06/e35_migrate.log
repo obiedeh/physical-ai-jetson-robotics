@@ -1,0 +1,15 @@
+WARNING 2026-08-09 04:45:45 ts/utils.py:191 Unknown fields in DatasetInfo: ['total_chunks', 'total_videos']. These will be ignored.
+INFO 2026-08-09 04:45:45 1_to_v30.py:493 Using local dataset at /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33v2_lerobot
+INFO 2026-08-09 04:45:45 1_to_v30.py:453 Converting info from /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33v2_lerobot to /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33v2_lerobot_v30
+INFO 2026-08-09 04:45:45 1_to_v30.py:183 Converting tasks from /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33v2_lerobot to /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33v2_lerobot_v30
+WARNING 2026-08-09 04:45:45 ts/utils.py:191 Unknown fields in DatasetInfo: ['total_chunks', 'total_videos']. These will be ignored.
+INFO 2026-08-09 04:45:45 1_to_v30.py:225 Converting data files from 300 episodes
+convert data files:   0%|          | 0/300 [00:00<?, ?it/s]convert data files: 100%|██████████| 300/300 [00:00<00:00, 15005.56it/s]
+INFO 2026-08-09 04:45:46 1_to_v30.py:278 Converting videos from /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33v2_lerobot to /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33v2_lerobot_v30
+WARNING 2026-08-09 04:45:46 ts/utils.py:191 Unknown fields in DatasetInfo: ['total_chunks', 'total_videos']. These will be ignored.
+convert videos of observation.images.overhead:   0%|          | 0/300 [00:00<?, ?it/s]convert videos of observation.images.overhead:  64%|██████▍   | 193/300 [00:00<00:00, 1919.05it/s]convert videos of observation.images.overhead: 100%|██████████| 300/300 [00:00<00:00, 422.75it/s] 
+convert videos of observation.images.wrist:   0%|          | 0/300 [00:00<?, ?it/s]convert videos of observation.images.wrist:  44%|████▎     | 131/300 [00:00<00:00, 299.81it/s]convert videos of observation.images.wrist:  91%|█████████▏| 274/300 [00:00<00:00, 319.81it/s]convert videos of observation.images.wrist: 100%|██████████| 300/300 [00:00<00:00, 340.95it/s]
+convert videos:   0%|          | 0/300 [00:00<?, ?it/s]convert videos: 100%|██████████| 300/300 [00:00<00:00, 1802709.46it/s]
+INFO 2026-08-09 04:45:48 1_to_v30.py:419 Converting episodes metadata from /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33v2_lerobot to /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33v2_lerobot_v30
+Generating train split: 0 examples [00:00, ? examples/s]Generating train split: 300 examples [00:00, 2320.53 examples/s]
+Creating parquet from Arrow format:   0%|          | 0/1 [00:00<?, ?ba/s]Creating parquet from Arrow format: 100%|██████████| 1/1 [00:00<00:00, 480.89ba/s]

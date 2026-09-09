@@ -1,0 +1,9 @@
+{
+  "model": "gemini-robotics-er-2-preview",
+  "answered": 56,
+  "total": 60,
+  "median_mm": 2.79,
+  "p90_mm": 5.4,
+  "gross_over_50mm": 3,
+  "verdict": "PASS"
+}

@@ -1,0 +1,22 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[feas] asset: synria_6dof_arm.usd
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-31_19-31-39.log[0m
+[36m======================================================================================[0m
+
+[33m19:31:39 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[feas] joints: ['Joint1', 'Joint2', 'Joint3', 'Joint4', 'Joint5', 'Joint6', 'left_finger', 'right_finger']
+[feas] left_finger limits: [0.0, 25.0] mm, right: [-25.0, 0.0] mm
+[feas] finger defaults: 0.0 / 0.0 mm
+[feas] teleport-to-20mm test: fingers now at 0.0 / -16.8 mm
+[feas] gripper bodies: ['left_gripper', 'right_gripper']
+[feas] trial 0: {'trial': 0, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': True, 'stall_left_mm': 0.8, 'stall_right_mm': 2.1, 'ejected': False, 'lifted': False, 'slipped_in_transport': False, 'success': False}
+[feas] trial 1: {'trial': 1, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': True, 'stall_left_mm': 0.3, 'stall_right_mm': 0.3, 'ejected': False, 'lifted': False, 'slipped_in_transport': False, 'success': False}
+[feas] trial 2: {'trial': 2, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': True, 'stall_left_mm': 0.4, 'stall_right_mm': 0.3, 'ejected': False, 'lifted': False, 'slipped_in_transport': False, 'success': False}
+[feas] trial 3: {'trial': 3, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': True, 'stall_left_mm': 0.4, 'stall_right_mm': 0.3, 'ejected': False, 'lifted': False, 'slipped_in_transport': False, 'success': False}
+[feas] trial 4: {'trial': 4, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': True, 'stall_left_mm': 0.4, 'stall_right_mm': 0.3, 'ejected': False, 'lifted': False, 'slipped_in_transport': False, 'success': False}
+[feas] ======== SUCCESS 0/5 (asset=production) ========
+[feas] wrote /home/oedeh/github/physical-ai-jetson-robotics-gr00t/reports/synria_grasp_trials_production.json
+FEAS_EXIT=0

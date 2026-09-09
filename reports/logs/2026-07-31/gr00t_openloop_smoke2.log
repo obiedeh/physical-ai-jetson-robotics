@@ -1,0 +1,51 @@
+WARNING:root:Could not find checkpoint-<step> pattern in path: nvidia/GR00T-N1.7-3B
+/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
+  check_for_updates()
+`torch_dtype` is deprecated! Use `dtype` instead!
+INFO:gr00t.model.gr00t_n1d7.gr00t_n1d7:Using AlternateVLDiT for diffusion model
+Total number of DiT parameters:  1091722240
+Total number of SelfAttentionTransformer parameters:  201433088
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:03<00:03,  3.53s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:05<00:00,  2.49s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:05<00:00,  2.65s/it]
+INFO:root:Using 4 denoising steps
+INFO:root:Current modality config: 
+{'video': ModalityConfig(delta_indices=[-15, 0], modality_keys=['exterior_image_1_left', 'wrist_image_left'], sin_cos_embedding_keys=None, mean_std_embedding_keys=None, action_configs=None), 'state': ModalityConfig(delta_indices=[0], modality_keys=['eef_9d', 'gripper_position', 'joint_position'], sin_cos_embedding_keys=None, mean_std_embedding_keys=None, action_configs=None), 'action': ModalityConfig(delta_indices=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39], modality_keys=['eef_9d', 'gripper_position', 'joint_position'], sin_cos_embedding_keys=None, mean_std_embedding_keys=None, action_configs=[ActionConfig(rep=<ActionRepresentation.RELATIVE: 'relative'>, type=<ActionType.EEF: 'eef'>, format=<ActionFormat.XYZ_ROT6D: 'xyz+rot6d'>, state_key='eef_9d'), ActionConfig(rep=<ActionRepresentation.ABSOLUTE: 'absolute'>, type=<ActionType.NON_EEF: 'non_eef'>, format=<ActionFormat.DEFAULT: 'default'>, state_key='gripper_position'), ActionConfig(rep=<ActionRepresentation.RELATIVE: 'relative'>, type=<ActionType.NON_EEF: 'non_eef'>, format=<ActionFormat.DEFAULT: 'default'>, state_key='joint_position')]), 'language': ModalityConfig(delta_indices=[0], modality_keys=['annotation.language.language_instruction'], sin_cos_embedding_keys=None, mean_std_embedding_keys=None, action_configs=None)}
+WARNING:root:Video key mismatch between model config and dataset. Auto-mapping by position: {'exterior_image_1_left': 'exterior_1_left', 'wrist_image_left': 'wrist_left'}
+INFO:root:Dataset length: 3
+INFO:root:Running evaluation on trajectories: [1]
+INFO:root:Running trajectory: 1
+INFO:root:Using 200 steps (requested: 200, trajectory length: 266)
+INFO:root:inferencing at step: 0
+INFO:root:inferencing at step: 8
+INFO:root:inferencing at step: 16
+INFO:root:inferencing at step: 24
+INFO:root:inferencing at step: 32
+INFO:root:inferencing at step: 40
+INFO:root:inferencing at step: 48
+INFO:root:inferencing at step: 56
+INFO:root:inferencing at step: 64
+INFO:root:inferencing at step: 72
+INFO:root:inferencing at step: 80
+INFO:root:inferencing at step: 88
+INFO:root:inferencing at step: 96
+INFO:root:inferencing at step: 104
+INFO:root:inferencing at step: 112
+INFO:root:inferencing at step: 120
+INFO:root:inferencing at step: 128
+INFO:root:inferencing at step: 136
+INFO:root:inferencing at step: 144
+INFO:root:inferencing at step: 152
+INFO:root:inferencing at step: 160
+INFO:root:inferencing at step: 168
+INFO:root:inferencing at step: 176
+INFO:root:inferencing at step: 184
+INFO:root:inferencing at step: 192
+INFO:root:Unnormalized Action MSE across single traj: 0.0026802950435047155
+INFO:root:Unnormalized Action MAE across single traj: 0.03343631965165567
+INFO:root:state_joints vs time (266, 17)
+INFO:root:gt_action_joints vs time (200, 17)
+INFO:root:pred_action_joints vs time (200, 17)
+INFO:root:MSE for trajectory 1: 0.0026802950435047155, MAE: 0.03343631965165567
+INFO:root:Average MSE across all trajs: 0.0026802950435047155
+INFO:root:Average MAE across all trajs: 0.03343631965165567
+INFO:root:Done
+EVAL_EXIT=0

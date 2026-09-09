@@ -1,0 +1,5 @@
+Loading weights from local directory
+[serve] ACT loaded from /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_act_v2/checkpoints/last/pretrained_model
+[serve] listening on 127.0.0.1:5599
+[serve] client connected
+[serve] client disconnected

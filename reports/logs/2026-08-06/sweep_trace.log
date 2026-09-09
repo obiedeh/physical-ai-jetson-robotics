@@ -1,0 +1,25 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-08-06_22-51-54.log[0m
+[36m======================================================================================[0m
+
+[33m22:51:54 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[sweep] pitch=    0deg z= 42.0mm (pad clears table by   5.9mm) -> grasp 6/6 upright@grasp 6 PLACED 0 tipped 6
+[sweep] pitch=    0deg z= 40.0mm (pad clears table by   3.9mm) -> grasp 6/6 upright@grasp 6 PLACED 1 tipped 5
+[trace] cup state through the scripted cycle (median over trials):
+[trace] pitch=0 z=42mm
+[trace]    after_grasp      tilt=   0.0deg cup_above_table=   25.0mm cup-pad_z=  -17.4mm xy_off=   0.5mm
+[trace]    after_lift       tilt=  17.4deg cup_above_table=   65.6mm cup-pad_z=   -6.1mm xy_off=  15.9mm
+[trace]    after_transport  tilt=  14.0deg cup_above_table=   54.7mm cup-pad_z=   -7.0mm xy_off=  15.5mm
+[trace]    after_setdown    tilt=  41.8deg cup_above_table=   47.4mm cup-pad_z=   -3.8mm xy_off=  14.6mm
+[trace]    after_release    tilt=  41.3deg cup_above_table=   45.9mm cup-pad_z=   -3.8mm xy_off=  14.6mm
+[trace] pitch=0 z=40mm
+[trace]    after_grasp      tilt=   0.0deg cup_above_table=   25.0mm cup-pad_z=  -15.5mm xy_off=   0.5mm
+[trace]    after_lift       tilt=  15.7deg cup_above_table=   66.2mm cup-pad_z=   -9.7mm xy_off=   8.8mm
+[trace]    after_transport  tilt=  12.9deg cup_above_table=   56.6mm cup-pad_z=  -10.1mm xy_off=   8.1mm
+[trace]    after_setdown    tilt=  90.0deg cup_above_table=   25.0mm cup-pad_z=  -46.4mm xy_off= 255.6mm
+[trace]    after_release    tilt=  90.0deg cup_above_table=   25.0mm cup-pad_z=  -46.4mm xy_off= 273.5mm
+[sweep] ======== BEST: pitch=0.0deg z=40.0mm placed 1/6 ========
+[sweep] wrote reports/synria_grasp_geometry_trace.json

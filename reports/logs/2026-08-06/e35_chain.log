@@ -1,0 +1,16 @@
+[v2] STAGE 1: record 320 episodes (2026-08-08T22:23:09-05:00)
+[v2] record exited 0 (2026-08-09T04:44:18-05:00)
+[v2] STAGE 2: hold out last 20 episodes
+manifest trimmed to 300
+[v2] STAGE 3: convert + stats + migrate
+[v2] convert exited 0
+[v2] stats exited 0
+[v2] migrate exited 0
+[v2] STAGE 4: train ACT v2 (2026-08-09T04:45:49-05:00)
+[v2] train exited 0 (2026-08-09T17:06:57-05:00)
+[v2] STAGE 5: checkpoint sweep + final eval
+[v2] sweep 020000 exited 0
+[v2] sweep 060000 exited 0
+[v2] sweep 100000 exited 0
+[v2] final eval exited 0
+[v2] ALLDONE (2026-08-09T17:46:49-05:00)

@@ -1,0 +1,48 @@
+# Starter notes for a Synria + C10 camera LeRobot/ALOHA-compatible ACT setup.
+# This is a project contract, not a complete LeRobot training config.
+
+dataset:
+  local_root: data/lerobot/synria_c10_aloha_demo
+  repo_id: obiedeh/synria-c10-aloha-demo
+  fps: 30
+
+environment:
+  type: aloha
+  robot: synria_6dof_arm
+  camera: c10_camera
+
+observations:
+  images:
+    c10_camera:
+      topic: /c10_camera/image_raw
+      encoding: rgb8
+  state:
+    topic: /joint_states
+    joints:
+      - joint_1
+      - joint_2
+      - joint_3
+      - joint_4
+      - joint_5
+      - joint_6
+  end_effector_pose:
+    source: tf
+    frame: tool0
+
+actions:
+  type: joint_position
+  joints:
+    - joint_1
+    - joint_2
+    - joint_3
+    - joint_4
+    - joint_5
+    - joint_6
+
+policy:
+  type: act
+
+notes:
+  - Replace approximate joint names and limits with vendor Synria definitions.
+  - Add gripper command if the kit exposes a controllable gripper.
+  - Keep raw datasets and checkpoints out of git.

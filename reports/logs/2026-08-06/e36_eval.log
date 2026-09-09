@@ -1,0 +1,214 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[INFO]: Parsing configuration from: <class 'isaac.isaaclab_tasks.synria_pickplace.env_cfg.SynriaChessPickPlaceEnvCfg'>
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-08-09_23-32-59.log[0m
+[36m======================================================================================[0m
+
+[33m23:32:59 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 123
+	Physics step-size     : 0.016666666666666666
+	Rendering step-size   : 0.016666666666666666
+	Environment step-size : 0.03333333333333333
+[33m23:32:59 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 0.679081 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 256
+	Environment spacing   : 2.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : False
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 0.865980 seconds
+[INFO] Command Manager:  <CommandManager> contains 0 active terms.
++------------------------+
+|  Active Command Terms  |
++--------+-------+-------+
+| Index  | Name  |  Type |
++--------+-------+-------+
++--------+-------+-------+
+
+[INFO] Event Manager:  <EventManager> contains 2 active terms.
++----------------------------------+
+| Active Event Terms in Mode: 'reset' |
++-----------+----------------------+
+|   Index   | Name                 |
++-----------+----------------------+
+|     0     | reset_trial          |
++-----------+----------------------+
++--------------------------------------------------+
+|      Active Event Terms in Mode: 'interval'      |
++-------+----------------+-------------------------+
+| Index | Name           | Interval time range (s) |
++-------+----------------+-------------------------+
+|   0   | hold_staged    |       (0.03, 0.04)      |
+|   1   | attach_carried |       (0.03, 0.04)      |
++-------+----------------+-------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++-----------------------------------+
+|   Active Action Terms (shape: 7)  |
++-------+---------------+-----------+
+| Index | Name          | Dimension |
++-------+---------------+-----------+
+|   0   | arm_joint_pos |         6 |
+|   1   | gripper       |         1 |
++-------+---------------+-----------+
+
+[gripper_geometry] pad colliders verified against USD (2/2 sides, tolerance 0.5 mm) at /World/envs/env_0/SynriaArm
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++---------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (68,)) |
++------------+-------------------------------+------------+
+|   Index    | Name                          |   Shape    |
++------------+-------------------------------+------------+
+|     0      | joint_state                   |   (13,)    |
+|     1      | ee_pose                       |    (7,)    |
+|     2      | piece_pos                     |    (3,)    |
+|     3      | target_piece_id               |   (32,)    |
+|     4      | target_zone_id                |    (4,)    |
+|     5      | target_pos                    |    (4,)    |
+|     6      | trial_phase                   |    (5,)    |
++------------+-------------------------------+------------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 4 active terms.
++----------------------------------------+
+|        Active Termination Terms        |
++-------+---------------------+----------+
+| Index | Name                | Time Out |
++-------+---------------------+----------+
+|   0   | time_out            |   True   |
+|   1   | piece_dropped       |  False   |
+|   2   | piece_out_of_bounds |  False   |
+|   3   | collision           |  False   |
++-------+---------------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 20 active terms.
++-------------------------------------------------+
+|               Active Reward Terms               |
++-------+--------------------------------+--------+
+| Index | Name                           | Weight |
++-------+--------------------------------+--------+
+|   0   | piece_to_target_distance       |  600.0 |
+|   1   | ee_to_piece_distance           |  300.0 |
+|   2   | piece_lift                     |    1.5 |
+|   3   | gripper_to_piece_when_grasping |    0.3 |
+|   4   | hold_maintenance               |    1.0 |
+|   5   | carry_drop                     |   15.0 |
+|   6   | release_at_zone                |   90.0 |
+|   7   | upright_descent                |  100.0 |
+|   8   | lower_at_zone                  |   15.0 |
+|   9   | approach_guidance              |   0.15 |
+|   10  | carry_guidance                 |    0.2 |
+|   11  | hold_at_zone                   |    0.0 |
+|   12  | action_norm_penalty            |  -0.01 |
+|   13  | grasp_confirmed                |  300.0 |
+|   14  | return_home                    |   60.0 |
+|   15  | setdown_approach               |  600.0 |
+|   16  | cycle_complete                 |  900.0 |
+|   17  | piece_in_zone                  |  300.0 |
+|   18  | piece_dropped                  |   30.0 |
+|   19  | collision                      |   30.0 |
++-------+--------------------------------+--------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 0 active terms.
++----------------------+
+| Active Curriculum Terms |
++-----------+----------+
+|   Index   | Name     |
++-----------+----------+
++-----------+----------+
+
+[INFO]: Completed setting up the environment...
+--------------------------------------------------------------------------------
+Resolved observation sets: 
+	 policy :  ['policy']
+	 critic :  ['policy']
+--------------------------------------------------------------------------------
+Actor MLP: MLP(
+  (0): Linear(in_features=68, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=7, bias=True)
+)
+Critic MLP: MLP(
+  (0): Linear(in_features=68, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=1, bias=True)
+)
+[eval] checkpoint: reports/training/synria_chess_pickplace_v9_e36_s43/model_final.pt
+[eval] num_envs=256 steps=1700 seed=123
+[eval] step=0 episodes_done=0
+[eval] step=500 episodes_done=4
+[eval] step=1000 episodes_done=260
+[eval] step=1500 episodes_done=263
+[eval] ======== RESULT ========
+[eval] completed_episodes: 263
+[eval] stage reach: 263/263 = 1.000  95% CI [0.986, 1.000]
+[eval] stage align: 0/263 = 0.000  95% CI [0.000, 0.014]
+[eval] stage align_legacy: 28/263 = 0.106  95% CI [0.075, 0.150]
+[eval] stage grasp: 224/263 = 0.852  95% CI [0.804, 0.890]
+[eval] stage grasp_upright: 58/263 = 0.221  95% CI [0.175, 0.274]
+[eval] stage lift: 222/263 = 0.844  95% CI [0.795, 0.883]
+[eval] stage lift_upright: 76/263 = 0.289  95% CI [0.238, 0.346]
+[eval] stage transport: 195/263 = 0.741  95% CI [0.685, 0.791]
+[eval] stage transport_upright: 47/263 = 0.179  95% CI [0.137, 0.230]
+[eval] stage at_plate: 192/263 = 0.730  95% CI [0.673, 0.780]
+[eval] stage at_plate_upright: 54/263 = 0.205  95% CI [0.161, 0.258]
+[eval] stage place: 50/263 = 0.190  95% CI [0.147, 0.242]
+[eval] stage upright: 43/263 = 0.163  95% CI [0.124, 0.213]
+[eval] stage full: 50/263 = 0.190  95% CI [0.147, 0.242]
+[eval] NOTE: the CIs above are SAMPLING error for this one run. Seed variance is much larger -- E25 measured 2.8x on grasp and ~18x on full across seeds at a fixed budget. A single run cannot support a keep/revert decision; use aggregate_evals.py over >=3 seeds.
+[eval] spawn-bin near: episodes=263 grasp=224/263=0.852 full=50/263=0.190
+[appr] grasps=224 upright=58 tilted=166
+[appr] UPRIGHT: min_dxy(any) median=4.2mm | width@min median=30.4mm | dz@min median=57.7mm | dxy@grasp median=43.8mm | width@grasp median=23.1mm
+[appr] TILTED : min_dxy(any) median=3.2mm | width@min median=30.3mm | dz@min median=86.9mm | dxy@grasp median=41.9mm | width@grasp median=26.9mm
+[eval] report: reports/eval/e36_rl_s43.json
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260809_233254.log
+2026-08-10T04:32:54Z [6ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-08-10T04:32:54Z [6ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+2026-08-10T04:32:54Z [6ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+2026-08-10T04:32:54Z [122ms] [Warning] [omni.usd_config.extension] Enable omni.materialx.libs extension to use MaterialX
+2026-08-10T04:32:55Z [388ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-08-10T04:32:55Z [393ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 20789
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 3766
+|---------------------------------------------------------------------------------------------|
+2026-08-10T04:32:58Z [3,623ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-08-10T04:32:58Z [3,631ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.

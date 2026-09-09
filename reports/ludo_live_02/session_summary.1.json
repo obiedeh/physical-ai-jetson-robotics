@@ -1,0 +1,89 @@
+{
+  "scoring_rule": "OK iff final cup-to-square error < 35mm AND final cup tilt-from-vertical < 15deg; cup position read post-hold, post-withdrawal; misses never rescued by sim authority",
+  "data_kind": "simulated",
+  "turns": 3,
+  "commands": 3,
+  "first_try_ok": 1,
+  "first_try_rate": 0.333,
+  "with_retry_ok": 3,
+  "retries_used": 2,
+  "ok_err_mm_p50": 19.8,
+  "ok_err_mm_p95": 19.8,
+  "lane_counts": {
+    "policy": 0,
+    "fallback": 3,
+    "groot17": 0
+  },
+  "failures": [
+    {
+      "ok": false,
+      "err_mm": 45.1,
+      "final_tilt_deg": 0.0,
+      "carry_tilt_max_deg": 0.0,
+      "steps": 8999,
+      "timed_out": true,
+      "lane": "fallback",
+      "far_pick": true,
+      "far_place": true,
+      "hold_armed": false,
+      "grasped": false,
+      "pick_xy": [
+        0.286,
+        -0.0227
+      ],
+      "place_xy": [
+        0.2633,
+        -0.0227
+      ],
+      "closest_approach_mm": 9900.0,
+      "decided_at_step": -1,
+      "infer_ms_p50": 0.17444801051169634,
+      "infer_ms_p95": 0.22181699750944972,
+      "infer_n": 9000,
+      "attempt": 1
+    },
+    {
+      "ok": false,
+      "err_mm": 51.2,
+      "final_tilt_deg": 0.0,
+      "carry_tilt_max_deg": 0.0,
+      "steps": 8999,
+      "timed_out": true,
+      "lane": "fallback",
+      "far_pick": true,
+      "far_place": false,
+      "hold_armed": false,
+      "grasped": false,
+      "pick_xy": [
+        0.2633,
+        -0.0227
+      ],
+      "place_xy": [
+        0.218,
+        -0.0227
+      ],
+      "closest_approach_mm": 9900.0,
+      "decided_at_step": -1,
+      "infer_ms_p50": 0.1760260056471452,
+      "infer_ms_p95": 0.2233989944215864,
+      "infer_n": 9000,
+      "attempt": 1
+    }
+  ],
+  "wall_clock_s": 1583.1,
+  "sim_steps_total": 33758,
+  "infer_ms_session": {
+    "p50_of_attempt_p50s": 0.17506499716546386,
+    "worst_attempt_p95": 0.23603500449098647,
+    "total_calls": 33763
+  },
+  "gpu_health": {
+    "samples": 3,
+    "temp_c_peak": 49.0,
+    "temp_c_mean": 48.7,
+    "power_w_peak": 135.13,
+    "throttle_events": [],
+    "throttled": false,
+    "note": "sampled at command boundaries only; not continuous"
+  }
+}

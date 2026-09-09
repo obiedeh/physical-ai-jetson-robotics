@@ -1,0 +1,34 @@
+# MoveIt 2 controller manager config for the Synria 6DOF arm.
+#
+# Maps MoveIt trajectory action servers to the ros2_control controllers
+# defined in synria_arm_gazebo/config/ros2_controllers.yaml.
+#
+# Controller types:
+#   FollowJointTrajectory — standard MoveIt 2 joint trajectory interface.
+#
+# Joint names match the vendor URDF (capital-J, SolidWorks export).
+
+moveit_simple_controller_manager:
+  controller_names:
+    - arm_controller
+    - gripper_controller
+
+arm_controller:
+  type: FollowJointTrajectory
+  action_ns: follow_joint_trajectory
+  default: true
+  joints:
+    - Joint1
+    - Joint2
+    - Joint3
+    - Joint4
+    - Joint5
+    - Joint6
+
+gripper_controller:
+  type: FollowJointTrajectory
+  action_ns: follow_joint_trajectory
+  default: true
+  joints:
+    - left_finger
+    - right_finger

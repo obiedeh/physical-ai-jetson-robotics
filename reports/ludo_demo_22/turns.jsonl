@@ -1,0 +1,2 @@
+{"turn": 1, "desc": "red rolls 4: token 0 ('track', 0) -> ('track', 4)", "commands": 1, "ok": [true]}
+{"turn": 2, "desc": "blue rolls 5: token 0 ('track', 13) -> ('track', 18)", "commands": 1, "ok": [true]}

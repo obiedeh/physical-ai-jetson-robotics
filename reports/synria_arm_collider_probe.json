@@ -1,0 +1,8 @@
+{
+ "usd_colliders_total": 11,
+ "arm_link_colliders_enabled": 7,
+ "control_rad": 0.8398,
+ "blocked_rad": 0.0453,
+ "stalled_on_obstacle": true,
+ "verdict_live": true
+}

@@ -1,0 +1,6 @@
+sensor_frames:
+  front_lidar: front_tof_lidar_scan_frame
+  rear_lidar: rear_tof_lidar_scan_frame
+  rgb_camera: depth_camera_rgb_frame
+  depth_camera: depth_camera_depth_frame
+  optical_camera: depth_camera_optical_frame

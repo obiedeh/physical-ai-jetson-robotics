@@ -1,0 +1,372 @@
+[wrap] attempt 1/3 2026-08-27T22:05:17-05:00
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260827_220519.log
+2026-08-28T03:05:19Z [6ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-08-28T03:05:19Z [6ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+2026-08-28T03:05:19Z [6ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.178.04    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 19349
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 8191
+|---------------------------------------------------------------------------------------------|
+2026-08-28T03:05:20Z [879ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-08-28T03:05:20Z [882ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.
+2026-08-28T03:05:22Z [3,104ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-08-28T03:05:23Z [3,287ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-08-28T03:05:23Z [3,409ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-08-28T03:05:23Z [3,999ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+2026-08-28T03:05:24Z [4,338ms] [Warning] [omni.graph.core.plugin] Found duplicate of category 'Replicator' - was 'Annotators', adding 'Fabric Reader'
+2026-08-28T03:05:24Z [4,338ms] [Warning] [omni.graph.core.plugin] Category 'Replicator' not accepted on node type 'omni.replicator.core.FabricReader' in extension 'omni.replicator.core'
+2026-08-28T03:05:24Z [4,339ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-08-28T03:05:27Z [7,343ms] [Warning] [omni.fabric.plugin] Warning: attribute viewportHandle not found for bucket id 7
+
+[INFO]: Parsing configuration from: <class 'isaac.isaaclab_tasks.synria_pickplace.env_cfg.SynriaChessPickPlaceEnvCfg'>
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-08-27_22-05-28.log[0m
+[36m======================================================================================[0m
+
+[33m22:05:28 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 0
+	Physics step-size     : 0.016666666666666666
+	Rendering step-size   : 0.016666666666666666
+	Environment step-size : 0.03333333333333333
+[33m22:05:28 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 1.488403 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 1
+	Environment spacing   : 2.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : False
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+2026-08-28T03:05:30Z [11,020ms] [Warning] [omni.fabric.plugin] getAttributeCount called on non-existent path /World/envs/env_0/SynriaArm/link6/visuals/link6/node_STL_BINARY_
+2026-08-28T03:05:30Z [11,020ms] [Warning] [omni.fabric.plugin] getTypes called on non-existent path /World/envs/env_0/SynriaArm/link6/visuals/link6/node_STL_BINARY_
+[INFO]: Time taken for simulation start : 1.567146 seconds
+[INFO] Command Manager:  <CommandManager> contains 0 active terms.
++------------------------+
+|  Active Command Terms  |
++--------+-------+-------+
+| Index  | Name  |  Type |
++--------+-------+-------+
++--------+-------+-------+
+
+[INFO] Event Manager:  <EventManager> contains 2 active terms.
++----------------------------------+
+| Active Event Terms in Mode: 'reset' |
++-----------+----------------------+
+|   Index   | Name                 |
++-----------+----------------------+
+|     0     | reset_trial          |
++-----------+----------------------+
++--------------------------------------------------+
+|      Active Event Terms in Mode: 'interval'      |
++-------+----------------+-------------------------+
+| Index | Name           | Interval time range (s) |
++-------+----------------+-------------------------+
+|   0   | hold_staged    |       (0.03, 0.04)      |
+|   1   | attach_carried |       (0.03, 0.04)      |
++-------+----------------+-------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++-----------------------------------+
+|   Active Action Terms (shape: 7)  |
++-------+---------------+-----------+
+| Index | Name          | Dimension |
++-------+---------------+-----------+
+|   0   | arm_joint_pos |         6 |
+|   1   | gripper       |         1 |
++-------+---------------+-----------+
+
+[gripper_geometry] pad colliders verified against USD (2/2 sides, tolerance 0.5 mm) at /World/envs/env_0/SynriaArm
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++---------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (68,)) |
++------------+-------------------------------+------------+
+|   Index    | Name                          |   Shape    |
++------------+-------------------------------+------------+
+|     0      | joint_state                   |   (13,)    |
+|     1      | ee_pose                       |    (7,)    |
+|     2      | piece_pos                     |    (3,)    |
+|     3      | target_piece_id               |   (32,)    |
+|     4      | target_zone_id                |    (4,)    |
+|     5      | target_pos                    |    (4,)    |
+|     6      | trial_phase                   |    (5,)    |
++------------+-------------------------------+------------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 4 active terms.
++----------------------------------------+
+|        Active Termination Terms        |
++-------+---------------------+----------+
+| Index | Name                | Time Out |
++-------+---------------------+----------+
+|   0   | time_out            |   True   |
+|   1   | piece_dropped       |  False   |
+|   2   | piece_out_of_bounds |  False   |
+|   3   | collision           |  False   |
++-------+---------------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 20 active terms.
++-------------------------------------------------+
+|               Active Reward Terms               |
++-------+--------------------------------+--------+
+| Index | Name                           | Weight |
++-------+--------------------------------+--------+
+|   0   | piece_to_target_distance       |  600.0 |
+|   1   | ee_to_piece_distance           |  300.0 |
+|   2   | piece_lift                     |    1.5 |
+|   3   | gripper_to_piece_when_grasping |    0.3 |
+|   4   | hold_maintenance               |    1.0 |
+|   5   | carry_drop                     |   15.0 |
+|   6   | release_at_zone                |   90.0 |
+|   7   | upright_descent                |  100.0 |
+|   8   | lower_at_zone                  |   15.0 |
+|   9   | approach_guidance              |   0.15 |
+|   10  | carry_guidance                 |    0.2 |
+|   11  | hold_at_zone                   |    0.0 |
+|   12  | action_norm_penalty            |  -0.01 |
+|   13  | grasp_confirmed                |  300.0 |
+|   14  | return_home                    |   60.0 |
+|   15  | setdown_approach               |  600.0 |
+|   16  | cycle_complete                 |  900.0 |
+|   17  | piece_in_zone                  |  300.0 |
+|   18  | piece_dropped                  |   30.0 |
+|   19  | collision                      |   30.0 |
++-------+--------------------------------+--------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 0 active terms.
++----------------------+
+| Active Curriculum Terms |
++-----------+----------+
+|   Index   | Name     |
++-----------+----------+
++-----------+----------+
+
+[INFO]: Completed setting up the environment...
+--------------------------------------------------------------------------------
+Resolved observation sets: 
+	 policy :  ['policy']
+	 critic :  ['policy']
+--------------------------------------------------------------------------------
+Actor MLP: MLP(
+  (0): Linear(in_features=68, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=7, bias=True)
+)
+Critic MLP: MLP(
+  (0): Linear(in_features=68, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=1, bias=True)
+)
+[ludo] approach policy: reports/training/synria_chess_pickplace_v6_e26_s43/model_final.pt
+2026-08-28T03:05:32Z [12,824ms] [Warning] [carb] Client gpu.foundation.plugin has acquired [gpu::unstable::IMemoryBudgetManagerFactory v0.1] 100 times. Consider accessing this interface with carb::getCachedInterface() (Performance warning)
+[ludo] PHYSICAL ROLL = 1
+[ludo] TURN 1: red rolls 1: token 0 ('track', 39) -> ('track', 40), captures [('green', 0)]
+[sdbg] t=0 ph=idle dxy=89mm slide=False w=11mm pad_z_mm=847 piece=(0.262,-0.023,815mm) attached=False
+[sdbg] t=300 ph=idle dxy=130mm slide=False w=8mm pad_z_mm=828 piece=(0.262,-0.023,815mm) attached=False
+[sdbg] t=600 ph=idle dxy=139mm slide=False w=9mm pad_z_mm=828 piece=(0.262,-0.023,815mm) attached=False
+[sdbg] t=900 ph=idle dxy=120mm slide=False w=42mm pad_z_mm=828 piece=(0.262,-0.023,815mm) attached=False
+[sdbg] t=1200 ph=idle dxy=127mm slide=False w=42mm pad_z_mm=827 piece=(0.262,-0.023,815mm) attached=False
+[sdbg] t=1500 ph=idle dxy=117mm slide=False w=46mm pad_z_mm=827 piece=(0.262,-0.023,815mm) attached=False
+[sdbg] t=1800 ph=idle dxy=122mm slide=False w=38mm pad_z_mm=827 piece=(0.262,-0.023,815mm) attached=False
+[sdbg] t=2100 ph=idle dxy=122mm slide=False w=38mm pad_z_mm=827 piece=(0.262,-0.023,815mm) attached=False
+[sdbg] t=2400 ph=idle dxy=122mm slide=False w=38mm pad_z_mm=827 piece=(0.262,-0.023,815mm) attached=False
+[ludo] POLAR-FALLBACK rehome at t=2501 dxy=122mm
+[sdbg] t=2700 ph=go_home dxy=280mm slide=False w=46mm pad_z_mm=822 piece=(0.262,-0.023,815mm) attached=False
+[ludo] POLAR-FALLBACK approach from home
+[sdbg] t=3000 ph=s_yaw dxy=240mm slide=False w=28mm pad_z_mm=826 piece=(0.262,-0.023,815mm) attached=False
+[ydbg] tgt=(0.20,-0.61,1.07,-0.57,-0.73,0.23) meas=(-0.04,-0.63,0.63,-0.13,-1.19,-0.23) def=(0.00,0.00,1.30,0.00,0.00,0.00) act=(0.20,-0.61,-0.23,-0.57,-0.73,0.23) gap=0.456 at_lim=[False, False, False, False, False, False]
+[sdbg] t=3300 ph=s_close dxy=9mm slide=True w=10mm pad_z_mm=830 piece=(0.257,-0.017,818mm) attached=False
+[sdbg] t=3600 ph=s_lift dxy=1mm slide=True w=11mm pad_z_mm=827 piece=(0.260,0.051,812mm) attached=False
+[sdbg] t=3900 ph=s_lift dxy=1mm slide=True w=11mm pad_z_mm=827 piece=(0.260,0.051,812mm) attached=False
+[sdbg] t=4200 ph=s_lift dxy=1mm slide=True w=11mm pad_z_mm=827 piece=(0.260,0.051,812mm) attached=False
+[sdbg] t=4500 ph=idle dxy=108mm slide=False w=38mm pad_z_mm=827 piece=(0.263,-0.023,815mm) attached=False
+[sdbg] t=4800 ph=idle dxy=109mm slide=False w=39mm pad_z_mm=827 piece=(0.263,-0.023,815mm) attached=False
+[sdbg] t=5100 ph=idle dxy=109mm slide=False w=40mm pad_z_mm=827 piece=(0.263,-0.023,815mm) attached=False
+[sdbg] t=5400 ph=idle dxy=109mm slide=False w=40mm pad_z_mm=827 piece=(0.263,-0.023,815mm) attached=False
+[sdbg] t=5700 ph=idle dxy=110mm slide=False w=41mm pad_z_mm=827 piece=(0.263,-0.023,815mm) attached=False
+[sdbg] t=6000 ph=idle dxy=110mm slide=False w=41mm pad_z_mm=827 piece=(0.263,-0.023,815mm) attached=False
+[sdbg] t=6300 ph=idle dxy=110mm slide=False w=41mm pad_z_mm=827 piece=(0.263,-0.023,815mm) attached=False
+[sdbg] t=6600 ph=idle dxy=110mm slide=False w=41mm pad_z_mm=827 piece=(0.263,-0.023,815mm) attached=False
+[ludo] POLAR-FALLBACK rehome at t=6723 dxy=110mm
+[sdbg] t=6900 ph=go_home dxy=280mm slide=False w=48mm pad_z_mm=823 piece=(0.263,-0.023,815mm) attached=False
+[ludo] POLAR-FALLBACK approach from home
+[sdbg] t=7200 ph=s_yaw dxy=248mm slide=False w=35mm pad_z_mm=828 piece=(0.263,-0.023,815mm) attached=False
+[ydbg] tgt=(0.14,-0.46,1.10,-0.59,-0.83,0.24) meas=(-0.15,-0.65,0.65,-0.13,-1.26,-0.20) def=(0.00,0.00,1.30,0.00,0.00,0.00) act=(0.14,-0.46,-0.20,-0.59,-0.83,0.24) gap=0.458 at_lim=[False, False, False, False, False, False]
+[sdbg] t=7500 ph=s_descend dxy=15mm slide=False w=10mm pad_z_mm=827 piece=(0.256,-0.019,815mm) attached=False
+[sdbg] t=7800 ph=s_lift dxy=1mm slide=True w=12mm pad_z_mm=827 piece=(0.245,0.033,822mm) attached=False
+[ludo] LEVEL-GLUE armed (attach tilt was 0deg)
+[cdbg] t=7980 pt=27 gc=(-0.031,-0.058,844) zone=(0.241,0.091) tgt0=(0.45) meas0=(0.19)
+[cdbg] t=8010 pt=57 gc=(-0.026,-0.024,833) zone=(0.241,0.091) tgt0=(0.96) meas0=(0.52)
+[cdbg] t=8040 pt=87 gc=(-0.030,0.028,827) zone=(0.241,0.091) tgt0=(1.18) meas0=(0.73)
+[cdbg] t=8070 pt=117 gc=(-0.032,0.040,827) zone=(0.241,0.091) tgt0=(1.18) meas0=(0.81)
+[cdbg] t=8100 pt=147 gc=(-0.032,0.042,826) zone=(0.241,0.091) tgt0=(0.85) meas0=(0.82)
+[sdbg] t=8100 ph=s_cplane dxy=12mm slide=True w=13mm pad_z_mm=826 piece=(-0.020,0.045,820mm) attached=True
+[cdbg] t=8130 pt=177 gc=(-0.026,0.045,827) zone=(0.241,0.091) tgt0=(0.47) meas0=(0.78)
+[cdbg] t=8160 pt=207 gc=(0.035,0.063,831) zone=(0.241,0.091) tgt0=(-0.05) meas0=(0.35)
+[cdbg] t=8190 pt=237 gc=(0.143,0.047,826) zone=(0.241,0.091) tgt0=(0.07) meas0=(0.11)
+[cdbg] t=8220 pt=267 gc=(0.171,0.075,826) zone=(0.241,0.091) tgt0=(0.62) meas0=(0.48)
+[cdbg] t=8250 pt=297 gc=(0.173,0.082,825) zone=(0.241,0.091) tgt0=(0.44) meas0=(0.51)
+[ludo] RELEASE-HOLD armed at (0.221,0.086) err=20mm landed_tilt=0deg
+[sdbg] t=8400 ph=release dxy=12mm slide=True w=10mm pad_z_mm=819 piece=(0.221,0.086,815mm) attached=False
+[sdbg] t=8700 ph=ascend dxy=67mm slide=True w=44mm pad_z_mm=826 piece=(0.221,0.086,815mm) attached=False
+[ludo] closest-approach 9900mm
+[ludo] T1 capture-return: red rolls 1: token 0 ('track', 39) -> ('track', 40), captures [('green', 0)]: OK (err 20 mm, carry_tilt_max 49 deg, final_tilt 0 deg, steps 8999)
+[sdbg] t=0 ph=idle dxy=216mm slide=False w=45mm pad_z_mm=842 piece=(0.286,-0.022,815mm) attached=False
+[sdbg] t=300 ph=idle dxy=192mm slide=False w=40mm pad_z_mm=832 piece=(0.286,-0.022,815mm) attached=False
+[sdbg] t=600 ph=idle dxy=172mm slide=False w=43mm pad_z_mm=834 piece=(0.286,-0.022,815mm) attached=False
+[sdbg] t=900 ph=idle dxy=164mm slide=False w=44mm pad_z_mm=834 piece=(0.286,-0.022,815mm) attached=False
+[sdbg] t=1200 ph=idle dxy=213mm slide=False w=28mm pad_z_mm=827 piece=(0.286,-0.022,815mm) attached=False
+[sdbg] t=1500 ph=idle dxy=127mm slide=False w=41mm pad_z_mm=827 piece=(0.286,-0.022,815mm) attached=False
+[sdbg] t=1800 ph=idle dxy=127mm slide=False w=41mm pad_z_mm=827 piece=(0.286,-0.022,815mm) attached=False
+[sdbg] t=2100 ph=idle dxy=127mm slide=False w=41mm pad_z_mm=827 piece=(0.286,-0.022,815mm) attached=False
+[sdbg] t=2400 ph=idle dxy=127mm slide=False w=41mm pad_z_mm=827 piece=(0.286,-0.022,815mm) attached=False
+[ludo] POLAR-FALLBACK rehome at t=2501 dxy=127mm
+[sdbg] t=2700 ph=go_home dxy=304mm slide=False w=44mm pad_z_mm=822 piece=(0.286,-0.022,815mm) attached=False
+[ludo] POLAR-FALLBACK approach from home
+[sdbg] t=3000 ph=s_yaw dxy=267mm slide=False w=26mm pad_z_mm=826 piece=(0.286,-0.022,815mm) attached=False
+[ydbg] tgt=(0.22,-0.59,1.05,-0.54,-0.73,0.28) meas=(-0.01,-0.62,0.61,-0.10,-1.19,-0.17) def=(0.00,0.00,1.30,0.00,0.00,0.00) act=(0.22,-0.59,-0.25,-0.54,-0.73,0.28) gap=0.457 at_lim=[False, False, False, False, False, False]
+[sdbg] t=3300 ph=s_plane dxy=52mm slide=False w=31mm pad_z_mm=850 piece=(0.324,-0.034,818mm) attached=False
+[sdbg] t=3600 ph=s_descend dxy=91mm slide=False w=50mm pad_z_mm=828 piece=(0.286,-0.023,815mm) attached=False
+[sdbg] t=3900 ph=s_descend dxy=26mm slide=False w=43mm pad_z_mm=826 piece=(0.286,-0.023,816mm) attached=False
+[sdbg] t=4200 ph=s_lift dxy=4mm slide=True w=10mm pad_z_mm=835 piece=(0.275,-0.002,819mm) attached=False
+[sdbg] t=4500 ph=s_lift dxy=4mm slide=True w=10mm pad_z_mm=835 piece=(0.273,0.003,819mm) attached=False
+[sdbg] t=4800 ph=s_lift dxy=4mm slide=True w=10mm pad_z_mm=835 piece=(0.272,0.006,819mm) attached=False
+[sdbg] t=5100 ph=idle dxy=138mm slide=False w=42mm pad_z_mm=828 piece=(0.286,-0.023,815mm) attached=False
+[sdbg] t=5400 ph=idle dxy=146mm slide=False w=35mm pad_z_mm=827 piece=(0.286,-0.023,815mm) attached=False
+[sdbg] t=5700 ph=idle dxy=146mm slide=False w=35mm pad_z_mm=827 piece=(0.286,-0.023,815mm) attached=False
+[sdbg] t=6000 ph=idle dxy=146mm slide=False w=35mm pad_z_mm=827 piece=(0.286,-0.023,815mm) attached=False
+[sdbg] t=6300 ph=idle dxy=146mm slide=False w=35mm pad_z_mm=827 piece=(0.286,-0.023,815mm) attached=False
+[sdbg] t=6600 ph=idle dxy=146mm slide=False w=35mm pad_z_mm=827 piece=(0.286,-0.023,815mm) attached=False
+[sdbg] t=6900 ph=idle dxy=146mm slide=False w=35mm pad_z_mm=827 piece=(0.286,-0.023,815mm) attached=False
+[sdbg] t=7200 ph=idle dxy=146mm slide=False w=35mm pad_z_mm=827 piece=(0.286,-0.023,815mm) attached=False
+[ludo] POLAR-FALLBACK rehome at t=7394 dxy=146mm
+[sdbg] t=7500 ph=go_home dxy=304mm slide=False w=49mm pad_z_mm=822 piece=(0.286,-0.023,815mm) attached=False
+[ludo] POLAR-FALLBACK approach from home
+[sdbg] t=7800 ph=s_yaw dxy=304mm slide=False w=48mm pad_z_mm=822 piece=(0.286,-0.023,815mm) attached=False
+[ydbg] tgt=(-0.12,-0.07,0.41,-0.02,0.07,-0.00) meas=(0.02,-0.24,-0.04,-0.02,-0.38,0.09) def=(0.00,0.00,1.30,0.00,0.00,0.00) act=(-0.12,-0.07,-0.89,-0.02,0.07,-0.00) gap=0.452 at_lim=[False, False, False, False, False, False]
+[sdbg] t=8100 ph=s_yaw dxy=47mm slide=False w=25mm pad_z_mm=828 piece=(0.286,-0.023,816mm) attached=False
+[ydbg] tgt=(-0.04,-1.97,2.87,-0.16,-1.12,-1.40) meas=(-0.10,-1.52,2.46,-0.13,-1.57,-1.85) def=(0.00,0.00,1.30,0.00,0.00,0.00) act=(-0.04,-1.97,1.57,-0.16,-1.12,-1.40) gap=0.450 at_lim=[False, False, True, False, False, False]
+[sdbg] t=8400 ph=s_yaw dxy=45mm slide=False w=25mm pad_z_mm=828 piece=(0.286,-0.023,816mm) attached=False
+[ydbg] tgt=(-0.22,-1.98,2.93,0.30,-1.12,-1.40) meas=(-0.10,-1.53,2.48,-0.15,-1.57,-1.84) def=(0.00,0.00,1.30,0.00,0.00,0.00) act=(-0.22,-1.98,1.63,0.30,-1.12,-1.40) gap=0.450 at_lim=[False, False, True, False, False, False]
+[sdbg] t=8700 ph=s_yaw dxy=45mm slide=False w=25mm pad_z_mm=828 piece=(0.286,-0.023,816mm) attached=False
+[ydbg] tgt=(-0.22,-1.98,2.93,0.31,-1.12,-1.40) meas=(-0.10,-1.53,2.48,-0.14,-1.57,-1.84) def=(0.00,0.00,1.30,0.00,0.00,0.00) act=(-0.22,-1.98,1.63,0.31,-1.12,-1.40) gap=0.450 at_lim=[False, False, True, False, False, False]
+[ludo] closest-approach 9900mm
+[ludo] T1 move: red rolls 1: token 0 ('track', 39) -> ('track', 40), captures [('green', 0)]: MISS (err 45 mm, carry_tilt_max 0 deg, final_tilt 0 deg, steps 8999)
+[sdbg] t=0 ph=idle dxy=46mm slide=False w=34mm pad_z_mm=832 piece=(0.286,-0.023,816mm) attached=False
+[sdbg] t=300 ph=idle dxy=136mm slide=False w=36mm pad_z_mm=827 piece=(0.288,-0.032,815mm) attached=False
+[sdbg] t=600 ph=idle dxy=136mm slide=False w=36mm pad_z_mm=827 piece=(0.288,-0.032,815mm) attached=False
+[sdbg] t=900 ph=idle dxy=136mm slide=False w=36mm pad_z_mm=827 piece=(0.288,-0.032,815mm) attached=False
+[sdbg] t=1200 ph=idle dxy=136mm slide=False w=36mm pad_z_mm=827 piece=(0.288,-0.032,815mm) attached=False
+[sdbg] t=1500 ph=idle dxy=136mm slide=False w=36mm pad_z_mm=827 piece=(0.288,-0.032,815mm) attached=False
+[sdbg] t=1800 ph=idle dxy=136mm slide=False w=36mm pad_z_mm=827 piece=(0.288,-0.032,815mm) attached=False
+[sdbg] t=2100 ph=idle dxy=136mm slide=False w=36mm pad_z_mm=827 piece=(0.288,-0.032,815mm) attached=False
+[sdbg] t=2400 ph=idle dxy=136mm slide=False w=36mm pad_z_mm=827 piece=(0.288,-0.032,815mm) attached=False
+[ludo] POLAR-FALLBACK rehome at t=2501 dxy=136mm
+[sdbg] t=2700 ph=go_home dxy=305mm slide=False w=48mm pad_z_mm=823 piece=(0.288,-0.032,815mm) attached=False
+[ludo] POLAR-FALLBACK approach from home
+[sdbg] t=3000 ph=s_yaw dxy=264mm slide=False w=27mm pad_z_mm=826 piece=(0.288,-0.032,815mm) attached=False
+[ydbg] tgt=(0.20,-0.67,1.10,-0.59,-0.76,0.21) meas=(-0.06,-0.65,0.66,-0.14,-1.22,-0.25) def=(0.00,0.00,1.30,0.00,0.00,0.00) act=(0.20,-0.67,-0.20,-0.59,-0.76,0.21) gap=0.461 at_lim=[False, False, False, False, False, False]
+[sdbg] t=3300 ph=s_descend dxy=53mm slide=False w=41mm pad_z_mm=819 piece=(0.281,-0.030,815mm) attached=False
+[sdbg] t=3600 ph=s_lift dxy=2mm slide=True w=15mm pad_z_mm=827 piece=(0.215,-0.151,823mm) attached=False
+[ludo] LEVEL-GLUE armed (attach tilt was 0deg)
+[cdbg] t=3660 pt=10 gc=(0.171,-0.117,836) zone=(0.263,-0.023) tgt0=(-0.10) meas0=(-0.30)
+[cdbg] t=3690 pt=40 gc=(0.167,-0.053,834) zone=(0.263,-0.023) tgt0=(0.50) meas0=(0.16)
+[cdbg] t=3720 pt=70 gc=(0.179,0.015,827) zone=(0.263,-0.023) tgt0=(0.11) meas0=(0.25)
+[cdbg] t=3750 pt=100 gc=(0.205,-0.012,825) zone=(0.263,-0.023) tgt0=(-0.42) meas0=(-0.12)
+[cdbg] t=3780 pt=130 gc=(0.227,-0.030,826) zone=(0.263,-0.023) tgt0=(-0.23) meas0=(-0.18)
+[ludo] RELEASE-HOLD armed at (0.247,-0.035) err=20mm landed_tilt=0deg
+[sdbg] t=3900 ph=release dxy=13mm slide=True w=11mm pad_z_mm=825 piece=(0.247,-0.035,815mm) attached=False
+[sdbg] t=4200 ph=ascend dxy=32mm slide=True w=11mm pad_z_mm=820 piece=(0.247,-0.035,815mm) attached=False
+[sdbg] t=4500 ph=go_home dxy=263mm slide=True w=49mm pad_z_mm=823 piece=(0.247,-0.035,815mm) attached=False
+[ludo] closest-approach 9900mm
+[ludo] T1 RETRY move: OK (err 20 mm, carry_tilt_max 51 deg, final_tilt 0 deg, steps 4697)
+[ludo] PHYSICAL ROLL = 1
+[ludo] PHYSICAL ROLL = 2
+[ludo] TURN 3: red rolls 2: token 0 ('track', 40) -> ('track', 42)
+[sdbg] t=0 ph=idle dxy=194mm slide=False w=7mm pad_z_mm=849 piece=(0.263,-0.023,815mm) attached=False
+[sdbg] t=300 ph=idle dxy=144mm slide=False w=8mm pad_z_mm=864 piece=(0.263,-0.030,815mm) attached=False
+[sdbg] t=600 ph=idle dxy=83mm slide=False w=8mm pad_z_mm=826 piece=(0.263,-0.023,815mm) attached=False
+[sdbg] t=900 ph=idle dxy=159mm slide=False w=7mm pad_z_mm=819 piece=(0.263,-0.023,815mm) attached=False
+[sdbg] t=1200 ph=idle dxy=91mm slide=False w=42mm pad_z_mm=830 piece=(0.263,-0.023,815mm) attached=False
+[sdbg] t=1500 ph=idle dxy=120mm slide=False w=44mm pad_z_mm=827 piece=(0.263,-0.023,815mm) attached=False
+[sdbg] t=1800 ph=idle dxy=114mm slide=False w=42mm pad_z_mm=830 piece=(0.263,-0.023,815mm) attached=False
+[sdbg] t=2100 ph=idle dxy=116mm slide=False w=42mm pad_z_mm=830 piece=(0.267,-0.026,815mm) attached=False
+[sdbg] t=2400 ph=idle dxy=125mm slide=False w=45mm pad_z_mm=827 piece=(0.267,-0.026,815mm) attached=False
+[ludo] POLAR-FALLBACK rehome at t=2501 dxy=127mm
+[sdbg] t=2700 ph=go_home dxy=286mm slide=False w=44mm pad_z_mm=823 piece=(0.267,-0.026,815mm) attached=False
+[ludo] POLAR-FALLBACK approach from home
+[sdbg] t=3000 ph=s_yaw dxy=247mm slide=False w=33mm pad_z_mm=826 piece=(0.267,-0.026,815mm) attached=False
+[ydbg] tgt=(0.39,-0.51,1.05,-0.48,-0.73,0.37) meas=(-0.03,-0.61,0.60,-0.04,-1.18,-0.08) def=(0.00,0.00,1.30,0.00,0.00,0.00) act=(0.39,-0.51,-0.25,-0.48,-0.73,0.37) gap=0.453 at_lim=[False, False, False, False, False, False]
+[sdbg] t=3300 ph=s_close dxy=12mm slide=True w=10mm pad_z_mm=828 piece=(0.257,-0.018,816mm) attached=False
+[sdbg] t=3600 ph=s_lift dxy=3mm slide=True w=10mm pad_z_mm=832 piece=(0.260,-0.006,821mm) attached=False
+[sdbg] t=3900 ph=s_lift dxy=3mm slide=True w=10mm pad_z_mm=832 piece=(0.257,-0.011,820mm) attached=False
+[sdbg] t=4200 ph=s_lift dxy=3mm slide=True w=10mm pad_z_mm=832 piece=(0.257,-0.011,820mm) attached=False
+[sdbg] t=4500 ph=idle dxy=95mm slide=False w=31mm pad_z_mm=853 piece=(0.267,-0.025,815mm) attached=False
+[sdbg] t=4800 ph=idle dxy=187mm slide=False w=27mm pad_z_mm=829 piece=(0.263,-0.023,815mm) attached=False
+[sdbg] t=5100 ph=s_lift dxy=24mm slide=True w=10mm pad_z_mm=823 piece=(0.021,-0.009,815mm) attached=False
+[sdbg] t=5400 ph=s_lift dxy=92mm slide=True w=31mm pad_z_mm=868 piece=(0.002,-0.024,815mm) attached=False
+[sdbg] t=5700 ph=s_lift dxy=91mm slide=True w=31mm pad_z_mm=868 piece=(0.002,-0.024,815mm) attached=False
+[sdbg] t=6000 ph=s_descend dxy=95mm slide=False w=50mm pad_z_mm=828 piece=(0.263,-0.023,815mm) attached=False
+[sdbg] t=6300 ph=s_descend dxy=45mm slide=False w=25mm pad_z_mm=821 piece=(0.263,-0.023,816mm) attached=False
+[sdbg] t=6600 ph=s_descend dxy=45mm slide=False w=25mm pad_z_mm=821 piece=(0.263,-0.023,816mm) attached=False
+[sdbg] t=6900 ph=idle dxy=103mm slide=False w=18mm pad_z_mm=829 piece=(0.268,-0.032,815mm) attached=False
+[sdbg] t=7200 ph=idle dxy=126mm slide=False w=43mm pad_z_mm=828 piece=(0.268,-0.032,815mm) attached=False
+[sdbg] t=7500 ph=idle dxy=120mm slide=False w=42mm pad_z_mm=827 piece=(0.268,-0.032,815mm) attached=False
+[sdbg] t=7800 ph=idle dxy=127mm slide=False w=40mm pad_z_mm=827 piece=(0.268,-0.032,815mm) attached=False
+[sdbg] t=8100 ph=idle dxy=120mm slide=False w=46mm pad_z_mm=827 piece=(0.268,-0.032,815mm) attached=False
+[sdbg] t=8400 ph=idle dxy=129mm slide=False w=40mm pad_z_mm=827 piece=(0.268,-0.032,815mm) attached=False
+[sdbg] t=8700 ph=idle dxy=133mm slide=False w=42mm pad_z_mm=827 piece=(0.268,-0.032,815mm) attached=False
+[ludo] closest-approach 9900mm
+[ludo] T3 move: red rolls 2: token 0 ('track', 40) -> ('track', 42): MISS (err 51 mm, carry_tilt_max 0 deg, final_tilt 0 deg, steps 8999)
+[sdbg] t=0 ph=idle dxy=229mm slide=False w=50mm pad_z_mm=829 piece=(0.264,-0.024,815mm) attached=False
+[sdbg] t=300 ph=idle dxy=122mm slide=False w=37mm pad_z_mm=823 piece=(0.263,-0.024,815mm) attached=False
+[sdbg] t=600 ph=idle dxy=198mm slide=False w=26mm pad_z_mm=827 piece=(0.263,-0.023,815mm) attached=False
+[sdbg] t=900 ph=s_descend dxy=50mm slide=False w=35mm pad_z_mm=813 piece=(0.271,-0.024,815mm) attached=False
+[ludo] LEVEL-GLUE armed (attach tilt was 0deg)
+[ludo] AMBUSH->DROP at t=1118 dist=39mm alt=32mm
+[ludo] RELEASE-HOLD armed at (0.214,-0.032) err=10mm landed_tilt=0deg
+[sdbg] t=1200 ph=release dxy=4mm slide=True w=10mm pad_z_mm=825 piece=(0.214,-0.032,815mm) attached=False
+[sdbg] t=1500 ph=ascend dxy=69mm slide=True w=47mm pad_z_mm=833 piece=(0.214,-0.032,815mm) attached=False
+[sdbg] t=1800 ph=go_home dxy=187mm slide=True w=44mm pad_z_mm=824 piece=(0.214,-0.032,815mm) attached=False
+[ludo] closest-approach 39mm
+[ludo] T3 RETRY move: OK (err 10 mm, carry_tilt_max 2 deg, final_tilt 0 deg, steps 2064)
+[ludo] game session done: 3 turns, 3 commands
+[ludo] WINNER: (no winner - cap reached)
+[wrap] attempt 1 exited rc=0 2026-08-27T22:31:57-05:00
+[wrap] SUCCESS

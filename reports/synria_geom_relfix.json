@@ -1,0 +1,47 @@
+[
+ {
+  "pitch_deg": 0.0,
+  "grasp_z_mm": 40.0,
+  "pad_bottom_clear_mm": 3.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 4,
+  "upright_at_place": 4,
+  "tipped": 2,
+  "setdown_not_converged": 0,
+  "released_free": 6,
+  "release_confirmed": 0,
+  "trials": 6,
+  "stage_trace": []
+ },
+ {
+  "pitch_deg": 0.0,
+  "grasp_z_mm": 38.0,
+  "pad_bottom_clear_mm": 1.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 2,
+  "upright_at_place": 2,
+  "tipped": 3,
+  "setdown_not_converged": 3,
+  "released_free": 3,
+  "release_confirmed": 2,
+  "trials": 6,
+  "stage_trace": []
+ },
+ {
+  "pitch_deg": 0.0,
+  "grasp_z_mm": 37.0,
+  "pad_bottom_clear_mm": 0.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 2,
+  "upright_at_place": 2,
+  "tipped": 4,
+  "setdown_not_converged": 2,
+  "released_free": 4,
+  "release_confirmed": 1,
+  "trials": 6,
+  "stage_trace": []
+ }
+]

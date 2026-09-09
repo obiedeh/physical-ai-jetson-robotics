@@ -1,0 +1,167 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="synria_6dof_arm">
+  <!-- Approximate model for planning/simulation bringup until vendor URDF/CAD is available. -->
+
+  <xacro:include filename="$(find synria_arm_description)/urdf/synria_c10_camera.xacro"/>
+
+  <xacro:property name="base_height" value="0.090"/>
+  <xacro:property name="upper_arm" value="0.235"/>
+  <xacro:property name="forearm" value="0.220"/>
+  <xacro:property name="wrist" value="0.105"/>
+  <xacro:property name="tool" value="0.090"/>
+
+  <material name="synria_dark">
+    <color rgba="0.08 0.09 0.10 1.0"/>
+  </material>
+  <material name="synria_silver">
+    <color rgba="0.70 0.72 0.69 1.0"/>
+  </material>
+  <material name="synria_blue">
+    <color rgba="0.10 0.28 0.52 1.0"/>
+  </material>
+
+  <xacro:macro name="box_link" params="name size mass color">
+    <link name="${name}">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${size}"/>
+        </geometry>
+        <material name="${color}"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="${size}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="${mass}"/>
+        <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+      </inertial>
+    </link>
+  </xacro:macro>
+
+  <link name="world"/>
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0.045" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.095" length="${base_height}"/>
+      </geometry>
+      <material name="synria_dark"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.045" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.095" length="${base_height}"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0.045" rpy="0 0 0"/>
+      <mass value="1.2"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </link>
+
+  <joint name="world_to_base" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <xacro:box_link name="shoulder_link" size="0.090 0.090 ${upper_arm}" mass="0.8" color="synria_silver"/>
+  <xacro:box_link name="upper_arm_link" size="${upper_arm} 0.075 0.075" mass="0.7" color="synria_silver"/>
+  <xacro:box_link name="forearm_link" size="${forearm} 0.065 0.065" mass="0.55" color="synria_silver"/>
+  <xacro:box_link name="wrist_1_link" size="0.060 0.060 ${wrist}" mass="0.25" color="synria_blue"/>
+  <xacro:box_link name="wrist_2_link" size="0.055 0.055 0.075" mass="0.20" color="synria_blue"/>
+  <xacro:box_link name="tool0" size="${tool} 0.040 0.040" mass="0.12" color="synria_dark"/>
+
+  <joint name="joint_1" type="revolute">
+    <parent link="base_link"/>
+    <child link="shoulder_link"/>
+    <origin xyz="0 0 ${base_height}" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-${pi}" upper="${pi}" effort="30" velocity="1.5"/>
+  </joint>
+
+  <joint name="joint_2" type="revolute">
+    <parent link="shoulder_link"/>
+    <child link="upper_arm_link"/>
+    <origin xyz="0 0 ${upper_arm}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.5708" upper="1.5708" effort="30" velocity="1.5"/>
+  </joint>
+
+  <joint name="joint_3" type="revolute">
+    <parent link="upper_arm_link"/>
+    <child link="forearm_link"/>
+    <origin xyz="${upper_arm} 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-2.3562" upper="2.3562" effort="25" velocity="1.5"/>
+  </joint>
+
+  <joint name="joint_4" type="revolute">
+    <parent link="forearm_link"/>
+    <child link="wrist_1_link"/>
+    <origin xyz="${forearm} 0 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-${pi}" upper="${pi}" effort="15" velocity="2.0"/>
+  </joint>
+
+  <joint name="joint_5" type="revolute">
+    <parent link="wrist_1_link"/>
+    <child link="wrist_2_link"/>
+    <origin xyz="0 0 ${wrist}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.5708" upper="1.5708" effort="15" velocity="2.0"/>
+  </joint>
+
+  <joint name="joint_6" type="revolute">
+    <parent link="wrist_2_link"/>
+    <child link="tool0"/>
+    <origin xyz="0 0 0.075" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-${pi}" upper="${pi}" effort="10" velocity="2.5"/>
+  </joint>
+
+  <xacro:synria_c10_camera parent="tool0" origin_xyz="0.070 0 0.035" origin_rpy="0 0 0"/>
+
+  <ros2_control name="SynriaArmSystem" type="system">
+    <hardware>
+      <plugin>mock_components/GenericSystem</plugin>
+    </hardware>
+    <joint name="joint_1">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint_2">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint_3">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint_4">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint_5">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint_6">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+</robot>

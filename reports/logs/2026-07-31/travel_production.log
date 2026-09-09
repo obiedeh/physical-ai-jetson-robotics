@@ -1,0 +1,27 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[feas] asset: synria_6dof_arm.usd
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-31_19-59-37.log[0m
+[36m======================================================================================[0m
+
+[33m19:59:37 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[feas] joints: ['Joint1', 'Joint2', 'Joint3', 'Joint4', 'Joint5', 'Joint6', 'left_finger', 'right_finger']
+[feas] left_finger limits: [0.0, 25.0] mm, right: [-25.0, 0.0] mm
+[feas] finger defaults: 0.0 / 0.0 mm
+[feas] teleport-to-20mm test: fingers now at 0.0 / -16.8 mm
+[feas] gripper bodies: ['left_gripper', 'right_gripper']
+[travel] cycle 0: tgt 0.0: L20.55 R-20.44 | tgt 6.2: L24.25 R-6.86 | tgt 12.5: L24.88 R-11.97 | tgt 18.8: L24.55 R-16.9 | tgt 25.0: L24.74 R-18.17 | tgt 0.0: L24.48 R-18.43
+[travel] cycle 1: tgt 0.0: L3.32 R0.0 | tgt 6.2: L4.05 R0.0 | tgt 12.5: L5.54 R-0.0 | tgt 18.8: L18.05 R-16.95 | tgt 25.0: L19.43 R-16.04 | tgt 0.0: L20.97 R-14.12
+[travel] cycle 2: tgt 0.0: L2.6 R-0.0 | tgt 6.2: L4.63 R-0.0 | tgt 12.5: L7.72 R0.0 | tgt 18.8: L15.27 R-10.78 | tgt 25.0: L15.76 R-10.85 | tgt 0.0: L17.07 R-9.54
+[travel] cycle 3: tgt 0.0: L9.18 R0.0 | tgt 6.2: L13.31 R-0.56 | tgt 12.5: L19.24 R-16.64 | tgt 18.8: L23.43 R-23.77 | tgt 25.0: L23.72 R-23.77 | tgt 0.0: L23.9 R-22.97
+[travel] cycle 4: tgt 0.0: L25.0 R-0.89 | tgt 6.2: L24.98 R-8.14 | tgt 12.5: L25.0 R-14.81 | tgt 18.8: L24.99 R-20.91 | tgt 25.0: L24.99 R-25.0 | tgt 0.0: L25.0 R-0.33
+[travel] cycle 5: tgt 0.0: L17.93 R0.0 | tgt 6.2: L24.46 R-5.59 | tgt 12.5: L24.99 R-12.06 | tgt 18.8: L25.0 R-22.39 | tgt 25.0: L24.99 R-25.0 | tgt 0.0: L23.11 R-0.37
+[travel] cycle 6: tgt 0.0: L20.38 R0.0 | tgt 6.2: L24.81 R-5.66 | tgt 12.5: L25.0 R-12.15 | tgt 18.8: L25.0 R-20.72 | tgt 25.0: L24.96 R-25.0 | tgt 0.0: L22.17 R-0.37
+[travel] cycle 7: tgt 0.0: L18.73 R0.0 | tgt 6.2: L24.24 R-5.45 | tgt 12.5: L24.99 R-12.17 | tgt 18.8: L25.0 R-18.84 | tgt 25.0: L24.98 R-25.0 | tgt 0.0: L22.24 R-0.25
+[travel] cycle 8: tgt 0.0: L19.38 R0.0 | tgt 6.2: L23.58 R-4.19 | tgt 12.5: L24.98 R-10.9 | tgt 18.8: L24.99 R-17.73 | tgt 25.0: L24.99 R-25.0 | tgt 0.0: L20.07 R0.0
+[travel] cycle 9: tgt 0.0: L19.38 R-0.0 | tgt 6.2: L23.03 R-3.93 | tgt 12.5: L24.88 R-9.91 | tgt 18.8: L25.0 R-17.32 | tgt 25.0: L25.0 R-24.98 | tgt 0.0: L19.87 R-0.0
+[travel] ======== FULL TRAVEL FAIL (asset=production) ========
+[feas] wrote /home/oedeh/github/physical-ai-jetson-robotics-gr00t/reports/synria_travel_production.json
+FEAS_EXIT=3

@@ -1,0 +1,35 @@
+{
+  "asset": "synria_6dof_arm",
+  "description": "Synria Alicia-D 6DOF robotic arm with gripper and C10 wrist camera mount",
+  "source": {
+    "vendor": "Synria Robotics",
+    "upstream_repo": "https://github.com/Synria-Robotics/Synria-Robot-Descriptions",
+    "urdf_model_name": "Alicia_D_v5_6_gripper_50mm",
+    "urdf_export": "SolidWorks URDF export",
+    "license": "MIT (per vendor email 2026-05-27); synriard PyPI package lists GPL-3 — see docs/VENDOR_INTEGRATION_MAP.md"
+  },
+  "files": {
+    "synria_6dof_arm.urdf": "Vendor SolidWorks URDF export — authoritative joint geometry",
+    "synria_6dof_arm.usd": "URDF→USD conversion (Isaac Sim URDF importer)",
+    "synria_6dof_arm.usda": "ASCII USD variant for human inspection",
+    "source_urdf/": "Originating URDF and mesh sources"
+  },
+  "units": "metres",
+  "scale": 1.0,
+  "up_axis": "Z",
+  "joint_count": 8,
+  "joints": ["Joint1", "Joint2", "Joint3", "Joint4", "Joint5", "Joint6", "left_finger", "right_finger"],
+  "base_link": "base_link",
+  "end_effector_link": "tool0",
+  "max_reach_m": 0.650,
+  "conversion": {
+    "tool": "Isaac Sim 6.x URDF importer",
+    "command": "see convert_cad_to_usd.sh",
+    "date": "2026-05-27",
+    "notes": "Inertia tensors from SolidWorks CAD mass-properties export. Re-run conversion if vendor URDF is updated."
+  },
+  "ros2_package": "ros2_ws/src/synria_arm_description",
+  "moveit_config": "ros2_ws/src/synria_arm_moveit_config",
+  "gazebo_config": "ros2_ws/src/synria_arm_gazebo",
+  "evidence_gate": "hardware-later — real bring-up evidence in reports/synria/"
+}

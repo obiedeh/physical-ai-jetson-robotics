@@ -1,0 +1,90 @@
+* text=auto
+
+# ---------------------------------------------------------------
+# Line endings
+# ---------------------------------------------------------------
+*.py text eol=lf
+*.md text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.sh text eol=lf
+*.bash text eol=lf
+*.cmake text eol=lf
+CMakeLists.txt text eol=lf
+*.ps1 text eol=crlf
+
+# ---------------------------------------------------------------
+# Robot descriptions (avoid HTML misclassification)
+# ---------------------------------------------------------------
+*.urdf linguist-language=XML
+*.urdf.xacro linguist-language=XML
+*.xacro linguist-language=XML
+*.sdf linguist-language=XML
+*.world linguist-language=XML
+
+# ROS 2 launch files
+*.launch.py linguist-language=Python
+*.launch.xml linguist-language=XML
+
+# ROS interface definitions
+*.msg linguist-detectable=false
+*.srv linguist-detectable=false
+*.action linguist-detectable=false
+
+# ---------------------------------------------------------------
+# OpenUSD / Isaac assets
+# ---------------------------------------------------------------
+*.usd binary
+*.usdc binary
+*.usdz binary
+*.usda linguist-vendored
+
+isaac/** linguist-vendored
+isaac/usd/robots/** linguist-vendored
+
+# ---------------------------------------------------------------
+# Meshes / textures / 3D assets
+# ---------------------------------------------------------------
+*.stl binary
+*.dae linguist-vendored
+*.obj linguist-vendored
+*.fbx binary
+*.gltf linguist-vendored
+*.glb binary
+*.ply binary
+*.mtl linguist-vendored
+*.blend binary
+
+ros2_ws/src/**/meshes/** linguist-vendored
+ros2_ws/src/**/textures/** linguist-vendored
+
+# ---------------------------------------------------------------
+# Images / video / reports
+# ---------------------------------------------------------------
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.bmp binary
+*.tiff binary
+*.exr binary
+*.hdr binary
+*.mp4 binary
+*.mov binary
+*.webm binary
+*.pdf binary
+
+reports/**/*.html linguist-documentation
+reports/**/*.htm linguist-documentation
+reports/**/figures/** linguist-vendored
+
+# ---------------------------------------------------------------
+# Generated outputs
+# ---------------------------------------------------------------
+**/_build/** linguist-generated
+**/dist/** linguist-generated
+*.lock linguist-generated
+poetry.lock linguist-generated
+uv.lock linguist-generated

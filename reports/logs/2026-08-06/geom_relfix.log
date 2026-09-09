@@ -1,0 +1,15 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[sweep] cup diameter 40mm -> clearance per side 5.0mm at full open
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-08-07_01-00-11.log[0m
+[36m======================================================================================[0m
+
+[33m01:00:11 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[sweep] pitch=    0deg z= 40.0mm (pad clears table by   3.9mm) -> grasp 6/6 upright@grasp 6 PLACED 4 tipped 2
+[sweep] pitch=    0deg z= 38.0mm (pad clears table by   1.9mm) -> grasp 6/6 upright@grasp 6 PLACED 2 tipped 3
+[sweep] pitch=    0deg z= 37.0mm (pad clears table by   0.9mm) -> grasp 6/6 upright@grasp 6 PLACED 2 tipped 4
+[trace] cup state through the scripted cycle (median over trials):
+[sweep] ======== BEST: pitch=0.0deg z=40.0mm placed 4/6 ========
+[sweep] wrote reports/synria_geom_relfix.json

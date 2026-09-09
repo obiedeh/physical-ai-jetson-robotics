@@ -1,0 +1,21 @@
+session,git_sha,seed,turn,attempt,ok,err_mm,final_tilt_deg,steps,lane,far_pick,grasped,hold_armed,closest_approach_mm,failure_class
+ludo_groot17_eval01,4f257252f,300,1,1,False,476.3,90.0,3610,groot17,False,True,False,137.8,cup toppled
+ludo_groot17_eval01,4f257252f,300,2,1,False,296.3,0.0,5999,groot17,False,False,False,9900.0,never-grasped (approach failed)
+ludo_groot17_eval01,4f257252f,300,3,1,False,201.0,90.0,5585,groot17,True,True,False,18.7,cup toppled
+ludo_groot17_eval01,4f257252f,300,4,1,False,367.8,0.0,3400,groot17,True,True,False,132.1,carry/place lost the cup (>60mm)
+ludo_groot17_eval01,4f257252f,300,5,1,True,30.4,0.0,5999,groot17,False,False,False,9900.0,
+ludo_groot17_eval01,4f257252f,300,6,1,False,246.8,90.0,3408,groot17,False,True,False,13.5,cup toppled
+ludo_groot17_eval01,4f257252f,300,7,1,False,115.6,0.0,5999,groot17,False,False,False,9900.0,never-grasped (approach failed)
+ludo_groot17_eval01,4f257252f,300,8,1,False,147.6,13.3,4121,groot17,False,True,False,86.7,carry/place lost the cup (>60mm)
+ludo_groot17_eval01,4f257252f,300,9,1,False,207.9,90.0,2392,groot17,False,True,False,32.4,cup toppled
+ludo_groot17_eval01,4f257252f,300,10,1,False,111.3,2.8,5999,groot17,False,False,False,9900.0,never-grasped (approach failed)
+ludo_groot17_eval01,4f257252f,300,11,1,False,285.2,90.0,4169,groot17,False,True,False,152.3,cup toppled
+ludo_groot17_eval01,4f257252f,300,12,1,False,182.8,0.0,5999,groot17,True,False,False,9900.0,never-grasped (approach failed)
+ludo_groot17_eval01,4f257252f,300,13,1,False,115.3,0.0,5999,groot17,False,False,False,9900.0,never-grasped (approach failed)
+ludo_groot17_eval01,4f257252f,300,14,1,False,261.5,90.0,3473,groot17,False,True,False,18.4,cup toppled
+ludo_groot17_eval01,4f257252f,300,15,1,False,115.4,0.0,5999,groot17,True,False,False,9900.0,never-grasped (approach failed)
+ludo_groot17_eval01,4f257252f,300,16,1,False,172.7,0.0,5999,groot17,True,False,False,9900.0,never-grasped (approach failed)
+ludo_groot17_eval01,4f257252f,300,17,1,False,192.7,0.0,5999,groot17,False,False,False,9900.0,never-grasped (approach failed)
+ludo_groot17_eval01,4f257252f,300,18,1,False,259.8,90.0,4808,groot17,False,True,False,27.5,cup toppled
+ludo_groot17_eval01,4f257252f,300,19,1,False,81.7,0.0,5999,groot17,False,False,False,9900.0,never-grasped (approach failed)
+ludo_groot17_eval01,4f257252f,300,20,1,False,128.1,0.0,5999,groot17,False,False,False,9900.0,never-grasped (approach failed)

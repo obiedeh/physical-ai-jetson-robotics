@@ -1,0 +1,180 @@
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260730_133858.log
+2026-07-30T18:38:58Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-07-30T18:38:58Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+2026-07-30T18:38:58Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 26097
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 6302
+|---------------------------------------------------------------------------------------------|
+2026-07-30T18:38:58Z [748ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-07-30T18:38:58Z [755ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.
+2026-07-30T18:39:00Z [2,106ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-07-30T18:39:00Z [2,196ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-07-30T18:39:00Z [2,312ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-07-30T18:39:01Z [3,634ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+2026-07-30T18:39:01Z [3,694ms] [Warning] [omni.graph.core.plugin] Found duplicate of category 'Replicator' - was 'Annotators', adding 'Fabric Reader'
+2026-07-30T18:39:01Z [3,694ms] [Warning] [omni.graph.core.plugin] Category 'Replicator' not accepted on node type 'omni.replicator.core.FabricReader' in extension 'omni.replicator.core'
+2026-07-30T18:39:01Z [3,695ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-07-30T18:39:04Z [5,990ms] [Warning] [omni.fabric.plugin] Warning: attribute viewPickingId not found for bucket id 7
+
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-30_13-39-04.log[0m
+[36m======================================================================================[0m
+
+[33m13:39:04 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : None
+	Physics step-size     : 0.008333333333333333
+	Rendering step-size   : 0.008333333333333333
+	Environment step-size : 0.016666666666666666
+[33m13:39:04 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 1.210680 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 4
+	Environment spacing   : 2.5
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : True
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 1.358506 seconds
+[INFO] Event Manager:  <EventManager> contains 1 active terms.
++-------------------------------------+
+| Active Event Terms in Mode: 'reset' |
++--------+----------------------------+
+| Index  | Name                       |
++--------+----------------------------+
+|   0    | reset_scene_to_default     |
++--------+----------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++----------------------------------+
+|  Active Action Terms (shape: 8)  |
++--------+-----------+-------------+
+| Index  | Name      |   Dimension |
++--------+-----------+-------------+
+|   0    | arm       |           7 |
+|   1    | gripper   |           1 |
++--------+-----------+-------------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++-----------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (13,)) |
++--------------+-----------------------+--------------+
+|    Index     | Name                  |    Shape     |
++--------------+-----------------------+--------------+
+|      0       | joint_pos             |    (13,)     |
++--------------+-----------------------+--------------+
+
+[s1] hand jac row: 7 (cos=1.00; -1 conv would be 7)
+[s1] free-close t=30 finger_joint=0.798
+[s1] free-close t=60 finger_joint=0.798
+[s1] free-close t=90 finger_joint=0.798
+[s1] free-close t=120 finger_joint=0.798
+[s1] free-close t=150 finger_joint=0.798
+[s1] free-close t=180 finger_joint=0.798
+[s1] free-close t=210 finger_joint=0.798
+[s1] free-close t=240 finger_joint=0.798
+[s1] free-close t=270 finger_joint=0.798
+[s1] free-close t=300 finger_joint=0.798
+[s1] free-air close settled at 0.798 (current grasp band 0.2-0.70)
+[s1] acquire e0: vision=[0.502, 0.002] gt=[0.5, 0.0]
+[s1] step=0 stages=['ALIGN', 'ALIGN', 'ALIGN', 'ALIGN'] picks=0 places=0 hand0=[0.39, -0.001, 0.457] cup_xy0=[0.502, 0.002]
+[s1] step=100 stages=['DESCEND', 'CLOSE', 'CLOSE', 'CLOSE'] picks=0 places=0 hand0=[0.484, 0.017, 0.156] cup_xy0=[0.502, 0.002]
+[s1] step=200 stages=['CLOSE', 'CLOSE', 'CLOSE', 'CLOSE'] picks=0 places=0 hand0=[0.46, 0.151, 0.14] cup_xy0=[0.502, 0.002]
+[s1] step=300 stages=['CLOSE', 'CLOSE', 'FAIL', 'CLOSE'] picks=0 places=0 hand0=[0.459, 0.151, 0.14] cup_xy0=[0.502, 0.002]
+[s1] grasp-geom e0: hand-cup_xy=0.229 cup_gt=[0.467, -0.078, 0.02] vision_xy=[0.502, 0.002]
+[s1] GRASP (drive stall) envs [0] stall=[0.444]
+[lift] e0 t=9 cup_z=0.020 hand_z=0.143 stall=0.445
+[lift] e0 t=29 cup_z=0.020 hand_z=0.163 stall=0.445
+[s1] step=400 stages=['LIFT', 'ALIGN', 'IDLE', 'ALIGN'] picks=0 places=0 hand0=[0.423, 0.162, 0.163] cup_xy0=[0.502, 0.002]
+[lift] e0 t=49 cup_z=0.020 hand_z=0.181 stall=0.445
+[lift] e0 t=69 cup_z=0.020 hand_z=0.216 stall=0.444
+[lift] e0 t=89 cup_z=0.020 hand_z=0.282 stall=0.445
+[lift] e0 t=109 cup_z=0.020 hand_z=0.304 stall=0.444
+[lift] e0 t=129 cup_z=0.020 hand_z=0.301 stall=0.445
+[s1] step=500 stages=['LIFT', 'DESCEND', 'IDLE', 'DESCEND'] picks=0 places=0 hand0=[0.423, 0.219, 0.301] cup_xy0=[0.502, 0.002]
+[lift] e0 t=149 cup_z=0.020 hand_z=0.284 stall=0.445
+[lift] e0 t=169 cup_z=0.020 hand_z=0.279 stall=0.445
+[lift] e0 t=189 cup_z=0.020 hand_z=0.277 stall=0.445
+[lift] e0 t=209 cup_z=0.020 hand_z=0.301 stall=0.444
+[lift] e0 t=229 cup_z=0.020 hand_z=0.349 stall=0.443
+[s1] step=600 stages=['LIFT', 'CLOSE', 'IDLE', 'CLOSE'] picks=0 places=0 hand0=[0.361, 0.234, 0.349] cup_xy0=[0.502, 0.002]
+[lift] e0 t=249 cup_z=0.020 hand_z=0.369 stall=0.444
+[lift] e0 t=269 cup_z=0.020 hand_z=0.383 stall=0.444
+[lift] e0 t=289 cup_z=0.020 hand_z=0.362 stall=0.444
+[lift] e0 t=309 cup_z=0.020 hand_z=0.345 stall=0.445
+[lift] e0 t=329 cup_z=0.020 hand_z=0.329 stall=0.444
+[s1] step=700 stages=['LIFT', 'CLOSE', 'FAIL', 'CLOSE'] picks=0 places=0 hand0=[0.498, -0.021, 0.329] cup_xy0=[0.502, 0.002]
+[lift] e0 t=349 cup_z=0.020 hand_z=0.336 stall=0.444
+[lift] e0 t=369 cup_z=0.020 hand_z=0.352 stall=0.444
+[lift] e0 t=389 cup_z=0.020 hand_z=0.369 stall=0.444
+[s1] grasp-geom e3: hand-cup_xy=0.068 cup_gt=[0.444, 0.051, 0.02] vision_xy=[0.444, 0.055]
+[s1] GRASP (drive stall) envs [3] stall=[0.442]
+[lift] e3 t=9 cup_z=0.020 hand_z=0.171 stall=0.444
+[s1] step=800 stages=['FAIL', 'CLOSE', 'IDLE', 'LIFT'] picks=0 places=0 hand0=[0.495, -0.006, 0.352] cup_xy0=[0.502, 0.002]
+[lift] e3 t=29 cup_z=0.020 hand_z=0.180 stall=0.443
+[lift] e3 t=49 cup_z=0.020 hand_z=0.195 stall=0.442
+[s1] acquire e0: vision=[0.489, -0.039] gt=[0.486, -0.043]
+[lift] e3 t=69 cup_z=0.020 hand_z=0.244 stall=0.442
+[lift] e3 t=89 cup_z=0.020 hand_z=0.292 stall=0.442
+[lift] e3 t=109 cup_z=0.020 hand_z=0.327 stall=0.443
+[s1] step=900 stages=['ALIGN', 'IDLE', 'IDLE', 'LIFT'] picks=0 places=0 hand0=[0.483, -0.101, 0.341] cup_xy0=[0.489, -0.039]
+[lift] e3 t=129 cup_z=0.020 hand_z=0.350 stall=0.443
+[lift] e3 t=149 cup_z=0.020 hand_z=0.340 stall=0.442
+[lift] e3 t=169 cup_z=0.020 hand_z=0.340 stall=0.442
+[lift] e3 t=189 cup_z=0.020 hand_z=0.340 stall=0.442
+[lift] e3 t=209 cup_z=0.020 hand_z=0.340 stall=0.442
+[s1] step=1000 stages=['ALIGN', 'DESCEND', 'IDLE', 'LIFT'] picks=0 places=0 hand0=[0.33, 0.094, 0.34] cup_xy0=[0.489, -0.039]
+[lift] e3 t=229 cup_z=0.020 hand_z=0.342 stall=0.442
+[lift] e3 t=249 cup_z=0.020 hand_z=0.348 stall=0.442
+[lift] e3 t=269 cup_z=0.020 hand_z=0.357 stall=0.441
+[lift] e3 t=289 cup_z=0.020 hand_z=0.361 stall=0.441
+[lift] e3 t=309 cup_z=0.020 hand_z=0.364 stall=0.442
+[s1] step=1100 stages=['CLOSE', 'CLOSE', 'IDLE', 'LIFT'] picks=0 places=0 hand0=[0.504, -0.096, 0.229] cup_xy0=[0.489, -0.039]
+[lift] e3 t=329 cup_z=0.020 hand_z=0.370 stall=0.443
+[lift] e3 t=349 cup_z=0.020 hand_z=0.377 stall=0.442
+[lift] e3 t=369 cup_z=0.020 hand_z=0.380 stall=0.442
+[lift] e3 t=389 cup_z=0.020 hand_z=0.357 stall=0.450
+[s1] step=1200 stages=['CLOSE', 'CLOSE', 'IDLE', 'FAIL'] picks=0 places=0 hand0=[0.505, -0.106, 0.231] cup_xy0=[0.489, -0.039]
+[s1] grasp-geom e1: hand-cup_xy=0.085 cup_gt=[0.474, 0.015, 0.02] vision_xy=[0.474, 0.019]
+[s1] GRASP (drive stall) envs [1] stall=[0.435]
+[lift] e1 t=6 cup_z=0.020 hand_z=0.203 stall=0.422
+[lift] e1 t=26 cup_z=0.020 hand_z=0.236 stall=0.423
+[lift] e1 t=46 cup_z=0.020 hand_z=0.280 stall=0.438
+[s1] step=1300 stages=['CLOSE', 'LIFT', 'IDLE', 'IDLE'] picks=0 places=0 hand0=[0.505, -0.106, 0.231] cup_xy0=[0.489, -0.039]
+[s1] grasp-geom e0: hand-cup_xy=0.066 cup_gt=[0.486, -0.043, 0.02] vision_xy=[0.489, -0.039]
+[s1] GRASP (drive stall) envs [0] stall=[0.435]
+2026-07-30T18:39:04Z [6,273ms] [Warning] [isaaclab.envs.manager_based_env] Seed not set for the environment. The environment creation may not be deterministic.
+2026-07-30T18:39:06Z [7,958ms] [Warning] [omni.fabric.plugin] getAttributeCount called on non-existent path /World/envs/env_3/Robot/Robotiq_2F_85_edit/Robotiq_2F_85/right_outer_knuckle/visuals/Defeatured_2F_85_PAD_OPEN_Finger1step_01
+2026-07-30T18:39:06Z [7,958ms] [Warning] [omni.fabric.plugin] getTypes called on non-existent path /World/envs/env_3/Robot/Robotiq_2F_85_edit/Robotiq_2F_85/right_outer_knuckle/visuals/Defeatured_2F_85_PAD_OPEN_Finger1step_01
+2026-07-30T18:39:06Z [8,558ms] [Warning] [rtx.postprocessing.plugin] DLSS increasing input dimensions: Render resolution of (260, 260) is below minimal input resolution of 300.
+2026-07-30T18:39:07Z [9,522ms] [Warning] [carb] Client gpu.foundation.plugin has acquired [gpu::unstable::IMemoryBudgetManagerFactory v0.1] 100 times. Consider accessing this interface with carb::getCachedInterface() (Performance warning)

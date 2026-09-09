@@ -1,0 +1,20 @@
+flowchart TB
+    subgraph RTX["RTX 5090"]
+        sim["Isaac Sim 5.1 / Isaac Lab 2.3.2"]
+        train["Training / separate policy evaluation"]
+        record["LeRobot client / keyboard recorder"]
+    end
+    subgraph Orin["Orin NX: recorded board path"]
+        ros["ROS 2 Humble / Python 3.10 host"]
+        board["Yahboom vendor runtime"]
+        probes["Recorded CUDA / camera / thermal / power probes"]
+        ros <--> board
+    end
+    subgraph Thor["AGX Thor 128GB: measured inference"]
+        external["External Isaac-GR00T / engines / checkpoint"]
+        bench["Eager and TensorRT benchmark\nParity not established"]
+        external --> bench
+    end
+    record <-->|ZMQ| ros
+    sim --> train
+    pending["Pending: autonomous real-arm validation\nHuman demos / sustained thermal and safety validation"]

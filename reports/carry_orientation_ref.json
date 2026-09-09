@@ -1,0 +1,175 @@
+{
+  "reference": {
+    "episodes_analyzed": 182,
+    "pitch_ref_deg": 35.62550807957623,
+    "pitch_ref_p5_p95_deg": [
+      25.529501488848485,
+      39.674796653321415
+    ],
+    "carry_max_dev_p95_deg": 47.299286599453616,
+    "tolerance_recommendation_deg": 47.299286599453616,
+    "convention": "tilt = angle of tool z-axis from world vertical; 0 deg = gripper axis vertical (cup level)"
+  },
+  "episodes": [
+    {
+      "ep": "episode_000000",
+      "tilt_grasp_deg": 9.709061795374767,
+      "tilt_lift_deg": 35.31793052491753,
+      "carry_mean_deg": 32.359060479577884,
+      "carry_max_dev_deg": 29.128427054336143,
+      "carry_len_steps": 230
+    },
+    {
+      "ep": "episode_000001",
+      "tilt_grasp_deg": 9.691757902223554,
+      "tilt_lift_deg": 27.205761384247396,
+      "carry_mean_deg": 35.14455353823842,
+      "carry_max_dev_deg": 33.22181220559444,
+      "carry_len_steps": 236
+    },
+    {
+      "ep": "episode_000003",
+      "tilt_grasp_deg": 40.5971720921317,
+      "tilt_lift_deg": 31.506707679797756,
+      "carry_mean_deg": 35.95205408841405,
+      "carry_max_dev_deg": 30.216771944274377,
+      "carry_len_steps": 210
+    },
+    {
+      "ep": "episode_000004",
+      "tilt_grasp_deg": 79.571178205506,
+      "tilt_lift_deg": 29.053491435460923,
+      "carry_mean_deg": 35.83544305956702,
+      "carry_max_dev_deg": 48.63270469003802,
+      "carry_len_steps": 237
+    },
+    {
+      "ep": "episode_000005",
+      "tilt_grasp_deg": 62.01503469892825,
+      "tilt_lift_deg": 10.721641114646117,
+      "carry_mean_deg": 32.16313715952919,
+      "carry_max_dev_deg": 29.851897539399054,
+      "carry_len_steps": 274
+    },
+    {
+      "ep": "episode_000006",
+      "tilt_grasp_deg": 26.88952957912013,
+      "tilt_lift_deg": 7.208879466303968,
+      "carry_mean_deg": 33.090783905380455,
+      "carry_max_dev_deg": 31.595864392712233,
+      "carry_len_steps": 239
+    },
+    {
+      "ep": "episode_000007",
+      "tilt_grasp_deg": 22.263557830001268,
+      "tilt_lift_deg": 39.23091654948402,
+      "carry_mean_deg": 36.15785843594361,
+      "carry_max_dev_deg": 29.360718608878653,
+      "carry_len_steps": 197
+    },
+    {
+      "ep": "episode_000008",
+      "tilt_grasp_deg": 4.164695309419913,
+      "tilt_lift_deg": 36.32291876679242,
+      "carry_mean_deg": 37.10284426019049,
+      "carry_max_dev_deg": 33.04829721641367,
+      "carry_len_steps": 210
+    },
+    {
+      "ep": "episode_000011",
+      "tilt_grasp_deg": 34.845651329526135,
+      "tilt_lift_deg": 50.377725853069855,
+      "carry_mean_deg": 37.62963493828577,
+      "carry_max_dev_deg": 31.490358655782224,
+      "carry_len_steps": 217
+    },
+    {
+      "ep": "episode_000012",
+      "tilt_grasp_deg": 59.736252909103584,
+      "tilt_lift_deg": 34.89344416994019,
+      "carry_mean_deg": 37.52028023381148,
+      "carry_max_dev_deg": 36.26431952038039,
+      "carry_len_steps": 201
+    },
+    {
+      "ep": "episode_000013",
+      "tilt_grasp_deg": 13.368681161175463,
+      "tilt_lift_deg": 46.35885372921334,
+      "carry_mean_deg": 32.9855015785748,
+      "carry_max_dev_deg": 36.45554555744994,
+      "carry_len_steps": 252
+    },
+    {
+      "ep": "episode_000014",
+      "tilt_grasp_deg": 76.21184001907292,
+      "tilt_lift_deg": 53.264445870376925,
+      "carry_mean_deg": 40.73595038727977,
+      "carry_max_dev_deg": 45.961164784271844,
+      "carry_len_steps": 201
+    },
+    {
+      "ep": "episode_000015",
+      "tilt_grasp_deg": 19.380572900438796,
+      "tilt_lift_deg": 24.08219891397763,
+      "carry_mean_deg": 36.413897967834906,
+      "carry_max_dev_deg": 32.71773195996567,
+      "carry_len_steps": 242
+    },
+    {
+      "ep": "episode_000016",
+      "tilt_grasp_deg": 1.395167346380639,
+      "tilt_lift_deg": 18.599014543358823,
+      "carry_mean_deg": 33.336832459175916,
+      "carry_max_dev_deg": 31.941665112795278,
+      "carry_len_steps": 231
+    },
+    {
+      "ep": "episode_000017",
+      "tilt_grasp_deg": 89.75861488886778,
+      "tilt_lift_deg": 34.792901481700355,
+      "carry_mean_deg": 36.7200555777223,
+      "carry_max_dev_deg": 53.038559311145484,
+      "carry_len_steps": 261
+    },
+    {
+      "ep": "episode_000018",
+      "tilt_grasp_deg": 78.5360966620152,
+      "tilt_lift_deg": 24.746982492605408,
+      "carry_mean_deg": 35.800386462642514,
+      "carry_max_dev_deg": 42.73571019937268,
+      "carry_len_steps": 257
+    },
+    {
+      "ep": "episode_000019",
+      "tilt_grasp_deg": 75.55497503789037,
+      "tilt_lift_deg": 30.5807896734115,
+      "carry_mean_deg": 35.406846289046605,
+      "carry_max_dev_deg": 40.14812874884377,
+      "carry_len_steps": 224
+    },
+    {
+      "ep": "episode_000020",
+      "tilt_grasp_deg": 29.46646103942998,
+      "tilt_lift_deg": 16.40719029920625,
+      "carry_mean_deg": 12.355457450160582,
+      "carry_max_dev_deg": 17.111003589269398,
+      "carry_len_steps": 30
+    },
+    {
+      "ep": "episode_000021",
+      "tilt_grasp_deg": 38.72176602156289,
+      "tilt_lift_deg": 46.06937000838176,
+      "carry_mean_deg": 35.756784845960425,
+      "carry_max_dev_deg": 31.944803560468213,
+      "carry_len_steps": 237
+    },
+    {
+      "ep": "episode_000022",
+      "tilt_grasp_deg": 20.32211724079479,
+      "tilt_lift_deg": 55.1947442250601,
+      "carry_mean_deg": 38.26444906502633,
+      "carry_max_dev_deg": 28.238717441157178,
+      "carry_len_steps": 204
+    }
+  ]
+}

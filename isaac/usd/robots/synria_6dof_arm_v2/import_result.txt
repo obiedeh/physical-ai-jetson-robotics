@@ -1,0 +1,4 @@
+[import] URDF : /home/oedeh/github/physical-ai-jetson-robotics/isaac/usd/robots/synria_6dof_arm.urdf
+[import] USD  : /home/oedeh/github/physical-ai-jetson-robotics/isaac/usd/robots/synria_6dof_arm_v2/synria_6dof_arm.usd
+[import] prim : /Alicia_D_v5_6_gripper_50mm
+[import] file exists: True

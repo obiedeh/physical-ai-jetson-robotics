@@ -1,0 +1,35 @@
+{
+  "sessions": 3,
+  "attempts": 40,
+  "first_try": {
+    "n": 36,
+    "ok": 32,
+    "rate": 0.889,
+    "binomial_sd": 0.052,
+    "binomial_sd_note": "assumes independent Bernoulli trials; the ledger disputes this (the deterministic rails are per-session-history, not per-turn), so treat the SD as a lower bound on uncertainty"
+  },
+  "turn_level": {
+    "n": 36,
+    "ok": 35,
+    "rate": 0.972
+  },
+  "ok_err_mm": {
+    "p50": 19.2,
+    "p95": 24.6,
+    "n": 32
+  },
+  "closest_approach_mm": {
+    "p50": 67.2,
+    "p95": 9900.0,
+    "n": 40
+  },
+  "failure_taxonomy_counts": {
+    "cup toppled": 2,
+    "near-miss placement (35-60mm)": 1,
+    "never-grasped (approach failed)": 2
+  },
+  "data_kind": "simulated",
+  "note": "first_try = attempt 1 only; turn_level counts the built-in single retry; success != reward != normalized score (no reward exists in this pipeline)",
+  "glob": "reports/ludo_soak_s1[012]",
+  "generated_utc": "2026-08-20T05:07:01Z"
+}
