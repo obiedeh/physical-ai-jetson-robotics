@@ -57,3 +57,19 @@ physical-ai-lab mecanum-calibration
 
 Calibration runs in this directory are **planned evidence** until the Yahboom
 robot is live and real motion logs are committed alongside them.
+
+## Session directories (`sessions/<date>_<run>/`)
+
+Written on the Orin by `scripts/jetson/slam_session.py` and
+`scripts/jetson/slam_pose_log.py`; protocol in
+`docs/rosmaster_m3pro/SLAM_FIRST_RUN_PROTOCOL.md`. None exist yet.
+
+| File | Contents |
+|---|---|
+| `provenance.json` | device, L4T, git SHA, power mode, SLAM stack, topics, written before recording |
+| `session.json` | still baseline and recording power per rail, thermal, RAM, per-process CPU, bag size and metadata hash |
+| `samples.jsonl` | raw power, thermal and process samples behind `session.json` |
+| `poses.jsonl` | map-frame pose at 5 Hz and every raw odometry message |
+| `marks.jsonl` | operator marks: `lap_start`, `lap_end`, `kidnap_lift`, `kidnap_place` |
+| `metrics.json` | loop-closure return error per lap and frame, re-localisation trials, `not_measured` list |
+| `bag/metadata.yaml` | ros2 bag index; the data files are ignored |

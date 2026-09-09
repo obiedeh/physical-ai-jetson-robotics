@@ -129,3 +129,9 @@ reports/dice_rolltest*/
 reports/ludo_live_01/
 reports/ludo_live_0[456]/
 reports/phys_game_val*/
+
+# Rover SLAM sessions (reports/slam/sessions/<name>/): bag data stays out,
+# metadata.yaml and the small JSON/JSONL records are committed.
+reports/slam/sessions/*/bag/*.db3
+reports/slam/sessions/*/bag/*.mcap
+reports/slam/sessions/*/bag_record.log

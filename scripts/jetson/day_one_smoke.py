@@ -19,73 +19,19 @@ wheels live there, not in .venv):
 from __future__ import annotations
 
 import argparse
-import glob
 import json
 import platform
 import sys
-import threading
 import time
 from pathlib import Path
 
 from physical_ai_lab.jetson_provenance import (
-    ThermalWatch, fix_seeds, latency_stats, write_provenance,
+    PowerWatch,
+    ThermalWatch,
+    fix_seeds,
+    latency_stats,
+    write_provenance,
 )
-
-
-class PowerWatch:
-    """INA3221 rail sampler (sysfs). mW = mV * mA / 1000."""
-
-    def __init__(self, interval_s: float = 0.5):
-        self.interval = interval_s
-        self.samples: list[dict] = []
-        self.rails: dict[str, tuple[str, str]] = {}
-        for hw in glob.glob("/sys/bus/i2c/drivers/ina3221/*/hwmon/hwmon*"):
-            for lab in glob.glob(hw + "/in*_label"):
-                idx = Path(lab).name[2:-6]
-                try:
-                    name = open(lab).read().strip()
-                except OSError:
-                    continue
-                self.rails[name] = (f"{hw}/in{idx}_input",
-                                    f"{hw}/curr{idx}_input")
-        self._stop = threading.Event()
-        self._th = None
-
-    def _read(self):
-        s = {"t": time.time()}
-        for name, (vp, cp) in self.rails.items():
-            try:
-                mv = int(open(vp).read()); ma = int(open(cp).read())
-                s[name + "_mW"] = round(mv * ma / 1000.0, 1)
-            except OSError:
-                pass
-        return s
-
-    def _run(self):
-        while not self._stop.is_set():
-            self.samples.append(self._read())
-            self._stop.wait(self.interval)
-
-    def __enter__(self):
-        self._th = threading.Thread(target=self._run, daemon=True)
-        self._th.start()
-        return self
-
-    def __exit__(self, *exc):
-        self._stop.set()
-        if self._th:
-            self._th.join(timeout=5)
-
-    def summary(self) -> dict:
-        out = {"rails": sorted(self.rails), "samples": len(self.samples)}
-        for name in self.rails:
-            vals = sorted(s[name + "_mW"] for s in self.samples
-                          if name + "_mW" in s)
-            if vals:
-                out[name] = {"mW_peak": vals[-1],
-                             "mW_p50": vals[len(vals) // 2],
-                             "mW_min": vals[0], "n": len(vals)}
-        return out
 
 
 def _power_mode_nosudo() -> str:
