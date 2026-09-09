@@ -1,0 +1,839 @@
+[
+ {
+  "pitch_deg": 0.0,
+  "grasp_z_mm": 40.0,
+  "pad_bottom_clear_mm": 3.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 0,
+  "setdown_not_converged": 0,
+  "released_free": 0,
+  "trials": 6,
+  "stage_trace": [
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.5
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 18.0,
+     "cup_above_table_mm": 122.8,
+     "cup_minus_pad_z_mm": -10.1,
+     "cup_xy_vs_pad_mm": 6.6
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 17.8,
+     "cup_above_table_mm": 122.4,
+     "cup_minus_pad_z_mm": -10.1,
+     "cup_xy_vs_pad_mm": 6.5
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 6.5,
+     "cup_above_table_mm": 28.3,
+     "cup_minus_pad_z_mm": -11.7,
+     "cup_xy_vs_pad_mm": 3.1
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 7.3,
+     "cup_above_table_mm": 29.2,
+     "cup_minus_pad_z_mm": -11.7,
+     "cup_xy_vs_pad_mm": 3.2
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 5.0,
+     "cup_above_table_mm": 182.3,
+     "cup_minus_pad_z_mm": -11.1,
+     "cup_xy_vs_pad_mm": 5.0
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.5
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 22.7,
+     "cup_above_table_mm": 123.1,
+     "cup_minus_pad_z_mm": -7.7,
+     "cup_xy_vs_pad_mm": 7.6
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 22.6,
+     "cup_above_table_mm": 122.5,
+     "cup_minus_pad_z_mm": -7.7,
+     "cup_xy_vs_pad_mm": 7.6
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 0.4,
+     "cup_above_table_mm": 25.2,
+     "cup_minus_pad_z_mm": -10.7,
+     "cup_xy_vs_pad_mm": 7.2
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 0.1,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -10.9,
+     "cup_xy_vs_pad_mm": 7.0
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 1.9,
+     "cup_above_table_mm": 182.4,
+     "cup_minus_pad_z_mm": -11.1,
+     "cup_xy_vs_pad_mm": 8.0
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 19.4,
+     "cup_above_table_mm": 119.8,
+     "cup_minus_pad_z_mm": -8.6,
+     "cup_xy_vs_pad_mm": 10.0
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 19.2,
+     "cup_above_table_mm": 119.1,
+     "cup_minus_pad_z_mm": -8.7,
+     "cup_xy_vs_pad_mm": 9.9
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 0.3,
+     "cup_above_table_mm": 25.1,
+     "cup_minus_pad_z_mm": -10.7,
+     "cup_xy_vs_pad_mm": 6.1
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 0.3,
+     "cup_above_table_mm": 25.1,
+     "cup_minus_pad_z_mm": -10.6,
+     "cup_xy_vs_pad_mm": 6.1
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 2.0,
+     "cup_above_table_mm": 171.7,
+     "cup_minus_pad_z_mm": -10.4,
+     "cup_xy_vs_pad_mm": 2.4
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 20.0,
+     "cup_above_table_mm": 136.1,
+     "cup_minus_pad_z_mm": -8.3,
+     "cup_xy_vs_pad_mm": 7.5
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 20.5,
+     "cup_above_table_mm": 137.6,
+     "cup_minus_pad_z_mm": -8.3,
+     "cup_xy_vs_pad_mm": 7.6
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 0.1,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -11.0,
+     "cup_xy_vs_pad_mm": 4.5
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -11.0,
+     "cup_xy_vs_pad_mm": 4.4
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 3.6,
+     "cup_above_table_mm": 174.5,
+     "cup_minus_pad_z_mm": -10.2,
+     "cup_xy_vs_pad_mm": 4.3
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 21.8,
+     "cup_above_table_mm": 137.7,
+     "cup_minus_pad_z_mm": -7.7,
+     "cup_xy_vs_pad_mm": 11.2
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 22.3,
+     "cup_above_table_mm": 139.4,
+     "cup_minus_pad_z_mm": -7.6,
+     "cup_xy_vs_pad_mm": 11.3
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 2.4,
+     "cup_above_table_mm": 25.8,
+     "cup_minus_pad_z_mm": -10.5,
+     "cup_xy_vs_pad_mm": 2.1
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 2.4,
+     "cup_above_table_mm": 25.8,
+     "cup_minus_pad_z_mm": -10.5,
+     "cup_xy_vs_pad_mm": 2.1
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 7.8,
+     "cup_above_table_mm": 188.6,
+     "cup_minus_pad_z_mm": -10.3,
+     "cup_xy_vs_pad_mm": 5.5
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.5
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 16.9,
+     "cup_above_table_mm": 116.4,
+     "cup_minus_pad_z_mm": -9.4,
+     "cup_xy_vs_pad_mm": 8.7
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 16.4,
+     "cup_above_table_mm": 115.1,
+     "cup_minus_pad_z_mm": -9.5,
+     "cup_xy_vs_pad_mm": 8.6
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 0.7,
+     "cup_above_table_mm": 25.2,
+     "cup_minus_pad_z_mm": -10.9,
+     "cup_xy_vs_pad_mm": 10.0
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 0.7,
+     "cup_above_table_mm": 25.3,
+     "cup_minus_pad_z_mm": -10.9,
+     "cup_xy_vs_pad_mm": 10.1
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 6.3,
+     "cup_above_table_mm": 177.1,
+     "cup_minus_pad_z_mm": -10.4,
+     "cup_xy_vs_pad_mm": 11.6
+    }
+   ]
+  ]
+ },
+ {
+  "pitch_deg": 0.0,
+  "grasp_z_mm": 38.0,
+  "pad_bottom_clear_mm": 1.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 3,
+  "setdown_not_converged": 3,
+  "released_free": 0,
+  "trials": 6,
+  "stage_trace": [
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -13.6,
+     "cup_xy_vs_pad_mm": 0.5
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 14.5,
+     "cup_above_table_mm": 121.1,
+     "cup_minus_pad_z_mm": -10.5,
+     "cup_xy_vs_pad_mm": 4.9
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 14.4,
+     "cup_above_table_mm": 120.6,
+     "cup_minus_pad_z_mm": -10.5,
+     "cup_xy_vs_pad_mm": 4.9
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": -30.0,
+     "cup_minus_pad_z_mm": -630.7,
+     "cup_xy_vs_pad_mm": 592.6
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": -30.0,
+     "cup_minus_pad_z_mm": -630.5,
+     "cup_xy_vs_pad_mm": 592.4
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": -30.0,
+     "cup_minus_pad_z_mm": -629.9,
+     "cup_xy_vs_pad_mm": 591.6
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -13.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 16.7,
+     "cup_above_table_mm": 132.8,
+     "cup_minus_pad_z_mm": -10.0,
+     "cup_xy_vs_pad_mm": 5.3
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 17.1,
+     "cup_above_table_mm": 134.0,
+     "cup_minus_pad_z_mm": -10.0,
+     "cup_xy_vs_pad_mm": 5.4
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": -30.0,
+     "cup_minus_pad_z_mm": -147.0,
+     "cup_xy_vs_pad_mm": 1085.8
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": -30.0,
+     "cup_minus_pad_z_mm": -147.0,
+     "cup_xy_vs_pad_mm": 1085.5
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": -30.0,
+     "cup_minus_pad_z_mm": -147.1,
+     "cup_xy_vs_pad_mm": 1086.2
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -13.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 21.2,
+     "cup_above_table_mm": 119.2,
+     "cup_minus_pad_z_mm": -8.0,
+     "cup_xy_vs_pad_mm": 8.6
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 20.8,
+     "cup_above_table_mm": 118.3,
+     "cup_minus_pad_z_mm": -8.0,
+     "cup_xy_vs_pad_mm": 8.6
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 0.3,
+     "cup_above_table_mm": 25.1,
+     "cup_minus_pad_z_mm": -10.8,
+     "cup_xy_vs_pad_mm": 20.0
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 0.4,
+     "cup_above_table_mm": 25.1,
+     "cup_minus_pad_z_mm": -10.8,
+     "cup_xy_vs_pad_mm": 19.9
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 25.9,
+     "cup_above_table_mm": 182.7,
+     "cup_minus_pad_z_mm": -7.6,
+     "cup_xy_vs_pad_mm": 6.5
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -13.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 16.1,
+     "cup_above_table_mm": 116.1,
+     "cup_minus_pad_z_mm": -10.3,
+     "cup_xy_vs_pad_mm": 6.3
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 15.7,
+     "cup_above_table_mm": 115.0,
+     "cup_minus_pad_z_mm": -10.3,
+     "cup_xy_vs_pad_mm": 6.2
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 4.7,
+     "cup_above_table_mm": 26.6,
+     "cup_minus_pad_z_mm": -9.8,
+     "cup_xy_vs_pad_mm": 7.8
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 4.2,
+     "cup_above_table_mm": 26.6,
+     "cup_minus_pad_z_mm": -9.9,
+     "cup_xy_vs_pad_mm": 7.7
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 1.9,
+     "cup_above_table_mm": 178.0,
+     "cup_minus_pad_z_mm": -10.6,
+     "cup_xy_vs_pad_mm": 8.2
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -13.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 19.7,
+     "cup_above_table_mm": 135.9,
+     "cup_minus_pad_z_mm": -9.7,
+     "cup_xy_vs_pad_mm": 6.7
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 20.2,
+     "cup_above_table_mm": 137.7,
+     "cup_minus_pad_z_mm": -9.7,
+     "cup_xy_vs_pad_mm": 6.8
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 2.6,
+     "cup_above_table_mm": 25.9,
+     "cup_minus_pad_z_mm": -10.3,
+     "cup_xy_vs_pad_mm": 2.0
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 2.6,
+     "cup_above_table_mm": 25.9,
+     "cup_minus_pad_z_mm": -10.3,
+     "cup_xy_vs_pad_mm": 2.0
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 0.8,
+     "cup_above_table_mm": 174.4,
+     "cup_minus_pad_z_mm": -9.8,
+     "cup_xy_vs_pad_mm": 1.7
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -13.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 20.2,
+     "cup_above_table_mm": 136.9,
+     "cup_minus_pad_z_mm": -9.2,
+     "cup_xy_vs_pad_mm": 7.8
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 20.8,
+     "cup_above_table_mm": 138.7,
+     "cup_minus_pad_z_mm": -9.2,
+     "cup_xy_vs_pad_mm": 7.9
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": -25.0,
+     "cup_minus_pad_z_mm": -371.0,
+     "cup_xy_vs_pad_mm": 453.3
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": -25.0,
+     "cup_minus_pad_z_mm": -380.2,
+     "cup_xy_vs_pad_mm": 451.8
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": -25.0,
+     "cup_minus_pad_z_mm": -431.1,
+     "cup_xy_vs_pad_mm": 404.3
+    }
+   ]
+  ]
+ },
+ {
+  "pitch_deg": 0.0,
+  "grasp_z_mm": 37.0,
+  "pad_bottom_clear_mm": 0.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 0,
+  "upright_at_place": 0,
+  "tipped": 2,
+  "setdown_not_converged": 1,
+  "released_free": 0,
+  "trials": 6,
+  "stage_trace": [
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -12.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 19.7,
+     "cup_above_table_mm": 121.7,
+     "cup_minus_pad_z_mm": -9.6,
+     "cup_xy_vs_pad_mm": 6.2
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 19.5,
+     "cup_above_table_mm": 121.2,
+     "cup_minus_pad_z_mm": -9.6,
+     "cup_xy_vs_pad_mm": 6.2
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 4.1,
+     "cup_above_table_mm": 26.7,
+     "cup_minus_pad_z_mm": -10.0,
+     "cup_xy_vs_pad_mm": 6.8
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 4.1,
+     "cup_above_table_mm": 26.7,
+     "cup_minus_pad_z_mm": -10.0,
+     "cup_xy_vs_pad_mm": 6.8
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 1.4,
+     "cup_above_table_mm": 182.1,
+     "cup_minus_pad_z_mm": -9.5,
+     "cup_xy_vs_pad_mm": 7.6
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -12.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 17.4,
+     "cup_above_table_mm": 119.4,
+     "cup_minus_pad_z_mm": -9.8,
+     "cup_xy_vs_pad_mm": 7.1
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 17.2,
+     "cup_above_table_mm": 118.7,
+     "cup_minus_pad_z_mm": -9.8,
+     "cup_xy_vs_pad_mm": 7.1
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 0.2,
+     "cup_above_table_mm": 25.8,
+     "cup_minus_pad_z_mm": -10.2,
+     "cup_xy_vs_pad_mm": 5.0
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 0.1,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -10.9,
+     "cup_xy_vs_pad_mm": 5.1
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 6.9,
+     "cup_above_table_mm": 168.2,
+     "cup_minus_pad_z_mm": -10.3,
+     "cup_xy_vs_pad_mm": 0.1
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -12.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 13.8,
+     "cup_above_table_mm": 116.9,
+     "cup_minus_pad_z_mm": -10.2,
+     "cup_xy_vs_pad_mm": 4.5
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 13.4,
+     "cup_above_table_mm": 115.9,
+     "cup_minus_pad_z_mm": -10.2,
+     "cup_xy_vs_pad_mm": 4.4
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 0.5,
+     "cup_above_table_mm": 25.2,
+     "cup_minus_pad_z_mm": -11.3,
+     "cup_xy_vs_pad_mm": 7.9
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 0.5,
+     "cup_above_table_mm": 25.2,
+     "cup_minus_pad_z_mm": -11.3,
+     "cup_xy_vs_pad_mm": 7.9
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 0.7,
+     "cup_above_table_mm": 168.9,
+     "cup_minus_pad_z_mm": -11.5,
+     "cup_xy_vs_pad_mm": 8.7
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -12.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 17.8,
+     "cup_above_table_mm": 135.3,
+     "cup_minus_pad_z_mm": -10.0,
+     "cup_xy_vs_pad_mm": 5.4
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 18.4,
+     "cup_above_table_mm": 137.1,
+     "cup_minus_pad_z_mm": -10.0,
+     "cup_xy_vs_pad_mm": 5.5
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 7.7,
+     "cup_above_table_mm": 27.5,
+     "cup_minus_pad_z_mm": -8.8,
+     "cup_xy_vs_pad_mm": 15.5
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 7.7,
+     "cup_above_table_mm": 27.5,
+     "cup_minus_pad_z_mm": -8.8,
+     "cup_xy_vs_pad_mm": 15.5
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 51.3,
+     "cup_above_table_mm": 168.1,
+     "cup_minus_pad_z_mm": -16.0,
+     "cup_xy_vs_pad_mm": 22.8
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -12.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 15.1,
+     "cup_above_table_mm": 115.0,
+     "cup_minus_pad_z_mm": -10.8,
+     "cup_xy_vs_pad_mm": 4.5
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 14.6,
+     "cup_above_table_mm": 113.7,
+     "cup_minus_pad_z_mm": -10.8,
+     "cup_xy_vs_pad_mm": 4.4
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.1,
+     "cup_minus_pad_z_mm": -10.8,
+     "cup_xy_vs_pad_mm": 4.4
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 0.1,
+     "cup_above_table_mm": 25.1,
+     "cup_minus_pad_z_mm": -10.8,
+     "cup_xy_vs_pad_mm": 4.4
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 9.6,
+     "cup_above_table_mm": 170.2,
+     "cup_minus_pad_z_mm": -11.2,
+     "cup_xy_vs_pad_mm": 9.1
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -12.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 17.3,
+     "cup_above_table_mm": 116.5,
+     "cup_minus_pad_z_mm": -9.1,
+     "cup_xy_vs_pad_mm": 7.1
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 16.9,
+     "cup_above_table_mm": 115.2,
+     "cup_minus_pad_z_mm": -9.2,
+     "cup_xy_vs_pad_mm": 7.0
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": -30.0,
+     "cup_minus_pad_z_mm": -597.7,
+     "cup_xy_vs_pad_mm": 196.2
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": -30.0,
+     "cup_minus_pad_z_mm": -603.8,
+     "cup_xy_vs_pad_mm": 182.7
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": -30.0,
+     "cup_minus_pad_z_mm": -415.2,
+     "cup_xy_vs_pad_mm": 354.1
+    }
+   ]
+  ]
+ }
+]

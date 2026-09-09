@@ -1,0 +1,15 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[feas] asset: synria_6dof_arm_g30.usd
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-31_19-19-07.log[0m
+[36m======================================================================================[0m
+
+[33m19:19:07 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[feas] joints: ['Joint1', 'Joint2', 'Joint3', 'Joint4', 'Joint5', 'Joint6', 'left_finger', 'right_finger']
+[feas] gripper bodies: ['left_gripper', 'right_gripper']
+[feas] trial 0: {'trial': 0, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': True, 'stall_left_mm': 0.4, 'stall_right_mm': 0.3, 'ejected': False, 'lifted': False, 'slipped_in_transport': False, 'success': False}
+[feas] trial 1: {'trial': 1, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': True, 'stall_left_mm': 0.4, 'stall_right_mm': 0.3, 'ejected': False, 'lifted': False, 'slipped_in_transport': False, 'success': False}
+[feas] trial 2: {'trial': 2, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': True, 'stall_left_mm': 0.4, 'stall_right_mm': 0.3, 'ejected': False, 'lifted': False, 'slipped_in_transport': False, 'success': False}
+[feas] trial 3: {'trial': 3, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': True, 'stall_left_mm': 0.4, 'stall_right_mm': 0.3, 'ejected': False, 'lifted': False, 'slipped_in_transport': False, 'success': False}

@@ -1,0 +1,738 @@
+[gate] gripper validated: Phase 9 10/10 grasp trials, Phase 5 9/9 block widths. Training may proceed.
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+
+[train] Task      : Synria-Chess-PickPlace-v0
+[train] Num envs  : 64
+[train] Iterations: 12
+[train] Device    : cuda:0
+[train] Seed      : 42
+[INFO]: Parsing configuration from: <class 'isaac.isaaclab_tasks.synria_pickplace.env_cfg.SynriaChessPickPlaceEnvCfg'>
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-08-06_02-44-20.log[0m
+[36m======================================================================================[0m
+
+[33m02:44:20 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 42
+	Physics step-size     : 0.016666666666666666
+	Rendering step-size   : 0.016666666666666666
+	Environment step-size : 0.03333333333333333
+[33m02:44:20 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 0.502476 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 64
+	Environment spacing   : 2.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : False
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 0.516756 seconds
+[INFO] Command Manager:  <CommandManager> contains 0 active terms.
++------------------------+
+|  Active Command Terms  |
++--------+-------+-------+
+| Index  | Name  |  Type |
++--------+-------+-------+
++--------+-------+-------+
+
+[INFO] Event Manager:  <EventManager> contains 2 active terms.
++----------------------------------+
+| Active Event Terms in Mode: 'reset' |
++-----------+----------------------+
+|   Index   | Name                 |
++-----------+----------------------+
+|     0     | reset_trial          |
++-----------+----------------------+
++--------------------------------------------------+
+|      Active Event Terms in Mode: 'interval'      |
++-------+----------------+-------------------------+
+| Index | Name           | Interval time range (s) |
++-------+----------------+-------------------------+
+|   0   | hold_staged    |       (0.03, 0.04)      |
+|   1   | attach_carried |       (0.03, 0.04)      |
++-------+----------------+-------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++-----------------------------------+
+|   Active Action Terms (shape: 7)  |
++-------+---------------+-----------+
+| Index | Name          | Dimension |
++-------+---------------+-----------+
+|   0   | arm_joint_pos |         6 |
+|   1   | gripper       |         1 |
++-------+---------------+-----------+
+
+[gripper_geometry] pad colliders verified against USD (2/2 sides, tolerance 0.5 mm) at /World/envs/env_0/SynriaArm
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++---------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (68,)) |
++------------+-------------------------------+------------+
+|   Index    | Name                          |   Shape    |
++------------+-------------------------------+------------+
+|     0      | joint_state                   |   (13,)    |
+|     1      | ee_pose                       |    (7,)    |
+|     2      | piece_pos                     |    (3,)    |
+|     3      | target_piece_id               |   (32,)    |
+|     4      | target_zone_id                |    (4,)    |
+|     5      | target_pos                    |    (4,)    |
+|     6      | trial_phase                   |    (5,)    |
++------------+-------------------------------+------------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 4 active terms.
++----------------------------------------+
+|        Active Termination Terms        |
++-------+---------------------+----------+
+| Index | Name                | Time Out |
++-------+---------------------+----------+
+|   0   | time_out            |   True   |
+|   1   | piece_dropped       |  False   |
+|   2   | piece_out_of_bounds |  False   |
+|   3   | collision           |  False   |
++-------+---------------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 20 active terms.
++-------------------------------------------------+
+|               Active Reward Terms               |
++-------+--------------------------------+--------+
+| Index | Name                           | Weight |
++-------+--------------------------------+--------+
+|   0   | piece_to_target_distance       |  600.0 |
+|   1   | ee_to_piece_distance           |  300.0 |
+|   2   | grasp_height                   |  300.0 |
+|   3   | piece_lift                     |    1.5 |
+|   4   | gripper_to_piece_when_grasping |    0.3 |
+|   5   | hold_maintenance               |    1.0 |
+|   6   | carry_drop                     |   15.0 |
+|   7   | release_at_zone                |   90.0 |
+|   8   | lower_at_zone                  |   15.0 |
+|   9   | approach_guidance              |   0.15 |
+|   10  | carry_guidance                 |    0.2 |
+|   11  | hold_at_zone                   |    0.0 |
+|   12  | action_norm_penalty            |  -0.01 |
+|   13  | grasp_confirmed                |  300.0 |
+|   14  | return_home                    |   60.0 |
+|   15  | setdown_approach               |  600.0 |
+|   16  | cycle_complete                 |  900.0 |
+|   17  | piece_in_zone                  |  300.0 |
+|   18  | piece_dropped                  |   30.0 |
+|   19  | collision                      |   30.0 |
++-------+--------------------------------+--------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 0 active terms.
++----------------------+
+| Active Curriculum Terms |
++-----------+----------+
+|   Index   | Name     |
++-----------+----------+
++-----------+----------+
+
+[INFO]: Completed setting up the environment...
+--------------------------------------------------------------------------------
+Resolved observation sets: 
+	 policy :  ['policy']
+	 critic :  ['policy']
+--------------------------------------------------------------------------------
+Actor MLP: MLP(
+  (0): Linear(in_features=68, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=7, bias=True)
+)
+Critic MLP: MLP(
+  (0): Linear(in_features=68, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=1, bias=True)
+)
+################################################################################
+                       [1m Learning iteration 0/12 [0m                        
+
+                       Computation: 2325 steps/s (collection: 0.514s, learning 0.146s)
+             Mean action noise std: 0.50
+          Mean value_function loss: 9.8755
+               Mean surrogate loss: -0.0052
+                 Mean entropy loss: 5.0783
+                       Mean reward: 0.71
+               Mean episode length: 18.00
+Episode_Reward/piece_to_target_distance: 0.0067
+Episode_Reward/ee_to_piece_distance: 0.0000
+       Episode_Reward/grasp_height: 0.0000
+         Episode_Reward/piece_lift: 0.0037
+Episode_Reward/gripper_to_piece_when_grasping: -0.0000
+   Episode_Reward/hold_maintenance: 0.0052
+         Episode_Reward/carry_drop: 0.0000
+    Episode_Reward/release_at_zone: 0.0000
+      Episode_Reward/lower_at_zone: 0.0000
+  Episode_Reward/approach_guidance: 0.0000
+     Episode_Reward/carry_guidance: 0.0014
+       Episode_Reward/hold_at_zone: 0.0000
+Episode_Reward/action_norm_penalty: -0.0001
+    Episode_Reward/grasp_confirmed: 0.0000
+        Episode_Reward/return_home: -0.0000
+   Episode_Reward/setdown_approach: 0.0000
+     Episode_Reward/cycle_complete: 0.0000
+      Episode_Reward/piece_in_zone: 0.0000
+      Episode_Reward/piece_dropped: 0.0000
+          Episode_Reward/collision: 0.0000
+      Episode_Termination/time_out: 0.0273
+ Episode_Termination/piece_dropped: 0.0000
+Episode_Termination/piece_out_of_bounds: 0.0000
+     Episode_Termination/collision: 0.0000
+                      Funnel/grasp: 0.1739
+                     Funnel/hold2s: 0.3913
+                    Funnel/carry5s: 0.0000
+                    Funnel/setdown: 0.0000
+                      Funnel/cycle: 0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 1536
+                    Iteration time: 0.66s
+                      Time elapsed: 00:00:00
+                               ETA: 00:00:07
+
+Could not find git repository in /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/rsl_rl/__init__.py. Skipping.
+################################################################################
+                       [1m Learning iteration 1/12 [0m                        
+
+                       Computation: 2458 steps/s (collection: 0.577s, learning 0.048s)
+             Mean action noise std: 0.50
+          Mean value_function loss: 16.7295
+               Mean surrogate loss: -0.0028
+                 Mean entropy loss: 5.0749
+                       Mean reward: 1.25
+               Mean episode length: 23.73
+Episode_Reward/piece_to_target_distance: 0.0756
+Episode_Reward/ee_to_piece_distance: 0.0016
+       Episode_Reward/grasp_height: 0.0000
+         Episode_Reward/piece_lift: 0.0123
+Episode_Reward/gripper_to_piece_when_grasping: -0.0000
+   Episode_Reward/hold_maintenance: 0.0218
+         Episode_Reward/carry_drop: -0.0236
+    Episode_Reward/release_at_zone: 0.0000
+      Episode_Reward/lower_at_zone: 0.0017
+  Episode_Reward/approach_guidance: 0.0003
+     Episode_Reward/carry_guidance: 0.0045
+       Episode_Reward/hold_at_zone: 0.0000
+Episode_Reward/action_norm_penalty: -0.0005
+    Episode_Reward/grasp_confirmed: 0.0000
+        Episode_Reward/return_home: 0.0000
+   Episode_Reward/setdown_approach: 0.0001
+     Episode_Reward/cycle_complete: 0.0000
+      Episode_Reward/piece_in_zone: 0.0000
+      Episode_Reward/piece_dropped: 0.0000
+          Episode_Reward/collision: 0.0000
+      Episode_Termination/time_out: 0.1536
+ Episode_Termination/piece_dropped: 0.0000
+Episode_Termination/piece_out_of_bounds: 0.0000
+     Episode_Termination/collision: 0.0000
+                      Funnel/grasp: 0.7083
+                     Funnel/hold2s: 0.0833
+                    Funnel/carry5s: 0.0417
+                    Funnel/setdown: 0.0000
+                      Funnel/cycle: 0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 3072
+                    Iteration time: 0.62s
+                      Time elapsed: 00:00:01
+                               ETA: 00:00:07
+
+################################################################################
+                       [1m Learning iteration 2/12 [0m                        
+
+                       Computation: 3443 steps/s (collection: 0.398s, learning 0.048s)
+             Mean action noise std: 0.50
+          Mean value_function loss: 11.0896
+               Mean surrogate loss: -0.0058
+                 Mean entropy loss: 5.0706
+                       Mean reward: 2.17
+               Mean episode length: 25.00
+Episode_Reward/piece_to_target_distance: 0.2673
+Episode_Reward/ee_to_piece_distance: 0.0000
+       Episode_Reward/grasp_height: 0.0000
+         Episode_Reward/piece_lift: 0.0266
+Episode_Reward/gripper_to_piece_when_grasping: 0.0000
+   Episode_Reward/hold_maintenance: 0.0314
+         Episode_Reward/carry_drop: -0.0333
+    Episode_Reward/release_at_zone: 0.0000
+      Episode_Reward/lower_at_zone: 0.0000
+  Episode_Reward/approach_guidance: 0.0000
+     Episode_Reward/carry_guidance: 0.0074
+       Episode_Reward/hold_at_zone: 0.0000
+Episode_Reward/action_norm_penalty: -0.0005
+    Episode_Reward/grasp_confirmed: 0.0000
+        Episode_Reward/return_home: 0.0000
+   Episode_Reward/setdown_approach: 0.0000
+     Episode_Reward/cycle_complete: 0.0000
+      Episode_Reward/piece_in_zone: 0.0000
+      Episode_Reward/piece_dropped: 0.0000
+          Episode_Reward/collision: 0.0000
+      Episode_Termination/time_out: 0.1628
+ Episode_Termination/piece_dropped: 0.0000
+Episode_Termination/piece_out_of_bounds: 0.0091
+     Episode_Termination/collision: 0.0000
+                      Funnel/grasp: 1.0000
+                     Funnel/hold2s: 0.0000
+                    Funnel/carry5s: 0.0000
+                    Funnel/setdown: 0.0000
+                      Funnel/cycle: 0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 4608
+                    Iteration time: 0.45s
+                      Time elapsed: 00:00:01
+                               ETA: 00:00:05
+
+################################################################################
+                       [1m Learning iteration 3/12 [0m                        
+
+                       Computation: 3553 steps/s (collection: 0.385s, learning 0.047s)
+             Mean action noise std: 0.50
+          Mean value_function loss: 1.5590
+               Mean surrogate loss: -0.0051
+                 Mean entropy loss: 5.0669
+                       Mean reward: 2.17
+               Mean episode length: 25.00
+Episode_Reward/piece_to_target_distance: 0.3712
+Episode_Reward/ee_to_piece_distance: 0.0000
+       Episode_Reward/grasp_height: 0.0000
+         Episode_Reward/piece_lift: 0.0329
+Episode_Reward/gripper_to_piece_when_grasping: 0.0000
+   Episode_Reward/hold_maintenance: 0.0300
+         Episode_Reward/carry_drop: -0.0333
+    Episode_Reward/release_at_zone: 0.0000
+      Episode_Reward/lower_at_zone: 0.0000
+  Episode_Reward/approach_guidance: 0.0000
+     Episode_Reward/carry_guidance: 0.0080
+       Episode_Reward/hold_at_zone: 0.0000
+Episode_Reward/action_norm_penalty: -0.0006
+    Episode_Reward/grasp_confirmed: 0.0000
+        Episode_Reward/return_home: 0.0000
+   Episode_Reward/setdown_approach: 0.0000
+     Episode_Reward/cycle_complete: 0.0000
+      Episode_Reward/piece_in_zone: 0.0000
+      Episode_Reward/piece_dropped: 0.0000
+          Episode_Reward/collision: 0.0000
+      Episode_Termination/time_out: 0.1562
+ Episode_Termination/piece_dropped: 0.0000
+Episode_Termination/piece_out_of_bounds: 0.0156
+     Episode_Termination/collision: 0.0000
+                      Funnel/grasp: 1.0000
+                     Funnel/hold2s: 0.0000
+                    Funnel/carry5s: 0.0000
+                    Funnel/setdown: 0.0000
+                      Funnel/cycle: 0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 6144
+                    Iteration time: 0.43s
+                      Time elapsed: 00:00:02
+                               ETA: 00:00:04
+
+################################################################################
+                       [1m Learning iteration 4/12 [0m                        
+
+                       Computation: 3430 steps/s (collection: 0.400s, learning 0.048s)
+             Mean action noise std: 0.50
+          Mean value_function loss: 1.5466
+               Mean surrogate loss: -0.0067
+                 Mean entropy loss: 5.0647
+                       Mean reward: 4.04
+               Mean episode length: 37.86
+Episode_Reward/piece_to_target_distance: 0.2320
+Episode_Reward/ee_to_piece_distance: 0.0033
+       Episode_Reward/grasp_height: 0.0000
+         Episode_Reward/piece_lift: 0.0205
+Episode_Reward/gripper_to_piece_when_grasping: -0.0000
+   Episode_Reward/hold_maintenance: 0.0188
+         Episode_Reward/carry_drop: -0.0208
+    Episode_Reward/release_at_zone: 0.0000
+      Episode_Reward/lower_at_zone: 0.0000
+  Episode_Reward/approach_guidance: 0.0007
+     Episode_Reward/carry_guidance: 0.0050
+       Episode_Reward/hold_at_zone: 0.0000
+Episode_Reward/action_norm_penalty: -0.0010
+    Episode_Reward/grasp_confirmed: 0.0000
+        Episode_Reward/return_home: 0.0007
+   Episode_Reward/setdown_approach: 0.0000
+     Episode_Reward/cycle_complete: 0.1250
+      Episode_Reward/piece_in_zone: 0.0000
+      Episode_Reward/piece_dropped: 0.0000
+          Episode_Reward/collision: 0.0000
+      Episode_Termination/time_out: 0.1641
+ Episode_Termination/piece_dropped: 0.0000
+Episode_Termination/piece_out_of_bounds: 0.0156
+     Episode_Termination/collision: 0.0000
+                      Funnel/grasp: 0.6250
+                     Funnel/hold2s: 0.0000
+                    Funnel/carry5s: 0.0000
+                    Funnel/setdown: 0.0000
+                      Funnel/cycle: 0.1250
+--------------------------------------------------------------------------------
+                   Total timesteps: 7680
+                    Iteration time: 0.45s
+                      Time elapsed: 00:00:02
+                               ETA: 00:00:04
+
+################################################################################
+                       [1m Learning iteration 5/12 [0m                        
+
+                       Computation: 3416 steps/s (collection: 0.403s, learning 0.047s)
+             Mean action noise std: 0.50
+          Mean value_function loss: 0.0346
+               Mean surrogate loss: -0.0107
+                 Mean entropy loss: 5.0643
+                       Mean reward: 4.04
+               Mean episode length: 37.86
+Episode_Reward/piece_to_target_distance: 0.0000
+Episode_Reward/ee_to_piece_distance: -0.0005
+       Episode_Reward/grasp_height: 0.0000
+         Episode_Reward/piece_lift: 0.0000
+Episode_Reward/gripper_to_piece_when_grasping: -0.0001
+   Episode_Reward/hold_maintenance: 0.0000
+         Episode_Reward/carry_drop: 0.0000
+    Episode_Reward/release_at_zone: 0.0000
+      Episode_Reward/lower_at_zone: 0.0000
+  Episode_Reward/approach_guidance: 0.0037
+     Episode_Reward/carry_guidance: 0.0000
+       Episode_Reward/hold_at_zone: 0.0000
+Episode_Reward/action_norm_penalty: -0.0017
+    Episode_Reward/grasp_confirmed: 0.0000
+        Episode_Reward/return_home: 0.0056
+   Episode_Reward/setdown_approach: 0.0000
+     Episode_Reward/cycle_complete: 1.0000
+      Episode_Reward/piece_in_zone: 0.0000
+      Episode_Reward/piece_dropped: 0.0000
+          Episode_Reward/collision: 0.0000
+      Episode_Termination/time_out: 0.1875
+ Episode_Termination/piece_dropped: 0.0000
+Episode_Termination/piece_out_of_bounds: 0.0156
+     Episode_Termination/collision: 0.0000
+                      Funnel/grasp: 0.0000
+                     Funnel/hold2s: 0.0000
+                    Funnel/carry5s: 0.0000
+                    Funnel/setdown: 0.0000
+                      Funnel/cycle: 1.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 9216
+                    Iteration time: 0.45s
+                      Time elapsed: 00:00:03
+                               ETA: 00:00:03
+
+################################################################################
+                       [1m Learning iteration 6/12 [0m                        
+
+                       Computation: 3542 steps/s (collection: 0.387s, learning 0.046s)
+             Mean action noise std: 0.50
+          Mean value_function loss: 0.0264
+               Mean surrogate loss: -0.0089
+                 Mean entropy loss: 5.0641
+                       Mean reward: 3.81
+               Mean episode length: 45.07
+Episode_Reward/piece_to_target_distance: 0.0000
+Episode_Reward/ee_to_piece_distance: 0.0145
+       Episode_Reward/grasp_height: 0.0000
+         Episode_Reward/piece_lift: 0.0000
+Episode_Reward/gripper_to_piece_when_grasping: -0.0001
+   Episode_Reward/hold_maintenance: 0.0000
+         Episode_Reward/carry_drop: 0.0000
+    Episode_Reward/release_at_zone: 0.0000
+      Episode_Reward/lower_at_zone: 0.0000
+  Episode_Reward/approach_guidance: 0.0056
+     Episode_Reward/carry_guidance: 0.0000
+       Episode_Reward/hold_at_zone: 0.0000
+Episode_Reward/action_norm_penalty: -0.0020
+    Episode_Reward/grasp_confirmed: 0.0000
+        Episode_Reward/return_home: 0.0002
+   Episode_Reward/setdown_approach: 0.0000
+     Episode_Reward/cycle_complete: 0.0417
+      Episode_Reward/piece_in_zone: 0.0000
+      Episode_Reward/piece_dropped: 0.0000
+          Episode_Reward/collision: 0.0000
+      Episode_Termination/time_out: 0.2025
+ Episode_Termination/piece_dropped: 0.0000
+Episode_Termination/piece_out_of_bounds: 0.0156
+     Episode_Termination/collision: 0.0000
+                      Funnel/grasp: 0.0000
+                     Funnel/hold2s: 0.0000
+                    Funnel/carry5s: 0.0000
+                    Funnel/setdown: 0.0000
+                      Funnel/cycle: 0.0417
+--------------------------------------------------------------------------------
+                   Total timesteps: 10752
+                    Iteration time: 0.43s
+                      Time elapsed: 00:00:03
+                               ETA: 00:00:02
+
+################################################################################
+                       [1m Learning iteration 7/12 [0m                        
+
+                       Computation: 3552 steps/s (collection: 0.386s, learning 0.046s)
+             Mean action noise std: 0.50
+          Mean value_function loss: 0.0257
+               Mean surrogate loss: -0.0079
+                 Mean entropy loss: 5.0634
+                       Mean reward: 6.01
+               Mean episode length: 61.29
+Episode_Reward/piece_to_target_distance: 0.0000
+Episode_Reward/ee_to_piece_distance: 0.0002
+       Episode_Reward/grasp_height: -0.0018
+         Episode_Reward/piece_lift: 0.0071
+Episode_Reward/gripper_to_piece_when_grasping: -0.0000
+   Episode_Reward/hold_maintenance: 0.0082
+         Episode_Reward/carry_drop: 0.0000
+    Episode_Reward/release_at_zone: 0.0227
+      Episode_Reward/lower_at_zone: 0.0386
+  Episode_Reward/approach_guidance: 0.0064
+     Episode_Reward/carry_guidance: 0.0018
+       Episode_Reward/hold_at_zone: 0.0000
+Episode_Reward/action_norm_penalty: -0.0024
+    Episode_Reward/grasp_confirmed: 0.0000
+        Episode_Reward/return_home: 0.0013
+   Episode_Reward/setdown_approach: -0.0060
+     Episode_Reward/cycle_complete: 0.4167
+      Episode_Reward/piece_in_zone: 0.1389
+      Episode_Reward/piece_dropped: 0.0000
+          Episode_Reward/collision: 0.0000
+      Episode_Termination/time_out: 0.2161
+ Episode_Termination/piece_dropped: 0.0000
+Episode_Termination/piece_out_of_bounds: 0.0156
+     Episode_Termination/collision: 0.0000
+                      Funnel/grasp: 0.4167
+                     Funnel/hold2s: 0.4167
+                    Funnel/carry5s: 0.4167
+                    Funnel/setdown: 0.4167
+                      Funnel/cycle: 0.4167
+--------------------------------------------------------------------------------
+                   Total timesteps: 12288
+                    Iteration time: 0.43s
+                      Time elapsed: 00:00:03
+                               ETA: 00:00:02
+
+################################################################################
+                       [1m Learning iteration 8/12 [0m                        
+
+                       Computation: 3211 steps/s (collection: 0.423s, learning 0.055s)
+             Mean action noise std: 0.50
+          Mean value_function loss: 0.0279
+               Mean surrogate loss: -0.0122
+                 Mean entropy loss: 5.0620
+                       Mean reward: 6.01
+               Mean episode length: 61.29
+Episode_Reward/piece_to_target_distance: 0.0000
+Episode_Reward/ee_to_piece_distance: 0.0072
+       Episode_Reward/grasp_height: 0.0000
+         Episode_Reward/piece_lift: 0.0000
+Episode_Reward/gripper_to_piece_when_grasping: -0.0001
+   Episode_Reward/hold_maintenance: 0.0000
+         Episode_Reward/carry_drop: 0.0000
+    Episode_Reward/release_at_zone: 0.0000
+      Episode_Reward/lower_at_zone: 0.0000
+  Episode_Reward/approach_guidance: 0.0023
+     Episode_Reward/carry_guidance: 0.0000
+       Episode_Reward/hold_at_zone: 0.0000
+Episode_Reward/action_norm_penalty: -0.0028
+    Episode_Reward/grasp_confirmed: 0.0000
+        Episode_Reward/return_home: 0.0000
+   Episode_Reward/setdown_approach: 0.0000
+     Episode_Reward/cycle_complete: 0.0000
+      Episode_Reward/piece_in_zone: 0.0000
+      Episode_Reward/piece_dropped: 0.0000
+          Episode_Reward/collision: 0.0000
+      Episode_Termination/time_out: 0.2344
+ Episode_Termination/piece_dropped: 0.0000
+Episode_Termination/piece_out_of_bounds: 0.0156
+     Episode_Termination/collision: 0.0000
+                      Funnel/grasp: 0.0000
+                     Funnel/hold2s: 0.0000
+                    Funnel/carry5s: 0.0000
+                    Funnel/setdown: 0.0000
+                      Funnel/cycle: 0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 13824
+                    Iteration time: 0.48s
+                      Time elapsed: 00:00:04
+                               ETA: 00:00:01
+
+################################################################################
+                       [1m Learning iteration 9/12 [0m                        
+
+                       Computation: 3077 steps/s (collection: 0.445s, learning 0.054s)
+             Mean action noise std: 0.50
+          Mean value_function loss: 0.0244
+               Mean surrogate loss: -0.0062
+                 Mean entropy loss: 5.0604
+                       Mean reward: 5.75
+               Mean episode length: 70.17
+Episode_Reward/piece_to_target_distance: 0.0429
+Episode_Reward/ee_to_piece_distance: 0.0012
+       Episode_Reward/grasp_height: 0.0000
+         Episode_Reward/piece_lift: 0.0148
+Episode_Reward/gripper_to_piece_when_grasping: -0.0000
+   Episode_Reward/hold_maintenance: 0.0176
+         Episode_Reward/carry_drop: -0.0417
+    Episode_Reward/release_at_zone: 0.0000
+      Episode_Reward/lower_at_zone: 0.0000
+  Episode_Reward/approach_guidance: 0.0004
+     Episode_Reward/carry_guidance: 0.0046
+       Episode_Reward/hold_at_zone: 0.0000
+Episode_Reward/action_norm_penalty: -0.0032
+    Episode_Reward/grasp_confirmed: 0.0000
+        Episode_Reward/return_home: 0.0000
+   Episode_Reward/setdown_approach: 0.0000
+     Episode_Reward/cycle_complete: 0.0000
+      Episode_Reward/piece_in_zone: 0.0000
+      Episode_Reward/piece_dropped: 0.0000
+          Episode_Reward/collision: 0.0000
+      Episode_Termination/time_out: 0.2474
+ Episode_Termination/piece_dropped: 0.0000
+Episode_Termination/piece_out_of_bounds: 0.0156
+     Episode_Termination/collision: 0.0000
+                      Funnel/grasp: 0.8333
+                     Funnel/hold2s: 0.0000
+                    Funnel/carry5s: 0.0000
+                    Funnel/setdown: 0.0000
+                      Funnel/cycle: 0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 15360
+                    Iteration time: 0.50s
+                      Time elapsed: 00:00:04
+                               ETA: 00:00:01
+
+################################################################################
+                       [1m Learning iteration 10/12 [0m                       
+
+                       Computation: 2966 steps/s (collection: 0.463s, learning 0.055s)
+             Mean action noise std: 0.50
+          Mean value_function loss: 0.0253
+               Mean surrogate loss: -0.0092
+                 Mean entropy loss: 5.0600
+                       Mean reward: 5.26
+               Mean episode length: 88.10
+Episode_Reward/piece_to_target_distance: 0.0172
+Episode_Reward/ee_to_piece_distance: 0.0126
+       Episode_Reward/grasp_height: 0.0000
+         Episode_Reward/piece_lift: 0.0059
+Episode_Reward/gripper_to_piece_when_grasping: -0.0000
+   Episode_Reward/hold_maintenance: 0.0070
+         Episode_Reward/carry_drop: -0.0167
+    Episode_Reward/release_at_zone: 0.0000
+      Episode_Reward/lower_at_zone: 0.0000
+  Episode_Reward/approach_guidance: 0.0122
+     Episode_Reward/carry_guidance: 0.0019
+       Episode_Reward/hold_at_zone: 0.0000
+Episode_Reward/action_norm_penalty: -0.0036
+    Episode_Reward/grasp_confirmed: 0.0000
+        Episode_Reward/return_home: 0.0000
+   Episode_Reward/setdown_approach: 0.0000
+     Episode_Reward/cycle_complete: 0.0000
+      Episode_Reward/piece_in_zone: 0.0000
+      Episode_Reward/piece_dropped: 0.0000
+          Episode_Reward/collision: 0.0000
+      Episode_Termination/time_out: 0.2702
+ Episode_Termination/piece_dropped: 0.0000
+Episode_Termination/piece_out_of_bounds: 0.0156
+     Episode_Termination/collision: 0.0000
+                      Funnel/grasp: 0.3333
+                     Funnel/hold2s: 0.0000
+                    Funnel/carry5s: 0.0000
+                    Funnel/setdown: 0.0000
+                      Funnel/cycle: 0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 16896
+                    Iteration time: 0.52s
+                      Time elapsed: 00:00:05
+                               ETA: 00:00:00
+
+################################################################################
+                       [1m Learning iteration 11/12 [0m                       
+
+                       Computation: 3079 steps/s (collection: 0.443s, learning 0.055s)
+             Mean action noise std: 0.50
+          Mean value_function loss: 0.0335
+               Mean surrogate loss: -0.0069
+                 Mean entropy loss: 5.0590
+                       Mean reward: 5.05
+               Mean episode length: 97.00
+Episode_Reward/piece_to_target_distance: 0.0000
+Episode_Reward/ee_to_piece_distance: 0.0211
+       Episode_Reward/grasp_height: 0.0000
+         Episode_Reward/piece_lift: 0.0000
+Episode_Reward/gripper_to_piece_when_grasping: -0.0000
+   Episode_Reward/hold_maintenance: 0.0000
+         Episode_Reward/carry_drop: 0.0000
+    Episode_Reward/release_at_zone: 0.0000
+      Episode_Reward/lower_at_zone: 0.0000
+  Episode_Reward/approach_guidance: 0.0147
+     Episode_Reward/carry_guidance: 0.0000
+       Episode_Reward/hold_at_zone: 0.0000
+Episode_Reward/action_norm_penalty: -0.0039
+    Episode_Reward/grasp_confirmed: 0.0000
+        Episode_Reward/return_home: 0.0000
+   Episode_Reward/setdown_approach: 0.0000
+     Episode_Reward/cycle_complete: 0.0000
+      Episode_Reward/piece_in_zone: 0.0000
+      Episode_Reward/piece_dropped: 0.0000
+          Episode_Reward/collision: 0.0000
+      Episode_Termination/time_out: 0.2904
+ Episode_Termination/piece_dropped: 0.0000
+Episode_Termination/piece_out_of_bounds: 0.0156
+     Episode_Termination/collision: 0.0000
+                      Funnel/grasp: 0.0000
+                     Funnel/hold2s: 0.0000
+                    Funnel/carry5s: 0.0000
+                    Funnel/setdown: 0.0000
+                      Funnel/cycle: 0.0000
+--------------------------------------------------------------------------------
+                   Total timesteps: 18432
+                    Iteration time: 0.50s
+                      Time elapsed: 00:00:05
+                               ETA: 00:00:00
+
+
+[train] Final checkpoint: /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_chess_pickplace_v0/model_final.pt
+[train] Results: /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_chess_pickplace_v0/training_results.json
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260806_024415.log
+2026-08-06T07:44:15Z [0ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash] preventing upload of minidump due to user opt-out: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/120eb0e3-fcc8-4618-45ab279a-3068a9fa.dmp'
+2026-08-06T07:44:15Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-08-06T07:44:15Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+2026-08-06T07:44:15Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+2026-08-06T07:44:15Z [116ms] [Warning] [omni.usd_config.extension] Enable omni.materialx.libs extension to use MaterialX
+2026-08-06T07:44:16Z [374ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-08-06T07:44:16Z [380ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 18888
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 5617
+|---------------------------------------------------------------------------------------------|
+2026-08-06T07:44:19Z [3,605ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-08-06T07:44:19Z [3,613ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.

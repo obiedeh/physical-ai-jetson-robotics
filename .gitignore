@@ -1,0 +1,131 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Environments
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Data and generated assets
+data/raw/
+data/generated/
+data/lerobot/
+outputs/
+runs/
+mlruns/
+*.bag
+*.db3
+reports/inventory/*.json
+!reports/inventory/.gitkeep
+
+# Isaac / USD generated cache
+isaac/cache/
+isaac/outputs/
+isaac/usd/robots/yahboom-rosmaster-m3-pro/ROSMASTER-M3Pro.x_t
+
+# ROS 2 generated workspace artifacts
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.codex/
+
+# RL training outputs — regenerable artifacts kept on disk, not in git
+# (checkpoints, tensorboard events, diagnostic run logs)
+logs/
+reports/diagnostics/
+reports/training/synria_chess_pickplace_v*/
+reports/training/synria_act_*/
+reports/training/synria_e33*/
+reports/training/synria_e33v*/
+reports/g3_session_*/frames/
+reports/g3_session_*/anno/
+
+# Vendor inputs and derived outputs: obtain locally; never redistribute.
+.vendor-assets/
+ros2_ws/src/yahboom_M3Pro_description/
+ros2_ws/src/M3Pro_config/
+ros2_ws/src/synria_arm_description/urdf/meshes/
+isaac/usd/robots/synria_6dof_arm_v2/configuration/
+isaac/usd/robots/meshes/Alicia_D_v5_6/follower_standard/base_link.STL
+isaac/usd/robots/meshes/Alicia_D_v5_6/follower_standard/left_gripper_100mm.STL
+isaac/usd/robots/meshes/Alicia_D_v5_6/follower_standard/left_gripper_50mm.STL
+isaac/usd/robots/meshes/Alicia_D_v5_6/follower_standard/link1.STL
+isaac/usd/robots/meshes/Alicia_D_v5_6/follower_standard/link2.STL
+isaac/usd/robots/meshes/Alicia_D_v5_6/follower_standard/link3.STL
+isaac/usd/robots/meshes/Alicia_D_v5_6/follower_standard/link4.STL
+isaac/usd/robots/meshes/Alicia_D_v5_6/follower_standard/link4_100mm.STL
+isaac/usd/robots/meshes/Alicia_D_v5_6/follower_standard/link5.STL
+isaac/usd/robots/meshes/Alicia_D_v5_6/follower_standard/link6.STL
+isaac/usd/robots/meshes/Alicia_D_v5_6/follower_standard/link6_100mm.STL
+isaac/usd/robots/meshes/Alicia_D_v5_6/follower_standard/right_gripper_100mm.STL
+isaac/usd/robots/meshes/Alicia_D_v5_6/follower_standard/right_gripper_50mm.STL
+isaac/usd/robots/synria_6dof_arm.urdf
+isaac/usd/robots/synria_6dof_arm.usda
+isaac/usd/robots/synria_6dof_arm/configuration/synria_6dof_arm_base.usd
+isaac/usd/robots/synria_6dof_arm/configuration/synria_6dof_arm_physics.usd
+isaac/usd/robots/synria_6dof_arm/configuration/synria_6dof_arm_robot.usd
+isaac/usd/robots/synria_6dof_arm/configuration/synria_6dof_arm_sensor.usd
+isaac/usd/robots/synria_6dof_arm/payloads/base.usda
+isaac/usd/robots/synria_6dof_arm/payloads/geometries.usd
+isaac/usd/robots/synria_6dof_arm/payloads/instances.usda
+isaac/usd/robots/synria_6dof_arm/payloads/materials.usda
+isaac/usd/robots/synria_6dof_arm/synria_6dof_arm.urdf
+isaac/usd/robots/synria_6dof_arm/synria_6dof_arm.usd
+isaac/usd/robots/synria_6dof_arm/synria_6dof_arm.usda
+isaac/usd/robots/synria_6dof_arm/synria_6dof_arm/configuration/synria_6dof_arm_base.usd
+isaac/usd/robots/synria_6dof_arm/synria_6dof_arm/configuration/synria_6dof_arm_physics.usd
+isaac/usd/robots/synria_6dof_arm/synria_6dof_arm/configuration/synria_6dof_arm_robot.usd
+isaac/usd/robots/synria_6dof_arm/synria_6dof_arm/configuration/synria_6dof_arm_sensor.usd
+isaac/usd/robots/synria_6dof_arm/synria_6dof_arm/synria_6dof_arm.usd
+isaac/usd/robots/synria_6dof_arm_v2/robotiq_2f85_flat.usd
+isaac/usd/robots/synria_6dof_arm_v2/synria_robotiq_assembled.usd
+isaac/usd/robots/yahboom-rosmaster-m3-pro/rosmaster_m3pro_cad.usd
+isaac/usd/robots/yahboom-rosmaster-m3-pro/rosmaster_m3pro_cad_instanced.usd
+ros2_ws/src/synria_arm_description/urdf/synria_6dof_arm.urdf
+
+# Run directories (reports/<run>/): frame dumps, annotations and per-run
+# video are regenerable from the tracked records and are not distributed.
+# provenance*.json, session_summary*.json, turns.jsonl and uncommitted*.patch
+# stay tracked so cited numbers resolve to tracked files. meta.jsonl is
+# per-frame metadata for video composition; it is regenerable with the frames.
+reports/*/frames/
+reports/*/meta.jsonl
+reports/*/anno/
+reports/*/*.mp4
+reports/**/*.DONE
+reports/**/*_DONE
+reports/**/G2FINAL
+
+# Raw corpora, LeRobot conversions and fine-tuned checkpoints: not
+# distributed, no LFS; available on request (see README, Data availability).
+reports/ludo_corpus*/
+reports/training/ludo_*/
+reports/training/synria_e46_lerobot*/
+
+# Pre-provenance soak runs absent from ludo_stats.csv and every frozen aggregate.
+reports/ludo_soak_s[123]/
+
+# Aborted or scratch launches whose meta/turns records are empty.
+reports/cup_test*/
+reports/dice_dump_val/
+reports/dice_rolltest*/
+reports/ludo_live_01/
+reports/ludo_live_0[456]/
+reports/phys_game_val*/

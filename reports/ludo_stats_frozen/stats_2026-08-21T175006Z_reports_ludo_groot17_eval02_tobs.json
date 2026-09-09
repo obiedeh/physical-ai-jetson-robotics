@@ -1,0 +1,35 @@
+{
+  "sessions": 1,
+  "attempts": 20,
+  "first_try": {
+    "n": 20,
+    "ok": 0,
+    "rate": 0.0,
+    "binomial_sd": 0.0,
+    "binomial_sd_note": "assumes independent Bernoulli trials; the ledger disputes this (the deterministic rails are per-session-history, not per-turn), so treat the SD as a lower bound on uncertainty"
+  },
+  "turn_level": {
+    "n": 20,
+    "ok": 0,
+    "rate": 0.0
+  },
+  "ok_err_mm": {
+    "p50": null,
+    "p95": null,
+    "n": 0
+  },
+  "closest_approach_mm": {
+    "p50": 9900.0,
+    "p95": 9900.0,
+    "n": 20
+  },
+  "failure_taxonomy_counts": {
+    "carry/place lost the cup (>60mm)": 1,
+    "never-grasped (approach failed)": 17,
+    "cup toppled": 2
+  },
+  "data_kind": "simulated",
+  "note": "first_try = attempt 1 only; turn_level counts the built-in single retry; success != reward != normalized score (no reward exists in this pipeline)",
+  "glob": "reports/ludo_groot17_eval02_tobs",
+  "generated_utc": "2026-08-21T17:50:06Z"
+}

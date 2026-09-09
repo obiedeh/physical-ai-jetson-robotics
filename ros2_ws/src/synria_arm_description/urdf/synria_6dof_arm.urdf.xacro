@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<!--
+  synria_6dof_arm.urdf.xacro
+  ==========================
+  ROS 2 description wrapper for the Synria Alicia-D 6DOF arm.
+
+  Replaces the previous approximate box-geometry scaffold with the
+  real vendor URDF (synria_6dof_arm.urdf, SolidWorks export). Joint
+  names, link names, limits, and inertials all match the vendor URDF
+  and the Isaac Lab env_cfg.py actuator configuration exactly.
+
+  Structure
+  =========
+  Adds a world link and world_to_base fixed joint for RViz and
+  joint_state_publisher. Includes the vendor URDF for all links,
+  joints, inertials, and mesh references. Attaches the C10 wrist
+  camera macro to the tool0 EE frame. Adds a ros2_control block
+  using mock_components/GenericSystem for 8-DOF simulation bringup.
+
+  Robot summary
+  =============
+  Arm joints: Joint1..Joint6 (revolute, SolidWorks naming)
+  Gripper:    left_finger (prismatic, 0..+0.025 m)
+              right_finger (prismatic, -0.025..0 m)
+  EE frame:   tool0 (fixed to link6)
+  Camera:     c10_camera_link (fixed to tool0)
+  Action dim: 8 (6 arm + 2 finger, matches GR00T embodiment config)
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="synria_6dof_arm">
+
+  <xacro:include filename="$(find synria_arm_description)/urdf/synria_c10_camera.xacro"/>
+
+  <!-- World frame for RViz and joint_state_publisher -->
+  <link name="world"/>
+
+  <joint name="world_to_base" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!--
+    Vendor URDF: all links, joints, inertials, and mesh references.
+    Provides: base_link, link1..link6, left_gripper, right_gripper,
+    tool0, Joint1..Joint6, left_finger, right_finger, tool0_fixed_joint.
+  -->
+  <xacro:include filename="$(find synria_arm_description)/urdf/synria_6dof_arm.urdf"/>
+
+  <!-- C10 wrist camera attached to the EE frame -->
+  <xacro:synria_c10_camera parent="tool0" origin_xyz="0.070 0 0.035" origin_rpy="0 0 0"/>
+
+  <!--
+    ros2_control using mock hardware for simulation and development bringup.
+    8-DOF: 6 arm joints + 2 gripper finger joints. Matches the Isaac Lab
+    actuator config in isaac/isaaclab_tasks/synria_pickplace/env_cfg.py
+    and the GR00T embodiment in gr00t/embodiment.py (SYNRIA_ACTION_DIM=8).
+  -->
+  <ros2_control name="SynriaArmSystem" type="system">
+    <hardware>
+      <plugin>mock_components/GenericSystem</plugin>
+    </hardware>
+
+    <joint name="Joint1">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="Joint2">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="Joint3">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">1.3</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="Joint4">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="Joint5">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="Joint6">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <!-- Gripper fingers: prismatic, mock position control -->
+    <joint name="left_finger">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.025</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="right_finger">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">-0.025</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+</robot>

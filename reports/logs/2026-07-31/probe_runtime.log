@@ -1,0 +1,17 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-31_21-14-34.log[0m
+[36m======================================================================================[0m
+
+[33m21:14:34 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[probe] link names: ['base_link', 'link1', 'link2', 'link3', 'link4', 'link5', 'link6', 'left_gripper', 'right_gripper', 'tool0']
+[probe] view.max_shapes -> 11
+[probe] SIM collider: /World/Robot/left_gripper/collisions/left_gripper_50mm/node_STL_BINARY_ active=True enabled=False
+[probe] SIM collider: /World/Robot/left_gripper/pad_collider active=True enabled=True
+[probe] SIM collider: /World/Robot/right_gripper/collisions/right_gripper_50mm/node_STL_BINARY_ active=True enabled=False
+[probe] SIM collider: /World/Robot/right_gripper/pad_collider active=True enabled=True
+[probe] total collision prims under spawned robot: 4
+[probe] KINEMATIC block pinned at [84.6, 0.3, 450.4] mm; finger frames L[149.6, -25.2, 487.4] R[149.5, 25.8, 487.4]
+[probe] after closing on immovable 20mm block: L=24.94mm R=-24.93mm (expect ~14.6mm each if colliders work; 25mm = no contact)

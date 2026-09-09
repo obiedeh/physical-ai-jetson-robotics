@@ -1,0 +1,11 @@
+{
+  "model": "gemini-robotics-er-2-preview",
+  "guard_median_mm": 2.41,
+  "guard_gross_rate": 0.05,
+  "requeries": 0,
+  "zone_answered": 40,
+  "zone_median_mm": 484.73,
+  "affine_residual_mm": 18.69,
+  "latency_p50_s": 2.61,
+  "latency_p90_s": 5.01
+}

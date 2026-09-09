@@ -1,0 +1,12 @@
+{"turn": 1, "desc": "red rolls 4: token 0 ('track', 0) -> ('track', 4)", "commands": 1, "ok": [true]}
+{"turn": 2, "desc": "blue rolls 5: token 0 ('track', 13) -> ('track', 18)", "commands": 1, "ok": [true]}
+{"turn": 3, "desc": "green rolls 4: token 0 ('track', 26) -> ('track', 30)", "commands": 1, "ok": [true]}
+{"turn": 4, "desc": "yellow rolls 4: token 0 ('track', 39) -> ('track', 43)", "commands": 1, "ok": [true]}
+{"turn": 5, "desc": "red rolls 5: token 0 ('track', 4) -> ('track', 9)", "commands": 1, "ok": [true]}
+{"turn": 6, "desc": "blue rolls 5: token 0 ('track', 18) -> ('track', 23)", "commands": 1, "ok": [true]}
+{"turn": 7, "desc": "green rolls 2: token 0 ('track', 30) -> ('track', 32)", "commands": 1, "ok": [true]}
+{"turn": 8, "desc": "yellow rolls 2: token 0 ('track', 43) -> ('track', 45)", "commands": 1, "ok": [true]}
+{"turn": 9, "desc": "red rolls 5: token 0 ('track', 9) -> ('track', 14)", "commands": 1, "ok": [true]}
+{"turn": 10, "desc": "blue rolls 4: token 0 ('track', 23) -> ('track', 27)", "commands": 1, "ok": [true]}
+{"turn": 11, "desc": "green rolls 6: token 0 ('track', 32) -> ('track', 38)", "commands": 1, "ok": [true]}
+{"turn": 12, "desc": "green rolls 5: token 0 ('track', 38) -> ('track', 43)", "commands": 1, "ok": [true]}

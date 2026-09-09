@@ -1,0 +1,18 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Z"
+    doc = "Board mirrored to +X (camera-left). Auto-generated; do not hand-edit."
+)
+
+def Xform "World" (
+    prepend references = @/home/oedeh/github/Alicia-D-ROS2/scripts/isaac_sim/scenes/checkerstable_norobot.usda@</World>
+)
+{
+    over "Game"
+    {
+        double3 xformOp:translate = (1.016, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+}

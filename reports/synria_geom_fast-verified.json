@@ -1,0 +1,279 @@
+[
+ {
+  "pitch_deg": 0.0,
+  "grasp_z_mm": 40.0,
+  "pad_bottom_clear_mm": 3.9,
+  "grasped": 6,
+  "upright_at_grasp": 6,
+  "placed": 1,
+  "upright_at_place": 1,
+  "tipped": 5,
+  "trials": 6,
+  "stage_trace": [
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.5
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 6.7,
+     "cup_above_table_mm": 92.9,
+     "cup_minus_pad_z_mm": -11.4,
+     "cup_xy_vs_pad_mm": 5.9
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 4.2,
+     "cup_above_table_mm": 84.0,
+     "cup_minus_pad_z_mm": -11.7,
+     "cup_xy_vs_pad_mm": 5.4
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 68.0,
+     "cup_above_table_mm": 91.5,
+     "cup_minus_pad_z_mm": -2.7,
+     "cup_xy_vs_pad_mm": 6.6
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 68.2,
+     "cup_above_table_mm": 90.5,
+     "cup_minus_pad_z_mm": -2.7,
+     "cup_xy_vs_pad_mm": 6.6
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 30.6,
+     "cup_above_table_mm": 179.8,
+     "cup_minus_pad_z_mm": -6.5,
+     "cup_xy_vs_pad_mm": 2.9
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.5,
+     "cup_xy_vs_pad_mm": 0.4
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 14.5,
+     "cup_above_table_mm": 63.7,
+     "cup_minus_pad_z_mm": -8.1,
+     "cup_xy_vs_pad_mm": 12.0
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 10.8,
+     "cup_above_table_mm": 53.2,
+     "cup_minus_pad_z_mm": -8.8,
+     "cup_xy_vs_pad_mm": 11.5
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 27.6,
+     "cup_above_table_mm": 38.4,
+     "cup_minus_pad_z_mm": -5.4,
+     "cup_xy_vs_pad_mm": 8.8
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 28.0,
+     "cup_above_table_mm": 37.6,
+     "cup_minus_pad_z_mm": -5.3,
+     "cup_xy_vs_pad_mm": 8.8
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 26.4,
+     "cup_above_table_mm": 163.5,
+     "cup_minus_pad_z_mm": -5.4,
+     "cup_xy_vs_pad_mm": 8.7
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.5
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 16.6,
+     "cup_above_table_mm": 73.9,
+     "cup_minus_pad_z_mm": -9.7,
+     "cup_xy_vs_pad_mm": 6.2
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 13.3,
+     "cup_above_table_mm": 63.6,
+     "cup_minus_pad_z_mm": -10.1,
+     "cup_xy_vs_pad_mm": 5.6
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": 20.0,
+     "cup_minus_pad_z_mm": -160.7,
+     "cup_xy_vs_pad_mm": 255.6
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": 20.0,
+     "cup_minus_pad_z_mm": -160.7,
+     "cup_xy_vs_pad_mm": 273.5
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": 20.0,
+     "cup_minus_pad_z_mm": -40.8,
+     "cup_xy_vs_pad_mm": 179.2
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.4,
+     "cup_xy_vs_pad_mm": 0.4
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 1.7,
+     "cup_above_table_mm": 66.2,
+     "cup_minus_pad_z_mm": -10.5,
+     "cup_xy_vs_pad_mm": 2.8
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 5.8,
+     "cup_above_table_mm": 56.6,
+     "cup_minus_pad_z_mm": -10.3,
+     "cup_xy_vs_pad_mm": 3.5
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": -30.0,
+     "cup_minus_pad_z_mm": -196.5,
+     "cup_xy_vs_pad_mm": 1303.4
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": -30.0,
+     "cup_minus_pad_z_mm": -196.5,
+     "cup_xy_vs_pad_mm": 1304.0
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": -30.0,
+     "cup_minus_pad_z_mm": -91.7,
+     "cup_xy_vs_pad_mm": 1393.2
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.5
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 14.7,
+     "cup_above_table_mm": 64.0,
+     "cup_minus_pad_z_mm": -9.8,
+     "cup_xy_vs_pad_mm": 10.3
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 11.3,
+     "cup_above_table_mm": 53.9,
+     "cup_minus_pad_z_mm": -10.5,
+     "cup_xy_vs_pad_mm": 9.7
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -33.1,
+     "cup_xy_vs_pad_mm": 121.2
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -33.1,
+     "cup_xy_vs_pad_mm": 121.2
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -32.1,
+     "cup_xy_vs_pad_mm": 100.5
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.4,
+     "cup_xy_vs_pad_mm": 0.4
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 15.7,
+     "cup_above_table_mm": 71.3,
+     "cup_minus_pad_z_mm": -9.8,
+     "cup_xy_vs_pad_mm": 8.8
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 12.9,
+     "cup_above_table_mm": 61.2,
+     "cup_minus_pad_z_mm": -10.3,
+     "cup_xy_vs_pad_mm": 8.1
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": -30.0,
+     "cup_minus_pad_z_mm": -96.8,
+     "cup_xy_vs_pad_mm": 2336.0
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": -30.0,
+     "cup_minus_pad_z_mm": -96.9,
+     "cup_xy_vs_pad_mm": 2339.1
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": -30.0,
+     "cup_minus_pad_z_mm": -319.8,
+     "cup_xy_vs_pad_mm": 2227.3
+    }
+   ]
+  ]
+ }
+]

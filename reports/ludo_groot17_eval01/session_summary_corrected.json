@@ -1,0 +1,56 @@
+{
+  "derived_from": "session_summary.json",
+  "rule": "OK additionally requires grasped (45240f1); eval01 ran under the pre-fix rule",
+  "first_try_ok_corrected": 0,
+  "first_try_rate_corrected": 0.0,
+  "false_positive_episodes": [
+    {
+      "ok": true,
+      "err_mm": 30.4,
+      "final_tilt_deg": 0.0,
+      "carry_tilt_max_deg": 0.0,
+      "steps": 5999,
+      "timed_out": true,
+      "lane": "groot17",
+      "far_pick": false,
+      "far_place": false,
+      "hold_armed": false,
+      "grasped": false,
+      "lifted": false,
+      "released": false,
+      "max_lift_mm": 0.0,
+      "moved_from_pick_mm": 8.6,
+      "pick_xy": [
+        0.218,
+        -0.0227
+      ],
+      "place_xy": [
+        0.1953,
+        -0.0227
+      ],
+      "closest_approach_mm": 9900.0,
+      "decided_at_step": -1,
+      "infer_ms_p50": 77.80939500025852,
+      "infer_ms_p95": 147.63601999993625,
+      "infer_n": 750,
+      "attempt": 1,
+      "instruction": "pick up the cup and place it on the target square"
+    }
+  ],
+  "funnel": {
+    "episodes": 20,
+    "grasped": 9,
+    "lifted": 7,
+    "released": 9,
+    "carry_inverted_gt60deg": 6,
+    "ok_corrected": 0,
+    "timed_out": 11
+  },
+  "released_err_mm": {
+    "min": 147.6,
+    "p50": 259.8,
+    "max": 476.3
+  },
+  "baseline": "scripted two-lane executor: 97.2% turn-level (35/36, seeds 10-12 post far-place fix)",
+  "caveat": "place target not observable to the policy (constant instruction, zone not rendered) \u2014 placement error is uninformative; grasp/carry are the comparable stages"
+}

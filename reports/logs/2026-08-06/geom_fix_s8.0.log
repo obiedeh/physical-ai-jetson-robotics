@@ -1,0 +1,19 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-08-06_23-11-30.log[0m
+[36m======================================================================================[0m
+
+[33m23:11:30 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[sweep] pitch=    0deg z= 40.0mm (pad clears table by   3.9mm) -> grasp 6/6 upright@grasp 6 PLACED 0 tipped 6
+[trace] cup state through the scripted cycle (median over trials):
+[trace] pitch=0 z=40mm
+[trace]    after_grasp      tilt=   0.0deg cup_above_table=   25.0mm cup-pad_z=  -15.6mm xy_off=   0.6mm
+[trace]    after_lift       tilt=  18.3deg cup_above_table=  126.7mm cup-pad_z=   -9.1mm xy_off=   8.9mm
+[trace]    after_transport  tilt=  18.3deg cup_above_table=  126.8mm cup-pad_z=   -9.1mm xy_off=   8.9mm
+[trace]    after_setdown    tilt=  18.4deg cup_above_table=   30.8mm cup-pad_z=   -9.6mm xy_off=   8.7mm
+[trace]    after_release    tilt=  18.9deg cup_above_table=   30.9mm cup-pad_z=   -9.6mm xy_off=   8.7mm
+[trace]    after_retract    tilt=  18.3deg cup_above_table=  181.0mm cup-pad_z=   -9.6mm xy_off=   8.7mm
+[sweep] ======== BEST: pitch=0.0deg z=40.0mm placed 0/6 ========
+[sweep] wrote reports/synria_geom_fix_s8.0.json

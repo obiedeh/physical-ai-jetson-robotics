@@ -1,0 +1,54 @@
+/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
+  check_for_updates()
+/home/oedeh/Isaac-GR00T/gr00t/experiment/experiment.py:122: UserWarning: image_crop_size and image_target_size will be deprecated in the future. Please use shortest_image_edge and crop_fraction instead.
+  warnings.warn(
+07/29/2026 00:35:06 - INFO - Saved config to /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/gr00t_smoke_run/experiment_cfg
+Flash Attention 2 only supports torch.float16 and torch.bfloat16 dtypes, but the current dype in Qwen3VLForConditionalGeneration is torch.float32. You should run training or inference using Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):` decorator, or load the model with the `dtype` argument. Example: `model = AutoModel.from_pretrained("openai/whisper-tiny", attn_implementation="flash_attention_2", dtype=torch.float16)`
+Flash Attention 2 only supports torch.float16 and torch.bfloat16 dtypes, but the current dype in Qwen3VLModel is torch.float32. You should run training or inference using Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):` decorator, or load the model with the `dtype` argument. Example: `model = AutoModel.from_pretrained("openai/whisper-tiny", attn_implementation="flash_attention_2", dtype=torch.float16)`
+Flash Attention 2 only supports torch.float16 and torch.bfloat16 dtypes, but the current dype in Qwen3VLVisionModel is torch.float32. You should run training or inference using Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):` decorator, or load the model with the `dtype` argument. Example: `model = AutoModel.from_pretrained("openai/whisper-tiny", attn_implementation="flash_attention_2", dtype=torch.float16)`
+Flash Attention 2 only supports torch.float16 and torch.bfloat16 dtypes, but the current dype in Qwen3VLTextModel is torch.float32. You should run training or inference using Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):` decorator, or load the model with the `dtype` argument. Example: `model = AutoModel.from_pretrained("openai/whisper-tiny", attn_implementation="flash_attention_2", dtype=torch.float16)`
+/home/oedeh/Isaac-GR00T/gr00t/model/modules/dit.py:255: FutureWarning: Accessing config attribute `compute_dtype` directly via 'AlternateVLDiT' object attribute is deprecated. Please access 'compute_dtype' over 'AlternateVLDiT's config object instead, e.g. 'unet.config.compute_dtype'.
+  embedding_dim=self.inner_dim, compute_dtype=self.compute_dtype
+/home/oedeh/Isaac-GR00T/gr00t/model/modules/dit.py:286: FutureWarning: Accessing config attribute `output_dim` directly via 'AlternateVLDiT' object attribute is deprecated. Please access 'output_dim' over 'AlternateVLDiT's config object instead, e.g. 'unet.config.output_dim'.
+  self.proj_out_2 = nn.Linear(self.inner_dim, self.output_dim)
+07/29/2026 00:35:07 - INFO - Using AlternateVLDiT for diffusion model
+Loaded modality config: /home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/isaaclab_tasks/synria_pickplace/gr00t/modality_config.py
+Total number of DiT parameters:  1091722240
+Total number of SelfAttentionTransformer parameters:  201433088
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  1.06s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.25it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.19it/s]
+07/29/2026 00:35:11 - INFO - Total parameters: 3,144,016,000
+07/29/2026 00:35:11 - INFO - Trainable parameters: 528,793,728 (16.82%)
+07/29/2026 00:35:11 - INFO - N1.7 letter_box_transform=False
+Initializing datasets:   0%|          | 0/1 [00:00<?, ?it/s]Initializing datasets: 100%|██████████| 1/1 [00:00<00:00, 90.27it/s]
+07/29/2026 00:35:14 - INFO - Overriding statistics for embodiment 'new_embodiment'
+07/29/2026 00:35:14 - INFO - Saved dataset statistics for inference
+/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/torch/backends/__init__.py:46: UserWarning: Please use the new API settings to control TF32 behavior, such as torch.backends.cudnn.conv.fp32_precision = 'tf32' or torch.backends.cuda.matmul.fp32_precision = 'ieee'. Old settings, e.g, torch.backends.cuda.matmul.allow_tf32 = True, torch.backends.cudnn.allow_tf32 = True, allowTF32CuDNN() and allowTF32CuBLAS() will be deprecated after Pytorch 2.9. Please see https://pytorch.org/docs/main/notes/cuda.html#tensorfloat-32-tf32-on-ampere-and-later-devices (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:80.)
+  self.setter(val)
+07/29/2026 00:35:16 - INFO - 🚀 Starting training...
+Generating stats for /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/synria_cup_ds_seed7
+Generated 4 shards for dataset /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/synria_cup_ds_seed7
+Total steps: 3145, average shard length: 786.25, shard length std: 117.02643932035188
+Current global step: 0
+Creating custom train dataloader
+  0%|          | 0/20 [00:00<?, ?it/s]Casting fp32 inputs back to torch.bfloat16 for flash-attn compatibility.
+Could not estimate the number of tokens of the input, floating-point operations will not be computed
+  5%|▌         | 1/20 [00:04<01:22,  4.34s/it] 15%|█▌        | 3/20 [00:04<00:20,  1.18s/it] 25%|██▌       | 5/20 [00:04<00:09,  1.61it/s] 35%|███▌      | 7/20 [00:04<00:05,  2.52it/s] 45%|████▌     | 9/20 [00:05<00:03,  3.56it/s]                                               50%|█████     | 10/20 [00:05<00:02,  3.56it/s] 50%|█████     | 10/20 [00:18<00:02,  3.56it/s] 55%|█████▌    | 11/20 [00:19<00:24,  2.70s/it] 65%|██████▌   | 13/20 [00:19<00:12,  1.83s/it] 75%|███████▌  | 15/20 [00:19<00:06,  1.27s/it] 85%|████████▌ | 17/20 [00:19<00:02,  1.12it/s] 95%|█████████▌| 19/20 [00:20<00:00,  1.55it/s]                                               100%|██████████| 20/20 [00:20<00:00,  1.55it/s]                                               100%|██████████| 20/20 [00:29<00:00,  1.55it/s]100%|██████████| 20/20 [00:29<00:00,  1.46s/it]
+07/29/2026 00:35:51 - INFO - Model saved to /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/gr00t_smoke_run
+07/29/2026 00:35:51 - INFO - Training completed!
+Rank 0, Worker 0: Caching shard...
+Rank 0, Worker 0: Wait for shard 2 in dataset 0 in 3.21 seconds
+Rank 0, Worker 0: Caching shard...
+Rank 0, Worker 1: Caching shard...
+Rank 0, Worker 1: Wait for shard 3 in dataset 0 in 2.10 seconds
+Rank 0, Worker 1: Caching shard...
+{'loss': 1.1996, 'grad_norm': 1.09711754322052, 'learning_rate': 6.227427435703997e-05}
+Copying experiment config directory /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/gr00t_smoke_run/experiment_cfg to /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/gr00t_smoke_run/checkpoint-10/experiment_cfg
+Copying processor directory /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/gr00t_smoke_run/processor to /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/gr00t_smoke_run/checkpoint-10
+Copying wandb_config.json from /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/gr00t_smoke_run/wandb_config.json to /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/gr00t_smoke_run/checkpoint-10/wandb_config.json
+{'loss': 1.2978, 'grad_norm': 2.2993826866149902, 'learning_rate': 6.819348298638839e-07}
+Copying experiment config directory /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/gr00t_smoke_run/experiment_cfg to /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/gr00t_smoke_run/checkpoint-20/experiment_cfg
+Copying processor directory /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/gr00t_smoke_run/processor to /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/gr00t_smoke_run/checkpoint-20
+Copying wandb_config.json from /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/gr00t_smoke_run/wandb_config.json to /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/gr00t_smoke_run/checkpoint-20/wandb_config.json
+{'train_runtime': 29.1593, 'train_samples_per_second': 0.686, 'train_steps_per_second': 0.686, 'train_loss': 1.2486851215362549}
+[W729 00:35:54.757871178 AllocatorConfig.cpp:28] Warning: PYTORCH_CUDA_ALLOC_CONF is deprecated, use PYTORCH_ALLOC_CONF instead (function operator())
+SMOKE_EXIT=0

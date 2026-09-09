@@ -1,0 +1,125 @@
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260731_023715.log
+2026-07-31T07:37:15Z [34ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-07-31T07:37:15Z [34ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+2026-07-31T07:37:15Z [34ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 23700
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 3159
+|---------------------------------------------------------------------------------------------|
+2026-07-31T07:37:16Z [1,098ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-07-31T07:37:16Z [1,106ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.
+2026-07-31T07:37:18Z [3,426ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-07-31T07:37:19Z [3,617ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-07-31T07:37:19Z [3,748ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-07-31T07:37:21Z [6,275ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+2026-07-31T07:37:22Z [6,577ms] [Warning] [omni.graph.core.plugin] Found duplicate of category 'Replicator' - was 'Annotators', adding 'Fabric Reader'
+2026-07-31T07:37:22Z [6,577ms] [Warning] [omni.graph.core.plugin] Category 'Replicator' not accepted on node type 'omni.replicator.core.FabricReader' in extension 'omni.replicator.core'
+2026-07-31T07:37:22Z [6,578ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-07-31T07:37:24Z [9,424ms] [Warning] [omni.fabric.plugin] Warning: attribute viewportHandle not found for bucket id 7
+
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-31_02-37-25.log[0m
+[36m======================================================================================[0m
+
+[33m02:37:25 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : None
+	Physics step-size     : 0.008333333333333333
+	Rendering step-size   : 0.008333333333333333
+	Environment step-size : 0.016666666666666666
+[33m02:37:25 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 1.223866 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 4
+	Environment spacing   : 2.5
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : True
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 1.566484 seconds
+[INFO] Event Manager:  <EventManager> contains 1 active terms.
++-------------------------------------+
+| Active Event Terms in Mode: 'reset' |
++--------+----------------------------+
+| Index  | Name                       |
++--------+----------------------------+
+|   0    | reset_scene_to_default     |
++--------+----------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++----------------------------------+
+|  Active Action Terms (shape: 8)  |
++--------+-----------+-------------+
+| Index  | Name      |   Dimension |
++--------+-----------+-------------+
+|   0    | arm       |           7 |
+|   1    | gripper   |           1 |
++--------+-----------+-------------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++-----------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (13,)) |
++--------------+-----------------------+--------------+
+|    Index     | Name                  |    Shape     |
++--------------+-----------------------+--------------+
+|      0       | joint_pos             |    (13,)     |
++--------------+-----------------------+--------------+
+
+[eval] connected to policy server 127.0.0.1:5592
+[eval] chunk shapes: arm=(4, 16, 7) gripper=(4, 16, 1)
+[eval] step=0 cup_z0=0.020 hand0=[0.399, -0.003, 0.455] fj0=0.229 picks=0 places=0
+[eval] step=600 cup_z0=0.020 hand0=[0.445, -0.026, 0.503] fj0=0.272 picks=0 places=0
+[eval] window done: 1 picks 1 places | totals 1/1 over 4 episodes
+[eval] step=1200 cup_z0=0.020 hand0=[0.491, 0.022, 0.355] fj0=0.287 picks=1 places=1
+[eval] window done: 1 picks 1 places | totals 2/2 over 8 episodes
+[eval] step=1800 cup_z0=0.020 hand0=[0.395, -0.003, 0.465] fj0=0.396 picks=2 places=2
+[eval] step=2400 cup_z0=0.020 hand0=[0.475, 0.043, 0.369] fj0=0.256 picks=2 places=2
+[eval] window done: 0 picks 0 places | totals 2/2 over 12 episodes
+[eval] step=3000 cup_z0=0.689 hand0=[-0.033, -0.084, 1.018] fj0=20561.764 picks=2 places=2
+[eval] window done: 1 picks 1 places | totals 3/3 over 16 episodes
+[eval] step=3600 cup_z0=0.020 hand0=[0.398, 0.007, 0.456] fj0=0.366 picks=3 places=3
+[eval] step=4200 cup_z0=0.020 hand0=[0.433, -0.165, 0.288] fj0=0.217 picks=3 places=3
+[eval] window done: 0 picks 0 places | totals 3/3 over 20 episodes
+[eval] step=4800 cup_z0=0.020 hand0=[-0.471, 0.362, 0.178] fj0=81.244 picks=3 places=3
+[eval] window done: 1 picks 0 places | totals 4/3 over 24 episodes
+[eval] step=5400 cup_z0=0.020 hand0=[0.399, -0.001, 0.455] fj0=0.391 picks=4 places=3
+[eval] step=6000 cup_z0=0.020 hand0=[0.489, 0.006, 0.339] fj0=0.374 picks=4 places=3
+[eval] window done: 0 picks 0 places | totals 4/3 over 28 episodes
+[eval] step=6600 cup_z0=0.020 hand0=[0.499, -0.142, 0.297] fj0=0.267 picks=4 places=3
+[eval] window done: 0 picks 0 places | totals 4/3 over 32 episodes
+[eval] ======== RESULT: 4 picks, 3 places over 32 episodes ========
+2026-07-31T07:37:25Z [9,789ms] [Warning] [isaaclab.envs.manager_based_env] Seed not set for the environment. The environment creation may not be deterministic.
+2026-07-31T07:37:27Z [11,674ms] [Warning] [omni.fabric.plugin] getAttributeCount called on non-existent path /World/envs/env_3/Robot/Robotiq_2F_85_edit/Robotiq_2F_85/right_outer_finger/visuals/Defeatured_2F_85_PAD_OPEN_finger2step_01
+2026-07-31T07:37:27Z [11,674ms] [Warning] [omni.fabric.plugin] getTypes called on non-existent path /World/envs/env_3/Robot/Robotiq_2F_85_edit/Robotiq_2F_85/right_outer_finger/visuals/Defeatured_2F_85_PAD_OPEN_finger2step_01
+2026-07-31T07:37:27Z [12,282ms] [Warning] [rtx.postprocessing.plugin] DLSS increasing input dimensions: Render resolution of (260, 260) is below minimal input resolution of 300.
+2026-07-31T07:37:28Z [13,299ms] [Warning] [carb] Client gpu.foundation.plugin has acquired [gpu::unstable::IMemoryBudgetManagerFactory v0.1] 100 times. Consider accessing this interface with carb::getCachedInterface() (Performance warning)
+EVAL_EXIT=0

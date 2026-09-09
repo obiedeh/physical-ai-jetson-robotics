@@ -1,0 +1,64 @@
+{
+  "scoring_rule": "OK iff final cup-to-square error < 35mm AND final cup tilt-from-vertical < 15deg; cup position read post-hold, post-withdrawal; misses never rescued by sim authority",
+  "data_kind": "simulated",
+  "turns": 13,
+  "commands": 13,
+  "first_try_ok": 11,
+  "first_try_rate": 0.846,
+  "with_retry_ok": 13,
+  "retries_used": 2,
+  "ok_err_mm_p50": 19.6,
+  "ok_err_mm_p95": 25.5,
+  "lane_counts": {
+    "policy": 9,
+    "fallback": 4
+  },
+  "failures": [
+    {
+      "ok": false,
+      "err_mm": 208.9,
+      "final_tilt_deg": 0.0,
+      "carry_tilt_max_deg": 106.3,
+      "steps": 1554,
+      "timed_out": false,
+      "lane": "policy",
+      "far_pick": false,
+      "hold_armed": false,
+      "grasped": true,
+      "pick_xy": [
+        0.014,
+        0.0227
+      ],
+      "place_xy": [
+        0.082,
+        0.0227
+      ],
+      "closest_approach_mm": 59.7,
+      "attempt": 1
+    },
+    {
+      "ok": false,
+      "err_mm": 130.7,
+      "final_tilt_deg": 0.0,
+      "carry_tilt_max_deg": 89.2,
+      "steps": 6949,
+      "timed_out": false,
+      "lane": "policy",
+      "far_pick": false,
+      "hold_armed": false,
+      "grasped": true,
+      "pick_xy": [
+        0.1273,
+        -0.1587
+      ],
+      "place_xy": [
+        0.1273,
+        -0.1133
+      ],
+      "closest_approach_mm": 59.1,
+      "attempt": 1
+    }
+  ],
+  "wall_clock_s": 2304.1,
+  "sim_steps_total": 70360
+}

@@ -1,0 +1,26 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[arm] USD colliders (with instance proxies): 11
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/base_link/collisions/base_link/node_STL_BINARY_
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/link1/collisions/link1/node_STL_BINARY_
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/link2/collisions/link2/node_STL_BINARY_
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/link3/collisions/link3/node_STL_BINARY_
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/link4/collisions/link4/node_STL_BINARY_
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/link5/collisions/link5/node_STL_BINARY_
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/link6/collisions/link6/node_STL_BINARY_
+[arm]    off /Alicia_D_v5_6_gripper_50mm/left_gripper/collisions/left_gripper_50mm/node_STL_BINARY_
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/left_gripper/pad_collider
+[arm]    off /Alicia_D_v5_6_gripper_50mm/right_gripper/collisions/right_gripper_50mm/node_STL_BINARY_
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/right_gripper/pad_collider
+[arm] arm-link colliders reporting enabled: 7
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-08-04_23-48-18.log[0m
+[36m======================================================================================[0m
+
+[33m23:48:18 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[arm] CONTROL  (slab parked 5 m away): Joint2 commanded +0.900 rad, reached +0.840 rad
+[arm] OBSTACLE (slab in link2's path): Joint2 commanded +0.900 rad, reached +0.912 rad
+[arm] control +0.840 vs blocked +0.912 rad -> arm links PASSED THROUGH
+[arm] ======== ARM COLLIDERS NOT VERIFIED ========
+[arm] wrote /home/oedeh/github/physical-ai-jetson-robotics/reports/synria_arm_collider_probe.json

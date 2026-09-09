@@ -1,0 +1,37 @@
+{
+  "timestamp_utc": "2026-08-20T17:34:59Z",
+  "git_sha": "6842119da7e43b2b67efb6019a6a35401f3b517e",
+  "git_dirty": false,
+  "host": "yahboom",
+  "platform": "Linux-5.15.148-tegra-aarch64-with-glibc2.35",
+  "python": "3.10.12",
+  "argv": [
+    "scripts/jetson/day_one_smoke.py",
+    "--camera",
+    "0"
+  ],
+  "data_kind": "REAL hardware measurement (NVIDIA Jetson Orin NX Engineering Reference Developer Kit Super; on-device CUDA matmul + V4L2 camera grab; NOT simulated)",
+  "precision": "fp16",
+  "batch_size": 1,
+  "device_model": "NVIDIA Jetson Orin NX Engineering Reference Developer Kit Super",
+  "l4t_release": "# R36 (release), REVISION: 4.4, GCID: 41062509, BOARD: generic, EABI: aarch64, DATE: Mon Jun 16 16:07:13 UTC 2025",
+  "jetpack_apt": "",
+  "power_mode": "NV Power Mode: MAXN_SUPER\n0",
+  "jetson_clocks": "SOC family:tegra234  Machine:NVIDIA Jetson Orin NX Engineering Reference Developer Kit Super\nError: Run this script(/usr/bin/jetson_clocks) as a root user",
+  "cuda": "",
+  "tensorrt": "ii  libnvinfer10                                      10.7.0.23-1+cuda12.6                        arm64        TensorRT runtime libraries",
+  "seed": 0,
+  "PYTHONHASHSEED": "0",
+  "numpy_seeded": true,
+  "torch_seeded": true,
+  "cuda_determinism": "use_deterministic_algorithms(warn_only)",
+  "cudnn_deterministic": true,
+  "power_mode_nosudo": "< POWER_MODEL ID=0 NAME=MAXN_SUPER > (pmode:0000)",
+  "timezone": "CST +0800",
+  "probe_plan": [
+    "matmul_fp16",
+    "camera_video0",
+    "ina3221_power",
+    "thermal_zones"
+  ]
+}

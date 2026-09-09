@@ -1,0 +1,28 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[feas] asset: synria_6dof_arm.usd
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-08-04_15-26-09.log[0m
+[36m======================================================================================[0m
+
+[33m15:26:09 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[feas] joints: ['Joint1', 'Joint2', 'Joint3', 'Joint4', 'Joint5', 'Joint6', 'left_finger', 'right_finger']
+[feas] left_finger limits: [0.0, 25.0] mm, right: [-25.0, 0.0] mm
+[feas] finger defaults: 0.0 / 0.0 mm
+[feas] teleport-to-20mm test: fingers now at 14.79 / -18.02 mm
+[feas] gripper bodies: ['left_gripper', 'right_gripper']
+[feas] descend settled: PAD CENTRE z = 95.5 mm (target 95); finger-frame z = 72.0 mm (the old, wrong reference)
+[feas] pad collider bottom z = 58.5 mm (work surface at 50 mm -> clearance 8.5 mm)
+[feas] pre-close alignment: cup is 0.0 mm from the pad centre in xy (fits=True)
+[feas] close-end geometry: left_frame=[303.9, -20.1, 71.8] right_frame=[303.9, 20.8, 71.9] cup=[285.1, 0.4, 75.0] (mm world)
+[feas] after lift: pad centre z = 215.4 mm (rose 120.0 mm); cup z = 75.0 mm (started 75.0); fingers now L25.0 R24.99 mm
+[feas] trial 0: {'trial': 0, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': True, 'stall_left_mm': 5.0, 'stall_right_mm': 5.0, 'closed_width_mm': 40.0, 'width_ok': True, 'min_frame_z_mm': 71.8, 'surface_clearance_mm': 21.8, 'floor_contact': False, 'ejected': False, 'lifted': False, 'slipped_in_transport': False, 'success': False}
+[feas] descend settled: PAD CENTRE z = 95.5 mm (target 95); finger-frame z = 72.0 mm (the old, wrong reference)
+[feas] pad collider bottom z = 58.5 mm (work surface at 50 mm -> clearance 8.5 mm)
+[feas] pre-close alignment: cup is 0.0 mm from the pad centre in xy (fits=True)
+[feas] close-end geometry: left_frame=[303.9, -20.1, 71.8] right_frame=[303.9, 20.8, 71.9] cup=[285.1, 0.4, 75.0] (mm world)
+[feas] after lift: pad centre z = 215.4 mm (rose 120.0 mm); cup z = 75.0 mm (started 75.0); fingers now L25.0 R24.99 mm
+[feas] trial 1: {'trial': 1, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': True, 'stall_left_mm': 5.0, 'stall_right_mm': 5.0, 'closed_width_mm': 40.0, 'width_ok': True, 'min_frame_z_mm': 71.8, 'surface_clearance_mm': 21.8, 'floor_contact': False, 'ejected': False, 'lifted': False, 'slipped_in_transport': False, 'success': False}
+[feas] ======== SUCCESS 0/2 (asset=production) ========
+[feas] wrote /home/oedeh/github/physical-ai-jetson-robotics/reports/synria_grasp_trials_production.json

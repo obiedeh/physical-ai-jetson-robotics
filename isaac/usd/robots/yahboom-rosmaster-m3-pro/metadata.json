@@ -1,0 +1,35 @@
+{
+  "asset": "yahboom-rosmaster-m3-pro",
+  "description": "Yahboom ROSMASTER M3 Pro — mecanum-wheel mobile base with 5DOF arm, sensors, and Jetson Orin NX",
+  "source": {
+    "vendor": "Yahboom Technology",
+    "upstream_repo": "https://github.com/YahboomTechnology/ROSMASTER-M3PRO",
+    "urdf_source": "ros2_ws/src/yahboom_M3Pro_description/urdf/M3Pro.urdf",
+    "license": "No license declared by vendor — included for non-commercial educational/portfolio use; see docs/VENDOR_INTEGRATION_MAP.md and NOTICE"
+  },
+  "files": {
+    "rosmaster_m3pro/": "USD conversion assets",
+    "rosmaster_m3pro.urdf": "Vendor URDF (SolidWorks export, original in ros2_ws/src/yahboom_M3Pro_description/)",
+    "source_urdf/": "Originating URDF sources"
+  },
+  "units": "metres",
+  "scale": 1.0,
+  "up_axis": "Z",
+  "base_link": "base_link",
+  "mecanum_wheel_links": ["lwheel1", "lwheel2", "rwheel1", "rwheel2"],
+  "arm_joints": ["arm1_Joint", "arm2_Joint", "arm3_Joint", "arm4_Joiint", "arm5_Joint", "arm_base_Joint"],
+  "notes": {
+    "arm4_joiint_typo": "arm4_Joiint double-i is a vendor typo in the SolidWorks export — preserved verbatim to match real hardware joint names",
+    "urdf_status": "Vendor URDF imported 2026-05-27; USD conversion is from the previously-approximate URDF. Re-run URDF importer from ros2_ws/src/yahboom_M3Pro_description/urdf/M3Pro.urdf to update.",
+    "conversion_status": "RTX-gated — re-conversion from vendor URDF requires Isaac Sim 6.x on the RTX 5090"
+  },
+  "conversion": {
+    "tool": "Isaac Sim 6.x URDF importer",
+    "source_urdf": "ros2_ws/src/yahboom_M3Pro_description/urdf/M3Pro.urdf",
+    "date": "approximate — pre-dates vendor URDF import",
+    "todo": "Re-run URDF importer from ros2_ws/src/yahboom_M3Pro_description/urdf/M3Pro.urdf after Isaac Sim is installed"
+  },
+  "ros2_package": "ros2_ws/src/yahboom_M3Pro_description",
+  "moveit_config": "ros2_ws/src/M3Pro_config",
+  "evidence_gate": "hardware-later — real bring-up evidence in reports/yahboom/"
+}

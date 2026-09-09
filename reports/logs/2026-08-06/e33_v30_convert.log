@@ -1,0 +1,15 @@
+WARNING 2026-08-08 09:59:26 ts/utils.py:191 Unknown fields in DatasetInfo: ['total_chunks', 'total_videos']. These will be ignored.
+INFO 2026-08-08 09:59:26 1_to_v30.py:493 Using local dataset at /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33_lerobot
+INFO 2026-08-08 09:59:26 1_to_v30.py:453 Converting info from /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33_lerobot to /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33_lerobot_v30
+INFO 2026-08-08 09:59:26 1_to_v30.py:183 Converting tasks from /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33_lerobot to /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33_lerobot_v30
+WARNING 2026-08-08 09:59:26 ts/utils.py:191 Unknown fields in DatasetInfo: ['total_chunks', 'total_videos']. These will be ignored.
+INFO 2026-08-08 09:59:26 1_to_v30.py:225 Converting data files from 100 episodes
+convert data files:   0%|          | 0/100 [00:00<?, ?it/s]convert data files: 100%|██████████| 100/100 [00:00<00:00, 14713.76it/s]
+INFO 2026-08-08 09:59:26 1_to_v30.py:278 Converting videos from /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33_lerobot to /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33_lerobot_v30
+WARNING 2026-08-08 09:59:26 ts/utils.py:191 Unknown fields in DatasetInfo: ['total_chunks', 'total_videos']. These will be ignored.
+convert videos of observation.images.overhead:   0%|          | 0/100 [00:00<?, ?it/s]convert videos of observation.images.overhead: 100%|██████████| 100/100 [00:00<00:00, 1811.64it/s]
+convert videos of observation.images.wrist:   0%|          | 0/100 [00:00<?, ?it/s]convert videos of observation.images.wrist: 100%|██████████| 100/100 [00:00<00:00, 1895.35it/s]
+convert videos:   0%|          | 0/100 [00:00<?, ?it/s]convert videos: 100%|██████████| 100/100 [00:00<00:00, 1451316.26it/s]
+INFO 2026-08-08 09:59:27 1_to_v30.py:419 Converting episodes metadata from /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33_lerobot to /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33_lerobot_v30
+Generating train split: 0 examples [00:00, ? examples/s]Generating train split: 100 examples [00:00, 1985.49 examples/s]
+Creating parquet from Arrow format:   0%|          | 0/1 [00:00<?, ?ba/s]Creating parquet from Arrow format: 100%|██████████| 1/1 [00:00<00:00, 676.28ba/s]

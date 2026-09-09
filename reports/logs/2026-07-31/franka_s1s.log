@@ -1,0 +1,243 @@
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260730_183429.log
+2026-07-30T23:34:29Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-07-30T23:34:29Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+2026-07-30T23:34:29Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 26133
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 6367
+|---------------------------------------------------------------------------------------------|
+2026-07-30T23:34:30Z [782ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-07-30T23:34:30Z [790ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.
+2026-07-30T23:34:32Z [2,661ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-07-30T23:34:32Z [2,745ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-07-30T23:34:32Z [2,861ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-07-30T23:34:33Z [4,158ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+2026-07-30T23:34:33Z [4,221ms] [Warning] [omni.graph.core.plugin] Found duplicate of category 'Replicator' - was 'Annotators', adding 'Fabric Reader'
+2026-07-30T23:34:33Z [4,221ms] [Warning] [omni.graph.core.plugin] Category 'Replicator' not accepted on node type 'omni.replicator.core.FabricReader' in extension 'omni.replicator.core'
+2026-07-30T23:34:33Z [4,221ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-07-30T23:34:35Z [6,504ms] [Warning] [omni.fabric.plugin] Warning: attribute viewportHandle not found for bucket id 7
+
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-30_18-34-36.log[0m
+[36m======================================================================================[0m
+
+[33m18:34:36 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : None
+	Physics step-size     : 0.008333333333333333
+	Rendering step-size   : 0.008333333333333333
+	Environment step-size : 0.016666666666666666
+[33m18:34:36 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 1.088066 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 4
+	Environment spacing   : 2.5
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : True
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 1.362511 seconds
+[INFO] Event Manager:  <EventManager> contains 1 active terms.
++-------------------------------------+
+| Active Event Terms in Mode: 'reset' |
++--------+----------------------------+
+| Index  | Name                       |
++--------+----------------------------+
+|   0    | reset_scene_to_default     |
++--------+----------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++----------------------------------+
+|  Active Action Terms (shape: 8)  |
++--------+-----------+-------------+
+| Index  | Name      |   Dimension |
++--------+-----------+-------------+
+|   0    | arm       |           7 |
+|   1    | gripper   |           1 |
++--------+-----------+-------------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++-----------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (13,)) |
++--------------+-----------------------+--------------+
+|    Index     | Name                  |    Shape     |
++--------------+-----------------------+--------------+
+|      0       | joint_pos             |    (13,)     |
++--------------+-----------------------+--------------+
+
+[s1] boot hand z-axis (world): [0.713, -0.0, -0.702]
+[s1] tool-down enforced (tilt was 45.4 deg)
+[s1] hand jac row: 7 (cos=1.00; -1 conv would be 7)
+[s1] free-close t=30 finger_joint=0.798
+[s1] free-close t=60 finger_joint=0.798
+[s1] free-close t=90 finger_joint=0.798
+[s1] free-close t=120 finger_joint=0.798
+[s1] free-close t=150 finger_joint=0.798
+[s1] free-close t=180 finger_joint=0.798
+[s1] free-close t=210 finger_joint=0.798
+[s1] free-close t=240 finger_joint=0.798
+[s1] free-close t=270 finger_joint=0.798
+[s1] free-close t=300 finger_joint=0.798
+[s1] free-air close settled at 0.798 (current grasp band 0.2-0.70)
+[s1] acquire e0: vision=[0.502, 0.002] gt=[0.5, 0.0]
+[s1] step=0 stages=['ALIGN', 'ALIGN', 'ALIGN', 'ALIGN'] picks=0 places=0 hand0=[0.39, -0.001, 0.457] cup_xy0=[0.502, 0.002]
+[s1] close-entry e0: hand=[0.499, 0.001, 0.183] cup_gt=[0.5, 0.0]
+[s1] close-entry e1: hand=[0.496, 0.002, 0.183] cup_gt=[0.5, -0.0]
+[s1] close-entry e2: hand=[0.497, 0.001, 0.183] cup_gt=[0.5, 0.0]
+[s1] close-entry e3: hand=[0.497, 0.002, 0.183] cup_gt=[0.5, 0.0]
+[s1] step=100 stages=['CLOSE', 'CLOSE', 'CLOSE', 'CLOSE'] picks=0 places=0 hand0=[0.505, -0.011, 0.211] cup_xy0=[0.502, 0.002]
+[close] e0 t=58 hand_z=0.212 dxy=0.013 stall=0.771
+[close] e0 t=118 hand_z=0.213 dxy=0.013 stall=0.798
+[s1] step=200 stages=['CLOSE', 'CLOSE', 'CLOSE', 'CLOSE'] picks=0 places=0 hand0=[0.505, -0.012, 0.213] cup_xy0=[0.502, 0.002]
+[close] e0 t=178 hand_z=0.213 dxy=0.013 stall=0.798
+[close] e0 t=238 hand_z=0.213 dxy=0.013 stall=0.798
+[s1] step=300 stages=['CLOSE', 'CLOSE', 'CLOSE', 'CLOSE'] picks=0 places=0 hand0=[0.505, -0.012, 0.213] cup_xy0=[0.502, 0.002]
+[s1] acquire e0: vision=[0.508, -0.02] gt=[0.506, -0.021]
+[s1] step=400 stages=['ALIGN', 'ALIGN', 'ALIGN', 'ALIGN'] picks=0 places=0 hand0=[0.331, -0.025, 0.58] cup_xy0=[0.508, -0.02]
+[s1] close-entry e0: hand=[0.511, -0.014, 0.188] cup_gt=[0.506, -0.041]
+[s1] step=500 stages=['CLOSE', 'DESCEND', 'DESCEND', 'DESCEND'] picks=0 places=0 hand0=[0.491, -0.07, 0.17] cup_xy0=[0.508, -0.02]
+[s1] close-entry e1: hand=[0.433, -0.019, 0.184] cup_gt=[0.43, -0.039]
+[s1] close-entry e2: hand=[0.563, 0.015, 0.186] cup_gt=[0.555, 0.024]
+[close] e0 t=51 hand_z=0.164 dxy=0.018 stall=0.326
+[s1] close-entry e3: hand=[0.573, -0.086, 0.185] cup_gt=[0.668, 0.0]
+[close] e0 t=111 hand_z=0.163 dxy=0.020 stall=0.378
+[s1] step=600 stages=['CLOSE', 'CLOSE', 'CLOSE', 'CLOSE'] picks=0 places=0 hand0=[0.477, -0.101, 0.163] cup_xy0=[0.508, -0.02]
+[close] e0 t=171 hand_z=0.163 dxy=0.020 stall=0.378
+[s1] step=700 stages=['CLOSE', 'CLOSE', 'CLOSE', 'CLOSE'] picks=0 places=0 hand0=[0.477, -0.101, 0.163] cup_xy0=[0.508, -0.02]
+[close] e0 t=231 hand_z=0.163 dxy=0.020 stall=0.378
+[close] e3 t=210 hand_z=0.201 dxy=0.116 stall=0.801
+[s1] step=800 stages=['IDLE', 'FAIL', 'FAIL', 'CLOSE'] picks=0 places=0 hand0=[0.412, -0.062, 0.191] cup_xy0=[0.508, -0.02]
+[s1] acquire e0: vision=[0.553, 0.058] gt=[0.549, 0.053]
+[s1] step=900 stages=['DESCEND', 'ALIGN', 'ALIGN', 'IDLE'] picks=0 places=0 hand0=[0.495, 0.189, 0.273] cup_xy0=[0.553, 0.058]
+[s1] close-entry e0: hand=[0.553, 0.056, 0.184] cup_gt=[0.549, 0.053]
+[close] e0 t=13 hand_z=0.207 dxy=0.025 stall=0.097
+[s1] close-entry e1: hand=[0.446, 0.02, 0.192] cup_gt=[0.448, 0.022]
+[s1] step=1000 stages=['CLOSE', 'CLOSE', 'DESCEND', 'DESCEND'] picks=0 places=0 hand0=[0.561, 0.09, 0.217] cup_xy0=[0.553, 0.058]
+[s1] close-entry e2: hand=[0.54, -0.046, 0.182] cup_gt=[0.536, -0.038]
+[close] e0 t=73 hand_z=0.218 dxy=0.039 stall=0.412
+[s1] close-entry e3: hand=[0.578, -0.051, 0.189] cup_gt=[0.853, 0.133]
+[close] e0 t=133 hand_z=0.218 dxy=0.040 stall=0.412
+[s1] step=1100 stages=['CLOSE', 'CLOSE', 'CLOSE', 'CLOSE'] picks=0 places=0 hand0=[0.561, 0.091, 0.218] cup_xy0=[0.553, 0.058]
+[close] e0 t=193 hand_z=0.218 dxy=0.040 stall=0.412
+[close] e1 t=215 hand_z=0.189 dxy=0.004 stall=0.385
+[s1] step=1200 stages=['FAIL', 'CLOSE', 'CLOSE', 'CLOSE'] picks=0 places=0 hand0=[0.561, 0.091, 0.217] cup_xy0=[0.553, 0.058]
+[close] e3 t=228 hand_z=0.161 dxy=0.622 stall=0.792
+[s1] acquire e0: vision=[0.457, -0.049] gt=[0.493, -0.046]
+[s1] step=1300 stages=['ALIGN', 'IDLE', 'FAIL', 'FAIL'] picks=0 places=0 hand0=[0.38, 0.024, 0.523] cup_xy0=[0.457, -0.049]
+[s1] step=1400 stages=['DESCEND', 'DESCEND', 'ALIGN', 'IDLE'] picks=0 places=0 hand0=[0.437, 0.067, 0.27] cup_xy0=[0.457, -0.049]
+[s1] close-entry e1: hand=[0.545, 0.059, 0.186] cup_gt=[0.541, 0.039]
+[s1] close-entry e0: hand=[0.457, -0.047, 0.189] cup_gt=[0.484, -0.075]
+[s1] close-entry e2: hand=[0.419, -0.015, 0.188] cup_gt=[0.439, 0.004]
+[close] e0 t=30 hand_z=0.187 dxy=0.022 stall=0.228
+[s1] step=1500 stages=['CLOSE', 'CLOSE', 'CLOSE', 'ALIGN'] picks=0 places=0 hand0=[0.445, -0.094, 0.187] cup_xy0=[0.457, -0.049]
+[close] e0 t=90 hand_z=0.186 dxy=0.024 stall=0.381
+[s1] step=1600 stages=['CLOSE', 'CLOSE', 'CLOSE', 'DESCEND'] picks=0 places=0 hand0=[0.443, -0.095, 0.186] cup_xy0=[0.457, -0.049]
+[s1] close-entry e3: hand=[0.471, 0.075, 0.191] cup_gt=[0.417, 0.086]
+[close] e0 t=150 hand_z=0.186 dxy=0.024 stall=0.381
+[close] e0 t=210 hand_z=0.186 dxy=0.024 stall=0.381
+[s1] step=1700 stages=['CLOSE', 'FAIL', 'CLOSE', 'CLOSE'] picks=0 places=0 hand0=[0.443, -0.095, 0.186] cup_xy0=[0.457, -0.049]
+[close] e3 t=131 hand_z=0.206 dxy=0.130 stall=0.800
+[close] e3 t=191 hand_z=0.206 dxy=0.131 stall=0.800
+[s1] step=1800 stages=['IDLE', 'IDLE', 'IDLE', 'CLOSE'] picks=0 places=0 hand0=[0.38, -0.059, 0.38] cup_xy0=[0.457, -0.049]
+[s1] acquire e0: vision=[0.372, -0.13] gt=[0.384, -0.136]
+[s1] step=1900 stages=['DESCEND', 'DESCEND', 'DESCEND', 'FAIL'] picks=0 places=0 hand0=[0.389, -0.066, 0.305] cup_xy0=[0.372, -0.13]
+[s1] close-entry e1: hand=[0.562, 0.003, 0.191] cup_gt=[0.563, 0.019]
+[s1] close-entry e2: hand=[0.426, 0.001, 0.185] cup_gt=[0.422, -0.02]
+[close] e1 t=53 hand_z=0.176 dxy=0.006 stall=0.332
+[s1] close-entry e0: hand=[0.374, -0.125, 0.191] cup_gt=[0.339, -0.143]
+[s1] step=2000 stages=['CLOSE', 'CLOSE', 'CLOSE', 'ALIGN'] picks=0 places=0 hand0=[0.368, -0.147, 0.188] cup_xy0=[0.372, -0.13]
+[close] e0 t=48 hand_z=0.188 dxy=0.032 stall=0.319
+[close] e0 t=108 hand_z=0.188 dxy=0.033 stall=0.393
+[s1] step=2100 stages=['CLOSE', 'CLOSE', 'CLOSE', 'DESCEND'] picks=0 places=0 hand0=[0.364, -0.164, 0.188] cup_xy0=[0.372, -0.13]
+[s1] close-entry e3: hand=[0.503, -0.036, 0.185] cup_gt=[0.534, -0.066]
+[close] e0 t=168 hand_z=0.188 dxy=0.033 stall=0.393
+[s1] step=2200 stages=['CLOSE', 'FAIL', 'FAIL', 'CLOSE'] picks=0 places=0 hand0=[0.364, -0.164, 0.188] cup_xy0=[0.372, -0.13]
+[close] e0 t=228 hand_z=0.188 dxy=0.033 stall=0.393
+[close] e3 t=166 hand_z=0.186 dxy=0.038 stall=0.779
+[s1] step=2300 stages=['IDLE', 'ALIGN', 'ALIGN', 'CLOSE'] picks=0 places=0 hand0=[0.345, -0.13, 0.187] cup_xy0=[0.372, -0.13]
+[close] e3 t=226 hand_z=0.186 dxy=0.038 stall=0.779
+[s1] acquire e0: vision=[0.547, -0.04] gt=[0.576, -0.019]
+[s1] step=2400 stages=['ALIGN', 'DESCEND', 'DESCEND', 'FAIL'] picks=0 places=0 hand0=[0.482, 0.151, 0.328] cup_xy0=[0.547, -0.04]
+[s1] close-entry e1: hand=[0.523, -0.003, 0.192] cup_gt=[0.519, -0.013]
+[s1] close-entry e2: hand=[0.556, 0.073, 0.185] cup_gt=[0.551, 0.072]
+[close] e1 t=39 hand_z=0.170 dxy=0.013 stall=0.280
+[s1] step=2500 stages=['DESCEND', 'CLOSE', 'CLOSE', 'ALIGN'] picks=0 places=0 hand0=[0.461, -0.243, 0.232] cup_xy0=[0.547, -0.04]
+[close] e1 t=99 hand_z=0.170 dxy=0.014 stall=0.389
+[close] e1 t=159 hand_z=0.170 dxy=0.014 stall=0.389
+[s1] close-entry e3: hand=[0.558, 0.059, 0.188] cup_gt=[0.561, 0.045]
+[s1] step=2600 stages=['DESCEND', 'CLOSE', 'CLOSE', 'CLOSE'] picks=0 places=0 hand0=[-0.193, -0.265, 0.268] cup_xy0=[0.547, -0.04]
+[close] e1 t=219 hand_z=0.170 dxy=0.014 stall=0.389
+[close] e3 t=117 hand_z=0.168 dxy=0.017 stall=0.385
+[s1] step=2700 stages=['DESCEND', 'FAIL', 'FAIL', 'CLOSE'] picks=0 places=0 hand0=[0.157, -0.214, 0.476] cup_xy0=[0.547, -0.04]
+[close] e3 t=177 hand_z=0.168 dxy=0.017 stall=0.385
+[s1] step=2800 stages=['DESCEND', 'ALIGN', 'ALIGN', 'CLOSE'] picks=0 places=0 hand0=[0.464, 0.007, 0.332] cup_xy0=[0.547, -0.04]
+[close] e3 t=237 hand_z=0.168 dxy=0.017 stall=0.385
+[s1] close-entry e2: hand=[0.57, 0.05, 0.189] cup_gt=[0.58, 0.002]
+[close] e2 t=23 hand_z=0.185 dxy=0.014 stall=0.201
+[s1] step=2900 stages=['FAIL', 'DESCEND', 'CLOSE', 'IDLE'] picks=0 places=0 hand0=[0.55, 0.013, 0.275] cup_xy0=[0.547, -0.04]
+[close] e2 t=83 hand_z=0.183 dxy=0.009 stall=0.418
+[s1] acquire e0: vision=[0.526, -0.069] gt=[0.524, -0.067]
+[close] e2 t=143 hand_z=0.183 dxy=0.009 stall=0.418
+[s1] step=3000 stages=['ALIGN', 'DESCEND', 'CLOSE', 'ALIGN'] picks=0 places=0 hand0=[0.372, 0.007, 0.563] cup_xy0=[0.526, -0.069]
+[close] e2 t=203 hand_z=0.183 dxy=0.009 stall=0.418
+[s1] close-entry e0: hand=[0.529, -0.065, 0.192] cup_gt=[0.524, -0.067]
+[s1] close-entry e3: hand=[0.545, 0.05, 0.189] cup_gt=[0.62, 0.064]
+[s1] step=3100 stages=['CLOSE', 'DESCEND', 'FAIL', 'CLOSE'] picks=0 places=0 hand0=[0.528, -0.063, 0.178] cup_xy0=[0.526, -0.069]
+[close] e0 t=30 hand_z=0.174 dxy=0.005 stall=0.224
+[close] e0 t=90 hand_z=0.173 dxy=0.005 stall=0.384
+[s1] step=3200 stages=['CLOSE', 'DESCEND', 'IDLE', 'CLOSE'] picks=0 places=0 hand0=[0.526, -0.062, 0.173] cup_xy0=[0.526, -0.069]
+[close] e0 t=150 hand_z=0.173 dxy=0.005 stall=0.384
+[close] e0 t=210 hand_z=0.173 dxy=0.005 stall=0.384
+[s1] step=3300 stages=['CLOSE', 'FAIL', 'ALIGN', 'CLOSE'] picks=0 places=0 hand0=[0.526, -0.062, 0.173] cup_xy0=[0.526, -0.069]
+[s1] step=3400 stages=['IDLE', 'ALIGN', 'DESCEND', 'FAIL'] picks=0 places=0 hand0=[0.477, -0.075, 0.229] cup_xy0=[0.526, -0.069]
+[s1] close-entry e2: hand=[0.473, -0.083, 0.192] cup_gt=[0.504, -0.064]
+[close] e2 t=16 hand_z=0.172 dxy=0.041 stall=0.147
+[s1] acquire e0: vision=[0.543, -0.043] gt=[0.549, -0.045]
+[close] e2 t=76 hand_z=0.168 dxy=0.046 stall=0.408
+[s1] close-entry e1: hand=[0.542, 0.085, 0.184] cup_gt=[0.536, 0.08]
+[s1] step=3500 stages=['ALIGN', 'CLOSE', 'CLOSE', 'DESCEND'] picks=0 places=0 hand0=[0.535, -0.034, 0.33] cup_xy0=[0.543, -0.043]
+[s1] close-entry e3: hand=[0.502, 0.037, 0.19] cup_gt=[0.5, 0.013]
+[close] e1 t=53 hand_z=0.158 dxy=0.029 stall=0.351
+[close] e1 t=113 hand_z=0.159 dxy=0.032 stall=0.388
+[s1] step=3600 stages=['DESCEND', 'CLOSE', 'CLOSE', 'CLOSE'] picks=0 places=0 hand0=[0.536, -0.068, 0.184] cup_xy0=[0.543, -0.043]
+[s1] close-entry e0: hand=[0.545, -0.048, 0.191] cup_gt=[0.557, -0.09]
+[close] e0 t=57 hand_z=0.201 dxy=0.117 stall=0.398
+[s1] step=3700 stages=['CLOSE', 'CLOSE', 'FAIL', 'CLOSE'] picks=0 places=0 hand0=[0.559, 0.025, 0.201] cup_xy0=[0.543, -0.043]
+[close] e0 t=117 hand_z=0.201 dxy=0.118 stall=0.397
+[close] e0 t=177 hand_z=0.201 dxy=0.119 stall=0.397
+[s1] step=3800 stages=['CLOSE', 'IDLE', 'DESCEND', 'FAIL'] picks=0 places=0 hand0=[0.559, 0.025, 0.201] cup_xy0=[0.543, -0.043]
+[close] e0 t=237 hand_z=0.201 dxy=0.119 stall=0.397
+[s1] step=3900 stages=['FAIL', 'ALIGN', 'DESCEND', 'ALIGN'] picks=0 places=0 hand0=[0.56, 0.024, 0.202] cup_xy0=[0.543, -0.043]
+[s1] acquire e0: vision=[0.515, 0.051] gt=[0.512, 0.047]
+[s1] close-entry e1: hand=[0.518, -0.072, 0.187] cup_gt=[0.516, -0.079]
+[s1] close-entry e3: hand=[0.438, -0.005, 0.183] cup_gt=[0.47, -0.023]
+[s1] ======== RESULT: 0 physical picks, 0 physical pick-move-places ========

@@ -1,0 +1,253 @@
+++ /home/oedeh/.venv/gr00t/bin/pip install --progress-bar off torch==2.9.0 torchvision==0.24.0 --index-url https://download.pytorch.org/whl/cu128
+Looking in indexes: https://download.pytorch.org/whl/cu128
+Collecting torch==2.9.0
+  Downloading torch-2.9.0%2Bcu128-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (30 kB)
+Collecting torchvision==0.24.0
+  Downloading torchvision-0.24.0%2Bcu128-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (5.9 kB)
+Requirement already satisfied: filelock in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (3.29.0)
+Requirement already satisfied: typing-extensions>=4.10.0 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (4.15.0)
+Requirement already satisfied: setuptools in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (83.0.0)
+Requirement already satisfied: sympy>=1.13.3 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (1.14.0)
+Requirement already satisfied: networkx>=2.5.1 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (3.6.1)
+Requirement already satisfied: jinja2 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (3.1.6)
+Requirement already satisfied: fsspec>=0.8.5 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (2026.4.0)
+Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.8.93 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (12.8.93)
+Requirement already satisfied: nvidia-cuda-runtime-cu12==12.8.90 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (12.8.90)
+Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (12.8.90)
+Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (9.10.2.21)
+Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (12.8.4.1)
+Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (11.3.3.83)
+Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (10.3.9.90)
+Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (11.7.3.90)
+Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (12.5.8.93)
+Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (0.7.1)
+Requirement already satisfied: nvidia-nccl-cu12==2.27.5 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (2.27.5)
+Collecting nvidia-nvshmem-cu12==3.3.20 (from torch==2.9.0)
+  Downloading nvidia_nvshmem_cu12-3.3.20-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (124.7 MB)
+Requirement already satisfied: nvidia-nvtx-cu12==12.8.90 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (12.8.90)
+Requirement already satisfied: nvidia-nvjitlink-cu12==12.8.93 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (12.8.93)
+Requirement already satisfied: nvidia-cufile-cu12==1.13.1.3 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (1.13.1.3)
+Collecting triton==3.5.0 (from torch==2.9.0)
+  Downloading triton-3.5.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (1.7 kB)
+Requirement already satisfied: numpy in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torchvision==0.24.0) (2.5.1)
+Collecting pillow!=8.3.*,>=5.3.0 (from torchvision==0.24.0)
+  Using cached pillow-12.2.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (8.8 kB)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from sympy>=1.13.3->torch==2.9.0) (1.3.0)
+Requirement already satisfied: MarkupSafe>=2.0 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from jinja2->torch==2.9.0) (3.0.3)
+Downloading torch-2.9.0%2Bcu128-cp312-cp312-manylinux_2_28_x86_64.whl (900.9 MB)
+Downloading torchvision-0.24.0%2Bcu128-cp312-cp312-manylinux_2_28_x86_64.whl (8.1 MB)
+Downloading triton-3.5.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (170.5 MB)
+Using cached pillow-12.2.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (7.1 MB)
+Installing collected packages: triton, pillow, nvidia-nvshmem-cu12, torch, torchvision
+  Attempting uninstall: triton
+    Found existing installation: triton 3.6.0
+    Uninstalling triton-3.6.0:
+      Successfully uninstalled triton-3.6.0
+  Attempting uninstall: nvidia-nvshmem-cu12
+    Found existing installation: nvidia-nvshmem-cu12 3.4.5
+    Uninstalling nvidia-nvshmem-cu12-3.4.5:
+      Successfully uninstalled nvidia-nvshmem-cu12-3.4.5
+  Attempting uninstall: torch
+    Found existing installation: torch 2.10.0+cu128
+    Uninstalling torch-2.10.0+cu128:
+      Successfully uninstalled torch-2.10.0+cu128
+Successfully installed nvidia-nvshmem-cu12-3.3.20 pillow-12.2.0 torch-2.9.0+cu128 torchvision-0.24.0+cu128 triton-3.5.0
+++ /home/oedeh/.venv/gr00t/bin/pip install --progress-bar off https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl
+Collecting flash-attn==2.8.3+cu12torch2.9cxx11abitrue
+  Downloading flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl (253.8 MB)
+Requirement already satisfied: torch in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (2.9.0+cu128)
+Requirement already satisfied: einops in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (0.8.2)
+Requirement already satisfied: filelock in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (3.29.0)
+Requirement already satisfied: typing-extensions>=4.10.0 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (4.15.0)
+Requirement already satisfied: setuptools in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (83.0.0)
+Requirement already satisfied: sympy>=1.13.3 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (1.14.0)
+Requirement already satisfied: networkx>=2.5.1 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (3.6.1)
+Requirement already satisfied: jinja2 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (3.1.6)
+Requirement already satisfied: fsspec>=0.8.5 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (2026.4.0)
+Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.8.93 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (12.8.93)
+Requirement already satisfied: nvidia-cuda-runtime-cu12==12.8.90 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (12.8.90)
+Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (12.8.90)
+Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (9.10.2.21)
+Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (12.8.4.1)
+Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (11.3.3.83)
+Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (10.3.9.90)
+Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (11.7.3.90)
+Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (12.5.8.93)
+Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (0.7.1)
+Requirement already satisfied: nvidia-nccl-cu12==2.27.5 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (2.27.5)
+Requirement already satisfied: nvidia-nvshmem-cu12==3.3.20 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (3.3.20)
+Requirement already satisfied: nvidia-nvtx-cu12==12.8.90 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (12.8.90)
+Requirement already satisfied: nvidia-nvjitlink-cu12==12.8.93 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (12.8.93)
+Requirement already satisfied: nvidia-cufile-cu12==1.13.1.3 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (1.13.1.3)
+Requirement already satisfied: triton==3.5.0 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (3.5.0)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from sympy>=1.13.3->torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (1.3.0)
+Requirement already satisfied: MarkupSafe>=2.0 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from jinja2->torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (3.0.3)
+Installing collected packages: flash-attn
+Successfully installed flash-attn-2.8.3
+++ cd /home/oedeh/Isaac-GR00T
+++ /home/oedeh/.venv/gr00t/bin/pip install --progress-bar off -e . --no-build-isolation
+Obtaining file:///home/oedeh/Isaac-GR00T
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Collecting albumentations==1.4.18 (from gr00t==0.1.0)
+  Using cached albumentations-1.4.18-py3-none-any.whl.metadata (32 kB)
+Collecting huggingface-hub[cli] (from gr00t==0.1.0)
+  Using cached huggingface_hub-1.25.1-py3-none-any.whl.metadata (16 kB)
+Collecting opencv-python-headless<4.13,>=4.5 (from gr00t==0.1.0)
+  Using cached opencv_python_headless-4.12.0.88-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (19 kB)
+Collecting diffusers==0.35.1 (from gr00t==0.1.0)
+  Using cached diffusers-0.35.1-py3-none-any.whl.metadata (20 kB)
+Collecting dm-tree (from gr00t==0.1.0)
+  Using cached dm_tree-0.1.10-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (2.6 kB)
+Collecting lmdb==1.7.5 (from gr00t==0.1.0)
+  Using cached lmdb-1.7.5-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (1.4 kB)
+Collecting msgpack==1.1.0 (from gr00t==0.1.0)
+  Using cached msgpack-1.1.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (8.4 kB)
+Collecting msgpack-numpy==0.4.8 (from gr00t==0.1.0)
+  Using cached msgpack_numpy-0.4.8-py2.py3-none-any.whl.metadata (5.0 kB)
+Collecting pandas==2.2.3 (from gr00t==0.1.0)
+  Using cached pandas-2.2.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (89 kB)
+Collecting peft==0.17.1 (from gr00t==0.1.0)
+  Using cached peft-0.17.1-py3-none-any.whl.metadata (14 kB)
+Collecting termcolor==3.2.0 (from gr00t==0.1.0)
+  Using cached termcolor-3.2.0-py3-none-any.whl.metadata (6.4 kB)
+Requirement already satisfied: torch==2.9.0 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from gr00t==0.1.0) (2.9.0+cu128)
+Requirement already satisfied: torchvision==0.24.0 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from gr00t==0.1.0) (0.24.0+cu128)
+Collecting transformers==4.57.3 (from gr00t==0.1.0)
+  Using cached transformers-4.57.3-py3-none-any.whl.metadata (43 kB)
+Collecting tyro==0.9.17 (from gr00t==0.1.0)
+  Using cached tyro-0.9.17-py3-none-any.whl.metadata (9.5 kB)
+Collecting click==8.1.8 (from gr00t==0.1.0)
+  Using cached click-8.1.8-py3-none-any.whl.metadata (2.3 kB)
+Collecting datasets==3.6.0 (from gr00t==0.1.0)
+  Using cached datasets-3.6.0-py3-none-any.whl.metadata (19 kB)
+Collecting cryptography>=46.0.7 (from gr00t==0.1.0)
+  Using cached cryptography-49.0.0-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (4.3 kB)
+Collecting einops==0.8.1 (from gr00t==0.1.0)
+  Using cached einops-0.8.1-py3-none-any.whl.metadata (13 kB)
+Collecting gitpython==3.1.50 (from gr00t==0.1.0)
+  Using cached gitpython-3.1.50-py3-none-any.whl.metadata (14 kB)
+Collecting jsonlines==4.0.0 (from gr00t==0.1.0)
+  Using cached jsonlines-4.0.0-py3-none-any.whl.metadata (1.6 kB)
+Collecting gymnasium==1.2.2 (from gr00t==0.1.0)
+  Using cached gymnasium-1.2.2-py3-none-any.whl.metadata (10 kB)
+Collecting matplotlib==3.10.1 (from gr00t==0.1.0)
+  Using cached matplotlib-3.10.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (11 kB)
+Collecting numpy==1.26.4 (from gr00t==0.1.0)
+  Using cached numpy-1.26.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (61 kB)
+Collecting omegaconf==2.3.0 (from gr00t==0.1.0)
+  Using cached omegaconf-2.3.0-py3-none-any.whl.metadata (3.9 kB)
+Collecting scipy==1.15.3 (from gr00t==0.1.0)
+  Using cached scipy-1.15.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (61 kB)
+Collecting torchcodec==0.8.0 (from gr00t==0.1.0)
+  Using cached torchcodec-0.8.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (9.5 kB)
+Collecting wandb==0.23.0 (from gr00t==0.1.0)
+  Using cached wandb-0.23.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (12 kB)
+Collecting pyzmq==27.0.1 (from gr00t==0.1.0)
+  Using cached pyzmq-27.0.1-cp312-abi3-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl.metadata (6.0 kB)
+Collecting deepspeed==0.17.6 (from gr00t==0.1.0)
+  Using cached deepspeed-0.17.6.tar.gz (1.6 MB)
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: flash-attn==2.8.3 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from gr00t==0.1.0) (2.8.3)
+Collecting onnx>=1.20.0 (from gr00t==0.1.0)
+  Downloading onnx-1.22.0-cp312-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (8.5 kB)
+Collecting onnxscript (from gr00t==0.1.0)
+  Downloading onnxscript-0.7.1-py3-none-any.whl.metadata (13 kB)
+Collecting tensorrt-cu12>=10.15.1.29 (from gr00t==0.1.0)
+  Downloading tensorrt_cu12-11.1.0.106.tar.gz (17 kB)
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting tensorrt-cu12-libs>=10.15.1.29 (from gr00t==0.1.0)
+  Downloading tensorrt_cu12_libs-11.1.0.106.tar.gz (15 kB)
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+ERROR: Exception:
+Traceback (most recent call last):
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/cli/base_command.py", line 109, in _run_wrapper
+    status = _inner_run()
+             ^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/cli/base_command.py", line 102, in _inner_run
+    return self.run(options, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/cli/req_command.py", line 101, in wrapper
+    return func(self, options, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/commands/install.py", line 479, in run
+    requirement_set = resolver.resolve(
+                      ^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/resolver.py", line 99, in resolve
+    result = self._result = resolver.resolve(
+                            ^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_vendor/resolvelib/resolvers/resolution.py", line 601, in resolve
+    state = resolution.resolve(requirements, max_rounds=max_rounds)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_vendor/resolvelib/resolvers/resolution.py", line 513, in resolve
+    failure_criterion = self._attempt_to_pin_criterion(name)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_vendor/resolvelib/resolvers/resolution.py", line 220, in _attempt_to_pin_criterion
+    criteria = self._get_updated_criteria(candidate)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_vendor/resolvelib/resolvers/resolution.py", line 211, in _get_updated_criteria
+    self._add_to_criteria(criteria, requirement, parent=candidate)
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_vendor/resolvelib/resolvers/resolution.py", line 150, in _add_to_criteria
+    if not criterion.candidates:
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_vendor/resolvelib/structs.py", line 194, in __bool__
+    return bool(self._sequence)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/found_candidates.py", line 165, in __bool__
+    self._bool = any(self)
+                 ^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/found_candidates.py", line 149, in <genexpr>
+    return (c for c in iterator if id(c) not in self._incompatible_ids)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/found_candidates.py", line 39, in _iter_built
+    candidate = func()
+                ^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/factory.py", line 182, in _make_candidate_from_link
+    base: BaseCandidate | None = self._make_base_candidate_from_link(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/factory.py", line 228, in _make_base_candidate_from_link
+    self._link_candidate_cache[link] = LinkCandidate(
+                                       ^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/candidates.py", line 326, in __init__
+    super().__init__(
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/candidates.py", line 168, in __init__
+    self.dist = self._prepare()
+                ^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/candidates.py", line 246, in _prepare
+    dist = self._prepare_distribution()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/resolution/resolvelib/candidates.py", line 337, in _prepare_distribution
+    return preparer.prepare_linked_requirement(self._ireq, parallel_builds=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/operations/prepare.py", line 542, in prepare_linked_requirement
+    return self._prepare_linked_requirement(req, parallel_builds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/operations/prepare.py", line 661, in _prepare_linked_requirement
+    dist = _get_prepared_distribution(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/operations/prepare.py", line 77, in _get_prepared_distribution
+    abstract_dist.prepare_distribution_metadata(
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/distributions/sdist.py", line 71, in prepare_distribution_metadata
+    self.req.prepare_metadata()
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/req/req_install.py", line 540, in prepare_metadata
+    self.metadata_directory = generate_metadata(
+                              ^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/operations/build/metadata.py", line 34, in generate_metadata
+    distinfo_dir = backend.prepare_metadata_for_build_wheel(metadata_dir)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_internal/utils/misc.py", line 721, in prepare_metadata_for_build_wheel
+    return super().prepare_metadata_for_build_wheel(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/_impl.py", line 224, in prepare_metadata_for_build_wheel
+    return self._call_hook(
+           ^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/_impl.py", line 402, in _call_hook
+    raise BackendUnavailable(
+pip._vendor.pyproject_hooks._impl.BackendUnavailable: Cannot import 'wheel_stub.buildapi'
+++ echo INSTALL2_EXIT_CODE=2
+INSTALL2_EXIT_CODE=2

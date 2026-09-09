@@ -1,0 +1,81 @@
+# NOTICE: Third-Party Material
+
+The root [MIT license](LICENSE) covers first-party work. It does not relicense
+vendor files, externally obtained models/checkpoints, or bundled NVIDIA skills.
+
+## Robot Asset Removal, 2026-09-07
+
+Synria and Yahboom source geometry, vendor ROS packages, and derived conversions
+were removed from the current tree. Flattened Robotiq geometry was also removed.
+The [file-by-file manifest](docs/VENDOR_ASSET_REMOVAL.md) records provenance,
+retained first-party layers, ambiguities, and history exposure.
+
+**This corrects the previous redistribution posture.** Product ownership and a
+non-commercial portfolio purpose were previously cited for including Yahboom
+files; this repository no longer relies on that rationale. It also no longer
+relies on Synria's email-stated MIT terms to redistribute description assets.
+
+Users obtain vendor inputs directly under the vendor's terms and stage them with
+[scripts/fetch_vendor_assets.py](scripts/fetch_vendor_assets.py). Local inputs and
+generated vendor-derived outputs are ignored. Conversion tooling and first-party
+ROS wrappers remain here.
+
+**Git history still contains the removed files, as far back as the initial commit
+49904d2 on 2026-05-26. A public visibility change exposes that history. No history
+rewrite has been performed.**
+
+## Synria Robotics
+
+Source: [Synria-Robot-Descriptions](https://github.com/Synria-Robotics/Synria-Robot-Descriptions),
+including the Alicia-D v5.6 URDF and STL meshes.
+
+The recorded 2026-05-27 vendor correspondence described RoboCore and Alicia-SDK ROS
+repositories as primarily MIT, with redistribution permitted and attribution
+required. The recorded robot-description `pyproject.toml` classifier instead
+identifies GPL-3. The scope and discrepancy remain unresolved; no license
+equivalence is asserted here. The prior file set is recorded in the removal
+manifest. First-party xacro wrappers are distinct from the removed vendor URDF.
+
+## Yahboom Technology
+
+Sources: [ROSMASTER-M3PRO](https://github.com/YahboomTechnology/ROSMASTER-M3PRO)
+and the [product study page](https://www.yahboom.net/study/ROSMASTER-M3PRO)
+Code-Firmware archive, also distributed through vendor support and the robot's
+onboard filesystem.
+
+The integration record reports no vendor redistribution terms: the description
+package declares `TODO: License declaration`; the MoveIt package's BSD entry is
+a Setup Assistant template. The 2026-05-27 support correspondence did not address
+licensing. This notice does not infer permission.
+
+The first-party fetch script retains the documented fix to the two
+`arm_base_Link.STL` references: `dofbot_M3Pro_descripton` becomes
+`yahboom_M3Pro_description`. Other vendor joint names, including
+`arm4_Joiint`, remain unchanged.
+
+Bundled upstream packages OrbbecSDK_ROS2, imu_tools and ira_laser_tools were not
+imported into this repository. Users obtain any required runtime packages
+separately under their own terms.
+
+## Robotiq / NVIDIA Isaac Assets
+
+The removed Robotiq 2F-85 flattened USD and Synria/Robotiq assembly originated in
+Isaac assets consumed by the first-party diagnostic assembly scripts. Exact
+upstream revisions and redistribution terms are not recorded here. Obtain the
+assets through NVIDIA Isaac Sim under the applicable NVIDIA/vendor terms.
+
+## Bundled NVIDIA Skills
+
+`.claude/skills/` contains NVIDIA material sourced from
+[NVIDIA/skills](https://github.com/NVIDIA/skills), as recorded in
+[docs/AGENT_SKILLS.md](docs/AGENT_SKILLS.md). The bundled SKILL.md frontmatter
+declares Apache-2.0; scripts carry NVIDIA copyright and Apache-2.0 SPDX notices.
+
+Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+These skills retain their Apache-2.0 terms and existing per-file notices; the
+root MIT grant does not cover them. See the [Apache-2.0 license text](LICENSES/Apache-2.0.txt).
+External tools and assets referenced by a skill retain their own terms. Skill
+signatures, cards and attribution files remain intact.
+
+Maintainer contact for attribution or removal concerns: obiedeh@gmail.com.

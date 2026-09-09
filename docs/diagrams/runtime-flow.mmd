@@ -1,0 +1,12 @@
+flowchart TB
+    mode["Select explicit workflow"]
+    mode --> static["Core / first-party static checks"]
+    mode --> sim["Local vendor inputs + Isaac environment"]
+    mode --> device["Device benchmark / operator-led recording"]
+    sim --> exec["PPO/scripted executor OR separate GR00T lane"]
+    exec --> score["Score under that run's rule\nSimulation patches declared"]
+    device --> capture["Record timing / device provenance\nCommand-derived arm state"]
+    static --> reports["Evidence and corrections"]
+    score --> reports
+    capture --> reports
+    reports --> review["Review gaps before another experiment"]

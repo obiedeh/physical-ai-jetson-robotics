@@ -1,0 +1,23 @@
+{
+  "classifier_name": "deterministic",
+  "confidence": "high",
+  "escalate_to_human": false,
+  "operator_recommendation": [
+    "Continue the planned run; keep logging evidence."
+  ],
+  "robot_id": "robo-car-01",
+  "root_cause_hypothesis": "All telemetry signals within nominal bounds.",
+  "status": "nominal",
+  "triage": {
+    "findings": [
+      {
+        "recommended_action": "Continue the planned run and keep logging evidence.",
+        "severity": "nominal",
+        "signal": "operations",
+        "summary": "No immediate telemetry limits are exceeded."
+      }
+    ],
+    "robot_id": "robo-car-01",
+    "status": "nominal"
+  }
+}

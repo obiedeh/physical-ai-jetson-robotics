@@ -1,0 +1,39 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+def Xform "World" (
+    prepend references = @/home/oedeh/github/physical-ai-jetson-robotics/isaac/usd/scenes/synria_mirrored/ludotable_norobot_left.usda@</World>
+)
+{
+    def Xform "SynriaArmMount"
+    {
+        double3 xformOp:translate = (-0.05, 0, 0.838)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+
+        def Xform "Arm" (
+            prepend references = @/home/oedeh/github/physical-ai-jetson-robotics/isaac/usd/robots/synria_6dof_arm_v2/synria_6dof_arm.usd@
+        )
+        {
+        }
+    }
+
+    over "Game"
+    {
+        over "DiceCup"
+        {
+            double3 xformOp:translate = (-0.254, 0.08889999999999999, 0.0642999999898951)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+
+        over "Dice"
+        {
+            double3 xformOp:translate = (-0.199, -0.07619999999999999, 0.06430000010761427)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+}
+

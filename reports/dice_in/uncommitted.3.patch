@@ -1,0 +1,104 @@
+diff --git a/isaac/scripts/ludo_turn_executor.py b/isaac/scripts/ludo_turn_executor.py
+index 8d249d0..7a51e1d 100644
+--- a/isaac/scripts/ludo_turn_executor.py
++++ b/isaac/scripts/ludo_turn_executor.py
+@@ -158,6 +158,9 @@ def main() -> int:
+                         help="physical commands to execute (turns without a "
+                         "legal move roll by without the arm)")
+     parser.add_argument("--seed", type=int, default=11)
++    parser.add_argument("--dice-in", type=int, default=0,
++                        help="B2b step1: arm picks the die and drops it into "
++                        "the cup, N attempts; reports success")
+     parser.add_argument("--cup-test", type=int, default=0,
+                         help="physical-dice: drop the die into the cup N times, "
+                         "report containment rate")
+@@ -267,6 +270,9 @@ def _run(args: argparse.Namespace) -> int:
+     if args.cup_test > 0:
+         add_die(env_cfg)
+         add_cup(env_cfg)
++    if args.dice_in > 0:
++        add_die(env_cfg)
++        add_cup(env_cfg)
+ 
+     suppress_state: dict = {"mask": None}
+     carry_guard: dict = {"on": False}
+@@ -1473,6 +1479,79 @@ def _run(args: argparse.Namespace) -> int:
+                   f"released {r} ok {o}", flush=True)
+         print(f"[ludo] groot17 eval done: {executed} episodes", flush=True)
+ 
++    if args.dice_in > 0:
++        import numpy as _np
++        from game_core.dice import die_value_up, settled
++        die_obj = env.scene["die"]; cup_obj = env.scene["cup"]
++        _dev = env.device
++        _ph = torch.full((1,), IDLE, dtype=torch.long, device=_dev)
++        _def = robot.data.default_joint_pos[:, arm_ids].clone()
++        za = torch.zeros(1, 7, device=_dev); za[:, 6] = OPEN_CMD
++        for _ in range(40):
++            wrapper.step(za)
++        hq0 = robot.data.body_quat_w[:, tool_idx].clone()
++
++        def servo(tx, ty, tz, grip, steps, tol=0.008, ori_w=0.8):
++            at = robot.data.joint_pos[:, arm_ids].clone()
++            tgt = torch.tensor([[tx, ty, tz]], device=_dev, dtype=torch.float32)
++            for _ in range(steps):
++                dq = dls_step(tgt, hq0, _ph, ori_w=ori_w)
++                at = at + dq
++                meas = robot.data.joint_pos[:, arm_ids]
++                at = torch.clamp(at, meas - 0.55, meas + 0.55).clamp(
++                    jlim[:, 0], jlim[:, 1])
++                a = torch.zeros(1, 7, device=_dev)
++                a[:, :6] = at - _def
++                a[:, 6] = grip
++                wrapper.step(a)
++                gc = mdp._grasp_center_local(env)
++                if float(torch.norm(tgt - gc)) < tol:
++                    break
++
++        ok = 0
++        for k in range(args.dice_in):
++            d = die_obj.data.root_pos_w[0].cpu().numpy()
++            c = cup_obj.data.root_pos_w[0].cpu().numpy()
++            servo(d[0], d[1], d[2] + 0.06, OPEN_CMD, 150)          # above die
++            servo(d[0], d[1], d[2] + 0.004, OPEN_CMD, 150, tol=0.006)  # to die
++            gc = mdp._grasp_center_local(env)[0].cpu().numpy()
++            print(f"[dicein] att{k+1} at-die: gc={gc.round(3).tolist()} "
++                  f"die={d.round(3).tolist()} gc_err={_np.linalg.norm(gc-d)*1000:.0f}mm "
++                  f"width={float(width_now()[0])*1000:.0f}mm", flush=True)
++            for _ in range(40):                                    # close
++                a = torch.zeros(1, 7, device=_dev)
++                a[:, :6] = robot.data.joint_pos[:, arm_ids] - _def
++                a[:, 6] = CLOSE_CMD; wrapper.step(a)
++            print(f"[dicein] att{k+1} post-close width={float(width_now()[0])*1000:.0f}mm "
++                  f"die_z={float(die_obj.data.root_pos_w[0,2]):.3f}", flush=True)
++            servo(d[0], d[1], d[2] + 0.16, CLOSE_CMD, 150)         # lift
++            print(f"[dicein] att{k+1} post-lift die_z={float(die_obj.data.root_pos_w[0,2]):.3f} "
++                  f"(table={TABLE_SURFACE_Z:.3f})", flush=True)
++            servo(c[0], c[1], c[2] + 0.16, CLOSE_CMD, 200)         # over cup
++            servo(c[0], c[1], c[2] + 0.09, CLOSE_CMD, 100)         # lower to rim
++            for _ in range(60):                                    # release
++                a = torch.zeros(1, 7, device=_dev)
++                a[:, :6] = robot.data.joint_pos[:, arm_ids] - _def
++                a[:, 6] = OPEN_CMD; wrapper.step(a)
++            for _ in range(120):                                   # let it settle
++                wrapper.step(za)
++            dp = die_obj.data.root_pos_w[0].cpu().numpy()
++            cp = cup_obj.data.root_pos_w[0].cpu().numpy()
++            r = float(_np.hypot(dp[0] - cp[0], dp[1] - cp[1]))
++            inside = (r < 0.016) and (dp[2] > cp[2]) and (dp[2] < cp[2] + 0.05)
++            ok += int(inside)
++            print(f"[dicein] attempt {k+1}: {'IN ' if inside else 'MISS'} "
++                  f"die_r_from_cup={r*1000:.0f}mm die_z-cup_z={(dp[2]-cp[2])*1000:.0f}mm",
++                  flush=True)
++            # reset die to its start for next attempt
++            root = die_obj.data.default_root_state.clone()
++            die_obj.write_root_pose_to_sim(root[:, :7])
++            die_obj.write_root_velocity_to_sim(torch.zeros_like(root[:, 7:]))
++            for _ in range(20):
++                wrapper.step(za)
++        print(f"[dicein] die-in-cup {ok}/{args.dice_in}", flush=True)
++        import os as _os; _os._exit(0)
++
+     if not policy_on:
+         # ================= the game =================
+         # board placed in the arm's reach annulus (~0.19-0.55 m from

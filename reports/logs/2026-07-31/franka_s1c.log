@@ -1,0 +1,4 @@
+  File "/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/scripts/franka_vision_pick.py", line 64
+    from isaaclab.sim import SimulationCfg, SimulationContext  # type: ignore
+IndentationError: unexpected indent
+S1_EXIT=1

@@ -1,0 +1,74 @@
+{
+  "checkpoint": "reports/training/synria_chess_pickplace_v6_e26_s42/model_final.pt",
+  "completed_episodes": 260,
+  "num_envs": 256,
+  "steps": 1700,
+  "eval_seed": 123,
+  "takeover_stage": "release",
+  "takeover_engaged_episodes": 204,
+  "stages": {
+    "reach": {
+      "successes": 260,
+      "trials": 260,
+      "rate": 1.0,
+      "ci95_low": 0.9854402759980766,
+      "ci95_high": 0.9999999999999999
+    },
+    "align": {
+      "successes": 5,
+      "trials": 260,
+      "rate": 0.019230769230769232,
+      "ci95_low": 0.008241519791513257,
+      "ci95_high": 0.044219753287259175
+    },
+    "grasp": {
+      "successes": 205,
+      "trials": 260,
+      "rate": 0.7884615384615384,
+      "ci95_low": 0.7348040116239687,
+      "ci95_high": 0.8337192245287677
+    },
+    "lift": {
+      "successes": 205,
+      "trials": 260,
+      "rate": 0.7884615384615384,
+      "ci95_low": 0.7348040116239687,
+      "ci95_high": 0.8337192245287677
+    },
+    "transport": {
+      "successes": 204,
+      "trials": 260,
+      "rate": 0.7846153846153846,
+      "ci95_low": 0.730695170728723,
+      "ci95_high": 0.8302477556086436
+    },
+    "at_plate": {
+      "successes": 70,
+      "trials": 260,
+      "rate": 0.2692307692307692,
+      "ci95_low": 0.21896375098046178,
+      "ci95_high": 0.3262176600973489
+    },
+    "place": {
+      "successes": 7,
+      "trials": 260,
+      "rate": 0.026923076923076925,
+      "ci95_low": 0.013101487924021011,
+      "ci95_high": 0.054520404785491056
+    },
+    "upright": {
+      "successes": 5,
+      "trials": 260,
+      "rate": 0.019230769230769232,
+      "ci95_low": 0.008241519791513257,
+      "ci95_high": 0.044219753287259175
+    },
+    "full": {
+      "successes": 5,
+      "trials": 260,
+      "rate": 0.019230769230769232,
+      "ci95_low": 0.008241519791513257,
+      "ci95_high": 0.044219753287259175
+    }
+  }
+}

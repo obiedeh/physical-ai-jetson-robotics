@@ -1,0 +1,109 @@
+{
+  "captured_at": "2026-08-20T17:36:50.381188+00:00",
+  "commands": {
+    "git_version": {
+      "available": true,
+      "command": [
+        "git",
+        "--version"
+      ],
+      "return_code": 0,
+      "stderr": "",
+      "stdout": "git version 2.43.0"
+    },
+    "linux_release": {
+      "available": true,
+      "command": [
+        "cat",
+        "/etc/os-release"
+      ],
+      "return_code": 0,
+      "stderr": "",
+      "stdout": "PRETTY_NAME=\"Ubuntu 24.04.4 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.4 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo"
+    },
+    "linux_usb_devices": {
+      "available": true,
+      "command": [
+        "lsusb"
+      ],
+      "return_code": 0,
+      "stderr": "",
+      "stdout": "Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub\nBus 001 Device 002: ID 13d3:3586 IMC Networks Bluetooth Radio\nBus 001 Device 003: ID 0bda:5489 Realtek Semiconductor Corp. 4-Port USB 2.0 Hub\nBus 001 Device 004: ID 1a40:0101 Terminus Technology Inc. Hub\nBus 001 Device 005: ID 0557:8021 ATEN International Co., Ltd Hub\nBus 001 Device 007: ID 0557:226b ATEN International Co., Ltd 4-PORT 4K HDMI KVM SWITCH\nBus 002 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub\nBus 002 Device 002: ID 0bda:0489 Realtek Semiconductor Corp. 4-Port USB 3.0 Hub"
+    },
+    "linux_video_devices": {
+      "available": true,
+      "command": [
+        "bash",
+        "-lc",
+        "ls -1 /dev/video* 2>/dev/null"
+      ],
+      "return_code": 2,
+      "stderr": "",
+      "stdout": ""
+    },
+    "nvcc_version": {
+      "available": false,
+      "command": [
+        "nvcc",
+        "--version"
+      ],
+      "return_code": null,
+      "stderr": "",
+      "stdout": ""
+    },
+    "nvidia_smi": {
+      "available": true,
+      "command": [
+        "nvidia-smi"
+      ],
+      "return_code": 0,
+      "stderr": "",
+      "stdout": "Thu Aug 20 12:36:44 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 580.00                 Driver Version: 580.00         CUDA Version: 13.0     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA Thor                    Off |   00000000:01:00.0 Off |                  N/A |\n| N/A   36C  N/A               1W /  N/A  | Not Supported          |      0%      Default |\n|                                         |                        |             Disabled |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|    0   N/A  N/A            4946      G   /usr/lib/xorg/Xorg                      217MiB |\n|    0   N/A  N/A            5173      G   /usr/bin/gnome-shell                     69MiB |\n|    0   N/A  N/A           18639      G   /usr/bin/nautilus                        17MiB |\n|    0   N/A  N/A         2235532      C   ...edeh/.venv/lerobot/bin/python        440MiB |\n|    0   N/A  N/A         3188392      C   .../oedeh/.venv/gr00t/bin/python       7613MiB |\n+-----------------------------------------------------------------------------------------+"
+    },
+    "ros2_topic_list": {
+      "available": false,
+      "command": [
+        "ros2",
+        "topic",
+        "list"
+      ],
+      "return_code": null,
+      "stderr": "",
+      "stdout": ""
+    },
+    "ros2_version": {
+      "available": false,
+      "command": [
+        "ros2",
+        "--version"
+      ],
+      "return_code": null,
+      "stderr": "",
+      "stdout": ""
+    },
+    "tegrastats": {
+      "available": true,
+      "command": [
+        "tegrastats"
+      ],
+      "return_code": null,
+      "stderr": "Command timed out after 5s",
+      "stdout": "08-20-2026 12:36:46 RAM 40601/125772MB (lfb 364x4MB) CPU [0%@972,0%@972,0%@972,0%@972,0%@972,0%@972,5%@972,0%@972,0%@972,0%@972,0%@1134,0%@1134,0%@972,0%@972] cpu@36.031C tj@37.437C soc012@36.062C gpu@36.843C soc345@37.437C VDD_GPU 1965mW/1965mW VDD_CPU_SOC_MSS 5899mW/5899mW VIN_SYS_5V0 6158mW/6158mW VIN 21208mW/21208mW\n08-20-2026 12:36:47 RAM 40597/125772MB (lfb 364x4MB) CPU [1%@972,0%@972,0%@972,0%@972,0%@2601,0%@2601,7%@972,0%@972,0%@972,0%@972,0%@972,0%@972,0%@972,0%@972] cpu@35.875C tj@37.468C soc012@36.062C gpu@36.843C soc345@37.437C VDD_GPU 1965mW/1965mW VDD_CPU_SOC_MSS 5899mW/5899mW VIN_SYS_5V0 6158mW/6158mW VIN 20976mW/21092mW\n08-20-2026 12:36:48 RAM 40597/125772MB (lfb 364x4MB) CPU [1%@972,0%@972,0%@972,0%@972,0%@972,0%@972,6%@972,0%@972,0%@972,0%@972,0%@972,0%@972,0%@972,0%@972] cpu@36.125C tj@37.343C soc012@36C gpu@36.906C soc345@37.343C VDD_GPU 1965mW/1965mW VDD_CPU_SOC_MSS 5505mW/5768mW VIN_SYS_5V0 6158mW/6158mW VIN 21144mW/21109mW\n08-20-2026 12:36:49 RAM 40594/125772MB (lfb 364x4MB) CPU [1%@972,0%@972,0%@972,0%@972,0%@972,0%@972,8%@972,0%@972,0%@972,0%@972,0%@972,0%@972,0%@972,0%@972] cpu@35.937C tj@37.437C soc012@35.968C gpu@36.875C soc345@37.343C VDD_GPU 1965mW/1965mW VDD_CPU_SOC_MSS 5505mW/5702mW VIN_SYS_5V0 6158mW/6158mW VIN 20128mW/20864mW\n"
+    }
+  },
+  "environment": {
+    "CUDA_HOME": null,
+    "LD_LIBRARY_PATH": null,
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+    "ROS_DISTRO": null
+  },
+  "host": {
+    "machine": "aarch64",
+    "processor": "aarch64",
+    "python": "3.12.3 (main, Jun 19 2026, 12:46:00) [GCC 13.3.0]",
+    "release": "6.8.12-tegra",
+    "system": "Linux",
+    "version": "#1 SMP PREEMPT Tue Dec 30 15:40:41 PST 2025"
+  },
+  "target": "jetson-thor"
+}

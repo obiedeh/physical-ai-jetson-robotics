@@ -1,0 +1,985 @@
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260807_102302.log
+2026-08-07T15:23:02Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-08-07T15:23:02Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+2026-08-07T15:23:02Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 19531
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 5274
+|---------------------------------------------------------------------------------------------|
+2026-08-07T15:23:03Z [770ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-08-07T15:23:03Z [778ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.
+2026-08-07T15:23:04Z [2,567ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-08-07T15:23:05Z [2,652ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-08-07T15:23:05Z [2,765ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-08-07T15:23:06Z [4,268ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+2026-08-07T15:23:06Z [4,327ms] [Warning] [omni.graph.core.plugin] Found duplicate of category 'Replicator' - was 'Annotators', adding 'Fabric Reader'
+2026-08-07T15:23:06Z [4,327ms] [Warning] [omni.graph.core.plugin] Category 'Replicator' not accepted on node type 'omni.replicator.core.FabricReader' in extension 'omni.replicator.core'
+2026-08-07T15:23:06Z [4,327ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-08-07T15:23:09Z [6,584ms] [Warning] [omni.fabric.plugin] Warning: attribute viewportHandle not found for bucket id 7
+
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+[INFO]: Parsing configuration from: <class 'isaac.isaaclab_tasks.synria_pickplace.env_cfg.SynriaChessPickPlaceEnvCfg'>
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-08-07_10-23-10.log[0m
+[36m======================================================================================[0m
+
+[33m10:23:10 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 7
+	Physics step-size     : 0.016666666666666666
+	Rendering step-size   : 0.016666666666666666
+	Environment step-size : 0.03333333333333333
+[33m10:23:10 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 0.401129 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 16
+	Environment spacing   : 2.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : False
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 1.407774 seconds
+[INFO] Command Manager:  <CommandManager> contains 0 active terms.
++------------------------+
+|  Active Command Terms  |
++--------+-------+-------+
+| Index  | Name  |  Type |
++--------+-------+-------+
++--------+-------+-------+
+
+[INFO] Event Manager:  <EventManager> contains 2 active terms.
++----------------------------------+
+| Active Event Terms in Mode: 'reset' |
++-----------+----------------------+
+|   Index   | Name                 |
++-----------+----------------------+
+|     0     | reset_trial          |
++-----------+----------------------+
++--------------------------------------------------+
+|      Active Event Terms in Mode: 'interval'      |
++-------+----------------+-------------------------+
+| Index | Name           | Interval time range (s) |
++-------+----------------+-------------------------+
+|   0   | hold_staged    |       (0.03, 0.04)      |
+|   1   | attach_carried |       (0.03, 0.04)      |
++-------+----------------+-------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++-----------------------------------+
+|   Active Action Terms (shape: 7)  |
++-------+---------------+-----------+
+| Index | Name          | Dimension |
++-------+---------------+-----------+
+|   0   | arm_joint_pos |         6 |
+|   1   | gripper       |         1 |
++-------+---------------+-----------+
+
+[gripper_geometry] pad colliders verified against USD (2/2 sides, tolerance 0.5 mm) at /World/envs/env_0/SynriaArm
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++---------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (68,)) |
++------------+-------------------------------+------------+
+|   Index    | Name                          |   Shape    |
++------------+-------------------------------+------------+
+|     0      | joint_state                   |   (13,)    |
+|     1      | ee_pose                       |    (7,)    |
+|     2      | piece_pos                     |    (3,)    |
+|     3      | target_piece_id               |   (32,)    |
+|     4      | target_zone_id                |    (4,)    |
+|     5      | target_pos                    |    (4,)    |
+|     6      | trial_phase                   |    (5,)    |
++------------+-------------------------------+------------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 4 active terms.
++----------------------------------------+
+|        Active Termination Terms        |
++-------+---------------------+----------+
+| Index | Name                | Time Out |
++-------+---------------------+----------+
+|   0   | time_out            |   True   |
+|   1   | piece_dropped       |  False   |
+|   2   | piece_out_of_bounds |  False   |
+|   3   | collision           |  False   |
++-------+---------------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 20 active terms.
++-------------------------------------------------+
+|               Active Reward Terms               |
++-------+--------------------------------+--------+
+| Index | Name                           | Weight |
++-------+--------------------------------+--------+
+|   0   | piece_to_target_distance       |  600.0 |
+|   1   | ee_to_piece_distance           |  300.0 |
+|   2   | piece_lift                     |    1.5 |
+|   3   | gripper_to_piece_when_grasping |    0.3 |
+|   4   | hold_maintenance               |    1.0 |
+|   5   | carry_drop                     |   15.0 |
+|   6   | release_at_zone                |   90.0 |
+|   7   | upright_descent                |  100.0 |
+|   8   | lower_at_zone                  |   15.0 |
+|   9   | approach_guidance              |   0.15 |
+|   10  | carry_guidance                 |    0.2 |
+|   11  | hold_at_zone                   |    0.0 |
+|   12  | action_norm_penalty            |  -0.01 |
+|   13  | grasp_confirmed                |  300.0 |
+|   14  | return_home                    |   60.0 |
+|   15  | setdown_approach               |  600.0 |
+|   16  | cycle_complete                 |  900.0 |
+|   17  | piece_in_zone                  |  300.0 |
+|   18  | piece_dropped                  |   30.0 |
+|   19  | collision                      |   30.0 |
++-------+--------------------------------+--------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 0 active terms.
++----------------------+
+| Active Curriculum Terms |
++-----------+----------+
+|   Index   | Name     |
++-----------+----------+
++-----------+----------+
+
+[INFO]: Completed setting up the environment...
+--------------------------------------------------------------------------------
+Resolved observation sets: 
+	 policy :  ['policy']
+	 critic :  ['policy']
+--------------------------------------------------------------------------------
+Actor MLP: MLP(
+  (0): Linear(in_features=68, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=7, bias=True)
+)
+Critic MLP: MLP(
+  (0): Linear(in_features=68, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=1, bias=True)
+)
+[e33rec] policy: reports/training/synria_chess_pickplace_v6_e26_s43/model_final.pt
+[e33rec] polarity: -1 -> 31.0 mm, +1 -> 50.0 mm
+[e33rec] step=0 saved=0 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[e33rec] step=300 saved=0 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 3, 'released': 3, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[e33rec] step=600 saved=0 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 3} funnel={'takeover': 3, 'released': 3, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[e33rec] step=900 saved=0 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 3} funnel={'takeover': 4, 'released': 4, 'setdown': 1, 'cycle': 0, 'reset_mid_script': 0}
+[e33rec] step=1200 saved=0 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 3} funnel={'takeover': 4, 'released': 4, 'setdown': 1, 'cycle': 0, 'reset_mid_script': 0}
+[death] env=10 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.36rad
+[death] env=11 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.36rad
+[death] env=12 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[death] env=13 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[e33rec] step=1500 saved=0 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 4, 'released': 4, 'setdown': 1, 'cycle': 0, 'reset_mid_script': 4}
+[e33rec] episode 1/100 saved (len=232, env=5)
+[e33rec] episode 2/100 saved (len=384, env=6)
+[e33rec] step=1800 saved=2 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 6, 'released': 6, 'setdown': 3, 'cycle': 2, 'reset_mid_script': 4}
+[e33rec] step=2100 saved=2 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 6, 'released': 6, 'setdown': 3, 'cycle': 2, 'reset_mid_script': 4}
+[e33rec] step=2400 saved=2 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 6, 'released': 6, 'setdown': 3, 'cycle': 2, 'reset_mid_script': 4}
+[e33rec] step=2700 saved=2 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 6, 'released': 6, 'setdown': 3, 'cycle': 2, 'reset_mid_script': 4}
+[death] env=11 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.47rad
+[death] env=12 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.35rad
+[e33rec] step=3000 saved=2 phases={'policy': 15, 'place_descend': 0, 'release': 1, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 7, 'released': 6, 'setdown': 3, 'cycle': 2, 'reset_mid_script': 6}
+[e33rec] step=3300 saved=2 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 8, 'released': 7, 'setdown': 3, 'cycle': 2, 'reset_mid_script': 6}
+[e33rec] step=3600 saved=2 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 8, 'released': 7, 'setdown': 3, 'cycle': 2, 'reset_mid_script': 6}
+[e33rec] step=3900 saved=2 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 8, 'released': 7, 'setdown': 3, 'cycle': 2, 'reset_mid_script': 6}
+[e33rec] step=4200 saved=2 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 8, 'released': 7, 'setdown': 3, 'cycle': 2, 'reset_mid_script': 6}
+[death] env=4 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[death] env=10 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.19rad
+[e33rec] step=4500 saved=2 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 9, 'released': 8, 'setdown': 3, 'cycle': 2, 'reset_mid_script': 8}
+[e33rec] episode 3/100 saved (len=313, env=12)
+[e33rec] episode 4/100 saved (len=429, env=11)
+[e33rec] step=4800 saved=4 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 9, 'released': 8, 'setdown': 5, 'cycle': 4, 'reset_mid_script': 8}
+[e33rec] step=5100 saved=4 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 9, 'released': 8, 'setdown': 5, 'cycle': 4, 'reset_mid_script': 8}
+[e33rec] step=5400 saved=4 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 9, 'released': 8, 'setdown': 5, 'cycle': 4, 'reset_mid_script': 8}
+[death] env=7 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=2.79rad
+[e33rec] step=5700 saved=4 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 9, 'released': 8, 'setdown': 6, 'cycle': 4, 'reset_mid_script': 9}
+[e33rec] step=6000 saved=4 phases={'policy': 12, 'place_descend': 1, 'release': 2, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 13, 'released': 9, 'setdown': 6, 'cycle': 4, 'reset_mid_script': 9}
+[e33rec] step=6300 saved=4 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 13, 'released': 10, 'setdown': 6, 'cycle': 4, 'reset_mid_script': 9}
+[e33rec] step=6600 saved=4 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 13, 'released': 10, 'setdown': 6, 'cycle': 4, 'reset_mid_script': 9}
+[e33rec] step=6900 saved=4 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 13, 'released': 10, 'setdown': 6, 'cycle': 4, 'reset_mid_script': 9}
+[death] env=1 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.38rad
+[death] env=4 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.50rad
+[death] env=8 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[death] env=15 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.36rad
+[e33rec] step=7200 saved=4 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 13, 'released': 10, 'setdown': 6, 'cycle': 4, 'reset_mid_script': 13}
+[e33rec] step=7500 saved=4 phases={'policy': 10, 'place_descend': 0, 'release': 0, 'ascend': 6, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 19, 'released': 16, 'setdown': 7, 'cycle': 4, 'reset_mid_script': 13}
+[e33rec] step=7800 saved=4 phases={'policy': 10, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 5} funnel={'takeover': 19, 'released': 16, 'setdown': 7, 'cycle': 4, 'reset_mid_script': 13}
+[e33rec] step=8100 saved=4 phases={'policy': 9, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 5} funnel={'takeover': 20, 'released': 17, 'setdown': 7, 'cycle': 4, 'reset_mid_script': 13}
+[e33rec] step=8400 saved=4 phases={'policy': 9, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 5} funnel={'takeover': 20, 'released': 17, 'setdown': 7, 'cycle': 4, 'reset_mid_script': 13}
+[death] env=0 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[death] env=1 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[death] env=2 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.98rad
+[death] env=9 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.37rad
+[death] env=13 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.32rad
+[death] env=14 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[death] env=15 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[e33rec] step=8700 saved=4 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 20, 'released': 17, 'setdown': 7, 'cycle': 4, 'reset_mid_script': 20}
+[e33rec] episode 5/100 saved (len=235, env=6)
+[e33rec] episode 6/100 saved (len=405, env=13)
+[e33rec] step=9000 saved=6 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 23, 'released': 19, 'setdown': 9, 'cycle': 6, 'reset_mid_script': 20}
+[e33rec] step=9300 saved=6 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 24, 'released': 20, 'setdown': 9, 'cycle': 6, 'reset_mid_script': 20}
+[e33rec] episode 7/100 saved (len=933, env=3)
+[e33rec] step=9600 saved=7 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 24, 'released': 20, 'setdown': 10, 'cycle': 7, 'reset_mid_script': 20}
+[e33rec] step=9900 saved=7 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 24, 'released': 20, 'setdown': 10, 'cycle': 7, 'reset_mid_script': 20}
+[death] env=5 in=yaw_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.45rad
+[death] env=9 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[death] env=10 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.78rad
+[death] env=14 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.38rad
+[e33rec] step=10200 saved=7 phases={'policy': 15, 'place_descend': 1, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 25, 'released': 20, 'setdown': 10, 'cycle': 7, 'reset_mid_script': 24}
+[e33rec] episode 8/100 saved (len=224, env=3)
+[e33rec] episode 9/100 saved (len=250, env=9)
+[e33rec] step=10500 saved=9 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 28, 'released': 22, 'setdown': 12, 'cycle': 9, 'reset_mid_script': 24}
+[e33rec] step=10800 saved=9 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 28, 'released': 22, 'setdown': 12, 'cycle': 9, 'reset_mid_script': 24}
+[e33rec] episode 10/100 saved (len=1029, env=12)
+[e33rec] step=11100 saved=10 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 28, 'released': 22, 'setdown': 13, 'cycle': 10, 'reset_mid_script': 24}
+[e33rec] step=11400 saved=10 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 28, 'released': 22, 'setdown': 13, 'cycle': 10, 'reset_mid_script': 24}
+[death] env=1 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.28rad
+[death] env=4 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[death] env=8 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[death] env=13 in=ascend taskphase=0 cup_tilt=0deg cup_z=847mm home_err=1.39rad
+[e33rec] episode 11/100 saved (len=223, env=2)
+[e33rec] step=11700 saved=11 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 29, 'released': 23, 'setdown': 14, 'cycle': 11, 'reset_mid_script': 28}
+[e33rec] step=12000 saved=11 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 29, 'released': 23, 'setdown': 14, 'cycle': 11, 'reset_mid_script': 28}
+[e33rec] step=12300 saved=11 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 29, 'released': 23, 'setdown': 14, 'cycle': 11, 'reset_mid_script': 28}
+[e33rec] episode 12/100 saved (len=1032, env=5)
+[e33rec] step=12600 saved=12 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 29, 'released': 23, 'setdown': 15, 'cycle': 12, 'reset_mid_script': 28}
+[death] env=15 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.35rad
+[e33rec] step=12900 saved=12 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 29, 'released': 23, 'setdown': 15, 'cycle': 12, 'reset_mid_script': 29}
+[e33rec] step=13200 saved=12 phases={'policy': 13, 'place_descend': 0, 'release': 1, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 32, 'released': 25, 'setdown': 15, 'cycle': 12, 'reset_mid_script': 29}
+[e33rec] step=13500 saved=12 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 32, 'released': 25, 'setdown': 15, 'cycle': 12, 'reset_mid_script': 29}
+[e33rec] step=13800 saved=12 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 32, 'released': 25, 'setdown': 15, 'cycle': 12, 'reset_mid_script': 29}
+[e33rec] step=14100 saved=12 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 32, 'released': 25, 'setdown': 15, 'cycle': 12, 'reset_mid_script': 29}
+[e33rec] episode 13/100 saved (len=288, env=6)
+[death] env=2 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.26rad
+[death] env=5 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.32rad
+[death] env=13 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.32rad
+[e33rec] step=14400 saved=13 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 32, 'released': 25, 'setdown': 16, 'cycle': 13, 'reset_mid_script': 32}
+[e33rec] episode 14/100 saved (len=222, env=14)
+[e33rec] step=14700 saved=14 phases={'policy': 14, 'place_descend': 0, 'release': 1, 'ascend': 0, 'yaw_home': 1, 'go_home': 0} funnel={'takeover': 34, 'released': 26, 'setdown': 17, 'cycle': 14, 'reset_mid_script': 32}
+[e33rec] episode 15/100 saved (len=593, env=11)
+[e33rec] step=15000 saved=15 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 34, 'released': 26, 'setdown': 18, 'cycle': 15, 'reset_mid_script': 32}
+[e33rec] step=15300 saved=15 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 34, 'released': 26, 'setdown': 18, 'cycle': 15, 'reset_mid_script': 32}
+[e33rec] step=15600 saved=15 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 34, 'released': 26, 'setdown': 18, 'cycle': 15, 'reset_mid_script': 32}
+[death] env=3 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.34rad
+[death] env=5 in=ascend taskphase=0 cup_tilt=0deg cup_z=857mm home_err=1.33rad
+[e33rec] step=15900 saved=15 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 34, 'released': 26, 'setdown': 18, 'cycle': 15, 'reset_mid_script': 34}
+[e33rec] step=16200 saved=15 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 35, 'released': 27, 'setdown': 18, 'cycle': 15, 'reset_mid_script': 34}
+[e33rec] step=16500 saved=15 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 35, 'released': 27, 'setdown': 18, 'cycle': 15, 'reset_mid_script': 34}
+[e33rec] step=16800 saved=15 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 35, 'released': 27, 'setdown': 18, 'cycle': 15, 'reset_mid_script': 34}
+[e33rec] episode 16/100 saved (len=1219, env=12)
+[e33rec] episode 17/100 saved (len=1344, env=1)
+[e33rec] step=17100 saved=17 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 35, 'released': 27, 'setdown': 20, 'cycle': 17, 'reset_mid_script': 34}
+[death] env=11 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.38rad
+[e33rec] step=17400 saved=17 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 35, 'released': 27, 'setdown': 20, 'cycle': 17, 'reset_mid_script': 35}
+[e33rec] step=17700 saved=17 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 36, 'released': 28, 'setdown': 20, 'cycle': 17, 'reset_mid_script': 35}
+[e33rec] step=18000 saved=17 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 36, 'released': 28, 'setdown': 20, 'cycle': 17, 'reset_mid_script': 35}
+[e33rec] step=18300 saved=17 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 37, 'released': 29, 'setdown': 20, 'cycle': 17, 'reset_mid_script': 35}
+[e33rec] step=18600 saved=17 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 37, 'released': 29, 'setdown': 20, 'cycle': 17, 'reset_mid_script': 35}
+[death] env=3 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[death] env=12 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.48rad
+[e33rec] episode 18/100 saved (len=258, env=10)
+[e33rec] step=18900 saved=18 phases={'policy': 14, 'place_descend': 0, 'release': 1, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 39, 'released': 30, 'setdown': 21, 'cycle': 18, 'reset_mid_script': 37}
+[e33rec] step=19200 saved=18 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 40, 'released': 30, 'setdown': 21, 'cycle': 18, 'reset_mid_script': 37}
+[e33rec] step=19500 saved=18 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 40, 'released': 30, 'setdown': 21, 'cycle': 18, 'reset_mid_script': 37}
+[e33rec] step=19800 saved=18 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 40, 'released': 30, 'setdown': 21, 'cycle': 18, 'reset_mid_script': 37}
+[death] env=9 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[death] env=11 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.42rad
+[death] env=14 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=20100 saved=18 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 40, 'released': 30, 'setdown': 21, 'cycle': 18, 'reset_mid_script': 40}
+[e33rec] episode 19/100 saved (len=231, env=7)
+[e33rec] episode 20/100 saved (len=250, env=13)
+[e33rec] step=20400 saved=20 phases={'policy': 15, 'place_descend': 0, 'release': 1, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 41, 'released': 30, 'setdown': 23, 'cycle': 20, 'reset_mid_script': 40}
+[e33rec] episode 21/100 saved (len=353, env=15)
+[e33rec] step=20700 saved=21 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 41, 'released': 30, 'setdown': 24, 'cycle': 21, 'reset_mid_script': 40}
+[e33rec] step=21000 saved=21 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 42, 'released': 31, 'setdown': 24, 'cycle': 21, 'reset_mid_script': 40}
+[e33rec] step=21300 saved=21 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 42, 'released': 31, 'setdown': 24, 'cycle': 21, 'reset_mid_script': 40}
+[e33rec] episode 22/100 saved (len=894, env=5)
+[death] env=2 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.26rad
+[death] env=8 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=21600 saved=22 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 43, 'released': 32, 'setdown': 25, 'cycle': 22, 'reset_mid_script': 42}
+[e33rec] step=21900 saved=22 phases={'policy': 12, 'place_descend': 0, 'release': 1, 'ascend': 1, 'yaw_home': 1, 'go_home': 1} funnel={'takeover': 46, 'released': 33, 'setdown': 25, 'cycle': 22, 'reset_mid_script': 42}
+[e33rec] episode 23/100 saved (len=215, env=5)
+[e33rec] step=22200 saved=23 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 46, 'released': 33, 'setdown': 26, 'cycle': 23, 'reset_mid_script': 42}
+[death] env=6 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=22500 saved=23 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 46, 'released': 33, 'setdown': 26, 'cycle': 23, 'reset_mid_script': 43}
+[e33rec] step=22800 saved=23 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 46, 'released': 33, 'setdown': 26, 'cycle': 23, 'reset_mid_script': 43}
+[death] env=0 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.25rad
+[death] env=1 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.23rad
+[death] env=12 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=23100 saved=23 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 46, 'released': 33, 'setdown': 26, 'cycle': 23, 'reset_mid_script': 46}
+[e33rec] step=23400 saved=23 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 47, 'released': 34, 'setdown': 26, 'cycle': 23, 'reset_mid_script': 46}
+[e33rec] step=23700 saved=23 phases={'policy': 13, 'place_descend': 1, 'release': 1, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 49, 'released': 34, 'setdown': 26, 'cycle': 23, 'reset_mid_script': 46}
+[e33rec] episode 24/100 saved (len=819, env=15)
+[e33rec] step=24000 saved=24 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 50, 'released': 35, 'setdown': 27, 'cycle': 24, 'reset_mid_script': 46}
+[e33rec] step=24300 saved=24 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 50, 'released': 35, 'setdown': 27, 'cycle': 24, 'reset_mid_script': 46}
+[death] env=7 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.34rad
+[death] env=14 in=go_home taskphase=0 cup_tilt=0deg cup_z=818mm home_err=1.06rad
+[e33rec] step=24600 saved=24 phases={'policy': 12, 'place_descend': 1, 'release': 1, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 52, 'released': 35, 'setdown': 27, 'cycle': 24, 'reset_mid_script': 48}
+[death] env=2 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.13rad
+[death] env=1 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.17rad
+[e33rec] step=24900 saved=24 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 3} funnel={'takeover': 54, 'released': 39, 'setdown': 27, 'cycle': 24, 'reset_mid_script': 50}
+[e33rec] step=25200 saved=24 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 3} funnel={'takeover': 54, 'released': 39, 'setdown': 27, 'cycle': 24, 'reset_mid_script': 50}
+[e33rec] step=25500 saved=24 phases={'policy': 11, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 4} funnel={'takeover': 55, 'released': 40, 'setdown': 28, 'cycle': 24, 'reset_mid_script': 50}
+[e33rec] step=25800 saved=24 phases={'policy': 11, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 4} funnel={'takeover': 55, 'released': 40, 'setdown': 28, 'cycle': 24, 'reset_mid_script': 50}
+[death] env=3 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[death] env=12 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[death] env=14 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[death] env=15 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.44rad
+[death] env=13 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=26100 saved=24 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 55, 'released': 40, 'setdown': 28, 'cycle': 24, 'reset_mid_script': 55}
+[e33rec] step=26400 saved=24 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 56, 'released': 41, 'setdown': 28, 'cycle': 24, 'reset_mid_script': 55}
+[e33rec] episode 25/100 saved (len=592, env=7)
+[e33rec] step=26700 saved=25 phases={'policy': 13, 'place_descend': 1, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 58, 'released': 42, 'setdown': 30, 'cycle': 25, 'reset_mid_script': 55}
+[e33rec] step=27000 saved=25 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 58, 'released': 43, 'setdown': 30, 'cycle': 25, 'reset_mid_script': 55}
+[death] env=0 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.37rad
+[e33rec] step=27300 saved=25 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 58, 'released': 43, 'setdown': 30, 'cycle': 25, 'reset_mid_script': 56}
+[e33rec] episode 26/100 saved (len=291, env=0)
+[e33rec] step=27600 saved=26 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 59, 'released': 44, 'setdown': 31, 'cycle': 26, 'reset_mid_script': 56}
+[death] env=5 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.66rad
+[death] env=2 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.51rad
+[e33rec] step=27900 saved=26 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 59, 'released': 44, 'setdown': 31, 'cycle': 26, 'reset_mid_script': 58}
+[e33rec] step=28200 saved=26 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 59, 'released': 44, 'setdown': 31, 'cycle': 26, 'reset_mid_script': 58}
+[e33rec] step=28500 saved=26 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 59, 'released': 44, 'setdown': 31, 'cycle': 26, 'reset_mid_script': 58}
+[death] env=15 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.13rad
+[e33rec] step=28800 saved=26 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 60, 'released': 45, 'setdown': 32, 'cycle': 26, 'reset_mid_script': 59}
+[e33rec] step=29100 saved=26 phases={'policy': 14, 'place_descend': 0, 'release': 1, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 61, 'released': 45, 'setdown': 32, 'cycle': 26, 'reset_mid_script': 59}
+[e33rec] episode 27/100 saved (len=281, env=5)
+[e33rec] step=29400 saved=27 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 61, 'released': 45, 'setdown': 33, 'cycle': 27, 'reset_mid_script': 59}
+[death] env=1 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.32rad
+[e33rec] step=29700 saved=27 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 61, 'released': 45, 'setdown': 33, 'cycle': 27, 'reset_mid_script': 60}
+[e33rec] step=30000 saved=27 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 61, 'released': 45, 'setdown': 33, 'cycle': 27, 'reset_mid_script': 60}
+[death] env=10 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.39rad
+[e33rec] step=30300 saved=27 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 61, 'released': 45, 'setdown': 33, 'cycle': 27, 'reset_mid_script': 61}
+[e33rec] episode 28/100 saved (len=990, env=5)
+[e33rec] step=30600 saved=28 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 1, 'go_home': 0} funnel={'takeover': 62, 'released': 46, 'setdown': 34, 'cycle': 28, 'reset_mid_script': 61}
+[e33rec] step=30900 saved=28 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 62, 'released': 46, 'setdown': 34, 'cycle': 28, 'reset_mid_script': 61}
+[e33rec] step=31200 saved=28 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 62, 'released': 46, 'setdown': 34, 'cycle': 28, 'reset_mid_script': 61}
+[e33rec] step=31500 saved=28 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 63, 'released': 47, 'setdown': 34, 'cycle': 28, 'reset_mid_script': 61}
+[death] env=11 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=31800 saved=28 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 63, 'released': 47, 'setdown': 34, 'cycle': 28, 'reset_mid_script': 62}
+[e33rec] episode 29/100 saved (len=300, env=4)
+[e33rec] step=32100 saved=29 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 65, 'released': 49, 'setdown': 35, 'cycle': 29, 'reset_mid_script': 62}
+[e33rec] step=32400 saved=29 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 66, 'released': 50, 'setdown': 35, 'cycle': 29, 'reset_mid_script': 62}
+[death] env=6 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.72rad
+[e33rec] step=32700 saved=29 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 67, 'released': 51, 'setdown': 35, 'cycle': 29, 'reset_mid_script': 63}
+[e33rec] episode 30/100 saved (len=1215, env=3)
+[e33rec] step=33000 saved=30 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 67, 'released': 51, 'setdown': 36, 'cycle': 30, 'reset_mid_script': 63}
+[death] env=8 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.18rad
+[death] env=13 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[e33rec] step=33300 saved=30 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 68, 'released': 52, 'setdown': 37, 'cycle': 30, 'reset_mid_script': 65}
+[death] env=5 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.25rad
+[e33rec] step=33600 saved=30 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 69, 'released': 52, 'setdown': 37, 'cycle': 30, 'reset_mid_script': 66}
+[e33rec] step=33900 saved=30 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 70, 'released': 52, 'setdown': 37, 'cycle': 30, 'reset_mid_script': 66}
+[death] env=1 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.34rad
+[e33rec] step=34200 saved=30 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 70, 'released': 52, 'setdown': 37, 'cycle': 30, 'reset_mid_script': 67}
+[death] env=3 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.32rad
+[e33rec] step=34500 saved=30 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 70, 'released': 52, 'setdown': 37, 'cycle': 30, 'reset_mid_script': 68}
+[death] env=13 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.32rad
+[e33rec] episode 31/100 saved (len=254, env=11)
+[e33rec] step=34800 saved=31 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 71, 'released': 53, 'setdown': 38, 'cycle': 31, 'reset_mid_script': 69}
+[death] env=5 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.64rad
+[e33rec] step=35100 saved=31 phases={'policy': 14, 'place_descend': 0, 'release': 1, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 72, 'released': 53, 'setdown': 38, 'cycle': 31, 'reset_mid_script': 70}
+[e33rec] step=35400 saved=31 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 72, 'released': 53, 'setdown': 38, 'cycle': 31, 'reset_mid_script': 70}
+[death] env=6 in=ascend taskphase=0 cup_tilt=0deg cup_z=866mm home_err=1.56rad
+[e33rec] episode 32/100 saved (len=218, env=1)
+[e33rec] step=35700 saved=32 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 72, 'released': 53, 'setdown': 39, 'cycle': 32, 'reset_mid_script': 71}
+[death] env=0 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.35rad
+[e33rec] step=36000 saved=32 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 72, 'released': 53, 'setdown': 39, 'cycle': 32, 'reset_mid_script': 72}
+[e33rec] step=36300 saved=32 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 75, 'released': 55, 'setdown': 40, 'cycle': 32, 'reset_mid_script': 72}
+[e33rec] episode 33/100 saved (len=351, env=13)
+[e33rec] episode 34/100 saved (len=235, env=2)
+[e33rec] step=36600 saved=34 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 75, 'released': 55, 'setdown': 42, 'cycle': 34, 'reset_mid_script': 72}
+[e33rec] episode 35/100 saved (len=1212, env=1)
+[death] env=6 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=2.67rad
+[e33rec] step=36900 saved=35 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 75, 'released': 55, 'setdown': 43, 'cycle': 35, 'reset_mid_script': 73}
+[e33rec] step=37200 saved=35 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 75, 'released': 55, 'setdown': 43, 'cycle': 35, 'reset_mid_script': 73}
+[death] env=8 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[death] env=15 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.19rad
+[e33rec] step=37500 saved=35 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 76, 'released': 56, 'setdown': 43, 'cycle': 35, 'reset_mid_script': 75}
+[e33rec] step=37800 saved=35 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 76, 'released': 56, 'setdown': 43, 'cycle': 35, 'reset_mid_script': 75}
+[e33rec] step=38100 saved=35 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 76, 'released': 56, 'setdown': 43, 'cycle': 35, 'reset_mid_script': 75}
+[death] env=6 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.44rad
+[e33rec] step=38400 saved=35 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 76, 'released': 56, 'setdown': 43, 'cycle': 35, 'reset_mid_script': 76}
+[e33rec] step=38700 saved=35 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 76, 'released': 56, 'setdown': 43, 'cycle': 35, 'reset_mid_script': 76}
+[e33rec] step=39000 saved=35 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 76, 'released': 56, 'setdown': 43, 'cycle': 35, 'reset_mid_script': 76}
+[e33rec] step=39300 saved=35 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 77, 'released': 56, 'setdown': 44, 'cycle': 35, 'reset_mid_script': 76}
+[e33rec] step=39600 saved=35 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 77, 'released': 56, 'setdown': 44, 'cycle': 35, 'reset_mid_script': 76}
+[e33rec] step=39900 saved=35 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 77, 'released': 56, 'setdown': 44, 'cycle': 35, 'reset_mid_script': 76}
+[e33rec] step=40200 saved=35 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 1, 'go_home': 0} funnel={'takeover': 78, 'released': 57, 'setdown': 44, 'cycle': 35, 'reset_mid_script': 76}
+[death] env=7 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=40500 saved=35 phases={'policy': 13, 'place_descend': 0, 'release': 1, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 80, 'released': 58, 'setdown': 44, 'cycle': 35, 'reset_mid_script': 77}
+[e33rec] episode 36/100 saved (len=258, env=10)
+[e33rec] episode 37/100 saved (len=372, env=14)
+[e33rec] step=40800 saved=37 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 80, 'released': 58, 'setdown': 46, 'cycle': 37, 'reset_mid_script': 77}
+[e33rec] step=41100 saved=37 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 80, 'released': 58, 'setdown': 46, 'cycle': 37, 'reset_mid_script': 77}
+[death] env=6 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[e33rec] step=41400 saved=37 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 80, 'released': 58, 'setdown': 46, 'cycle': 37, 'reset_mid_script': 78}
+[death] env=4 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[death] env=7 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.31rad
+[e33rec] step=41700 saved=37 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 80, 'released': 58, 'setdown': 46, 'cycle': 37, 'reset_mid_script': 80}
+[e33rec] step=42000 saved=37 phases={'policy': 14, 'place_descend': 1, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 82, 'released': 59, 'setdown': 47, 'cycle': 37, 'reset_mid_script': 80}
+[e33rec] step=42300 saved=37 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 82, 'released': 60, 'setdown': 47, 'cycle': 37, 'reset_mid_script': 80}
+[e33rec] step=42600 saved=37 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 82, 'released': 60, 'setdown': 47, 'cycle': 37, 'reset_mid_script': 80}
+[e33rec] step=42900 saved=37 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 82, 'released': 60, 'setdown': 47, 'cycle': 37, 'reset_mid_script': 80}
+[death] env=0 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[death] env=15 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.86rad
+[e33rec] step=43200 saved=37 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 82, 'released': 60, 'setdown': 47, 'cycle': 37, 'reset_mid_script': 82}
+[e33rec] episode 38/100 saved (len=282, env=13)
+[e33rec] step=43500 saved=38 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 83, 'released': 60, 'setdown': 48, 'cycle': 38, 'reset_mid_script': 82}
+[e33rec] step=43800 saved=38 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 85, 'released': 61, 'setdown': 49, 'cycle': 38, 'reset_mid_script': 82}
+[e33rec] step=44100 saved=38 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 85, 'released': 61, 'setdown': 49, 'cycle': 38, 'reset_mid_script': 82}
+[e33rec] step=44400 saved=38 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 86, 'released': 61, 'setdown': 49, 'cycle': 38, 'reset_mid_script': 82}
+[death] env=14 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.20rad
+[death] env=10 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=2.79rad
+[e33rec] step=44700 saved=38 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 86, 'released': 61, 'setdown': 49, 'cycle': 38, 'reset_mid_script': 84}
+[e33rec] episode 39/100 saved (len=355, env=3)
+[death] env=5 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] episode 40/100 saved (len=279, env=11)
+[e33rec] step=45000 saved=40 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 86, 'released': 61, 'setdown': 51, 'cycle': 40, 'reset_mid_script': 85}
+[e33rec] step=45300 saved=40 phases={'policy': 14, 'place_descend': 0, 'release': 1, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 87, 'released': 61, 'setdown': 52, 'cycle': 40, 'reset_mid_script': 85}
+[death] env=1 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.19rad
+[e33rec] step=45600 saved=40 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 87, 'released': 61, 'setdown': 52, 'cycle': 40, 'reset_mid_script': 86}
+[e33rec] step=45900 saved=40 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 87, 'released': 61, 'setdown': 52, 'cycle': 40, 'reset_mid_script': 86}
+[e33rec] step=46200 saved=40 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 87, 'released': 61, 'setdown': 52, 'cycle': 40, 'reset_mid_script': 86}
+[e33rec] episode 41/100 saved (len=231, env=7)
+[death] env=2 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.34rad
+[e33rec] step=46500 saved=41 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 88, 'released': 62, 'setdown': 53, 'cycle': 41, 'reset_mid_script': 87}
+[e33rec] step=46800 saved=41 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 88, 'released': 62, 'setdown': 53, 'cycle': 41, 'reset_mid_script': 87}
+[e33rec] step=47100 saved=41 phases={'policy': 14, 'place_descend': 0, 'release': 1, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 89, 'released': 62, 'setdown': 54, 'cycle': 41, 'reset_mid_script': 87}
+[e33rec] step=47400 saved=41 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 90, 'released': 63, 'setdown': 54, 'cycle': 41, 'reset_mid_script': 87}
+[death] env=3 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.44rad
+[death] env=8 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=47700 saved=41 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 90, 'released': 63, 'setdown': 54, 'cycle': 41, 'reset_mid_script': 89}
+[e33rec] step=48000 saved=41 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 90, 'released': 63, 'setdown': 54, 'cycle': 41, 'reset_mid_script': 89}
+[e33rec] step=48300 saved=41 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 91, 'released': 64, 'setdown': 55, 'cycle': 41, 'reset_mid_script': 89}
+[e33rec] episode 42/100 saved (len=715, env=11)
+[death] env=1 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.37rad
+[e33rec] step=48600 saved=42 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 91, 'released': 64, 'setdown': 55, 'cycle': 42, 'reset_mid_script': 90}
+[e33rec] step=48900 saved=42 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 1, 'go_home': 1} funnel={'takeover': 92, 'released': 65, 'setdown': 55, 'cycle': 42, 'reset_mid_script': 90}
+[e33rec] step=49200 saved=42 phases={'policy': 11, 'place_descend': 1, 'release': 1, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 95, 'released': 66, 'setdown': 57, 'cycle': 42, 'reset_mid_script': 90}
+[death] env=2 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[e33rec] step=49500 saved=42 phases={'policy': 10, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 3} funnel={'takeover': 97, 'released': 69, 'setdown': 58, 'cycle': 42, 'reset_mid_script': 91}
+[e33rec] episode 43/100 saved (len=647, env=0)
+[e33rec] step=49800 saved=43 phases={'policy': 10, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 4} funnel={'takeover': 97, 'released': 69, 'setdown': 59, 'cycle': 43, 'reset_mid_script': 91}
+[death] env=6 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=50100 saved=43 phases={'policy': 8, 'place_descend': 0, 'release': 1, 'ascend': 4, 'yaw_home': 0, 'go_home': 3} funnel={'takeover': 100, 'released': 71, 'setdown': 60, 'cycle': 43, 'reset_mid_script': 92}
+[death] env=3 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.34rad
+[death] env=4 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.46rad
+[death] env=7 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.24rad
+[death] env=10 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.27rad
+[death] env=13 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=50400 saved=43 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 100, 'released': 71, 'setdown': 60, 'cycle': 43, 'reset_mid_script': 97}
+[death] env=14 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=50700 saved=43 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 101, 'released': 71, 'setdown': 60, 'cycle': 43, 'reset_mid_script': 98}
+[e33rec] step=51000 saved=43 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 101, 'released': 71, 'setdown': 60, 'cycle': 43, 'reset_mid_script': 98}
+[death] env=1 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.35rad
+[death] env=6 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=51300 saved=43 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 101, 'released': 71, 'setdown': 60, 'cycle': 43, 'reset_mid_script': 100}
+[e33rec] step=51600 saved=43 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 102, 'released': 72, 'setdown': 60, 'cycle': 43, 'reset_mid_script': 100}
+[death] env=15 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.25rad
+[e33rec] step=51900 saved=43 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 102, 'released': 72, 'setdown': 60, 'cycle': 43, 'reset_mid_script': 101}
+[e33rec] episode 44/100 saved (len=1317, env=2)
+[e33rec] step=52200 saved=44 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 104, 'released': 73, 'setdown': 61, 'cycle': 44, 'reset_mid_script': 101}
+[e33rec] step=52500 saved=44 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 104, 'released': 73, 'setdown': 61, 'cycle': 44, 'reset_mid_script': 101}
+[death] env=6 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.32rad
+[e33rec] step=52800 saved=44 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 104, 'released': 73, 'setdown': 61, 'cycle': 44, 'reset_mid_script': 102}
+[e33rec] step=53100 saved=44 phases={'policy': 13, 'place_descend': 1, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 105, 'released': 73, 'setdown': 62, 'cycle': 44, 'reset_mid_script': 102}
+[death] env=4 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.19rad
+[death] env=10 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[death] env=13 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.80rad
+[e33rec] step=53400 saved=44 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 105, 'released': 74, 'setdown': 62, 'cycle': 44, 'reset_mid_script': 105}
+[e33rec] step=53700 saved=44 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 107, 'released': 75, 'setdown': 62, 'cycle': 44, 'reset_mid_script': 105}
+[e33rec] step=54000 saved=44 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 107, 'released': 75, 'setdown': 62, 'cycle': 44, 'reset_mid_script': 105}
+[e33rec] step=54300 saved=44 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 107, 'released': 75, 'setdown': 62, 'cycle': 44, 'reset_mid_script': 105}
+[e33rec] step=54600 saved=44 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 107, 'released': 75, 'setdown': 62, 'cycle': 44, 'reset_mid_script': 105}
+[death] env=4 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.27rad
+[death] env=8 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=54900 saved=44 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 108, 'released': 76, 'setdown': 62, 'cycle': 44, 'reset_mid_script': 107}
+[e33rec] step=55200 saved=44 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 109, 'released': 77, 'setdown': 62, 'cycle': 44, 'reset_mid_script': 107}
+[e33rec] step=55500 saved=44 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 109, 'released': 77, 'setdown': 62, 'cycle': 44, 'reset_mid_script': 107}
+[e33rec] step=55800 saved=44 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 110, 'released': 78, 'setdown': 62, 'cycle': 44, 'reset_mid_script': 107}
+[death] env=15 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.31rad
+[e33rec] step=56100 saved=44 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 110, 'released': 78, 'setdown': 62, 'cycle': 44, 'reset_mid_script': 108}
+[death] env=14 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.34rad
+[e33rec] step=56400 saved=44 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 110, 'released': 78, 'setdown': 62, 'cycle': 44, 'reset_mid_script': 109}
+[e33rec] step=56700 saved=44 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 111, 'released': 78, 'setdown': 62, 'cycle': 44, 'reset_mid_script': 109}
+[e33rec] episode 45/100 saved (len=572, env=14)
+[death] env=0 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.60rad
+[e33rec] step=57000 saved=45 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 111, 'released': 78, 'setdown': 63, 'cycle': 45, 'reset_mid_script': 110}
+[e33rec] episode 46/100 saved (len=261, env=1)
+[e33rec] step=57300 saved=46 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 111, 'released': 78, 'setdown': 64, 'cycle': 46, 'reset_mid_script': 110}
+[e33rec] step=57600 saved=46 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 111, 'released': 78, 'setdown': 64, 'cycle': 46, 'reset_mid_script': 110}
+[death] env=11 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.35rad
+[e33rec] episode 47/100 saved (len=319, env=10)
+[e33rec] step=57900 saved=47 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 112, 'released': 79, 'setdown': 65, 'cycle': 47, 'reset_mid_script': 111}
+[e33rec] step=58200 saved=47 phases={'policy': 14, 'place_descend': 1, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 113, 'released': 79, 'setdown': 65, 'cycle': 47, 'reset_mid_script': 111}
+[e33rec] step=58500 saved=47 phases={'policy': 13, 'place_descend': 0, 'release': 1, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 114, 'released': 80, 'setdown': 65, 'cycle': 47, 'reset_mid_script': 111}
+[e33rec] step=58800 saved=47 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 114, 'released': 80, 'setdown': 65, 'cycle': 47, 'reset_mid_script': 111}
+[e33rec] episode 48/100 saved (len=510, env=1)
+[death] env=4 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.25rad
+[e33rec] step=59100 saved=48 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 114, 'released': 80, 'setdown': 66, 'cycle': 48, 'reset_mid_script': 112}
+[death] env=2 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.69rad
+[e33rec] step=59400 saved=48 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 115, 'released': 81, 'setdown': 66, 'cycle': 48, 'reset_mid_script': 113}
+[e33rec] episode 49/100 saved (len=393, env=11)
+[death] env=0 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.45rad
+[e33rec] step=59700 saved=49 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 115, 'released': 81, 'setdown': 67, 'cycle': 49, 'reset_mid_script': 114}
+[e33rec] step=60000 saved=49 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 115, 'released': 81, 'setdown': 67, 'cycle': 49, 'reset_mid_script': 114}
+[e33rec] episode 50/100 saved (len=1108, env=15)
+[e33rec] step=60300 saved=50 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 116, 'released': 82, 'setdown': 68, 'cycle': 50, 'reset_mid_script': 114}
+[death] env=7 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=60600 saved=50 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 116, 'released': 82, 'setdown': 68, 'cycle': 50, 'reset_mid_script': 115}
+[e33rec] step=60900 saved=50 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 116, 'released': 82, 'setdown': 68, 'cycle': 50, 'reset_mid_script': 115}
+[e33rec] step=61200 saved=50 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 116, 'released': 82, 'setdown': 68, 'cycle': 50, 'reset_mid_script': 115}
+[death] env=1 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=61500 saved=50 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 116, 'released': 82, 'setdown': 68, 'cycle': 50, 'reset_mid_script': 116}
+[e33rec] step=61800 saved=50 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 116, 'released': 82, 'setdown': 68, 'cycle': 50, 'reset_mid_script': 116}
+[e33rec] episode 51/100 saved (len=225, env=3)
+[e33rec] step=62100 saved=51 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 116, 'released': 82, 'setdown': 69, 'cycle': 51, 'reset_mid_script': 116}
+[e33rec] step=62400 saved=51 phases={'policy': 15, 'place_descend': 0, 'release': 1, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 117, 'released': 82, 'setdown': 69, 'cycle': 51, 'reset_mid_script': 116}
+[e33rec] step=62700 saved=51 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 117, 'released': 82, 'setdown': 69, 'cycle': 51, 'reset_mid_script': 116}
+[e33rec] episode 52/100 saved (len=623, env=2)
+[e33rec] step=63000 saved=52 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 117, 'released': 82, 'setdown': 70, 'cycle': 52, 'reset_mid_script': 116}
+[e33rec] step=63300 saved=52 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 117, 'released': 82, 'setdown': 70, 'cycle': 52, 'reset_mid_script': 116}
+[death] env=11 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.46rad
+[e33rec] step=63600 saved=52 phases={'policy': 15, 'place_descend': 1, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 118, 'released': 82, 'setdown': 70, 'cycle': 52, 'reset_mid_script': 117}
+[e33rec] step=63900 saved=52 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 119, 'released': 83, 'setdown': 70, 'cycle': 52, 'reset_mid_script': 117}
+[e33rec] step=64200 saved=52 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 119, 'released': 83, 'setdown': 70, 'cycle': 52, 'reset_mid_script': 117}
+[e33rec] step=64500 saved=52 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 119, 'released': 83, 'setdown': 70, 'cycle': 52, 'reset_mid_script': 117}
+[e33rec] episode 53/100 saved (len=1272, env=9)
+[e33rec] episode 54/100 saved (len=332, env=6)
+[death] env=10 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=64800 saved=54 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 119, 'released': 83, 'setdown': 72, 'cycle': 54, 'reset_mid_script': 118}
+[death] env=11 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.17rad
+[e33rec] step=65100 saved=54 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 121, 'released': 85, 'setdown': 72, 'cycle': 54, 'reset_mid_script': 119}
+[e33rec] step=65400 saved=54 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 121, 'released': 85, 'setdown': 72, 'cycle': 54, 'reset_mid_script': 119}
+[e33rec] step=65700 saved=54 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 121, 'released': 85, 'setdown': 72, 'cycle': 54, 'reset_mid_script': 119}
+[e33rec] step=66000 saved=54 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 121, 'released': 85, 'setdown': 72, 'cycle': 54, 'reset_mid_script': 119}
+[death] env=4 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=2.79rad
+[death] env=7 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=66300 saved=54 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 121, 'released': 85, 'setdown': 72, 'cycle': 54, 'reset_mid_script': 121}
+[e33rec] step=66600 saved=54 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 124, 'released': 87, 'setdown': 72, 'cycle': 54, 'reset_mid_script': 121}
+[e33rec] episode 55/100 saved (len=627, env=10)
+[e33rec] step=66900 saved=55 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 124, 'released': 87, 'setdown': 73, 'cycle': 55, 'reset_mid_script': 121}
+[e33rec] step=67200 saved=55 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 124, 'released': 87, 'setdown': 73, 'cycle': 55, 'reset_mid_script': 121}
+[e33rec] step=67500 saved=55 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 124, 'released': 87, 'setdown': 73, 'cycle': 55, 'reset_mid_script': 121}
+[death] env=3 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.34rad
+[death] env=9 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.95rad
+[death] env=15 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.68rad
+[e33rec] episode 56/100 saved (len=895, env=0)
+[e33rec] step=67800 saved=56 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 124, 'released': 87, 'setdown': 74, 'cycle': 56, 'reset_mid_script': 124}
+[e33rec] step=68100 saved=56 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 124, 'released': 87, 'setdown': 74, 'cycle': 56, 'reset_mid_script': 124}
+[e33rec] step=68400 saved=56 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 125, 'released': 88, 'setdown': 74, 'cycle': 56, 'reset_mid_script': 124}
+[e33rec] step=68700 saved=56 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 125, 'released': 88, 'setdown': 74, 'cycle': 56, 'reset_mid_script': 124}
+[e33rec] step=69000 saved=56 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 125, 'released': 88, 'setdown': 74, 'cycle': 56, 'reset_mid_script': 124}
+[e33rec] step=69300 saved=56 phases={'policy': 13, 'place_descend': 0, 'release': 2, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 127, 'released': 88, 'setdown': 74, 'cycle': 56, 'reset_mid_script': 124}
+[e33rec] episode 57/100 saved (len=236, env=11)
+[death] env=2 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[e33rec] step=69600 saved=57 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 127, 'released': 88, 'setdown': 75, 'cycle': 57, 'reset_mid_script': 125}
+[e33rec] step=69900 saved=57 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 127, 'released': 88, 'setdown': 75, 'cycle': 57, 'reset_mid_script': 125}
+[e33rec] step=70200 saved=57 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 127, 'released': 88, 'setdown': 75, 'cycle': 57, 'reset_mid_script': 125}
+[death] env=8 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.19rad
+[death] env=15 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=70500 saved=57 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 127, 'released': 88, 'setdown': 75, 'cycle': 57, 'reset_mid_script': 127}
+[e33rec] step=70800 saved=57 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 128, 'released': 89, 'setdown': 75, 'cycle': 57, 'reset_mid_script': 127}
+[e33rec] step=71100 saved=57 phases={'policy': 14, 'place_descend': 0, 'release': 1, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 129, 'released': 89, 'setdown': 75, 'cycle': 57, 'reset_mid_script': 127}
+[e33rec] step=71400 saved=57 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 129, 'released': 89, 'setdown': 75, 'cycle': 57, 'reset_mid_script': 127}
+[e33rec] step=71700 saved=57 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 130, 'released': 90, 'setdown': 75, 'cycle': 57, 'reset_mid_script': 127}
+[death] env=7 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.28rad
+[e33rec] step=72000 saved=57 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 130, 'released': 90, 'setdown': 75, 'cycle': 57, 'reset_mid_script': 128}
+[death] env=14 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.43rad
+[e33rec] episode 58/100 saved (len=251, env=8)
+[e33rec] step=72300 saved=58 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 131, 'released': 91, 'setdown': 76, 'cycle': 58, 'reset_mid_script': 129}
+[e33rec] episode 59/100 saved (len=440, env=4)
+[e33rec] step=72600 saved=59 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 132, 'released': 92, 'setdown': 77, 'cycle': 59, 'reset_mid_script': 129}
+[death] env=6 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=72900 saved=59 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 132, 'released': 92, 'setdown': 77, 'cycle': 59, 'reset_mid_script': 130}
+[e33rec] step=73200 saved=59 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 132, 'released': 92, 'setdown': 77, 'cycle': 59, 'reset_mid_script': 130}
+[death] env=10 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=73500 saved=59 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 132, 'released': 92, 'setdown': 77, 'cycle': 59, 'reset_mid_script': 131}
+[death] env=11 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=73800 saved=59 phases={'policy': 14, 'place_descend': 0, 'release': 1, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 134, 'released': 92, 'setdown': 77, 'cycle': 59, 'reset_mid_script': 132}
+[e33rec] step=74100 saved=59 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 134, 'released': 92, 'setdown': 77, 'cycle': 59, 'reset_mid_script': 132}
+[e33rec] step=74400 saved=59 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 134, 'released': 92, 'setdown': 77, 'cycle': 59, 'reset_mid_script': 132}
+[e33rec] step=74700 saved=59 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 135, 'released': 93, 'setdown': 77, 'cycle': 59, 'reset_mid_script': 132}
+[death] env=9 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.39rad
+[death] env=11 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.38rad
+[e33rec] step=75000 saved=59 phases={'policy': 14, 'place_descend': 0, 'release': 1, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 136, 'released': 93, 'setdown': 77, 'cycle': 59, 'reset_mid_script': 134}
+[e33rec] episode 60/100 saved (len=395, env=14)
+[e33rec] step=75300 saved=60 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 138, 'released': 95, 'setdown': 79, 'cycle': 60, 'reset_mid_script': 134}
+[e33rec] episode 61/100 saved (len=251, env=2)
+[e33rec] step=75600 saved=61 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 138, 'released': 95, 'setdown': 80, 'cycle': 61, 'reset_mid_script': 134}
+[death] env=1 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[e33rec] step=75900 saved=61 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 4, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 139, 'released': 95, 'setdown': 80, 'cycle': 61, 'reset_mid_script': 135}
+[e33rec] episode 62/100 saved (len=1229, env=11)
+[e33rec] step=76200 saved=62 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 4, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 139, 'released': 95, 'setdown': 81, 'cycle': 62, 'reset_mid_script': 135}
+[death] env=4 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.21rad
+[death] env=15 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.39rad
+[death] env=10 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.74rad
+[e33rec] episode 63/100 saved (len=243, env=9)
+[e33rec] step=76500 saved=63 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 139, 'released': 95, 'setdown': 82, 'cycle': 63, 'reset_mid_script': 138}
+[e33rec] step=76800 saved=63 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 140, 'released': 95, 'setdown': 82, 'cycle': 63, 'reset_mid_script': 138}
+[death] env=0 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.24rad
+[e33rec] step=77100 saved=63 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 140, 'released': 95, 'setdown': 82, 'cycle': 63, 'reset_mid_script': 139}
+[e33rec] step=77400 saved=63 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 140, 'released': 95, 'setdown': 82, 'cycle': 63, 'reset_mid_script': 139}
+[e33rec] step=77700 saved=63 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 141, 'released': 96, 'setdown': 82, 'cycle': 63, 'reset_mid_script': 139}
+[death] env=10 in=yaw_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.28rad
+[death] env=11 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.39rad
+[e33rec] episode 64/100 saved (len=312, env=8)
+[e33rec] step=78000 saved=64 phases={'policy': 15, 'place_descend': 0, 'release': 1, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 142, 'released': 96, 'setdown': 83, 'cycle': 64, 'reset_mid_script': 141}
+[e33rec] step=78300 saved=64 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 143, 'released': 96, 'setdown': 83, 'cycle': 64, 'reset_mid_script': 141}
+[e33rec] step=78600 saved=64 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 143, 'released': 96, 'setdown': 83, 'cycle': 64, 'reset_mid_script': 141}
+[e33rec] step=78900 saved=64 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 144, 'released': 97, 'setdown': 83, 'cycle': 64, 'reset_mid_script': 141}
+[death] env=9 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.36rad
+[e33rec] step=79200 saved=64 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 144, 'released': 97, 'setdown': 83, 'cycle': 64, 'reset_mid_script': 142}
+[death] env=11 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.49rad
+[e33rec] step=79500 saved=64 phases={'policy': 11, 'place_descend': 0, 'release': 0, 'ascend': 5, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 148, 'released': 101, 'setdown': 84, 'cycle': 64, 'reset_mid_script': 143}
+[death] env=2 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.46rad
+[e33rec] step=79800 saved=64 phases={'policy': 11, 'place_descend': 1, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 149, 'released': 101, 'setdown': 84, 'cycle': 64, 'reset_mid_script': 144}
+[e33rec] step=80100 saved=64 phases={'policy': 11, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 149, 'released': 102, 'setdown': 84, 'cycle': 64, 'reset_mid_script': 144}
+[e33rec] step=80400 saved=64 phases={'policy': 11, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 149, 'released': 102, 'setdown': 84, 'cycle': 64, 'reset_mid_script': 144}
+[death] env=4 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.44rad
+[death] env=7 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.39rad
+[death] env=8 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.31rad
+[death] env=10 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=80700 saved=64 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 149, 'released': 102, 'setdown': 84, 'cycle': 64, 'reset_mid_script': 148}
+[e33rec] episode 65/100 saved (len=840, env=1)
+[e33rec] episode 66/100 saved (len=329, env=3)
+[death] env=5 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.60rad
+[e33rec] step=81000 saved=66 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 151, 'released': 104, 'setdown': 87, 'cycle': 66, 'reset_mid_script': 149}
+[death] env=0 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.47rad
+[e33rec] step=81300 saved=66 phases={'policy': 14, 'place_descend': 0, 'release': 1, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 152, 'released': 104, 'setdown': 87, 'cycle': 66, 'reset_mid_script': 150}
+[e33rec] step=81600 saved=66 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 152, 'released': 105, 'setdown': 87, 'cycle': 66, 'reset_mid_script': 150}
+[e33rec] step=81900 saved=66 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 153, 'released': 106, 'setdown': 88, 'cycle': 66, 'reset_mid_script': 150}
+[death] env=7 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.41rad
+[death] env=14 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=82200 saved=66 phases={'policy': 14, 'place_descend': 1, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 154, 'released': 106, 'setdown': 88, 'cycle': 66, 'reset_mid_script': 152}
+[death] env=2 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=82500 saved=66 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 155, 'released': 108, 'setdown': 88, 'cycle': 66, 'reset_mid_script': 153}
+[e33rec] episode 67/100 saved (len=218, env=5)
+[e33rec] step=82800 saved=67 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 155, 'released': 108, 'setdown': 89, 'cycle': 67, 'reset_mid_script': 153}
+[e33rec] step=83100 saved=67 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 3} funnel={'takeover': 156, 'released': 109, 'setdown': 89, 'cycle': 67, 'reset_mid_script': 153}
+[e33rec] step=83400 saved=67 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 3} funnel={'takeover': 156, 'released': 109, 'setdown': 89, 'cycle': 67, 'reset_mid_script': 153}
+[death] env=3 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.34rad
+[death] env=8 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=2.79rad
+[e33rec] episode 68/100 saved (len=269, env=4)
+[e33rec] step=83700 saved=68 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 156, 'released': 109, 'setdown': 90, 'cycle': 68, 'reset_mid_script': 155}
+[death] env=5 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.35rad
+[e33rec] step=84000 saved=68 phases={'policy': 15, 'place_descend': 1, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 157, 'released': 109, 'setdown': 90, 'cycle': 68, 'reset_mid_script': 156}
+[e33rec] episode 69/100 saved (len=700, env=15)
+[e33rec] step=84300 saved=69 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 158, 'released': 111, 'setdown': 91, 'cycle': 69, 'reset_mid_script': 156}
+[e33rec] step=84600 saved=69 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 158, 'released': 111, 'setdown': 91, 'cycle': 69, 'reset_mid_script': 156}
+[e33rec] step=84900 saved=69 phases={'policy': 13, 'place_descend': 0, 'release': 1, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 159, 'released': 111, 'setdown': 92, 'cycle': 69, 'reset_mid_script': 156}
+[e33rec] step=85200 saved=69 phases={'policy': 11, 'place_descend': 0, 'release': 1, 'ascend': 1, 'yaw_home': 0, 'go_home': 3} funnel={'takeover': 161, 'released': 113, 'setdown': 92, 'cycle': 69, 'reset_mid_script': 156}
+[death] env=1 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[death] env=9 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.30rad
+[e33rec] step=85500 saved=69 phases={'policy': 11, 'place_descend': 0, 'release': 1, 'ascend': 3, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 163, 'released': 114, 'setdown': 93, 'cycle': 69, 'reset_mid_script': 158}
+[death] env=0 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.34rad
+[e33rec] step=85800 saved=69 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 163, 'released': 115, 'setdown': 93, 'cycle': 69, 'reset_mid_script': 159}
+[e33rec] step=86100 saved=69 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 163, 'released': 115, 'setdown': 93, 'cycle': 69, 'reset_mid_script': 159}
+[death] env=3 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.32rad
+[death] env=4 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.28rad
+[e33rec] step=86400 saved=69 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 163, 'released': 115, 'setdown': 93, 'cycle': 69, 'reset_mid_script': 161}
+[death] env=11 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=86700 saved=69 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 165, 'released': 116, 'setdown': 93, 'cycle': 69, 'reset_mid_script': 162}
+[death] env=5 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[e33rec] step=87000 saved=69 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 165, 'released': 116, 'setdown': 93, 'cycle': 69, 'reset_mid_script': 163}
+[e33rec] step=87300 saved=69 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 165, 'released': 116, 'setdown': 93, 'cycle': 69, 'reset_mid_script': 163}
+[e33rec] step=87600 saved=69 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 165, 'released': 116, 'setdown': 93, 'cycle': 69, 'reset_mid_script': 163}
+[death] env=3 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.36rad
+[death] env=7 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[e33rec] step=87900 saved=69 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 165, 'released': 116, 'setdown': 93, 'cycle': 69, 'reset_mid_script': 165}
+[e33rec] step=88200 saved=69 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 166, 'released': 117, 'setdown': 94, 'cycle': 69, 'reset_mid_script': 165}
+[e33rec] episode 70/100 saved (len=286, env=5)
+[e33rec] step=88500 saved=70 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 166, 'released': 117, 'setdown': 95, 'cycle': 70, 'reset_mid_script': 165}
+[e33rec] step=88800 saved=70 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 166, 'released': 117, 'setdown': 95, 'cycle': 70, 'reset_mid_script': 165}
+[e33rec] step=89100 saved=70 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 166, 'released': 117, 'setdown': 95, 'cycle': 70, 'reset_mid_script': 165}
+[death] env=11 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=89400 saved=70 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 166, 'released': 117, 'setdown': 95, 'cycle': 70, 'reset_mid_script': 166}
+[e33rec] episode 71/100 saved (len=265, env=10)
+[e33rec] step=89700 saved=71 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 166, 'released': 117, 'setdown': 96, 'cycle': 71, 'reset_mid_script': 166}
+[e33rec] step=90000 saved=71 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 167, 'released': 118, 'setdown': 97, 'cycle': 71, 'reset_mid_script': 166}
+[e33rec] step=90300 saved=71 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 167, 'released': 118, 'setdown': 97, 'cycle': 71, 'reset_mid_script': 166}
+[e33rec] step=90600 saved=71 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 167, 'released': 118, 'setdown': 97, 'cycle': 71, 'reset_mid_script': 166}
+[e33rec] step=90900 saved=71 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 167, 'released': 118, 'setdown': 97, 'cycle': 71, 'reset_mid_script': 166}
+[e33rec] episode 72/100 saved (len=249, env=11)
+[death] env=5 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=91200 saved=72 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 167, 'released': 118, 'setdown': 99, 'cycle': 72, 'reset_mid_script': 167}
+[e33rec] episode 73/100 saved (len=590, env=4)
+[e33rec] episode 74/100 saved (len=302, env=5)
+[e33rec] step=91500 saved=74 phases={'policy': 14, 'place_descend': 0, 'release': 1, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 169, 'released': 119, 'setdown': 101, 'cycle': 74, 'reset_mid_script': 167}
+[e33rec] step=91800 saved=74 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 169, 'released': 119, 'setdown': 101, 'cycle': 74, 'reset_mid_script': 167}
+[e33rec] step=92100 saved=74 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 169, 'released': 119, 'setdown': 101, 'cycle': 74, 'reset_mid_script': 167}
+[e33rec] episode 75/100 saved (len=234, env=3)
+[e33rec] step=92400 saved=75 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 169, 'released': 119, 'setdown': 102, 'cycle': 75, 'reset_mid_script': 167}
+[death] env=1 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.36rad
+[death] env=9 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.24rad
+[e33rec] step=92700 saved=75 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 169, 'released': 119, 'setdown': 102, 'cycle': 75, 'reset_mid_script': 169}
+[e33rec] episode 76/100 saved (len=345, env=1)
+[e33rec] step=93000 saved=76 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 169, 'released': 119, 'setdown': 103, 'cycle': 76, 'reset_mid_script': 169}
+[e33rec] step=93300 saved=76 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 170, 'released': 120, 'setdown': 104, 'cycle': 76, 'reset_mid_script': 169}
+[e33rec] step=93600 saved=76 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 170, 'released': 120, 'setdown': 104, 'cycle': 76, 'reset_mid_script': 169}
+[e33rec] episode 77/100 saved (len=231, env=3)
+[e33rec] step=93900 saved=77 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 170, 'released': 120, 'setdown': 105, 'cycle': 77, 'reset_mid_script': 169}
+[death] env=0 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=94200 saved=77 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 170, 'released': 120, 'setdown': 105, 'cycle': 77, 'reset_mid_script': 170}
+[e33rec] episode 78/100 saved (len=670, env=11)
+[e33rec] step=94500 saved=78 phases={'policy': 14, 'place_descend': 0, 'release': 1, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 172, 'released': 121, 'setdown': 106, 'cycle': 78, 'reset_mid_script': 170}
+[e33rec] step=94800 saved=78 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 172, 'released': 121, 'setdown': 106, 'cycle': 78, 'reset_mid_script': 170}
+[death] env=14 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.50rad
+[e33rec] step=95100 saved=78 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 172, 'released': 121, 'setdown': 106, 'cycle': 78, 'reset_mid_script': 171}
+[e33rec] step=95400 saved=78 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 172, 'released': 121, 'setdown': 106, 'cycle': 78, 'reset_mid_script': 171}
+[death] env=0 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.26rad
+[e33rec] episode 79/100 saved (len=282, env=2)
+[e33rec] step=95700 saved=79 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 173, 'released': 122, 'setdown': 107, 'cycle': 79, 'reset_mid_script': 172}
+[e33rec] step=96000 saved=79 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 173, 'released': 122, 'setdown': 107, 'cycle': 79, 'reset_mid_script': 172}
+[e33rec] step=96300 saved=79 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 173, 'released': 122, 'setdown': 107, 'cycle': 79, 'reset_mid_script': 172}
+[e33rec] step=96600 saved=79 phases={'policy': 14, 'place_descend': 1, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 174, 'released': 122, 'setdown': 107, 'cycle': 79, 'reset_mid_script': 172}
+[death] env=1 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.35rad
+[e33rec] step=96900 saved=79 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 175, 'released': 124, 'setdown': 107, 'cycle': 79, 'reset_mid_script': 173}
+[e33rec] step=97200 saved=79 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 175, 'released': 124, 'setdown': 107, 'cycle': 79, 'reset_mid_script': 173}
+[e33rec] step=97500 saved=79 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 175, 'released': 124, 'setdown': 107, 'cycle': 79, 'reset_mid_script': 173}
+[e33rec] step=97800 saved=79 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 175, 'released': 124, 'setdown': 107, 'cycle': 79, 'reset_mid_script': 173}
+[death] env=3 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.32rad
+[death] env=8 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.43rad
+[e33rec] step=98100 saved=79 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 175, 'released': 124, 'setdown': 107, 'cycle': 79, 'reset_mid_script': 175}
+[e33rec] step=98400 saved=79 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 175, 'released': 124, 'setdown': 107, 'cycle': 79, 'reset_mid_script': 175}
+[e33rec] step=98700 saved=79 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 175, 'released': 124, 'setdown': 107, 'cycle': 79, 'reset_mid_script': 175}
+[e33rec] step=99000 saved=79 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 175, 'released': 124, 'setdown': 107, 'cycle': 79, 'reset_mid_script': 175}
+[e33rec] step=99300 saved=79 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 175, 'released': 124, 'setdown': 107, 'cycle': 79, 'reset_mid_script': 175}
+[e33rec] step=99600 saved=79 phases={'policy': 14, 'place_descend': 0, 'release': 2, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 177, 'released': 124, 'setdown': 107, 'cycle': 79, 'reset_mid_script': 175}
+[e33rec] episode 80/100 saved (len=1208, env=0)
+[e33rec] step=99900 saved=80 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 178, 'released': 124, 'setdown': 108, 'cycle': 80, 'reset_mid_script': 175}
+[e33rec] step=100200 saved=80 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 178, 'released': 124, 'setdown': 108, 'cycle': 80, 'reset_mid_script': 175}
+[e33rec] episode 81/100 saved (len=618, env=9)
+[e33rec] step=100500 saved=81 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 178, 'released': 124, 'setdown': 109, 'cycle': 81, 'reset_mid_script': 175}
+[death] env=4 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=2.77rad
+[death] env=10 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.26rad
+[e33rec] step=100800 saved=81 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 178, 'released': 124, 'setdown': 109, 'cycle': 81, 'reset_mid_script': 177}
+[death] env=14 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.49rad
+[e33rec] episode 82/100 saved (len=247, env=10)
+[e33rec] step=101100 saved=82 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 180, 'released': 125, 'setdown': 111, 'cycle': 82, 'reset_mid_script': 178}
+[death] env=2 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.80rad
+[e33rec] step=101400 saved=82 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 180, 'released': 125, 'setdown': 111, 'cycle': 82, 'reset_mid_script': 179}
+[e33rec] step=101700 saved=82 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 180, 'released': 125, 'setdown': 111, 'cycle': 82, 'reset_mid_script': 179}
+[e33rec] step=102000 saved=82 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 182, 'released': 126, 'setdown': 111, 'cycle': 82, 'reset_mid_script': 179}
+[death] env=8 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.29rad
+[e33rec] step=102300 saved=82 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 182, 'released': 126, 'setdown': 111, 'cycle': 82, 'reset_mid_script': 180}
+[death] env=2 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.37rad
+[e33rec] step=102600 saved=82 phases={'policy': 13, 'place_descend': 0, 'release': 1, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 184, 'released': 127, 'setdown': 112, 'cycle': 82, 'reset_mid_script': 181}
+[death] env=9 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.34rad
+[e33rec] episode 83/100 saved (len=268, env=5)
+[e33rec] step=102900 saved=83 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 184, 'released': 128, 'setdown': 113, 'cycle': 83, 'reset_mid_script': 182}
+[e33rec] step=103200 saved=83 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 185, 'released': 128, 'setdown': 113, 'cycle': 83, 'reset_mid_script': 182}
+[e33rec] step=103500 saved=83 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 185, 'released': 128, 'setdown': 113, 'cycle': 83, 'reset_mid_script': 182}
+[death] env=4 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[death] env=7 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.95rad
+[e33rec] step=103800 saved=83 phases={'policy': 14, 'place_descend': 0, 'release': 1, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 186, 'released': 128, 'setdown': 113, 'cycle': 83, 'reset_mid_script': 184}
+[e33rec] episode 84/100 saved (len=350, env=11)
+[e33rec] step=104100 saved=84 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 186, 'released': 128, 'setdown': 114, 'cycle': 84, 'reset_mid_script': 184}
+[death] env=9 in=go_home taskphase=0 cup_tilt=0deg cup_z=819mm home_err=1.44rad
+[e33rec] step=104400 saved=84 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 186, 'released': 128, 'setdown': 114, 'cycle': 84, 'reset_mid_script': 185}
+[e33rec] step=104700 saved=84 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 187, 'released': 129, 'setdown': 114, 'cycle': 84, 'reset_mid_script': 185}
+[e33rec] step=105000 saved=84 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 187, 'released': 129, 'setdown': 114, 'cycle': 84, 'reset_mid_script': 185}
+[death] env=3 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.72rad
+[e33rec] step=105300 saved=84 phases={'policy': 13, 'place_descend': 0, 'release': 1, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 189, 'released': 130, 'setdown': 114, 'cycle': 84, 'reset_mid_script': 186}
+[e33rec] step=105600 saved=84 phases={'policy': 12, 'place_descend': 0, 'release': 1, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 190, 'released': 130, 'setdown': 115, 'cycle': 84, 'reset_mid_script': 186}
+[death] env=0 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=105900 saved=84 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 190, 'released': 130, 'setdown': 115, 'cycle': 84, 'reset_mid_script': 187}
+[e33rec] step=106200 saved=84 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 190, 'released': 130, 'setdown': 115, 'cycle': 84, 'reset_mid_script': 187}
+[death] env=3 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.96rad
+[death] env=4 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.21rad
+[e33rec] step=106500 saved=84 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 190, 'released': 130, 'setdown': 115, 'cycle': 84, 'reset_mid_script': 189}
+[death] env=11 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.31rad
+[e33rec] step=106800 saved=84 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 190, 'released': 130, 'setdown': 115, 'cycle': 84, 'reset_mid_script': 190}
+[e33rec] episode 85/100 saved (len=311, env=10)
+[e33rec] step=107100 saved=85 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 191, 'released': 131, 'setdown': 117, 'cycle': 85, 'reset_mid_script': 190}
+[e33rec] episode 86/100 saved (len=283, env=9)
+[e33rec] step=107400 saved=86 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 192, 'released': 131, 'setdown': 118, 'cycle': 86, 'reset_mid_script': 190}
+[e33rec] step=107700 saved=86 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 192, 'released': 131, 'setdown': 118, 'cycle': 86, 'reset_mid_script': 190}
+[death] env=15 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=108000 saved=86 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 192, 'released': 131, 'setdown': 118, 'cycle': 86, 'reset_mid_script': 191}
+[e33rec] step=108300 saved=86 phases={'policy': 12, 'place_descend': 0, 'release': 1, 'ascend': 2, 'yaw_home': 1, 'go_home': 0} funnel={'takeover': 195, 'released': 133, 'setdown': 119, 'cycle': 86, 'reset_mid_script': 191}
+[death] env=2 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.37rad
+[e33rec] step=108600 saved=86 phases={'policy': 12, 'place_descend': 0, 'release': 1, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 196, 'released': 133, 'setdown': 119, 'cycle': 86, 'reset_mid_script': 192}
+[e33rec] step=108900 saved=86 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 196, 'released': 134, 'setdown': 119, 'cycle': 86, 'reset_mid_script': 192}
+[e33rec] episode 87/100 saved (len=530, env=9)
+[e33rec] step=109200 saved=87 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 3} funnel={'takeover': 196, 'released': 134, 'setdown': 120, 'cycle': 87, 'reset_mid_script': 192}
+[death] env=4 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[death] env=15 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[death] env=7 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.66rad
+[e33rec] step=109500 saved=87 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 196, 'released': 134, 'setdown': 120, 'cycle': 87, 'reset_mid_script': 195}
+[death] env=5 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.34rad
+[e33rec] step=109800 saved=87 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 1, 'go_home': 0} funnel={'takeover': 199, 'released': 137, 'setdown': 120, 'cycle': 87, 'reset_mid_script': 196}
+[e33rec] step=110100 saved=87 phases={'policy': 11, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 201, 'released': 139, 'setdown': 120, 'cycle': 87, 'reset_mid_script': 196}
+[e33rec] step=110400 saved=87 phases={'policy': 11, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 201, 'released': 139, 'setdown': 120, 'cycle': 87, 'reset_mid_script': 196}
+[e33rec] step=110700 saved=87 phases={'policy': 11, 'place_descend': 0, 'release': 0, 'ascend': 3, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 201, 'released': 139, 'setdown': 120, 'cycle': 87, 'reset_mid_script': 196}
+[death] env=3 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[death] env=4 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[death] env=7 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.79rad
+[e33rec] step=111000 saved=87 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 201, 'released': 139, 'setdown': 120, 'cycle': 87, 'reset_mid_script': 199}
+[death] env=5 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.63rad
+[death] env=2 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.37rad
+[e33rec] step=111300 saved=87 phases={'policy': 14, 'place_descend': 1, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 203, 'released': 139, 'setdown': 120, 'cycle': 87, 'reset_mid_script': 201}
+[e33rec] step=111600 saved=87 phases={'policy': 13, 'place_descend': 0, 'release': 1, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 204, 'released': 140, 'setdown': 120, 'cycle': 87, 'reset_mid_script': 201}
+[e33rec] step=111900 saved=87 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 204, 'released': 140, 'setdown': 120, 'cycle': 87, 'reset_mid_script': 201}
+[e33rec] step=112200 saved=87 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 204, 'released': 140, 'setdown': 120, 'cycle': 87, 'reset_mid_script': 201}
+[death] env=8 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.35rad
+[death] env=10 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.36rad
+[e33rec] step=112500 saved=87 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 204, 'released': 140, 'setdown': 120, 'cycle': 87, 'reset_mid_script': 203}
+[e33rec] episode 88/100 saved (len=342, env=11)
+[death] env=9 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.32rad
+[e33rec] step=112800 saved=88 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 204, 'released': 140, 'setdown': 121, 'cycle': 88, 'reset_mid_script': 204}
+[e33rec] step=113100 saved=88 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 204, 'released': 140, 'setdown': 121, 'cycle': 88, 'reset_mid_script': 204}
+[e33rec] step=113400 saved=88 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 204, 'released': 140, 'setdown': 121, 'cycle': 88, 'reset_mid_script': 204}
+[e33rec] step=113700 saved=88 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 204, 'released': 140, 'setdown': 121, 'cycle': 88, 'reset_mid_script': 204}
+[e33rec] step=114000 saved=88 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 204, 'released': 140, 'setdown': 121, 'cycle': 88, 'reset_mid_script': 204}
+[e33rec] step=114300 saved=88 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 204, 'released': 140, 'setdown': 121, 'cycle': 88, 'reset_mid_script': 204}
+[e33rec] step=114600 saved=88 phases={'policy': 14, 'place_descend': 1, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 206, 'released': 141, 'setdown': 121, 'cycle': 88, 'reset_mid_script': 204}
+[e33rec] step=114900 saved=88 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 206, 'released': 142, 'setdown': 121, 'cycle': 88, 'reset_mid_script': 204}
+2026-08-07T15:23:11Z [9,169ms] [Warning] [omni.fabric.plugin] getAttributeCount called on non-existent path /World/envs/env_9/SynriaArm/tool0/visuals/mesh_0
+2026-08-07T15:23:11Z [9,169ms] [Warning] [omni.fabric.plugin] getTypes called on non-existent path /World/envs/env_9/SynriaArm/tool0/visuals/mesh_0
+2026-08-07T15:23:13Z [10,913ms] [Warning] [carb] Client gpu.foundation.plugin has acquired [gpu::unstable::IMemoryBudgetManagerFactory v0.1] 100 times. Consider accessing this interface with carb::getCachedInterface() (Performance warning)
+2026-08-07T16:41:58Z [4,736,220ms] [Error] [omni.syntheticdata.plugin] OgnSdOnNewFrame : frames [230280|30, 230280|30] discarded
+[e33rec] step=115200 saved=88 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 206, 'released': 142, 'setdown': 121, 'cycle': 88, 'reset_mid_script': 204}
+[e33rec] step=115500 saved=88 phases={'policy': 12, 'place_descend': 1, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 208, 'released': 142, 'setdown': 122, 'cycle': 88, 'reset_mid_script': 204}
+[death] env=9 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] episode 89/100 saved (len=309, env=1)
+[death] env=0 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[e33rec] step=115800 saved=89 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 208, 'released': 142, 'setdown': 123, 'cycle': 89, 'reset_mid_script': 206}
+[e33rec] step=116100 saved=89 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 208, 'released': 142, 'setdown': 123, 'cycle': 89, 'reset_mid_script': 206}
+[e33rec] episode 90/100 saved (len=780, env=5)
+[e33rec] step=116400 saved=90 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 208, 'released': 142, 'setdown': 124, 'cycle': 90, 'reset_mid_script': 206}
+[death] env=15 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.23rad
+[e33rec] step=116700 saved=90 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 208, 'released': 142, 'setdown': 124, 'cycle': 90, 'reset_mid_script': 207}
+[death] env=11 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.27rad
+[e33rec] step=117000 saved=90 phases={'policy': 14, 'place_descend': 0, 'release': 1, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 210, 'released': 143, 'setdown': 124, 'cycle': 90, 'reset_mid_script': 208}
+[e33rec] step=117300 saved=90 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 210, 'released': 143, 'setdown': 124, 'cycle': 90, 'reset_mid_script': 208}
+[e33rec] step=117600 saved=90 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 210, 'released': 143, 'setdown': 124, 'cycle': 90, 'reset_mid_script': 208}
+[e33rec] episode 91/100 saved (len=1213, env=7)
+[e33rec] step=117900 saved=91 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 210, 'released': 143, 'setdown': 125, 'cycle': 91, 'reset_mid_script': 208}
+[death] env=10 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[death] env=11 in=go_home taskphase=0 cup_tilt=0deg cup_z=819mm home_err=2.79rad
+[e33rec] step=118200 saved=91 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 210, 'released': 143, 'setdown': 125, 'cycle': 91, 'reset_mid_script': 210}
+[e33rec] episode 92/100 saved (len=300, env=11)
+[e33rec] step=118500 saved=92 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 211, 'released': 144, 'setdown': 126, 'cycle': 92, 'reset_mid_script': 210}
+[e33rec] step=118800 saved=92 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 211, 'released': 144, 'setdown': 126, 'cycle': 92, 'reset_mid_script': 210}
+[e33rec] step=119100 saved=92 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 212, 'released': 145, 'setdown': 126, 'cycle': 92, 'reset_mid_script': 210}
+[e33rec] step=119400 saved=92 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 212, 'released': 145, 'setdown': 126, 'cycle': 92, 'reset_mid_script': 210}
+[death] env=8 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.32rad
+[e33rec] step=119700 saved=92 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 212, 'released': 145, 'setdown': 126, 'cycle': 92, 'reset_mid_script': 211}
+[death] env=9 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.32rad
+[e33rec] step=120000 saved=92 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 212, 'released': 145, 'setdown': 126, 'cycle': 92, 'reset_mid_script': 212}
+[e33rec] episode 93/100 saved (len=219, env=5)
+[e33rec] step=120300 saved=93 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 213, 'released': 146, 'setdown': 128, 'cycle': 93, 'reset_mid_script': 212}
+[e33rec] step=120600 saved=93 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 213, 'released': 146, 'setdown': 128, 'cycle': 93, 'reset_mid_script': 212}
+[e33rec] step=120900 saved=93 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 213, 'released': 146, 'setdown': 128, 'cycle': 93, 'reset_mid_script': 212}
+[e33rec] step=121200 saved=93 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 213, 'released': 146, 'setdown': 128, 'cycle': 93, 'reset_mid_script': 212}
+[death] env=9 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.32rad
+[e33rec] step=121500 saved=93 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 213, 'released': 146, 'setdown': 128, 'cycle': 93, 'reset_mid_script': 213}
+[e33rec] step=121800 saved=93 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 213, 'released': 146, 'setdown': 128, 'cycle': 93, 'reset_mid_script': 213}
+[e33rec] step=122100 saved=93 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 213, 'released': 146, 'setdown': 128, 'cycle': 93, 'reset_mid_script': 213}
+[e33rec] step=122400 saved=93 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 213, 'released': 146, 'setdown': 128, 'cycle': 93, 'reset_mid_script': 213}
+[e33rec] step=122700 saved=93 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 213, 'released': 146, 'setdown': 128, 'cycle': 93, 'reset_mid_script': 213}
+[e33rec] episode 94/100 saved (len=248, env=5)
+[e33rec] step=123000 saved=94 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 213, 'released': 146, 'setdown': 129, 'cycle': 94, 'reset_mid_script': 213}
+[e33rec] episode 95/100 saved (len=892, env=7)
+[e33rec] step=123300 saved=95 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 214, 'released': 147, 'setdown': 130, 'cycle': 95, 'reset_mid_script': 213}
+[e33rec] step=123600 saved=95 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 214, 'released': 147, 'setdown': 130, 'cycle': 95, 'reset_mid_script': 213}
+[e33rec] step=123900 saved=95 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 214, 'released': 147, 'setdown': 130, 'cycle': 95, 'reset_mid_script': 213}
+[e33rec] step=124200 saved=95 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 215, 'released': 148, 'setdown': 130, 'cycle': 95, 'reset_mid_script': 213}
+[death] env=0 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.39rad
+[e33rec] step=124500 saved=95 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 1, 'go_home': 1} funnel={'takeover': 217, 'released': 150, 'setdown': 130, 'cycle': 95, 'reset_mid_script': 214}
+[e33rec] step=124800 saved=95 phases={'policy': 11, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 4} funnel={'takeover': 219, 'released': 152, 'setdown': 130, 'cycle': 95, 'reset_mid_script': 214}
+[e33rec] step=125100 saved=95 phases={'policy': 11, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 4} funnel={'takeover': 219, 'released': 152, 'setdown': 130, 'cycle': 95, 'reset_mid_script': 214}
+[death] env=4 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=125400 saved=95 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 3} funnel={'takeover': 219, 'released': 152, 'setdown': 130, 'cycle': 95, 'reset_mid_script': 215}
+[e33rec] episode 96/100 saved (len=308, env=3)
+[death] env=1 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[death] env=5 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[death] env=2 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.79rad
+[e33rec] step=125700 saved=96 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 220, 'released': 153, 'setdown': 132, 'cycle': 96, 'reset_mid_script': 218}
+[death] env=9 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=126000 saved=96 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 221, 'released': 154, 'setdown': 132, 'cycle': 96, 'reset_mid_script': 219}
+[e33rec] step=126300 saved=96 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 221, 'released': 154, 'setdown': 132, 'cycle': 96, 'reset_mid_script': 219}
+[death] env=15 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.35rad
+[e33rec] step=126600 saved=96 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 221, 'released': 154, 'setdown': 132, 'cycle': 96, 'reset_mid_script': 220}
+[death] env=7 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[e33rec] step=126900 saved=96 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 221, 'released': 154, 'setdown': 132, 'cycle': 96, 'reset_mid_script': 221}
+[e33rec] step=127200 saved=96 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 221, 'released': 154, 'setdown': 132, 'cycle': 96, 'reset_mid_script': 221}
+[e33rec] step=127500 saved=96 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 221, 'released': 154, 'setdown': 132, 'cycle': 96, 'reset_mid_script': 221}
+[e33rec] step=127800 saved=96 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 221, 'released': 154, 'setdown': 132, 'cycle': 96, 'reset_mid_script': 221}
+[e33rec] step=128100 saved=96 phases={'policy': 16, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 221, 'released': 154, 'setdown': 132, 'cycle': 96, 'reset_mid_script': 221}
+[e33rec] step=128400 saved=96 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 222, 'released': 155, 'setdown': 132, 'cycle': 96, 'reset_mid_script': 221}
+[e33rec] step=128700 saved=96 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 222, 'released': 155, 'setdown': 132, 'cycle': 96, 'reset_mid_script': 221}
+[e33rec] step=129000 saved=96 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 222, 'released': 155, 'setdown': 132, 'cycle': 96, 'reset_mid_script': 221}
+[e33rec] step=129300 saved=96 phases={'policy': 14, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 223, 'released': 155, 'setdown': 132, 'cycle': 96, 'reset_mid_script': 221}
+[death] env=4 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.16rad
+[e33rec] step=129600 saved=96 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 223, 'released': 155, 'setdown': 132, 'cycle': 96, 'reset_mid_script': 222}
+[e33rec] episode 97/100 saved (len=251, env=7)
+[e33rec] step=129900 saved=97 phases={'policy': 11, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 3} funnel={'takeover': 227, 'released': 159, 'setdown': 133, 'cycle': 97, 'reset_mid_script': 222}
+[death] env=0 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.36rad
+[e33rec] step=130200 saved=97 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 3} funnel={'takeover': 227, 'released': 159, 'setdown': 133, 'cycle': 97, 'reset_mid_script': 223}
+[e33rec] step=130500 saved=97 phases={'policy': 10, 'place_descend': 0, 'release': 1, 'ascend': 1, 'yaw_home': 0, 'go_home': 4} funnel={'takeover': 229, 'released': 160, 'setdown': 134, 'cycle': 97, 'reset_mid_script': 223}
+[e33rec] step=130800 saved=97 phases={'policy': 10, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 4} funnel={'takeover': 229, 'released': 160, 'setdown': 134, 'cycle': 97, 'reset_mid_script': 223}
+[death] env=15 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.32rad
+[death] env=3 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.65rad
+[death] env=8 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[death] env=10 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[death] env=14 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.34rad
+[e33rec] step=131100 saved=97 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 229, 'released': 160, 'setdown': 134, 'cycle': 97, 'reset_mid_script': 228}
+[e33rec] step=131400 saved=97 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 231, 'released': 162, 'setdown': 135, 'cycle': 97, 'reset_mid_script': 228}
+[death] env=0 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.35rad
+[e33rec] step=131700 saved=97 phases={'policy': 12, 'place_descend': 1, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 2} funnel={'takeover': 233, 'released': 163, 'setdown': 136, 'cycle': 97, 'reset_mid_script': 229}
+[e33rec] step=132000 saved=97 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 3} funnel={'takeover': 233, 'released': 164, 'setdown': 136, 'cycle': 97, 'reset_mid_script': 229}
+[e33rec] step=132300 saved=97 phases={'policy': 12, 'place_descend': 0, 'release': 0, 'ascend': 1, 'yaw_home': 0, 'go_home': 3} funnel={'takeover': 233, 'released': 164, 'setdown': 136, 'cycle': 97, 'reset_mid_script': 229}
+[death] env=15 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[death] env=4 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[death] env=14 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.40rad
+[e33rec] step=132600 saved=97 phases={'policy': 15, 'place_descend': 0, 'release': 0, 'ascend': 0, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 233, 'released': 164, 'setdown': 136, 'cycle': 97, 'reset_mid_script': 232}
+[e33rec] episode 98/100 saved (len=345, env=3)
+[death] env=5 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=2.77rad
+[e33rec] step=132900 saved=98 phases={'policy': 13, 'place_descend': 0, 'release': 1, 'ascend': 1, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 236, 'released': 166, 'setdown': 137, 'cycle': 98, 'reset_mid_script': 233}
+[e33rec] step=133200 saved=98 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 236, 'released': 166, 'setdown': 137, 'cycle': 98, 'reset_mid_script': 233}
+[e33rec] episode 99/100 saved (len=219, env=0)
+[e33rec] step=133500 saved=99 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 236, 'released': 166, 'setdown': 138, 'cycle': 99, 'reset_mid_script': 233}
+[e33rec] step=133800 saved=99 phases={'policy': 13, 'place_descend': 0, 'release': 0, 'ascend': 2, 'yaw_home': 0, 'go_home': 1} funnel={'takeover': 236, 'released': 166, 'setdown': 138, 'cycle': 99, 'reset_mid_script': 233}
+[death] env=4 in=go_home taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.33rad
+[death] env=10 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.35rad
+[death] env=14 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.28rad
+[e33rec] step=134100 saved=99 phases={'policy': 15, 'place_descend': 0, 'release': 1, 'ascend': 0, 'yaw_home': 0, 'go_home': 0} funnel={'takeover': 237, 'released': 166, 'setdown': 138, 'cycle': 99, 'reset_mid_script': 236}
+[e33rec] episode 100/100 saved (len=377, env=7)
+[e33rec] target reached
+[e33rec] DONE saved=100 funnel={'takeover': 237, 'released': 167, 'setdown': 139, 'cycle': 100, 'reset_mid_script': 236}
+CORPUSDONE

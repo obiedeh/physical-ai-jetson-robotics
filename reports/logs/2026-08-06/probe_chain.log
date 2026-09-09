@@ -1,0 +1,6 @@
+[wait] waiting for E29 to finish...
+[wait] E29 done at 2026-08-06T05:52:54-05:00; GPU free, starting probe
+probe s42 exited 0
+probe s43 exited 0
+probe s44 exited 0
+PROBEDONE

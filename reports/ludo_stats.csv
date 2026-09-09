@@ -1,0 +1,128 @@
+session,git_sha,seed,turn,attempt,ok,err_mm,final_tilt_deg,steps,lane,far_pick,grasped,hold_armed,closest_approach_mm,failure_class
+ludo_soak_s10,ab510cb21,10,1,1,True,20.1,0.0,1688,policy,False,True,True,42.1,
+ludo_soak_s10,ab510cb21,10,2,1,True,13.7,0.1,2819,policy,False,True,True,48.8,
+ludo_soak_s10,ab510cb21,10,3,1,True,22.7,0.0,8999,fallback,False,True,False,67.2,
+ludo_soak_s10,ab510cb21,10,4,1,True,19.8,0.0,4723,fallback,True,True,True,9900.0,
+ludo_soak_s10,ab510cb21,10,5,1,True,29.0,0.0,1236,policy,False,True,True,59.2,
+ludo_soak_s10,ab510cb21,10,6,1,False,184.6,90.0,1747,policy,False,True,False,41.9,cup toppled
+ludo_soak_s10,ab510cb21,10,6,2,True,19.6,0.2,4085,policy,False,True,True,26.4,
+ludo_soak_s10,ab510cb21,10,7,1,True,15.9,0.0,4756,fallback,False,True,True,112.5,
+ludo_soak_s10,ab510cb21,10,8,1,True,18.7,0.0,3988,fallback,False,True,True,9900.0,
+ludo_soak_s10,ab510cb21,10,9,1,True,15.7,0.3,692,policy,False,True,True,51.5,
+ludo_soak_s10,ab510cb21,10,10,1,True,22.0,0.0,4152,policy,False,True,True,44.4,
+ludo_soak_s10,ab510cb21,10,11,1,True,24.6,0.0,8999,fallback,False,True,False,9900.0,
+ludo_soak_s10,ab510cb21,10,12,1,True,14.6,0.0,3474,fallback,True,True,True,146.7,
+ludo_soak_s11,fbdd23bc8,11,1,1,True,18.9,0.0,4309,policy,False,True,True,59.5,
+ludo_soak_s11,fbdd23bc8,11,2,1,True,19.7,0.0,3640,policy,False,True,True,44.1,
+ludo_soak_s11,fbdd23bc8,11,3,1,True,19.2,0.0,4933,fallback,False,True,True,9900.0,
+ludo_soak_s11,fbdd23bc8,11,4,1,True,20.0,0.0,8999,fallback,True,True,False,106.5,
+ludo_soak_s11,fbdd23bc8,11,5,1,False,100.3,90.0,1598,policy,False,True,False,42.3,cup toppled
+ludo_soak_s11,fbdd23bc8,11,5,2,True,25.0,0.0,1403,policy,False,True,True,59.2,
+ludo_soak_s11,fbdd23bc8,11,6,1,True,19.4,0.0,6322,policy,False,True,True,51.1,
+ludo_soak_s11,fbdd23bc8,11,7,1,True,14.3,0.0,3607,fallback,False,True,True,73.3,
+ludo_soak_s11,fbdd23bc8,11,8,1,True,8.4,0.0,4945,fallback,False,True,True,9900.0,
+ludo_soak_s11,fbdd23bc8,11,9,1,True,16.8,0.2,1597,policy,False,True,True,59.8,
+ludo_soak_s11,fbdd23bc8,11,10,1,True,18.8,0.0,6424,policy,False,True,True,55.1,
+ludo_soak_s11,fbdd23bc8,11,11,1,True,19.4,0.0,8598,fallback,False,True,True,9900.0,
+ludo_soak_s11,fbdd23bc8,11,12,1,True,16.8,0.1,8999,fallback,True,True,True,104.6,
+ludo_soak_s12,fbdd23bc8,12,1,1,False,40.5,1.3,8999,fallback,False,True,False,61.2,near-miss placement (35-60mm)
+ludo_soak_s12,fbdd23bc8,12,1,2,True,17.9,0.0,3707,fallback,False,True,True,63.1,
+ludo_soak_s12,fbdd23bc8,12,2,1,True,19.9,0.0,2649,policy,False,True,True,56.9,
+ludo_soak_s12,fbdd23bc8,12,3,1,True,12.2,0.0,4769,fallback,False,True,True,9900.0,
+ludo_soak_s12,fbdd23bc8,12,4,1,True,14.4,0.0,4978,fallback,False,True,True,9900.0,
+ludo_soak_s12,fbdd23bc8,12,5,1,False,121.0,0.0,8999,policy,True,False,False,9900.0,never-grasped (approach failed)
+ludo_soak_s12,fbdd23bc8,12,5,2,False,126.4,0.0,8999,fallback,True,False,False,9900.0,never-grasped (approach failed)
+ludo_soak_s12,fbdd23bc8,12,6,1,True,18.2,0.0,4280,fallback,False,True,True,9900.0,
+ludo_soak_s12,fbdd23bc8,12,7,1,True,17.9,0.0,3534,fallback,False,True,True,9900.0,
+ludo_soak_s12,fbdd23bc8,12,8,1,True,19.4,0.0,6472,policy,False,True,True,58.8,
+ludo_soak_s12,fbdd23bc8,12,9,1,True,23.8,0.0,8999,policy,True,False,False,9900.0,
+ludo_soak_s12,fbdd23bc8,12,10,1,True,34.6,0.0,8999,fallback,False,True,False,9900.0,
+ludo_soak_s12,fbdd23bc8,12,11,1,True,14.8,0.0,1807,policy,False,True,True,47.7,
+ludo_soak_s12,fbdd23bc8,12,12,1,True,19.9,0.0,4661,policy,False,True,True,46.9,
+ludo_soak_s4,608c40200,4,1,1,True,19.2,0.0,1933,policy,False,True,True,58.1,
+ludo_soak_s4,608c40200,4,2,1,True,8.4,0.0,2245,policy,False,True,True,57.4,
+ludo_soak_s4,608c40200,4,3,1,True,8.4,1.0,1438,policy,False,True,True,37.0,
+ludo_soak_s4,608c40200,4,4,1,True,18.2,0.0,5738,fallback,True,True,True,61.6,
+ludo_soak_s4,608c40200,4,5,1,True,17.2,0.0,5570,fallback,False,True,True,80.9,
+ludo_soak_s4,608c40200,4,6,1,True,18.9,0.0,955,policy,False,True,True,53.2,
+ludo_soak_s4,608c40200,4,7,1,False,173.6,90.0,3422,fallback,False,True,False,75.8,cup toppled
+ludo_soak_s4,608c40200,4,7,2,False,41.4,0.0,8999,fallback,False,True,False,112.1,near-miss placement (35-60mm)
+ludo_soak_s4,608c40200,4,8,1,True,19.7,0.0,3737,fallback,False,True,True,88.3,
+ludo_soak_s4,608c40200,4,9,1,True,16.3,0.0,4913,policy,False,True,True,59.2,
+ludo_soak_s4,608c40200,4,10,1,True,24.1,0.0,999,policy,False,True,True,58.9,
+ludo_soak_s4,608c40200,4,11,1,False,43.1,0.0,8999,fallback,False,True,False,9900.0,near-miss placement (35-60mm)
+ludo_soak_s4,608c40200,4,11,2,False,17.5,15.4,8999,fallback,False,True,False,101.2,near-miss placement (35-60mm)
+ludo_soak_s4,608c40200,4,12,1,True,19.8,0.0,3691,fallback,False,True,True,149.6,
+ludo_soak_s5,608c40200,5,1,1,True,20.0,0.0,6208,policy,False,True,True,58.3,
+ludo_soak_s5,608c40200,5,2,1,False,208.9,0.0,1554,policy,False,True,False,59.7,carry/place lost the cup (>60mm)
+ludo_soak_s5,608c40200,5,2,2,True,32.3,0.0,8999,policy,False,True,False,57.2,
+ludo_soak_s5,608c40200,5,3,1,True,19.4,0.0,4883,fallback,False,True,True,126.9,
+ludo_soak_s5,608c40200,5,4,1,True,19.4,0.0,3791,fallback,False,True,True,186.4,
+ludo_soak_s5,608c40200,5,5,1,True,25.5,0.0,8999,fallback,True,True,False,9900.0,
+ludo_soak_s5,608c40200,5,6,1,True,19.6,0.0,4474,policy,False,True,True,55.7,
+ludo_soak_s5,608c40200,5,8,1,True,14.0,0.0,1423,policy,False,True,True,53.8,
+ludo_soak_s5,608c40200,5,9,1,True,23.8,0.0,1287,policy,False,True,True,37.3,
+ludo_soak_s5,608c40200,5,10,1,True,17.7,0.0,2074,policy,True,True,True,28.9,
+ludo_soak_s5,608c40200,5,11,1,False,130.7,0.0,6949,policy,False,True,False,59.1,carry/place lost the cup (>60mm)
+ludo_soak_s5,608c40200,5,11,2,True,32.7,0.0,8999,fallback,False,True,False,89.7,
+ludo_soak_s5,608c40200,5,12,1,True,11.8,0.0,1623,policy,False,True,True,47.1,
+ludo_soak_s5,608c40200,5,13,1,True,19.9,0.0,3895,fallback,False,True,True,182.4,
+ludo_soak_s5,608c40200,5,13,1,True,19.7,0.0,5202,policy,False,True,True,49.1,
+ludo_soak_s6,608c40200,6,1,1,True,19.8,0.0,2421,policy,False,True,True,47.0,
+ludo_soak_s6,608c40200,6,2,1,True,13.5,1.8,1044,policy,False,True,True,39.5,
+ludo_soak_s6,608c40200,6,3,1,True,20.0,0.0,6786,fallback,False,True,True,9900.0,
+ludo_soak_s6,608c40200,6,4,1,False,65.6,0.0,8999,fallback,True,False,False,9900.0,never-grasped (approach failed)
+ludo_soak_s6,608c40200,6,4,2,True,19.0,0.0,4812,fallback,True,True,True,9900.0,
+ludo_soak_s6,608c40200,6,5,1,True,19.9,0.4,1844,policy,False,True,True,46.4,
+ludo_soak_s6,608c40200,6,6,1,False,20.3,23.7,8999,policy,False,True,False,51.4,near-miss placement (35-60mm)
+ludo_soak_s6,608c40200,6,6,2,False,28.2,22.2,8999,policy,False,True,False,54.7,near-miss placement (35-60mm)
+ludo_soak_s6,608c40200,6,7,1,True,19.7,0.0,3604,fallback,False,True,True,62.5,
+ludo_soak_s6,608c40200,6,8,1,True,19.5,0.0,4171,fallback,False,True,True,9900.0,
+ludo_soak_s6,608c40200,6,9,1,True,30.1,0.0,8999,fallback,False,True,False,68.2,
+ludo_soak_s6,608c40200,6,10,1,False,17.5,16.5,8999,policy,False,True,False,59.3,near-miss placement (35-60mm)
+ludo_soak_s6,608c40200,6,10,2,True,18.1,0.0,1327,policy,False,True,True,56.1,
+ludo_soak_s6,608c40200,6,11,1,True,18.3,0.0,2118,policy,False,True,True,54.0,
+ludo_soak_s6,608c40200,6,12,1,False,56.2,0.0,6363,policy,False,True,True,49.2,hold armed but scored out (hold-window edge)
+ludo_soak_s6,608c40200,6,12,2,True,13.5,0.0,4542,fallback,False,True,True,64.1,
+ludo_soak_s7,608c40200,7,1,1,True,19.7,0.0,6434,fallback,False,True,True,9900.0,
+ludo_soak_s7,608c40200,7,2,1,False,132.4,0.0,6852,policy,False,True,False,59.0,carry/place lost the cup (>60mm)
+ludo_soak_s7,608c40200,7,2,2,True,10.2,0.9,3123,policy,False,True,True,59.2,
+ludo_soak_s7,608c40200,7,3,1,True,13.6,0.0,6000,policy,False,True,True,56.4,
+ludo_soak_s7,608c40200,7,4,1,True,26.9,0.0,5950,fallback,True,True,True,9900.0,
+ludo_soak_s7,608c40200,7,5,1,True,19.3,0.0,1276,policy,False,True,True,52.0,
+ludo_soak_s7,608c40200,7,6,1,True,20.0,0.0,7905,policy,False,True,True,57.9,
+ludo_soak_s7,608c40200,7,7,1,True,18.8,0.0,2208,policy,False,True,True,59.1,
+ludo_soak_s7,608c40200,7,8,1,True,19.1,0.0,3320,fallback,False,True,True,90.9,
+ludo_soak_s7,608c40200,7,9,1,False,322.2,90.0,3702,fallback,False,True,False,70.6,cup toppled
+ludo_soak_s7,608c40200,7,9,2,True,19.8,0.0,3669,fallback,False,True,True,79.6,
+ludo_soak_s7,608c40200,7,10,1,True,15.7,0.4,4232,fallback,False,True,True,9900.0,
+ludo_soak_s7,608c40200,7,11,1,True,19.7,0.0,1552,policy,False,True,True,54.6,
+ludo_soak_s7,608c40200,7,12,1,True,18.1,0.0,4519,fallback,False,True,True,198.7,
+ludo_soak_s8,608c40200,8,1,1,True,30.4,0.8,1324,policy,False,True,True,16.6,
+ludo_soak_s8,608c40200,8,2,1,True,31.9,0.1,1391,policy,False,True,True,57.1,
+ludo_soak_s8,608c40200,8,3,1,True,19.8,0.0,4925,policy,False,True,True,50.7,
+ludo_soak_s8,608c40200,8,4,1,False,250.9,0.1,8999,fallback,True,True,False,9900.0,carry/place lost the cup (>60mm)
+ludo_soak_s8,608c40200,8,4,2,True,13.2,0.0,4934,fallback,True,True,True,9900.0,
+ludo_soak_s8,608c40200,8,5,1,True,18.7,0.0,4920,policy,False,True,True,51.6,
+ludo_soak_s8,608c40200,8,6,1,True,18.6,0.0,4142,fallback,False,True,True,61.3,
+ludo_soak_s8,608c40200,8,7,1,True,28.6,0.0,8999,fallback,False,True,False,62.8,
+ludo_soak_s8,608c40200,8,8,1,True,15.9,0.0,4111,policy,False,True,True,58.7,
+ludo_soak_s8,608c40200,8,9,1,False,45.4,0.0,8999,fallback,True,False,False,9900.0,never-grasped (approach failed)
+ludo_soak_s8,608c40200,8,9,2,True,19.6,0.0,2743,policy,True,True,True,42.3,
+ludo_soak_s8,608c40200,8,10,1,False,83.2,0.0,1594,policy,False,True,False,32.4,carry/place lost the cup (>60mm)
+ludo_soak_s8,608c40200,8,10,2,True,19.1,0.0,4635,policy,False,True,True,50.2,
+ludo_soak_s8,608c40200,8,11,1,True,18.9,0.0,3402,fallback,False,True,True,68.0,
+ludo_soak_s8,608c40200,8,12,1,True,19.2,0.0,4669,fallback,False,True,True,107.2,
+ludo_soak_s9,608c40200,9,1,1,True,19.3,0.0,5509,policy,False,True,True,54.7,
+ludo_soak_s9,608c40200,9,2,1,True,19.2,0.0,3756,policy,False,True,True,56.4,
+ludo_soak_s9,608c40200,9,3,1,True,20.9,0.0,3545,fallback,False,True,True,60.7,
+ludo_soak_s9,608c40200,9,4,1,True,18.4,0.0,6585,fallback,True,True,True,9900.0,
+ludo_soak_s9,608c40200,9,5,1,True,20.2,0.2,4670,policy,False,True,True,57.3,
+ludo_soak_s9,608c40200,9,6,1,False,150.7,5.8,5031,policy,False,True,False,57.7,carry/place lost the cup (>60mm)
+ludo_soak_s9,608c40200,9,6,2,False,147.4,0.0,8999,fallback,False,True,False,84.2,carry/place lost the cup (>60mm)
+ludo_soak_s9,608c40200,9,7,1,True,22.1,0.0,8999,fallback,False,True,False,9900.0,
+ludo_soak_s9,608c40200,9,8,1,True,17.2,0.0,5450,fallback,True,True,True,189.9,
+ludo_soak_s9,608c40200,9,9,1,True,19.4,0.0,3203,policy,False,True,True,59.6,
+ludo_soak_s9,608c40200,9,10,1,True,34.4,0.0,1039,policy,False,True,True,52.3,
+ludo_soak_s9,608c40200,9,11,1,True,18.1,0.0,3032,policy,False,True,True,59.1,
+ludo_soak_s9,608c40200,9,12,1,True,19.1,0.0,7771,fallback,True,True,True,9900.0,

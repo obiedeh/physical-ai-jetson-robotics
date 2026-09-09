@@ -1,0 +1,62 @@
+[WARN][AppLauncher]: There are no arguments attached to the ArgumentParser object. If you have your own arguments, please load your own arguments before calling the `AppLauncher.add_app_launcher_args` method. This allows the method to check the validity of the arguments and perform checks for argument names.
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-30_11-46-15.log[0m
+[36m======================================================================================[0m
+
+[33m11:46:15 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[r4] bodies: ['base_link', 'link1', 'link2', 'link3', 'link4', 'link5', 'link6', 'tool0', 'base_link_0', 'left_outer_knuckle', 'right_outer_knuckle', 'left_outer_finger', 'right_outer_finger', 'left_inner_finger', 'right_inner_finger', 'left_inner_knuckle', 'right_inner_knuckle']
+[r4] joints: ['Joint1', 'Joint2', 'Joint3', 'Joint4', 'Joint5', 'Joint6', 'finger_joint', 'right_outer_knuckle_joint', 'left_inner_finger_joint', 'right_inner_finger_joint', 'left_inner_finger_knuckle_joint', 'right_inner_finger_knuckle_joint']
+[r4] boot pose J2=0.8 J3=1.0 J5=1.2 -> base x=0.361 z=0.415
+[r4] jac row for gripper base: 7 (cos=0.96; -1 convention would be 7)
+[r4] jac shape: (1, 16, 6, 12) n_bodies: 17 n_joints: 12 base_idx: 8
+[r4-it] it=0 perr=0.236 dq=[-0.0, 0.412, -1.138, 0.002, 0.661, -0.002] base=[0.358, -0.001, 0.42]
+[r4-it] it=1 perr=0.235 dq=[-0.0, 0.408, -1.13, 0.002, 0.657, -0.002] base=[0.357, -0.001, 0.418]
+[r4-it] it=2 perr=0.233 dq=[-0.0, 0.4, -1.116, 0.002, 0.651, -0.002] base=[0.356, -0.001, 0.417]
+[r4-it] it=3 perr=0.232 dq=[-0.0, 0.389, -1.098, 0.002, 0.643, -0.002] base=[0.354, -0.001, 0.415]
+[r4-it] it=4 perr=0.230 dq=[-0.0, 0.376, -1.078, 0.002, 0.634, -0.002] base=[0.352, -0.001, 0.414]
+[r4-it] it=5 perr=0.229 dq=[-0.0, 0.361, -1.057, 0.002, 0.624, -0.002] base=[0.349, -0.001, 0.413]
+[r4] descended: base_z=0.361 (target 0.185) xy-off=0.397 cup z=0.020
+[r4] closed: finger_joint=0.790 cup z=0.020
+[r4-it] it=0 perr=0.294 dq=[0.058, -1.132, 0.96, 0.141, -0.008, 0.022] base=[0.278, 0.009, 0.066]
+[r4-it] it=1 perr=0.294 dq=[0.059, -1.132, 0.96, 0.141, -0.008, 0.022] base=[0.278, 0.009, 0.066]
+[r4-it] it=2 perr=0.294 dq=[0.06, -1.132, 0.96, 0.141, -0.008, 0.022] base=[0.279, 0.009, 0.066]
+[r4-it] it=3 perr=0.293 dq=[0.062, -1.133, 0.959, 0.143, -0.01, 0.022] base=[0.279, 0.007, 0.066]
+[r4-it] it=4 perr=0.293 dq=[0.066, -1.134, 0.959, 0.145, -0.012, 0.022] base=[0.279, 0.006, 0.066]
+[r4-it] it=5 perr=0.293 dq=[0.072, -1.136, 0.958, 0.148, -0.015, 0.022] base=[0.279, 0.003, 0.066]
+[r4] after lift: cup z 0.020 -> 0.020
+[r4] RESULT: not lifted
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260730_114610.log
+2026-07-30T16:46:10Z [5ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-07-30T16:46:10Z [5ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+2026-07-30T16:46:10Z [5ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+2026-07-30T16:46:10Z [151ms] [Warning] [omni.usd_config.extension] Enable omni.materialx.libs extension to use MaterialX
+2026-07-30T16:46:11Z [496ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-07-30T16:46:11Z [503ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 14004
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 1
+|---------------------------------------------------------------------------------------------|
+2026-07-30T16:46:15Z [4,587ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-07-30T16:46:15Z [4,596ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.
+2026-07-30T16:46:15Z [4,617ms] [Warning] [omni.kvdb.plugin] Disabling key-value database because another kit process is locking it
+R4_EXIT=0

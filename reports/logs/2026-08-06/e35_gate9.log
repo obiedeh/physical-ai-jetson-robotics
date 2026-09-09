@@ -1,0 +1,188 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[INFO]: Parsing configuration from: <class 'isaac.isaaclab_tasks.synria_pickplace.env_cfg.SynriaChessPickPlaceEnvCfg'>
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-08-08_22-07-14.log[0m
+[36m======================================================================================[0m
+
+[33m22:07:14 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 7
+	Physics step-size     : 0.016666666666666666
+	Rendering step-size   : 0.016666666666666666
+	Environment step-size : 0.03333333333333333
+[33m22:07:14 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 0.470586 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 8
+	Environment spacing   : 2.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : False
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 0.433833 seconds
+[INFO] Command Manager:  <CommandManager> contains 0 active terms.
++------------------------+
+|  Active Command Terms  |
++--------+-------+-------+
+| Index  | Name  |  Type |
++--------+-------+-------+
++--------+-------+-------+
+
+[INFO] Event Manager:  <EventManager> contains 2 active terms.
++----------------------------------+
+| Active Event Terms in Mode: 'reset' |
++-----------+----------------------+
+|   Index   | Name                 |
++-----------+----------------------+
+|     0     | reset_trial          |
++-----------+----------------------+
++--------------------------------------------------+
+|      Active Event Terms in Mode: 'interval'      |
++-------+----------------+-------------------------+
+| Index | Name           | Interval time range (s) |
++-------+----------------+-------------------------+
+|   0   | hold_staged    |       (0.03, 0.04)      |
+|   1   | attach_carried |       (0.03, 0.04)      |
++-------+----------------+-------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++-----------------------------------+
+|   Active Action Terms (shape: 7)  |
++-------+---------------+-----------+
+| Index | Name          | Dimension |
++-------+---------------+-----------+
+|   0   | arm_joint_pos |         6 |
+|   1   | gripper       |         1 |
++-------+---------------+-----------+
+
+[gripper_geometry] pad colliders verified against USD (2/2 sides, tolerance 0.5 mm) at /World/envs/env_0/SynriaArm
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++---------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (68,)) |
++------------+-------------------------------+------------+
+|   Index    | Name                          |   Shape    |
++------------+-------------------------------+------------+
+|     0      | joint_state                   |   (13,)    |
+|     1      | ee_pose                       |    (7,)    |
+|     2      | piece_pos                     |    (3,)    |
+|     3      | target_piece_id               |   (32,)    |
+|     4      | target_zone_id                |    (4,)    |
+|     5      | target_pos                    |    (4,)    |
+|     6      | trial_phase                   |    (5,)    |
++------------+-------------------------------+------------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 4 active terms.
++----------------------------------------+
+|        Active Termination Terms        |
++-------+---------------------+----------+
+| Index | Name                | Time Out |
++-------+---------------------+----------+
+|   0   | time_out            |   True   |
+|   1   | piece_dropped       |  False   |
+|   2   | piece_out_of_bounds |  False   |
+|   3   | collision           |  False   |
++-------+---------------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 20 active terms.
++-------------------------------------------------+
+|               Active Reward Terms               |
++-------+--------------------------------+--------+
+| Index | Name                           | Weight |
++-------+--------------------------------+--------+
+|   0   | piece_to_target_distance       |  600.0 |
+|   1   | ee_to_piece_distance           |  300.0 |
+|   2   | piece_lift                     |    1.5 |
+|   3   | gripper_to_piece_when_grasping |    0.3 |
+|   4   | hold_maintenance               |    1.0 |
+|   5   | carry_drop                     |   15.0 |
+|   6   | release_at_zone                |   90.0 |
+|   7   | upright_descent                |  100.0 |
+|   8   | lower_at_zone                  |   15.0 |
+|   9   | approach_guidance              |   0.15 |
+|   10  | carry_guidance                 |    0.2 |
+|   11  | hold_at_zone                   |    0.0 |
+|   12  | action_norm_penalty            |  -0.01 |
+|   13  | grasp_confirmed                |  300.0 |
+|   14  | return_home                    |   60.0 |
+|   15  | setdown_approach               |  600.0 |
+|   16  | cycle_complete                 |  900.0 |
+|   17  | piece_in_zone                  |  300.0 |
+|   18  | piece_dropped                  |   30.0 |
+|   19  | collision                      |   30.0 |
++-------+--------------------------------+--------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 0 active terms.
++----------------------+
+| Active Curriculum Terms |
++-----------+----------+
+|   Index   | Name     |
++-----------+----------+
++-----------+----------+
+
+[INFO]: Completed setting up the environment...
+--------------------------------------------------------------------------------
+Resolved observation sets: 
+	 policy :  ['policy']
+	 critic :  ['policy']
+--------------------------------------------------------------------------------
+Actor MLP: MLP(
+  (0): Linear(in_features=68, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=7, bias=True)
+)
+Critic MLP: MLP(
+  (0): Linear(in_features=68, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=1, bias=True)
+)
+[e33rec] policy: reports/training/synria_chess_pickplace_v6_e26_s43/model_final.pt
+[e33rec] polarity: -1 -> 31.0 mm, +1 -> 50.0 mm
+[e33rec] step=0 saved=0 phases={'policy': 8} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[e33rec] step=300 saved=0 phases={'policy': 4, 'release': 1, 's_descend': 3} funnel={'takeover': 1, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[e33rec] step=600 saved=0 phases={'policy': 3, 'ascend': 1, 's_descend': 4} funnel={'takeover': 1, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[e33rec] step=900 saved=0 phases={'policy': 3, 'ascend': 1, 's_descend': 4} funnel={'takeover': 1, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[e33rec] step=1200 saved=0 phases={'policy': 3, 'ascend': 1, 's_descend': 4} funnel={'takeover': 1, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[death] env=0 in=s_descend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.80rad
+[death] env=2 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.35rad
+[death] env=3 in=s_open taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.37rad
+[death] env=4 in=s_descend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.74rad
+[e33rec] step=1500 saved=0 phases={'policy': 6, 's_descend': 2} funnel={'takeover': 1, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 4}
+[e33rec] step=1800 saved=0 phases={'policy': 4, 'ascend': 2, 's_descend': 2} funnel={'takeover': 3, 'released': 1, 'setdown': 1, 'cycle': 0, 'reset_mid_script': 4}
+[e33rec] step=2100 saved=0 phases={'policy': 4, 'ascend': 1, 'yaw_home': 1, 's_descend': 1, 's_open': 1} funnel={'takeover': 3, 'released': 1, 'setdown': 1, 'cycle': 0, 'reset_mid_script': 4}
+[e33rec] step=2400 saved=0 phases={'policy': 4, 'ascend': 1, 'go_home': 1, 's_descend': 2} funnel={'takeover': 3, 'released': 1, 'setdown': 1, 'cycle': 0, 'reset_mid_script': 4}
+[e33rec] step=2700 saved=0 phases={'policy': 4, 'ascend': 1, 'go_home': 1, 's_descend': 2} funnel={'takeover': 3, 'released': 1, 'setdown': 1, 'cycle': 0, 'reset_mid_script': 4}
+[death] env=3 in=s_descend taskphase=0 cup_tilt=0deg cup_z=813mm home_err=1.61rad
+[death] env=4 in=s_descend taskphase=0 cup_tilt=0deg cup_z=816mm home_err=1.30rad
+[death] env=5 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.21rad
+[death] env=7 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.34rad
+[e33rec] step=3000 saved=0 phases={'policy': 3, 'release': 1, 's_descend': 4} funnel={'takeover': 4, 'released': 1, 'setdown': 1, 'cycle': 0, 'reset_mid_script': 8}
+[e33rec] step=3300 saved=0 phases={'policy': 3, 'ascend': 1, 's_descend': 4} funnel={'takeover': 4, 'released': 1, 'setdown': 1, 'cycle': 0, 'reset_mid_script': 8}
+[e33rec] step=3600 saved=0 phases={'policy': 3, 'ascend': 1, 's_descend': 4} funnel={'takeover': 4, 'released': 1, 'setdown': 1, 'cycle': 0, 'reset_mid_script': 8}
+[e33rec] step=3900 saved=0 phases={'policy': 3, 'ascend': 1, 's_descend': 4} funnel={'takeover': 4, 'released': 1, 'setdown': 1, 'cycle': 0, 'reset_mid_script': 8}
+[e33rec] step=4200 saved=0 phases={'policy': 4, 'ascend': 1, 's_descend': 3} funnel={'takeover': 4, 'released': 1, 'setdown': 1, 'cycle': 0, 'reset_mid_script': 8}
+[death] env=2 in=s_open taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.73rad
+[death] env=4 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.17rad
+[death] env=5 in=s_descend taskphase=0 cup_tilt=0deg cup_z=819mm home_err=1.10rad
+[death] env=6 in=s_descend taskphase=0 cup_tilt=0deg cup_z=811mm home_err=1.24rad
+[death] env=7 in=s_descend taskphase=0 cup_tilt=0deg cup_z=812mm home_err=1.27rad
+[gate] ======== episodes=24 grasp=9 (0.38) upright_of_grasps=0.56 mean|dtarget|=3.67 mrad ========
+[e33rec] DONE saved=0 funnel={'takeover': 4, 'released': 1, 'setdown': 1, 'cycle': 0, 'reset_mid_script': 13}

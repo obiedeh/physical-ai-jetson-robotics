@@ -1,0 +1,191 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[INFO]: Parsing configuration from: <class 'isaac.isaaclab_tasks.synria_pickplace.env_cfg.SynriaChessPickPlaceEnvCfg'>
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-08-08_21-58-05.log[0m
+[36m======================================================================================[0m
+
+[33m21:58:05 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 7
+	Physics step-size     : 0.016666666666666666
+	Rendering step-size   : 0.016666666666666666
+	Environment step-size : 0.03333333333333333
+[33m21:58:05 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 0.463926 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 8
+	Environment spacing   : 2.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : False
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 0.431636 seconds
+[INFO] Command Manager:  <CommandManager> contains 0 active terms.
++------------------------+
+|  Active Command Terms  |
++--------+-------+-------+
+| Index  | Name  |  Type |
++--------+-------+-------+
++--------+-------+-------+
+
+[INFO] Event Manager:  <EventManager> contains 2 active terms.
++----------------------------------+
+| Active Event Terms in Mode: 'reset' |
++-----------+----------------------+
+|   Index   | Name                 |
++-----------+----------------------+
+|     0     | reset_trial          |
++-----------+----------------------+
++--------------------------------------------------+
+|      Active Event Terms in Mode: 'interval'      |
++-------+----------------+-------------------------+
+| Index | Name           | Interval time range (s) |
++-------+----------------+-------------------------+
+|   0   | hold_staged    |       (0.03, 0.04)      |
+|   1   | attach_carried |       (0.03, 0.04)      |
++-------+----------------+-------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++-----------------------------------+
+|   Active Action Terms (shape: 7)  |
++-------+---------------+-----------+
+| Index | Name          | Dimension |
++-------+---------------+-----------+
+|   0   | arm_joint_pos |         6 |
+|   1   | gripper       |         1 |
++-------+---------------+-----------+
+
+[gripper_geometry] pad colliders verified against USD (2/2 sides, tolerance 0.5 mm) at /World/envs/env_0/SynriaArm
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++---------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (68,)) |
++------------+-------------------------------+------------+
+|   Index    | Name                          |   Shape    |
++------------+-------------------------------+------------+
+|     0      | joint_state                   |   (13,)    |
+|     1      | ee_pose                       |    (7,)    |
+|     2      | piece_pos                     |    (3,)    |
+|     3      | target_piece_id               |   (32,)    |
+|     4      | target_zone_id                |    (4,)    |
+|     5      | target_pos                    |    (4,)    |
+|     6      | trial_phase                   |    (5,)    |
++------------+-------------------------------+------------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 4 active terms.
++----------------------------------------+
+|        Active Termination Terms        |
++-------+---------------------+----------+
+| Index | Name                | Time Out |
++-------+---------------------+----------+
+|   0   | time_out            |   True   |
+|   1   | piece_dropped       |  False   |
+|   2   | piece_out_of_bounds |  False   |
+|   3   | collision           |  False   |
++-------+---------------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 20 active terms.
++-------------------------------------------------+
+|               Active Reward Terms               |
++-------+--------------------------------+--------+
+| Index | Name                           | Weight |
++-------+--------------------------------+--------+
+|   0   | piece_to_target_distance       |  600.0 |
+|   1   | ee_to_piece_distance           |  300.0 |
+|   2   | piece_lift                     |    1.5 |
+|   3   | gripper_to_piece_when_grasping |    0.3 |
+|   4   | hold_maintenance               |    1.0 |
+|   5   | carry_drop                     |   15.0 |
+|   6   | release_at_zone                |   90.0 |
+|   7   | upright_descent                |  100.0 |
+|   8   | lower_at_zone                  |   15.0 |
+|   9   | approach_guidance              |   0.15 |
+|   10  | carry_guidance                 |    0.2 |
+|   11  | hold_at_zone                   |    0.0 |
+|   12  | action_norm_penalty            |  -0.01 |
+|   13  | grasp_confirmed                |  300.0 |
+|   14  | return_home                    |   60.0 |
+|   15  | setdown_approach               |  600.0 |
+|   16  | cycle_complete                 |  900.0 |
+|   17  | piece_in_zone                  |  300.0 |
+|   18  | piece_dropped                  |   30.0 |
+|   19  | collision                      |   30.0 |
++-------+--------------------------------+--------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 0 active terms.
++----------------------+
+| Active Curriculum Terms |
++-----------+----------+
+|   Index   | Name     |
++-----------+----------+
++-----------+----------+
+
+[INFO]: Completed setting up the environment...
+[e33rec] fully scripted expert (E35)
+[e33rec] polarity: -1 -> 31.0 mm, +1 -> 50.0 mm
+[sdbg] ph=['s_yaw', 's_yaw', 's_yaw', 's_yaw', 's_yaw', 's_yaw', 's_yaw', 's_yaw'] az_err=[-0.987, -0.433, 0.564, -0.584, -0.653, 0.64, -0.817, -0.987] r_err_mm=[-51.3, -81.7, -131.2, -129.4, -53.5, -54.7, -18.0, -51.3] z_mm=[849.1, 849.1, 849.1, 849.1, 849.1, 849.1, 849.1, 849.1]
+[e33rec] step=0 saved=0 phases={'s_yaw': 8} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[sdbg] ph=['s_plane', 's_descend', 's_descend', 's_descend', 's_plane', 's_descend', 's_plane', 's_plane'] az_err=[-0.355, -0.077, 0.041, 0.188, -0.205, 0.124, -0.228, -0.36] r_err_mm=[46.2, 27.6, 25.8, 18.2, 21.2, 22.3, 56.7, 46.0] z_mm=[893.4, 887.7, 884.3, 906.7, 913.3, 899.1, 893.2, 888.7]
+[e33rec] step=300 saved=0 phases={'s_plane': 4, 's_descend': 4} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[sdbg] ph=['s_plane', 's_lift', 's_descend', 's_descend', 's_plane', 's_descend', 's_plane', 's_plane'] az_err=[-0.023, -0.096, 0.169, -0.07, -0.023, -0.021, -0.025, -0.021] r_err_mm=[55.4, 18.7, 53.8, -32.9, 46.0, 47.7, 70.9, 51.4] z_mm=[882.8, 821.1, 826.1, 845.0, 887.3, 837.1, 876.2, 884.7]
+[e33rec] step=600 saved=0 phases={'s_plane': 4, 's_descend': 3, 's_lift': 1} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[sdbg] ph=['s_plane', 's_lift', 's_yaw', 's_plane', 's_plane', 's_lift', 's_plane', 's_plane'] az_err=[-0.01, -0.075, -0.036, -0.021, -0.008, -0.012, -0.012, -0.008] r_err_mm=[55.3, 29.6, 79.2, -32.6, 46.0, 17.2, 70.9, 51.2] z_mm=[882.8, 896.3, 827.0, 844.8, 887.3, 915.1, 876.2, 884.8]
+[e33rec] step=900 saved=0 phases={'s_yaw': 1, 's_plane': 5, 's_lift': 2} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[sdbg] ph=['s_plane', 's_yaw', 's_yaw', 's_plane', 's_plane', 's_lift', 's_plane', 's_plane'] az_err=[-0.004, -0.064, -0.051, 0.028, -0.003, 0.084, -0.006, -0.003] r_err_mm=[55.3, 30.6, 74.0, 13.4, 46.0, 32.8, 70.9, 51.2] z_mm=[882.9, 895.8, 827.0, 907.7, 887.3, 894.4, 876.2, 884.8]
+[e33rec] step=1200 saved=0 phases={'s_yaw': 2, 's_plane': 5, 's_lift': 1} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[death] env=0 in=s_plane taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.80rad
+[death] env=1 in=s_yaw taskphase=0 cup_tilt=0deg cup_z=876mm home_err=2.71rad
+[death] env=2 in=s_yaw taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.50rad
+[death] env=3 in=s_plane taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.80rad
+[death] env=4 in=s_plane taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.80rad
+[death] env=5 in=s_yaw taskphase=0 cup_tilt=0deg cup_z=876mm home_err=2.71rad
+[death] env=6 in=s_plane taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.80rad
+[death] env=7 in=s_plane taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.80rad
+[sdbg] ph=['s_plane', 's_yaw', 's_yaw', 's_plane', 's_yaw', 's_yaw', 's_yaw', 's_yaw'] az_err=[0.004, -3.052, -1.354, -0.001, 0.826, -2.159, 1.087, 0.208] r_err_mm=[131.9, 96.2, -1.5, 106.8, 173.4, 39.2, 96.6, 44.5] z_mm=[856.9, 862.1, 826.6, 867.1, 853.0, 860.5, 844.0, 850.8]
+[e33rec] step=1500 saved=0 phases={'s_yaw': 6, 's_plane': 2} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 8}
+[sdbg] ph=['s_descend', 's_yaw', 's_yaw', 's_plane', 's_plane', 's_yaw', 's_yaw', 's_descend'] az_err=[-0.021, -3.051, -1.284, -0.012, -0.044, -1.03, 0.068, 0.083] r_err_mm=[30.9, 96.1, -10.7, 97.0, 146.5, 39.2, 96.6, 13.5] z_mm=[866.6, 862.1, 820.0, 866.7, 857.3, 860.5, 844.0, 872.4]
+[e33rec] step=1800 saved=0 phases={'s_yaw': 4, 's_plane': 2, 's_descend': 2} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 8}
+[sdbg] ph=['s_descend', 's_yaw', 's_yaw', 's_plane', 's_descend', 's_yaw', 's_plane', 's_descend'] az_err=[-0.026, -3.05, -1.284, -0.004, 0.014, -0.021, -0.04, 0.192] r_err_mm=[-62.8, 96.1, -10.7, 97.0, 16.9, 60.2, 57.7, -9.8] z_mm=[833.6, 862.1, 820.0, 866.7, 891.0, 860.2, 881.8, 867.9]
+[e33rec] step=2100 saved=0 phases={'s_yaw': 3, 's_plane': 2, 's_descend': 3} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 8}
+[sdbg] ph=['s_yaw', 's_yaw', 's_yaw', 's_plane', 's_descend', 's_plane', 's_plane', 's_yaw'] az_err=[0.218, -3.05, -1.284, -0.001, 0.006, 0.011, -0.02, 0.022] r_err_mm=[-37.3, 96.1, -10.7, 97.0, -52.0, 17.5, 57.7, -4.8] z_mm=[827.8, 862.1, 820.0, 866.7, 828.7, 904.5, 881.8, 873.9]
+[e33rec] step=2400 saved=0 phases={'s_yaw': 4, 's_plane': 3, 's_descend': 1} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 8}
+[sdbg] ph=['s_yaw', 's_yaw', 's_yaw', 's_plane', 's_yaw', 's_plane', 's_plane', 's_descend'] az_err=[0.368, -3.05, -1.284, -0.0, 0.457, 0.009, -0.007, -0.109] r_err_mm=[26.6, 96.1, -10.7, 97.0, -3.7, 17.4, 57.7, 9.0] z_mm=[833.9, 862.1, 820.0, 866.7, 829.1, 904.5, 881.8, 871.3]
+[e33rec] step=2700 saved=0 phases={'s_yaw': 4, 's_plane': 3, 's_descend': 1} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 8}
+[death] env=0 in=s_yaw taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.63rad
+[death] env=1 in=s_yaw taskphase=0 cup_tilt=0deg cup_z=815mm home_err=2.72rad
+[death] env=2 in=s_yaw taskphase=0 cup_tilt=0deg cup_z=815mm home_err=2.36rad
+[death] env=3 in=s_plane taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.80rad
+[death] env=4 in=s_yaw taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.79rad
+[death] env=5 in=s_plane taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.80rad
+[death] env=6 in=s_plane taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.80rad
+[death] env=7 in=s_descend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.61rad
+[sdbg] ph=['s_yaw', 's_yaw', 's_yaw', 's_yaw', 's_yaw', 's_plane', 's_plane', 's_yaw'] az_err=[0.175, 2.229, -1.133, -0.707, -2.213, -0.069, -0.072, 0.534] r_err_mm=[131.0, 128.3, 80.6, 133.6, 15.3, 81.5, 57.9, 134.2] z_mm=[822.9, 844.4, 829.0, 834.7, 822.7, 874.9, 881.7, 825.7]
+[e33rec] step=3000 saved=0 phases={'s_yaw': 6, 's_plane': 2} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 16}
+[sdbg] ph=['s_yaw', 's_yaw', 's_yaw', 's_plane', 's_yaw', 's_plane', 's_plane', 's_plane'] az_err=[0.113, 1.209, -1.118, 0.118, -2.213, 0.037, -0.026, -0.101] r_err_mm=[130.7, 128.2, 83.2, 108.3, 15.4, 54.6, 57.8, 153.9] z_mm=[822.9, 844.4, 828.4, 866.9, 822.7, 882.6, 881.7, 826.3]
+[e33rec] step=3300 saved=0 phases={'s_yaw': 4, 's_plane': 4} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 16}
+[sdbg] ph=['s_yaw', 's_yaw', 's_yaw', 's_plane', 's_yaw', 's_plane', 's_plane', 's_plane'] az_err=[0.085, 0.189, -1.118, -0.042, -2.214, 0.013, -0.011, 0.027] r_err_mm=[130.2, 128.2, 83.2, 95.9, 15.2, 54.5, 57.7, 118.0] z_mm=[823.0, 844.4, 828.4, 867.0, 822.7, 882.7, 881.8, 858.0]
+[e33rec] step=3600 saved=0 phases={'s_yaw': 4, 's_plane': 4} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 16}
+[sdbg] ph=['s_yaw', 's_plane', 's_yaw', 's_plane', 's_yaw', 's_plane', 's_plane', 's_descend'] az_err=[0.082, -0.06, -1.118, -0.019, -2.214, 0.005, -0.004, 0.012] r_err_mm=[130.2, 68.6, 83.2, 96.0, 15.2, 54.6, 57.7, 53.8] z_mm=[823.0, 876.7, 828.4, 867.0, 822.7, 882.7, 881.8, 832.2]
+[e33rec] step=3900 saved=0 phases={'s_yaw': 3, 's_plane': 4, 's_descend': 1} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 16}
+[sdbg] ph=['s_yaw', 's_plane', 's_yaw', 's_plane', 's_yaw', 's_plane', 's_plane', 's_descend'] az_err=[0.08, 0.004, -1.118, -0.008, -2.213, 0.002, -0.002, -0.001] r_err_mm=[130.2, 68.6, 83.2, 96.0, 15.3, 54.6, 57.7, 70.8] z_mm=[823.0, 876.7, 828.4, 867.0, 822.7, 882.7, 881.8, 833.0]
+[e33rec] step=4200 saved=0 phases={'s_yaw': 3, 's_plane': 4, 's_descend': 1} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 16}
+[death] env=0 in=s_yaw taskphase=0 cup_tilt=0deg cup_z=815mm home_err=2.68rad
+[death] env=1 in=s_plane taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.80rad
+[death] env=2 in=s_yaw taskphase=0 cup_tilt=0deg cup_z=815mm home_err=3.04rad
+[death] env=3 in=s_plane taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.80rad
+[death] env=4 in=s_yaw taskphase=0 cup_tilt=0deg cup_z=815mm home_err=2.79rad
+[death] env=5 in=s_plane taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.80rad
+[death] env=6 in=s_plane taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.80rad
+[death] env=7 in=s_descend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.59rad
+[gate] ======== episodes=24 grasp=2 (0.08) upright_of_grasps=0.00 mean|dtarget|=1.68 mrad ========
+[e33rec] DONE saved=0 funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 24}

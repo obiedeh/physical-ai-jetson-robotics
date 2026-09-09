@@ -1,0 +1,16 @@
+[e29] start 2026-08-06T02:49:00-05:00
+[e29] PHASE 1: re-evaluating control checkpoints
+[e29] control s42 eval exited 0 at 2026-08-06T02:49:40-05:00
+[e29] control s43 eval exited 0 at 2026-08-06T02:50:19-05:00
+[e29] control s44 eval exited 0 at 2026-08-06T02:51:00-05:00
+[e29] PHASE 2: training 3 seeds with the grasp_height reward
+[e29] train s42 exited 0 at 2026-08-06T03:52:36-05:00
+[e29] train s43 exited 0 at 2026-08-06T04:51:42-05:00
+[e29] train s44 exited 0 at 2026-08-06T05:50:20-05:00
+[e29] PHASE 3: evaluating the trained checkpoints
+[e29] zterm s42 eval exited 0 at 2026-08-06T05:50:58-05:00
+[e29] zterm s43 eval exited 0 at 2026-08-06T05:51:39-05:00
+[e29] zterm s44 eval exited 0 at 2026-08-06T05:52:18-05:00
+[e29] NOTE: synria_reach_policy.json now points at the last run here;
+[e29]       check whether that is intended before committing it.
+[e29] ALLDONE 2026-08-06T05:52:18-05:00

@@ -1,0 +1,296 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    defaultPrim = "synria_6dof_arm"
+    doc = """Generated from Composed Stage of root layer /tmp/tmpjzjpssn1/synria_6dof_arm.usdc
+
+
+Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/usdex/synria_6dof_arm.usdc
+
+
+Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/temp/synria_6dof_arm.usd
+
+
+Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/synria_6dof_arm/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    upAxis = "Z"
+)
+
+over "synria_6dof_arm" (
+    prepend apiSchemas = ["IsaacRobotAPI", "IsaacLinkAPI"]
+)
+{
+    custom rel isaac:physics:robotJoints
+    prepend rel isaac:physics:robotJoints = [
+        </synria_6dof_arm/Physics/joint_1>,
+        </synria_6dof_arm/Physics/root_joint>,
+        </synria_6dof_arm/Physics/joint_2>,
+        </synria_6dof_arm/Physics/joint_3>,
+        </synria_6dof_arm/Physics/joint_4>,
+        </synria_6dof_arm/Physics/joint_5>,
+        </synria_6dof_arm/Physics/joint_6>,
+        </synria_6dof_arm/Physics/c10_camera_fixed>,
+    ]
+    custom rel isaac:physics:robotLinks
+    prepend rel isaac:physics:robotLinks = [
+        </synria_6dof_arm/Geometry/base_link>,
+        </synria_6dof_arm/Geometry/base_link/shoulder_link>,
+        </synria_6dof_arm/Geometry/base_link/shoulder_link/upper_arm_link>,
+        </synria_6dof_arm/Geometry/base_link/shoulder_link/upper_arm_link/forearm_link>,
+        </synria_6dof_arm/Geometry/base_link/shoulder_link/upper_arm_link/forearm_link/wrist_1_link>,
+        </synria_6dof_arm/Geometry/base_link/shoulder_link/upper_arm_link/forearm_link/wrist_1_link/wrist_2_link>,
+        </synria_6dof_arm/Geometry/base_link/shoulder_link/upper_arm_link/forearm_link/wrist_1_link/wrist_2_link/tool0>,
+        </synria_6dof_arm/Geometry/base_link/shoulder_link/upper_arm_link/forearm_link/wrist_1_link/wrist_2_link/tool0/c10_camera_link>,
+    ]
+
+    over "Physics"
+    {
+        over "joint_1" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "root_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "joint_2" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "joint_3" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "joint_4" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "joint_5" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "joint_6" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "c10_camera_fixed" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+    }
+
+    over "Geometry"
+    {
+        over "base_link" (
+            prepend apiSchemas = ["IsaacLinkAPI"]
+        )
+        {
+            over "shoulder_link" (
+                prepend apiSchemas = ["IsaacLinkAPI"]
+            )
+            {
+                over "upper_arm_link" (
+                    prepend apiSchemas = ["IsaacLinkAPI"]
+                )
+                {
+                    over "forearm_link" (
+                        prepend apiSchemas = ["IsaacLinkAPI"]
+                    )
+                    {
+                        over "wrist_1_link" (
+                            prepend apiSchemas = ["IsaacLinkAPI"]
+                        )
+                        {
+                            over "wrist_2_link" (
+                                prepend apiSchemas = ["IsaacLinkAPI"]
+                            )
+                            {
+                                over "tool0" (
+                                    prepend apiSchemas = ["IsaacLinkAPI"]
+                                )
+                                {
+                                    over "c10_camera_link" (
+                                        prepend apiSchemas = ["IsaacLinkAPI"]
+                                    )
+                                    {
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+over "Alicia_D_v5_6_gripper_50mm" (
+    prepend apiSchemas = ["IsaacRobotAPI", "IsaacLinkAPI"]
+)
+{
+    custom rel isaac:physics:robotJoints
+    prepend rel isaac:physics:robotJoints = [
+        </Alicia_D_v5_6_gripper_50mm/Physics/Joint1>,
+        </Alicia_D_v5_6_gripper_50mm/Physics/root_joint>,
+        </Alicia_D_v5_6_gripper_50mm/Physics/Joint2>,
+        </Alicia_D_v5_6_gripper_50mm/Physics/Joint3>,
+        </Alicia_D_v5_6_gripper_50mm/Physics/Joint4>,
+        </Alicia_D_v5_6_gripper_50mm/Physics/Joint5>,
+        </Alicia_D_v5_6_gripper_50mm/Physics/Joint6>,
+        </Alicia_D_v5_6_gripper_50mm/Physics/left_finger>,
+        </Alicia_D_v5_6_gripper_50mm/Physics/right_finger>,
+        </Alicia_D_v5_6_gripper_50mm/Physics/tool0_fixed_joint>,
+    ]
+    custom rel isaac:physics:robotLinks
+    prepend rel isaac:physics:robotLinks = [
+        </Alicia_D_v5_6_gripper_50mm/Geometry/base_link>,
+        </Alicia_D_v5_6_gripper_50mm/Geometry/base_link/link1>,
+        </Alicia_D_v5_6_gripper_50mm/Geometry/base_link/link1/link2>,
+        </Alicia_D_v5_6_gripper_50mm/Geometry/base_link/link1/link2/link3>,
+        </Alicia_D_v5_6_gripper_50mm/Geometry/base_link/link1/link2/link3/link4>,
+        </Alicia_D_v5_6_gripper_50mm/Geometry/base_link/link1/link2/link3/link4/link5>,
+        </Alicia_D_v5_6_gripper_50mm/Geometry/base_link/link1/link2/link3/link4/link5/link6>,
+        </Alicia_D_v5_6_gripper_50mm/Geometry/base_link/link1/link2/link3/link4/link5/link6/left_gripper>,
+        </Alicia_D_v5_6_gripper_50mm/Geometry/base_link/link1/link2/link3/link4/link5/link6/right_gripper>,
+        </Alicia_D_v5_6_gripper_50mm/Geometry/base_link/link1/link2/link3/link4/link5/link6/tool0>,
+    ]
+
+    over "Physics"
+    {
+        over "Joint1" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "root_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "Joint2" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "Joint3" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "Joint4" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "Joint5" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "Joint6" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "left_finger" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "right_finger" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+
+        over "tool0_fixed_joint" (
+            prepend apiSchemas = ["IsaacJointAPI"]
+        )
+        {
+        }
+    }
+
+    over "Geometry"
+    {
+        over "base_link" (
+            prepend apiSchemas = ["IsaacLinkAPI"]
+        )
+        {
+            over "link1" (
+                prepend apiSchemas = ["IsaacLinkAPI"]
+            )
+            {
+                over "link2" (
+                    prepend apiSchemas = ["IsaacLinkAPI"]
+                )
+                {
+                    over "link3" (
+                        prepend apiSchemas = ["IsaacLinkAPI"]
+                    )
+                    {
+                        over "link4" (
+                            prepend apiSchemas = ["IsaacLinkAPI"]
+                        )
+                        {
+                            over "link5" (
+                                prepend apiSchemas = ["IsaacLinkAPI"]
+                            )
+                            {
+                                over "link6" (
+                                    prepend apiSchemas = ["IsaacLinkAPI"]
+                                )
+                                {
+                                    over "left_gripper" (
+                                        prepend apiSchemas = ["IsaacLinkAPI"]
+                                    )
+                                    {
+                                    }
+
+                                    over "right_gripper" (
+                                        prepend apiSchemas = ["IsaacLinkAPI"]
+                                    )
+                                    {
+                                    }
+
+                                    over "tool0" (
+                                        prepend apiSchemas = ["IsaacLinkAPI"]
+                                    )
+                                    {
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+

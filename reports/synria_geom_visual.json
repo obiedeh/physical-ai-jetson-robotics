@@ -1,0 +1,105 @@
+[
+ {
+  "pitch_deg": 0.0,
+  "grasp_z_mm": 40.0,
+  "pad_bottom_clear_mm": 3.9,
+  "grasped": 2,
+  "upright_at_grasp": 2,
+  "placed": 1,
+  "upright_at_place": 1,
+  "tipped": 1,
+  "setdown_not_converged": 0,
+  "released_free": 2,
+  "trials": 2,
+  "stage_trace": [
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 17.9,
+     "cup_above_table_mm": 119.5,
+     "cup_minus_pad_z_mm": -9.2,
+     "cup_xy_vs_pad_mm": 9.2
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 17.6,
+     "cup_above_table_mm": 118.8,
+     "cup_minus_pad_z_mm": -9.2,
+     "cup_xy_vs_pad_mm": 9.1
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 51.8,
+     "cup_above_table_mm": 31.2,
+     "cup_minus_pad_z_mm": -16.4,
+     "cup_xy_vs_pad_mm": 36.4
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 58.1,
+     "cup_above_table_mm": 30.2,
+     "cup_minus_pad_z_mm": -15.7,
+     "cup_xy_vs_pad_mm": 39.9
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 90.0,
+     "cup_above_table_mm": 20.0,
+     "cup_minus_pad_z_mm": -158.9,
+     "cup_xy_vs_pad_mm": 52.8
+    }
+   ],
+   [
+    {
+     "at": "after_grasp",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -15.6,
+     "cup_xy_vs_pad_mm": 0.6
+    },
+    {
+     "at": "after_lift",
+     "tilt_deg": 20.8,
+     "cup_above_table_mm": 135.2,
+     "cup_minus_pad_z_mm": -9.0,
+     "cup_xy_vs_pad_mm": 8.7
+    },
+    {
+     "at": "after_transport",
+     "tilt_deg": 21.3,
+     "cup_above_table_mm": 136.7,
+     "cup_minus_pad_z_mm": -8.9,
+     "cup_xy_vs_pad_mm": 8.8
+    },
+    {
+     "at": "after_setdown",
+     "tilt_deg": 8.0,
+     "cup_above_table_mm": 27.5,
+     "cup_minus_pad_z_mm": -8.7,
+     "cup_xy_vs_pad_mm": 5.0
+    },
+    {
+     "at": "after_release",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -11.1,
+     "cup_xy_vs_pad_mm": 9.3
+    },
+    {
+     "at": "after_retract",
+     "tilt_deg": 0.0,
+     "cup_above_table_mm": 25.0,
+     "cup_minus_pad_z_mm": -159.3,
+     "cup_xy_vs_pad_mm": 89.1
+    }
+   ]
+  ]
+ }
+]

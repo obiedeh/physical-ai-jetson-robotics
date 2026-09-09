@@ -1,0 +1,310 @@
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260729_125459.log
+2026-07-29T17:54:59Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-07-29T17:54:59Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+2026-07-29T17:54:59Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 20426
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 5810
+|---------------------------------------------------------------------------------------------|
+2026-07-29T17:54:59Z [720ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-07-29T17:54:59Z [728ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.
+2026-07-29T17:55:01Z [2,429ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-07-29T17:55:01Z [2,513ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-07-29T17:55:01Z [2,632ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-07-29T17:55:02Z [3,790ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+2026-07-29T17:55:03Z [3,853ms] [Warning] [omni.graph.core.plugin] Found duplicate of category 'Replicator' - was 'Annotators', adding 'Fabric Reader'
+2026-07-29T17:55:03Z [3,853ms] [Warning] [omni.graph.core.plugin] Category 'Replicator' not accepted on node type 'omni.replicator.core.FabricReader' in extension 'omni.replicator.core'
+2026-07-29T17:55:03Z [3,854ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-07-29T17:55:05Z [6,221ms] [Warning] [omni.fabric.plugin] Warning: attribute viewportHandle not found for bucket id 7
+
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+[INFO]: Parsing configuration from: <class 'isaac.isaaclab_tasks.synria_pickplace.env_cfg.SynriaChessPickPlaceEnvCfg'>
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-29_12-55-05.log[0m
+[36m======================================================================================[0m
+
+[33m12:55:05 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 123
+	Physics step-size     : 0.016666666666666666
+	Rendering step-size   : 0.016666666666666666
+	Environment step-size : 0.03333333333333333
+[33m12:55:05 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 0.431716 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 8
+	Environment spacing   : 2.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : False
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 1.705156 seconds
+[INFO] Command Manager:  <CommandManager> contains 0 active terms.
++------------------------+
+|  Active Command Terms  |
++--------+-------+-------+
+| Index  | Name  |  Type |
++--------+-------+-------+
++--------+-------+-------+
+
+[INFO] Event Manager:  <EventManager> contains 2 active terms.
++----------------------------------+
+| Active Event Terms in Mode: 'reset' |
++-----------+----------------------+
+|   Index   | Name                 |
++-----------+----------------------+
+|     0     | reset_trial          |
++-----------+----------------------+
++--------------------------------------------------+
+|      Active Event Terms in Mode: 'interval'      |
++-------+----------------+-------------------------+
+| Index | Name           | Interval time range (s) |
++-------+----------------+-------------------------+
+|   0   | hold_staged    |       (0.03, 0.04)      |
+|   1   | attach_carried |       (0.03, 0.04)      |
++-------+----------------+-------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++-----------------------------------+
+|   Active Action Terms (shape: 8)  |
++-------+---------------+-----------+
+| Index | Name          | Dimension |
++-------+---------------+-----------+
+|   0   | arm_joint_pos |         6 |
+|   1   | gripper       |         2 |
++-------+---------------+-----------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++---------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (68,)) |
++------------+-------------------------------+------------+
+|   Index    | Name                          |   Shape    |
++------------+-------------------------------+------------+
+|     0      | joint_state                   |   (13,)    |
+|     1      | ee_pose                       |    (7,)    |
+|     2      | piece_pos                     |    (3,)    |
+|     3      | target_piece_id               |   (32,)    |
+|     4      | target_zone_id                |    (4,)    |
+|     5      | target_pos                    |    (4,)    |
+|     6      | trial_phase                   |    (5,)    |
++------------+-------------------------------+------------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 4 active terms.
++----------------------------------------+
+|        Active Termination Terms        |
++-------+---------------------+----------+
+| Index | Name                | Time Out |
++-------+---------------------+----------+
+|   0   | time_out            |   True   |
+|   1   | piece_dropped       |  False   |
+|   2   | piece_out_of_bounds |  False   |
+|   3   | collision           |  False   |
++-------+---------------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 18 active terms.
++-------------------------------------------------+
+|               Active Reward Terms               |
++-------+--------------------------------+--------+
+| Index | Name                           | Weight |
++-------+--------------------------------+--------+
+|   0   | piece_to_target_distance       |  600.0 |
+|   1   | ee_to_piece_distance           |  300.0 |
+|   2   | piece_lift                     |    1.5 |
+|   3   | gripper_to_piece_when_grasping |    0.3 |
+|   4   | hold_maintenance               |    1.0 |
+|   5   | carry_drop                     |   15.0 |
+|   6   | release_at_zone                |   90.0 |
+|   7   | lower_at_zone                  |   15.0 |
+|   8   | approach_guidance              |   0.15 |
+|   9   | carry_guidance                 |    0.2 |
+|   10  | hold_at_zone                   |    0.0 |
+|   11  | action_norm_penalty            |  -0.01 |
+|   12  | grasp_confirmed                |  300.0 |
+|   13  | return_home                    |   60.0 |
+|   14  | cycle_complete                 |  900.0 |
+|   15  | piece_in_zone                  |  300.0 |
+|   16  | piece_dropped                  |   30.0 |
+|   17  | collision                      |   30.0 |
++-------+--------------------------------+--------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 0 active terms.
++----------------------+
+| Active Curriculum Terms |
++-----------+----------+
+|   Index   | Name     |
++-----------+----------+
++-----------+----------+
+
+[INFO]: Completed setting up the environment...
+[pick] step=0 stages=['PIVOT', 'PIVOT', 'PIVOT', 'PIVOT', 'PIVOT', 'PIVOT', 'PIVOT', 'PIVOT'] e0 tool=[0.08147358894348145, 0.0003503561019897461, 0.8837790489196777] cup=[-0.09765589982271194, 0.08746841549873352] dia=50mm piece_z-rest=-0.000
+[pick] DISTURBED env4 at step=9 stage=PIVOT t_in=9 disp=22mm
+[pick] DISTURBED env5 at step=9 stage=PIVOT t_in=9 disp=21mm
+[pick] step=30 stages=['APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH'] e0 tool=[-0.021117687225341797, 0.14557337760925293, 0.8641115427017212] cup=[-0.09786625951528549, 0.08477578312158585] dia=50mm piece_z-rest=-0.000
+[pick] step=60 stages=['APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH'] e0 tool=[-0.04825186729431152, 0.0336986780166626, 1.0395069122314453] cup=[-0.0977991372346878, 0.08487742394208908] dia=47mm piece_z-rest=-0.000
+[pick] step=90 stages=['APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH'] e0 tool=[-0.20849370956420898, 0.11228209733963013, 0.9649136662483215] cup=[-0.09841319918632507, 0.08477578312158585] dia=50mm piece_z-rest=-0.000
+[pick] step=120 stages=['APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH'] e0 tool=[-0.08938121795654297, 0.06228232383728027, 0.9934440851211548] cup=[-0.09874854236841202, 0.0851903185248375] dia=50mm piece_z-rest=-0.000
+[pick] step=150 stages=['DESCEND', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH'] e0 tool=[-0.20759010314941406, 0.08829617500305176, 0.8877320289611816] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=-0.000
+[pick] step=180 stages=['DESCEND', 'APPROACH', 'DESCEND', 'APPROACH', 'APPROACH', 'APPROACH', 'DESCEND', 'APPROACH'] e0 tool=[-0.12365961074829102, 0.055463433265686035, 0.877121090888977] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=-0.000
+[pick] CLOSE-entry env6: grasp_centre=[-0.07654358446598053, 0.12018807232379913, 0.8377201557159424] cup_gt=[-0.09250116348266602, 0.1359385848045349, 0.8150004148483276] delta=[0.016, -0.016, 0.023]
+[pick] step=210 stages=['DESCEND', 'DESCEND', 'DESCEND', 'APPROACH', 'APPROACH', 'APPROACH', 'CLOSE', 'APPROACH'] e0 tool=[-0.17438554763793945, 0.0899810791015625, 0.8558476567268372] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=-0.000
+[pick] CLOSE snapshot saved for env 6
+[pick] step=240 stages=['DESCEND', 'DESCEND', 'DESCEND', 'APPROACH', 'APPROACH', 'APPROACH', 'CLOSE', 'APPROACH'] e0 tool=[-0.1400442123413086, 0.0775526762008667, 0.8111931681632996] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=-0.000
+[pick] HOLD refused envs [6]: gc-cup dist [0.096] — retrying descent
+[pick] CLOSE-entry env0: grasp_centre=[-0.0892767533659935, 0.08973917365074158, 0.8437595963478088] cup_gt=[-0.09249496459960938, 0.08086138963699341, 0.8149995803833008] delta=[0.003, 0.009, 0.029]
+[pick] step=270 stages=['CLOSE', 'DESCEND', 'DESCEND', 'APPROACH', 'APPROACH', 'APPROACH', 'DESCEND', 'APPROACH'] e0 tool=[-0.14804697036743164, 0.07287412881851196, 0.8324279189109802] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=-0.000
+[pick] DISTURBED env6 at step=271 stage=DESCEND t_in=20 disp=30mm
+[pick] CLOSE snapshot saved for env 0
+[pick] step=300 stages=['CLOSE', 'DESCEND', 'DESCEND', 'APPROACH', 'APPROACH', 'APPROACH', 'DESCEND', 'APPROACH'] e0 tool=[-0.1906280517578125, 0.11325883865356445, 0.8328202962875366] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=-0.000
+[pick] HOLD engaged for envs [0]
+[pick] DISTURBED env0 at step=316 stage=LIFT t_in=1 disp=11mm
+[pick] step=330 stages=['LIFT', 'DESCEND', 'DESCEND', 'FAIL', 'FAIL', 'FAIL', 'DESCEND', 'FAIL'] e0 tool=[-0.1780078411102295, 0.09137177467346191, 0.8837471008300781] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.041
+[pick] step=360 stages=['CARRY', 'DESCEND', 'DESCEND', 'FAIL', 'FAIL', 'FAIL', 'DESCEND', 'FAIL'] e0 tool=[-0.14278101921081543, 0.015254855155944824, 1.1058971881866455] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.316
+[pick] CLOSE-entry env1: grasp_centre=[-0.11416766047477722, 0.09930624812841415, 0.8018703460693359] cup_gt=[-0.09249496459960938, 0.08086168766021729, 0.8149996399879456] delta=[-0.022, 0.018, -0.013]
+[pick] step=390 stages=['CARRY', 'CLOSE', 'DESCEND', 'FAIL', 'FAIL', 'FAIL', 'DESCEND', 'FAIL'] e0 tool=[-0.13869285583496094, -0.0218963623046875, 1.024990439414978] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.213
+[pick] CLOSE snapshot saved for env 1
+[pick] step=420 stages=['PLACE', 'CLOSE', 'DESCEND', 'FAIL', 'FAIL', 'FAIL', 'DESCEND', 'FAIL'] e0 tool=[-0.1254589557647705, -0.03062593936920166, 0.8984149694442749] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.055
+[pick] HOLD refused envs [1]: gc-cup dist [0.035] — retrying descent
+[pick] step=450 stages=['PLACE', 'DESCEND', 'DESCEND', 'FAIL', 'FAIL', 'FAIL', 'DESCEND', 'FAIL'] e0 tool=[-0.11884498596191406, -0.024886250495910645, 0.9032027721405029] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.064
+[pick] step=480 stages=['PLACE', 'DESCEND', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'DESCEND', 'FAIL'] e0 tool=[-0.11832666397094727, -0.020361781120300293, 0.9029034376144409] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.061
+[pick] CLOSE-entry env1: grasp_centre=[-0.09289287030696869, 0.08982215076684952, 0.8414667844772339] cup_gt=[-0.09249496459960938, 0.08086144924163818, 0.8149995803833008] delta=[-0.0, 0.009, 0.026]
+[pick] HOLD engaged for envs [1]
+[pick] DISTURBED env1 at step=489 stage=CLOSE t_in=6 disp=12mm
+[pick] step=510 stages=['PLACE', 'CLOSE', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'DESCEND', 'FAIL'] e0 tool=[-0.11621379852294922, -0.020953059196472168, 0.9042993783950806] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.062
+[pick] CLOSE snapshot saved for env 1
+[pick] step=540 stages=['PLACE', 'CLOSE', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'DESCEND', 'FAIL'] e0 tool=[-0.11705970764160156, -0.019420623779296875, 0.903497576713562] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.061
+[pick] HOLD engaged for envs [1]
+[pick] step=570 stages=['PLACE', 'CARRY', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.11697268486022949, -0.020530104637145996, 0.9036906957626343] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.062
+[pick] step=600 stages=['PLACE', 'CARRY', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.11723828315734863, -0.020473480224609375, 0.9035429954528809] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.062
+[pick] step=630 stages=['PLACE', 'PLACE', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.11712431907653809, -0.020560503005981445, 0.9036259055137634] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.062
+[pick] step=660 stages=['PLACE', 'PLACE', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.11709761619567871, -0.02048313617706299, 0.9036322832107544] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.062
+[pick] step=690 stages=['FAIL', 'PLACE', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.11716890335083008, -0.020535826683044434, 0.9035866260528564] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.062
+[pick] step=720 stages=['FAIL', 'PLACE', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.11717104911804199, -0.020540595054626465, 0.903584361076355] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.062
+[pick] step=750 stages=['FAIL', 'PLACE', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.1171712875366211, -0.020540833473205566, 0.9035841822624207] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.062
+[pick] step=780 stages=['FAIL', 'PLACE', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.1171712875366211, -0.020540595054626465, 0.9035842418670654] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.062
+[pick] step=810 stages=['FAIL', 'PLACE', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.1171712875366211, -0.020540714263916016, 0.9035841822624207] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.062
+[pick] step=840 stages=['FAIL', 'PLACE', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.1171712875366211, -0.020540833473205566, 0.9035841822624207] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.062
+[pick] step=870 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.1171712875366211, -0.020540833473205566, 0.9035841822624207] cup=[-0.09808503836393356, 0.08521544188261032] dia=50mm piece_z-rest=0.062
+[pick] step=900 stages=['PIVOT', 'PIVOT', 'PIVOT', 'PIVOT', 'PIVOT', 'PIVOT', 'PIVOT', 'PIVOT'] e0 tool=[-0.1171715259552002, -0.020540833473205566, 0.9035843014717102] cup=[-0.09274253249168396, 0.0249534510076046] dia=50mm piece_z-rest=0.062
+[pick] DISTURBED env0 at step=901 stage=PIVOT t_in=1 disp=8mm
+[pick] DISTURBED env1 at step=901 stage=PIVOT t_in=1 disp=8mm
+[pick] DISTURBED env2 at step=927 stage=APPROACH t_in=6 disp=12mm
+[pick] DISTURBED env7 at step=927 stage=APPROACH t_in=6 disp=18mm
+[pick] DISTURBED env3 at step=928 stage=APPROACH t_in=7 disp=19mm
+[pick] step=930 stages=['APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH'] e0 tool=[-0.04570460319519043, 0.019086182117462158, 0.8033462166786194] cup=[-0.09981130063533783, -0.0016990756848827004] dia=20mm piece_z-rest=0.000
+[pick] step=960 stages=['APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH'] e0 tool=[-0.11225175857543945, -0.04685413837432861, 1.0671409368515015] cup=[-0.09369112551212311, 0.01899111084640026] dia=49mm piece_z-rest=-0.000
+[pick] step=990 stages=['APPROACH', 'APPROACH', 'APPROACH', 'DESCEND', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH'] e0 tool=[-0.1335008144378662, 0.021726906299591064, 0.9329845905303955] cup=[-0.09357532858848572, 0.018939271569252014] dia=48mm piece_z-rest=-0.000
+[pick] step=1020 stages=['APPROACH', 'APPROACH', 'APPROACH', 'DESCEND', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH'] e0 tool=[-0.13992977142333984, 0.00036412477493286133, 0.9300665259361267] cup=[-0.09345190227031708, 0.019854912534356117] dia=48mm piece_z-rest=-0.000
+[pick] step=1050 stages=['APPROACH', 'APPROACH', 'DESCEND', 'DESCEND', 'APPROACH', 'APPROACH', 'APPROACH', 'DESCEND'] e0 tool=[-0.13742637634277344, 0.014512240886688232, 0.9474679231643677] cup=[-0.09360598027706146, 0.0193029772490263] dia=48mm piece_z-rest=-0.000
+[pick] step=1080 stages=['APPROACH', 'APPROACH', 'DESCEND', 'DESCEND', 'APPROACH', 'APPROACH', 'APPROACH', 'DESCEND'] e0 tool=[-0.14081478118896484, 0.005439162254333496, 0.9487380981445312] cup=[-0.09340790659189224, 0.019326984882354736] dia=49mm piece_z-rest=-0.000
+[pick] step=1110 stages=['APPROACH', 'APPROACH', 'DESCEND', 'DESCEND', 'APPROACH', 'APPROACH', 'DESCEND', 'DESCEND'] e0 tool=[-0.13810133934020996, 0.015066146850585938, 0.9446352124214172] cup=[-0.09157437086105347, 0.021652445197105408] dia=42mm piece_z-rest=-0.000
+[pick] DISTURBED env6 at step=1128 stage=DESCEND t_in=32 disp=16mm
+[pick] step=1140 stages=['APPROACH', 'APPROACH', 'DESCEND', 'DESCEND', 'APPROACH', 'APPROACH', 'DESCEND', 'DESCEND'] e0 tool=[-0.13692331314086914, 0.016129910945892334, 0.9457384347915649] cup=[-0.09303559362888336, 0.019142918288707733] dia=50mm piece_z-rest=-0.000
+[pick] step=1170 stages=['APPROACH', 'APPROACH', 'DESCEND', 'DESCEND', 'APPROACH', 'APPROACH', 'DESCEND', 'DESCEND'] e0 tool=[-0.14065217971801758, 0.004822731018066406, 0.9474339485168457] cup=[-0.09279654175043106, 0.01942840963602066] dia=49mm piece_z-rest=-0.000
+[pick] step=1200 stages=['DESCEND', 'APPROACH', 'DESCEND', 'DESCEND', 'APPROACH', 'APPROACH', 'DESCEND', 'DESCEND'] e0 tool=[-0.1353468894958496, 0.016826272010803223, 0.9373303651809692] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1230 stages=['DESCEND', 'FAIL', 'DESCEND', 'DESCEND', 'FAIL', 'FAIL', 'DESCEND', 'DESCEND'] e0 tool=[-0.13892126083374023, 0.01325458288192749, 0.8900308609008789] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] CLOSE-entry env2: grasp_centre=[-0.08672737330198288, 0.07364737242460251, 0.8140716552734375] cup_gt=[-0.11057734489440918, 0.061608970165252686, 0.8099998831748962] delta=[0.024, 0.012, 0.004]
+[pick] HOLD engaged for envs [2]
+[pick] step=1260 stages=['DESCEND', 'FAIL', 'CLOSE', 'DESCEND', 'FAIL', 'FAIL', 'DESCEND', 'DESCEND'] e0 tool=[-0.13783478736877441, 0.015635907649993896, 0.8908513188362122] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] CLOSE snapshot saved for env 2
+[pick] step=1290 stages=['DESCEND', 'FAIL', 'CLOSE', 'FAIL', 'FAIL', 'FAIL', 'DESCEND', 'DESCEND'] e0 tool=[-0.1384425163269043, 0.01432567834854126, 0.8903989791870117] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] HOLD engaged for envs [2]
+[pick] step=1320 stages=['DESCEND', 'FAIL', 'LIFT', 'FAIL', 'FAIL', 'FAIL', 'DESCEND', 'DESCEND'] e0 tool=[-0.13820695877075195, 0.01492995023727417, 0.8905911445617676] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1350 stages=['DESCEND', 'FAIL', 'CARRY', 'FAIL', 'FAIL', 'FAIL', 'DESCEND', 'FAIL'] e0 tool=[-0.1383359432220459, 0.014307796955108643, 0.8904566168785095] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1380 stages=['DESCEND', 'FAIL', 'CARRY', 'FAIL', 'FAIL', 'FAIL', 'DESCEND', 'FAIL'] e0 tool=[-0.1382143497467041, 0.015010178089141846, 0.8905859589576721] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1410 stages=['DESCEND', 'FAIL', 'CARRY', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.13833022117614746, 0.014285385608673096, 0.8904632925987244] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1440 stages=['DESCEND', 'FAIL', 'CARRY', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.1382150650024414, 0.014883339405059814, 0.890570342540741] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1470 stages=['DESCEND', 'FAIL', 'CARRY', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.1382887363433838, 0.014485836029052734, 0.8905019760131836] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1500 stages=['FAIL', 'FAIL', 'CARRY', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.1383047103881836, 0.014507770538330078, 0.890494167804718] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1530 stages=['FAIL', 'FAIL', 'CARRY', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.13831210136413574, 0.014557957649230957, 0.8904937505722046] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1560 stages=['FAIL', 'FAIL', 'CARRY', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.13831424713134766, 0.01457124948501587, 0.8904933929443359] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1590 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.13831496238708496, 0.014574587345123291, 0.8904933929443359] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1620 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.13831496238708496, 0.014575362205505371, 0.8904933333396912] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1650 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.13831543922424316, 0.014575779438018799, 0.8904932737350464] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1680 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.13831520080566406, 0.014575779438018799, 0.8904933333396912] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1710 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.13831520080566406, 0.01457589864730835, 0.8904933333396912] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1740 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.13831543922424316, 0.01457589864730835, 0.8904933929443359] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1770 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.13831520080566406, 0.014575958251953125, 0.8904933929443359] cup=[-0.09279321879148483, 0.019251421093940735] dia=49mm piece_z-rest=-0.000
+[pick] step=1800 stages=['PIVOT', 'PIVOT', 'PIVOT', 'PIVOT', 'PIVOT', 'PIVOT', 'PIVOT', 'PIVOT'] e0 tool=[-0.13831520080566406, 0.014575958251953125, 0.8904933929443359] cup=[-0.09332678467035294, 0.0191277377307415] dia=49mm piece_z-rest=-0.000
+[pick] DISTURBED env2 at step=1801 stage=PIVOT t_in=1 disp=8mm
+[pick] DISTURBED env6 at step=1803 stage=PIVOT t_in=3 disp=9mm
+[pick] DISTURBED env4 at step=1825 stage=APPROACH t_in=4 disp=32mm
+[pick] DISTURBED env5 at step=1825 stage=APPROACH t_in=4 disp=21mm
+[pick] DISTURBED env0 at step=1826 stage=APPROACH t_in=5 disp=30mm
+[pick] DISTURBED env7 at step=1826 stage=APPROACH t_in=5 disp=18mm
+[pick] DISTURBED env3 at step=1827 stage=APPROACH t_in=6 disp=29mm
+[pick] step=1830 stages=['APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH'] e0 tool=[-0.08783316612243652, -0.10903668403625488, 0.8090298771858215] cup=[-0.13815578818321228, -0.09040296077728271] dia=50mm piece_z-rest=-0.000
+[pick] step=1860 stages=['APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH'] e0 tool=[-0.09420394897460938, -0.11502432823181152, 1.059171199798584] cup=[-0.1374458223581314, -0.08945633471012115] dia=50mm piece_z-rest=-0.000
+[pick] step=1890 stages=['APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'DESCEND', 'APPROACH'] e0 tool=[-0.23258328437805176, -0.09967327117919922, 0.9329968094825745] cup=[-0.1377144604921341, -0.08922749757766724] dia=50mm piece_z-rest=-0.000
+[pick] CLOSE-entry env6: grasp_centre=[-0.09735244512557983, 0.10846748948097229, 0.8094664812088013] cup_gt=[-0.08464646339416504, 0.10332655906677246, 0.8100003600120544] delta=[-0.013, 0.005, -0.001]
+[pick] step=1920 stages=['APPROACH', 'APPROACH', 'DESCEND', 'APPROACH', 'DESCEND', 'APPROACH', 'CLOSE', 'APPROACH'] e0 tool=[-0.16990184783935547, -0.07881546020507812, 0.9668185114860535] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] HOLD engaged for envs [6]
+[pick] CLOSE snapshot saved for env 6
+[pick] step=1950 stages=['APPROACH', 'APPROACH', 'DESCEND', 'APPROACH', 'DESCEND', 'DESCEND', 'CLOSE', 'APPROACH'] e0 tool=[-0.26596832275390625, -0.13700759410858154, 0.9945088624954224] cup=[-0.13733437657356262, -0.08944620192050934] dia=50mm piece_z-rest=-0.000
+[pick] HOLD engaged for envs [6]
+[pick] step=1980 stages=['APPROACH', 'APPROACH', 'DESCEND', 'APPROACH', 'DESCEND', 'DESCEND', 'LIFT', 'APPROACH'] e0 tool=[-0.19108104705810547, -0.08670532703399658, 0.9934141635894775] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] CLOSE-entry env4: grasp_centre=[-0.1523815095424652, 0.13977520167827606, 0.8008022308349609] cup_gt=[-0.1287856101989746, 0.12450224161148071, 0.8100001215934753] delta=[-0.024, 0.015, -0.009]
+[pick] step=2010 stages=['APPROACH', 'APPROACH', 'DESCEND', 'APPROACH', 'CLOSE', 'DESCEND', 'CARRY', 'APPROACH'] e0 tool=[-0.2541236877441406, -0.1276782751083374, 0.9554343223571777] cup=[-0.1373748928308487, -0.0892435610294342] dia=50mm piece_z-rest=-0.000
+[pick] CLOSE snapshot saved for env 4
+[pick] step=2040 stages=['APPROACH', 'APPROACH', 'DESCEND', 'APPROACH', 'CLOSE', 'DESCEND', 'CARRY', 'APPROACH'] e0 tool=[-0.184661865234375, -0.10295224189758301, 1.0297187566757202] cup=[-0.1373748928308487, -0.0892435610294342] dia=50mm piece_z-rest=-0.000
+[pick] HOLD refused envs [4]: gc-cup dist [0.109] — retrying descent
+[pick] CLOSE-entry env4: grasp_centre=[-0.10183533281087875, 0.11460838466882706, 0.8409114480018616] cup_gt=[-0.128778338432312, 0.12449377775192261, 0.8100001811981201] delta=[0.027, -0.01, 0.031]
+[pick] step=2070 stages=['APPROACH', 'APPROACH', 'DESCEND', 'APPROACH', 'CLOSE', 'DESCEND', 'PLACE', 'APPROACH'] e0 tool=[-0.181840181350708, -0.11288690567016602, 0.9420490264892578] cup=[-0.13767465949058533, -0.08882950991392136] dia=50mm piece_z-rest=-0.000
+[pick] CLOSE snapshot saved for env 4
+[pick] step=2100 stages=['APPROACH', 'APPROACH', 'DESCEND', 'APPROACH', 'CLOSE', 'DESCEND', 'PLACE', 'DESCEND'] e0 tool=[-0.2023029327392578, -0.08407080173492432, 1.050265908241272] cup=[-0.13765859603881836, -0.08960831165313721] dia=50mm piece_z-rest=-0.000
+[pick] HOLD refused envs [4]: gc-cup dist [0.076] — retrying descent
+[pick] step=2130 stages=['FAIL', 'DESCEND', 'DESCEND', 'FAIL', 'DESCEND', 'DESCEND', 'PLACE', 'DESCEND'] e0 tool=[-0.11350464820861816, -0.08734118938446045, 0.9358275532722473] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] step=2160 stages=['FAIL', 'DESCEND', 'DESCEND', 'FAIL', 'DESCEND', 'DESCEND', 'PLACE', 'DESCEND'] e0 tool=[-0.1225898265838623, -0.10148429870605469, 0.9408205151557922] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] CLOSE-entry env7: grasp_centre=[-0.26205554604530334, -0.16985268890857697, 0.817962646484375] cup_gt=[-0.28375792503356934, -0.23878931999206543, 0.8100005388259888] delta=[0.022, 0.069, 0.008]
+[pick] step=2190 stages=['FAIL', 'DESCEND', 'DESCEND', 'FAIL', 'DESCEND', 'DESCEND', 'PLACE', 'CLOSE'] e0 tool=[-0.12514901161193848, -0.10388994216918945, 0.9410943984985352] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] CLOSE snapshot saved for env 7
+[pick] step=2220 stages=['FAIL', 'DESCEND', 'FAIL', 'FAIL', 'DESCEND', 'DESCEND', 'PLACE', 'CLOSE'] e0 tool=[-0.12743878364562988, -0.1059342622756958, 0.9410985708236694] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] HOLD refused envs [7]: gc-cup dist [0.12] — retrying descent
+[pick] step=2250 stages=['FAIL', 'DESCEND', 'FAIL', 'FAIL', 'DESCEND', 'FAIL', 'PLACE', 'DESCEND'] e0 tool=[-0.12933874130249023, -0.10756552219390869, 0.9411026835441589] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] step=2280 stages=['FAIL', 'DESCEND', 'FAIL', 'FAIL', 'DESCEND', 'FAIL', 'PLACE', 'DESCEND'] e0 tool=[-0.13090896606445312, -0.10887014865875244, 0.9411048293113708] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] step=2310 stages=['FAIL', 'DESCEND', 'FAIL', 'FAIL', 'DESCEND', 'FAIL', 'FAIL', 'DESCEND'] e0 tool=[-0.1322026252746582, -0.1099163293838501, 0.9411064386367798] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] step=2340 stages=['FAIL', 'DESCEND', 'FAIL', 'FAIL', 'DESCEND', 'FAIL', 'FAIL', 'DESCEND'] e0 tool=[-0.13326621055603027, -0.11075794696807861, 0.941107451915741] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] step=2370 stages=['FAIL', 'DESCEND', 'FAIL', 'FAIL', 'DESCEND', 'FAIL', 'FAIL', 'DESCEND'] e0 tool=[-0.1341390609741211, -0.11143612861633301, 0.9411077499389648] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] step=2400 stages=['FAIL', 'DESCEND', 'FAIL', 'FAIL', 'DESCEND', 'FAIL', 'FAIL', 'DESCEND'] e0 tool=[-0.13485479354858398, -0.1119840145111084, 0.941108226776123] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] step=2430 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'DESCEND'] e0 tool=[-0.13544106483459473, -0.11242711544036865, 0.9411084055900574] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] step=2460 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'DESCEND'] e0 tool=[-0.13592028617858887, -0.11278641223907471, 0.9411087036132812] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] step=2490 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'DESCEND'] e0 tool=[-0.13631200790405273, -0.11307752132415771, 0.9411087036132812] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] step=2520 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'DESCEND'] e0 tool=[-0.13663220405578613, -0.11331379413604736, 0.9411090016365051] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] step=2550 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.13689422607421875, -0.11350595951080322, 0.9411091208457947] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] step=2580 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.13710784912109375, -0.11366212368011475, 0.9411091804504395] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] step=2610 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.1372828483581543, -0.11378967761993408, 0.9411091804504395] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] step=2640 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.13742470741271973, -0.11389243602752686, 0.941109299659729] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] step=2670 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.1375415325164795, -0.11397719383239746, 0.941109299659729] cup=[-0.1374049186706543, -0.08966085314750671] dia=50mm piece_z-rest=-0.000
+[pick] ======== RESULT: 4/8 solid lifts ========
+[pick] final stages: ['PIVOT', 'PIVOT', 'PIVOT', 'PIVOT', 'PIVOT', 'PIVOT', 'PIVOT', 'PIVOT']
+2026-07-29T17:55:06Z [7,813ms] [Warning] [omni.fabric.plugin] getAttributeCount called on non-existent path /World/envs/env_7/SynriaArm/tool0/visuals/mesh_0
+2026-07-29T17:55:06Z [7,813ms] [Warning] [omni.fabric.plugin] getTypes called on non-existent path /World/envs/env_7/SynriaArm/tool0/visuals/mesh_0
+2026-07-29T17:55:09Z [10,615ms] [Warning] [carb] Client gpu.foundation.plugin has acquired [gpu::unstable::IMemoryBudgetManagerFactory v0.1] 100 times. Consider accessing this interface with carb::getCachedInterface() (Performance warning)
+PICK_EXIT=0

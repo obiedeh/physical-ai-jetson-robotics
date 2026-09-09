@@ -1,0 +1,7 @@
+{
+  "workload": "synria-moveit-smoke",
+  "started_at": "2026-05-14T15:13:52-05:00",
+  "timeout": "8s",
+  "exit_code": 124,
+  "status": "pass"
+}

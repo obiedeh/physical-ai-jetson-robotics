@@ -1,0 +1,76 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[feas] asset: synria_6dof_arm.usd
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-08-04_23-28-52.log[0m
+[36m======================================================================================[0m
+
+[33m23:28:52 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[feas] joints: ['Joint1', 'Joint2', 'Joint3', 'Joint4', 'Joint5', 'Joint6', 'left_finger', 'right_finger']
+[feas] left_finger limits: [0.0, 25.0] mm, right: [-25.0, 0.0] mm
+[feas] finger defaults: 0.0 / 0.0 mm
+[feas] teleport-to-20mm test: fingers now at 21.33 / -19.78 mm
+[feas] gripper bodies: ['left_gripper', 'right_gripper']
+[feas] descend settled: PAD CENTRE z = 95.4 mm (target 95); finger-frame z = 71.9 mm (the old, wrong reference)
+[feas] pad collider bottom z = 58.5 mm (work surface at 50 mm -> clearance 8.5 mm)
+[feas] pre-close alignment: cup is 3.0 mm from the pad centre in xy (jitter 2.0,-2.2 mm; fits=True)
+[feas] close-end geometry: left_frame=[303.8, -22.3, 72.0] right_frame=[303.8, 18.6, 72.0] cup=[287.2, -1.9, 75.0] (mm world)
+[feas] after lift: pad centre z = 207.0 mm (rose 120.0 mm); cup z = 204.5 mm (started 75.0); fingers now L5.07 R4.95 mm
+[feas] trial 0: {'trial': 0, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': False, 'jitter_mm': [2.03, -2.21], 'pre_close_align_mm': 3.0, 'stall_left_mm': 2.8, 'stall_right_mm': 7.2, 'closed_width_mm': 40.0, 'width_ok': True, 'min_frame_z_mm': 72.0, 'surface_clearance_mm': 22.0, 'floor_contact': False, 'ejected': False, 'lifted': True, 'slipped_in_transport': False, 'success': True}
+[feas] descend settled: PAD CENTRE z = 95.4 mm (target 95); finger-frame z = 71.9 mm (the old, wrong reference)
+[feas] pad collider bottom z = 58.5 mm (work surface at 50 mm -> clearance 8.5 mm)
+[feas] pre-close alignment: cup is 3.0 mm from the pad centre in xy (jitter -3.0,0.3 mm; fits=True)
+[feas] close-end geometry: left_frame=[303.8, -19.9, 72.0] right_frame=[303.8, 21.1, 72.0] cup=[282.2, 0.6, 75.0] (mm world)
+[feas] after lift: pad centre z = 207.0 mm (rose 120.0 mm); cup z = 204.2 mm (started 75.0); fingers now L5.07 R4.95 mm
+[feas] trial 1: {'trial': 1, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': True, 'jitter_mm': [-2.99, 0.26], 'pre_close_align_mm': 3.0, 'stall_left_mm': 5.3, 'stall_right_mm': 4.7, 'closed_width_mm': 40.0, 'width_ok': True, 'min_frame_z_mm': 72.0, 'surface_clearance_mm': 22.0, 'floor_contact': False, 'ejected': False, 'lifted': True, 'slipped_in_transport': False, 'success': True}
+[feas] descend settled: PAD CENTRE z = 95.4 mm (target 95); finger-frame z = 71.9 mm (the old, wrong reference)
+[feas] pad collider bottom z = 58.5 mm (work surface at 50 mm -> clearance 8.5 mm)
+[feas] pre-close alignment: cup is 3.0 mm from the pad centre in xy (jitter 2.4,1.8 mm; fits=True)
+[feas] close-end geometry: left_frame=[303.8, -18.3, 72.0] right_frame=[303.8, 22.7, 72.0] cup=[287.5, 2.2, 75.0] (mm world)
+[feas] after lift: pad centre z = 207.1 mm (rose 120.1 mm); cup z = 207.2 mm (started 75.0); fingers now L5.07 R4.95 mm
+[feas] trial 2: {'trial': 2, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': True, 'jitter_mm': [2.38, 1.83], 'pre_close_align_mm': 3.0, 'stall_left_mm': 6.8, 'stall_right_mm': 3.2, 'closed_width_mm': 40.0, 'width_ok': True, 'min_frame_z_mm': 72.0, 'surface_clearance_mm': 22.0, 'floor_contact': False, 'ejected': False, 'lifted': True, 'slipped_in_transport': False, 'success': True}
+[feas] descend settled: PAD CENTRE z = 95.4 mm (target 95); finger-frame z = 71.9 mm (the old, wrong reference)
+[feas] pad collider bottom z = 58.5 mm (work surface at 50 mm -> clearance 8.5 mm)
+[feas] pre-close alignment: cup is 3.0 mm from the pad centre in xy (jitter -0.5,-3.0 mm; fits=True)
+[feas] close-end geometry: left_frame=[303.8, -23.1, 72.0] right_frame=[303.8, 17.9, 72.0] cup=[284.6, -2.6, 75.0] (mm world)
+[feas] after lift: pad centre z = 207.0 mm (rose 120.0 mm); cup z = 204.9 mm (started 75.0); fingers now L5.07 R4.95 mm
+[feas] trial 3: {'trial': 3, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': False, 'jitter_mm': [-0.52, -2.95], 'pre_close_align_mm': 3.0, 'stall_left_mm': 2.1, 'stall_right_mm': 7.9, 'closed_width_mm': 40.0, 'width_ok': True, 'min_frame_z_mm': 72.0, 'surface_clearance_mm': 22.0, 'floor_contact': False, 'ejected': False, 'lifted': True, 'slipped_in_transport': False, 'success': True}
+[feas] descend settled: PAD CENTRE z = 95.4 mm (target 95); finger-frame z = 71.9 mm (the old, wrong reference)
+[feas] pad collider bottom z = 58.5 mm (work surface at 50 mm -> clearance 8.5 mm)
+[feas] pre-close alignment: cup is 3.0 mm from the pad centre in xy (jitter -1.6,2.5 mm; fits=True)
+[feas] close-end geometry: left_frame=[303.8, -17.6, 72.0] right_frame=[303.8, 23.4, 72.0] cup=[283.5, 2.9, 75.0] (mm world)
+[feas] after lift: pad centre z = 207.0 mm (rose 120.0 mm); cup z = 203.7 mm (started 75.0); fingers now L5.06 R4.95 mm
+[feas] trial 4: {'trial': 4, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': False, 'jitter_mm': [-1.61, 2.53], 'pre_close_align_mm': 3.0, 'stall_left_mm': 7.5, 'stall_right_mm': 2.5, 'closed_width_mm': 40.0, 'width_ok': True, 'min_frame_z_mm': 72.0, 'surface_clearance_mm': 22.0, 'floor_contact': False, 'ejected': False, 'lifted': True, 'slipped_in_transport': False, 'success': True}
+[feas] descend settled: PAD CENTRE z = 95.4 mm (target 95); finger-frame z = 71.9 mm (the old, wrong reference)
+[feas] pad collider bottom z = 58.5 mm (work surface at 50 mm -> clearance 8.5 mm)
+[feas] pre-close alignment: cup is 3.0 mm from the pad centre in xy (jitter 2.9,-0.8 mm; fits=True)
+[feas] close-end geometry: left_frame=[303.8, -20.9, 72.0] right_frame=[303.8, 20.1, 72.0] cup=[288.0, -0.4, 75.0] (mm world)
+[feas] after lift: pad centre z = 207.0 mm (rose 120.0 mm); cup z = 216.7 mm (started 75.0); fingers now L5.07 R4.95 mm
+[feas] trial 5: {'trial': 5, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': True, 'jitter_mm': [2.9, -0.78], 'pre_close_align_mm': 3.0, 'stall_left_mm': 4.2, 'stall_right_mm': 5.8, 'closed_width_mm': 40.0, 'width_ok': True, 'min_frame_z_mm': 72.0, 'surface_clearance_mm': 22.0, 'floor_contact': False, 'ejected': False, 'lifted': True, 'slipped_in_transport': False, 'success': True}
+[feas] descend settled: PAD CENTRE z = 95.4 mm (target 95); finger-frame z = 71.9 mm (the old, wrong reference)
+[feas] pad collider bottom z = 58.5 mm (work surface at 50 mm -> clearance 8.5 mm)
+[feas] pre-close alignment: cup is 3.0 mm from the pad centre in xy (jitter -2.7,-1.4 mm; fits=True)
+[feas] close-end geometry: left_frame=[303.8, -21.5, 72.0] right_frame=[303.8, 19.5, 72.0] cup=[282.5, -1.0, 75.0] (mm world)
+[feas] after lift: pad centre z = 207.0 mm (rose 120.0 mm); cup z = 203.3 mm (started 75.0); fingers now L5.07 R4.95 mm
+[feas] trial 6: {'trial': 6, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': True, 'jitter_mm': [-2.66, -1.38], 'pre_close_align_mm': 3.0, 'stall_left_mm': 3.6, 'stall_right_mm': 6.4, 'closed_width_mm': 40.0, 'width_ok': True, 'min_frame_z_mm': 72.0, 'surface_clearance_mm': 22.0, 'floor_contact': False, 'ejected': False, 'lifted': True, 'slipped_in_transport': False, 'success': True}
+[feas] descend settled: PAD CENTRE z = 95.4 mm (target 95); finger-frame z = 71.9 mm (the old, wrong reference)
+[feas] pad collider bottom z = 58.5 mm (work surface at 50 mm -> clearance 8.5 mm)
+[feas] pre-close alignment: cup is 3.0 mm from the pad centre in xy (jitter 1.0,2.8 mm; fits=True)
+[feas] close-end geometry: left_frame=[303.8, -17.3, 72.0] right_frame=[303.8, 23.7, 72.0] cup=[286.2, 3.2, 75.0] (mm world)
+[feas] after lift: pad centre z = 207.0 mm (rose 120.0 mm); cup z = 207.8 mm (started 75.0); fingers now L5.06 R4.95 mm
+[feas] trial 7: {'trial': 7, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': False, 'jitter_mm': [1.03, 2.82], 'pre_close_align_mm': 3.0, 'stall_left_mm': 7.8, 'stall_right_mm': 2.2, 'closed_width_mm': 40.0, 'width_ok': True, 'min_frame_z_mm': 72.0, 'surface_clearance_mm': 22.0, 'floor_contact': False, 'ejected': False, 'lifted': True, 'slipped_in_transport': False, 'success': True}
+[feas] descend settled: PAD CENTRE z = 95.4 mm (target 95); finger-frame z = 71.9 mm (the old, wrong reference)
+[feas] pad collider bottom z = 58.5 mm (work surface at 50 mm -> clearance 8.5 mm)
+[feas] pre-close alignment: cup is 3.0 mm from the pad centre in xy (jitter 1.1,-2.8 mm; fits=True)
+[feas] close-end geometry: left_frame=[303.8, -22.9, 72.0] right_frame=[303.8, 18.1, 72.0] cup=[286.3, -2.4, 75.0] (mm world)
+[feas] after lift: pad centre z = 207.0 mm (rose 120.0 mm); cup z = 205.1 mm (started 75.0); fingers now L5.07 R4.95 mm
+[feas] trial 8: {'trial': 8, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': False, 'jitter_mm': [1.14, -2.77], 'pre_close_align_mm': 3.0, 'stall_left_mm': 2.2, 'stall_right_mm': 7.8, 'closed_width_mm': 40.0, 'width_ok': True, 'min_frame_z_mm': 72.0, 'surface_clearance_mm': 22.0, 'floor_contact': False, 'ejected': False, 'lifted': True, 'slipped_in_transport': False, 'success': True}
+[feas] descend settled: PAD CENTRE z = 95.4 mm (target 95); finger-frame z = 71.9 mm (the old, wrong reference)
+[feas] pad collider bottom z = 58.5 mm (work surface at 50 mm -> clearance 8.5 mm)
+[feas] pre-close alignment: cup is 3.0 mm from the pad centre in xy (jitter -2.7,1.3 mm; fits=True)
+[feas] close-end geometry: left_frame=[303.8, -18.9, 72.0] right_frame=[303.8, 22.1, 72.0] cup=[282.4, 1.6, 75.0] (mm world)
+[feas] after lift: pad centre z = 207.0 mm (rose 120.0 mm); cup z = 206.9 mm (started 75.0); fingers now L5.07 R4.95 mm
+[feas] trial 9: {'trial': 9, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': True, 'jitter_mm': [-2.72, 1.27], 'pre_close_align_mm': 3.0, 'stall_left_mm': 6.3, 'stall_right_mm': 3.7, 'closed_width_mm': 40.0, 'width_ok': True, 'min_frame_z_mm': 72.0, 'surface_clearance_mm': 22.0, 'floor_contact': False, 'ejected': False, 'lifted': True, 'slipped_in_transport': False, 'success': True}
+[feas] ======== SUCCESS 10/10 (asset=production) ========
+[feas] wrote /home/oedeh/github/physical-ai-jetson-robotics/reports/synria_grasp_trials_production.json

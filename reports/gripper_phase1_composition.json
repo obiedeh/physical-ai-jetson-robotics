@@ -1,0 +1,430 @@
+{
+ "left_link": {
+  "path": "/Alicia_D_v5_6_gripper_50mm/left_gripper",
+  "type": "Xform",
+  "world_translate_mm": [
+   313.37,
+   -25.15,
+   107.33
+  ],
+  "world_matrix": [
+   [
+    0.707111,
+    -3e-06,
+    0.707103,
+    0.0
+   ],
+   [
+    0.707103,
+    8e-06,
+    -0.707111,
+    0.0
+   ],
+   [
+    -4e-06,
+    1.0,
+    8e-06,
+    0.0
+   ],
+   [
+    0.313374,
+    -0.025149,
+    0.107334,
+    1.0
+   ]
+  ],
+  "xform_ops": [
+   [
+    "xformOp:translate",
+    "(0.3133741617202759, -0.025148864835500717, 0.10733431577682495)"
+   ],
+   [
+    "xformOp:orient",
+    "(0.6532852649688721, -0.653279185295105, -0.27059662342071533, -0.2705960273742676)"
+   ],
+   [
+    "xformOp:scale",
+    "(1, 1, 1)"
+   ]
+  ],
+  "prim_stack_layers": [
+   "synria_6dof_arm.usd",
+   "synria_6dof_arm_physics.usd",
+   "synria_6dof_arm_base.usd",
+   "synria_6dof_arm_robot.usd"
+  ]
+ },
+ "right_link": {
+  "path": "/Alicia_D_v5_6_gripper_50mm/right_gripper",
+  "type": "Xform",
+  "world_translate_mm": [
+   313.37,
+   25.85,
+   107.33
+  ],
+  "world_matrix": [
+   [
+    -0.70711,
+    2e-06,
+    -0.707103,
+    0.0
+   ],
+   [
+    -0.707103,
+    -5e-06,
+    0.70711,
+    0.0
+   ],
+   [
+    -2e-06,
+    1.0,
+    5e-06,
+    0.0
+   ],
+   [
+    0.313374,
+    0.025851,
+    0.107334,
+    1.0
+   ]
+  ],
+  "xform_ops": [
+   [
+    "xformOp:translate",
+    "(0.31337422132492065, 0.025851134210824966, 0.1073344349861145)"
+   ],
+   [
+    "xformOp:orient",
+    "(0.2705965042114258, -0.2705961763858795, 0.6532803773880005, 0.6532840728759766)"
+   ],
+   [
+    "xformOp:scale",
+    "(1, 1, 1)"
+   ]
+  ],
+  "prim_stack_layers": [
+   "synria_6dof_arm.usd",
+   "synria_6dof_arm_physics.usd",
+   "synria_6dof_arm_base.usd",
+   "synria_6dof_arm_robot.usd"
+  ]
+ },
+ "left_visual": {
+  "path": "/Alicia_D_v5_6_gripper_50mm/left_gripper/visuals",
+  "type": "Xform",
+  "world_translate_mm": [
+   313.37,
+   -25.15,
+   107.33
+  ],
+  "world_matrix": [
+   [
+    0.707111,
+    -3e-06,
+    0.707103,
+    0.0
+   ],
+   [
+    0.707103,
+    8e-06,
+    -0.707111,
+    0.0
+   ],
+   [
+    -4e-06,
+    1.0,
+    8e-06,
+    0.0
+   ],
+   [
+    0.313374,
+    -0.025149,
+    0.107334,
+    1.0
+   ]
+  ],
+  "xform_ops": [],
+  "prim_stack_layers": [
+   "synria_6dof_arm.usd",
+   "synria_6dof_arm_base.usd",
+   "synria_6dof_arm_base.usd"
+  ],
+  "world_bbox_mm": {
+   "min": [
+    255.6,
+    -53.1,
+    92.0
+   ],
+   "max": [
+    328.7,
+    -24.6,
+    165.1
+   ]
+  }
+ },
+ "right_visual": {
+  "path": "/Alicia_D_v5_6_gripper_50mm/right_gripper/visuals",
+  "type": "Xform",
+  "world_translate_mm": [
+   313.37,
+   25.85,
+   107.33
+  ],
+  "world_matrix": [
+   [
+    -0.70711,
+    2e-06,
+    -0.707103,
+    0.0
+   ],
+   [
+    -0.707103,
+    -5e-06,
+    0.70711,
+    0.0
+   ],
+   [
+    -2e-06,
+    1.0,
+    5e-06,
+    0.0
+   ],
+   [
+    0.313374,
+    0.025851,
+    0.107334,
+    1.0
+   ]
+  ],
+  "xform_ops": [],
+  "prim_stack_layers": [
+   "synria_6dof_arm.usd",
+   "synria_6dof_arm_base.usd",
+   "synria_6dof_arm_base.usd"
+  ],
+  "world_bbox_mm": {
+   "min": [
+    255.6,
+    25.4,
+    92.0
+   ],
+   "max": [
+    328.7,
+    53.9,
+    165.1
+   ]
+  }
+ },
+ "left_pad_old": {
+  "path": "/Alicia_D_v5_6_gripper_50mm/left_gripper/pad_collider",
+  "type": "Cube",
+  "world_translate_mm": [
+   292.16,
+   -38.9,
+   128.55
+  ],
+  "world_matrix": [
+   [
+    0.030628,
+    -0.0,
+    0.030628,
+    0.0
+   ],
+   [
+    0.042426,
+    0.0,
+    -0.042427,
+    0.0
+   ],
+   [
+    -0.0,
+    0.0285,
+    0.0,
+    0.0
+   ],
+   [
+    0.292161,
+    -0.038899,
+    0.128548,
+    1.0
+   ]
+  ],
+  "xform_ops": [
+   [
+    "xformOp:translate",
+    "(0, -0.030000000461936016, -0.013750000420259312)"
+   ],
+   [
+    "xformOp:scale",
+    "(0.043314368, 0.060000002, 0.0285)"
+   ]
+  ],
+  "prim_stack_layers": [
+   "synria_6dof_arm.usd"
+  ],
+  "active": true,
+  "attrs": {
+   "physics:collisionEnabled": "True",
+   "size": "1.0",
+   "xformOp:scale": "(0.043314368, 0.060000002, 0.0285)",
+   "xformOp:translate": "(0, -0.030000000461936016, -0.013750000420259312)",
+   "xformOpOrder": "[xformOp:translate, xformOp:scale]"
+  }
+ },
+ "right_pad_old": {
+  "path": "/Alicia_D_v5_6_gripper_50mm/right_gripper/pad_collider",
+  "type": "Cube",
+  "world_translate_mm": [
+   292.16,
+   39.6,
+   128.55
+  ],
+  "world_matrix": [
+   [
+    -0.030628,
+    0.0,
+    -0.030628,
+    0.0
+   ],
+   [
+    -0.042426,
+    -0.0,
+    0.042427,
+    0.0
+   ],
+   [
+    -0.0,
+    0.0285,
+    0.0,
+    0.0
+   ],
+   [
+    0.292161,
+    0.039601,
+    0.128548,
+    1.0
+   ]
+  ],
+  "xform_ops": [
+   [
+    "xformOp:translate",
+    "(5.377642775528102e-17, 0.03000000046193593, 0.013750000420259312)"
+   ],
+   [
+    "xformOp:scale",
+    "(0.043314368, 0.060000002, 0.0285)"
+   ]
+  ],
+  "prim_stack_layers": [
+   "synria_6dof_arm.usd"
+  ],
+  "active": true,
+  "attrs": {
+   "physics:collisionEnabled": "True",
+   "size": "1.0",
+   "xformOp:scale": "(0.043314368, 0.060000002, 0.0285)",
+   "xformOp:translate": "(5.377642775528102e-17, 0.03000000046193593, 0.013750000420259312)",
+   "xformOpOrder": "[xformOp:translate, xformOp:scale]"
+  }
+ },
+ "left_joint": {
+  "path": "/Alicia_D_v5_6_gripper_50mm/joints/left_finger",
+  "type": "PhysicsPrismaticJoint",
+  "prim_stack_layers": [
+   "synria_6dof_arm_physics.usd",
+   "synria_6dof_arm_robot.usd"
+  ],
+  "axis": "Z",
+  "limits_mm": [
+   0,
+   25.0
+  ],
+  "body0": [
+   "/Alicia_D_v5_6_gripper_50mm/link6"
+  ],
+  "body1": [
+   "/Alicia_D_v5_6_gripper_50mm/left_gripper"
+  ],
+  "physics:localPos0": "(0.0002, 0.0255, -0.13097966)",
+  "physics:localPos1": "(0, 0, 0)",
+  "physics:localRot0": "(-3.090862e-8, 3.090862e-8, 0.70710677, -0.70710677)",
+  "physics:localRot1": "(1, 0, 0, 0)"
+ },
+ "right_joint": {
+  "path": "/Alicia_D_v5_6_gripper_50mm/joints/right_finger",
+  "type": "PhysicsPrismaticJoint",
+  "prim_stack_layers": [
+   "synria_6dof_arm_physics.usd",
+   "synria_6dof_arm_robot.usd"
+  ],
+  "axis": "Z",
+  "limits_mm": [
+   -25.0,
+   0
+  ],
+  "body0": [
+   "/Alicia_D_v5_6_gripper_50mm/link6"
+  ],
+  "body1": [
+   "/Alicia_D_v5_6_gripper_50mm/right_gripper"
+  ],
+  "physics:localPos0": "(0.0002, -0.0255, -0.13098)",
+  "physics:localPos1": "(0, 0, 0)",
+  "physics:localRot0": "(0.7071055, 0.7071081, 0, 0)",
+  "physics:localRot1": "(1, 0, 0, 0)"
+ },
+ "link6": {
+  "path": "/Alicia_D_v5_6_gripper_50mm/link6",
+  "type": "Xform",
+  "world_translate_mm": [
+   220.9,
+   0.35,
+   200.09
+  ],
+  "world_matrix": [
+   [
+    -0.707111,
+    2e-06,
+    -0.707103,
+    0.0
+   ],
+   [
+    4e-06,
+    -1.0,
+    -8e-06,
+    0.0
+   ],
+   [
+    -0.707103,
+    -8e-06,
+    0.707111,
+    0.0
+   ],
+   [
+    0.220899,
+    0.00035,
+    0.200093,
+    1.0
+   ]
+  ],
+  "xform_ops": [
+   [
+    "xformOp:translate",
+    "(0.22089937329292297, 0.0003500569728203118, 0.20009303092956543)"
+   ],
+   [
+    "xformOp:orient",
+    "(-4.6193599700927734e-7, -0.3826810121536255, -0.00000426173210144043, 0.9238805770874023)"
+   ],
+   [
+    "xformOp:scale",
+    "(1, 1, 1)"
+   ]
+  ],
+  "prim_stack_layers": [
+   "synria_6dof_arm_physics.usd",
+   "synria_6dof_arm_base.usd",
+   "synria_6dof_arm_robot.usd"
+  ]
+ }
+}

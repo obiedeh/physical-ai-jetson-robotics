@@ -1,0 +1,259 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[INFO]: Parsing configuration from: <class 'isaac.isaaclab_tasks.synria_pickplace.env_cfg.SynriaChessPickPlaceEnvCfg'>
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-08-11_14-22-44.log[0m
+[36m======================================================================================[0m
+
+[33m14:22:44 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 5
+	Physics step-size     : 0.016666666666666666
+	Rendering step-size   : 0.016666666666666666
+	Environment step-size : 0.03333333333333333
+[33m14:22:44 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 0.505391 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 16
+	Environment spacing   : 2.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : False
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 0.446571 seconds
+[INFO] Command Manager:  <CommandManager> contains 0 active terms.
++------------------------+
+|  Active Command Terms  |
++--------+-------+-------+
+| Index  | Name  |  Type |
++--------+-------+-------+
++--------+-------+-------+
+
+[INFO] Event Manager:  <EventManager> contains 2 active terms.
++----------------------------------+
+| Active Event Terms in Mode: 'reset' |
++-----------+----------------------+
+|   Index   | Name                 |
++-----------+----------------------+
+|     0     | reset_trial          |
++-----------+----------------------+
++--------------------------------------------------+
+|      Active Event Terms in Mode: 'interval'      |
++-------+----------------+-------------------------+
+| Index | Name           | Interval time range (s) |
++-------+----------------+-------------------------+
+|   0   | hold_staged    |       (0.03, 0.04)      |
+|   1   | attach_carried |       (0.03, 0.04)      |
++-------+----------------+-------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++-----------------------------------+
+|   Active Action Terms (shape: 7)  |
++-------+---------------+-----------+
+| Index | Name          | Dimension |
++-------+---------------+-----------+
+|   0   | arm_joint_pos |         6 |
+|   1   | gripper       |         1 |
++-------+---------------+-----------+
+
+[gripper_geometry] pad colliders verified against USD (2/2 sides, tolerance 0.5 mm) at /World/envs/env_0/SynriaArm
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++---------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (68,)) |
++------------+-------------------------------+------------+
+|   Index    | Name                          |   Shape    |
++------------+-------------------------------+------------+
+|     0      | joint_state                   |   (13,)    |
+|     1      | ee_pose                       |    (7,)    |
+|     2      | piece_pos                     |    (3,)    |
+|     3      | target_piece_id               |   (32,)    |
+|     4      | target_zone_id                |    (4,)    |
+|     5      | target_pos                    |    (4,)    |
+|     6      | trial_phase                   |    (5,)    |
++------------+-------------------------------+------------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 4 active terms.
++----------------------------------------+
+|        Active Termination Terms        |
++-------+---------------------+----------+
+| Index | Name                | Time Out |
++-------+---------------------+----------+
+|   0   | time_out            |   True   |
+|   1   | piece_dropped       |  False   |
+|   2   | piece_out_of_bounds |  False   |
+|   3   | collision           |  False   |
++-------+---------------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 20 active terms.
++-------------------------------------------------+
+|               Active Reward Terms               |
++-------+--------------------------------+--------+
+| Index | Name                           | Weight |
++-------+--------------------------------+--------+
+|   0   | piece_to_target_distance       |  600.0 |
+|   1   | ee_to_piece_distance           |  300.0 |
+|   2   | piece_lift                     |    1.5 |
+|   3   | gripper_to_piece_when_grasping |    0.3 |
+|   4   | hold_maintenance               |    1.0 |
+|   5   | carry_drop                     |   15.0 |
+|   6   | release_at_zone                |   90.0 |
+|   7   | upright_descent                |  100.0 |
+|   8   | lower_at_zone                  |   15.0 |
+|   9   | approach_guidance              |   0.15 |
+|   10  | carry_guidance                 |    0.2 |
+|   11  | hold_at_zone                   |    0.0 |
+|   12  | action_norm_penalty            |  -0.01 |
+|   13  | grasp_confirmed                |  300.0 |
+|   14  | return_home                    |   60.0 |
+|   15  | setdown_approach               |  600.0 |
+|   16  | cycle_complete                 |  900.0 |
+|   17  | piece_in_zone                  |  300.0 |
+|   18  | piece_dropped                  |   30.0 |
+|   19  | collision                      |   30.0 |
++-------+--------------------------------+--------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 0 active terms.
++----------------------+
+| Active Curriculum Terms |
++-----------+----------+
+|   Index   | Name     |
++-----------+----------+
++-----------+----------+
+
+[INFO]: Completed setting up the environment...
+--------------------------------------------------------------------------------
+Resolved observation sets: 
+	 policy :  ['policy']
+	 critic :  ['policy']
+--------------------------------------------------------------------------------
+Actor MLP: MLP(
+  (0): Linear(in_features=68, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=7, bias=True)
+)
+Critic MLP: MLP(
+  (0): Linear(in_features=68, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=1, bias=True)
+)
+[e33rec] policy: reports/training/synria_chess_pickplace_v9_e36_s43/model_final.pt
+[e33rec] polarity: -1 -> 31.0 mm, +1 -> 50.0 mm
+[e33rec] step=0 saved=0 phases={'policy': 16} funnel={'takeover': 0, 'released': 0, 'setdown': 0, 'cycle': 0, 'reset_mid_script': 0}
+[e33rec] episode 1/99999 saved (len=241, env=1)
+[e33rec] episode 2/99999 saved (len=253, env=13)
+[e33rec] step=300 saved=2 phases={'policy': 15, 'ascend': 1} funnel={'takeover': 1, 'released': 1, 'setdown': 2, 'cycle': 2, 'reset_mid_script': 0}
+[e33rec] episode 3/99999 saved (len=389, env=12)
+[e33rec] episode 4/99999 saved (len=360, env=6)
+[e33rec] step=600 saved=4 phases={'policy': 12, 'release': 1, 'ascend': 2, 'go_home': 1} funnel={'takeover': 4, 'released': 3, 'setdown': 7, 'cycle': 4, 'reset_mid_script': 0}
+[e33rec] episode 5/99999 saved (len=346, env=12)
+[e33rec] step=900 saved=5 phases={'policy': 11, 'ascend': 4, 'go_home': 1} funnel={'takeover': 5, 'released': 4, 'setdown': 8, 'cycle': 5, 'reset_mid_script': 0}
+[e33rec] step=1200 saved=5 phases={'policy': 11, 'ascend': 4, 'go_home': 1} funnel={'takeover': 5, 'released': 4, 'setdown': 8, 'cycle': 5, 'reset_mid_script': 0}
+[death] env=3 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.88rad
+[death] env=5 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.98rad
+[death] env=7 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.45rad
+[death] env=10 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.32rad
+[death] env=13 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.41rad
+[e33rec] step=1500 saved=5 phases={'policy': 16} funnel={'takeover': 5, 'released': 4, 'setdown': 8, 'cycle': 5, 'reset_mid_script': 5}
+[e33rec] episode 6/99999 saved (len=228, env=12)
+[e33rec] episode 7/99999 saved (len=263, env=15)
+[e33rec] episode 8/99999 saved (len=328, env=8)
+[e33rec] step=1800 saved=8 phases={'policy': 15, 'go_home': 1} funnel={'takeover': 6, 'released': 5, 'setdown': 12, 'cycle': 8, 'reset_mid_script': 5}
+[e33rec] step=2100 saved=8 phases={'policy': 15, 'go_home': 1} funnel={'takeover': 6, 'released': 5, 'setdown': 12, 'cycle': 8, 'reset_mid_script': 5}
+[e33rec] step=2400 saved=8 phases={'policy': 15, 'go_home': 1} funnel={'takeover': 6, 'released': 5, 'setdown': 12, 'cycle': 8, 'reset_mid_script': 5}
+[e33rec] step=2700 saved=8 phases={'policy': 15, 'go_home': 1} funnel={'takeover': 6, 'released': 5, 'setdown': 12, 'cycle': 8, 'reset_mid_script': 5}
+[death] env=1 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[e33rec] step=3000 saved=8 phases={'policy': 16} funnel={'takeover': 6, 'released': 5, 'setdown': 12, 'cycle': 8, 'reset_mid_script': 6}
+[e33rec] episode 9/99999 saved (len=428, env=8)
+[e33rec] step=3300 saved=9 phases={'policy': 14, 'ascend': 1, 'go_home': 1} funnel={'takeover': 8, 'released': 6, 'setdown': 14, 'cycle': 9, 'reset_mid_script': 6}
+[e33rec] step=3600 saved=9 phases={'policy': 14, 'ascend': 1, 'go_home': 1} funnel={'takeover': 8, 'released': 6, 'setdown': 14, 'cycle': 9, 'reset_mid_script': 6}
+[e33rec] step=3900 saved=9 phases={'policy': 14, 'ascend': 1, 'go_home': 1} funnel={'takeover': 8, 'released': 6, 'setdown': 14, 'cycle': 9, 'reset_mid_script': 6}
+[e33rec] step=4200 saved=9 phases={'policy': 14, 'ascend': 1, 'go_home': 1} funnel={'takeover': 8, 'released': 6, 'setdown': 14, 'cycle': 9, 'reset_mid_script': 6}
+[death] env=2 in=ascend taskphase=0 cup_tilt=0deg cup_z=856mm home_err=1.35rad
+[death] env=4 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.37rad
+[e33rec] episode 10/99999 saved (len=263, env=9)
+[e33rec] step=4500 saved=10 phases={'policy': 16} funnel={'takeover': 8, 'released': 6, 'setdown': 15, 'cycle': 10, 'reset_mid_script': 8}
+[e33rec] step=4800 saved=10 phases={'policy': 16} funnel={'takeover': 8, 'released': 6, 'setdown': 15, 'cycle': 10, 'reset_mid_script': 8}
+[e33rec] episode 11/99999 saved (len=754, env=4)
+[e33rec] step=5100 saved=11 phases={'policy': 16} funnel={'takeover': 8, 'released': 6, 'setdown': 16, 'cycle': 11, 'reset_mid_script': 8}
+[e33rec] step=5400 saved=11 phases={'policy': 16} funnel={'takeover': 8, 'released': 6, 'setdown': 16, 'cycle': 11, 'reset_mid_script': 8}
+[e33rec] step=5700 saved=11 phases={'policy': 16} funnel={'takeover': 8, 'released': 6, 'setdown': 16, 'cycle': 11, 'reset_mid_script': 8}
+[e33rec] episode 12/99999 saved (len=254, env=1)
+[e33rec] episode 13/99999 saved (len=297, env=11)
+[e33rec] episode 14/99999 saved (len=311, env=0)
+[e33rec] step=6000 saved=14 phases={'policy': 15, 'release': 1} funnel={'takeover': 9, 'released': 6, 'setdown': 19, 'cycle': 14, 'reset_mid_script': 8}
+[e33rec] step=6300 saved=14 phases={'policy': 13, 'ascend': 2, 'yaw_home': 1} funnel={'takeover': 11, 'released': 8, 'setdown': 20, 'cycle': 14, 'reset_mid_script': 8}
+[e33rec] step=6600 saved=14 phases={'policy': 13, 'ascend': 2, 'go_home': 1} funnel={'takeover': 11, 'released': 8, 'setdown': 20, 'cycle': 14, 'reset_mid_script': 8}
+[e33rec] step=6900 saved=14 phases={'policy': 13, 'ascend': 2, 'go_home': 1} funnel={'takeover': 11, 'released': 8, 'setdown': 20, 'cycle': 14, 'reset_mid_script': 8}
+[death] env=4 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.32rad
+[death] env=10 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.94rad
+[death] env=15 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.49rad
+[e33rec] step=7200 saved=14 phases={'policy': 16} funnel={'takeover': 11, 'released': 8, 'setdown': 20, 'cycle': 14, 'reset_mid_script': 11}
+[e33rec] episode 15/99999 saved (len=257, env=13)
+[e33rec] episode 16/99999 saved (len=288, env=10)
+[e33rec] step=7500 saved=16 phases={'policy': 13, 'ascend': 1, 'go_home': 2} funnel={'takeover': 14, 'released': 11, 'setdown': 25, 'cycle': 16, 'reset_mid_script': 11}
+[e33rec] episode 17/99999 saved (len=278, env=6)
+[e33rec] step=7800 saved=17 phases={'policy': 13, 'go_home': 3} funnel={'takeover': 14, 'released': 11, 'setdown': 26, 'cycle': 17, 'reset_mid_script': 11}
+[e33rec] step=8100 saved=17 phases={'policy': 13, 'go_home': 3} funnel={'takeover': 14, 'released': 11, 'setdown': 26, 'cycle': 17, 'reset_mid_script': 11}
+[e33rec] episode 18/99999 saved (len=1018, env=9)
+[e33rec] step=8400 saved=18 phases={'policy': 13, 'go_home': 3} funnel={'takeover': 14, 'released': 11, 'setdown': 27, 'cycle': 18, 'reset_mid_script': 11}
+[death] env=0 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[death] env=5 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.33rad
+[death] env=15 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.34rad
+[e33rec] step=8700 saved=18 phases={'policy': 16} funnel={'takeover': 14, 'released': 11, 'setdown': 27, 'cycle': 18, 'reset_mid_script': 14}
+[e33rec] episode 19/99999 saved (len=321, env=3)
+[e33rec] episode 20/99999 saved (len=323, env=15)
+[e33rec] step=9000 saved=20 phases={'policy': 12, 'ascend': 3, 'go_home': 1} funnel={'takeover': 18, 'released': 14, 'setdown': 32, 'cycle': 20, 'reset_mid_script': 14}
+[e33rec] step=9300 saved=20 phases={'policy': 11, 'ascend': 2, 'go_home': 3} funnel={'takeover': 19, 'released': 15, 'setdown': 33, 'cycle': 20, 'reset_mid_script': 14}
+[e33rec] step=9600 saved=20 phases={'policy': 11, 'ascend': 2, 'go_home': 3} funnel={'takeover': 19, 'released': 15, 'setdown': 33, 'cycle': 20, 'reset_mid_script': 14}
+[e33rec] step=9900 saved=20 phases={'policy': 11, 'ascend': 2, 'go_home': 3} funnel={'takeover': 19, 'released': 15, 'setdown': 33, 'cycle': 20, 'reset_mid_script': 14}
+[death] env=2 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.32rad
+[death] env=4 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.30rad
+[death] env=8 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.31rad
+[death] env=10 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.36rad
+[death] env=12 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.32rad
+[e33rec] step=10200 saved=20 phases={'policy': 16} funnel={'takeover': 19, 'released': 15, 'setdown': 33, 'cycle': 20, 'reset_mid_script': 19}
+[e33rec] step=10500 saved=20 phases={'policy': 14, 'ascend': 1, 'go_home': 1} funnel={'takeover': 21, 'released': 17, 'setdown': 34, 'cycle': 20, 'reset_mid_script': 19}
+[e33rec] episode 21/99999 saved (len=510, env=6)
+[e33rec] step=10800 saved=21 phases={'policy': 14, 'ascend': 1, 'go_home': 1} funnel={'takeover': 21, 'released': 17, 'setdown': 35, 'cycle': 21, 'reset_mid_script': 19}
+[e33rec] step=11100 saved=21 phases={'policy': 14, 'ascend': 1, 'go_home': 1} funnel={'takeover': 21, 'released': 17, 'setdown': 35, 'cycle': 21, 'reset_mid_script': 19}
+[e33rec] step=11400 saved=21 phases={'policy': 14, 'ascend': 1, 'go_home': 1} funnel={'takeover': 21, 'released': 17, 'setdown': 35, 'cycle': 21, 'reset_mid_script': 19}
+[death] env=8 in=ascend taskphase=0 cup_tilt=0deg cup_z=815mm home_err=2.45rad
+[death] env=12 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.35rad
+[e33rec] episode 22/99999 saved (len=219, env=2)
+[e33rec] step=11700 saved=22 phases={'policy': 16} funnel={'takeover': 21, 'released': 17, 'setdown': 36, 'cycle': 22, 'reset_mid_script': 21}
+[e33rec] step=12000 saved=22 phases={'policy': 13, 'ascend': 3} funnel={'takeover': 24, 'released': 20, 'setdown': 37, 'cycle': 22, 'reset_mid_script': 21}
+[e33rec] step=12300 saved=22 phases={'policy': 13, 'ascend': 2, 'go_home': 1} funnel={'takeover': 24, 'released': 20, 'setdown': 37, 'cycle': 22, 'reset_mid_script': 21}
+[e33rec] step=12600 saved=22 phases={'policy': 13, 'ascend': 1, 'go_home': 2} funnel={'takeover': 24, 'released': 20, 'setdown': 37, 'cycle': 22, 'reset_mid_script': 21}
+[death] env=9 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.35rad
+[death] env=12 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=2.51rad
+[death] env=15 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.39rad
+[e33rec] step=12900 saved=22 phases={'policy': 16} funnel={'takeover': 24, 'released': 20, 'setdown': 37, 'cycle': 22, 'reset_mid_script': 24}
+[e33rec] episode 23/99999 saved (len=311, env=15)
+[e33rec] step=13200 saved=23 phases={'policy': 15, 'ascend': 1} funnel={'takeover': 25, 'released': 21, 'setdown': 39, 'cycle': 23, 'reset_mid_script': 24}
+[e33rec] episode 24/99999 saved (len=369, env=0)
+[e33rec] step=13500 saved=24 phases={'policy': 15, 'go_home': 1} funnel={'takeover': 25, 'released': 21, 'setdown': 40, 'cycle': 24, 'reset_mid_script': 24}
+[e33rec] step=13800 saved=24 phases={'policy': 15, 'go_home': 1} funnel={'takeover': 25, 'released': 21, 'setdown': 40, 'cycle': 24, 'reset_mid_script': 24}
+[e33rec] step=14100 saved=24 phases={'policy': 14, 'ascend': 1, 'go_home': 1} funnel={'takeover': 26, 'released': 22, 'setdown': 40, 'cycle': 24, 'reset_mid_script': 24}
+[death] env=8 in=ascend taskphase=0 cup_tilt=0deg cup_z=810mm home_err=1.90rad
+[death] env=10 in=go_home taskphase=0 cup_tilt=0deg cup_z=815mm home_err=1.34rad
+[gate] ======== episodes=160 grasp=160 (1.00) upright_of_grasps=0.33 mean|dtarget|=6.65 mrad ========
+[e33rec] DONE saved=24 funnel={'takeover': 26, 'released': 22, 'setdown': 40, 'cycle': 24, 'reset_mid_script': 26}
+E40DONE

@@ -1,0 +1,81 @@
+{
+  "checkpoint": "reports/training/synria_chess_pickplace_v6_e26_s44/model_final.pt",
+  "completed_episodes": 261,
+  "num_envs": 256,
+  "steps": 1700,
+  "eval_seed": 123,
+  "takeover_stage": "none",
+  "takeover_engaged_episodes": 0,
+  "stages": {
+    "reach": {
+      "successes": 261,
+      "trials": 261,
+      "rate": 1.0,
+      "ci95_low": 0.9854952512427636,
+      "ci95_high": 0.9999999999999999
+    },
+    "align": {
+      "successes": 33,
+      "trials": 261,
+      "rate": 0.12643678160919541,
+      "ci95_low": 0.09146442416851774,
+      "ci95_high": 0.17224602030527952
+    },
+    "grasp": {
+      "successes": 202,
+      "trials": 261,
+      "rate": 0.7739463601532567,
+      "ci95_low": 0.7194412243691648,
+      "ci95_high": 0.8205044496833838
+    },
+    "lift": {
+      "successes": 202,
+      "trials": 261,
+      "rate": 0.7739463601532567,
+      "ci95_low": 0.7194412243691648,
+      "ci95_high": 0.8205044496833838
+    },
+    "transport": {
+      "successes": 201,
+      "trials": 261,
+      "rate": 0.7701149425287356,
+      "ci95_low": 0.7153714007219542,
+      "ci95_high": 0.8170225855816077
+    },
+    "at_plate": {
+      "successes": 198,
+      "trials": 261,
+      "rate": 0.7586206896551724,
+      "ci95_low": 0.7031963186343029,
+      "ci95_high": 0.806542604422299
+    },
+    "at_plate_upright": {
+      "successes": 40,
+      "trials": 261,
+      "rate": 0.1532567049808429,
+      "ci95_low": 0.11461047117016931,
+      "ci95_high": 0.20196178754653477
+    },
+    "place": {
+      "successes": 29,
+      "trials": 261,
+      "rate": 0.1111111111111111,
+      "ci95_low": 0.07848455421756477,
+      "ci95_high": 0.1550191392602857
+    },
+    "upright": {
+      "successes": 24,
+      "trials": 261,
+      "rate": 0.09195402298850575,
+      "ci95_low": 0.06257171574727272,
+      "ci95_high": 0.1331735389856443
+    },
+    "full": {
+      "successes": 29,
+      "trials": 261,
+      "rate": 0.1111111111111111,
+      "ci95_low": 0.07848455421756477,
+      "ci95_high": 0.1550191392602857
+    }
+  }
+}

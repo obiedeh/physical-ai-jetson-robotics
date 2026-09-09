@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "skills": {
+    "dali-dynamic-mode": {
+      "source": "nvidia/skills",
+      "sourceType": "github",
+      "skillPath": "skills/dali-dynamic-mode/SKILL.md",
+      "computedHash": "36d8c709907e78ae9771743df70407c4dd983faa86045c1dff1d556919cef81b"
+    },
+    "i4h-lerobot-viz": {
+      "source": "nvidia/skills",
+      "sourceType": "github",
+      "skillPath": "skills/i4h-lerobot-viz/SKILL.md",
+      "computedHash": "757699cd28bdd5ffc2d282106bae4ea59f855ac3c501cc36d0357a9ce4b5e3ad"
+    },
+    "jetson-diagnostic": {
+      "source": "nvidia/skills",
+      "sourceType": "github",
+      "skillPath": "skills/jetson-diagnostic/SKILL.md",
+      "computedHash": "052d611c20729a3290b5bac1a420790c3389b72e04d576348c40387cd41b2881"
+    },
+    "jetson-inference-mem-tune": {
+      "source": "nvidia/skills",
+      "sourceType": "github",
+      "skillPath": "skills/jetson-inference-mem-tune/SKILL.md",
+      "computedHash": "7213ba09a7ac0201d6a024959d2a70b657303c1ca594a17cbeae9a068dc391f8"
+    },
+    "jetson-llm-benchmark": {
+      "source": "nvidia/skills",
+      "sourceType": "github",
+      "skillPath": "skills/jetson-llm-benchmark/SKILL.md",
+      "computedHash": "34ed931c3223f3700f70b920772fc289531467305c0e595640d850cdf874c95f"
+    },
+    "jetson-llm-serve": {
+      "source": "nvidia/skills",
+      "sourceType": "github",
+      "skillPath": "skills/jetson-llm-serve/SKILL.md",
+      "computedHash": "ed042db66d759433c64f8d8c20d72ce75844c811ca866b788e899e3e74d3220c"
+    },
+    "jetson-memory-audit": {
+      "source": "nvidia/skills",
+      "sourceType": "github",
+      "skillPath": "skills/jetson-memory-audit/SKILL.md",
+      "computedHash": "99bd831474911d9d06825e4578aa5dec2bbf3e7ad26083fbb42105ab417e8509"
+    },
+    "jetson-optimize-memory": {
+      "source": "nvidia/skills",
+      "sourceType": "github",
+      "skillPath": "skills/jetson-optimize-memory/SKILL.md",
+      "computedHash": "b74c08295b645839ef83d8a0a4b8fe601b1818ba90fb97475fedabbe1d144684"
+    },
+    "jetson-print-device-info": {
+      "source": "nvidia/skills",
+      "sourceType": "github",
+      "skillPath": "skills/jetson-print-device-info/SKILL.md",
+      "computedHash": "e3a2e43de147888efd42562b9e6e0b8676c7752905c280ac132941aca0756ffb"
+    },
+    "jetson-quick-start": {
+      "source": "nvidia/skills",
+      "sourceType": "github",
+      "skillPath": "skills/jetson-quick-start/SKILL.md",
+      "computedHash": "238eab0b0cbf90f3bf4e2eedb182591bed3494a2be4bd9e5d6d8e9604b66c412"
+    },
+    "omniverse-cad-to-simready": {
+      "source": "nvidia/skills",
+      "sourceType": "github",
+      "skillPath": "skills/omniverse-cad-to-simready/SKILL.md",
+      "computedHash": "a0619ac40c74f3c09f26705ff6c6dbea7c864eb1f0528736841c8fdec4a7f795"
+    },
+    "omniverse-usd-performance-tuning": {
+      "source": "nvidia/skills",
+      "sourceType": "github",
+      "skillPath": "skills/omniverse-usd-performance-tuning/SKILL.md",
+      "computedHash": "58dec95ec245b9b3be025acde2a33ec8b36f68f1083d82965d45e35737ac075d"
+    }
+  }
+}

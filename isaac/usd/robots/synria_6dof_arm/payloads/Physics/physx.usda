@@ -1,0 +1,467 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "URDF USD Converter v0.1.0"
+    }
+    defaultPrim = "Alicia_D_v5_6_gripper_50mm"
+    doc = """Generated from Composed Stage of root layer /tmp/tmpjzjpssn1/synria_6dof_arm.usdc
+
+
+Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/usdex/synria_6dof_arm.usdc
+
+
+Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/temp/synria_6dof_arm.usd
+
+
+Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/synria_6dof_arm/payloads/base.usd
+"""
+    kilogramsPerUnit = 1
+    metersPerUnit = 1
+    subLayers = [
+        @./physics.usda@
+    ]
+    upAxis = "Z"
+)
+
+over "synria_6dof_arm"
+{
+    over "Geometry"
+    {
+        over "base_link" (
+            delete apiSchemas = ["NewtonArticulationRootAPI"]
+            prepend apiSchemas = ["PhysxArticulationAPI"]
+        )
+        {
+            bool physxArticulation:enabledSelfCollisions = 0
+
+            over "shoulder_link"
+            {
+                over "upper_arm_link"
+                {
+                    over "forearm_link"
+                    {
+                        over "wrist_1_link"
+                        {
+                            over "wrist_2_link"
+                            {
+                                over "tool0"
+                                {
+                                    over "c10_camera_link"
+                                    {
+                                        over "box"
+                                        {
+                                        }
+
+                                        over "box_1"
+                                        {
+                                        }
+                                    }
+
+                                    over "box"
+                                    {
+                                    }
+
+                                    over "box_1"
+                                    {
+                                    }
+                                }
+
+                                over "box"
+                                {
+                                }
+
+                                over "box_1"
+                                {
+                                }
+                            }
+
+                            over "box"
+                            {
+                            }
+
+                            over "box_1"
+                            {
+                            }
+                        }
+
+                        over "box"
+                        {
+                        }
+
+                        over "box_1"
+                        {
+                        }
+                    }
+
+                    over "box"
+                    {
+                    }
+
+                    over "box_1"
+                    {
+                    }
+                }
+
+                over "box"
+                {
+                }
+
+                over "box_1"
+                {
+                }
+            }
+
+            over "cylinder"
+            {
+            }
+
+            over "cylinder_1"
+            {
+            }
+
+            over "link1"
+            {
+                over "link2"
+                {
+                    over "link3"
+                    {
+                        over "link4"
+                        {
+                            over "link5"
+                            {
+                                over "link6"
+                                {
+                                    over "left_gripper"
+                                    {
+                                    }
+
+                                    over "right_gripper"
+                                    {
+                                    }
+
+                                    over "tool0"
+                                    {
+                                        over "sphere"
+                                        {
+                                        }
+                                    }
+
+                                    over "link6"
+                                    {
+                                    }
+                                }
+
+                                over "link5"
+                                {
+                                }
+                            }
+
+                            over "link4"
+                            {
+                            }
+                        }
+
+                        over "link3"
+                        {
+                        }
+                    }
+
+                    over "link2"
+                    {
+                    }
+                }
+
+                over "link1"
+                {
+                }
+            }
+
+            over "base_link"
+            {
+            }
+        }
+    }
+
+    over "Physics"
+    {
+        over "joint_1" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+            float physxJoint:jointFriction = 0.1
+            float physxJoint:maxJointVelocity = 85.94367
+        }
+
+        over "joint_2" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+            float physxJoint:jointFriction = 0.1
+            float physxJoint:maxJointVelocity = 85.94367
+        }
+
+        over "joint_3" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+            float physxJoint:jointFriction = 0.1
+            float physxJoint:maxJointVelocity = 85.94367
+        }
+
+        over "joint_4" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+            float physxJoint:jointFriction = 0.05
+            float physxJoint:maxJointVelocity = 114.59156
+        }
+
+        over "joint_5" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+            float physxJoint:jointFriction = 0.05
+            float physxJoint:maxJointVelocity = 114.59156
+        }
+
+        over "joint_6" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+            float physxJoint:jointFriction = 0.05
+            float physxJoint:maxJointVelocity = 143.23946
+        }
+
+        over "root_joint"
+        {
+        }
+
+        over "c10_camera_fixed"
+        {
+            over "dont_collapse"
+            {
+            }
+        }
+
+        over "Joint1"
+        {
+        }
+
+        over "Joint2"
+        {
+        }
+
+        over "Joint3"
+        {
+        }
+
+        over "Joint4"
+        {
+        }
+
+        over "Joint5"
+        {
+        }
+
+        over "Joint6"
+        {
+        }
+
+        over "left_finger"
+        {
+        }
+
+        over "right_finger"
+        {
+        }
+
+        over "tool0_fixed_joint"
+        {
+        }
+    }
+
+    over "Materials"
+    {
+        over "synria_dark"
+        {
+        }
+
+        over "synria_silver"
+        {
+        }
+
+        over "synria_blue"
+        {
+        }
+
+        over "tool0_green"
+        {
+        }
+    }
+
+    over "VisualMaterials"
+    {
+    }
+}
+
+over "Alicia_D_v5_6_gripper_50mm"
+{
+    over "Geometry"
+    {
+        over "base_link" (
+            delete apiSchemas = ["NewtonArticulationRootAPI"]
+            prepend apiSchemas = ["PhysxArticulationAPI"]
+        )
+        {
+            bool physxArticulation:enabledSelfCollisions = 0
+
+            over "link1"
+            {
+                over "link2"
+                {
+                    over "link3"
+                    {
+                        over "link4"
+                        {
+                            over "link5"
+                            {
+                                over "link6"
+                                {
+                                    over "left_gripper"
+                                    {
+                                    }
+
+                                    over "right_gripper"
+                                    {
+                                    }
+
+                                    over "tool0"
+                                    {
+                                        over "sphere"
+                                        {
+                                        }
+                                    }
+
+                                    over "link6"
+                                    {
+                                    }
+                                }
+
+                                over "link5"
+                                {
+                                }
+                            }
+
+                            over "link4"
+                            {
+                            }
+                        }
+
+                        over "link3"
+                        {
+                        }
+                    }
+
+                    over "link2"
+                    {
+                    }
+                }
+
+                over "link1"
+                {
+                }
+            }
+
+            over "base_link"
+            {
+            }
+        }
+    }
+
+    over "Physics"
+    {
+        over "Joint1" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+            float physxJoint:jointFriction = 0.1
+            float physxJoint:maxJointVelocity = 687.5494
+        }
+
+        over "Joint2" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+            float physxJoint:jointFriction = 0.1
+            float physxJoint:maxJointVelocity = 687.5494
+        }
+
+        over "Joint3" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+            float physxJoint:jointFriction = 0.1
+            float physxJoint:maxJointVelocity = 687.5494
+        }
+
+        over "Joint4" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+            float physxJoint:jointFriction = 0.05
+            float physxJoint:maxJointVelocity = 687.5494
+        }
+
+        over "Joint5" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+            float physxJoint:jointFriction = 0.05
+            float physxJoint:maxJointVelocity = 687.5494
+        }
+
+        over "Joint6" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+            float physxJoint:jointFriction = 0.05
+            float physxJoint:maxJointVelocity = 687.5494
+        }
+
+        over "left_finger" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+            float physxJoint:jointFriction = 0.02
+            float physxJoint:maxJointVelocity = 687.5494
+        }
+
+        over "right_finger" (
+            prepend apiSchemas = ["PhysxJointAPI"]
+        )
+        {
+            float physxJoint:jointFriction = 0.02
+            float physxJoint:maxJointVelocity = 687.5494
+        }
+
+        over "root_joint"
+        {
+        }
+
+        over "tool0_fixed_joint"
+        {
+        }
+    }
+
+    over "Materials"
+    {
+        over "tool0_green"
+        {
+        }
+    }
+
+    over "VisualMaterials"
+    {
+    }
+}
+

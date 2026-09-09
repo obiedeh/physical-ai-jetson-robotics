@@ -1,0 +1,22 @@
+diff --git a/isaac/isaaclab_tasks/synria_pickplace/recorder_env_cfg.py b/isaac/isaaclab_tasks/synria_pickplace/recorder_env_cfg.py
+index 71f8371..4e61761 100644
+--- a/isaac/isaaclab_tasks/synria_pickplace/recorder_env_cfg.py
++++ b/isaac/isaaclab_tasks/synria_pickplace/recorder_env_cfg.py
+@@ -92,7 +92,7 @@ if _ISAACLAB_AVAILABLE:
+     #: die footprint (m) — a small cube read by its rest orientation
+     DIE_SIZE = 0.018
+ 
+-    def add_die(cfg, pos=(0.15, 0.21, None)):
++    def add_die(cfg, pos=(0.08, 0.12, None)):
+         """Attach a pickable/rollable die (18 mm cube) adjacent to the board.
+         Opt-in (demos only) — never added to the training env. The die value
+         is read from its rest orientation (game_core.dice)."""
+@@ -117,7 +117,7 @@ if _ISAACLAB_AVAILABLE:
+         )
+         return cfg
+ 
+-    def add_cup(cfg, pos=(0.15, -0.15, None)):
++    def add_cup(cfg, pos=(0.08, -0.12, None)):
+         """Attach the hollow dice cup (isaac/usd/props/dice_cup.usda) as a
+         pickable rigid body. Opt-in (demos only). convexDecomposition collision
+         (baked in the USD) makes it CONTAIN the die."""

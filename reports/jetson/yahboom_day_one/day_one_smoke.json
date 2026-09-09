@@ -1,0 +1,103 @@
+{
+  "host": "yahboom",
+  "device_model": "NVIDIA Jetson Orin NX Engineering Reference Developer Kit Super",
+  "provenance": "provenance.json",
+  "probes": {
+    "matmul": {
+      "available": true,
+      "device": "Orin",
+      "torch": "2.5.0a0+872d972e41.nv24.08",
+      "size": 2048,
+      "cold_first_call_ms": 172.953,
+      "warm": {
+        "label": "matmul_fp16_2048",
+        "n": 200,
+        "warm": true,
+        "p50_ms": 1.7680270002529141,
+        "p95_ms": 2.754677000666561,
+        "p99_ms": 2.7645989994198317,
+        "mean_ms": 1.8917,
+        "std_ms": 0.312,
+        "min_ms": 1.7118600007961504,
+        "max_ms": 2.7783599998656427
+      },
+      "warm_tflops_p50": 9.72,
+      "mem_allocated_mb": 24.1
+    },
+    "camera": {
+      "available": true,
+      "device": "/dev/video0",
+      "frames": 60,
+      "width": 640,
+      "height": 480,
+      "cv2": "4.5.4",
+      "frame_interval": {
+        "label": "v4l2_grab_video0",
+        "n": 60,
+        "warm": true,
+        "p50_ms": 60.02004699985264,
+        "p95_ms": 60.255788000176835,
+        "p99_ms": 60.567122000065865,
+        "mean_ms": 59.2239,
+        "std_ms": 5.0881,
+        "min_ms": 20.88350400026684,
+        "max_ms": 60.721061000549525
+      },
+      "fps_from_p50": 16.7
+    }
+  },
+  "thermal": {
+    "samples": 10,
+    "temp_c_peak": 61.781,
+    "temp_c_sustained_p50": 60.875,
+    "throttling_suspected": false,
+    "throttle_threshold_c": 90.0,
+    "mem_available_kb_min": 5142716,
+    "mem_available_kb_p50": 5144516
+  },
+  "power": {
+    "rails": [
+      "VDD_CPU_GPU_CV",
+      "VDD_IN",
+      "VDD_SOC",
+      "sum of shunt voltages"
+    ],
+    "samples": 20,
+    "VDD_IN": {
+      "mW_peak": 11616.2,
+      "mW_p50": 5361.9,
+      "mW_min": 5271.0,
+      "n": 20
+    },
+    "VDD_CPU_GPU_CV": {
+      "mW_peak": 5039.1,
+      "mW_p50": 817.9,
+      "mW_min": 817.3,
+      "n": 20
+    },
+    "VDD_SOC": {
+      "mW_peak": 2521.3,
+      "mW_p50": 1545.0,
+      "mW_min": 1543.9,
+      "n": 20
+    },
+    "idle_baseline": {
+      "VDD_IN": {
+        "mW_p50": 5452.8,
+        "n": 6,
+        "window_s": 3.0
+      },
+      "VDD_CPU_GPU_CV": {
+        "mW_p50": 908.8,
+        "n": 6,
+        "window_s": 3.0
+      },
+      "VDD_SOC": {
+        "mW_p50": 1545.0,
+        "n": 6,
+        "window_s": 3.0
+      }
+    }
+  },
+  "wall_clock_s": 9.9
+}

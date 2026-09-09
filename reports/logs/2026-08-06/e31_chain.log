@@ -1,0 +1,18 @@
+[e31] start 2026-08-06T12:00:44-05:00
+[e31] PHASE 1: descent-probing the control checkpoints
+[e31] control probe s42 exited 0 at 2026-08-06T12:01:25-05:00
+[e31] control probe s43 exited 0 at 2026-08-06T12:02:04-05:00
+[e31] control probe s44 exited 0 at 2026-08-06T12:02:46-05:00
+[e31] PHASE 2: training 3 seeds with upright_maintenance
+[e31] train s42 exited 0 at 2026-08-06T13:04:11-05:00
+[e31] train s43 exited 0 at 2026-08-06T14:07:06-05:00
+[e31] train s44 exited 0 at 2026-08-06T15:07:17-05:00
+[e31] PHASE 3: eval + descent-probe the trained checkpoints
+[e31] eval s42 exited 0 at 2026-08-06T15:07:57-05:00
+[e31] probe s42 exited 0 at 2026-08-06T15:08:36-05:00
+[e31] eval s43 exited 0 at 2026-08-06T15:09:17-05:00
+[e31] probe s43 exited 0 at 2026-08-06T15:09:57-05:00
+[e31] eval s44 exited 0 at 2026-08-06T15:10:38-05:00
+[e31] probe s44 exited 0 at 2026-08-06T15:11:18-05:00
+[e31] NOTE: check reports/training/synria_reach_policy.json before committing.
+[e31] ALLDONE 2026-08-06T15:11:18-05:00

@@ -1,0 +1,6 @@
+Fetching 27 files:  89%|████████▉ | 24/27 [00:01<00:00, 18.17it/s]Download complete. Moving file to /home/oedeh/.cache/huggingface/hub/models--nvidia--GR00T-N1.7-3B/blobs/bbf161c66daac88799b5bc7b5c110429f48d7f96ae315113e2b2e6d1f11c9e54
+Fetching 27 files:  93%|█████████▎| 25/27 [00:20<00:01,  1.25it/s]Download complete. Moving file to /home/oedeh/.cache/huggingface/hub/models--nvidia--GR00T-N1.7-3B/blobs/c3f61940deb2007ba1ad7743013b57f0f8462356151db9655175d7aca2d40661
+Fetching 27 files:  96%|█████████▋| 26/27 [00:34<00:01,  1.33s/it]Download complete. Moving file to /home/oedeh/.cache/huggingface/hub/models--nvidia--GR00T-N1.7-3B/blobs/8a1a1d8a33c99103c7c80c136073c5bb8bfe9ca8f7a970c93c033ea89742906d
+Fetching 27 files: 100%|██████████| 27/27 [00:56<00:00,  2.11s/it]Fetching 27 files: 100%|██████████| 27/27 [00:56<00:00,  2.11s/it]
+/home/oedeh/.cache/huggingface/hub/models--nvidia--GR00T-N1.7-3B/snapshots/2fc962b973bccdd5d8ce4f67cc63b264d6886495
+DL_EXIT=0

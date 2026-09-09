@@ -1,0 +1,107 @@
+WARNING:root:Could not find checkpoint-<step> pattern in path: nvidia/GR00T-N1.7-3B
+/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
+  check_for_updates()
+`torch_dtype` is deprecated! Use `dtype` instead!
+Traceback (most recent call last):
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/huggingface_hub/utils/_http.py", line 403, in hf_raise_for_status
+    response.raise_for_status()
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/requests/models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 401 Client Error: Unauthorized for url: https://huggingface.co/nvidia/Cosmos-Reason2-2B/resolve/main/config.json
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/transformers/utils/hub.py", line 479, in cached_files
+    hf_hub_download(
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 1014, in hf_hub_download
+    return _hf_hub_download_to_cache_dir(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 1121, in _hf_hub_download_to_cache_dir
+    _raise_on_head_call_error(head_call_error, force_download, local_files_only)
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 1662, in _raise_on_head_call_error
+    raise head_call_error
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 1550, in _get_metadata_or_catch_error
+    metadata = get_hf_file_metadata(
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 1467, in get_hf_file_metadata
+    r = _request_wrapper(
+        ^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 283, in _request_wrapper
+    response = _request_wrapper(
+               ^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/huggingface_hub/file_download.py", line 307, in _request_wrapper
+    hf_raise_for_status(response)
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/huggingface_hub/utils/_http.py", line 420, in hf_raise_for_status
+    raise _format(GatedRepoError, message, response) from e
+huggingface_hub.errors.GatedRepoError: 401 Client Error. (Request ID: Root=1-6a697bee-64d95dc90b249a7d37f087dc;245fea9a-a044-4dab-82d3-71abd2dfd651)
+
+Cannot access gated repo for url https://huggingface.co/nvidia/Cosmos-Reason2-2B/resolve/main/config.json.
+Access to model nvidia/Cosmos-Reason2-2B is restricted. You must have access to it and be authenticated to access it. Please log in.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/oedeh/Isaac-GR00T/gr00t/model/modules/qwen3_backbone.py", line 183, in __init__
+    self.model = Qwen3VLForConditionalGeneration.from_pretrained(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/transformers/modeling_utils.py", line 277, in _wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/transformers/modeling_utils.py", line 4843, in from_pretrained
+    config, model_kwargs = cls.config_class.from_pretrained(
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/transformers/configuration_utils.py", line 622, in from_pretrained
+    config_dict, kwargs = cls.get_config_dict(pretrained_model_name_or_path, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/transformers/configuration_utils.py", line 662, in get_config_dict
+    config_dict, kwargs = cls._get_config_dict(pretrained_model_name_or_path, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/transformers/configuration_utils.py", line 721, in _get_config_dict
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/transformers/utils/hub.py", line 322, in cached_file
+    file = cached_files(path_or_repo_id=path_or_repo_id, filenames=[filename], **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/transformers/utils/hub.py", line 543, in cached_files
+    raise OSError(
+OSError: You are trying to access a gated repo.
+Make sure to have access to it at https://huggingface.co/nvidia/Cosmos-Reason2-2B.
+401 Client Error. (Request ID: Root=1-6a697bee-64d95dc90b249a7d37f087dc;245fea9a-a044-4dab-82d3-71abd2dfd651)
+
+Cannot access gated repo for url https://huggingface.co/nvidia/Cosmos-Reason2-2B/resolve/main/config.json.
+Access to model nvidia/Cosmos-Reason2-2B is restricted. You must have access to it and be authenticated to access it. Please log in.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/oedeh/Isaac-GR00T/gr00t/eval/open_loop_eval.py", line 373, in <module>
+    main(config)
+  File "/home/oedeh/Isaac-GR00T/gr00t/eval/open_loop_eval.py", line 303, in main
+    policy = Gr00tPolicy(
+             ^^^^^^^^^^^^
+  File "/home/oedeh/Isaac-GR00T/gr00t/policy/gr00t_policy.py", line 109, in __init__
+    model = AutoModel.from_pretrained(model_dir)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/transformers/models/auto/auto_factory.py", line 604, in from_pretrained
+    return model_class.from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/transformers/modeling_utils.py", line 277, in _wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/transformers/modeling_utils.py", line 4971, in from_pretrained
+    model = cls(config, *model_args, **model_kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/oedeh/Isaac-GR00T/gr00t/model/gr00t_n1d7/gr00t_n1d7.py", line 530, in __init__
+    self.backbone = backbone_cls(
+                    ^^^^^^^^^^^^^
+  File "/home/oedeh/Isaac-GR00T/gr00t/model/modules/qwen3_backbone.py", line 190, in __init__
+    raise RuntimeError(_GATED_BACKBONE_HINT.format(model_name=model_name)) from exc
+RuntimeError: Cannot download the VLM backbone 'nvidia/Cosmos-Reason2-2B', which is a gated Hugging Face repo. Every GR00T checkpoint (including the base nvidia/GR00T-N1.7-3B) loads this backbone, so both zero-shot inference and finetuning require access to it. Request access at https://huggingface.co/nvidia/Cosmos-Reason2-2B and authenticate with `hf auth login` (or set the HF_TOKEN environment variable) before loading a GR00T model.
+EVAL_EXIT=1

@@ -1,0 +1,1487 @@
+[driver] 60 episodes at 03:07:48
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260731_030748.log
+2026-07-31T08:07:48Z [6ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-07-31T08:07:48Z [6ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+2026-07-31T08:07:48Z [6ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 23986
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 3913
+|---------------------------------------------------------------------------------------------|
+2026-07-31T08:07:49Z [920ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-07-31T08:07:49Z [928ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.
+2026-07-31T08:07:50Z [2,621ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-07-31T08:07:50Z [2,730ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-07-31T08:07:51Z [2,846ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-07-31T08:07:52Z [4,255ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+2026-07-31T08:07:52Z [4,317ms] [Warning] [omni.graph.core.plugin] Found duplicate of category 'Replicator' - was 'Annotators', adding 'Fabric Reader'
+2026-07-31T08:07:52Z [4,317ms] [Warning] [omni.graph.core.plugin] Category 'Replicator' not accepted on node type 'omni.replicator.core.FabricReader' in extension 'omni.replicator.core'
+2026-07-31T08:07:52Z [4,318ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-07-31T08:07:54Z [6,663ms] [Warning] [omni.fabric.plugin] Warning: attribute viewportHandle not found for bucket id 7
+
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-31_03-07-55.log[0m
+[36m======================================================================================[0m
+
+[33m03:07:55 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : None
+	Physics step-size     : 0.008333333333333333
+	Rendering step-size   : 0.008333333333333333
+	Environment step-size : 0.016666666666666666
+[33m03:07:55 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 1.130063 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 8
+	Environment spacing   : 2.5
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : True
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 1.400285 seconds
+[INFO] Event Manager:  <EventManager> contains 1 active terms.
++-------------------------------------+
+| Active Event Terms in Mode: 'reset' |
++--------+----------------------------+
+| Index  | Name                       |
++--------+----------------------------+
+|   0    | reset_scene_to_default     |
++--------+----------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++----------------------------------+
+|  Active Action Terms (shape: 8)  |
++--------+-----------+-------------+
+| Index  | Name      |   Dimension |
++--------+-----------+-------------+
+|   0    | arm       |           7 |
+|   1    | gripper   |           1 |
++--------+-----------+-------------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++-----------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (13,)) |
++--------------+-----------------------+--------------+
+|    Index     | Name                  |    Shape     |
++--------------+-----------------------+--------------+
+|      0       | joint_pos             |    (13,)     |
++--------------+-----------------------+--------------+
+
+[s1] boot hand z-axis (world): [0.713, -0.0, -0.702]
+[s1] tool-down enforced (tilt was 45.4 deg)
+[s1] hand jac row: 7 (cos=1.00; -1 conv would be 7)
+[s1] free-close t=30 finger_joint=0.798
+[s1] free-close t=60 finger_joint=0.798
+[s1] free-close t=90 finger_joint=0.798
+[s1] free-close t=120 finger_joint=0.798
+[s1] free-close t=150 finger_joint=0.798
+[s1] free-close t=180 finger_joint=0.798
+[s1] free-close t=210 finger_joint=0.798
+[s1] free-close t=240 finger_joint=0.798
+[s1] free-close t=270 finger_joint=0.798
+[s1] free-close t=300 finger_joint=0.798
+[s1] free-air close settled at 0.798 (current grasp band 0.2-0.70)
+[rec] resuming after 60 existing episodes
+[s1] grasp-geom e1: hand-cup_xy=0.008 cup_gt=[0.473, -0.0, 0.02] vision_xy=[0.475, 0.001]
+[s1] GRASP (drive stall) envs [1] stall=[0.487]
+[s1] grasp-geom e3: hand-cup_xy=0.019 cup_gt=[0.54, 0.096, 0.02] vision_xy=[0.555, -0.01]
+[s1] GRASP (drive stall) envs [3] stall=[0.502]
+[s1] grasp-geom e6: hand-cup_xy=0.013 cup_gt=[0.38, 0.133, 0.02] vision_xy=[0.44, 0.059]
+[s1] GRASP (drive stall) envs [6] stall=[0.486]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] grasp-geom e4: hand-cup_xy=0.008 cup_gt=[0.533, -0.016, 0.02] vision_xy=[0.542, -0.06]
+[s1] GRASP (drive stall) envs [4] stall=[0.478]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 61/200 saved (len=295, env=3)
+[s1] PLACED envs [6] (full physical pick-move-place)
+[rec] episode 62/200 saved (len=315, env=6)
+[s1] PLACED envs [4] (full physical pick-move-place)
+[rec] episode 63/200 saved (len=316, env=4)
+[s1] grasp-geom e2: hand-cup_xy=0.003 cup_gt=[0.444, 0.05, 0.028] vision_xy=[0.472, 0.057]
+[s1] GRASP (drive stall) envs [2] stall=[0.48]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 64/200 saved (len=301, env=2)
+[s1] grasp-geom e4: hand-cup_xy=0.011 cup_gt=[0.555, -0.016, 0.061] vision_xy=[0.546, -0.054]
+[s1] GRASP (drive stall) envs [4] stall=[0.501]
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] PLACED envs [4] (full physical pick-move-place)
+[rec] episode 65/200 saved (len=303, env=4)
+[s1] grasp-geom e2: hand-cup_xy=0.007 cup_gt=[0.519, 0.025, 0.02] vision_xy=[0.523, 0.039]
+[s1] GRASP (drive stall) envs [2] stall=[0.485]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 66/200 saved (len=292, env=2)
+[s1] grasp-geom e5: hand-cup_xy=0.006 cup_gt=[0.56, 0.045, 0.02] vision_xy=[0.552, -0.028]
+[s1] GRASP (drive stall) envs [5] stall=[0.537]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] grasp-geom e7: hand-cup_xy=0.026 cup_gt=[0.335, 0.032, 0.02] vision_xy=[0.361, 0.008]
+[s1] GRASP (drive stall) envs [7] stall=[0.614]
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 67/200 saved (len=292, env=5)
+[s1] grasp-geom e0: hand-cup_xy=0.010 cup_gt=[0.552, -0.01, 0.02] vision_xy=[0.556, -0.01]
+[s1] GRASP (drive stall) envs [0] stall=[0.488]
+[s1] LIFTED envs [0] (physical, friction-held)
+[s1] PLACED envs [0] (full physical pick-move-place)
+[rec] episode 68/200 saved (len=294, env=0)
+[s1] grasp-geom e2: hand-cup_xy=0.014 cup_gt=[0.459, 0.042, 0.064] vision_xy=[0.426, -0.024]
+[s1] GRASP (drive stall) envs [2] stall=[0.485]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] grasp-geom e5: hand-cup_xy=0.011 cup_gt=[0.503, -0.062, 0.02] vision_xy=[0.491, -0.042]
+[s1] GRASP (drive stall) envs [5] stall=[0.478]
+[s1] grasp-geom e5: hand-cup_xy=0.015 cup_gt=[0.43, 0.021, 0.023] vision_xy=[0.437, 0.034]
+[s1] GRASP (drive stall) envs [5] stall=[0.526]
+[s1] grasp-geom e1: hand-cup_xy=0.010 cup_gt=[0.43, 0.046, 0.02] vision_xy=[0.44, 0.024]
+[s1] GRASP (drive stall) envs [1] stall=[0.505]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] grasp-geom e5: hand-cup_xy=0.011 cup_gt=[0.59, -0.005, 0.098] vision_xy=[0.568, 0.04]
+[s1] GRASP (drive stall) envs [5] stall=[0.503]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 69/200 saved (len=294, env=1)
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 70/200 saved (len=286, env=5)
+[s1] grasp-geom e3: hand-cup_xy=0.021 cup_gt=[0.621, -0.042, 0.068] vision_xy=[0.582, 0.022]
+[s1] GRASP (drive stall) envs [3] stall=[0.498]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] grasp-geom e1: hand-cup_xy=0.023 cup_gt=[0.584, 0.032, 0.028] vision_xy=[0.582, -0.055]
+[s1] GRASP (drive stall) envs [1] stall=[0.482]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 71/200 saved (len=299, env=1)
+[s1] grasp-geom e3: hand-cup_xy=0.005 cup_gt=[0.443, 0.05, 0.035] vision_xy=[0.458, 0.024]
+[s1] GRASP (drive stall) envs [3] stall=[0.486]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 72/200 saved (len=303, env=3)
+[s1] grasp-geom e3: hand-cup_xy=0.020 cup_gt=[0.579, 0.053, 0.02] vision_xy=[0.582, 0.057]
+[s1] GRASP (drive stall) envs [3] stall=[0.475]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 73/200 saved (len=253, env=3)
+[s1] grasp-geom e7: hand-cup_xy=0.001 cup_gt=[0.484, 0.074, 0.02] vision_xy=[0.493, -0.005]
+[s1] GRASP (drive stall) envs [7] stall=[0.561]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] grasp-geom e1: hand-cup_xy=0.011 cup_gt=[0.562, 0.001, 0.02] vision_xy=[0.553, -0.039]
+[s1] GRASP (drive stall) envs [1] stall=[0.503]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 74/200 saved (len=300, env=1)
+[s1] grasp-geom e7: hand-cup_xy=0.007 cup_gt=[0.471, 0.006, 0.022] vision_xy=[0.484, 0.015]
+[s1] GRASP (drive stall) envs [7] stall=[0.494]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 75/200 saved (len=269, env=7)
+[s1] grasp-geom e1: hand-cup_xy=0.021 cup_gt=[0.422, -0.078, 0.02] vision_xy=[0.471, -0.059]
+[s1] GRASP (drive stall) envs [1] stall=[0.487]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 76/200 saved (len=315, env=1)
+[s1] grasp-geom e1: hand-cup_xy=0.005 cup_gt=[0.467, 0.06, 0.026] vision_xy=[0.466, 0.081]
+[s1] GRASP (drive stall) envs [1] stall=[0.493]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 77/200 saved (len=314, env=1)
+[s1] grasp-geom e4: hand-cup_xy=0.004 cup_gt=[0.459, 0.046, 0.02] vision_xy=[0.463, 0.037]
+[s1] GRASP (drive stall) envs [4] stall=[0.494]
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] PLACED envs [4] (full physical pick-move-place)
+[rec] episode 78/200 saved (len=323, env=4)
+[s1] grasp-geom e4: hand-cup_xy=0.007 cup_gt=[0.445, 0.064, 0.022] vision_xy=[0.451, 0.064]
+[s1] GRASP (drive stall) envs [4] stall=[0.497]
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] PLACED envs [4] (full physical pick-move-place)
+[rec] episode 79/200 saved (len=364, env=4)
+[s1] grasp-geom e5: hand-cup_xy=0.004 cup_gt=[0.407, -0.129, 0.023] vision_xy=[0.44, -0.081]
+[s1] GRASP (drive stall) envs [5] stall=[0.487]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] grasp-geom e3: hand-cup_xy=0.012 cup_gt=[0.513, -0.002, 0.023] vision_xy=[0.549, -0.011]
+[s1] GRASP (drive stall) envs [3] stall=[0.491]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 80/200 saved (len=276, env=3)
+[s1] grasp-geom e6: hand-cup_xy=0.011 cup_gt=[0.575, -0.043, 0.065] vision_xy=[0.554, -0.07]
+[s1] GRASP (drive stall) envs [6] stall=[0.494]
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] PLACED envs [6] (full physical pick-move-place)
+[rec] episode 81/200 saved (len=274, env=6)
+[s1] grasp-geom e1: hand-cup_xy=0.003 cup_gt=[0.45, -0.062, 0.02] vision_xy=[0.449, -0.063]
+[s1] GRASP (drive stall) envs [1] stall=[0.557]
+[s1] grasp-geom e1: hand-cup_xy=0.020 cup_gt=[0.522, -0.056, 0.078] vision_xy=[0.479, -0.072]
+[s1] GRASP (drive stall) envs [1] stall=[0.496]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 82/200 saved (len=335, env=1)
+[s1] grasp-geom e1: hand-cup_xy=0.008 cup_gt=[0.487, -0.058, 0.02] vision_xy=[0.489, -0.061]
+[s1] GRASP (drive stall) envs [1] stall=[0.491]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 83/200 saved (len=437, env=1)
+[s1] grasp-geom e6: hand-cup_xy=0.002 cup_gt=[0.439, -0.006, 0.024] vision_xy=[0.44, -0.018]
+[s1] GRASP (drive stall) envs [6] stall=[0.503]
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] PLACED envs [6] (full physical pick-move-place)
+[rec] episode 84/200 saved (len=327, env=6)
+[s1] ======== RESULT: 29 physical picks, 24 physical pick-move-places ========
+/tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/record_batches.sh: line 21: 2640796 Killed                  timeout 7200 "$HOME/.venv/isaacsim5/bin/python" isaac/scripts/franka_vision_pick.py --headless --num_envs 8 --steps 90000 --record "$RAW" --max_episodes 200
+[driver] batch exit code 137
+[driver] 84 episodes at 04:10:45
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260731_041045.log
+2026-07-31T09:10:45Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-07-31T09:10:45Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+2026-07-31T09:10:45Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 23786
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 4067
+|---------------------------------------------------------------------------------------------|
+2026-07-31T09:10:46Z [771ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-07-31T09:10:46Z [779ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.
+2026-07-31T09:10:47Z [2,425ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-07-31T09:10:48Z [2,513ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-07-31T09:10:48Z [2,629ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-07-31T09:10:49Z [3,869ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+2026-07-31T09:10:49Z [3,927ms] [Warning] [omni.graph.core.plugin] Found duplicate of category 'Replicator' - was 'Annotators', adding 'Fabric Reader'
+2026-07-31T09:10:49Z [3,927ms] [Warning] [omni.graph.core.plugin] Category 'Replicator' not accepted on node type 'omni.replicator.core.FabricReader' in extension 'omni.replicator.core'
+2026-07-31T09:10:49Z [3,928ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-07-31T09:10:51Z [6,223ms] [Warning] [omni.fabric.plugin] Warning: attribute viewportHandle not found for bucket id 7
+
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-31_04-10-52.log[0m
+[36m======================================================================================[0m
+
+[33m04:10:52 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : None
+	Physics step-size     : 0.008333333333333333
+	Rendering step-size   : 0.008333333333333333
+	Environment step-size : 0.016666666666666666
+[33m04:10:52 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 1.252787 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 8
+	Environment spacing   : 2.5
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : True
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 1.487900 seconds
+[INFO] Event Manager:  <EventManager> contains 1 active terms.
++-------------------------------------+
+| Active Event Terms in Mode: 'reset' |
++--------+----------------------------+
+| Index  | Name                       |
++--------+----------------------------+
+|   0    | reset_scene_to_default     |
++--------+----------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++----------------------------------+
+|  Active Action Terms (shape: 8)  |
++--------+-----------+-------------+
+| Index  | Name      |   Dimension |
++--------+-----------+-------------+
+|   0    | arm       |           7 |
+|   1    | gripper   |           1 |
++--------+-----------+-------------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++-----------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (13,)) |
++--------------+-----------------------+--------------+
+|    Index     | Name                  |    Shape     |
++--------------+-----------------------+--------------+
+|      0       | joint_pos             |    (13,)     |
++--------------+-----------------------+--------------+
+
+[s1] boot hand z-axis (world): [0.713, -0.0, -0.702]
+[s1] tool-down enforced (tilt was 45.4 deg)
+[s1] hand jac row: 7 (cos=1.00; -1 conv would be 7)
+[s1] free-close t=30 finger_joint=0.798
+[s1] free-close t=60 finger_joint=0.798
+[s1] free-close t=90 finger_joint=0.798
+[s1] free-close t=120 finger_joint=0.798
+[s1] free-close t=150 finger_joint=0.798
+[s1] free-close t=180 finger_joint=0.798
+[s1] free-close t=210 finger_joint=0.798
+[s1] free-close t=240 finger_joint=0.798
+[s1] free-close t=270 finger_joint=0.798
+[s1] free-close t=300 finger_joint=0.798
+[s1] free-air close settled at 0.798 (current grasp band 0.2-0.70)
+[rec] resuming after 84 existing episodes
+[s1] grasp-geom e7: hand-cup_xy=0.013 cup_gt=[0.56, 0.053, 0.043] vision_xy=[0.552, -0.017]
+[s1] GRASP (drive stall) envs [7] stall=[0.503]
+[s1] grasp-geom e6: hand-cup_xy=0.024 cup_gt=[0.521, 0.001, 0.02] vision_xy=[0.543, -0.02]
+[s1] GRASP (drive stall) envs [6] stall=[0.517]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 85/200 saved (len=302, env=7)
+[s1] grasp-geom e0: hand-cup_xy=0.013 cup_gt=[0.471, 0.12, 0.02] vision_xy=[0.505, 0.068]
+[s1] GRASP (drive stall) envs [0] stall=[0.496]
+[s1] LIFTED envs [0] (physical, friction-held)
+[s1] grasp-geom e6: hand-cup_xy=0.021 cup_gt=[0.55, -0.028, 0.02] vision_xy=[0.545, 0.014]
+[s1] GRASP (drive stall) envs [6] stall=[0.514]
+[s1] grasp-geom e6: hand-cup_xy=0.005 cup_gt=[0.437, -0.011, 0.022] vision_xy=[0.45, -0.014]
+[s1] GRASP (drive stall) envs [6] stall=[0.487]
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] PLACED envs [6] (full physical pick-move-place)
+[rec] episode 86/200 saved (len=353, env=6)
+[s1] grasp-geom e2: hand-cup_xy=0.004 cup_gt=[0.524, 0.053, 0.02] vision_xy=[0.529, -0.019]
+[s1] GRASP (drive stall) envs [2] stall=[0.502]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] grasp-geom e1: hand-cup_xy=0.021 cup_gt=[0.571, 0.107, 0.02] vision_xy=[0.56, 0.063]
+[s1] GRASP (drive stall) envs [1] stall=[0.501]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 87/200 saved (len=314, env=1)
+[s1] grasp-geom e1: hand-cup_xy=0.024 cup_gt=[0.391, -0.021, 0.02] vision_xy=[0.449, 0.003]
+[s1] GRASP (drive stall) envs [1] stall=[0.49]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] grasp-geom e2: hand-cup_xy=0.014 cup_gt=[0.507, 0.102, 0.026] vision_xy=[0.534, 0.064]
+[s1] GRASP (drive stall) envs [2] stall=[0.493]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 88/200 saved (len=490, env=2)
+[s1] grasp-geom e2: hand-cup_xy=0.007 cup_gt=[0.575, 0.026, 0.08] vision_xy=[0.556, 0.001]
+[s1] GRASP (drive stall) envs [2] stall=[0.495]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 89/200 saved (len=283, env=2)
+[s1] grasp-geom e7: hand-cup_xy=0.007 cup_gt=[0.407, -0.076, 0.023] vision_xy=[0.423, -0.071]
+[s1] GRASP (drive stall) envs [7] stall=[0.493]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 90/200 saved (len=328, env=7)
+[s1] grasp-geom e4: hand-cup_xy=0.007 cup_gt=[0.469, -0.011, 0.028] vision_xy=[0.457, -0.073]
+[s1] GRASP (drive stall) envs [4] stall=[0.503]
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] grasp-geom e4: hand-cup_xy=0.003 cup_gt=[0.509, 0.003, 0.02] vision_xy=[0.516, -0.005]
+[s1] GRASP (drive stall) envs [4] stall=[0.487]
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] PLACED envs [4] (full physical pick-move-place)
+[rec] episode 91/200 saved (len=260, env=4)
+[s1] grasp-geom e7: hand-cup_xy=0.022 cup_gt=[0.416, -0.058, 0.02] vision_xy=[0.463, -0.036]
+[s1] GRASP (drive stall) envs [7] stall=[0.493]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] grasp-geom e7: hand-cup_xy=0.009 cup_gt=[0.516, -0.068, 0.061] vision_xy=[0.494, -0.055]
+[s1] GRASP (drive stall) envs [7] stall=[0.49]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 92/200 saved (len=293, env=7)
+[s1] grasp-geom e7: hand-cup_xy=0.005 cup_gt=[0.431, -0.042, 0.023] vision_xy=[0.443, -0.022]
+[s1] GRASP (drive stall) envs [7] stall=[0.492]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 93/200 saved (len=351, env=7)
+[s1] grasp-geom e5: hand-cup_xy=0.002 cup_gt=[0.434, -0.072, 0.057] vision_xy=[0.415, -0.068]
+[s1] GRASP (drive stall) envs [5] stall=[0.49]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 94/200 saved (len=376, env=5)
+[s1] grasp-geom e6: hand-cup_xy=0.007 cup_gt=[0.608, -0.033, 0.022] vision_xy=[0.578, 0.05]
+[s1] GRASP (drive stall) envs [6] stall=[0.689]
+[s1] grasp-geom e5: hand-cup_xy=0.005 cup_gt=[0.514, -0.031, 0.071] vision_xy=[0.493, -0.046]
+[s1] GRASP (drive stall) envs [5] stall=[0.495]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] grasp-geom e6: hand-cup_xy=0.021 cup_gt=[0.6, -0.024, 0.077] vision_xy=[0.554, -0.069]
+[s1] GRASP (drive stall) envs [6] stall=[0.496]
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 95/200 saved (len=347, env=5)
+[s1] PLACED envs [6] (full physical pick-move-place)
+[rec] episode 96/200 saved (len=294, env=6)
+[s1] grasp-geom e5: hand-cup_xy=0.014 cup_gt=[0.361, -0.014, 0.02] vision_xy=[0.372, -0.026]
+[s1] GRASP (drive stall) envs [5] stall=[0.475]
+[s1] grasp-geom e6: hand-cup_xy=0.007 cup_gt=[0.447, -0.068, 0.023] vision_xy=[0.466, -0.075]
+[s1] GRASP (drive stall) envs [6] stall=[0.49]
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] grasp-geom e7: hand-cup_xy=0.005 cup_gt=[0.432, 0.085, 0.022] vision_xy=[0.452, 0.078]
+[s1] GRASP (drive stall) envs [7] stall=[0.489]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 97/200 saved (len=285, env=7)
+[s1] grasp-geom e5: hand-cup_xy=0.013 cup_gt=[0.542, 0.134, 0.021] vision_xy=[0.56, 0.022]
+[s1] GRASP (drive stall) envs [5] stall=[0.607]
+[s1] grasp-geom e5: hand-cup_xy=0.007 cup_gt=[0.458, -0.003, 0.051] vision_xy=[0.434, -0.028]
+[s1] GRASP (drive stall) envs [5] stall=[0.492]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 98/200 saved (len=320, env=5)
+[s1] grasp-geom e7: hand-cup_xy=0.011 cup_gt=[0.448, 0.021, 0.025] vision_xy=[0.436, -0.028]
+[s1] GRASP (drive stall) envs [7] stall=[0.498]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] grasp-geom e5: hand-cup_xy=0.014 cup_gt=[0.521, -0.048, 0.09] vision_xy=[0.481, -0.051]
+[s1] GRASP (drive stall) envs [5] stall=[0.486]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 99/200 saved (len=271, env=7)
+[s1] grasp-geom e3: hand-cup_xy=0.012 cup_gt=[0.388, -0.07, 0.026] vision_xy=[0.409, -0.046]
+[s1] GRASP (drive stall) envs [3] stall=[0.482]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] grasp-geom e5: hand-cup_xy=0.007 cup_gt=[0.443, 0.02, 0.02] vision_xy=[0.441, 0.025]
+[s1] GRASP (drive stall) envs [5] stall=[0.671]
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 100/200 saved (len=357, env=3)
+[s1] grasp-geom e3: hand-cup_xy=0.004 cup_gt=[0.496, -0.036, 0.077] vision_xy=[0.463, -0.075]
+[s1] GRASP (drive stall) envs [3] stall=[0.493]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] grasp-geom e3: hand-cup_xy=0.006 cup_gt=[0.462, 0.035, 0.02] vision_xy=[0.463, -0.018]
+[s1] GRASP (drive stall) envs [3] stall=[0.519]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 101/200 saved (len=364, env=3)
+[s1] grasp-geom e2: hand-cup_xy=0.016 cup_gt=[0.479, -0.032, 0.073] vision_xy=[0.442, -0.006]
+[s1] GRASP (drive stall) envs [2] stall=[0.491]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] grasp-geom e3: hand-cup_xy=0.003 cup_gt=[0.55, -0.03, 0.023] vision_xy=[0.564, 0.021]
+[s1] GRASP (drive stall) envs [3] stall=[0.494]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 102/200 saved (len=300, env=3)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 103/200 saved (len=325, env=2)
+[s1] grasp-geom e7: hand-cup_xy=0.008 cup_gt=[0.416, 0.031, 0.02] vision_xy=[0.425, 0.037]
+[s1] GRASP (drive stall) envs [7] stall=[0.496]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 104/200 saved (len=340, env=7)
+[s1] grasp-geom e2: hand-cup_xy=0.010 cup_gt=[0.516, 0.066, 0.021] vision_xy=[0.52, 0.072]
+[s1] GRASP (drive stall) envs [2] stall=[0.491]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 105/200 saved (len=285, env=2)
+[s1] grasp-geom e2: hand-cup_xy=0.007 cup_gt=[0.419, -0.089, 0.022] vision_xy=[0.437, -0.073]
+[s1] GRASP (drive stall) envs [2] stall=[0.49]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 106/200 saved (len=334, env=2)
+[s1] grasp-geom e2: hand-cup_xy=0.015 cup_gt=[0.454, -0.082, 0.054] vision_xy=[0.428, -0.06]
+[s1] GRASP (drive stall) envs [2] stall=[0.495]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 107/200 saved (len=329, env=2)
+[s1] grasp-geom e1: hand-cup_xy=0.002 cup_gt=[0.513, -0.042, 0.02] vision_xy=[0.518, -0.055]
+[s1] GRASP (drive stall) envs [1] stall=[0.495]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] grasp-geom e2: hand-cup_xy=0.215 cup_gt=[0.599, -0.152, 0.02] vision_xy=[0.431, -0.076]
+[s1] GRASP (drive stall) envs [2] stall=[0.465]
+[s1] grasp-geom e3: hand-cup_xy=0.011 cup_gt=[0.468, -0.02, 0.042] vision_xy=[0.446, -0.062]
+[s1] GRASP (drive stall) envs [3] stall=[0.497]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] grasp-geom e2: hand-cup_xy=0.005 cup_gt=[0.441, 0.025, 0.02] vision_xy=[0.441, 0.025]
+[s1] GRASP (drive stall) envs [2] stall=[0.503]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 108/200 saved (len=307, env=2)
+[s1] grasp-geom e2: hand-cup_xy=0.004 cup_gt=[0.459, -0.019, 0.046] vision_xy=[0.439, 0.022]
+[s1] GRASP (drive stall) envs [2] stall=[0.491]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 109/200 saved (len=311, env=2)
+[s1] grasp-geom e4: hand-cup_xy=0.006 cup_gt=[0.535, 0.038, 0.059] vision_xy=[0.524, -0.017]
+[s1] GRASP (drive stall) envs [4] stall=[0.494]
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] PLACED envs [4] (full physical pick-move-place)
+[rec] episode 110/200 saved (len=282, env=4)
+[s1] grasp-geom e4: hand-cup_xy=0.008 cup_gt=[0.469, 0.017, 0.052] vision_xy=[0.459, -0.034]
+[s1] GRASP (drive stall) envs [4] stall=[0.5]
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] grasp-geom e4: hand-cup_xy=0.007 cup_gt=[0.484, 0.053, 0.044] vision_xy=[0.475, 0.078]
+[s1] GRASP (drive stall) envs [4] stall=[0.491]
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] PLACED envs [4] (full physical pick-move-place)
+[rec] episode 111/200 saved (len=275, env=4)
+[s1] grasp-geom e1: hand-cup_xy=0.134 cup_gt=[0.424, 0.001, 0.02] vision_xy=[0.547, 0.044]
+[s1] GRASP (drive stall) envs [1] stall=[0.698]
+[s1] grasp-geom e1: hand-cup_xy=0.013 cup_gt=[0.549, -0.029, 0.021] vision_xy=[0.559, -0.006]
+[s1] GRASP (drive stall) envs [1] stall=[0.5]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 112/200 saved (len=283, env=1)
+[s1] grasp-geom e5: hand-cup_xy=0.015 cup_gt=[0.56, -0.145, 0.05] vision_xy=[0.561, -0.06]
+[s1] GRASP (drive stall) envs [5] stall=[0.485]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 113/200 saved (len=314, env=5)
+[s1] grasp-geom e5: hand-cup_xy=0.004 cup_gt=[0.419, -0.015, 0.02] vision_xy=[0.419, -0.051]
+[s1] GRASP (drive stall) envs [5] stall=[0.499]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 114/200 saved (len=336, env=5)
+[s1] grasp-geom e0: hand-cup_xy=0.004 cup_gt=[0.469, 0.06, 0.02] vision_xy=[0.471, 0.068]
+[s1] GRASP (drive stall) envs [0] stall=[0.605]
+[s1] grasp-geom e7: hand-cup_xy=0.039 cup_gt=[0.487, -0.097, 0.02] vision_xy=[0.507, -0.021]
+[s1] GRASP (drive stall) envs [7] stall=[0.466]
+[s1] grasp-geom e0: hand-cup_xy=0.019 cup_gt=[0.585, -0.009, 0.053] vision_xy=[0.558, 0.031]
+[s1] GRASP (drive stall) envs [0] stall=[0.491]
+[s1] LIFTED envs [0] (physical, friction-held)
+[s1] PLACED envs [0] (full physical pick-move-place)
+[rec] episode 115/200 saved (len=306, env=0)
+[s1] grasp-geom e0: hand-cup_xy=0.023 cup_gt=[0.568, 0.021, 0.071] vision_xy=[0.53, 0.069]
+[s1] GRASP (drive stall) envs [0] stall=[0.484]
+[s1] LIFTED envs [0] (physical, friction-held)
+[s1] ======== RESULT: 43 physical picks, 31 physical pick-move-places ========
+/tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/record_batches.sh: line 21: 2661014 Killed                  timeout 7200 "$HOME/.venv/isaacsim5/bin/python" isaac/scripts/franka_vision_pick.py --headless --num_envs 8 --steps 90000 --record "$RAW" --max_episodes 200
+[driver] batch exit code 137
+[driver] 115 episodes at 05:13:33
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260731_051333.log
+2026-07-31T10:13:33Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-07-31T10:13:33Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+2026-07-31T10:13:33Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 23309
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 4199
+|---------------------------------------------------------------------------------------------|
+2026-07-31T10:13:34Z [767ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-07-31T10:13:34Z [775ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.
+2026-07-31T10:13:35Z [2,182ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-07-31T10:13:35Z [2,269ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-07-31T10:13:35Z [2,386ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-07-31T10:13:37Z [3,717ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+2026-07-31T10:13:37Z [3,776ms] [Warning] [omni.graph.core.plugin] Found duplicate of category 'Replicator' - was 'Annotators', adding 'Fabric Reader'
+2026-07-31T10:13:37Z [3,776ms] [Warning] [omni.graph.core.plugin] Category 'Replicator' not accepted on node type 'omni.replicator.core.FabricReader' in extension 'omni.replicator.core'
+2026-07-31T10:13:37Z [3,776ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-07-31T10:13:39Z [6,235ms] [Warning] [omni.fabric.plugin] Warning: attribute viewportHandle not found for bucket id 7
+
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-31_05-13-39.log[0m
+[36m======================================================================================[0m
+
+[33m05:13:39 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : None
+	Physics step-size     : 0.008333333333333333
+	Rendering step-size   : 0.008333333333333333
+	Environment step-size : 0.016666666666666666
+[33m05:13:39 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 1.244760 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 8
+	Environment spacing   : 2.5
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : True
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 1.359782 seconds
+[INFO] Event Manager:  <EventManager> contains 1 active terms.
++-------------------------------------+
+| Active Event Terms in Mode: 'reset' |
++--------+----------------------------+
+| Index  | Name                       |
++--------+----------------------------+
+|   0    | reset_scene_to_default     |
++--------+----------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++----------------------------------+
+|  Active Action Terms (shape: 8)  |
++--------+-----------+-------------+
+| Index  | Name      |   Dimension |
++--------+-----------+-------------+
+|   0    | arm       |           7 |
+|   1    | gripper   |           1 |
++--------+-----------+-------------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++-----------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (13,)) |
++--------------+-----------------------+--------------+
+|    Index     | Name                  |    Shape     |
++--------------+-----------------------+--------------+
+|      0       | joint_pos             |    (13,)     |
++--------------+-----------------------+--------------+
+
+[s1] boot hand z-axis (world): [0.713, -0.0, -0.702]
+[s1] tool-down enforced (tilt was 45.4 deg)
+[s1] hand jac row: 7 (cos=1.00; -1 conv would be 7)
+[s1] free-close t=30 finger_joint=0.798
+[s1] free-close t=60 finger_joint=0.798
+[s1] free-close t=90 finger_joint=0.798
+[s1] free-close t=120 finger_joint=0.798
+[s1] free-close t=150 finger_joint=0.798
+[s1] free-close t=180 finger_joint=0.798
+[s1] free-close t=210 finger_joint=0.798
+[s1] free-close t=240 finger_joint=0.798
+[s1] free-close t=270 finger_joint=0.798
+[s1] free-close t=300 finger_joint=0.798
+[s1] free-air close settled at 0.798 (current grasp band 0.2-0.70)
+[rec] resuming after 115 existing episodes
+[s1] grasp-geom e4: hand-cup_xy=0.005 cup_gt=[0.45, 0.075, 0.02] vision_xy=[0.448, 0.079]
+[s1] GRASP (drive stall) envs [4] stall=[0.493]
+[s1] grasp-geom e7: hand-cup_xy=0.009 cup_gt=[0.469, 0.058, 0.02] vision_xy=[0.468, 0.062]
+[s1] GRASP (drive stall) envs [7] stall=[0.482]
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 116/200 saved (len=306, env=7)
+[s1] PLACED envs [4] (full physical pick-move-place)
+[rec] episode 117/200 saved (len=308, env=4)
+[s1] grasp-geom e6: hand-cup_xy=0.012 cup_gt=[0.463, -0.04, 0.021] vision_xy=[0.493, -0.011]
+[s1] GRASP (drive stall) envs [6] stall=[0.493]
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] PLACED envs [6] (full physical pick-move-place)
+[rec] episode 118/200 saved (len=308, env=6)
+[s1] grasp-geom e4: hand-cup_xy=0.006 cup_gt=[0.544, -0.05, 0.02] vision_xy=[0.559, -0.042]
+[s1] GRASP (drive stall) envs [4] stall=[0.494]
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] PLACED envs [4] (full physical pick-move-place)
+[rec] episode 119/200 saved (len=288, env=4)
+[s1] grasp-geom e6: hand-cup_xy=0.008 cup_gt=[0.459, 0.056, 0.022] vision_xy=[0.471, 0.06]
+[s1] GRASP (drive stall) envs [6] stall=[0.502]
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] grasp-geom e2: hand-cup_xy=0.011 cup_gt=[0.571, 0.039, 0.067] vision_xy=[0.567, -0.001]
+[s1] GRASP (drive stall) envs [2] stall=[0.5]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] grasp-geom e3: hand-cup_xy=0.021 cup_gt=[0.488, 0.078, 0.021] vision_xy=[0.524, -0.024]
+[s1] GRASP (drive stall) envs [3] stall=[0.495]
+[s1] PLACED envs [6] (full physical pick-move-place)
+[rec] episode 120/200 saved (len=335, env=6)
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 121/200 saved (len=285, env=2)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 122/200 saved (len=296, env=3)
+[s1] grasp-geom e6: hand-cup_xy=0.010 cup_gt=[0.592, -0.034, 0.024] vision_xy=[0.582, 0.054]
+[s1] GRASP (drive stall) envs [6] stall=[0.697]
+[s1] grasp-geom e3: hand-cup_xy=0.007 cup_gt=[0.482, -0.018, 0.041] vision_xy=[0.464, -0.046]
+[s1] GRASP (drive stall) envs [3] stall=[0.501]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] grasp-geom e2: hand-cup_xy=0.023 cup_gt=[0.55, -0.011, 0.02] vision_xy=[0.539, -0.062]
+[s1] GRASP (drive stall) envs [2] stall=[0.497]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] grasp-geom e6: hand-cup_xy=0.012 cup_gt=[0.434, -0.079, 0.02] vision_xy=[0.471, -0.052]
+[s1] GRASP (drive stall) envs [6] stall=[0.478]
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 123/200 saved (len=320, env=2)
+[s1] PLACED envs [6] (full physical pick-move-place)
+[rec] episode 124/200 saved (len=314, env=6)
+[s1] grasp-geom e3: hand-cup_xy=0.014 cup_gt=[0.55, 0.019, 0.02] vision_xy=[0.564, 0.024]
+[s1] GRASP (drive stall) envs [3] stall=[0.493]
+[s1] grasp-geom e2: hand-cup_xy=0.011 cup_gt=[0.546, 0.049, 0.02] vision_xy=[0.545, 0.021]
+[s1] GRASP (drive stall) envs [2] stall=[0.491]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 125/200 saved (len=282, env=3)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 126/200 saved (len=301, env=2)
+[s1] grasp-geom e2: hand-cup_xy=0.017 cup_gt=[0.532, -0.013, 0.066] vision_xy=[0.497, -0.002]
+[s1] GRASP (drive stall) envs [2] stall=[0.497]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 127/200 saved (len=325, env=2)
+[s1] grasp-geom e3: hand-cup_xy=0.010 cup_gt=[0.551, 0.037, 0.062] vision_xy=[0.542, -0.002]
+[s1] GRASP (drive stall) envs [3] stall=[0.499]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 128/200 saved (len=310, env=3)
+[s1] grasp-geom e3: hand-cup_xy=0.009 cup_gt=[0.522, -0.01, 0.02] vision_xy=[0.528, -0.007]
+[s1] GRASP (drive stall) envs [3] stall=[0.558]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 129/200 saved (len=292, env=3)
+[s1] grasp-geom e5: hand-cup_xy=0.010 cup_gt=[0.525, 0.014, 0.02] vision_xy=[0.533, -0.002]
+[s1] GRASP (drive stall) envs [5] stall=[0.502]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] grasp-geom e1: hand-cup_xy=0.039 cup_gt=[0.432, 0.115, 0.021] vision_xy=[0.451, 0.075]
+[s1] GRASP (drive stall) envs [1] stall=[0.568]
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 130/200 saved (len=305, env=5)
+[s1] grasp-geom e0: hand-cup_xy=0.013 cup_gt=[0.466, 0.168, 0.02] vision_xy=[0.525, 0.042]
+[s1] GRASP (drive stall) envs [0] stall=[0.485]
+[s1] LIFTED envs [0] (physical, friction-held)
+[s1] grasp-geom e1: hand-cup_xy=0.007 cup_gt=[0.596, 0.006, 0.06] vision_xy=[0.568, 0.073]
+[s1] GRASP (drive stall) envs [1] stall=[0.48]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] grasp-geom e6: hand-cup_xy=0.005 cup_gt=[0.43, -0.008, 0.026] vision_xy=[0.464, 0.004]
+[s1] GRASP (drive stall) envs [6] stall=[0.478]
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 131/200 saved (len=306, env=1)
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] PLACED envs [6] (full physical pick-move-place)
+[rec] episode 132/200 saved (len=303, env=6)
+[s1] grasp-geom e1: hand-cup_xy=0.016 cup_gt=[0.604, -0.035, 0.088] vision_xy=[0.567, -0.064]
+[s1] GRASP (drive stall) envs [1] stall=[0.488]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 133/200 saved (len=266, env=1)
+[s1] grasp-geom e1: hand-cup_xy=0.013 cup_gt=[0.491, 0.02, 0.048] vision_xy=[0.493, -0.025]
+[s1] GRASP (drive stall) envs [1] stall=[0.489]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 134/200 saved (len=282, env=1)
+[s1] grasp-geom e1: hand-cup_xy=0.024 cup_gt=[0.458, 0.034, 0.021] vision_xy=[0.506, -0.055]
+[s1] GRASP (drive stall) envs [1] stall=[0.488]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 135/200 saved (len=380, env=1)
+[s1] grasp-geom e1: hand-cup_xy=0.013 cup_gt=[0.473, 0.051, 0.02] vision_xy=[0.482, 0.073]
+[s1] GRASP (drive stall) envs [1] stall=[0.493]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 136/200 saved (len=346, env=1)
+[s1] grasp-geom e3: hand-cup_xy=0.009 cup_gt=[0.546, 0.046, 0.02] vision_xy=[0.549, 0.059]
+[s1] GRASP (drive stall) envs [3] stall=[0.468]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 137/200 saved (len=305, env=3)
+[s1] grasp-geom e3: hand-cup_xy=0.014 cup_gt=[0.584, 0.045, 0.065] vision_xy=[0.564, -0.036]
+[s1] GRASP (drive stall) envs [3] stall=[0.496]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 138/200 saved (len=306, env=3)
+[s1] grasp-geom e7: hand-cup_xy=0.007 cup_gt=[0.421, 0.015, 0.023] vision_xy=[0.44, 0.019]
+[s1] GRASP (drive stall) envs [7] stall=[0.493]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 139/200 saved (len=359, env=7)
+[s1] grasp-geom e2: hand-cup_xy=0.008 cup_gt=[0.445, -0.127, 0.023] vision_xy=[0.445, -0.044]
+[s1] GRASP (drive stall) envs [2] stall=[0.685]
+[s1] grasp-geom e7: hand-cup_xy=0.006 cup_gt=[0.486, 0.004, 0.02] vision_xy=[0.488, -0.038]
+[s1] GRASP (drive stall) envs [7] stall=[0.492]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 140/200 saved (len=356, env=7)
+[s1] grasp-geom e6: hand-cup_xy=0.017 cup_gt=[0.59, -0.081, 0.067] vision_xy=[0.557, -0.015]
+[s1] GRASP (drive stall) envs [6] stall=[0.495]
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] PLACED envs [6] (full physical pick-move-place)
+[rec] episode 141/200 saved (len=285, env=6)
+[s1] grasp-geom e6: hand-cup_xy=0.010 cup_gt=[0.383, 0.08, 0.023] vision_xy=[0.423, 0.064]
+[s1] GRASP (drive stall) envs [6] stall=[0.489]
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] PLACED envs [6] (full physical pick-move-place)
+[rec] episode 142/200 saved (len=375, env=6)
+[s1] grasp-geom e7: hand-cup_xy=0.005 cup_gt=[0.394, 0.113, 0.02] vision_xy=[0.425, 0.03]
+[s1] GRASP (drive stall) envs [7] stall=[0.53]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 143/200 saved (len=366, env=7)
+[s1] grasp-geom e6: hand-cup_xy=0.008 cup_gt=[0.473, -0.002, 0.022] vision_xy=[0.475, 0.079]
+[s1] GRASP (drive stall) envs [6] stall=[0.611]
+[s1] grasp-geom e1: hand-cup_xy=0.006 cup_gt=[0.48, -0.008, 0.042] vision_xy=[0.462, -0.034]
+[s1] GRASP (drive stall) envs [1] stall=[0.502]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] grasp-geom e1: hand-cup_xy=0.012 cup_gt=[0.506, 0.057, 0.026] vision_xy=[0.507, 0.078]
+[s1] GRASP (drive stall) envs [1] stall=[0.497]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 144/200 saved (len=312, env=1)
+[s1] grasp-geom e1: hand-cup_xy=0.009 cup_gt=[0.475, 0.128, 0.02] vision_xy=[0.492, 0.032]
+[s1] GRASP (drive stall) envs [1] stall=[0.51]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] grasp-geom e1: hand-cup_xy=0.008 cup_gt=[0.492, -0.042, 0.022] vision_xy=[0.5, -0.043]
+[s1] GRASP (drive stall) envs [1] stall=[0.493]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 145/200 saved (len=301, env=1)
+[s1] grasp-geom e1: hand-cup_xy=0.029 cup_gt=[0.523, 0.088, 0.059] vision_xy=[0.481, 0.011]
+[s1] GRASP (drive stall) envs [1] stall=[0.502]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] grasp-geom e2: hand-cup_xy=0.024 cup_gt=[0.446, 0.072, 0.02] vision_xy=[0.492, -0.025]
+[s1] GRASP (drive stall) envs [2] stall=[0.482]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] grasp-geom e2: hand-cup_xy=0.042 cup_gt=[0.56, 0.005, 0.02] vision_xy=[0.533, -0.001]
+[s1] GRASP (drive stall) envs [2] stall=[0.618]
+[s1] grasp-geom e2: hand-cup_xy=0.004 cup_gt=[0.419, -0.042, 0.021] vision_xy=[0.425, -0.037]
+[s1] GRASP (drive stall) envs [2] stall=[0.493]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 146/200 saved (len=276, env=2)
+[s1] grasp-geom e2: hand-cup_xy=0.007 cup_gt=[0.561, 0.107, 0.023] vision_xy=[0.554, -0.034]
+[s1] GRASP (drive stall) envs [2] stall=[0.495]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 147/200 saved (len=277, env=2)
+[s1] grasp-geom e2: hand-cup_xy=0.046 cup_gt=[0.523, 0.105, 0.02] vision_xy=[0.532, 0.028]
+[s1] GRASP (drive stall) envs [2] stall=[0.7]
+[s1] grasp-geom e2: hand-cup_xy=0.013 cup_gt=[0.488, 0.055, 0.026] vision_xy=[0.516, 0.065]
+[s1] GRASP (drive stall) envs [2] stall=[0.49]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 148/200 saved (len=310, env=2)
+[s1] grasp-geom e6: hand-cup_xy=0.010 cup_gt=[0.539, 0.047, 0.021] vision_xy=[0.542, 0.052]
+[s1] GRASP (drive stall) envs [6] stall=[0.489]
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] PLACED envs [6] (full physical pick-move-place)
+[rec] episode 149/200 saved (len=309, env=6)
+[s1] grasp-geom e6: hand-cup_xy=0.010 cup_gt=[0.521, 0.039, 0.069] vision_xy=[0.494, 0.022]
+[s1] GRASP (drive stall) envs [6] stall=[0.492]
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] ======== RESULT: 41 physical picks, 34 physical pick-move-places ========
+[driver] batch exit code 0
+[driver] 149 episodes at 06:11:20
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260731_061120.log
+2026-07-31T11:11:20Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-07-31T11:11:20Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+2026-07-31T11:11:20Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 23750
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 4679
+|---------------------------------------------------------------------------------------------|
+2026-07-31T11:11:21Z [772ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-07-31T11:11:21Z [780ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.
+2026-07-31T11:11:23Z [2,357ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-07-31T11:11:23Z [2,446ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-07-31T11:11:23Z [2,564ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-07-31T11:11:24Z [3,807ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+2026-07-31T11:11:24Z [3,865ms] [Warning] [omni.graph.core.plugin] Found duplicate of category 'Replicator' - was 'Annotators', adding 'Fabric Reader'
+2026-07-31T11:11:24Z [3,865ms] [Warning] [omni.graph.core.plugin] Category 'Replicator' not accepted on node type 'omni.replicator.core.FabricReader' in extension 'omni.replicator.core'
+2026-07-31T11:11:24Z [3,866ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-07-31T11:11:27Z [6,130ms] [Warning] [omni.fabric.plugin] Warning: attribute viewportHandle not found for bucket id 7
+
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-31_06-11-27.log[0m
+[36m======================================================================================[0m
+
+[33m06:11:27 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : None
+	Physics step-size     : 0.008333333333333333
+	Rendering step-size   : 0.008333333333333333
+	Environment step-size : 0.016666666666666666
+[33m06:11:27 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 1.244638 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 8
+	Environment spacing   : 2.5
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : True
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 1.337091 seconds
+[INFO] Event Manager:  <EventManager> contains 1 active terms.
++-------------------------------------+
+| Active Event Terms in Mode: 'reset' |
++--------+----------------------------+
+| Index  | Name                       |
++--------+----------------------------+
+|   0    | reset_scene_to_default     |
++--------+----------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++----------------------------------+
+|  Active Action Terms (shape: 8)  |
++--------+-----------+-------------+
+| Index  | Name      |   Dimension |
++--------+-----------+-------------+
+|   0    | arm       |           7 |
+|   1    | gripper   |           1 |
++--------+-----------+-------------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++-----------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (13,)) |
++--------------+-----------------------+--------------+
+|    Index     | Name                  |    Shape     |
++--------------+-----------------------+--------------+
+|      0       | joint_pos             |    (13,)     |
++--------------+-----------------------+--------------+
+
+[s1] boot hand z-axis (world): [0.713, -0.0, -0.702]
+[s1] tool-down enforced (tilt was 45.4 deg)
+[s1] hand jac row: 7 (cos=1.00; -1 conv would be 7)
+[s1] free-close t=30 finger_joint=0.798
+[s1] free-close t=60 finger_joint=0.798
+[s1] free-close t=90 finger_joint=0.798
+[s1] free-close t=120 finger_joint=0.798
+[s1] free-close t=150 finger_joint=0.798
+[s1] free-close t=180 finger_joint=0.798
+[s1] free-close t=210 finger_joint=0.798
+[s1] free-close t=240 finger_joint=0.798
+[s1] free-close t=270 finger_joint=0.798
+[s1] free-close t=300 finger_joint=0.798
+[s1] free-air close settled at 0.798 (current grasp band 0.2-0.70)
+[rec] resuming after 149 existing episodes
+[s1] grasp-geom e5: hand-cup_xy=0.008 cup_gt=[0.473, 0.032, 0.02] vision_xy=[0.471, 0.043]
+[s1] GRASP (drive stall) envs [5] stall=[0.478]
+[s1] grasp-geom e1: hand-cup_xy=0.008 cup_gt=[0.475, -0.002, 0.02] vision_xy=[0.482, 0.071]
+[s1] GRASP (drive stall) envs [1] stall=[0.488]
+[s1] grasp-geom e3: hand-cup_xy=0.017 cup_gt=[0.581, -0.117, 0.091] vision_xy=[0.554, -0.032]
+[s1] GRASP (drive stall) envs [3] stall=[0.501]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 150/200 saved (len=289, env=3)
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 151/200 saved (len=315, env=5)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 152/200 saved (len=332, env=1)
+[s1] grasp-geom e1: hand-cup_xy=0.005 cup_gt=[0.448, -0.057, 0.02] vision_xy=[0.447, -0.057]
+[s1] GRASP (drive stall) envs [1] stall=[0.506]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] grasp-geom e0: hand-cup_xy=0.025 cup_gt=[0.569, 0.133, 0.022] vision_xy=[0.577, 0.066]
+[s1] GRASP (drive stall) envs [0] stall=[0.5]
+[s1] LIFTED envs [0] (physical, friction-held)
+[s1] grasp-geom e0: hand-cup_xy=0.021 cup_gt=[0.46, 0.025, 0.022] vision_xy=[0.457, -0.069]
+[s1] GRASP (drive stall) envs [0] stall=[0.605]
+[s1] grasp-geom e5: hand-cup_xy=0.005 cup_gt=[0.481, 0.039, 0.02] vision_xy=[0.492, -0.033]
+[s1] GRASP (drive stall) envs [5] stall=[0.502]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] grasp-geom e1: hand-cup_xy=0.009 cup_gt=[0.457, 0.018, 0.02] vision_xy=[0.458, 0.02]
+[s1] GRASP (drive stall) envs [1] stall=[0.668]
+[s1] grasp-geom e4: hand-cup_xy=0.002 cup_gt=[0.44, 0.039, 0.02] vision_xy=[0.44, 0.042]
+[s1] GRASP (drive stall) envs [4] stall=[0.494]
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] PLACED envs [4] (full physical pick-move-place)
+[rec] episode 153/200 saved (len=302, env=4)
+[s1] grasp-geom e1: hand-cup_xy=0.006 cup_gt=[0.481, -0.122, 0.068] vision_xy=[0.471, -0.076]
+[s1] GRASP (drive stall) envs [1] stall=[0.496]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] grasp-geom e5: hand-cup_xy=0.009 cup_gt=[0.482, -0.046, 0.057] vision_xy=[0.467, -0.079]
+[s1] GRASP (drive stall) envs [5] stall=[0.492]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] grasp-geom e4: hand-cup_xy=0.004 cup_gt=[0.461, -0.007, 0.021] vision_xy=[0.463, -0.004]
+[s1] GRASP (drive stall) envs [4] stall=[0.49]
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] PLACED envs [4] (full physical pick-move-place)
+[rec] episode 154/200 saved (len=337, env=4)
+[s1] grasp-geom e4: hand-cup_xy=0.023 cup_gt=[0.496, 0.066, 0.02] vision_xy=[0.5, 0.056]
+[s1] GRASP (drive stall) envs [4] stall=[0.697]
+[s1] grasp-geom e3: hand-cup_xy=0.018 cup_gt=[0.533, -0.114, 0.051] vision_xy=[0.501, -0.049]
+[s1] GRASP (drive stall) envs [3] stall=[0.502]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 155/200 saved (len=302, env=3)
+[s1] grasp-geom e3: hand-cup_xy=0.013 cup_gt=[0.572, 0.007, 0.022] vision_xy=[0.556, 0.069]
+[s1] GRASP (drive stall) envs [3] stall=[0.587]
+[s1] grasp-geom e7: hand-cup_xy=0.015 cup_gt=[0.405, -0.035, 0.021] vision_xy=[0.423, -0.021]
+[s1] GRASP (drive stall) envs [7] stall=[0.495]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 156/200 saved (len=324, env=7)
+[s1] grasp-geom e3: hand-cup_xy=0.005 cup_gt=[0.524, -0.04, 0.02] vision_xy=[0.529, 0.004]
+[s1] GRASP (drive stall) envs [3] stall=[0.491]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] grasp-geom e4: hand-cup_xy=0.002 cup_gt=[0.439, 0.067, 0.02] vision_xy=[0.445, 0.051]
+[s1] GRASP (drive stall) envs [4] stall=[0.491]
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] PLACED envs [4] (full physical pick-move-place)
+[rec] episode 157/200 saved (len=315, env=4)
+[s1] grasp-geom e3: hand-cup_xy=0.014 cup_gt=[0.429, 0.035, 0.049] vision_xy=[0.404, 0.041]
+[s1] GRASP (drive stall) envs [3] stall=[0.491]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 158/200 saved (len=319, env=3)
+[s1] grasp-geom e7: hand-cup_xy=0.008 cup_gt=[0.464, 0.11, 0.02] vision_xy=[0.491, 0.051]
+[s1] GRASP (drive stall) envs [7] stall=[0.546]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] grasp-geom e1: hand-cup_xy=0.028 cup_gt=[0.528, 0.056, 0.02] vision_xy=[0.545, 0.075]
+[s1] GRASP (drive stall) envs [1] stall=[0.509]
+[s1] grasp-geom e1: hand-cup_xy=0.006 cup_gt=[0.476, -0.087, 0.022] vision_xy=[0.475, -0.0]
+[s1] GRASP (drive stall) envs [1] stall=[0.59]
+[s1] grasp-geom e5: hand-cup_xy=0.008 cup_gt=[0.463, 0.047, 0.02] vision_xy=[0.474, 0.051]
+[s1] GRASP (drive stall) envs [5] stall=[0.495]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] grasp-geom e7: hand-cup_xy=0.004 cup_gt=[0.558, 0.051, 0.02] vision_xy=[0.564, 0.055]
+[s1] GRASP (drive stall) envs [7] stall=[0.487]
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 159/200 saved (len=345, env=5)
+[s1] grasp-geom e5: hand-cup_xy=0.009 cup_gt=[0.548, -0.117, 0.05] vision_xy=[0.553, -0.074]
+[s1] GRASP (drive stall) envs [5] stall=[0.497]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 160/200 saved (len=325, env=5)
+[s1] grasp-geom e7: hand-cup_xy=0.005 cup_gt=[0.444, 0.012, 0.02] vision_xy=[0.448, -0.042]
+[s1] GRASP (drive stall) envs [7] stall=[0.505]
+[s1] grasp-geom e7: hand-cup_xy=0.019 cup_gt=[0.605, 0.012, 0.064] vision_xy=[0.574, -0.032]
+[s1] GRASP (drive stall) envs [7] stall=[0.498]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] grasp-geom e1: hand-cup_xy=0.002 cup_gt=[0.502, 0.056, 0.02] vision_xy=[0.497, -0.055]
+[s1] GRASP (drive stall) envs [1] stall=[0.568]
+[s1] grasp-geom e1: hand-cup_xy=0.007 cup_gt=[0.519, -0.099, 0.02] vision_xy=[0.521, -0.078]
+[s1] GRASP (drive stall) envs [1] stall=[0.477]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] grasp-geom e7: hand-cup_xy=0.008 cup_gt=[0.473, -0.032, 0.061] vision_xy=[0.456, -0.067]
+[s1] GRASP (drive stall) envs [7] stall=[0.491]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] grasp-geom e7: hand-cup_xy=0.003 cup_gt=[0.472, -0.027, 0.02] vision_xy=[0.476, -0.015]
+[s1] GRASP (drive stall) envs [7] stall=[0.493]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] grasp-geom e4: hand-cup_xy=0.001 cup_gt=[0.411, -0.045, 0.025] vision_xy=[0.418, -0.055]
+[s1] GRASP (drive stall) envs [4] stall=[0.492]
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 161/200 saved (len=266, env=7)
+[s1] PLACED envs [4] (full physical pick-move-place)
+[rec] episode 162/200 saved (len=300, env=4)
+[s1] grasp-geom e1: hand-cup_xy=0.009 cup_gt=[0.439, 0.085, 0.02] vision_xy=[0.466, 0.069]
+[s1] GRASP (drive stall) envs [1] stall=[0.486]
+[s1] LIFTED envs [1] (physical, friction-held)
+[s1] PLACED envs [1] (full physical pick-move-place)
+[rec] episode 163/200 saved (len=347, env=1)
+[s1] grasp-geom e0: hand-cup_xy=0.021 cup_gt=[0.612, -0.033, 0.078] vision_xy=[0.562, 0.04]
+[s1] GRASP (drive stall) envs [0] stall=[0.492]
+[s1] LIFTED envs [0] (physical, friction-held)
+[s1] PLACED envs [0] (full physical pick-move-place)
+[rec] episode 164/200 saved (len=304, env=0)
+[s1] grasp-geom e0: hand-cup_xy=0.010 cup_gt=[0.417, -0.128, 0.02] vision_xy=[0.429, -0.059]
+[s1] GRASP (drive stall) envs [0] stall=[0.631]
+[s1] grasp-geom e4: hand-cup_xy=0.003 cup_gt=[0.439, -0.013, 0.02] vision_xy=[0.442, -0.066]
+[s1] GRASP (drive stall) envs [4] stall=[0.493]
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] PLACED envs [4] (full physical pick-move-place)
+[rec] episode 165/200 saved (len=384, env=4)
+[s1] grasp-geom e5: hand-cup_xy=0.012 cup_gt=[0.492, 0.062, 0.02] vision_xy=[0.509, -0.013]
+[s1] GRASP (drive stall) envs [5] stall=[0.498]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] grasp-geom e5: hand-cup_xy=0.007 cup_gt=[0.374, -0.03, 0.02] vision_xy=[0.378, 0.009]
+[s1] GRASP (drive stall) envs [5] stall=[0.525]
+[s1] grasp-geom e7: hand-cup_xy=0.021 cup_gt=[0.425, 0.011, 0.028] vision_xy=[0.442, -0.018]
+[s1] GRASP (drive stall) envs [7] stall=[0.51]
+[s1] grasp-geom e7: hand-cup_xy=0.005 cup_gt=[0.489, 0.1, 0.047] vision_xy=[0.488, 0.047]
+[s1] GRASP (drive stall) envs [7] stall=[0.499]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 166/200 saved (len=504, env=7)
+[s1] grasp-geom e7: hand-cup_xy=0.007 cup_gt=[0.365, -0.009, 0.024] vision_xy=[0.371, -0.025]
+[s1] GRASP (drive stall) envs [7] stall=[0.487]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 167/200 saved (len=367, env=7)
+[s1] grasp-geom e7: hand-cup_xy=0.011 cup_gt=[0.456, 0.086, 0.043] vision_xy=[0.437, 0.066]
+[s1] GRASP (drive stall) envs [7] stall=[0.5]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 168/200 saved (len=359, env=7)
+[s1] grasp-geom e7: hand-cup_xy=0.028 cup_gt=[0.548, -0.111, 0.092] vision_xy=[0.511, -0.04]
+[s1] GRASP (drive stall) envs [7] stall=[0.501]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] grasp-geom e7: hand-cup_xy=0.014 cup_gt=[0.462, -0.063, 0.02] vision_xy=[0.477, -0.047]
+[s1] GRASP (drive stall) envs [7] stall=[0.48]
+[s1] grasp-geom e7: hand-cup_xy=0.015 cup_gt=[0.494, -0.146, 0.078] vision_xy=[0.471, -0.075]
+[s1] GRASP (drive stall) envs [7] stall=[0.495]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] grasp-geom e7: hand-cup_xy=0.015 cup_gt=[0.509, -0.018, 0.068] vision_xy=[0.47, -0.046]
+[s1] GRASP (drive stall) envs [7] stall=[0.491]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 169/200 saved (len=342, env=7)
+[s1] ======== RESULT: 33 physical picks, 20 physical pick-move-places ========
+[driver] batch exit code 0
+[driver] 169 episodes at 07:09:49
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260731_070949.log
+2026-07-31T12:09:50Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-07-31T12:09:50Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+2026-07-31T12:09:50Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 23726
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 4773
+|---------------------------------------------------------------------------------------------|
+2026-07-31T12:09:50Z [784ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-07-31T12:09:50Z [792ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.
+2026-07-31T12:09:52Z [2,360ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-07-31T12:09:52Z [2,448ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-07-31T12:09:52Z [2,563ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-07-31T12:09:53Z [3,836ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+2026-07-31T12:09:53Z [3,898ms] [Warning] [omni.graph.core.plugin] Found duplicate of category 'Replicator' - was 'Annotators', adding 'Fabric Reader'
+2026-07-31T12:09:53Z [3,898ms] [Warning] [omni.graph.core.plugin] Category 'Replicator' not accepted on node type 'omni.replicator.core.FabricReader' in extension 'omni.replicator.core'
+2026-07-31T12:09:53Z [3,899ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-07-31T12:09:56Z [6,165ms] [Warning] [omni.fabric.plugin] Warning: attribute viewportHandle not found for bucket id 7
+
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-31_07-09-56.log[0m
+[36m======================================================================================[0m
+
+[33m07:09:56 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : None
+	Physics step-size     : 0.008333333333333333
+	Rendering step-size   : 0.008333333333333333
+	Environment step-size : 0.016666666666666666
+[33m07:09:56 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 1.115660 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 8
+	Environment spacing   : 2.5
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : True
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 1.364901 seconds
+[INFO] Event Manager:  <EventManager> contains 1 active terms.
++-------------------------------------+
+| Active Event Terms in Mode: 'reset' |
++--------+----------------------------+
+| Index  | Name                       |
++--------+----------------------------+
+|   0    | reset_scene_to_default     |
++--------+----------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++----------------------------------+
+|  Active Action Terms (shape: 8)  |
++--------+-----------+-------------+
+| Index  | Name      |   Dimension |
++--------+-----------+-------------+
+|   0    | arm       |           7 |
+|   1    | gripper   |           1 |
++--------+-----------+-------------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++-----------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (13,)) |
++--------------+-----------------------+--------------+
+|    Index     | Name                  |    Shape     |
++--------------+-----------------------+--------------+
+|      0       | joint_pos             |    (13,)     |
++--------------+-----------------------+--------------+
+
+[s1] boot hand z-axis (world): [0.713, -0.0, -0.702]
+[s1] tool-down enforced (tilt was 45.4 deg)
+[s1] hand jac row: 7 (cos=1.00; -1 conv would be 7)
+[s1] free-close t=30 finger_joint=0.798
+[s1] free-close t=60 finger_joint=0.798
+[s1] free-close t=90 finger_joint=0.798
+[s1] free-close t=120 finger_joint=0.798
+[s1] free-close t=150 finger_joint=0.798
+[s1] free-close t=180 finger_joint=0.798
+[s1] free-close t=210 finger_joint=0.798
+[s1] free-close t=240 finger_joint=0.798
+[s1] free-close t=270 finger_joint=0.798
+[s1] free-close t=300 finger_joint=0.798
+[s1] free-air close settled at 0.798 (current grasp band 0.2-0.70)
+[rec] resuming after 169 existing episodes
+[s1] grasp-geom e6: hand-cup_xy=0.007 cup_gt=[0.459, 0.061, 0.02] vision_xy=[0.459, 0.066]
+[s1] GRASP (drive stall) envs [6] stall=[0.487]
+[s1] grasp-geom e5: hand-cup_xy=0.006 cup_gt=[0.521, -0.022, 0.021] vision_xy=[0.538, -0.007]
+[s1] GRASP (drive stall) envs [5] stall=[0.492]
+[s1] grasp-geom e4: hand-cup_xy=0.011 cup_gt=[0.423, -0.024, 0.025] vision_xy=[0.421, -0.004]
+[s1] GRASP (drive stall) envs [4] stall=[0.494]
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 170/200 saved (len=294, env=5)
+[s1] PLACED envs [6] (full physical pick-move-place)
+[rec] episode 171/200 saved (len=297, env=6)
+[s1] PLACED envs [4] (full physical pick-move-place)
+[rec] episode 172/200 saved (len=312, env=4)
+[s1] grasp-geom e7: hand-cup_xy=0.002 cup_gt=[0.417, 0.067, 0.022] vision_xy=[0.422, 0.073]
+[s1] GRASP (drive stall) envs [7] stall=[0.49]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 173/200 saved (len=343, env=7)
+[s1] grasp-geom e0: hand-cup_xy=0.008 cup_gt=[0.428, -0.087, 0.02] vision_xy=[0.422, -0.028]
+[s1] GRASP (drive stall) envs [0] stall=[0.602]
+[s1] grasp-geom e5: hand-cup_xy=0.002 cup_gt=[0.437, 0.055, 0.02] vision_xy=[0.436, 0.059]
+[s1] GRASP (drive stall) envs [5] stall=[0.683]
+[s1] grasp-geom e3: hand-cup_xy=0.011 cup_gt=[0.436, -0.075, 0.026] vision_xy=[0.471, -0.073]
+[s1] GRASP (drive stall) envs [3] stall=[0.466]
+[s1] grasp-geom e0: hand-cup_xy=0.009 cup_gt=[0.471, 0.134, 0.058] vision_xy=[0.46, 0.08]
+[s1] GRASP (drive stall) envs [0] stall=[0.499]
+[s1] LIFTED envs [0] (physical, friction-held)
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 174/200 saved (len=320, env=3)
+[s1] grasp-geom e7: hand-cup_xy=0.026 cup_gt=[0.576, -0.044, 0.09] vision_xy=[0.53, -0.018]
+[s1] GRASP (drive stall) envs [7] stall=[0.492]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 175/200 saved (len=285, env=7)
+[s1] grasp-geom e4: hand-cup_xy=0.007 cup_gt=[0.449, 0.008, 0.02] vision_xy=[0.452, 0.068]
+[s1] GRASP (drive stall) envs [4] stall=[0.594]
+[s1] grasp-geom e5: hand-cup_xy=0.004 cup_gt=[0.448, -0.036, 0.02] vision_xy=[0.448, -0.039]
+[s1] GRASP (drive stall) envs [5] stall=[0.494]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 176/200 saved (len=275, env=5)
+[s1] grasp-geom e3: hand-cup_xy=0.012 cup_gt=[0.433, 0.062, 0.027] vision_xy=[0.427, -0.037]
+[s1] GRASP (drive stall) envs [3] stall=[0.492]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 177/200 saved (len=313, env=3)
+[s1] grasp-geom e0: hand-cup_xy=0.007 cup_gt=[0.507, -0.084, 0.021] vision_xy=[0.524, -0.064]
+[s1] GRASP (drive stall) envs [0] stall=[0.493]
+[s1] LIFTED envs [0] (physical, friction-held)
+[s1] PLACED envs [0] (full physical pick-move-place)
+[rec] episode 178/200 saved (len=277, env=0)
+[s1] grasp-geom e5: hand-cup_xy=0.004 cup_gt=[0.474, 0.025, 0.021] vision_xy=[0.48, 0.019]
+[s1] GRASP (drive stall) envs [5] stall=[0.502]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] grasp-geom e7: hand-cup_xy=0.018 cup_gt=[0.483, -0.094, 0.02] vision_xy=[0.466, -0.007]
+[s1] GRASP (drive stall) envs [7] stall=[0.524]
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 179/200 saved (len=305, env=5)
+[s1] grasp-geom e2: hand-cup_xy=0.020 cup_gt=[0.568, -0.021, 0.072] vision_xy=[0.532, 0.037]
+[s1] GRASP (drive stall) envs [2] stall=[0.494]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] grasp-geom e3: hand-cup_xy=0.005 cup_gt=[0.444, 0.042, 0.02] vision_xy=[0.445, 0.047]
+[s1] GRASP (drive stall) envs [3] stall=[0.626]
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 180/200 saved (len=467, env=2)
+[s1] grasp-geom e5: hand-cup_xy=0.011 cup_gt=[0.479, -0.09, 0.023] vision_xy=[0.512, -0.077]
+[s1] GRASP (drive stall) envs [5] stall=[0.496]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 181/200 saved (len=272, env=5)
+[s1] grasp-geom e2: hand-cup_xy=0.008 cup_gt=[0.454, 0.052, 0.045] vision_xy=[0.438, -0.013]
+[s1] GRASP (drive stall) envs [2] stall=[0.488]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 182/200 saved (len=271, env=2)
+[s1] grasp-geom e5: hand-cup_xy=0.028 cup_gt=[0.476, 0.042, 0.07] vision_xy=[0.427, 0.036]
+[s1] GRASP (drive stall) envs [5] stall=[0.493]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] grasp-geom e3: hand-cup_xy=0.013 cup_gt=[0.485, 0.024, 0.025] vision_xy=[0.458, 0.002]
+[s1] GRASP (drive stall) envs [3] stall=[0.499]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 183/200 saved (len=356, env=5)
+[s1] grasp-geom e2: hand-cup_xy=0.005 cup_gt=[0.504, -0.016, 0.025] vision_xy=[0.492, 0.064]
+[s1] GRASP (drive stall) envs [2] stall=[0.581]
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 184/200 saved (len=289, env=3)
+[s1] grasp-geom e3: hand-cup_xy=0.013 cup_gt=[0.379, 0.102, 0.024] vision_xy=[0.429, 0.029]
+[s1] GRASP (drive stall) envs [3] stall=[0.486]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 185/200 saved (len=356, env=3)
+[s1] grasp-geom e2: hand-cup_xy=0.011 cup_gt=[0.448, 0.058, 0.021] vision_xy=[0.445, -0.01]
+[s1] GRASP (drive stall) envs [2] stall=[0.502]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 186/200 saved (len=294, env=2)
+[s1] grasp-geom e3: hand-cup_xy=0.009 cup_gt=[0.422, -0.032, 0.048] vision_xy=[0.397, -0.026]
+[s1] GRASP (drive stall) envs [3] stall=[0.468]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 187/200 saved (len=377, env=3)
+[s1] grasp-geom e6: hand-cup_xy=0.010 cup_gt=[0.464, 0.048, 0.053] vision_xy=[0.459, 0.012]
+[s1] GRASP (drive stall) envs [6] stall=[0.498]
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] PLACED envs [6] (full physical pick-move-place)
+[rec] episode 188/200 saved (len=336, env=6)
+[s1] grasp-geom e2: hand-cup_xy=0.008 cup_gt=[0.437, -0.028, 0.021] vision_xy=[0.438, -0.028]
+[s1] GRASP (drive stall) envs [2] stall=[0.493]
+[s1] LIFTED envs [2] (physical, friction-held)
+[s1] PLACED envs [2] (full physical pick-move-place)
+[rec] episode 189/200 saved (len=325, env=2)
+[s1] grasp-geom e3: hand-cup_xy=0.003 cup_gt=[0.473, -0.007, 0.02] vision_xy=[0.474, -0.041]
+[s1] GRASP (drive stall) envs [3] stall=[0.495]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 190/200 saved (len=318, env=3)
+[s1] grasp-geom e5: hand-cup_xy=0.001 cup_gt=[0.458, 0.014, 0.02] vision_xy=[0.46, -0.006]
+[s1] GRASP (drive stall) envs [5] stall=[0.5]
+[s1] grasp-geom e6: hand-cup_xy=0.011 cup_gt=[0.509, 0.004, 0.02] vision_xy=[0.52, 0.031]
+[s1] GRASP (drive stall) envs [6] stall=[0.674]
+[s1] LIFTED envs [5] (physical, friction-held)
+[s1] PLACED envs [5] (full physical pick-move-place)
+[rec] episode 191/200 saved (len=349, env=5)
+[s1] grasp-geom e5: hand-cup_xy=0.008 cup_gt=[0.482, 0.013, 0.02] vision_xy=[0.482, 0.016]
+[s1] GRASP (drive stall) envs [5] stall=[0.637]
+[s1] grasp-geom e6: hand-cup_xy=0.014 cup_gt=[0.573, 0.039, 0.02] vision_xy=[0.562, -0.075]
+[s1] GRASP (drive stall) envs [6] stall=[0.478]
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] PLACED envs [6] (full physical pick-move-place)
+[rec] episode 192/200 saved (len=300, env=6)
+[s1] grasp-geom e0: hand-cup_xy=0.014 cup_gt=[0.472, -0.078, 0.02] vision_xy=[0.501, -0.04]
+[s1] GRASP (drive stall) envs [0] stall=[0.478]
+[s1] LIFTED envs [0] (physical, friction-held)
+[s1] PLACED envs [0] (full physical pick-move-place)
+[rec] episode 193/200 saved (len=322, env=0)
+[s1] grasp-geom e6: hand-cup_xy=0.004 cup_gt=[0.497, 0.108, 0.041] vision_xy=[0.494, 0.059]
+[s1] GRASP (drive stall) envs [6] stall=[0.503]
+[s1] grasp-geom e0: hand-cup_xy=0.014 cup_gt=[0.493, -0.003, 0.021] vision_xy=[0.502, 0.009]
+[s1] GRASP (drive stall) envs [0] stall=[0.488]
+[s1] LIFTED envs [6] (physical, friction-held)
+[s1] LIFTED envs [0] (physical, friction-held)
+[s1] PLACED envs [0] (full physical pick-move-place)
+[rec] episode 194/200 saved (len=299, env=0)
+[s1] grasp-geom e7: hand-cup_xy=0.006 cup_gt=[0.539, -0.094, 0.07] vision_xy=[0.526, -0.079]
+[s1] GRASP (drive stall) envs [7] stall=[0.498]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 195/200 saved (len=297, env=7)
+[s1] grasp-geom e0: hand-cup_xy=0.005 cup_gt=[0.432, 0.038, 0.02] vision_xy=[0.444, -0.02]
+[s1] GRASP (drive stall) envs [0] stall=[0.495]
+[s1] grasp-geom e7: hand-cup_xy=0.012 cup_gt=[0.461, -0.032, 0.053] vision_xy=[0.446, -0.053]
+[s1] GRASP (drive stall) envs [7] stall=[0.491]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 196/200 saved (len=344, env=7)
+[s1] grasp-geom e7: hand-cup_xy=0.009 cup_gt=[0.455, -0.029, 0.02] vision_xy=[0.459, -0.007]
+[s1] GRASP (drive stall) envs [7] stall=[0.672]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] PLACED envs [7] (full physical pick-move-place)
+[rec] episode 197/200 saved (len=333, env=7)
+[s1] grasp-geom e0: hand-cup_xy=0.053 cup_gt=[0.435, 0.086, 0.02] vision_xy=[0.516, 0.061]
+[s1] GRASP (drive stall) envs [0] stall=[0.7]
+[s1] grasp-geom e3: hand-cup_xy=0.013 cup_gt=[0.569, 0.082, 0.021] vision_xy=[0.567, 0.02]
+[s1] GRASP (drive stall) envs [3] stall=[0.498]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] grasp-geom e3: hand-cup_xy=0.012 cup_gt=[0.505, 0.024, 0.052] vision_xy=[0.484, 0.037]
+[s1] GRASP (drive stall) envs [3] stall=[0.496]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 198/200 saved (len=312, env=3)
+[s1] grasp-geom e3: hand-cup_xy=0.008 cup_gt=[0.514, 0.056, 0.022] vision_xy=[0.528, 0.068]
+[s1] GRASP (drive stall) envs [3] stall=[0.491]
+[s1] LIFTED envs [3] (physical, friction-held)
+[s1] PLACED envs [3] (full physical pick-move-place)
+[rec] episode 199/200 saved (len=288, env=3)
+[s1] grasp-geom e3: hand-cup_xy=0.030 cup_gt=[0.429, 0.088, 0.022] vision_xy=[0.44, 0.043]
+[s1] GRASP (drive stall) envs [3] stall=[0.637]
+[s1] grasp-geom e7: hand-cup_xy=0.020 cup_gt=[0.545, -0.011, 0.062] vision_xy=[0.497, 0.05]
+[s1] GRASP (drive stall) envs [7] stall=[0.502]
+[s1] LIFTED envs [7] (physical, friction-held)
+[s1] grasp-geom e4: hand-cup_xy=0.002 cup_gt=[0.437, -0.044, 0.022] vision_xy=[0.445, -0.046]
+[s1] GRASP (drive stall) envs [4] stall=[0.498]
+[s1] LIFTED envs [4] (physical, friction-held)
+[s1] PLACED envs [4] (full physical pick-move-place)
+[rec] episode 200/200 saved (len=347, env=4)
+[rec] target reached: 200 episodes
+[s1] ======== RESULT: 35 physical picks, 31 physical pick-move-places ========
+[driver] batch exit code 0
+[driver] 200 episodes at 07:40:05
+[driver] target reached: 200 episodes
+[driver] DONE

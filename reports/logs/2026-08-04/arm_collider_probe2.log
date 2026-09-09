@@ -1,0 +1,33 @@
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[arm] USD colliders (with instance proxies): 11
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/base_link/collisions/base_link/node_STL_BINARY_
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/link1/collisions/link1/node_STL_BINARY_
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/link2/collisions/link2/node_STL_BINARY_
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/link3/collisions/link3/node_STL_BINARY_
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/link4/collisions/link4/node_STL_BINARY_
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/link5/collisions/link5/node_STL_BINARY_
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/link6/collisions/link6/node_STL_BINARY_
+[arm]    off /Alicia_D_v5_6_gripper_50mm/left_gripper/collisions/left_gripper_50mm/node_STL_BINARY_
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/left_gripper/pad_collider
+[arm]    off /Alicia_D_v5_6_gripper_50mm/right_gripper/collisions/right_gripper_50mm/node_STL_BINARY_
+[arm]    ON  /Alicia_D_v5_6_gripper_50mm/right_gripper/pad_collider
+[arm] arm-link colliders reporting enabled: 7
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-08-04_23-48-54.log[0m
+[36m======================================================================================[0m
+
+[33m23:48:54 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[arm] link travel during a free +0.9 rad Joint2 sweep:
+[arm]    link1: [0.0, 0.0, 129.5] -> [0.0, 0.0, 129.5] mm  (moved 0.0 mm)
+[arm]    link2: [0.0, -0.0, 172.4] -> [-0.0, 0.0, 172.4] mm  (moved 0.0 mm)
+[arm]    link3: [35.7, 0.0, 394.3] -> [-151.5, 0.0, 338.4] mm  (moved 195.4 mm)
+[arm]    link4: [82.0, -0.2, 306.8] -> [-55.6, -0.2, 313.6] mm  (moved 137.8 mm)
+[arm]    link5: [141.6, -0.7, 199.9] -> [63.4, -0.6, 285.5] mm  (moved 115.9 mm)
+[arm] obstacle target: link3 mid-sweep at [-57.9, 0.0, 366.4] mm
+[arm] CONTROL  (slab parked 5 m away): Joint2 commanded +0.900 rad, reached +0.840 rad
+[arm] OBSTACLE (slab at measured link3 mid-sweep): Joint2 commanded +0.900 rad, reached +0.045 rad
+[arm] control +0.840 vs blocked +0.045 rad -> arm links STALLED on the obstacle
+[arm] ======== ARM COLLIDERS LIVE ========
+[arm] wrote /home/oedeh/github/physical-ai-jetson-robotics/reports/synria_arm_collider_probe.json

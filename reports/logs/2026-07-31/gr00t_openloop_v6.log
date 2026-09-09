@@ -1,0 +1,124 @@
+INFO:root:Extracted global_step 5000 from checkpoint path
+/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
+  check_for_updates()
+Flash Attention 2 only supports torch.float16 and torch.bfloat16 dtypes, but the current dype in Qwen3VLForConditionalGeneration is torch.float32. You should run training or inference using Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):` decorator, or load the model with the `dtype` argument. Example: `model = AutoModel.from_pretrained("openai/whisper-tiny", attn_implementation="flash_attention_2", dtype=torch.float16)`
+Flash Attention 2 only supports torch.float16 and torch.bfloat16 dtypes, but the current dype in Qwen3VLModel is torch.float32. You should run training or inference using Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):` decorator, or load the model with the `dtype` argument. Example: `model = AutoModel.from_pretrained("openai/whisper-tiny", attn_implementation="flash_attention_2", dtype=torch.float16)`
+Flash Attention 2 only supports torch.float16 and torch.bfloat16 dtypes, but the current dype in Qwen3VLVisionModel is torch.float32. You should run training or inference using Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):` decorator, or load the model with the `dtype` argument. Example: `model = AutoModel.from_pretrained("openai/whisper-tiny", attn_implementation="flash_attention_2", dtype=torch.float16)`
+Flash Attention 2 only supports torch.float16 and torch.bfloat16 dtypes, but the current dype in Qwen3VLTextModel is torch.float32. You should run training or inference using Automatic Mixed-Precision via the `with torch.autocast(device_type='torch_device'):` decorator, or load the model with the `dtype` argument. Example: `model = AutoModel.from_pretrained("openai/whisper-tiny", attn_implementation="flash_attention_2", dtype=torch.float16)`
+INFO:gr00t.model.gr00t_n1d7.gr00t_n1d7:Using AlternateVLDiT for diffusion model
+Total number of DiT parameters:  1091722240
+Total number of SelfAttentionTransformer parameters:  201433088
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:00<00:00, 16.25it/s]Loading checkpoint shards: 100%|██████████| 3/3 [00:00<00:00, 21.49it/s]
+INFO:root:Using 4 denoising steps
+INFO:root:Current modality config: 
+{'video': ModalityConfig(delta_indices=[0], modality_keys=['wrist', 'overhead'], sin_cos_embedding_keys=None, mean_std_embedding_keys=None, action_configs=None), 'state': ModalityConfig(delta_indices=[0], modality_keys=['arm', 'gripper'], sin_cos_embedding_keys=None, mean_std_embedding_keys=None, action_configs=None), 'action': ModalityConfig(delta_indices=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], modality_keys=['arm', 'gripper'], sin_cos_embedding_keys=None, mean_std_embedding_keys=None, action_configs=[ActionConfig(rep=<ActionRepresentation.ABSOLUTE: 'absolute'>, type=<ActionType.NON_EEF: 'non_eef'>, format=<ActionFormat.DEFAULT: 'default'>, state_key=None), ActionConfig(rep=<ActionRepresentation.ABSOLUTE: 'absolute'>, type=<ActionType.NON_EEF: 'non_eef'>, format=<ActionFormat.DEFAULT: 'default'>, state_key=None)]), 'language': ModalityConfig(delta_indices=[0], modality_keys=['annotation.human.task_description'], sin_cos_embedding_keys=None, mean_std_embedding_keys=None, action_configs=None)}
+INFO:root:Dataset length: 200
+INFO:root:Running evaluation on trajectories: [0, 50, 100, 150, 199]
+INFO:root:Running trajectory: 0
+INFO:root:Using 200 steps (requested: 200, trajectory length: 305)
+INFO:root:inferencing at step: 0
+INFO:root:inferencing at step: 16
+INFO:root:inferencing at step: 32
+INFO:root:inferencing at step: 48
+INFO:root:inferencing at step: 64
+INFO:root:inferencing at step: 80
+INFO:root:inferencing at step: 96
+INFO:root:inferencing at step: 112
+INFO:root:inferencing at step: 128
+INFO:root:inferencing at step: 144
+INFO:root:inferencing at step: 160
+INFO:root:inferencing at step: 176
+INFO:root:inferencing at step: 192
+INFO:root:Unnormalized Action MSE across single traj: 0.5287425518035889
+INFO:root:Unnormalized Action MAE across single traj: 0.48383063077926636
+INFO:root:state_joints vs time (305, 8)
+INFO:root:gt_action_joints vs time (200, 8)
+INFO:root:pred_action_joints vs time (200, 8)
+INFO:root:MSE for trajectory 0: 0.5287425518035889, MAE: 0.48383063077926636
+INFO:root:Running trajectory: 50
+INFO:root:Using 200 steps (requested: 200, trajectory length: 304)
+INFO:root:inferencing at step: 0
+INFO:root:inferencing at step: 16
+INFO:root:inferencing at step: 32
+INFO:root:inferencing at step: 48
+INFO:root:inferencing at step: 64
+INFO:root:inferencing at step: 80
+INFO:root:inferencing at step: 96
+INFO:root:inferencing at step: 112
+INFO:root:inferencing at step: 128
+INFO:root:inferencing at step: 144
+INFO:root:inferencing at step: 160
+INFO:root:inferencing at step: 176
+INFO:root:inferencing at step: 192
+INFO:root:Unnormalized Action MSE across single traj: 0.6385185718536377
+INFO:root:Unnormalized Action MAE across single traj: 0.5328856110572815
+INFO:root:state_joints vs time (304, 8)
+INFO:root:gt_action_joints vs time (200, 8)
+INFO:root:pred_action_joints vs time (200, 8)
+INFO:root:MSE for trajectory 50: 0.6385185718536377, MAE: 0.5328856110572815
+INFO:root:Running trajectory: 100
+INFO:root:Using 200 steps (requested: 200, trajectory length: 364)
+INFO:root:inferencing at step: 0
+INFO:root:inferencing at step: 16
+INFO:root:inferencing at step: 32
+INFO:root:inferencing at step: 48
+INFO:root:inferencing at step: 64
+INFO:root:inferencing at step: 80
+INFO:root:inferencing at step: 96
+INFO:root:inferencing at step: 112
+INFO:root:inferencing at step: 128
+INFO:root:inferencing at step: 144
+INFO:root:inferencing at step: 160
+INFO:root:inferencing at step: 176
+INFO:root:inferencing at step: 192
+INFO:root:Unnormalized Action MSE across single traj: 0.774090588092804
+INFO:root:Unnormalized Action MAE across single traj: 0.5555552840232849
+INFO:root:state_joints vs time (364, 8)
+INFO:root:gt_action_joints vs time (200, 8)
+INFO:root:pred_action_joints vs time (200, 8)
+INFO:root:MSE for trajectory 100: 0.774090588092804, MAE: 0.5555552840232849
+INFO:root:Running trajectory: 150
+INFO:root:Using 200 steps (requested: 200, trajectory length: 315)
+INFO:root:inferencing at step: 0
+INFO:root:inferencing at step: 16
+INFO:root:inferencing at step: 32
+INFO:root:inferencing at step: 48
+INFO:root:inferencing at step: 64
+INFO:root:inferencing at step: 80
+INFO:root:inferencing at step: 96
+INFO:root:inferencing at step: 112
+INFO:root:inferencing at step: 128
+INFO:root:inferencing at step: 144
+INFO:root:inferencing at step: 160
+INFO:root:inferencing at step: 176
+INFO:root:inferencing at step: 192
+INFO:root:Unnormalized Action MSE across single traj: 0.6562892198562622
+INFO:root:Unnormalized Action MAE across single traj: 0.542212963104248
+INFO:root:state_joints vs time (315, 8)
+INFO:root:gt_action_joints vs time (200, 8)
+INFO:root:pred_action_joints vs time (200, 8)
+INFO:root:MSE for trajectory 150: 0.6562892198562622, MAE: 0.542212963104248
+INFO:root:Running trajectory: 199
+INFO:root:Using 200 steps (requested: 200, trajectory length: 347)
+INFO:root:inferencing at step: 0
+INFO:root:inferencing at step: 16
+INFO:root:inferencing at step: 32
+INFO:root:inferencing at step: 48
+INFO:root:inferencing at step: 64
+INFO:root:inferencing at step: 80
+INFO:root:inferencing at step: 96
+INFO:root:inferencing at step: 112
+INFO:root:inferencing at step: 128
+INFO:root:inferencing at step: 144
+INFO:root:inferencing at step: 160
+INFO:root:inferencing at step: 176
+INFO:root:inferencing at step: 192
+INFO:root:Unnormalized Action MSE across single traj: 1.3820894956588745
+INFO:root:Unnormalized Action MAE across single traj: 0.7360243201255798
+INFO:root:state_joints vs time (347, 8)
+INFO:root:gt_action_joints vs time (200, 8)
+INFO:root:pred_action_joints vs time (200, 8)
+INFO:root:MSE for trajectory 199: 1.3820894956588745, MAE: 0.7360243201255798
+INFO:root:Average MSE across all trajs: 0.7959461212158203
+INFO:root:Average MAE across all trajs: 0.570101797580719
+INFO:root:Done

@@ -1,0 +1,271 @@
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260728_230402.log
+2026-07-29T04:04:02Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-07-29T04:04:02Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+2026-07-29T04:04:02Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 19974
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 6807
+|---------------------------------------------------------------------------------------------|
+2026-07-29T04:04:03Z [691ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-07-29T04:04:03Z [699ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.
+2026-07-29T04:04:05Z [2,654ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-07-29T04:04:05Z [2,738ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-07-29T04:04:05Z [2,855ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-07-29T04:04:06Z [4,002ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+2026-07-29T04:04:06Z [4,065ms] [Warning] [omni.graph.core.plugin] Found duplicate of category 'Replicator' - was 'Annotators', adding 'Fabric Reader'
+2026-07-29T04:04:06Z [4,065ms] [Warning] [omni.graph.core.plugin] Category 'Replicator' not accepted on node type 'omni.replicator.core.FabricReader' in extension 'omni.replicator.core'
+2026-07-29T04:04:06Z [4,065ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-07-29T04:04:08Z [6,388ms] [Warning] [omni.fabric.plugin] Warning: attribute viewportHandle not found for bucket id 7
+
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+[INFO]: Parsing configuration from: <class 'isaac.isaaclab_tasks.synria_pickplace.env_cfg.SynriaChessPickPlaceEnvCfg'>
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-28_23-04-10.log[0m
+[36m======================================================================================[0m
+
+[33m23:04:10 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 7
+	Physics step-size     : 0.016666666666666666
+	Rendering step-size   : 0.016666666666666666
+	Environment step-size : 0.03333333333333333
+[33m23:04:10 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 0.439726 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 16
+	Environment spacing   : 2.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : False
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 1.569602 seconds
+[INFO] Command Manager:  <CommandManager> contains 0 active terms.
++------------------------+
+|  Active Command Terms  |
++--------+-------+-------+
+| Index  | Name  |  Type |
++--------+-------+-------+
++--------+-------+-------+
+
+[INFO] Event Manager:  <EventManager> contains 2 active terms.
++----------------------------------+
+| Active Event Terms in Mode: 'reset' |
++-----------+----------------------+
+|   Index   | Name                 |
++-----------+----------------------+
+|     0     | reset_trial          |
++-----------+----------------------+
++--------------------------------------------------+
+|      Active Event Terms in Mode: 'interval'      |
++-------+----------------+-------------------------+
+| Index | Name           | Interval time range (s) |
++-------+----------------+-------------------------+
+|   0   | hold_staged    |       (0.03, 0.04)      |
+|   1   | attach_carried |       (0.03, 0.04)      |
++-------+----------------+-------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++-----------------------------------+
+|   Active Action Terms (shape: 8)  |
++-------+---------------+-----------+
+| Index | Name          | Dimension |
++-------+---------------+-----------+
+|   0   | arm_joint_pos |         6 |
+|   1   | gripper       |         2 |
++-------+---------------+-----------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++---------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (68,)) |
++------------+-------------------------------+------------+
+|   Index    | Name                          |   Shape    |
++------------+-------------------------------+------------+
+|     0      | joint_state                   |   (13,)    |
+|     1      | ee_pose                       |    (7,)    |
+|     2      | piece_pos                     |    (3,)    |
+|     3      | target_piece_id               |   (32,)    |
+|     4      | target_zone_id                |    (4,)    |
+|     5      | target_pos                    |    (4,)    |
+|     6      | trial_phase                   |    (5,)    |
++------------+-------------------------------+------------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 4 active terms.
++----------------------------------------+
+|        Active Termination Terms        |
++-------+---------------------+----------+
+| Index | Name                | Time Out |
++-------+---------------------+----------+
+|   0   | time_out            |   True   |
+|   1   | piece_dropped       |  False   |
+|   2   | piece_out_of_bounds |  False   |
+|   3   | collision           |  False   |
++-------+---------------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 18 active terms.
++-------------------------------------------------+
+|               Active Reward Terms               |
++-------+--------------------------------+--------+
+| Index | Name                           | Weight |
++-------+--------------------------------+--------+
+|   0   | piece_to_target_distance       |  600.0 |
+|   1   | ee_to_piece_distance           |  300.0 |
+|   2   | piece_lift                     |    1.5 |
+|   3   | gripper_to_piece_when_grasping |    0.3 |
+|   4   | hold_maintenance               |    1.0 |
+|   5   | carry_drop                     |   15.0 |
+|   6   | release_at_zone                |   90.0 |
+|   7   | lower_at_zone                  |   15.0 |
+|   8   | approach_guidance              |   0.15 |
+|   9   | carry_guidance                 |    0.2 |
+|   10  | hold_at_zone                   |    0.0 |
+|   11  | action_norm_penalty            |  -0.01 |
+|   12  | grasp_confirmed                |  300.0 |
+|   13  | return_home                    |   60.0 |
+|   14  | cycle_complete                 |  900.0 |
+|   15  | piece_in_zone                  |  300.0 |
+|   16  | piece_dropped                  |   30.0 |
+|   17  | collision                      |   30.0 |
++-------+--------------------------------+--------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 0 active terms.
++----------------------+
+| Active Curriculum Terms |
++-----------+----------+
+|   Index   | Name     |
++-----------+----------+
++-----------+----------+
+
+[INFO]: Completed setting up the environment...
+--------------------------------------------------------------------------------
+Resolved observation sets: 
+	 policy :  ['policy']
+	 critic :  ['policy']
+--------------------------------------------------------------------------------
+Actor MLP: MLP(
+  (0): Linear(in_features=68, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=8, bias=True)
+)
+Critic MLP: MLP(
+  (0): Linear(in_features=68, out_features=512, bias=True)
+  (1): ELU(alpha=1.0)
+  (2): Linear(in_features=512, out_features=256, bias=True)
+  (3): ELU(alpha=1.0)
+  (4): Linear(in_features=256, out_features=128, bias=True)
+  (5): ELU(alpha=1.0)
+  (6): Linear(in_features=128, out_features=1, bias=True)
+)
+[rec] policy loaded from /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_chess_pickplace_v1/E8_final.pt
+[rec] step=0 saved=0 modes(policy/wander/lower/release/retreat)=[16, 0, 0, 0, 0]
+[dbg] e6 t=23 phase=1 hold=0 move=0.999 width=20.1mm piece_z-rest=0.007 attached=True
+[dbg] e9 t=29 phase=1 hold=0 move=1.036 width=0.2mm piece_z-rest=0.006 attached=True
+[dbg] e6 t=53 phase=1 hold=0 move=0.999 width=0.0mm piece_z-rest=0.008 attached=True
+[rec] step=200 saved=0 modes(policy/wander/lower/release/retreat)=[15, 1, 0, 0, 0]
+[dbg] e2 t=5 phase=1 hold=25 move=1.200 width=0.0mm piece_z-rest=0.055 attached=True
+[dbg] e6 t=83 phase=1 hold=0 move=0.999 width=0.0mm piece_z-rest=0.007 attached=True
+[dbg] e6 t=113 phase=1 hold=0 move=0.999 width=0.0mm piece_z-rest=0.008 attached=True
+[dbg] e9 t=28 phase=1 hold=0 move=1.754 width=1.1mm piece_z-rest=0.006 attached=True
+[dbg] e0 t=15 phase=1 hold=0 move=0.531 width=12.5mm piece_z-rest=0.005 attached=True
+[dbg] e5 t=4 phase=1 hold=82 move=3.622 width=0.0mm piece_z-rest=0.061 attached=True
+[dbg] e6 t=143 phase=1 hold=0 move=0.999 width=1.0mm piece_z-rest=0.006 attached=True
+[dbg] e6 t=173 phase=1 hold=0 move=0.999 width=0.0mm piece_z-rest=0.008 attached=True
+[dbg] e2 t=9 phase=1 hold=0 move=2.726 width=10.0mm piece_z-rest=0.004 attached=True
+[dbg] e9 t=5 phase=1 hold=25 move=3.196 width=9.7mm piece_z-rest=0.042 attached=True
+[dbg] e0 t=9 phase=1 hold=0 move=2.002 width=25.1mm piece_z-rest=-0.001 attached=True
+[dbg] e6 t=17 phase=1 hold=39 move=1.654 width=0.1mm piece_z-rest=0.048 attached=True
+[dbg] e11 t=3 phase=1 hold=23 move=4.829 width=10.0mm piece_z-rest=0.117 attached=True
+[dbg] e6 t=47 phase=1 hold=69 move=1.785 width=9.9mm piece_z-rest=0.079 attached=True
+[rec] step=400 saved=0 modes(policy/wander/lower/release/retreat)=[14, 2, 0, 0, 0]
+[dbg] e6 t=77 phase=1 hold=0 move=1.877 width=0.0mm piece_z-rest=0.010 attached=True
+[dbg] e5 t=22 phase=1 hold=0 move=6.594 width=3.3mm piece_z-rest=0.010 attached=True
+[dbg] e6 t=107 phase=1 hold=17 move=1.977 width=0.6mm piece_z-rest=0.077 attached=True
+[dbg] e2 t=9 phase=1 hold=0 move=4.889 width=10.0mm piece_z-rest=0.008 attached=True
+[dbg] e5 t=52 phase=1 hold=0 move=6.594 width=9.7mm piece_z-rest=0.011 attached=True
+[dbg] e6 t=137 phase=1 hold=0 move=2.080 width=0.0mm piece_z-rest=0.017 attached=True
+[dbg] e6 t=167 phase=1 hold=17 move=2.139 width=8.3mm piece_z-rest=0.076 attached=True
+[dbg] e11 t=43 phase=1 hold=0 move=6.939 width=5.9mm piece_z-rest=0.008 attached=True
+[dbg] e14 t=18 phase=1 hold=38 move=1.022 width=16.9mm piece_z-rest=0.011 attached=True
+[dbg] e6 t=197 phase=1 hold=0 move=2.211 width=0.0mm piece_z-rest=0.008 attached=True
+[dbg] e14 t=48 phase=1 hold=0 move=1.080 width=0.0mm piece_z-rest=0.011 attached=True
+[dbg] e6 t=227 phase=1 hold=17 move=2.308 width=3.5mm piece_z-rest=0.077 attached=True
+[dbg] e9 t=10 phase=1 hold=0 move=7.360 width=0.0mm piece_z-rest=0.006 attached=True
+[dbg] e14 t=78 phase=1 hold=0 move=1.080 width=0.5mm piece_z-rest=0.006 attached=True
+[rec] step=600 saved=0 modes(policy/wander/lower/release/retreat)=[14, 2, 0, 0, 0]
+[dbg] e6 t=257 phase=1 hold=0 move=2.393 width=0.0mm piece_z-rest=0.014 attached=True
+[dbg] e14 t=108 phase=1 hold=0 move=1.080 width=0.0mm piece_z-rest=0.011 attached=True
+[dbg] e2 t=10 phase=1 hold=0 move=7.176 width=9.4mm piece_z-rest=-0.001 attached=True
+[dbg] e6 t=287 phase=1 hold=16 move=2.473 width=9.9mm piece_z-rest=0.076 attached=True
+[dbg] e14 t=138 phase=1 hold=0 move=1.080 width=0.5mm piece_z-rest=0.006 attached=True
+[dbg] e6 t=317 phase=1 hold=0 move=2.568 width=0.0mm piece_z-rest=0.008 attached=True
+[dbg] e14 t=168 phase=1 hold=0 move=1.080 width=0.0mm piece_z-rest=0.011 attached=True
+[dbg] e6 t=347 phase=1 hold=17 move=2.666 width=6.5mm piece_z-rest=0.077 attached=True
+[dbg] e14 t=198 phase=1 hold=0 move=1.080 width=0.6mm piece_z-rest=0.006 attached=True
+[dbg] e6 t=377 phase=1 hold=0 move=2.749 width=0.0mm piece_z-rest=0.012 attached=True
+[dbg] e14 t=228 phase=1 hold=0 move=1.080 width=0.0mm piece_z-rest=0.011 attached=True
+[dbg] e5 t=10 phase=1 hold=30 move=11.360 width=0.0mm piece_z-rest=0.058 attached=True
+[dbg] e6 t=407 phase=1 hold=16 move=2.835 width=9.9mm piece_z-rest=0.077 attached=True
+[dbg] e14 t=258 phase=1 hold=0 move=1.080 width=0.6mm piece_z-rest=0.006 attached=True
+[dbg] e2 t=5 phase=1 hold=42 move=9.396 width=10.1mm piece_z-rest=0.077 attached=True
+[dbg] e5 t=40 phase=1 hold=0 move=11.401 width=0.0mm piece_z-rest=0.020 attached=True
+[dbg] e6 t=437 phase=1 hold=0 move=2.928 width=0.0mm piece_z-rest=0.008 attached=True
+[rec] step=800 saved=0 modes(policy/wander/lower/release/retreat)=[13, 3, 0, 0, 0]
+[dbg] e5 t=70 phase=1 hold=0 move=11.403 width=0.0mm piece_z-rest=0.016 attached=True
+[dbg] e6 t=467 phase=1 hold=16 move=3.015 width=9.7mm piece_z-rest=0.077 attached=True
+[dbg] e14 t=318 phase=1 hold=0 move=1.080 width=0.6mm piece_z-rest=0.006 attached=True
+[dbg] e6 t=497 phase=1 hold=0 move=3.124 width=0.0mm piece_z-rest=0.008 attached=True
+[dbg] e14 t=348 phase=1 hold=0 move=1.080 width=0.0mm piece_z-rest=0.011 attached=True
+[dbg] e2 t=2 phase=1 hold=37 move=10.809 width=10.0mm piece_z-rest=0.095 attached=True
+[dbg] e6 t=527 phase=1 hold=17 move=3.220 width=8.8mm piece_z-rest=0.077 attached=True
+[dbg] e14 t=378 phase=1 hold=0 move=1.080 width=0.7mm piece_z-rest=0.006 attached=True
+[dbg] e6 t=5 phase=1 hold=25 move=0.573 width=0.0mm piece_z-rest=0.099 attached=True
+[rec] step=1000 saved=0 modes(policy/wander/lower/release/retreat)=[15, 1, 0, 0, 0]
+[dbg] e7 t=5 phase=1 hold=0 move=2.090 width=0.0mm piece_z-rest=0.036 attached=True
+[dbg] e6 t=10 phase=1 hold=0 move=2.134 width=9.7mm piece_z-rest=-0.003 attached=True
+[rec] step=1200 saved=0 modes(policy/wander/lower/release/retreat)=[15, 1, 0, 0, 0]
+[dbg] e12 t=1 phase=1 hold=34 move=3.699 width=9.5mm piece_z-rest=0.087 attached=True
+[dbg] e6 t=2 phase=1 hold=47 move=4.788 width=1.1mm piece_z-rest=0.094 attached=True
+[dbg] e7 t=1 phase=1 hold=21 move=5.667 width=0.0mm piece_z-rest=0.106 attached=True
+[dbg] e12 t=14 phase=1 hold=0 move=4.686 width=9.1mm piece_z-rest=0.007 attached=True
+[dbg] e6 t=10 phase=1 hold=0 move=5.412 width=9.9mm piece_z-rest=0.003 attached=True
+[dbg] e12 t=29 phase=1 hold=0 move=5.423 width=5.8mm piece_z-rest=0.006 attached=True
+[dbg] e12 t=59 phase=1 hold=0 move=5.423 width=0.0mm piece_z-rest=0.010 attached=True
+[rec] step=1400 saved=0 modes(policy/wander/lower/release/retreat)=[16, 0, 0, 0, 0]
+[dbg] e6 t=7 phase=1 hold=0 move=7.419 width=12.2mm piece_z-rest=0.015 attached=True
+[dbg] e15 t=11 phase=1 hold=0 move=6.811 width=5.9mm piece_z-rest=-0.001 attached=True
+[rec] ======== RESULT: 0 episodes → /tmp/claude-1000/-home-oedeh/759ac4a3-1de7-4848-9fee-3f53d87dcea0/scratchpad/lerobot_raw_v2 ========
+2026-07-29T04:04:11Z [8,833ms] [Warning] [omni.fabric.plugin] getAttributeCount called on non-existent path /World/envs/env_9/SynriaArm/tool0/visuals/mesh_0
+2026-07-29T04:04:11Z [8,833ms] [Warning] [omni.fabric.plugin] getTypes called on non-existent path /World/envs/env_9/SynriaArm/tool0/visuals/mesh_0
+2026-07-29T04:04:13Z [11,525ms] [Warning] [carb] Client gpu.foundation.plugin has acquired [gpu::unstable::IMemoryBudgetManagerFactory v0.1] 100 times. Consider accessing this interface with carb::getCachedInterface() (Performance warning)
+REC_EXIT=0

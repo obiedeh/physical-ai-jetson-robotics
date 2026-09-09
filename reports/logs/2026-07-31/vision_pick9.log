@@ -1,0 +1,207 @@
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260729_123627.log
+2026-07-29T17:36:27Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-07-29T17:36:27Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+2026-07-29T17:36:27Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 20806
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 5787
+|---------------------------------------------------------------------------------------------|
+2026-07-29T17:36:28Z [691ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-07-29T17:36:28Z [700ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.
+2026-07-29T17:36:29Z [2,187ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-07-29T17:36:29Z [2,272ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-07-29T17:36:29Z [2,391ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-07-29T17:36:31Z [3,638ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+2026-07-29T17:36:31Z [3,701ms] [Warning] [omni.graph.core.plugin] Found duplicate of category 'Replicator' - was 'Annotators', adding 'Fabric Reader'
+2026-07-29T17:36:31Z [3,701ms] [Warning] [omni.graph.core.plugin] Category 'Replicator' not accepted on node type 'omni.replicator.core.FabricReader' in extension 'omni.replicator.core'
+2026-07-29T17:36:31Z [3,701ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-07-29T17:36:33Z [6,107ms] [Warning] [omni.fabric.plugin] Warning: attribute viewPickingId not found for bucket id 7
+
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+[INFO]: Parsing configuration from: <class 'isaac.isaaclab_tasks.synria_pickplace.env_cfg.SynriaChessPickPlaceEnvCfg'>
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-29_12-36-34.log[0m
+[36m======================================================================================[0m
+
+[33m12:36:34 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 123
+	Physics step-size     : 0.016666666666666666
+	Rendering step-size   : 0.016666666666666666
+	Environment step-size : 0.03333333333333333
+[33m12:36:34 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 0.394204 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 4
+	Environment spacing   : 2.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : False
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 1.640862 seconds
+[INFO] Command Manager:  <CommandManager> contains 0 active terms.
++------------------------+
+|  Active Command Terms  |
++--------+-------+-------+
+| Index  | Name  |  Type |
++--------+-------+-------+
++--------+-------+-------+
+
+[INFO] Event Manager:  <EventManager> contains 2 active terms.
++----------------------------------+
+| Active Event Terms in Mode: 'reset' |
++-----------+----------------------+
+|   Index   | Name                 |
++-----------+----------------------+
+|     0     | reset_trial          |
++-----------+----------------------+
++--------------------------------------------------+
+|      Active Event Terms in Mode: 'interval'      |
++-------+----------------+-------------------------+
+| Index | Name           | Interval time range (s) |
++-------+----------------+-------------------------+
+|   0   | hold_staged    |       (0.03, 0.04)      |
+|   1   | attach_carried |       (0.03, 0.04)      |
++-------+----------------+-------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++-----------------------------------+
+|   Active Action Terms (shape: 8)  |
++-------+---------------+-----------+
+| Index | Name          | Dimension |
++-------+---------------+-----------+
+|   0   | arm_joint_pos |         6 |
+|   1   | gripper       |         2 |
++-------+---------------+-----------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++---------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (68,)) |
++------------+-------------------------------+------------+
+|   Index    | Name                          |   Shape    |
++------------+-------------------------------+------------+
+|     0      | joint_state                   |   (13,)    |
+|     1      | ee_pose                       |    (7,)    |
+|     2      | piece_pos                     |    (3,)    |
+|     3      | target_piece_id               |   (32,)    |
+|     4      | target_zone_id                |    (4,)    |
+|     5      | target_pos                    |    (4,)    |
+|     6      | trial_phase                   |    (5,)    |
++------------+-------------------------------+------------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 4 active terms.
++----------------------------------------+
+|        Active Termination Terms        |
++-------+---------------------+----------+
+| Index | Name                | Time Out |
++-------+---------------------+----------+
+|   0   | time_out            |   True   |
+|   1   | piece_dropped       |  False   |
+|   2   | piece_out_of_bounds |  False   |
+|   3   | collision           |  False   |
++-------+---------------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 18 active terms.
++-------------------------------------------------+
+|               Active Reward Terms               |
++-------+--------------------------------+--------+
+| Index | Name                           | Weight |
++-------+--------------------------------+--------+
+|   0   | piece_to_target_distance       |  600.0 |
+|   1   | ee_to_piece_distance           |  300.0 |
+|   2   | piece_lift                     |    1.5 |
+|   3   | gripper_to_piece_when_grasping |    0.3 |
+|   4   | hold_maintenance               |    1.0 |
+|   5   | carry_drop                     |   15.0 |
+|   6   | release_at_zone                |   90.0 |
+|   7   | lower_at_zone                  |   15.0 |
+|   8   | approach_guidance              |   0.15 |
+|   9   | carry_guidance                 |    0.2 |
+|   10  | hold_at_zone                   |    0.0 |
+|   11  | action_norm_penalty            |  -0.01 |
+|   12  | grasp_confirmed                |  300.0 |
+|   13  | return_home                    |   60.0 |
+|   14  | cycle_complete                 |  900.0 |
+|   15  | piece_in_zone                  |  300.0 |
+|   16  | piece_dropped                  |   30.0 |
+|   17  | collision                      |   30.0 |
++-------+--------------------------------+--------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 0 active terms.
++----------------------+
+| Active Curriculum Terms |
++-----------+----------+
+|   Index   | Name     |
++-----------+----------+
++-----------+----------+
+
+[INFO]: Completed setting up the environment...
+[pick] step=0 stages=['PIVOT', 'PIVOT', 'PIVOT', 'PIVOT'] e0 tool=[0.08147358894348145, 0.0003503561019897461, 0.8837790489196777] cup=[-0.09666640311479568, 0.08276742696762085] dia=50mm piece_z-rest=-0.000
+[pick] step=30 stages=['APPROACH', 'APPROACH', 'APPROACH', 'APPROACH'] e0 tool=[-0.018858492374420166, 0.14210742712020874, 0.8641101717948914] cup=[-0.0931578129529953, 0.08566296100616455] dia=41mm piece_z-rest=-0.000
+[pick] step=60 stages=['APPROACH', 'APPROACH', 'APPROACH', 'APPROACH'] e0 tool=[-0.06310480833053589, 0.069405198097229, 1.0290331840515137] cup=[-0.09530685842037201, 0.08447426557540894] dia=47mm piece_z-rest=-0.000
+[pick] step=90 stages=['APPROACH', 'APPROACH', 'DESCEND', 'APPROACH'] e0 tool=[-0.19157308340072632, 0.12754535675048828, 0.957425594329834] cup=[-0.09836295992136002, 0.08543546497821808] dia=50mm piece_z-rest=-0.000
+[pick] step=120 stages=['APPROACH', 'APPROACH', 'DESCEND', 'DESCEND'] e0 tool=[-0.11186766624450684, 0.029257357120513916, 0.9204874038696289] cup=[-0.09836295992136002, 0.08543546497821808] dia=50mm piece_z-rest=-0.000
+[pick] step=150 stages=['APPROACH', 'APPROACH', 'DESCEND', 'DESCEND'] e0 tool=[-0.18980371952056885, 0.11915034055709839, 0.9579618573188782] cup=[-0.0982617437839508, 0.08543632179498672] dia=50mm piece_z-rest=-0.000
+[pick] step=180 stages=['APPROACH', 'DESCEND', 'DESCEND', 'DESCEND'] e0 tool=[-0.10515213012695312, 0.033002376556396484, 0.9333605766296387] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=210 stages=['APPROACH', 'DESCEND', 'DESCEND', 'DESCEND'] e0 tool=[-0.217818021774292, 0.1078607439994812, 0.9827904105186462] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=240 stages=['DESCEND', 'DESCEND', 'DESCEND', 'DESCEND'] e0 tool=[-0.10128903388977051, -0.02178025245666504, 0.8992482423782349] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] CLOSE-entry env1: grasp_centre=[-0.08939617872238159, 0.07031936198472977, 0.8248695731163025] cup_gt=[-0.0924949049949646, 0.08086109161376953, 0.8149998188018799] delta=[0.003, -0.011, 0.01]
+[pick] step=270 stages=['DESCEND', 'CLOSE', 'DESCEND', 'DESCEND'] e0 tool=[-0.2446131706237793, 0.15154719352722168, 0.8401621580123901] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] CLOSE snapshot saved for env 1
+[pick] step=300 stages=['DESCEND', 'CLOSE', 'DESCEND', 'DESCEND'] e0 tool=[-0.1271522045135498, 0.09064960479736328, 0.8855472803115845] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] CLOSE-entry env0: grasp_centre=[-0.08901432156562805, 0.0661424919962883, 0.8167688250541687] cup_gt=[-0.09249496459960938, 0.08086144924163818, 0.8149998784065247] delta=[0.003, -0.015, 0.002]
+[pick] step=330 stages=['CLOSE', 'LIFT', 'DESCEND', 'DESCEND'] e0 tool=[-0.14665216207504272, 0.08273571729660034, 0.8123767375946045] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] CLOSE snapshot saved for env 0
+[pick] step=360 stages=['CLOSE', 'LIFT', 'DESCEND', 'DESCEND'] e0 tool=[-0.14549702405929565, 0.08209705352783203, 0.8127928972244263] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=390 stages=['LIFT', 'LIFT', 'FAIL', 'DESCEND'] e0 tool=[-0.15287381410598755, 0.05860966444015503, 0.882209837436676] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=420 stages=['LIFT', 'LIFT', 'FAIL', 'FAIL'] e0 tool=[-0.22821152210235596, 0.11631935834884644, 0.9713777303695679] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=450 stages=['LIFT', 'LIFT', 'FAIL', 'FAIL'] e0 tool=[-0.10518413782119751, 0.07318121194839478, 0.9645864963531494] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=480 stages=['LIFT', 'LIFT', 'FAIL', 'FAIL'] e0 tool=[-0.19776856899261475, 0.1093718409538269, 1.0521714687347412] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=510 stages=['LIFT', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.10919559001922607, 0.018950283527374268, 0.9154865145683289] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=540 stages=['LIFT', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.1847507357597351, 0.08198100328445435, 1.0772268772125244] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=570 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.15491551160812378, 0.02568584680557251, 0.9307887554168701] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=600 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.1560080647468567, 0.024016201496124268, 0.9330136775970459] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=630 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.15539681911468506, 0.02231663465499878, 0.9330124855041504] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=660 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.15506088733673096, 0.02131021022796631, 0.9330111145973206] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=690 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.15483754873275757, 0.02063000202178955, 0.933012068271637] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=720 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.1547032594680786, 0.02017498016357422, 0.9330090284347534] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=750 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.1545996069908142, 0.01983731985092163, 0.933009147644043] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=780 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.1545255184173584, 0.019591331481933594, 0.9330090284347534] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=810 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.15447252988815308, 0.019413650035858154, 0.9330089092254639] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=840 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.15443450212478638, 0.019284844398498535, 0.9330090284347534] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] step=870 stages=['FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.1544068455696106, 0.019190669059753418, 0.9330089092254639] cup=[-0.09809889644384384, 0.085450179874897] dia=50mm piece_z-rest=-0.000
+[pick] ======== RESULT: 0/4 solid lifts ========
+[pick] final stages: ['FAIL', 'FAIL', 'FAIL', 'FAIL']
+2026-07-29T17:36:35Z [7,679ms] [Warning] [omni.fabric.plugin] getAttributeCount called on non-existent path /World/envs/env_3/SynriaArm/tool0/visuals/mesh_0
+2026-07-29T17:36:35Z [7,679ms] [Warning] [omni.fabric.plugin] getTypes called on non-existent path /World/envs/env_3/SynriaArm/tool0/visuals/mesh_0
+2026-07-29T17:36:35Z [8,223ms] [Warning] [rtx.postprocessing.plugin] DLSS increasing input dimensions: Render resolution of (260, 260) is below minimal input resolution of 300.
+2026-07-29T17:36:37Z [10,222ms] [Warning] [carb] Client gpu.foundation.plugin has acquired [gpu::unstable::IMemoryBudgetManagerFactory v0.1] 100 times. Consider accessing this interface with carb::getCachedInterface() (Performance warning)
+PICK_EXIT=0

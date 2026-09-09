@@ -1,0 +1,72 @@
+{
+  "checkpoint": "/home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_chess_pickplace_v6_e26_s42/model_final.pt",
+  "completed_episodes": 267,
+  "num_envs": 256,
+  "steps": 1700,
+  "eval_seed": 123,
+  "stages": {
+    "reach": {
+      "successes": 264,
+      "trials": 267,
+      "rate": 0.9887640449438202,
+      "ci95_low": 0.9674918542147533,
+      "ci95_high": 0.996171541841574
+    },
+    "align": {
+      "successes": 32,
+      "trials": 267,
+      "rate": 0.1198501872659176,
+      "ci95_low": 0.08618787100603598,
+      "ci95_high": 0.16429615428348732
+    },
+    "grasp": {
+      "successes": 204,
+      "trials": 267,
+      "rate": 0.7640449438202247,
+      "ci95_low": 0.7095946890987515,
+      "ci95_high": 0.8110050765868506
+    },
+    "lift": {
+      "successes": 204,
+      "trials": 267,
+      "rate": 0.7640449438202247,
+      "ci95_low": 0.7095946890987515,
+      "ci95_high": 0.8110050765868506
+    },
+    "transport": {
+      "successes": 203,
+      "trials": 267,
+      "rate": 0.7602996254681648,
+      "ci95_low": 0.7056324415092792,
+      "ci95_high": 0.8075829303368107
+    },
+    "at_plate": {
+      "successes": 198,
+      "trials": 267,
+      "rate": 0.7415730337078652,
+      "ci95_low": 0.6858983917679816,
+      "ci95_high": 0.7903950108805481
+    },
+    "place": {
+      "successes": 47,
+      "trials": 267,
+      "rate": 0.1760299625468165,
+      "ci95_low": 0.13503630465614375,
+      "ci95_high": 0.22621362822606084
+    },
+    "upright": {
+      "successes": 42,
+      "trials": 267,
+      "rate": 0.15730337078651685,
+      "ci95_low": 0.11853181341835174,
+      "ci95_high": 0.2057961502662924
+    },
+    "full": {
+      "successes": 47,
+      "trials": 267,
+      "rate": 0.1760299625468165,
+      "ci95_low": 0.13503630465614375,
+      "ci95_high": 0.22621362822606084
+    }
+  }
+}

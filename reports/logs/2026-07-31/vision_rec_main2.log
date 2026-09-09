@@ -1,0 +1,990 @@
+Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260729_221548.log
+2026-07-30T03:15:48Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
+2026-07-30T03:15:48Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
+2026-07-30T03:15:48Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 580.173.02    | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA GeForce RTX 5090          | Yes: 0 |     | 32607   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2b85      | d9b11bde.. |
+|     |                                  |        |     |            | 2         |            |
+|=============================================================================================|
+| OS: 24.04.4 LTS (Noble Numbat) ubuntu, Version: 24.04.4, Kernel: 6.17.0-22-generic
+| XServer Vendor: The X.Org Foundation, XServer Version: 12101011 (1.21.1.11)
+| Processor: Intel(R) Core(TM) Ultra 9 285K
+| Cores: 24 | Logical Cores: 24
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 31668 | Free Memory: 24999
+| Total Page/Swap (MB): 8191 | Free Page/Swap: 5683
+|---------------------------------------------------------------------------------------------|
+2026-07-30T03:15:49Z [767ms] [Warning] [gpu.foundation.plugin] CPU performance profile is set to powersave. This profile sets the CPU to the lowest frequency reducing performance.
+2026-07-30T03:15:49Z [775ms] [Warning] [gpu.foundation.plugin] PCIe link width current (8) and maximum (16) for device 0 don't match.
+2026-07-30T03:15:51Z [2,305ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-07-30T03:15:51Z [2,388ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-07-30T03:15:51Z [2,505ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-07-30T03:15:52Z [3,645ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+2026-07-30T03:15:52Z [3,704ms] [Warning] [omni.graph.core.plugin] Found duplicate of category 'Replicator' - was 'Annotators', adding 'Fabric Reader'
+2026-07-30T03:15:52Z [3,704ms] [Warning] [omni.graph.core.plugin] Category 'Replicator' not accepted on node type 'omni.replicator.core.FabricReader' in extension 'omni.replicator.core'
+2026-07-30T03:15:52Z [3,705ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-07-30T03:15:55Z [6,065ms] [Warning] [omni.fabric.plugin] Warning: attribute viewportHandle not found for bucket id 7
+
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+[INFO]: Parsing configuration from: <class 'isaac.isaaclab_tasks.synria_pickplace.env_cfg.SynriaChessPickPlaceEnvCfg'>
+
+[36m======================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/isaaclab/logs/isaaclab_2026-07-29_22-15-55.log[0m
+[36m======================================================================================[0m
+
+[33m22:15:55 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 7
+	Physics step-size     : 0.016666666666666666
+	Rendering step-size   : 0.016666666666666666
+	Environment step-size : 0.03333333333333333
+[33m22:15:55 [manager_based_env.py] WARNING: The render interval (1) is smaller than the decimation (2). Multiple render calls will happen for each environment step. If this is not intended, set the render interval to be equal to the decimation.[0m
+[INFO]: Time taken for scene creation : 0.548339 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 16
+	Environment spacing   : 2.0
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : []
+	Replicate physics     : False
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 1.393853 seconds
+[INFO] Command Manager:  <CommandManager> contains 0 active terms.
++------------------------+
+|  Active Command Terms  |
++--------+-------+-------+
+| Index  | Name  |  Type |
++--------+-------+-------+
++--------+-------+-------+
+
+[INFO] Event Manager:  <EventManager> contains 2 active terms.
++----------------------------------+
+| Active Event Terms in Mode: 'reset' |
++-----------+----------------------+
+|   Index   | Name                 |
++-----------+----------------------+
+|     0     | reset_trial          |
++-----------+----------------------+
++--------------------------------------------------+
+|      Active Event Terms in Mode: 'interval'      |
++-------+----------------+-------------------------+
+| Index | Name           | Interval time range (s) |
++-------+----------------+-------------------------+
+|   0   | hold_staged    |       (0.03, 0.04)      |
+|   1   | attach_carried |       (0.03, 0.04)      |
++-------+----------------+-------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 2 active terms.
++-----------------------------------+
+|   Active Action Terms (shape: 8)  |
++-------+---------------+-----------+
+| Index | Name          | Dimension |
++-------+---------------+-----------+
+|   0   | arm_joint_pos |         6 |
+|   1   | gripper       |         2 |
++-------+---------------+-----------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++---------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (68,)) |
++------------+-------------------------------+------------+
+|   Index    | Name                          |   Shape    |
++------------+-------------------------------+------------+
+|     0      | joint_state                   |   (13,)    |
+|     1      | ee_pose                       |    (7,)    |
+|     2      | piece_pos                     |    (3,)    |
+|     3      | target_piece_id               |   (32,)    |
+|     4      | target_zone_id                |    (4,)    |
+|     5      | target_pos                    |    (4,)    |
+|     6      | trial_phase                   |    (5,)    |
++------------+-------------------------------+------------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 4 active terms.
++----------------------------------------+
+|        Active Termination Terms        |
++-------+---------------------+----------+
+| Index | Name                | Time Out |
++-------+---------------------+----------+
+|   0   | time_out            |   True   |
+|   1   | piece_dropped       |  False   |
+|   2   | piece_out_of_bounds |  False   |
+|   3   | collision           |  False   |
++-------+---------------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 18 active terms.
++-------------------------------------------------+
+|               Active Reward Terms               |
++-------+--------------------------------+--------+
+| Index | Name                           | Weight |
++-------+--------------------------------+--------+
+|   0   | piece_to_target_distance       |  600.0 |
+|   1   | ee_to_piece_distance           |  300.0 |
+|   2   | piece_lift                     |    1.5 |
+|   3   | gripper_to_piece_when_grasping |    0.3 |
+|   4   | hold_maintenance               |    1.0 |
+|   5   | carry_drop                     |   15.0 |
+|   6   | release_at_zone                |   90.0 |
+|   7   | lower_at_zone                  |   15.0 |
+|   8   | approach_guidance              |   0.15 |
+|   9   | carry_guidance                 |    0.2 |
+|   10  | hold_at_zone                   |    0.0 |
+|   11  | action_norm_penalty            |  -0.01 |
+|   12  | grasp_confirmed                |  300.0 |
+|   13  | return_home                    |   60.0 |
+|   14  | cycle_complete                 |  900.0 |
+|   15  | piece_in_zone                  |  300.0 |
+|   16  | piece_dropped                  |   30.0 |
+|   17  | collision                      |   30.0 |
++-------+--------------------------------+--------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 0 active terms.
++----------------------+
+| Active Curriculum Terms |
++-----------+----------+
+|   Index   | Name     |
++-----------+----------+
++-----------+----------+
+
+[INFO]: Completed setting up the environment...
+[pick] DISTURBED env4 at step=7 stage=PIVOT t_in=7 disp=11mm
+[pick] DISTURBED env5 at step=7 stage=PIVOT t_in=7 disp=12mm
+[pick] DISTURBED env6 at step=9 stage=PIVOT t_in=9 disp=20mm
+[pick] DISTURBED env8 at step=9 stage=PIVOT t_in=9 disp=20mm
+[pick] DISTURBED env14 at step=9 stage=PIVOT t_in=9 disp=16mm
+[pick] DISTURBED env0 at step=10 stage=PIVOT t_in=10 disp=16mm
+[pick] DISTURBED env7 at step=10 stage=PIVOT t_in=10 disp=15mm
+[pick] CLOSE-entry env9: grasp_centre=[-0.11521360278129578, -0.1493227332830429, 0.8116804957389832] cup_gt=[-0.09249997138977051, -0.13906049728393555, 0.8150001764297485] delta=[-0.023, -0.01, -0.003]
+[pick] HOLD engaged for envs [9]
+[pick] DISTURBED env9 at step=155 stage=LIFT t_in=1 disp=40mm
+[pick] DISTURBED env5 at step=237 stage=APPROACH t_in=12 disp=16mm
+[pick] DISTURBED env0 at step=264 stage=APPROACH t_in=9 disp=15mm
+[pick] CLOSE-entry env3: grasp_centre=[-0.09237370640039444, -0.08230643719434738, 0.834760308265686] cup_gt=[-0.09061980247497559, -0.08714604377746582, 0.8149995803833008] delta=[-0.002, 0.005, 0.02]
+[pick] CLOSE-entry env11: grasp_centre=[-0.06540172547101974, -0.08169829845428467, 0.8068484663963318] cup_gt=[-0.04275035858154297, -0.0841374397277832, 0.8150001168251038] delta=[-0.023, 0.002, -0.008]
+[pick] CLOSE-entry env2: grasp_centre=[-0.0924215018749237, 0.08892077952623367, 0.8380938768386841] cup_gt=[-0.09249496459960938, 0.08086168766021729, 0.8149996399879456] delta=[0.0, 0.008, 0.023]
+[pick] HOLD engaged for envs [2]
+[pick] DISTURBED env2 at step=366 stage=CLOSE t_in=6 disp=12mm
+[pick] HOLD refused envs [3]: gc-cup dist [0.087] — retrying descent
+[pick] CLOSE-entry env3: grasp_centre=[-0.0778542160987854, -0.08115699142217636, 0.8498796224594116] cup_gt=[-0.09061980247497559, -0.08714604377746582, 0.8149995803833008] delta=[0.013, 0.006, 0.035]
+[pick] HOLD refused envs [11]: gc-cup dist [0.078] — retrying descent
+[pick] HOLD engaged for envs [2]
+[pick] PLACED: envs [9] completed pick-move-place
+[rec] episode 1/200 saved (len=435, env=9)
+[pick] HOLD engaged for envs [3]
+[pick] DISTURBED env3 at step=441 stage=LIFT t_in=1 disp=16mm
+[pick] PLACED: envs [2] completed pick-move-place
+[rec] episode 2/200 saved (len=709, env=2)
+[pick] PLACED: envs [3] completed pick-move-place
+[rec] episode 3/200 saved (len=725, env=3)
+[pick] DISTURBED env3 at step=909 stage=PIVOT t_in=9 disp=15mm
+[pick] DISTURBED env14 at step=914 stage=PIVOT t_in=14 disp=14mm
+[pick] DISTURBED env11 at step=925 stage=APPROACH t_in=4 disp=12mm
+[pick] DISTURBED env13 at step=926 stage=APPROACH t_in=5 disp=9mm
+[pick] DISTURBED env2 at step=927 stage=APPROACH t_in=6 disp=9mm
+[pick] DISTURBED env15 at step=927 stage=APPROACH t_in=6 disp=20mm
+[pick] DISTURBED env1 at step=934 stage=APPROACH t_in=10 disp=17mm
+[pick] CLOSE-entry env7: grasp_centre=[-0.10261794924736023, 0.22284342348575592, 0.8252501487731934] cup_gt=[-0.09249985218048096, 0.19250059127807617, 0.8149998784065247] delta=[-0.01, 0.03, 0.01]
+[pick] DISTURBED env7 at step=1042 stage=CLOSE t_in=30 disp=30mm
+[pick] HOLD refused envs [7]: gc-cup dist [0.327] — retrying descent
+[pick] DISTURBED env9 at step=1079 stage=DESCEND t_in=56 disp=13mm
+[pick] DISTURBED env4 at step=1177 stage=DESCEND t_in=119 disp=20mm
+[pick] CLOSE-entry env12: grasp_centre=[-0.091545969247818, -0.08609890937805176, 0.8373082876205444] cup_gt=[-0.0924997329711914, -0.08094906806945801, 0.8150004148483276] delta=[0.001, -0.005, 0.022]
+[pick] DISTURBED env0 at step=1288 stage=DESCEND t_in=109 disp=13mm
+[pick] HOLD refused envs [12]: gc-cup dist [0.074] — retrying descent
+[pick] CLOSE-entry env12: grasp_centre=[-0.08401980996131897, -0.08265421539545059, 0.8419420123100281] cup_gt=[-0.09250020980834961, -0.08094954490661621, 0.8150003552436829] delta=[0.008, -0.002, 0.027]
+[pick] HOLD refused envs [12]: gc-cup dist [0.08] — retrying descent
+[pick] CLOSE-entry env12: grasp_centre=[-0.09587517380714417, -0.06135640665888786, 0.8301845192909241] cup_gt=[-0.0924997329711914, -0.08094930648803711, 0.8150003552436829] delta=[-0.003, 0.02, 0.015]
+[pick] HOLD engaged for envs [12]
+[pick] DISTURBED env12 at step=1551 stage=CLOSE t_in=6 disp=12mm
+[pick] HOLD engaged for envs [12]
+[pick] DISTURBED env12 at step=1801 stage=PIVOT t_in=1 disp=74mm
+[pick] DISTURBED env10 at step=1825 stage=APPROACH t_in=4 disp=9mm
+[pick] DISTURBED env13 at step=1826 stage=APPROACH t_in=5 disp=10mm
+[pick] DISTURBED env15 at step=1826 stage=APPROACH t_in=5 disp=9mm
+[pick] DISTURBED env1 at step=1827 stage=APPROACH t_in=5 disp=34mm
+[pick] DISTURBED env14 at step=1830 stage=APPROACH t_in=9 disp=17mm
+[pick] DISTURBED env4 at step=1833 stage=APPROACH t_in=11 disp=21mm
+[pick] DISTURBED env2 at step=1842 stage=APPROACH t_in=21 disp=11mm
+[pick] CLOSE-entry env14: grasp_centre=[-0.0684662014245987, -0.10490517318248749, 0.8130591511726379] cup_gt=[-0.05300116539001465, -0.11029976606369019, 0.8100004196166992] delta=[-0.015, 0.005, 0.003]
+[pick] HOLD refused envs [14]: gc-cup dist [0.108] — retrying descent
+[pick] DISTURBED env7 at step=1964 stage=DESCEND t_in=57 disp=23mm
+[pick] DISTURBED env3 at step=2021 stage=DESCEND t_in=121 disp=15mm
+[pick] DISTURBED env0 at step=2070 stage=APPROACH t_in=14 disp=12mm
+[pick] DISTURBED env9 at step=2090 stage=DESCEND t_in=243 disp=10mm
+[pick] CLOSE-entry env10: grasp_centre=[-0.10330620408058167, 0.10003155469894409, 0.8181069493293762] cup_gt=[-0.23421061038970947, 0.18012285232543945, 0.8100001811981201] delta=[0.131, -0.08, 0.008]
+[pick] HOLD refused envs [10]: gc-cup dist [0.159] — retrying descent
+[pick] CLOSE-entry env10: grasp_centre=[-0.10852278023958206, 0.09230022877454758, 0.8212621808052063] cup_gt=[-0.2892265319824219, 0.15038466453552246, 0.8100001811981201] delta=[0.181, -0.058, 0.011]
+[pick] HOLD refused envs [10]: gc-cup dist [0.143] — retrying descent
+[pick] DISTURBED env7 at step=2704 stage=PIVOT t_in=4 disp=15mm
+[pick] DISTURBED env15 at step=2706 stage=PIVOT t_in=6 disp=13mm
+[pick] DISTURBED env3 at step=2725 stage=APPROACH t_in=4 disp=16mm
+[pick] DISTURBED env4 at step=2726 stage=APPROACH t_in=5 disp=28mm
+[pick] DISTURBED env13 at step=2728 stage=APPROACH t_in=7 disp=14mm
+[pick] DISTURBED env11 at step=2729 stage=APPROACH t_in=8 disp=16mm
+[pick] DISTURBED env14 at step=2730 stage=APPROACH t_in=8 disp=11mm
+[pick] DISTURBED env12 at step=2731 stage=APPROACH t_in=9 disp=8mm
+[pick] DISTURBED env1 at step=2807 stage=DESCEND t_in=64 disp=21mm
+[pick] CLOSE-entry env11: grasp_centre=[-0.12841859459877014, 0.12207166105508804, 0.8054566979408264] cup_gt=[-0.11337018013000488, 0.11281514167785645, 0.8150001168251038] delta=[-0.015, 0.009, -0.01]
+[pick] CLOSE-entry env13: grasp_centre=[-0.06558127701282501, -0.06746353209018707, 0.8255326151847839] cup_gt=[-0.0683298110961914, -0.07413578033447266, 0.8150003552436829] delta=[0.003, 0.007, 0.011]
+[pick] HOLD engaged for envs [11]
+[pick] HOLD refused envs [13]: gc-cup dist [0.053] — retrying descent
+[pick] DISTURBED env5 at step=2924 stage=APPROACH t_in=3 disp=8mm
+[pick] CLOSE-entry env13: grasp_centre=[-0.06603366136550903, -0.07712801545858383, 0.8408999443054199] cup_gt=[-0.0683298110961914, -0.07413578033447266, 0.8150004148483276] delta=[0.002, -0.003, 0.026]
+[pick] DISTURBED env5 at step=2951 stage=PIVOT t_in=18 disp=10mm
+[pick] HOLD engaged for envs [13]
+[pick] CLOSE-entry env2: grasp_centre=[-0.09456261247396469, 0.09159524738788605, 0.8308824896812439] cup_gt=[-0.09250736236572266, 0.08248937129974365, 0.8149996399879456] delta=[-0.002, 0.009, 0.016]
+[pick] CLOSE-entry env4: grasp_centre=[-0.14516130089759827, -0.10226252675056458, 0.8120347261428833] cup_gt=[-0.126783549785614, -0.08649849891662598, 0.8149998188018799] delta=[-0.018, -0.016, -0.003]
+[pick] HOLD refused envs [2]: gc-cup dist [0.09] — retrying descent
+[pick] DISTURBED env9 at step=3059 stage=APPROACH t_in=4 disp=32mm
+[pick] HOLD refused envs [4]: gc-cup dist [0.047] — retrying descent
+[pick] CLOSE-entry env0: grasp_centre=[-0.09097838401794434, 0.08063746988773346, 0.8255529999732971] cup_gt=[-0.09250020980834961, 0.08249998092651367, 0.8149996995925903] delta=[0.002, -0.002, 0.011]
+[pick] PLACED: envs [11] completed pick-move-place
+[rec] episode 4/200 saved (len=465, env=11)
+[pick] CLOSE-entry env4: grasp_centre=[-0.14980432391166687, -0.10171615332365036, 0.8186254501342773] cup_gt=[-0.1267836093902588, -0.08649849891662598, 0.8149998188018799] delta=[-0.023, -0.015, 0.004]
+[pick] HOLD refused envs [0]: gc-cup dist [0.041] — retrying descent
+[pick] CLOSE-entry env2: grasp_centre=[-0.09386508166790009, 0.11344489455223083, 0.833877682685852] cup_gt=[-0.09250736236572266, 0.08248937129974365, 0.8149996399879456] delta=[-0.001, 0.031, 0.019]
+[pick] CLOSE-entry env0: grasp_centre=[-0.0919172614812851, 0.06874539703130722, 0.8239411115646362] cup_gt=[-0.09249997138977051, 0.08250021934509277, 0.8149996399879456] delta=[0.001, -0.014, 0.009]
+[pick] HOLD refused envs [4]: gc-cup dist [0.073] — retrying descent
+[pick] HOLD engaged for envs [2]
+[pick] DISTURBED env2 at step=3284 stage=LIFT t_in=1 disp=21mm
+[pick] HOLD refused envs [0]: gc-cup dist [0.057] — retrying descent
+[pick] PLACED: envs [13] completed pick-move-place
+[rec] episode 5/200 saved (len=657, env=13)
+[pick] CLOSE-entry env0: grasp_centre=[-0.07735894620418549, 0.08333423733711243, 0.8341093063354492] cup_gt=[-0.0924997329711914, 0.08250045776367188, 0.8149996399879456] delta=[0.015, 0.001, 0.019]
+[pick] CLOSE-entry env4: grasp_centre=[-0.14646488428115845, -0.10065986216068268, 0.8142029643058777] cup_gt=[-0.1267836093902588, -0.08649849891662598, 0.8149998188018799] delta=[-0.02, -0.014, -0.001]
+[pick] HOLD refused envs [0]: gc-cup dist [0.055] — retrying descent
+[pick] HOLD refused envs [4]: gc-cup dist [0.083] — retrying descent
+[pick] CLOSE-entry env4: grasp_centre=[-0.14388233423233032, -0.09901881963014603, 0.8155930638313293] cup_gt=[-0.1267836093902588, -0.08649849891662598, 0.8149998188018799] delta=[-0.017, -0.013, 0.001]
+[pick] CLOSE-entry env0: grasp_centre=[-0.10562630742788315, 0.1098446473479271, 0.8245728015899658] cup_gt=[-0.09250044822692871, 0.08249998092651367, 0.8149996995925903] delta=[-0.013, 0.027, 0.01]
+[pick] HOLD refused envs [4]: gc-cup dist [0.06] — retrying descent
+[pick] HOLD engaged for envs [0]
+[pick] DISTURBED env0 at step=3546 stage=LIFT t_in=1 disp=19mm
+[pick] PLACED: envs [2] completed pick-move-place
+[rec] episode 6/200 saved (len=870, env=2)
+[pick] DISTURBED env10 at step=3616 stage=PIVOT t_in=16 disp=12mm
+[pick] DISTURBED env2 at step=3627 stage=APPROACH t_in=6 disp=14mm
+[pick] DISTURBED env14 at step=3629 stage=APPROACH t_in=8 disp=11mm
+[pick] DISTURBED env1 at step=3634 stage=APPROACH t_in=13 disp=11mm
+[pick] DISTURBED env7 at step=3642 stage=APPROACH t_in=21 disp=15mm
+[pick] CLOSE-entry env10: grasp_centre=[-0.09133968502283096, 0.21075522899627686, 0.8264215588569641] cup_gt=[-0.0892784595489502, 0.17341256141662598, 0.8150001168251038] delta=[-0.002, 0.037, 0.011]
+[pick] CLOSE-entry env1: grasp_centre=[-0.04869230091571808, -0.07253580540418625, 0.8300042748451233] cup_gt=[-0.045966148376464844, -0.07285988330841064, 0.8099997043609619] delta=[-0.003, 0.0, 0.02]
+[pick] CLOSE-entry env2: grasp_centre=[-0.11405161768198013, 0.16252827644348145, 0.810461163520813] cup_gt=[-0.10519170761108398, 0.1437608003616333, 0.8099996447563171] delta=[-0.009, 0.019, 0.0]
+[pick] CLOSE-entry env14: grasp_centre=[-0.12071628123521805, 0.14015279710292816, 0.8051565289497375] cup_gt=[-0.10886120796203613, 0.22690045833587646, 0.8100004196166992] delta=[-0.012, -0.087, -0.005]
+[pick] HOLD refused envs [10]: gc-cup dist [0.18] — retrying descent
+[pick] PLACED: envs [0] completed pick-move-place
+[rec] episode 7/200 saved (len=887, env=0)
+[pick] HOLD refused envs [1]: gc-cup dist [0.09] — retrying descent
+[pick] HOLD refused envs [2]: gc-cup dist [0.037] — retrying descent
+[pick] DISTURBED env0 at step=3843 stage=PIVOT t_in=9 disp=11mm
+[pick] HOLD refused envs [14]: gc-cup dist [0.135] — retrying descent
+[pick] DISTURBED env5 at step=3862 stage=APPROACH t_in=8 disp=10mm
+[pick] CLOSE-entry env11: grasp_centre=[-0.04327596724033356, 0.08939512073993683, 0.8169647455215454] cup_gt=[-0.03626883029937744, 0.08333301544189453, 0.8150001168251038] delta=[-0.007, 0.006, 0.002]
+[pick] CLOSE-entry env14: grasp_centre=[-0.09151564538478851, 0.12554310262203217, 0.8411353826522827] cup_gt=[-0.10882329940795898, 0.22705304622650146, 0.8100004196166992] delta=[0.017, -0.102, 0.031]
+[pick] HOLD refused envs [11]: gc-cup dist [0.135] — retrying descent
+[pick] HOLD refused envs [14]: gc-cup dist [0.071] — retrying descent
+[pick] DISTURBED env3 at step=3984 stage=DESCEND t_in=244 disp=46mm
+[pick] DISTURBED env12 at step=4057 stage=DESCEND t_in=227 disp=45mm
+[pick] CLOSE-entry env14: grasp_centre=[-0.1299203783273697, 0.15581728518009186, 0.8023356199264526] cup_gt=[-0.10881638526916504, 0.22708022594451904, 0.8100004196166992] delta=[-0.021, -0.071, -0.008]
+[pick] HOLD refused envs [14]: gc-cup dist [0.184] — retrying descent
+[pick] CLOSE-entry env14: grasp_centre=[-0.13284936547279358, 0.15864525735378265, 0.8027109503746033] cup_gt=[-0.10881376266479492, 0.22709119319915771, 0.8100004196166992] delta=[-0.024, -0.068, -0.007]
+[pick] DISTURBED env2 at step=4506 stage=PIVOT t_in=6 disp=20mm
+[pick] DISTURBED env11 at step=4510 stage=PIVOT t_in=10 disp=11mm
+[pick] DISTURBED env7 at step=4525 stage=APPROACH t_in=4 disp=13mm
+[pick] DISTURBED env10 at step=4527 stage=APPROACH t_in=6 disp=9mm
+[pick] DISTURBED env14 at step=4528 stage=APPROACH t_in=7 disp=15mm
+[pick] DISTURBED env15 at step=4528 stage=APPROACH t_in=7 disp=15mm
+[pick] DISTURBED env1 at step=4530 stage=APPROACH t_in=9 disp=12mm
+[pick] DISTURBED env12 at step=4532 stage=APPROACH t_in=11 disp=11mm
+[pick] CLOSE-entry env10: grasp_centre=[-0.16704295575618744, 0.19675979018211365, 0.810032069683075] cup_gt=[-0.14297711849212646, 0.1654374599456787, 0.8100001811981201] delta=[-0.024, 0.031, 0.0]
+[pick] DISTURBED env3 at step=4670 stage=DESCEND t_in=48 disp=36mm
+[pick] HOLD refused envs [10]: gc-cup dist [0.063] — retrying descent
+[pick] DISTURBED env9 at step=4870 stage=APPROACH t_in=13 disp=12mm
+[pick] DISTURBED env10 at step=5424 stage=APPROACH t_in=3 disp=9mm
+[pick] DISTURBED env12 at step=5428 stage=APPROACH t_in=7 disp=18mm
+[pick] DISTURBED env13 at step=5428 stage=APPROACH t_in=7 disp=16mm
+[pick] DISTURBED env4 at step=5429 stage=APPROACH t_in=8 disp=18mm
+[pick] DISTURBED env1 at step=5430 stage=APPROACH t_in=9 disp=11mm
+[pick] DISTURBED env3 at step=5431 stage=APPROACH t_in=10 disp=16mm
+[pick] DISTURBED env11 at step=5639 stage=DESCEND t_in=64 disp=8mm
+[pick] DISTURBED env5 at step=5668 stage=APPROACH t_in=10 disp=9mm
+[pick] DISTURBED env14 at step=5689 stage=DESCEND t_in=177 disp=26mm
+[pick] CLOSE-entry env10: grasp_centre=[-0.17445161938667297, 0.19507627189159393, 0.8073297142982483] cup_gt=[-0.14385056495666504, 0.15568256378173828, 0.8150001168251038] delta=[-0.031, 0.039, -0.008]
+[pick] DISTURBED env9 at step=5763 stage=APPROACH t_in=8 disp=16mm
+[pick] HOLD refused envs [10]: gc-cup dist [0.057] — retrying descent
+[pick] CLOSE-entry env10: grasp_centre=[-0.17242738604545593, 0.1925298273563385, 0.8117678165435791] cup_gt=[-0.14385056495666504, 0.15568268299102783, 0.8150001168251038] delta=[-0.029, 0.037, -0.003]
+[pick] HOLD refused envs [10]: gc-cup dist [0.054] — retrying descent
+[pick] CLOSE-entry env15: grasp_centre=[-0.0953231081366539, -0.09256109595298767, 0.8269169926643372] cup_gt=[-0.09384846687316895, -0.08187460899353027, 0.8150003552436829] delta=[-0.001, -0.011, 0.012]
+[pick] DISTURBED env0 at step=5863 stage=DESCEND t_in=90 disp=10mm
+[pick] HOLD engaged for envs [15]
+[pick] DISTURBED env15 at step=5923 stage=LIFT t_in=2 disp=14mm
+[pick] CLOSE-entry env10: grasp_centre=[-0.17372016608715057, 0.19620241224765778, 0.7956974506378174] cup_gt=[-0.14385056495666504, 0.15568256378173828, 0.8150001168251038] delta=[-0.03, 0.041, -0.019]
+[pick] HOLD engaged for envs [10]
+[pick] PLACED: envs [15] completed pick-move-place
+[rec] episode 8/200 saved (len=800, env=15)
+[pick] DISTURBED env11 at step=6304 stage=PIVOT t_in=4 disp=28mm
+[pick] DISTURBED env1 at step=6326 stage=APPROACH t_in=5 disp=30mm
+[pick] DISTURBED env15 at step=6327 stage=APPROACH t_in=6 disp=11mm
+[pick] DISTURBED env7 at step=6329 stage=APPROACH t_in=8 disp=12mm
+[pick] DISTURBED env13 at step=6330 stage=APPROACH t_in=9 disp=14mm
+[pick] CLOSE-entry env15: grasp_centre=[-0.11924881488084793, 0.1582336723804474, 0.8206846714019775] cup_gt=[-0.17957305908203125, 0.19602227210998535, 0.8156561851501465] delta=[0.06, -0.038, 0.005]
+[pick] DISTURBED env10 at step=6491 stage=DESCEND t_in=110 disp=9mm
+[pick] CLOSE-entry env14: grasp_centre=[-0.04393475130200386, -0.08538573980331421, 0.8264314532279968] cup_gt=[-0.03749990463256836, -0.08249986171722412, 0.8150003552436829] delta=[-0.006, -0.003, 0.011]
+[pick] HOLD refused envs [15]: gc-cup dist [0.088] — retrying descent
+[pick] DISTURBED env5 at step=6561 stage=APPROACH t_in=7 disp=10mm
+[pick] HOLD refused envs [14]: gc-cup dist [0.084] — retrying descent
+[pick] CLOSE-entry env14: grasp_centre=[-0.031891804188489914, -0.0759306401014328, 0.8422635793685913] cup_gt=[-0.037500858306884766, -0.08250021934509277, 0.8150004148483276] delta=[0.006, 0.007, 0.027]
+[pick] DISTURBED env9 at step=6661 stage=APPROACH t_in=6 disp=9mm
+[pick] CLOSE-entry env0: grasp_centre=[-0.05474718660116196, 0.08556149154901505, 0.8045117259025574] cup_gt=[-0.03749990463256836, 0.08250021934509277, 0.8149996399879456] delta=[-0.017, 0.003, -0.01]
+[pick] HOLD refused envs [14]: gc-cup dist [0.083] — retrying descent
+[pick] CLOSE-entry env5: grasp_centre=[-0.05333966016769409, 0.08006416261196136, 0.8367257714271545] cup_gt=[-0.057713985443115234, 0.077525794506073, 0.8149998784065247] delta=[0.004, 0.003, 0.022]
+[pick] HOLD refused envs [0]: gc-cup dist [0.104] — retrying descent
+[pick] HOLD engaged for envs [5]
+[pick] CLOSE-entry env0: grasp_centre=[-0.051032815128564835, 0.07835619896650314, 0.8021038770675659] cup_gt=[-0.03749990463256836, 0.08250045776367188, 0.8149996399879456] delta=[-0.014, -0.004, -0.013]
+[pick] CLOSE-entry env9: grasp_centre=[-0.08997032046318054, -0.09004786610603333, 0.8070813417434692] cup_gt=[-0.07110190391540527, -0.07107961177825928, 0.8150001764297485] delta=[-0.019, -0.019, -0.008]
+[pick] HOLD refused envs [0]: gc-cup dist [0.078] — retrying descent
+[pick] CLOSE-entry env0: grasp_centre=[-0.05128980055451393, 0.09279198199510574, 0.8039693832397461] cup_gt=[-0.03750038146972656, 0.08249998092651367, 0.8149996399879456] delta=[-0.014, 0.01, -0.011]
+[pick] HOLD engaged for envs [9]
+[pick] HOLD refused envs [0]: gc-cup dist [0.097] — retrying descent
+[pick] CLOSE-entry env0: grasp_centre=[-0.048892781138420105, 0.0834624320268631, 0.8054024577140808] cup_gt=[-0.03749990463256836, 0.08249998092651367, 0.8149995803833008] delta=[-0.011, 0.001, -0.01]
+[pick] HOLD refused envs [0]: gc-cup dist [0.089] — retrying descent
+[pick] PLACED: envs [5] completed pick-move-place
+[rec] episode 9/200 saved (len=527, env=5)
+[pick] CLOSE-entry env0: grasp_centre=[-0.048468150198459625, 0.08019035309553146, 0.8058848977088928] cup_gt=[-0.03749990463256836, 0.08249998092651367, 0.8149995803833008] delta=[-0.011, -0.002, -0.009]
+[pick] HOLD refused envs [0]: gc-cup dist [0.094] — retrying descent
+[pick] PLACED: envs [9] completed pick-move-place
+[rec] episode 10/200 saved (len=558, env=9)
+[pick] DISTURBED env11 at step=7211 stage=PIVOT t_in=11 disp=17mm
+[pick] DISTURBED env7 at step=7225 stage=APPROACH t_in=4 disp=19mm
+[pick] DISTURBED env2 at step=7227 stage=APPROACH t_in=6 disp=24mm
+[pick] DISTURBED env4 at step=7229 stage=APPROACH t_in=8 disp=18mm
+[pick] DISTURBED env10 at step=7231 stage=APPROACH t_in=9 disp=9mm
+[pick] CLOSE-entry env0: grasp_centre=[-0.05608856678009033, 0.0821612998843193, 0.803972601890564] cup_gt=[-0.037500858306884766, 0.08249974250793457, 0.8149996399879456] delta=[-0.019, -0.0, -0.011]
+[pick] HOLD refused envs [0]: gc-cup dist [0.091] — retrying descent
+[pick] CLOSE-entry env0: grasp_centre=[-0.04962249472737312, 0.0868181586265564, 0.8086053729057312] cup_gt=[-0.03750038146972656, 0.08249998092651367, 0.8149996399879456] delta=[-0.012, 0.004, -0.006]
+[pick] HOLD refused envs [0]: gc-cup dist [0.099] — retrying descent
+[pick] CLOSE-entry env13: grasp_centre=[-0.09594903141260147, -0.07675181329250336, 0.8223006129264832] cup_gt=[-0.092987060546875, -0.08102548122406006, 0.8150004148483276] delta=[-0.003, 0.004, 0.007]
+[pick] HOLD engaged for envs [13]
+[pick] DISTURBED env13 at step=7421 stage=CLOSE t_in=7 disp=15mm
+[pick] DISTURBED env15 at step=7457 stage=DESCEND t_in=95 disp=16mm
+[pick] HOLD engaged for envs [13]
+[pick] DISTURBED env9 at step=7563 stage=APPROACH t_in=8 disp=23mm
+[pick] PLACED: envs [13] completed pick-move-place
+[rec] episode 11/200 saved (len=551, env=13)
+[pick] DISTURBED env0 at step=7779 stage=DESCEND t_in=81 disp=14mm
+[pick] CLOSE-entry env9: grasp_centre=[-0.04082933068275452, -0.0868905559182167, 0.8249980211257935] cup_gt=[-0.033798933029174805, -0.08490002155303955, 0.8100001811981201] delta=[-0.007, -0.002, 0.015]
+[pick] HOLD engaged for envs [9]
+[pick] DISTURBED env15 at step=8105 stage=PIVOT t_in=5 disp=18mm
+[pick] DISTURBED env10 at step=8125 stage=APPROACH t_in=4 disp=26mm
+[pick] DISTURBED env7 at step=8127 stage=APPROACH t_in=6 disp=21mm
+[pick] DISTURBED env4 at step=8128 stage=APPROACH t_in=7 disp=9mm
+[pick] DISTURBED env1 at step=8130 stage=APPROACH t_in=9 disp=12mm
+[pick] DISTURBED env2 at step=8229 stage=DESCEND t_in=57 disp=19mm
+[pick] PLACED: envs [9] completed pick-move-place
+[rec] episode 12/200 saved (len=740, env=9)
+[pick] CLOSE-entry env14: grasp_centre=[-0.11163163930177689, -0.17011664807796478, 0.8142033815383911] cup_gt=[-0.09249997138977051, -0.13594943284988403, 0.8150004148483276] delta=[-0.019, -0.034, -0.001]
+[pick] DISTURBED env5 at step=8359 stage=APPROACH t_in=5 disp=11mm
+[pick] DISTURBED env0 at step=8363 stage=APPROACH t_in=8 disp=9mm
+[pick] HOLD refused envs [14]: gc-cup dist [0.154] — retrying descent
+[pick] DISTURBED env9 at step=8443 stage=PIVOT t_in=9 disp=14mm
+[pick] DISTURBED env14 at step=8470 stage=DESCEND t_in=72 disp=8mm
+[pick] CLOSE-entry env4: grasp_centre=[-0.13753670454025269, -0.15470007061958313, 0.8023651242256165] cup_gt=[-0.10995692014694214, -0.12914633750915527, 0.8149998188018799] delta=[-0.028, -0.026, -0.013]
+[pick] HOLD refused envs [4]: gc-cup dist [0.058] — retrying descent
+[pick] CLOSE-entry env4: grasp_centre=[-0.09937252104282379, -0.1232687458395958, 0.8422724008560181] cup_gt=[-0.109957754611969, -0.12914657592773438, 0.8149998784065247] delta=[0.011, 0.006, 0.027]
+[pick] HOLD refused envs [4]: gc-cup dist [0.061] — retrying descent
+[pick] DISTURBED env4 at step=9026 stage=APPROACH t_in=5 disp=16mm
+[pick] DISTURBED env12 at step=9026 stage=APPROACH t_in=5 disp=55mm
+[pick] DISTURBED env11 at step=9027 stage=APPROACH t_in=6 disp=35mm
+[pick] DISTURBED env1 at step=9028 stage=APPROACH t_in=7 disp=13mm
+[pick] DISTURBED env10 at step=9030 stage=APPROACH t_in=9 disp=12mm
+[pick] DISTURBED env3 at step=9031 stage=APPROACH t_in=10 disp=9mm
+[pick] DISTURBED env7 at step=9031 stage=APPROACH t_in=10 disp=9mm
+[pick] CLOSE-entry env10: grasp_centre=[-0.06204035133123398, 0.15585145354270935, 0.8263912200927734] cup_gt=[-0.04880666732788086, 0.11555588245391846, 0.8100001811981201] delta=[-0.013, 0.04, 0.016]
+[pick] CLOSE-entry env7: grasp_centre=[-0.0493026077747345, -0.07947473973035812, 0.8075757622718811] cup_gt=[-0.038412630558013916, -0.08092451095581055, 0.8149998188018799] delta=[-0.011, 0.001, -0.007]
+[pick] DISTURBED env5 at step=9261 stage=APPROACH t_in=7 disp=12mm
+[pick] DISTURBED env0 at step=9262 stage=APPROACH t_in=7 disp=12mm
+[pick] DISTURBED env2 at step=9267 stage=DESCEND t_in=84 disp=15mm
+[pick] HOLD refused envs [10]: gc-cup dist [0.059] — retrying descent
+[pick] CLOSE-entry env10: grasp_centre=[-0.05187644064426422, 0.14323194324970245, 0.82036292552948] cup_gt=[-0.04880666732788086, 0.1155557632446289, 0.8100001811981201] delta=[-0.003, 0.028, 0.01]
+[pick] HOLD refused envs [7]: gc-cup dist [0.069] — retrying descent
+[pick] CLOSE-entry env3: grasp_centre=[-0.0973718985915184, 0.09901250898838043, 0.8213421702384949] cup_gt=[-0.09448385238647461, 0.0826730728149414, 0.8149996995925903] delta=[-0.003, 0.016, 0.006]
+[pick] HOLD refused envs [10]: gc-cup dist [0.062] — retrying descent
+[pick] CLOSE-entry env5: grasp_centre=[-0.05334514379501343, 0.07262686640024185, 0.8317760825157166] cup_gt=[-0.06084620952606201, 0.07308030128479004, 0.8149998784065247] delta=[0.008, -0.0, 0.017]
+[pick] DISTURBED env9 at step=9372 stage=APPROACH t_in=17 disp=17mm
+[pick] HOLD refused envs [3]: gc-cup dist [0.071] — retrying descent
+[pick] HOLD refused envs [5]: gc-cup dist [0.053] — retrying descent
+[pick] CLOSE-entry env5: grasp_centre=[-0.05636226385831833, 0.10464441776275635, 0.8424776792526245] cup_gt=[-0.06084626913070679, 0.07308030128479004, 0.8149998784065247] delta=[0.004, 0.032, 0.027]
+[pick] CLOSE-entry env3: grasp_centre=[-0.10417807847261429, 0.10130853205919266, 0.8239461183547974] cup_gt=[-0.09448385238647461, 0.0826728343963623, 0.8149996995925903] delta=[-0.01, 0.019, 0.009]
+[pick] DISTURBED env14 at step=9464 stage=APPROACH t_in=6 disp=13mm
+[pick] HOLD refused envs [5]: gc-cup dist [0.04] — retrying descent
+[pick] HOLD refused envs [3]: gc-cup dist [0.063] — retrying descent
+[pick] CLOSE-entry env7: grasp_centre=[-0.0511670783162117, -0.07955664396286011, 0.8033638596534729] cup_gt=[-0.038412511348724365, -0.08092451095581055, 0.8149998784065247] delta=[-0.013, 0.001, -0.012]
+[pick] CLOSE-entry env3: grasp_centre=[-0.1052081510424614, 0.09756163507699966, 0.811532735824585] cup_gt=[-0.09448385238647461, 0.0826728343963623, 0.8149996995925903] delta=[-0.011, 0.015, -0.003]
+[pick] HOLD refused envs [7]: gc-cup dist [0.064] — retrying descent
+[pick] HOLD refused envs [3]: gc-cup dist [0.067] — retrying descent
+[pick] CLOSE-entry env5: grasp_centre=[-0.05812744423747063, 0.08016282320022583, 0.8334352970123291] cup_gt=[-0.06084620952606201, 0.07308024168014526, 0.8149998784065247] delta=[0.003, 0.007, 0.018]
+[pick] CLOSE-entry env3: grasp_centre=[-0.08377053588628769, 0.0728931725025177, 0.8413348197937012] cup_gt=[-0.09448456764221191, 0.0826728343963623, 0.8149995803833008] delta=[0.011, -0.01, 0.026]
+[pick] HOLD refused envs [5]: gc-cup dist [0.067] — retrying descent
+[pick] HOLD refused envs [3]: gc-cup dist [0.038] — retrying descent
+[pick] CLOSE-entry env3: grasp_centre=[-0.11244989931583405, 0.11554507166147232, 0.8102583289146423] cup_gt=[-0.09448456764221191, 0.0826728343963623, 0.8149995803833008] delta=[-0.018, 0.033, -0.005]
+[pick] CLOSE-entry env5: grasp_centre=[-0.07684430480003357, 0.07412520051002502, 0.8040475249290466] cup_gt=[-0.06084626913070679, 0.07308030128479004, 0.8149998784065247] delta=[-0.016, 0.001, -0.011]
+[pick] HOLD refused envs [3]: gc-cup dist [0.046] — retrying descent
+[pick] HOLD refused envs [5]: gc-cup dist [0.059] — retrying descent
+[pick] DISTURBED env1 at step=9925 stage=APPROACH t_in=4 disp=36mm
+[pick] DISTURBED env11 at step=9925 stage=APPROACH t_in=4 disp=21mm
+[pick] DISTURBED env15 at step=9926 stage=APPROACH t_in=5 disp=9mm
+[pick] DISTURBED env2 at step=9928 stage=APPROACH t_in=7 disp=10mm
+[pick] DISTURBED env13 at step=9928 stage=APPROACH t_in=7 disp=16mm
+[pick] DISTURBED env4 at step=9935 stage=APPROACH t_in=14 disp=14mm
+[pick] DISTURBED env10 at step=9935 stage=APPROACH t_in=11 disp=11mm
+[pick] DISTURBED env7 at step=10124 stage=DESCEND t_in=66 disp=9mm
+[pick] DISTURBED env0 at step=10159 stage=APPROACH t_in=4 disp=12mm
+[pick] DISTURBED env5 at step=10160 stage=APPROACH t_in=6 disp=12mm
+[pick] DISTURBED env9 at step=10260 stage=APPROACH t_in=5 disp=9mm
+[pick] CLOSE-entry env12: grasp_centre=[-0.02807611972093582, 0.0991792157292366, 0.8498920798301697] cup_gt=[-0.03749990463256836, 0.08250021934509277, 0.8150004148483276] delta=[0.009, 0.017, 0.035]
+[pick] HOLD refused envs [12]: gc-cup dist [0.039] — retrying descent
+[pick] CLOSE-entry env12: grasp_centre=[-0.033706918358802795, 0.10558535903692245, 0.8399235606193542] cup_gt=[-0.03749990463256836, 0.08249998092651367, 0.8150003552436829] delta=[0.004, 0.023, 0.025]
+[pick] DISTURBED env14 at step=10368 stage=APPROACH t_in=12 disp=15mm
+[pick] HOLD engaged for envs [12]
+[pick] DISTURBED env12 at step=10416 stage=LIFT t_in=1 disp=15mm
+[pick] CLOSE-entry env0: grasp_centre=[-0.08112884312868118, -0.0732220858335495, 0.8184019923210144] cup_gt=[-0.06584692001342773, -0.07459449768066406, 0.8099995851516724] delta=[-0.015, 0.001, 0.008]
+[pick] HOLD engaged for envs [0]
+[pick] HOLD engaged for envs [0]
+[pick] PLACED: envs [12] completed pick-move-place
+[rec] episode 13/200 saved (len=808, env=12)
+[pick] PLACED: envs [0] completed pick-move-place
+[rec] episode 14/200 saved (len=638, env=0)
+[pick] DISTURBED env12 at step=10813 stage=PIVOT t_in=13 disp=10mm
+[pick] DISTURBED env1 at step=10821 stage=PIVOT t_in=21 disp=9mm
+[pick] DISTURBED env15 at step=10825 stage=APPROACH t_in=4 disp=25mm
+[pick] DISTURBED env4 at step=10827 stage=APPROACH t_in=6 disp=22mm
+[pick] DISTURBED env2 at step=10828 stage=APPROACH t_in=7 disp=19mm
+[pick] DISTURBED env10 at step=10828 stage=APPROACH t_in=7 disp=15mm
+[pick] DISTURBED env13 at step=10832 stage=APPROACH t_in=11 disp=8mm
+[pick] DISTURBED env7 at step=10835 stage=APPROACH t_in=14 disp=8mm
+[pick] CLOSE-entry env13: grasp_centre=[-0.03690040111541748, -0.07121017575263977, 0.8331125974655151] cup_gt=[-0.03838086128234863, -0.08123719692230225, 0.8150003552436829] delta=[0.001, 0.01, 0.018]
+[pick] HOLD engaged for envs [13]
+[pick] HOLD engaged for envs [13]
+[pick] DISTURBED env5 at step=11058 stage=APPROACH t_in=4 disp=9mm
+[pick] DISTURBED env3 at step=11060 stage=DESCEND t_in=217 disp=28mm
+[pick] CLOSE-entry env1: grasp_centre=[-0.1605946272611618, -0.13969410955905914, 0.8019126653671265] cup_gt=[-0.1327512264251709, -0.1268991231918335, 0.8099996447563171] delta=[-0.028, -0.013, -0.008]
+[pick] DISTURBED env9 at step=11159 stage=APPROACH t_in=4 disp=21mm
+[pick] HOLD refused envs [1]: gc-cup dist [0.105] — retrying descent
+[pick] CLOSE-entry env1: grasp_centre=[-0.11577531695365906, -0.12499294430017471, 0.8415220975875854] cup_gt=[-0.13272643089294434, -0.12686991691589355, 0.8099996447563171] delta=[0.017, 0.002, 0.032]
+[pick] PLACED: envs [13] completed pick-move-place
+[rec] episode 15/200 saved (len=463, env=13)
+[pick] HOLD refused envs [1]: gc-cup dist [0.079] — retrying descent
+[pick] CLOSE-entry env14: grasp_centre=[-0.042095914483070374, -0.07042396068572998, 0.8279474377632141] cup_gt=[-0.038759469985961914, -0.08132416009902954, 0.8150003552436829] delta=[-0.003, 0.011, 0.013]
+[pick] HOLD engaged for envs [14]
+[pick] DISTURBED env14 at step=11343 stage=CLOSE t_in=8 disp=12mm
+[pick] HOLD engaged for envs [14]
+[pick] CLOSE-entry env1: grasp_centre=[-0.15060925483703613, -0.13676568865776062, 0.8066093325614929] cup_gt=[-0.13269567489624023, -0.12683415412902832, 0.8099996447563171] delta=[-0.018, -0.01, -0.003]
+[pick] HOLD refused envs [1]: gc-cup dist [0.094] — retrying descent
+[pick] PLACED: envs [14] completed pick-move-place
+[rec] episode 16/200 saved (len=427, env=14)
+[pick] CLOSE-entry env1: grasp_centre=[-0.1117766797542572, -0.11857529729604721, 0.8395736813545227] cup_gt=[-0.13264918327331543, -0.12678062915802002, 0.8099996447563171] delta=[0.021, 0.008, 0.03]
+[pick] DISTURBED env2 at step=11705 stage=PIVOT t_in=5 disp=31mm
+[pick] DISTURBED env11 at step=11725 stage=APPROACH t_in=4 disp=36mm
+[pick] DISTURBED env1 at step=11730 stage=APPROACH t_in=9 disp=18mm
+[pick] CLOSE-entry env3: grasp_centre=[-0.1115044355392456, 0.10069447755813599, 0.7989457249641418] cup_gt=[-0.0922083854675293, 0.08394789695739746, 0.8149995803833008] delta=[-0.019, 0.017, -0.016]
+[pick] DISTURBED env15 at step=11892 stage=DESCEND t_in=31 disp=16mm
+[pick] HOLD refused envs [3]: gc-cup dist [0.048] — retrying descent
+[pick] DISTURBED env0 at step=11959 stage=APPROACH t_in=4 disp=13mm
+[pick] DISTURBED env12 at step=12005 stage=DESCEND t_in=186 disp=9mm
+[pick] CLOSE-entry env3: grasp_centre=[-0.09957722574472427, 0.1130862757563591, 0.8242870569229126] cup_gt=[-0.0922088623046875, 0.08394789695739746, 0.8149996995925903] delta=[-0.007, 0.029, 0.009]
+[pick] HOLD refused envs [3]: gc-cup dist [0.108] — retrying descent
+[pick] CLOSE-entry env5: grasp_centre=[-0.10756608843803406, -0.09321273118257523, 0.8129722476005554] cup_gt=[-0.09186309576034546, -0.08397221565246582, 0.8149998784065247] delta=[-0.016, -0.009, -0.002]
+[pick] HOLD engaged for envs [5]
+[pick] DISTURBED env5 at step=12274 stage=LIFT t_in=1 disp=15mm
+[pick] CLOSE-entry env0: grasp_centre=[-0.17611098289489746, 0.13873763382434845, 0.8104394674301147] cup_gt=[-0.15051746368408203, 0.11644601821899414, 0.8149996399879456] delta=[-0.026, 0.022, -0.005]
+[pick] HOLD refused envs [0]: gc-cup dist [0.124] — retrying descent
+[pick] PLACED: envs [5] completed pick-move-place
+[rec] episode 17/200 saved (len=618, env=5)
+[pick] DISTURBED env15 at step=12604 stage=PIVOT t_in=4 disp=13mm
+[pick] DISTURBED env1 at step=12623 stage=APPROACH t_in=2 disp=18mm
+[pick] DISTURBED env10 at step=12629 stage=APPROACH t_in=8 disp=14mm
+[pick] DISTURBED env12 at step=12631 stage=APPROACH t_in=10 disp=23mm
+[pick] DISTURBED env5 at step=12861 stage=APPROACH t_in=7 disp=18mm
+[pick] DISTURBED env13 at step=12879 stage=DESCEND t_in=192 disp=15mm
+[pick] DISTURBED env3 at step=12891 stage=DESCEND t_in=32 disp=11mm
+[pick] CLOSE-entry env4: grasp_centre=[-0.10091840475797653, -0.09184854477643967, 0.8207891583442688] cup_gt=[-0.0920259952545166, -0.08407163619995117, 0.8149998784065247] delta=[-0.009, -0.008, 0.006]
+[pick] HOLD engaged for envs [4]
+[pick] DISTURBED env4 at step=12930 stage=CLOSE t_in=8 disp=8mm
+[pick] CLOSE-entry env10: grasp_centre=[-0.09332989901304245, -0.12260907888412476, 0.8398547172546387] cup_gt=[-0.10574865341186523, -0.12956559658050537, 0.8150001168251038] delta=[0.012, 0.007, 0.025]
+[pick] DISTURBED env9 at step=12970 stage=APPROACH t_in=12 disp=15mm
+[pick] HOLD engaged for envs [4]
+[pick] HOLD engaged for envs [10]
+[pick] CLOSE-entry env3: grasp_centre=[-0.047211140394210815, -0.14708790183067322, 0.8099259734153748] cup_gt=[-0.10213971138000488, -0.2740461826324463, 0.8099996447563171] delta=[0.055, 0.127, -0.0]
+[pick] HOLD refused envs [3]: gc-cup dist [0.114] — retrying descent
+[pick] PLACED: envs [4] completed pick-move-place
+[rec] episode 18/200 saved (len=674, env=4)
+[pick] PLACED: envs [10] completed pick-move-place
+[rec] episode 19/200 saved (len=686, env=10)
+[pick] DISTURBED env13 at step=13505 stage=PIVOT t_in=5 disp=20mm
+[pick] DISTURBED env7 at step=13525 stage=APPROACH t_in=4 disp=11mm
+[pick] DISTURBED env12 at step=13525 stage=APPROACH t_in=4 disp=10mm
+[pick] DISTURBED env11 at step=13526 stage=APPROACH t_in=5 disp=17mm
+[pick] CLOSE-entry env12: grasp_centre=[-0.11723528057336807, 0.16993023455142975, 0.8060076236724854] cup_gt=[-0.1053314208984375, 0.15808773040771484, 0.8150004148483276] delta=[-0.012, 0.012, -0.009]
+[pick] HOLD refused envs [12]: gc-cup dist [0.11] — retrying descent
+[pick] DISTURBED env15 at step=13733 stage=APPROACH t_in=4 disp=8mm
+[pick] DISTURBED env5 at step=13758 stage=APPROACH t_in=4 disp=14mm
+[pick] DISTURBED env0 at step=13759 stage=APPROACH t_in=4 disp=15mm
+[pick] CLOSE-entry env11: grasp_centre=[-0.1266065239906311, 0.13975754380226135, 0.8165974020957947] cup_gt=[-0.11849892139434814, 0.1055290699005127, 0.8100001811981201] delta=[-0.008, 0.034, 0.007]
+[pick] DISTURBED env10 at step=13789 stage=DESCEND t_in=107 disp=11mm
+[pick] HOLD refused envs [11]: gc-cup dist [0.123] — retrying descent
+[pick] CLOSE-entry env11: grasp_centre=[-0.09673959761857986, 0.09753002971410751, 0.8330600261688232] cup_gt=[-0.11849892139434814, 0.1055290699005127, 0.8100001215934753] delta=[0.022, -0.008, 0.023]
+[pick] HOLD engaged for envs [11]
+[pick] DISTURBED env14 at step=13961 stage=APPROACH t_in=5 disp=26mm
+[pick] CLOSE-entry env9: grasp_centre=[-0.0800350159406662, 0.1304805427789688, 0.844079315662384] cup_gt=[-0.09258151054382324, 0.13594138622283936, 0.8150001168251038] delta=[0.013, -0.005, 0.029]
+[pick] HOLD refused envs [9]: gc-cup dist [0.122] — retrying descent
+[pick] CLOSE-entry env14: grasp_centre=[-0.15414965152740479, 0.19414325058460236, 0.8035550713539124] cup_gt=[-0.14034438133239746, 0.21011066436767578, 0.810000479221344] delta=[-0.014, -0.016, -0.006]
+[pick] DISTURBED env9 at step=14202 stage=DESCEND t_in=145 disp=14mm
+[pick] HOLD refused envs [14]: gc-cup dist [0.081] — retrying descent
+[pick] PLACED: envs [11] completed pick-move-place
+[rec] episode 20/200 saved (len=732, env=11)
+[pick] DISTURBED env10 at step=14403 stage=PIVOT t_in=3 disp=12mm
+[pick] DISTURBED env12 at step=14406 stage=PIVOT t_in=6 disp=32mm
+[pick] DISTURBED env2 at step=14425 stage=APPROACH t_in=4 disp=47mm
+[pick] DISTURBED env3 at step=14425 stage=APPROACH t_in=4 disp=11mm
+[pick] DISTURBED env7 at step=14430 stage=APPROACH t_in=9 disp=9mm
+[pick] DISTURBED env1 at step=14673 stage=DESCEND t_in=99 disp=16mm
+[pick] CLOSE-entry env11: grasp_centre=[-0.09902157634496689, 0.07718411833047867, 0.8265143632888794] cup_gt=[-0.09250044822692871, 0.08249998092651367, 0.8150002360343933] delta=[-0.007, -0.005, 0.012]
+[pick] HOLD engaged for envs [11]
+[pick] DISTURBED env11 at step=14741 stage=LIFT t_in=1 disp=15mm
+[pick] CLOSE-entry env0: grasp_centre=[-0.0563863068819046, -0.07967247813940048, 0.8054091334342957] cup_gt=[-0.038065195083618164, -0.08112835884094238, 0.8149996399879456] delta=[-0.018, 0.001, -0.01]
+[pick] HOLD engaged for envs [0]
+[pick] DISTURBED env0 at step=14896 stage=LIFT t_in=1 disp=22mm
+[pick] PLACED: envs [11] completed pick-move-place
+[rec] episode 21/200 saved (len=616, env=11)
+[pick] PLACED: envs [0] completed pick-move-place
+[rec] episode 22/200 saved (len=539, env=0)
+[pick] DISTURBED env13 at step=15325 stage=APPROACH t_in=4 disp=31mm
+[pick] DISTURBED env7 at step=15326 stage=APPROACH t_in=5 disp=29mm
+[pick] DISTURBED env4 at step=15327 stage=APPROACH t_in=6 disp=20mm
+[pick] DISTURBED env12 at step=15330 stage=APPROACH t_in=9 disp=9mm
+[pick] DISTURBED env3 at step=15331 stage=APPROACH t_in=10 disp=8mm
+[pick] CLOSE-entry env3: grasp_centre=[-0.10164958238601685, 0.17555369436740875, 0.8180586695671082] cup_gt=[-0.0913844108581543, 0.13881397247314453, 0.8149995803833008] delta=[-0.01, 0.037, 0.003]
+[pick] HOLD refused envs [3]: gc-cup dist [0.231] — retrying descent
+[pick] DISTURBED env15 at step=15511 stage=PIVOT t_in=3 disp=9mm
+[pick] DISTURBED env5 at step=15563 stage=APPROACH t_in=9 disp=10mm
+[pick] DISTURBED env0 at step=15564 stage=APPROACH t_in=9 disp=15mm
+[pick] CLOSE-entry env13: grasp_centre=[-0.1435629427433014, -0.10079676657915115, 0.814054548740387] cup_gt=[-0.12665534019470215, -0.08537483215332031, 0.8150003552436829] delta=[-0.017, -0.015, -0.001]
+[pick] HOLD refused envs [13]: gc-cup dist [0.079] — retrying descent
+[pick] DISTURBED env9 at step=15664 stage=APPROACH t_in=9 disp=15mm
+[pick] CLOSE-entry env13: grasp_centre=[-0.14819391071796417, -0.08777797967195511, 0.8185900449752808] cup_gt=[-0.12665534019470215, -0.08537435531616211, 0.8150003552436829] delta=[-0.022, -0.002, 0.004]
+[pick] DISTURBED env14 at step=15768 stage=APPROACH t_in=9 disp=8mm
+[pick] HOLD refused envs [13]: gc-cup dist [0.054] — retrying descent
+[pick] CLOSE-entry env5: grasp_centre=[-0.04865104705095291, -0.07271037250757217, 0.8257585763931274] cup_gt=[-0.03604310750961304, -0.08051443099975586, 0.8149998188018799] delta=[-0.013, 0.008, 0.011]
+[pick] HOLD engaged for envs [5]
+[pick] CLOSE-entry env13: grasp_centre=[-0.14583629369735718, -0.0933380275964737, 0.8232240676879883] cup_gt=[-0.12665534019470215, -0.08537435531616211, 0.8150003552436829] delta=[-0.019, -0.008, 0.008]
+[pick] HOLD engaged for envs [5]
+[pick] HOLD refused envs [13]: gc-cup dist [0.128] — retrying descent
+[pick] CLOSE-entry env13: grasp_centre=[-0.12131351232528687, -0.07321044057607651, 0.8346031904220581] cup_gt=[-0.12665510177612305, -0.08537459373474121, 0.8150003552436829] delta=[0.005, 0.012, 0.02]
+[pick] HOLD refused envs [13]: gc-cup dist [0.082] — retrying descent
+[pick] PLACED: envs [5] completed pick-move-place
+[rec] episode 23/200 saved (len=609, env=5)
+[pick] CLOSE-entry env13: grasp_centre=[-0.15142592787742615, -0.10271167755126953, 0.8138962388038635] cup_gt=[-0.12665534019470215, -0.08537435531616211, 0.8150003552436829] delta=[-0.025, -0.017, -0.001]
+[pick] DISTURBED env3 at step=16205 stage=PIVOT t_in=5 disp=14mm
+[pick] DISTURBED env4 at step=16227 stage=APPROACH t_in=5 disp=18mm
+[pick] DISTURBED env11 at step=16229 stage=APPROACH t_in=8 disp=14mm
+[pick] DISTURBED env13 at step=16229 stage=APPROACH t_in=8 disp=8mm
+[pick] DISTURBED env7 at step=16432 stage=DESCEND t_in=147 disp=10mm
+[pick] DISTURBED env15 at step=16439 stage=APPROACH t_in=10 disp=14mm
+[pick] DISTURBED env0 at step=16440 stage=PIVOT t_in=6 disp=73mm
+[pick] DISTURBED env5 at step=16463 stage=APPROACH t_in=9 disp=17mm
+[pick] CLOSE-entry env11: grasp_centre=[-0.10796575248241425, 0.14291773736476898, 0.8222589492797852] cup_gt=[-0.19711101055145264, 0.15769267082214355, 0.8100069761276245] delta=[0.089, -0.015, 0.012]
+[pick] HOLD refused envs [11]: gc-cup dist [0.261] — retrying descent
+[pick] CLOSE-entry env11: grasp_centre=[-0.12496602535247803, 0.15302802622318268, 0.806477427482605] cup_gt=[-0.33694636821746826, 0.1615443229675293, 0.8100001811981201] delta=[0.212, -0.009, -0.004]
+[pick] HOLD refused envs [11]: gc-cup dist [0.25] — retrying descent
+[pick] DISTURBED env14 at step=16664 stage=APPROACH t_in=8 disp=11mm
+[pick] DISTURBED env12 at step=17127 stage=APPROACH t_in=6 disp=16mm
+[pick] DISTURBED env11 at step=17132 stage=APPROACH t_in=6 disp=14mm
+[pick] DISTURBED env7 at step=17136 stage=APPROACH t_in=13 disp=17mm
+[pick] DISTURBED env15 at step=17334 stage=APPROACH t_in=5 disp=31mm
+[pick] CLOSE-entry env13: grasp_centre=[-0.11460120975971222, 0.16961626708507538, 0.8054499626159668] cup_gt=[-0.09287381172180176, 0.1359902024269104, 0.8150003552436829] delta=[-0.022, 0.034, -0.01]
+[pick] DISTURBED env5 at step=17362 stage=APPROACH t_in=7 disp=10mm
+[pick] HOLD refused envs [13]: gc-cup dist [0.099] — retrying descent
+[pick] DISTURBED env13 at step=17436 stage=DESCEND t_in=37 disp=19mm
+[pick] CLOSE-entry env13: grasp_centre=[-0.11106951534748077, 0.1680527925491333, 0.8065884709358215] cup_gt=[-0.12222814559936523, 0.1849789023399353, 0.810000479221344] delta=[0.011, -0.017, -0.003]
+[pick] CLOSE-entry env0: grasp_centre=[-0.05133584141731262, -0.08751939237117767, 0.8217787742614746] cup_gt=[-0.03749966621398926, -0.08249974250793457, 0.8149995803833008] delta=[-0.014, -0.005, 0.007]
+[pick] CLOSE-entry env15: grasp_centre=[-0.11468303203582764, 0.08377862721681595, 0.8297228217124939] cup_gt=[-0.13144731521606445, 0.09474468231201172, 0.8150004148483276] delta=[0.017, -0.011, 0.015]
+[pick] HOLD refused envs [13]: gc-cup dist [0.097] — retrying descent
+[pick] CLOSE-entry env13: grasp_centre=[-0.09945260733366013, 0.1439935714006424, 0.8161320686340332] cup_gt=[-0.18692636489868164, 0.1591430902481079, 0.8100441694259644] delta=[0.087, -0.015, 0.006]
+[pick] HOLD refused envs [0]: gc-cup dist [0.06] — retrying descent
+[pick] HOLD refused envs [15]: gc-cup dist [0.117] — retrying descent
+[pick] DISTURBED env14 at step=17560 stage=APPROACH t_in=4 disp=18mm
+[pick] HOLD refused envs [13]: gc-cup dist [0.286] — retrying descent
+[pick] CLOSE-entry env15: grasp_centre=[-0.15168990194797516, 0.11849336326122284, 0.8096500039100647] cup_gt=[-0.08867073059082031, 0.07601404190063477, 0.810000479221344] delta=[-0.063, 0.042, -0.0]
+[pick] HOLD refused envs [15]: gc-cup dist [0.113] — retrying descent
+[pick] CLOSE-entry env14: grasp_centre=[-0.13955241441726685, -0.16736602783203125, 0.7983486652374268] cup_gt=[-0.3053882122039795, -0.34708666801452637, 0.810000479221344] delta=[0.166, 0.18, -0.012]
+[pick] HOLD refused envs [14]: gc-cup dist [0.334] — retrying descent
+[pick] DISTURBED env10 at step=18025 stage=APPROACH t_in=4 disp=35mm
+[pick] DISTURBED env12 at step=18025 stage=APPROACH t_in=4 disp=10mm
+[pick] DISTURBED env11 at step=18032 stage=APPROACH t_in=9 disp=9mm
+[pick] CLOSE-entry env15: grasp_centre=[-0.15022584795951843, 0.11526359617710114, 0.8176617622375488] cup_gt=[-0.08866262435913086, 0.0760340690612793, 0.810000479221344] delta=[-0.062, 0.039, 0.008]
+[pick] CLOSE-entry env7: grasp_centre=[-0.09092496335506439, -0.127675861120224, 0.8287751078605652] cup_gt=[-0.09192466735839844, -0.13627004623413086, 0.8149998784065247] delta=[0.001, 0.009, 0.014]
+[pick] HOLD refused envs [15]: gc-cup dist [0.143] — retrying descent
+[pick] DISTURBED env7 at step=18145 stage=CLOSE t_in=17 disp=28mm
+[pick] HOLD refused envs [7]: gc-cup dist [0.188] — retrying descent
+[pick] CLOSE-entry env4: grasp_centre=[-0.09481482952833176, 0.08195602148771286, 0.831265389919281] cup_gt=[-0.0927615761756897, 0.08105778694152832, 0.8149998188018799] delta=[-0.002, 0.001, 0.016]
+[pick] DISTURBED env0 at step=18248 stage=PIVOT t_in=14 disp=16mm
+[pick] HOLD refused envs [4]: gc-cup dist [0.055] — retrying descent
+[pick] DISTURBED env5 at step=18265 stage=APPROACH t_in=11 disp=26mm
+[pick] CLOSE-entry env4: grasp_centre=[-0.09056906402111053, 0.07495108246803284, 0.8320443630218506] cup_gt=[-0.08911579847335815, 0.08246254920959473, 0.8149999380111694] delta=[-0.001, -0.008, 0.017]
+[pick] DISTURBED env9 at step=18359 stage=APPROACH t_in=4 disp=8mm
+[pick] HOLD refused envs [4]: gc-cup dist [0.047] — retrying descent
+[pick] CLOSE-entry env10: grasp_centre=[-0.13634952902793884, 0.1244104877114296, 0.8400822877883911] cup_gt=[-0.1538912057876587, 0.13205766677856445, 0.8150001764297485] delta=[0.018, -0.008, 0.025]
+[pick] CLOSE-entry env4: grasp_centre=[-0.10813114047050476, 0.09447208791971207, 0.8134244680404663] cup_gt=[-0.08911550045013428, 0.08246254920959473, 0.8149998784065247] delta=[-0.019, 0.012, -0.002]
+[pick] HOLD refused envs [10]: gc-cup dist [0.036] — retrying descent
+[pick] HOLD engaged for envs [4]
+[pick] DISTURBED env4 at step=18464 stage=LIFT t_in=1 disp=15mm
+[pick] CLOSE-entry env10: grasp_centre=[-0.1813523918390274, 0.15063470602035522, 0.8077211976051331] cup_gt=[-0.1538916826248169, 0.1320570707321167, 0.8150001168251038] delta=[-0.027, 0.019, -0.007]
+[pick] HOLD refused envs [10]: gc-cup dist [0.045] — retrying descent
+[pick] CLOSE-entry env10: grasp_centre=[-0.18140393495559692, 0.15423621237277985, 0.8100194931030273] cup_gt=[-0.1538916826248169, 0.1320570707321167, 0.8150001168251038] delta=[-0.028, 0.022, -0.005]
+[pick] HOLD engaged for envs [10]
+[pick] PLACED: envs [4] completed pick-move-place
+[rec] episode 24/200 saved (len=745, env=4)
+[pick] CLOSE-entry env14: grasp_centre=[-0.10000180453062057, -0.09240999817848206, 0.8166508078575134] cup_gt=[-0.08884119987487793, -0.08568531274795532, 0.8150003552436829] delta=[-0.011, -0.007, 0.002]
+[pick] DISTURBED env13 at step=18924 stage=APPROACH t_in=3 disp=19mm
+[pick] DISTURBED env4 at step=18928 stage=APPROACH t_in=7 disp=15mm
+[pick] DISTURBED env7 at step=18933 stage=APPROACH t_in=9 disp=12mm
+[pick] DISTURBED env12 at step=18936 stage=APPROACH t_in=13 disp=14mm
+[pick] HOLD engaged for envs [14]
+[pick] DISTURBED env14 at step=18950 stage=LIFT t_in=1 disp=25mm
+[pick] DISTURBED env5 at step=19161 stage=APPROACH t_in=7 disp=15mm
+[pick] CLOSE-entry env7: grasp_centre=[-0.020783349871635437, -0.10388777405023575, 0.816133439540863] cup_gt=[-0.010969936847686768, -0.10005307197570801, 0.8099998831748962] delta=[-0.01, -0.004, 0.006]
+[pick] PLACED: envs [14] completed pick-move-place
+[rec] episode 25/200 saved (len=799, env=14)
+[pick] HOLD refused envs [7]: gc-cup dist [0.056] — retrying descent
+[pick] DISTURBED env9 at step=19266 stage=APPROACH t_in=9 disp=18mm
+[pick] DISTURBED env15 at step=19341 stage=DESCEND t_in=78 disp=12mm
+[pick] DISTURBED env7 at step=19823 stage=APPROACH t_in=2 disp=21mm
+[pick] DISTURBED env13 at step=19825 stage=APPROACH t_in=4 disp=10mm
+[pick] DISTURBED env12 at step=19826 stage=APPROACH t_in=5 disp=8mm
+[pick] DISTURBED env10 at step=19832 stage=APPROACH t_in=11 disp=10mm
+[pick] CLOSE-entry env10: grasp_centre=[-0.049466323107481, 0.0830737054347992, 0.8014709949493408] cup_gt=[-0.03917062282562256, 0.08311069011688232, 0.8150001168251038] delta=[-0.01, -0.0, -0.014]
+[pick] DISTURBED env5 at step=20058 stage=APPROACH t_in=4 disp=27mm
+[pick] HOLD refused envs [10]: gc-cup dist [0.09] — retrying descent
+[pick] CLOSE-entry env10: grasp_centre=[-0.04965231567621231, 0.08329150080680847, 0.8017693758010864] cup_gt=[-0.03917121887207031, 0.08311069011688232, 0.8150001764297485] delta=[-0.01, 0.0, -0.013]
+[pick] CLOSE-entry env0: grasp_centre=[-0.0938023179769516, 0.06923072785139084, 0.8235865235328674] cup_gt=[-0.09166550636291504, 0.0838322639465332, 0.8149995803833008] delta=[-0.002, -0.015, 0.009]
+[pick] HOLD refused envs [10]: gc-cup dist [0.091] — retrying descent
+[pick] DISTURBED env14 at step=20262 stage=APPROACH t_in=6 disp=13mm
+[pick] DISTURBED env9 at step=20305 stage=DESCEND t_in=63 disp=12mm
+[pick] HOLD refused envs [0]: gc-cup dist [0.039] — retrying descent
+[pick] CLOSE-entry env0: grasp_centre=[-0.09310218691825867, 0.07702577114105225, 0.8248118758201599] cup_gt=[-0.09166669845581055, 0.0838322639465332, 0.8149995803833008] delta=[-0.001, -0.007, 0.01]
+[pick] HOLD engaged for envs [0]
+[pick] DISTURBED env0 at step=20333 stage=CLOSE t_in=7 disp=16mm
+[pick] HOLD engaged for envs [0]
+[pick] CLOSE-entry env10: grasp_centre=[-0.05377795547246933, 0.08626186102628708, 0.8108652234077454] cup_gt=[-0.039171457290649414, 0.08311092853546143, 0.8150001168251038] delta=[-0.015, 0.003, -0.004]
+[pick] HOLD refused envs [10]: gc-cup dist [0.091] — retrying descent
+[pick] CLOSE-entry env10: grasp_centre=[-0.05746360868215561, 0.08848180621862411, 0.8014104962348938] cup_gt=[-0.039170265197753906, 0.08311128616333008, 0.8150001764297485] delta=[-0.018, 0.005, -0.014]
+[pick] HOLD refused envs [10]: gc-cup dist [0.116] — retrying descent
+[pick] PLACED: envs [0] completed pick-move-place
+[rec] episode 26/200 saved (len=638, env=0)
+[pick] DISTURBED env13 at step=20722 stage=APPROACH t_in=1 disp=17mm
+[pick] DISTURBED env10 at step=20726 stage=APPROACH t_in=5 disp=17mm
+[pick] CLOSE-entry env13: grasp_centre=[-0.16693972051143646, 0.1796605885028839, 0.7989596724510193] cup_gt=[-0.04925131797790527, 0.05046135187149048, 0.8100004196166992] delta=[-0.118, 0.129, -0.011]
+[pick] HOLD refused envs [13]: gc-cup dist [0.083] — retrying descent
+[pick] DISTURBED env15 at step=20936 stage=APPROACH t_in=7 disp=15mm
+[pick] DISTURBED env0 at step=20961 stage=APPROACH t_in=6 disp=17mm
+[pick] CLOSE-entry env11: grasp_centre=[-0.09903404116630554, -0.09778741002082825, 0.8178340792655945] cup_gt=[-0.09204351902008057, -0.08399152755737305, 0.8150001168251038] delta=[-0.007, -0.014, 0.003]
+[pick] DISTURBED env9 at step=21057 stage=APPROACH t_in=2 disp=9mm
+[pick] CLOSE-entry env13: grasp_centre=[-0.1614857017993927, 0.19113822281360626, 0.8020671606063843] cup_gt=[-0.04881167411804199, 0.049919724464416504, 0.8100004196166992] delta=[-0.113, 0.141, -0.008]
+[pick] DISTURBED env5 at step=21075 stage=DESCEND t_in=61 disp=8mm
+[pick] HOLD refused envs [11]: gc-cup dist [0.084] — retrying descent
+[pick] HOLD refused envs [13]: gc-cup dist [0.117] — retrying descent
+[pick] DISTURBED env14 at step=21160 stage=APPROACH t_in=4 disp=43mm
+[pick] CLOSE-entry env11: grasp_centre=[-0.10822350531816483, -0.090293750166893, 0.8110504746437073] cup_gt=[-0.09204328060150146, -0.08399081230163574, 0.8150001764297485] delta=[-0.016, -0.006, -0.004]
+[pick] CLOSE-entry env13: grasp_centre=[-0.15761825442314148, 0.1798802763223648, 0.8049781918525696] cup_gt=[-0.048778533935546875, 0.04987901449203491, 0.8100004196166992] delta=[-0.109, 0.13, -0.005]
+[pick] HOLD engaged for envs [11]
+[pick] DISTURBED env11 at step=21265 stage=LIFT t_in=1 disp=16mm
+[pick] HOLD refused envs [13]: gc-cup dist [0.09] — retrying descent
+[pick] CLOSE-entry env13: grasp_centre=[-0.16246983408927917, 0.18028955161571503, 0.8037670850753784] cup_gt=[-0.0487673282623291, 0.049865007400512695, 0.8100003600120544] delta=[-0.114, 0.13, -0.006]
+[pick] HOLD refused envs [13]: gc-cup dist [0.106] — retrying descent
+[pick] PLACED: envs [11] completed pick-move-place
+[rec] episode 27/200 saved (len=856, env=11)
+[pick] DISTURBED env11 at step=21610 stage=PIVOT t_in=10 disp=15mm
+[pick] DISTURBED env13 at step=21627 stage=APPROACH t_in=6 disp=8mm
+[pick] DISTURBED env4 at step=21631 stage=APPROACH t_in=10 disp=8mm
+[pick] CLOSE-entry env4: grasp_centre=[-0.04612835496664047, 0.09384927153587341, 0.8267359733581543] cup_gt=[-0.037859201431274414, 0.08203411102294922, 0.8149998188018799] delta=[-0.008, 0.012, 0.012]
+[pick] HOLD engaged for envs [4]
+[pick] HOLD engaged for envs [4]
+[pick] DISTURBED env15 at step=21833 stage=APPROACH t_in=4 disp=17mm
+[pick] DISTURBED env0 at step=21859 stage=APPROACH t_in=4 disp=9mm
+[pick] DISTURBED env9 at step=21967 stage=APPROACH t_in=12 disp=12mm
+[pick] PLACED: envs [4] completed pick-move-place
+[rec] episode 28/200 saved (len=425, env=4)
+[pick] DISTURBED env5 at step=22113 stage=DESCEND t_in=232 disp=11mm
+[pick] DISTURBED env14 at step=22239 stage=DESCEND t_in=108 disp=9mm
+[pick] DISTURBED env13 at step=22519 stage=PIVOT t_in=19 disp=13mm
+[pick] DISTURBED env12 at step=22525 stage=APPROACH t_in=4 disp=20mm
+[pick] DISTURBED env4 at step=22529 stage=APPROACH t_in=8 disp=15mm
+[pick] CLOSE-entry env12: grasp_centre=[-0.08046764880418777, -0.08573541790246964, 0.8402211666107178] cup_gt=[-0.10851526260375977, -0.10231828689575195, 0.8150003552436829] delta=[0.028, 0.017, 0.025]
+[pick] HOLD refused envs [12]: gc-cup dist [0.074] — retrying descent
+[pick] DISTURBED env9 at step=22859 stage=APPROACH t_in=4 disp=20mm
+[pick] DISTURBED env14 at step=22965 stage=APPROACH t_in=9 disp=18mm
+[pick] CLOSE-entry env12: grasp_centre=[-0.1282798945903778, -0.12210988253355026, 0.813868522644043] cup_gt=[-0.10851502418518066, -0.10231828689575195, 0.8150003552436829] delta=[-0.02, -0.02, -0.001]
+[pick] HOLD engaged for envs [12]
+[pick] CLOSE-entry env14: grasp_centre=[-0.14098778367042542, 0.13838832080364227, 0.8101009726524353] cup_gt=[-0.12548089027404785, 0.12102460861206055, 0.810000479221344] delta=[-0.016, 0.017, 0.0]
+[pick] HOLD refused envs [14]: gc-cup dist [0.042] — retrying descent
+[pick] CLOSE-entry env14: grasp_centre=[-0.10568291693925858, 0.1152196004986763, 0.8390844464302063] cup_gt=[-0.12549471855163574, 0.12110793590545654, 0.8100004196166992] delta=[0.02, -0.006, 0.029]
+[pick] HOLD refused envs [14]: gc-cup dist [0.037] — retrying descent
+[pick] CLOSE-entry env14: grasp_centre=[-0.1508561372756958, 0.15447689592838287, 0.8142578601837158] cup_gt=[-0.12549591064453125, 0.12111544609069824, 0.810000479221344] delta=[-0.025, 0.033, 0.004]
+[pick] PLACED: envs [12] completed pick-move-place
+[rec] episode 29/200 saved (len=852, env=12)
+[pick] HOLD refused envs [14]: gc-cup dist [0.055] — retrying descent
+[pick] DISTURBED env13 at step=23419 stage=PIVOT t_in=19 disp=12mm
+[pick] DISTURBED env12 at step=23428 stage=APPROACH t_in=7 disp=19mm
+[pick] DISTURBED env4 at step=23430 stage=APPROACH t_in=9 disp=9mm
+[pick] DISTURBED env11 at step=23553 stage=DESCEND t_in=67 disp=9mm
+[pick] CLOSE-entry env10: grasp_centre=[-0.12845338881015778, 0.18277785181999207, 0.8040277361869812] cup_gt=[-0.09251046180725098, 0.13594436645507812, 0.8150001168251038] delta=[-0.036, 0.047, -0.011]
+[pick] DISTURBED env10 at step=23632 stage=CLOSE t_in=59 disp=10mm
+[pick] HOLD refused envs [10]: gc-cup dist [0.056] — retrying descent
+[pick] CLOSE-entry env4: grasp_centre=[-0.10056629776954651, 0.08937855064868927, 0.8354328870773315] cup_gt=[-0.11088109016418457, 0.09391665458679199, 0.8099998235702515] delta=[0.01, -0.005, 0.025]
+[pick] DISTURBED env0 at step=23658 stage=APPROACH t_in=3 disp=23mm
+[pick] DISTURBED env5 at step=23658 stage=APPROACH t_in=4 disp=10mm
+[pick] CLOSE-entry env14: grasp_centre=[-0.14745505154132843, 0.14707352221012115, 0.8157563805580139] cup_gt=[-0.12550020217895508, 0.12113964557647705, 0.810000479221344] delta=[-0.022, 0.026, 0.006]
+[pick] HOLD refused envs [4]: gc-cup dist [0.098] — retrying descent
+[pick] HOLD refused envs [14]: gc-cup dist [0.077] — retrying descent
+[pick] CLOSE-entry env11: grasp_centre=[-0.07501731812953949, -0.1000809594988823, 0.8342776298522949] cup_gt=[-0.08692705631256104, -0.14432311058044434, 0.8150001168251038] delta=[0.012, 0.044, 0.019]
+[pick] CLOSE-entry env0: grasp_centre=[-0.14919033646583557, 0.11847081035375595, 0.8174946308135986] cup_gt=[-0.13047027587890625, 0.10903000831604004, 0.8149995803833008] delta=[-0.019, 0.009, 0.002]
+[pick] CLOSE-entry env4: grasp_centre=[-0.13164764642715454, 0.10886786878108978, 0.8108100891113281] cup_gt=[-0.11094778776168823, 0.09395742416381836, 0.8099998831748962] delta=[-0.021, 0.015, 0.001]
+[pick] HOLD refused envs [11]: gc-cup dist [0.124] — retrying descent
+[pick] HOLD engaged for envs [0]
+[pick] HOLD engaged for envs [4]
+[pick] CLOSE-entry env5: grasp_centre=[-0.21704840660095215, 0.18824388086795807, 0.8149769306182861] cup_gt=[-0.18584972620010376, 0.15943598747253418, 0.809999942779541] delta=[-0.031, 0.029, 0.005]
+[pick] HOLD refused envs [5]: gc-cup dist [0.068] — retrying descent
+[pick] PLACED: envs [0] completed pick-move-place
+[rec] episode 30/200 saved (len=551, env=0)
+[pick] CLOSE-entry env5: grasp_centre=[-0.21627143025398254, 0.18825159966945648, 0.8150556087493896] cup_gt=[-0.18585604429244995, 0.15944194793701172, 0.8099998831748962] delta=[-0.03, 0.029, 0.005]
+[pick] PLACED: envs [4] completed pick-move-place
+[rec] episode 31/200 saved (len=790, env=4)
+[pick] HOLD refused envs [5]: gc-cup dist [0.075] — retrying descent
+[pick] DISTURBED env4 at step=24307 stage=PIVOT t_in=7 disp=11mm
+[pick] DISTURBED env12 at step=24325 stage=APPROACH t_in=4 disp=44mm
+[pick] DISTURBED env13 at step=24327 stage=APPROACH t_in=5 disp=14mm
+[pick] DISTURBED env11 at step=24331 stage=APPROACH t_in=10 disp=9mm
+[pick] CLOSE-entry env5: grasp_centre=[-0.21185541152954102, 0.18559017777442932, 0.8173285722732544] cup_gt=[-0.1858615279197693, 0.15944713354110718, 0.809999942779541] delta=[-0.026, 0.026, 0.007]
+[pick] HOLD refused envs [5]: gc-cup dist [0.07] — retrying descent
+[pick] CLOSE-entry env13: grasp_centre=[-0.12733213603496552, 0.1762952357530594, 0.8379524350166321] cup_gt=[-0.1630852222442627, 0.2055019736289978, 0.8150004148483276] delta=[0.036, -0.029, 0.023]
+[pick] HOLD refused envs [13]: gc-cup dist [0.183] — retrying descent
+[pick] DISTURBED env0 at step=24561 stage=APPROACH t_in=6 disp=9mm
+[pick] CLOSE-entry env10: grasp_centre=[-0.05521174520254135, -0.08942802250385284, 0.8114888072013855] cup_gt=[-0.03749990463256836, -0.08249962329864502, 0.8150001764297485] delta=[-0.018, -0.007, -0.004]
+[pick] HOLD refused envs [10]: gc-cup dist [0.055] — retrying descent
+[pick] CLOSE-entry env10: grasp_centre=[-0.0458403080701828, -0.09588617831468582, 0.8124568462371826] cup_gt=[-0.03750026226043701, -0.082500159740448, 0.8150001168251038] delta=[-0.008, -0.013, -0.003]
+[pick] DISTURBED env9 at step=24660 stage=APPROACH t_in=5 disp=18mm
+[pick] HOLD refused envs [10]: gc-cup dist [0.08] — retrying descent
+[pick] DISTURBED env14 at step=24760 stage=APPROACH t_in=4 disp=11mm
+[pick] CLOSE-entry env5: grasp_centre=[-0.04509193077683449, -0.0774531438946724, 0.8254102468490601] cup_gt=[-0.03750050067901611, -0.08249974250793457, 0.8149998188018799] delta=[-0.008, 0.005, 0.01]
+[pick] CLOSE-entry env10: grasp_centre=[-0.049486011266708374, -0.0724957138299942, 0.8088892102241516] cup_gt=[-0.037500977516174316, -0.08250027894973755, 0.8150001764297485] delta=[-0.012, 0.01, -0.006]
+[pick] HOLD refused envs [5]: gc-cup dist [0.114] — retrying descent
+[pick] HOLD refused envs [10]: gc-cup dist [0.074] — retrying descent
+[pick] CLOSE-entry env14: grasp_centre=[-0.09701412916183472, 0.06247454509139061, 0.8152129054069519] cup_gt=[-0.08968329429626465, 0.06165111064910889, 0.8100004196166992] delta=[-0.007, 0.001, 0.005]
+[pick] HOLD engaged for envs [14]
+[pick] CLOSE-entry env10: grasp_centre=[-0.04673640429973602, -0.07561813294887543, 0.8089946508407593] cup_gt=[-0.03749990463256836, -0.08249980211257935, 0.8150001168251038] delta=[-0.009, 0.007, -0.006]
+[pick] HOLD engaged for envs [14]
+[pick] HOLD refused envs [10]: gc-cup dist [0.088] — retrying descent
+[pick] DISTURBED env13 at step=25223 stage=APPROACH t_in=2 disp=9mm
+[pick] DISTURBED env12 at step=25231 stage=APPROACH t_in=10 disp=9mm
+[pick] PLACED: envs [14] completed pick-move-place
+[rec] episode 32/200 saved (len=566, env=14)
+[pick] CLOSE-entry env13: grasp_centre=[-0.16150203347206116, 0.20347777009010315, 0.8090132474899292] cup_gt=[-0.1361684799194336, 0.18105554580688477, 0.810000479221344] delta=[-0.025, 0.022, -0.001]
+[pick] DISTURBED env15 at step=25433 stage=APPROACH t_in=4 disp=38mm
+[pick] HOLD refused envs [13]: gc-cup dist [0.039] — retrying descent
+[pick] DISTURBED env9 at step=25562 stage=APPROACH t_in=7 disp=19mm
+[pick] CLOSE-entry env13: grasp_centre=[-0.157352015376091, 0.21599604189395905, 0.8128618597984314] cup_gt=[-0.1361539363861084, 0.1810351014137268, 0.810000479221344] delta=[-0.021, 0.035, 0.003]
+[pick] HOLD refused envs [13]: gc-cup dist [0.067] — retrying descent
+[pick] DISTURBED env14 at step=25786 stage=DESCEND t_in=58 disp=20mm
+[pick] DISTURBED env11 at step=26126 stage=APPROACH t_in=5 disp=53mm
+[pick] DISTURBED env13 at step=26132 stage=APPROACH t_in=9 disp=21mm
+[pick] CLOSE-entry env13: grasp_centre=[-0.041827790439128876, 0.09133007377386093, 0.8128300309181213] cup_gt=[-0.033101797103881836, 0.08843052387237549, 0.8100004196166992] delta=[-0.009, 0.003, 0.003]
+[pick] HOLD refused envs [13]: gc-cup dist [0.073] — retrying descent
+[pick] CLOSE-entry env13: grasp_centre=[-0.030739016830921173, 0.1240495890378952, 0.8431968688964844] cup_gt=[-0.03304934501647949, 0.088431715965271, 0.8100004196166992] delta=[0.002, 0.036, 0.033]
+[pick] DISTURBED env15 at step=26333 stage=APPROACH t_in=4 disp=23mm
+[pick] HOLD refused envs [13]: gc-cup dist [0.066] — retrying descent
+[pick] CLOSE-entry env13: grasp_centre=[-0.022599492222070694, 0.10007806122303009, 0.8418147563934326] cup_gt=[-0.03304934501647949, 0.08843177556991577, 0.8100004196166992] delta=[0.01, 0.012, 0.032]
+[pick] HOLD refused envs [13]: gc-cup dist [0.067] — retrying descent
+[pick] DISTURBED env9 at step=26461 stage=APPROACH t_in=6 disp=39mm
+[pick] CLOSE-entry env15: grasp_centre=[-0.1627206951379776, 0.1768932044506073, 0.8070743083953857] cup_gt=[-0.13945221900939941, 0.14006328582763672, 0.8100004196166992] delta=[-0.023, 0.037, -0.003]
+[pick] HOLD refused envs [15]: gc-cup dist [0.049] — retrying descent
+[pick] DISTURBED env14 at step=26571 stage=APPROACH t_in=12 disp=20mm
+[pick] DISTURBED env5 at step=26693 stage=DESCEND t_in=251 disp=18mm
+[pick] CLOSE-entry env13: grasp_centre=[-0.035191211849451065, 0.09680340439081192, 0.8235047459602356] cup_gt=[-0.03304934501647949, 0.088431715965271, 0.8100004196166992] delta=[-0.002, 0.008, 0.014]
+[pick] HOLD refused envs [13]: gc-cup dist [0.041] — retrying descent
+[pick] CLOSE-entry env13: grasp_centre=[-0.017213400453329086, 0.11576081812381744, 0.8438856601715088] cup_gt=[-0.03304934501647949, 0.088431715965271, 0.8100004196166992] delta=[0.016, 0.027, 0.034]
+[pick] HOLD engaged for envs [13]
+[pick] DISTURBED env13 at step=27001 stage=PIVOT t_in=1 disp=8mm
+[pick] DISTURBED env10 at step=27025 stage=APPROACH t_in=3 disp=18mm
+[pick] DISTURBED env0 at step=27259 stage=APPROACH t_in=4 disp=10mm
+[pick] DISTURBED env15 at step=27403 stage=DESCEND t_in=108 disp=11mm
+[pick] DISTURBED env5 at step=27562 stage=DESCEND t_in=81 disp=15mm
+[pick] DISTURBED env12 at step=27925 stage=APPROACH t_in=4 disp=23mm
+[pick] DISTURBED env13 at step=27926 stage=APPROACH t_in=5 disp=8mm
+[pick] DISTURBED env10 at step=28096 stage=DESCEND t_in=149 disp=10mm
+[pick] DISTURBED env15 at step=28123 stage=PIVOT t_in=15 disp=10mm
+[pick] CLOSE-entry env10: grasp_centre=[-0.04919026046991348, 0.213016077876091, 0.8250104188919067] cup_gt=[-0.11488890647888184, 0.2565861940383911, 0.8100598454475403] delta=[0.066, -0.044, 0.015]
+[pick] DISTURBED env0 at step=28162 stage=APPROACH t_in=7 disp=13mm
+[pick] HOLD refused envs [10]: gc-cup dist [0.226] — retrying descent
+[pick] DISTURBED env14 at step=28362 stage=APPROACH t_in=6 disp=37mm
+[pick] CLOSE-entry env12: grasp_centre=[-0.13391010463237762, -0.18766817450523376, 0.8141088485717773] cup_gt=[-0.11810636520385742, -0.16334986686706543, 0.8150004148483276] delta=[-0.016, -0.024, -0.001]
+[pick] DISTURBED env5 at step=28442 stage=DESCEND t_in=125 disp=13mm
+[pick] HOLD refused envs [12]: gc-cup dist [0.116] — retrying descent
+[pick] DISTURBED env10 at step=28827 stage=APPROACH t_in=6 disp=11mm
+[pick] DISTURBED env11 at step=28827 stage=APPROACH t_in=6 disp=19mm
+[pick] CLOSE-entry env10: grasp_centre=[-0.04145347326993942, 0.1613377183675766, 0.8275890946388245] cup_gt=[-0.04126548767089844, 0.14352071285247803, 0.8150001168251038] delta=[-0.0, 0.018, 0.013]
+[pick] CLOSE-entry env12: grasp_centre=[-0.09195509552955627, 0.22617341578006744, 0.8404917120933533] cup_gt=[-0.09240555763244629, 0.1909468173980713, 0.8150003552436829] delta=[0.0, 0.035, 0.025]
+[pick] HOLD engaged for envs [10]
+[pick] DISTURBED env12 at step=28946 stage=CLOSE t_in=25 disp=18mm
+[pick] HOLD engaged for envs [12]
+[pick] DISTURBED env15 at step=29009 stage=PIVOT t_in=1 disp=10mm
+[pick] DISTURBED env5 at step=29075 stage=APPROACH t_in=21 disp=10mm
+[pick] PLACED: envs [10] completed pick-move-place
+[rec] episode 33/200 saved (len=426, env=10)
+[pick] DISTURBED env14 at step=29260 stage=APPROACH t_in=4 disp=16mm
+[pick] PLACED: envs [12] completed pick-move-place
+[rec] episode 34/200 saved (len=465, env=12)
+[pick] DISTURBED env12 at step=29727 stage=APPROACH t_in=6 disp=11mm
+[pick] DISTURBED env10 at step=29729 stage=APPROACH t_in=8 disp=23mm
+[pick] CLOSE-entry env10: grasp_centre=[-0.006788909435272217, -0.10076304525136948, 0.8552544116973877] cup_gt=[-0.024272799491882324, -0.09055018424987793, 0.8100001811981201] delta=[0.017, -0.01, 0.045]
+[pick] HOLD refused envs [10]: gc-cup dist [0.08] — retrying descent
+[pick] CLOSE-entry env10: grasp_centre=[-0.036442067474126816, -0.08648311346769333, 0.8025685548782349] cup_gt=[-0.024283170700073242, -0.09053301811218262, 0.8100001811981201] delta=[-0.012, 0.004, -0.007]
+[pick] HOLD refused envs [10]: gc-cup dist [0.062] — retrying descent
+[pick] CLOSE-entry env10: grasp_centre=[-0.03824111074209213, -0.0954887866973877, 0.8128503561019897] cup_gt=[-0.024283289909362793, -0.09053313732147217, 0.8100003004074097] delta=[-0.014, -0.005, 0.003]
+[pick] HOLD refused envs [10]: gc-cup dist [0.07] — retrying descent
+[pick] CLOSE-entry env10: grasp_centre=[-0.033989861607551575, -0.10189501196146011, 0.8208690285682678] cup_gt=[-0.02428436279296875, -0.09053117036819458, 0.8100001811981201] delta=[-0.01, -0.011, 0.011]
+[pick] HOLD refused envs [10]: gc-cup dist [0.046] — retrying descent
+[pick] CLOSE-entry env5: grasp_centre=[-0.10128997266292572, -0.09296389669179916, 0.8167980909347534] cup_gt=[-0.09250026941299438, -0.08250010013580322, 0.8149998188018799] delta=[-0.009, -0.01, 0.002]
+[pick] HOLD engaged for envs [5]
+[pick] DISTURBED env5 at step=30388 stage=CLOSE t_in=8 disp=9mm
+[pick] HOLD engaged for envs [5]
+[pick] CLOSE-entry env10: grasp_centre=[-0.03555925190448761, -0.07247249782085419, 0.811833381652832] cup_gt=[0.02796834707260132, -0.19693893194198608, 0.8100002408027649] delta=[-0.064, 0.124, 0.002]
+[pick] HOLD refused envs [10]: gc-cup dist [0.116] — retrying descent
+[pick] DISTURBED env12 at step=30604 stage=PIVOT t_in=4 disp=18mm
+[pick] DISTURBED env11 at step=30627 stage=APPROACH t_in=6 disp=18mm
+[pick] DISTURBED env13 at step=30627 stage=APPROACH t_in=6 disp=17mm
+[pick] PLACED: envs [5] completed pick-move-place
+[rec] episode 35/200 saved (len=797, env=5)
+[pick] DISTURBED env5 at step=30861 stage=APPROACH t_in=7 disp=10mm
+[pick] DISTURBED env14 at step=31062 stage=APPROACH t_in=6 disp=24mm
+[pick] DISTURBED env13 at step=31529 stage=APPROACH t_in=8 disp=17mm
+[pick] DISTURBED env5 at step=31759 stage=APPROACH t_in=5 disp=26mm
+[pick] DISTURBED env12 at step=32426 stage=APPROACH t_in=5 disp=8mm
+[pick] DISTURBED env11 at step=32427 stage=APPROACH t_in=6 disp=21mm
+[pick] DISTURBED env10 at step=32527 stage=DESCEND t_in=56 disp=9mm
+[pick] DISTURBED env13 at step=32645 stage=DESCEND t_in=90 disp=10mm
+[pick] CLOSE-entry env13: grasp_centre=[-0.0995432659983635, 0.10271041840314865, 0.8358041048049927] cup_gt=[-0.12053847312927246, 0.06272542476654053, 0.8150004148483276] delta=[0.021, 0.04, 0.021]
+[pick] HOLD refused envs [13]: gc-cup dist [0.117] — retrying descent
+[pick] DISTURBED env12 at step=33324 stage=APPROACH t_in=3 disp=9mm
+[pick] DISTURBED env11 at step=33325 stage=APPROACH t_in=4 disp=26mm
+[pick] DISTURBED env13 at step=33326 stage=APPROACH t_in=5 disp=42mm
+[pick] DISTURBED env10 at step=33331 stage=APPROACH t_in=9 disp=19mm
+[pick] DISTURBED env5 at step=33558 stage=APPROACH t_in=4 disp=16mm
+[pick] DISTURBED env14 at step=33761 stage=APPROACH t_in=5 disp=31mm
+[pick] DISTURBED env10 at step=34234 stage=APPROACH t_in=10 disp=14mm
+[pick] DISTURBED env5 at step=34470 stage=APPROACH t_in=13 disp=15mm
+[pick] DISTURBED env11 at step=34521 stage=DESCEND t_in=80 disp=11mm
+[pick] DISTURBED env11 at step=34596 stage=PIVOT t_in=17 disp=8mm
+[pick] DISTURBED env10 at step=35125 stage=APPROACH t_in=4 disp=11mm
+[pick] DISTURBED env13 at step=35125 stage=APPROACH t_in=4 disp=23mm
+[pick] CLOSE-entry env13: grasp_centre=[-0.09223054349422455, 0.10972191393375397, 0.823266863822937] cup_gt=[-0.08881783485412598, 0.089885413646698, 0.810000479221344] delta=[-0.003, 0.02, 0.013]
+[pick] CLOSE-entry env10: grasp_centre=[-0.12347038090229034, -0.1630188226699829, 0.8275314569473267] cup_gt=[-0.18275463581085205, -0.21807104349136353, 0.8100014328956604] delta=[0.059, 0.055, 0.018]
+[pick] HOLD refused envs [13]: gc-cup dist [0.101] — retrying descent
+[pick] DISTURBED env5 at step=35362 stage=APPROACH t_in=8 disp=11mm
+[pick] HOLD refused envs [10]: gc-cup dist [0.317] — retrying descent
+[pick] CLOSE-entry env13: grasp_centre=[-0.10684119910001755, 0.08706701546907425, 0.8118933439254761] cup_gt=[-0.08885335922241211, 0.08990329504013062, 0.810000479221344] delta=[-0.018, -0.003, 0.002]
+[pick] CLOSE-entry env12: grasp_centre=[-0.0919368714094162, 0.09650897979736328, 0.8336271047592163] cup_gt=[-0.09249997138977051, 0.08250045776367188, 0.8150004148483276] delta=[0.001, 0.014, 0.019]
+[pick] HOLD refused envs [13]: gc-cup dist [0.053] — retrying descent
+[pick] CLOSE-entry env13: grasp_centre=[-0.10023878514766693, 0.09946508705615997, 0.8195359110832214] cup_gt=[-0.08887195587158203, 0.08991289138793945, 0.810000479221344] delta=[-0.011, 0.01, 0.01]
+[pick] HOLD refused envs [12]: gc-cup dist [0.108] — retrying descent
+[pick] HOLD engaged for envs [13]
+[pick] DISTURBED env14 at step=35561 stage=APPROACH t_in=5 disp=26mm
+[pick] CLOSE-entry env10: grasp_centre=[-0.13765409588813782, -0.17812831699848175, 0.7976949214935303] cup_gt=[-0.33988285064697266, -0.2635166645050049, 0.8100001811981201] delta=[0.202, 0.085, -0.012]
+[pick] DISTURBED env11 at step=35639 stage=DESCEND t_in=53 disp=21mm
+[pick] CLOSE-entry env12: grasp_centre=[-0.08781610429286957, 0.0883471816778183, 0.8375715017318726] cup_gt=[-0.09250092506408691, 0.08249974250793457, 0.8150004148483276] delta=[0.005, 0.006, 0.023]
+[pick] HOLD refused envs [10]: gc-cup dist [0.319] — retrying descent
+[pick] DISTURBED env11 at step=35689 stage=PIVOT t_in=16 disp=10mm
+[pick] HOLD refused envs [12]: gc-cup dist [0.097] — retrying descent
+[pick] CLOSE-entry env12: grasp_centre=[-0.08911384642124176, 0.09171304106712341, 0.8336569666862488] cup_gt=[-0.09250020980834961, 0.08249974250793457, 0.8150003552436829] delta=[0.003, 0.009, 0.019]
+[pick] HOLD engaged for envs [12]
+[pick] DISTURBED env12 at step=35783 stage=CLOSE t_in=6 disp=11mm
+[pick] PLACED: envs [13] completed pick-move-place
+[rec] episode 36/200 saved (len=699, env=13)
+[pick] HOLD engaged for envs [12]
+[pick] DISTURBED env12 at step=36001 stage=PIVOT t_in=1 disp=25mm
+[pick] DISTURBED env10 at step=36005 stage=PIVOT t_in=5 disp=9mm
+[pick] DISTURBED env13 at step=36029 stage=APPROACH t_in=8 disp=18mm
+[pick] CLOSE-entry env5: grasp_centre=[-0.10545292496681213, 0.09613873064517975, 0.8180904984474182] cup_gt=[-0.09249979257583618, 0.08250010013580322, 0.8149998188018799] delta=[-0.013, 0.014, 0.003]
+[pick] HOLD refused envs [5]: gc-cup dist [0.067] — retrying descent
+[pick] CLOSE-entry env5: grasp_centre=[-0.10395727306604385, 0.10707280784845352, 0.816177487373352] cup_gt=[-0.09249985218048096, 0.082500159740448, 0.8149998188018799] delta=[-0.011, 0.025, 0.001]
+[pick] HOLD refused envs [5]: gc-cup dist [0.075] — retrying descent
+[pick] CLOSE-entry env5: grasp_centre=[-0.09154362976551056, 0.087851881980896, 0.8194279074668884] cup_gt=[-0.09249985218048096, 0.08250033855438232, 0.8149998784065247] delta=[0.001, 0.005, 0.004]
+[pick] HOLD engaged for envs [5]
+[pick] DISTURBED env5 at step=36813 stage=CLOSE t_in=8 disp=15mm
+[pick] HOLD engaged for envs [5]
+[pick] DISTURBED env12 at step=36928 stage=APPROACH t_in=7 disp=12mm
+[pick] CLOSE-entry env13: grasp_centre=[-0.08236272633075714, 0.08402119576931, 0.8405404090881348] cup_gt=[-0.0924997329711914, 0.082500159740448, 0.8150003552436829] delta=[0.01, 0.002, 0.026]
+[pick] HOLD refused envs [13]: gc-cup dist [0.081] — retrying descent
+[pick] CLOSE-entry env13: grasp_centre=[-0.10197819024324417, 0.09349169582128525, 0.8150232434272766] cup_gt=[-0.09250020980834961, 0.08249980211257935, 0.8150003552436829] delta=[-0.009, 0.011, 0.0]
+[pick] HOLD refused envs [13]: gc-cup dist [0.041] — retrying descent
+[pick] CLOSE-entry env13: grasp_centre=[-0.09341117739677429, 0.09472028911113739, 0.8180963397026062] cup_gt=[-0.09250092506408691, 0.08249974250793457, 0.8150004148483276] delta=[-0.001, 0.012, 0.003]
+[pick] HOLD engaged for envs [13]
+[pick] DISTURBED env13 at step=37238 stage=CLOSE t_in=8 disp=13mm
+[pick] HOLD engaged for envs [13]
+[pick] DISTURBED env14 at step=37349 stage=PIVOT t_in=14 disp=9mm
+[pick] CLOSE-entry env14: grasp_centre=[-0.08429780602455139, 0.1310613602399826, 0.8164024949073792] cup_gt=[-0.0925898551940918, 0.11541128158569336, 0.810000479221344] delta=[0.008, 0.016, 0.006]
+[pick] HOLD engaged for envs [14]
+[pick] HOLD engaged for envs [14]
+[pick] DISTURBED env11 at step=37498 stage=APPROACH t_in=4 disp=9mm
+[pick] PLACED: envs [13] completed pick-move-place
+[rec] episode 37/200 saved (len=668, env=13)
+[pick] CLOSE-entry env11: grasp_centre=[-0.20196019113063812, 0.1647789627313614, 0.8070148825645447] cup_gt=[-0.17618966102600098, 0.1401352882385254, 0.8100002408027649] delta=[-0.026, 0.025, -0.003]
+[pick] PLACED: envs [14] completed pick-move-place
+[rec] episode 38/200 saved (len=441, env=14)
+[pick] HOLD refused envs [11]: gc-cup dist [0.051] — retrying descent
+[pick] DISTURBED env12 at step=37825 stage=APPROACH t_in=4 disp=14mm
+[pick] CLOSE-entry env11: grasp_centre=[-0.20672592520713806, 0.17283420264720917, 0.8141456842422485] cup_gt=[-0.17618966102600098, 0.1401352882385254, 0.8100002408027649] delta=[-0.031, 0.033, 0.004]
+[pick] HOLD engaged for envs [11]
+[pick] DISTURBED env5 at step=38059 stage=APPROACH t_in=5 disp=41mm
+[pick] PLACED: envs [11] completed pick-move-place
+[rec] episode 39/200 saved (len=746, env=11)
+[pick] CLOSE-entry env5: grasp_centre=[-0.18917521834373474, -0.14850877225399017, 0.804496705532074] cup_gt=[-0.16564804315567017, -0.13077354431152344, 0.809999942779541] delta=[-0.024, -0.018, -0.006]
+[pick] CLOSE-entry env14: grasp_centre=[-0.02994564175605774, 0.11002571880817413, 0.8416565656661987] cup_gt=[-0.03749966621398926, 0.08250010013580322, 0.8150003552436829] delta=[0.008, 0.028, 0.027]
+[pick] HOLD refused envs [5]: gc-cup dist [0.102] — retrying descent
+[pick] DISTURBED env11 at step=38539 stage=DESCEND t_in=66 disp=16mm
+[pick] HOLD refused envs [14]: gc-cup dist [0.093] — retrying descent
+[pick] CLOSE-entry env11: grasp_centre=[-0.07271838188171387, 0.11323633790016174, 0.8377991318702698] cup_gt=[-0.13325583934783936, 0.3731083869934082, 0.8100001811981201] delta=[0.061, -0.26, 0.028]
+[pick] DISTURBED env13 at step=38726 stage=APPROACH t_in=5 disp=53mm
+[pick] DISTURBED env12 at step=38730 stage=APPROACH t_in=9 disp=13mm
+[pick] HOLD refused envs [11]: gc-cup dist [0.143] — retrying descent
+[pick] CLOSE-entry env5: grasp_centre=[-0.1892819106578827, -0.15049470961093903, 0.8101288080215454] cup_gt=[-0.16573214530944824, -0.13082480430603027, 0.809999942779541] delta=[-0.024, -0.02, 0.0]
+[pick] DISTURBED env14 at step=38815 stage=DESCEND t_in=254 disp=11mm
+[pick] CLOSE-entry env12: grasp_centre=[-0.1477808654308319, -0.12542816996574402, 0.8179811239242554] cup_gt=[-0.13649630546569824, -0.11171627044677734, 0.8150004148483276] delta=[-0.011, -0.014, 0.003]
+[pick] HOLD refused envs [5]: gc-cup dist [0.104] — retrying descent
+[pick] HOLD refused envs [12]: gc-cup dist [0.082] — retrying descent
+[pick] DISTURBED env14 at step=39139 stage=PIVOT t_in=4 disp=12mm
+[pick] CLOSE-entry env12: grasp_centre=[-0.15402011573314667, -0.14127549529075623, 0.8012918829917908] cup_gt=[-0.10134458541870117, -0.07950639724731445, 0.8100003600120544] delta=[-0.053, -0.062, -0.009]
+[pick] HOLD refused envs [12]: gc-cup dist [0.139] — retrying descent
+[pick] DISTURBED env11 at step=39531 stage=DESCEND t_in=82 disp=16mm
+[pick] DISTURBED env13 at step=39636 stage=APPROACH t_in=15 disp=16mm
+[pick] DISTURBED env5 at step=39859 stage=APPROACH t_in=5 disp=26mm
+[pick] ======== RESULT: 44/16 solid lifts ========
+[pick] final stages: ['APPROACH', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'APPROACH', 'FAIL', 'FAIL', 'FAIL', 'APPROACH', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'APPROACH']
+2026-07-30T03:15:56Z [7,551ms] [Warning] [omni.fabric.plugin] getAttributeCount called on non-existent path /World/envs/env_9/SynriaArm/tool0/visuals/mesh_0
+2026-07-30T03:15:56Z [7,551ms] [Warning] [omni.fabric.plugin] getTypes called on non-existent path /World/envs/env_9/SynriaArm/tool0/visuals/mesh_0
+2026-07-30T03:15:58Z [9,723ms] [Warning] [carb] Client gpu.foundation.plugin has acquired [gpu::unstable::IMemoryBudgetManagerFactory v0.1] 100 times. Consider accessing this interface with carb::getCachedInterface() (Performance warning)
