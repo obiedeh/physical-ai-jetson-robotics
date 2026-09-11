@@ -31,6 +31,8 @@ Tools (this repository, offline-tested, never yet run on the Orin):
 
 ## 1. Discovery on the Orin (record, do not assume)
 
+Done read-only on 2026-09-10 after the reflash: [orin_discovery_2026-09-10.md](orin_discovery_2026-09-10.md). Launch is `ros2 launch slam_mapping slam_toolbox.launch.py`; frames are `map`, `odom`, `base_footprint`; the merged scan is `/scan_multi` and SLAM Toolbox reads `/scan`. Re-run the commands below at launch time to confirm the filter's output topic and the TF publisher.
+
 ```bash
 source scripts/jetson/orin_ros_env.sh
 ros2 pkg list | grep -i -E 'map|slam|laser|nav'
