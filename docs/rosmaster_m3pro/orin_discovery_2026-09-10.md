@@ -108,3 +108,17 @@ Humble; frames to pass are `--map-frame map --base-frame base_footprint`.
   facts still to be read off the live system at launch.
 - 11 GB free is enough for LiDAR bags at these rates (well under 100 MB per
   5 minutes without the camera).
+
+## Device rule, 2026-09-16 (operator)
+
+The Orin was reflashed and restored to the OEM package after the rover
+repair. Nothing on it is to be removed, stopped or cleaned up: vendor
+workspaces, the Dify and LLM layers, example trees and services all stay.
+Our work adds files under `/home/jetson/github/` and writes session
+directories; it does not subtract. This supersedes the August deletion
+rule, which permitted removals under conditions.
+
+State at that date: up, `/dev/myserial` present on the CP210x bridge, both
+Orbbec devices enumerated, 8.7 GB disk free, 5.2 GB RAM available, the
+micro-ROS agent not running because its autostart is a desktop-session
+entry and no desktop login had occurred since the reboot.
