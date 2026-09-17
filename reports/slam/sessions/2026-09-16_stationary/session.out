@@ -1,0 +1,13 @@
+[slam-session] provenance -> reports/slam/sessions/2026-09-16_stationary/provenance.json
+[slam-session] bag record pid 1411671 -> reports/slam/sessions/2026-09-16_stationary/bag
+[slam-session]     30s  mem_avail 3041 MB  VDD_IN p50 11918.2 mW
+[slam-session]     60s  mem_avail 3044 MB  VDD_IN p50 11157.8 mW
+[slam-session]     90s  mem_avail 3028 MB  VDD_IN p50 11060.7 mW
+[slam-session]    120s  mem_avail 3001 MB  VDD_IN p50 11060.7 mW
+[slam-session]    150s  mem_avail 2989 MB  VDD_IN p50 11732.2 mW
+[slam-session]    180s  mem_avail 2986 MB  VDD_IN p50 10963.7 mW
+[slam-session]    210s  mem_avail 2954 MB  VDD_IN p50 10963.7 mW
+[slam-session]    240s  mem_avail 2961 MB  VDD_IN p50 11441.3 mW
+[slam-session]    270s  mem_avail 2958 MB  VDD_IN p50 10866.7 mW
+[slam-session]    300s  mem_avail 2981 MB  VDD_IN p50 10679.7 mW
+[slam-session] complete -> reports/slam/sessions/2026-09-16_stationary/session.json

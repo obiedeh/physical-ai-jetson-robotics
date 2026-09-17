@@ -1,0 +1,179 @@
+{
+  "schema": "slam-session-v1",
+  "host": "yahboom",
+  "device_model": "NVIDIA Jetson Orin NX Engineering Reference Developer Kit Super",
+  "provenance": "provenance.json",
+  "slam_stack": "vendor slam_mapping slam_toolbox.launch.py on M3Pro_ws: slam_toolbox 2.6.10 online_async (mapper_params_online_async.yaml), ira_laser_tools laserscan_multi_merger, yahboom_laser_filter, imu_filter_madgwick, robot_localization ekf",
+  "topics": [
+    "/scan0",
+    "/scan1",
+    "/scan_multi",
+    "/scan",
+    "/imu/data_raw",
+    "/imu/data",
+    "/odom_raw",
+    "/odom",
+    "/tf",
+    "/tf_static",
+    "/map",
+    "/battery"
+  ],
+  "started_utc": "2026-09-17T01:04:02Z",
+  "status": "complete",
+  "still_baseline": {
+    "window_s": 15.0,
+    "note": "SLAM stack running, robot stationary, before bag record started"
+  },
+  "bag_command": [
+    "ros2",
+    "bag",
+    "record",
+    "-o",
+    "reports/slam/sessions/2026-09-16_stationary/bag",
+    "/scan0",
+    "/scan1",
+    "/scan_multi",
+    "/scan",
+    "/imu/data_raw",
+    "/imu/data",
+    "/odom_raw",
+    "/odom",
+    "/tf",
+    "/tf_static",
+    "/map",
+    "/battery"
+  ],
+  "record_started_utc": "2026-09-17T01:04:17Z",
+  "finished_utc": "2026-09-17T01:09:18Z",
+  "wall_clock_s": 315.7,
+  "record_s": 300.7,
+  "thermal": {
+    "samples": 315,
+    "temp_c_peak": 65.031,
+    "temp_c_sustained_p50": 63.812,
+    "throttling_suspected": false,
+    "throttle_threshold_c": 90.0,
+    "mem_available_kb_min": 3017636,
+    "mem_available_kb_p50": 3060380
+  },
+  "power": {
+    "rails": [
+      "VDD_CPU_GPU_CV",
+      "VDD_IN",
+      "VDD_SOC",
+      "sum of shunt voltages"
+    ],
+    "samples": 625,
+    "VDD_IN": {
+      "mW_peak": 12966.9,
+      "mW_p50": 11157.8,
+      "mW_min": 10485.5,
+      "n": 625
+    },
+    "VDD_CPU_GPU_CV": {
+      "mW_peak": 5802.2,
+      "mW_p50": 4460.2,
+      "mW_min": 3978.0,
+      "n": 625
+    },
+    "VDD_SOC": {
+      "mW_peak": 2327.0,
+      "mW_p50": 2231.6,
+      "mW_min": 2134.5,
+      "n": 625
+    },
+    "still_baseline": {
+      "VDD_IN": {
+        "mW_p50": 12297.7,
+        "mW_peak": 12579.8,
+        "n": 30
+      },
+      "VDD_CPU_GPU_CV": {
+        "mW_p50": 5228.9,
+        "mW_peak": 5608.8,
+        "n": 30
+      },
+      "VDD_SOC": {
+        "mW_p50": 2325.5,
+        "mW_peak": 2325.5,
+        "n": 30
+      }
+    },
+    "recording": {
+      "VDD_IN": {
+        "mW_p50": 11060.7,
+        "mW_peak": 12966.9,
+        "n": 595
+      },
+      "VDD_CPU_GPU_CV": {
+        "mW_p50": 4460.2,
+        "mW_peak": 5802.2,
+        "n": 595
+      },
+      "VDD_SOC": {
+        "mW_p50": 2231.6,
+        "mW_peak": 2327.0,
+        "n": 595
+      }
+    }
+  },
+  "processes": {
+    "samples": 157,
+    "interval_note": "cpu_percent is per process, over the sample interval, 100 = one core",
+    "processes": {
+      "ekf_node": {
+        "cpu_percent_p50": 3.5,
+        "cpu_percent_peak": 5.0,
+        "rss_mb_peak": 29.1,
+        "n": 157
+      },
+      "laserscan_multi_merger": {
+        "cpu_percent_p50": 2.5,
+        "cpu_percent_peak": 4.5,
+        "rss_mb_peak": 24.7,
+        "n": 157
+      },
+      "micro_ros_agent": {
+        "cpu_percent_p50": 3.5,
+        "cpu_percent_peak": 14.9,
+        "rss_mb_peak": 27.2,
+        "n": 314
+      },
+      "robot_state_publisher": {
+        "cpu_percent_p50": 0.5,
+        "cpu_percent_peak": 2.5,
+        "rss_mb_peak": 24.1,
+        "n": 157
+      },
+      "ros2 bag": {
+        "cpu_percent_p50": 7.4,
+        "cpu_percent_peak": 13.9,
+        "rss_mb_peak": 67.3,
+        "n": 149
+      },
+      "slam_pose_log": {
+        "cpu_percent_p50": 10.9,
+        "cpu_percent_peak": 18.8,
+        "rss_mb_peak": 60.1,
+        "n": 314
+      },
+      "slam_toolbox": {
+        "cpu_percent_p50": 1.0,
+        "cpu_percent_peak": 101.1,
+        "rss_mb_peak": 647.1,
+        "n": 858
+      }
+    }
+  },
+  "mem_available_mb": {
+    "min": 2946,
+    "p50": 2988,
+    "n": 315
+  },
+  "bag": {
+    "dir": "bag",
+    "bytes": 37067407,
+    "metadata_sha256": "31d26da622d9fdd015cf6f4d35b8e349f0106bc7e9ac3c235c69878c005f3e37",
+    "note": "bag data files are not committed; metadata.yaml is"
+  }
+}
