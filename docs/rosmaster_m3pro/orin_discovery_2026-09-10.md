@@ -122,3 +122,42 @@ State at that date: up, `/dev/myserial` present on the CP210x bridge, both
 Orbbec devices enumerated, 8.7 GB disk free, 5.2 GB RAM available, the
 micro-ROS agent not running because its autostart is a desktop-session
 entry and no desktop login had occurred since the reboot.
+
+## Live stack, 2026-09-16 (step 3 done, robot stationary on the stand)
+
+`ros2 launch slam_mapping slam_toolbox.launch.py` started joint_state_publisher,
+robot_state_publisher, laserscan_multi_merger, laser_filter_node,
+imu_filter_madgwick_node, ekf_node, async_slam_toolbox_node and rviz2. The two
+open facts:
+
+- The filter publishes `/scan` at 7.12 Hz in frame `base_link`; `/scan_multi`
+  (merged, unfiltered) at 7.12 Hz, also `base_link`. EKF publishes `/odom` at
+  6.0 Hz. `/tf` at 66 Hz. Scan timestamps match the Orin clock to the second.
+- The TF tree at run time comes from the URDF through robot_state_publisher
+  (`M3Pro/urdf/M3Pro.urdf` via the merger's `display.launch.py` include), not
+  from `static_tf.launch.py`: `map -> odom -> base_footprint -> base_link ->
+  {laser0_frame, laser1_frame, imu_frame, arm1.., lwheel1.., rwheel1..}`.
+  `map -> base_footprint` resolved as [0, 0, 0] with the robot at the start.
+
+SLAM Toolbox built an 81 x 63 cell map at 0.05 m from the standing position
+and then logged `Message Filter dropping message ... discarding message
+because the queue is full` 229 times over the 300 s session. Recorded as
+shipped; not tuned.
+
+Stationary session `reports/slam/sessions/2026-09-16_stationary/`: 301 s, bag of 12 topics
+(37.1 MB, data file not committed), VDD_IN p50
+11,061 mW while recording (12,298 mW in the 15 s
+still window, when slam_toolbox peaked at 101 % CPU building the
+first map), slam_toolbox RSS peak 647 MB, RAM available minimum
+2,946 MB with the desktop session active, peak zone
+temperature 65.0 C, no throttling suspected. Pose log: 1710
+map-frame poses at 5 Hz and 3802 odometry poses; 9 TF lookups
+failed before the map frame existed. No marks, so no loop-closure or
+re-localisation metric (`metrics.json` says so). The stack was stopped after
+the session; the vendor agent and joystick node were left running.
+
+Step 8 result: the Orin host path needs no venv. System Python 3.10 with the
+ROS environment sourced imports rclpy, cv2 4.5.4, pyzmq 26.2.0, numpy 1.26.4
+and arm_msgs, and `m3pro_host`, `hardware` and `safety_bridge` import from the
+clone. The client side on the RTX 5090 host is intact: venv `lerobot17`,
+lerobot 0.6.2, Python 3.12.3. Nothing was installed.

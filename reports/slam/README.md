@@ -62,7 +62,7 @@ robot is live and real motion logs are committed alongside them.
 
 Written on the Orin by `scripts/jetson/slam_session.py` and
 `scripts/jetson/slam_pose_log.py`; protocol in
-`docs/rosmaster_m3pro/SLAM_FIRST_RUN_PROTOCOL.md`. None exist yet.
+`docs/rosmaster_m3pro/SLAM_FIRST_RUN_PROTOCOL.md`. First one: `sessions/2026-09-16_stationary/`, robot stationary, resource cost only.
 
 | File | Contents |
 |---|---|

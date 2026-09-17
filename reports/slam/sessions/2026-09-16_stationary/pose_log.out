@@ -1,0 +1,36 @@
+[pose-log] map->base_footprint at 5.0 Hz, /odom_raw -> reports/slam/sessions/2026-09-16_stationary/poses.jsonl
+[pose-log] map 41  odom 91  tf_fail 9
+[pose-log] map 91  odom 202  tf_fail 9
+[pose-log] map 141  odom 313  tf_fail 9
+[pose-log] map 191  odom 424  tf_fail 9
+[pose-log] map 241  odom 535  tf_fail 9
+[pose-log] map 291  odom 647  tf_fail 9
+[pose-log] map 341  odom 758  tf_fail 9
+[pose-log] map 391  odom 869  tf_fail 9
+[pose-log] map 441  odom 980  tf_fail 9
+[pose-log] map 491  odom 1091  tf_fail 9
+[pose-log] map 541  odom 1202  tf_fail 9
+[pose-log] map 591  odom 1314  tf_fail 9
+[pose-log] map 641  odom 1425  tf_fail 9
+[pose-log] map 691  odom 1536  tf_fail 9
+[pose-log] map 741  odom 1648  tf_fail 9
+[pose-log] map 791  odom 1759  tf_fail 9
+[pose-log] map 841  odom 1870  tf_fail 9
+[pose-log] map 891  odom 1981  tf_fail 9
+[pose-log] map 941  odom 2092  tf_fail 9
+[pose-log] map 991  odom 2203  tf_fail 9
+[pose-log] map 1041  odom 2315  tf_fail 9
+[pose-log] map 1091  odom 2426  tf_fail 9
+[pose-log] map 1141  odom 2537  tf_fail 9
+[pose-log] map 1192  odom 2648  tf_fail 9
+[pose-log] map 1242  odom 2760  tf_fail 9
+[pose-log] map 1292  odom 2871  tf_fail 9
+[pose-log] map 1342  odom 2982  tf_fail 9
+[pose-log] map 1392  odom 3093  tf_fail 9
+[pose-log] map 1442  odom 3204  tf_fail 9
+[pose-log] map 1492  odom 3316  tf_fail 9
+[pose-log] map 1542  odom 3427  tf_fail 9
+[pose-log] map 1592  odom 3538  tf_fail 9
+[pose-log] map 1642  odom 3649  tf_fail 9
+[pose-log] map 1692  odom 3760  tf_fail 9
+[pose-log] final: {'map': 1710, 'odom': 3802, 'tf_fail': 9}
