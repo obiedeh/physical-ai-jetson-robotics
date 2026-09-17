@@ -1,0 +1,327 @@
+[INFO] [launch]: All log files can be found below /home/jetson/.ros/log/2026-09-17-09-00-55-435705-yahboom-1403487
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [joint_state_publisher-1]: process started with pid [1403654]
+[INFO] [robot_state_publisher-2]: process started with pid [1403656]
+[INFO] [laserscan_multi_merger-3]: process started with pid [1403658]
+[INFO] [laser_filter_node-4]: process started with pid [1403660]
+[INFO] [imu_filter_madgwick_node-5]: process started with pid [1403662]
+[INFO] [ekf_node-6]: process started with pid [1403664]
+[INFO] [async_slam_toolbox_node-7]: process started with pid [1403666]
+[INFO] [rviz2-8]: process started with pid [1403683]
+[laserscan_multi_merger-3] [INFO] [1789606856.073952719] [laserscan_multi_merger]: Waiting for topics ...
+[laser_filter_node-4] [INFO] [1789606856.087664050] [laser_filter_node]: LaserFilterProcessor initialized. Filtering angles: [-180.000000, 180.000000] degrees
+[imu_filter_madgwick_node-5] [INFO] [1789606856.179375249] [imu_filter_madgwick_node]: Starting ImuFilter
+[imu_filter_madgwick_node-5] [INFO] [1789606856.191434810] [imu_filter_madgwick_node]: Using dt computed from message headers
+[imu_filter_madgwick_node-5] [INFO] [1789606856.192885997] [imu_filter_madgwick_node]: The gravity vector is kept in the IMU message.
+[robot_state_publisher-2] Error:   Could not parse visual element for Link [imu_frame]
+[robot_state_publisher-2]          at line 453 in ./urdf_parser/src/link.cpp
+[robot_state_publisher-2] Error:   Could not parse visual element for Link [laser0_frame]
+[robot_state_publisher-2]          at line 453 in ./urdf_parser/src/link.cpp
+[robot_state_publisher-2] Error:   Could not parse visual element for Link [laser1_frame]
+[robot_state_publisher-2]          at line 453 in ./urdf_parser/src/link.cpp
+[imu_filter_madgwick_node-5] [INFO] [1789606856.201841161] [imu_filter_madgwick_node]: Imu filter gain set to 0.100000
+[async_slam_toolbox_node-7] [INFO] [1789606856.202579907] [slam_toolbox]: Node using stack size 40000000
+[robot_state_publisher-2] [INFO] [1789606856.203753580] [robot_state_publisher]: got segment Camera
+[imu_filter_madgwick_node-5] [INFO] [1789606856.203800942] [imu_filter_madgwick_node]: Gyro drift bias set to 0.000000
+[robot_state_publisher-2] [INFO] [1789606856.204543080] [robot_state_publisher]: got segment DCW2
+[robot_state_publisher-2] [INFO] [1789606856.204587689] [robot_state_publisher]: got segment Gripping
+[robot_state_publisher-2] [INFO] [1789606856.204601418] [robot_state_publisher]: got segment arm1
+[robot_state_publisher-2] [INFO] [1789606856.204611626] [robot_state_publisher]: got segment arm2
+[robot_state_publisher-2] [INFO] [1789606856.204619146] [robot_state_publisher]: got segment arm3
+[robot_state_publisher-2] [INFO] [1789606856.204627211] [robot_state_publisher]: got segment arm4
+[robot_state_publisher-2] [INFO] [1789606856.204633515] [robot_state_publisher]: got segment arm5
+[robot_state_publisher-2] [INFO] [1789606856.204639659] [robot_state_publisher]: got segment arm_base_Link
+[robot_state_publisher-2] [INFO] [1789606856.204646539] [robot_state_publisher]: got segment base_footprint
+[robot_state_publisher-2] [INFO] [1789606856.204653548] [robot_state_publisher]: got segment base_link
+[robot_state_publisher-2] [INFO] [1789606856.204659852] [robot_state_publisher]: got segment imu_frame
+[robot_state_publisher-2] [INFO] [1789606856.204665804] [robot_state_publisher]: got segment laser0_frame
+[robot_state_publisher-2] [INFO] [1789606856.204671948] [robot_state_publisher]: got segment laser1_frame
+[robot_state_publisher-2] [INFO] [1789606856.204678125] [robot_state_publisher]: got segment llink1
+[robot_state_publisher-2] [INFO] [1789606856.204684621] [robot_state_publisher]: got segment llink2
+[robot_state_publisher-2] [INFO] [1789606856.204691245] [robot_state_publisher]: got segment llink3
+[robot_state_publisher-2] [INFO] [1789606856.204698125] [robot_state_publisher]: got segment lwheel1
+[robot_state_publisher-2] [INFO] [1789606856.204704910] [robot_state_publisher]: got segment lwheel2
+[robot_state_publisher-2] [INFO] [1789606856.204711086] [robot_state_publisher]: got segment rlink1
+[robot_state_publisher-2] [INFO] [1789606856.204717198] [robot_state_publisher]: got segment rlink2
+[robot_state_publisher-2] [INFO] [1789606856.204723374] [robot_state_publisher]: got segment rlink3
+[robot_state_publisher-2] [INFO] [1789606856.204730414] [robot_state_publisher]: got segment rwheel1
+[robot_state_publisher-2] [INFO] [1789606856.204736495] [robot_state_publisher]: got segment rwheel2
+[imu_filter_madgwick_node-5] [INFO] [1789606856.208591510] [imu_filter_madgwick_node]: Magnetometer bias values: 0.000000 0.000000 0.000000
+[imu_filter_madgwick_node-5] [INFO] [1789606856.312296508] [imu_filter_madgwick_node]: First IMU message received.
+[async_slam_toolbox_node-7] [INFO] [1789606856.478859176] [slam_toolbox]: Using solver plugin solver_plugins::CeresSolver
+[async_slam_toolbox_node-7] [INFO] [1789606856.481892435] [slam_toolbox]: CeresSolver: Using SCHUR_JACOBI preconditioner.
+[laserscan_multi_merger-3] [INFO] [1789606857.076180573] [laserscan_multi_merger]: Subscribing to topics	2
+[async_slam_toolbox_node-7] [INFO] [1789606857.296589394] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606857.127 for reason 'discarding message because the queue is full'
+[joint_state_publisher-1] [INFO] [1789606857.296781561] [joint_state_publisher]: Waiting for robot_description to be published on the robot_description topic...
+[async_slam_toolbox_node-7] Info: clipped range threshold to be within minimum and maximum range!
+[async_slam_toolbox_node-7] Registering sensor: [Custom Described Lidar]
+[rviz2-8] [INFO] [1789606857.527640927] [rviz2]: Stereo is NOT SUPPORTED
+[rviz2-8] [INFO] [1789606857.528096431] [rviz2]: OpenGl version: 4.6 (GLSL 4.6)
+[rviz2-8] [INFO] [1789606857.675705823] [rviz2]: Stereo is NOT SUPPORTED
+[rviz2-8] [WARN] [1789606858.016100888] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[rviz2-8] [WARN] [1789606858.076823731] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[rviz2-8] Error:   Could not parse visual element for Link [imu_frame]
+[rviz2-8]          at line 453 in ./urdf_parser/src/link.cpp
+[rviz2-8] Error:   Could not parse visual element for Link [laser0_frame]
+[rviz2-8]          at line 453 in ./urdf_parser/src/link.cpp
+[rviz2-8] Error:   Could not parse visual element for Link [laser1_frame]
+[rviz2-8]          at line 453 in ./urdf_parser/src/link.cpp
+[async_slam_toolbox_node-7] [INFO] [1789606859.814758817] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606859.647 for reason 'discarding message because the queue is full'
+[rviz2-8] [INFO] [1789606861.485155684] [rviz2]: Trying to create a map of size 81 x 63 using 1 swatches
+[async_slam_toolbox_node-7] [INFO] [1789606862.465073984] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606862.317 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606864.984517692] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606864.837 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606867.650741035] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606867.486 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606870.316166334] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606870.152 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606872.970269698] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606872.815 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606875.634022362] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606875.472 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606878.290532147] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606878.135 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606880.808656321] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606880.657 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606883.480638427] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606883.313 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606886.128455106] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606885.975 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606888.649437492] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606888.496 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606891.313687998] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606891.152 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606893.969805161] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606893.818 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606896.635379937] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606896.473 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606899.152926331] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606898.992 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606901.819020933] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606901.655 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606904.463992104] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606904.322 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606907.141844817] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606906.974 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606909.784329468] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606909.638 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606912.304837566] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606912.161 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606914.978087941] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606914.807 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606917.624291763] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606917.481 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606920.144888087] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606920.000 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606922.818633712] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606922.646 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606925.464022561] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606925.317 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606927.984274714] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606927.838 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606930.648735883] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606930.486 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606933.311669607] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606933.152 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606935.969871292] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606935.815 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606938.636946409] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606938.472 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606941.152624192] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606940.992 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606943.808092437] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606943.655 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606946.472076214] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606946.312 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606949.128704819] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606948.975 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606951.649160403] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606951.498 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606954.314832975] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606954.152 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606956.968529285] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606956.817 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606959.631525315] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606959.471 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606962.151466385] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606961.992 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606964.817087147] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606964.655 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606967.463385917] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606967.323 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606969.982496269] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606969.840 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606972.783474408] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606972.640 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606975.303175470] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606975.161 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606977.974985730] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606977.806 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606980.623620838] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606980.480 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606983.142438796] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606983.003 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606985.813545288] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606985.647 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606988.463171855] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606988.317 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606990.983280899] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606990.837 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606993.645806192] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606993.486 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606996.312637781] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606996.152 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789606998.969235922] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789606998.816 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607001.631077735] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607001.472 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607004.152190878] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607003.993 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607006.808419374] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607006.654 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607009.471752216] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607009.311 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607012.127273006] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607011.975 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607014.648674704] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607014.495 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607017.313339817] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607017.152 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607019.969045190] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607019.819 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607022.630787192] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607022.472 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607025.149350677] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607024.993 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607027.816273021] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607027.655 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607030.461707345] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607030.320 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607032.982086574] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607032.841 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607035.781527667] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607035.643 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607038.302324768] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607038.158 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607040.979782459] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607040.815 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607043.623868991] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607043.482 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607046.142210325] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607046.000 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607048.815720517] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607048.647 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607051.461747182] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607051.317 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607053.981520726] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607053.838 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607056.648187605] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607056.487 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607059.308623737] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607059.152 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607061.966688778] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607061.816 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607064.630378112] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607064.472 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607067.149946913] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607066.991 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607069.806224403] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607069.654 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607072.479488827] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607072.312 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607075.126142265] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607074.975 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607077.651026549] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607077.494 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607080.317286630] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607080.151 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607082.966069296] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607082.817 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607085.628603198] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607085.471 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607088.151813887] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607087.992 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607090.814671864] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607090.655 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607093.461483005] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607093.320 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607095.981347432] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607095.840 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607098.780752940] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607098.640 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607101.298846617] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607101.161 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607103.976854376] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607103.808 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607106.619971914] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607106.479 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607109.140304902] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607109.000 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607111.810620583] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607111.647 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607114.460887108] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607114.317 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607116.980071704] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607116.840 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607119.645381384] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607119.487 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607122.308329764] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607122.151 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607124.965608825] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607124.815 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607127.484785261] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607127.337 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607130.285181748] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607130.142 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607132.804012219] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607132.657 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607135.467291683] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607135.312 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607138.125111339] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607137.974 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607140.645170782] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607140.495 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607143.310076063] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607143.152 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607145.964866621] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607145.817 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607148.485000786] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607148.337 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607151.146813670] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607150.992 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607153.813287359] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607153.655 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607156.461851713] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607156.321 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607158.979280215] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607158.840 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607161.780466298] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607161.640 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607164.301168579] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607164.172 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607166.819654398] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607166.679 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607169.619407183] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607169.482 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607172.139893040] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607172.005 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607174.810720899] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607174.648 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607177.459461867] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607177.319 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607179.979371832] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607179.837 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607182.643628707] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607182.486 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607185.308841904] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607185.152 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607187.963676271] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607187.815 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607190.484492828] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607190.336 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607193.148056590] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607192.991 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607195.809041670] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607195.655 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607198.467109847] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607198.312 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607201.122757459] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607200.978 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607203.643745542] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607203.494 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607206.308855599] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607206.151 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607208.963347746] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607208.817 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607211.484118733] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607211.337 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607214.138579839] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607213.992 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607216.814420866] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607216.654 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607219.457872848] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607219.322 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607221.978465814] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607221.842 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607224.652314643] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607224.487 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607227.298620453] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607227.160 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607229.818623958] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607229.682 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607232.619380810] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607232.480 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607235.138206801] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607235.001 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607237.807527310] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607237.645 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607240.466232214] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607240.320 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607242.978661980] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607242.841 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607245.643276627] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607245.486 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607248.306630239] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607248.152 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607250.961988976] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607250.815 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607253.482086436] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607253.335 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607256.144224068] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607255.992 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607258.803354235] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607258.655 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607261.464720512] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607261.312 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607263.985898618] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607263.833 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607266.641903395] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607266.495 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607269.313742329] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607269.151 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607271.966774232] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607271.818 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607274.483025829] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607274.337 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607277.145998371] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607276.992 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607279.810803393] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607279.654 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607282.456791721] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607282.320 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607284.984698736] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607284.842 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607287.651389169] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607287.487 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607290.297284053] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607290.160 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607292.816373989] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607292.680 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607295.617161563] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607295.481 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607298.138410007] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607298.003 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607300.810122473] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607300.654 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607303.456516191] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607303.317 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607305.977897440] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607305.837 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607308.641046596] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607308.487 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607311.307764998] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607311.152 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607313.961719782] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607313.820 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607316.482852575] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607316.335 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607319.144707029] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607318.992 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607321.801535483] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607321.655 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607324.464472728] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607324.312 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607326.984611373] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607326.832 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607329.640500210] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607329.495 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607332.306587293] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607332.152 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607334.970661922] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607334.826 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607337.638213665] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607337.482 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607340.144756952] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607339.992 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607342.811254002] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607342.648 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607345.455712836] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607345.320 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607347.976080001] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607347.840 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607350.647299554] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607350.487 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607353.296142670] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607353.159 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607355.815655886] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607355.680 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607358.615121396] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607358.479 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607361.135181671] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607361.000 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607363.805307137] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607363.646 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607366.455831081] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607366.322 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607368.975745014] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607368.837 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607371.643159569] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607371.487 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607374.304332624] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607374.152 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607376.959897097] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607376.815 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607379.480715254] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607379.335 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607382.146936807] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607381.993 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607384.800722721] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607384.658 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607387.320598573] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607387.173 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607389.984080829] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607389.832 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607392.641831203] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607392.495 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607395.305650335] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607395.152 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607397.961327644] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607397.817 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607400.479507245] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607400.337 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607403.142358503] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607402.991 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607405.811001580] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607405.648 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607408.454542910] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607408.319 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607410.974964158] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607410.843 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607413.647134368] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607413.487 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607416.295049803] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607416.162 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607418.815070717] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607418.680 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607421.615131641] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607421.480 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607424.134061668] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607423.999 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607426.805926555] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607426.646 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607429.453892329] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607429.317 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607431.974707254] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607431.837 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607434.639698427] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607434.487 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607437.302820031] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607437.152 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607439.960506243] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607439.815 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607442.478760246] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607442.335 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607445.141306693] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607444.992 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607447.800510110] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607447.655 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607450.465582342] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607450.313 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607452.983524527] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607452.832 for reason 'discarding message because the queue is full'
+[async_slam_toolbox_node-7] [INFO] [1789607455.640259153] [slam_toolbox]: Message Filter dropping message: frame 'base_link' at time 1789607455.495 for reason 'discarding message because the queue is full'
+[robot_state_publisher-2] [INFO] [1789607457.471316977] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[laser_filter_node-4] [INFO] [1789607457.471317809] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[laserscan_multi_merger-3] [INFO] [1789607457.471515160] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ekf_node-6] [INFO] [1789607457.471582171] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[imu_filter_madgwick_node-5] [INFO] [1789607457.472878824] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[rviz2-8] [INFO] [1789607457.482837959] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[joint_state_publisher-1] Traceback (most recent call last):
+[joint_state_publisher-1]   File "/opt/ros/humble/lib/joint_state_publisher/joint_state_publisher", line 33, in <module>
+[joint_state_publisher-1]     sys.exit(load_entry_point('joint-state-publisher==2.4.0', 'console_scripts', 'joint_state_publisher')())
+[joint_state_publisher-1]   File "/opt/ros/humble/lib/python3.10/site-packages/joint_state_publisher/joint_state_publisher.py", line 466, in main
+[joint_state_publisher-1]     rclpy.spin(jsp)
+[joint_state_publisher-1]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+[joint_state_publisher-1]     executor.spin_once()
+[joint_state_publisher-1]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 808, in spin_once
+[joint_state_publisher-1]     self._spin_once_impl(timeout_sec)
+[joint_state_publisher-1]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 797, in _spin_once_impl
+[joint_state_publisher-1]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[joint_state_publisher-1]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 780, in wait_for_ready_callbacks
+[joint_state_publisher-1]     return next(self._cb_iter)
+[joint_state_publisher-1]   File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 681, in _wait_for_ready_callbacks
+[joint_state_publisher-1]     raise ExternalShutdownException()
+[joint_state_publisher-1] rclpy.executors.ExternalShutdownException
+[INFO] [laserscan_multi_merger-3]: process has finished cleanly [pid 1403658]
+[INFO] [imu_filter_madgwick_node-5]: process has finished cleanly [pid 1403662]
+[INFO] [laser_filter_node-4]: process has finished cleanly [pid 1403660]
+[INFO] [robot_state_publisher-2]: process has finished cleanly [pid 1403656]
+[INFO] [ekf_node-6]: process has finished cleanly [pid 1403664]
+[ERROR] [joint_state_publisher-1]: process has died [pid 1403654, exit code 1, cmd '/opt/ros/humble/lib/joint_state_publisher/joint_state_publisher --ros-args'].
+[INFO] [rviz2-8]: process has finished cleanly [pid 1403683]
+[ERROR] [async_slam_toolbox_node-7]: process has died [pid 1403666, exit code -9, cmd '/opt/ros/humble/lib/slam_toolbox/async_slam_toolbox_node --ros-args -r __node:=slam_toolbox --params-file /home/jetson/M3Pro_ws/install/slam_mapping/share/slam_mapping/config/mapper_params_online_async.yaml --params-file /tmp/launch_params_vjw2p9or'].
