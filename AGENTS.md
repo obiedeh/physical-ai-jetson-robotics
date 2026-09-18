@@ -125,3 +125,24 @@ At the end of each task, Codex should report:
 3. Tests not run and why
 4. Risks or follow-up work
 5. Whether Claude Code safety review is needed
+
+# Focus Rule (operator, 2026-09-17)
+
+Every other project is parked until the flagship Synria physical AI
+deliverable is in hand. The deliverable is the first line of
+`reports/NOT_CLAIMED.md`: autonomous real-arm pick and place, with physical
+object-success ground truth, recorded as a committed artifact with device,
+date and inputs. Until that artifact exists:
+
+- Work in this repository goes to the Synria pick-and-place lane
+  (`docs/SYNRIA_PICK_AND_PLACE_TASK.md`, `docs/SYNRIA_GR00T_LEDGER.md`) and
+  whatever it depends on. The rover SLAM lane, the site, the security,
+  AI-RAN and safety-observability repositories are parked; they may receive
+  fixes only when they block the flagship or when the operator asks.
+- Before starting any task, state in one line whether it serves the
+  deliverable. If it does not, say so and stop. Being asked to keep the
+  operator honest includes declining side quests, including ones the
+  operator proposes, with a one-line reason.
+- Progress is measured against the ledger's open defects, not against
+  volume of commits.
+
