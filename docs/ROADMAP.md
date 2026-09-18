@@ -1,6 +1,6 @@
 # Roadmap
 
-Updated 2026-09-07. Completed code or device probes do not establish autonomous
+Updated 2026-09-18. Completed code or device probes do not establish autonomous
 physical manipulation. Current evidence and exclusions: [README](../README.md).
 
 ## Milestone 1: Software Foundation
@@ -33,8 +33,10 @@ physical manipulation. Current evidence and exclusions: [README](../README.md).
 - real-arm calibration workflow (hardware-later)
 - Simulation training/evaluation reports and Thor inference benchmark recorded;
   autonomous physical-arm policy deployment remains unestablished
-- Synria 6DOF arm ROS 2 / MoveIt 2 bring-up ✅
-  (`ros2_ws/src/synria_arm_description/`, `synria_arm_moveit_config/`, `synria_arm_gazebo/`)
+- Synria 6DOF arm ROS 2 / MoveIt 2 simulation packages ✅
+  (`ros2_ws/src/synria_arm_description/`, `synria_arm_moveit_config/`, `synria_arm_gazebo/`);
+  recovered physical serial/state/MoveIt bring-up exists externally and
+  uncommitted, classified implemented/unmeasured until formalized here
 - Synria C10 wrist-camera calibration and eye-in-hand perception ✅ (simulation contract
   and pipeline defined; real calibration hardware-later)
 - LeRobot / ALOHA-style demonstration dataset workflow ✅
@@ -76,8 +78,16 @@ physical manipulation. Current evidence and exclusions: [README](../README.md).
 
 ## Next Up
 
+- Complete the read-only Phase-0 Synria recovery/safety artifact, starting from
+  `reports/synria/recovered_real_arm_state_2026-09-17.md`.
+- With explicit operator authorization, record reduced-speed Synria motion and
+  controlled-stop evidence under the Phase-0 physical prerequisites.
+- Define the versioned physical dataset state/action contract, then record the
+  first disposable camera-backed smoke episode and proceed toward D1.
+
+## Parked until D5
+
 - TensorRT/PyTorch numerical parity with recorded tolerances and deltas
-- Sustained Jetson thermal/power and safety validation
+- Sustained Jetson thermal/power and safety soak validation not required by a
+  current Synria delivery-stage safety gate
 - Yahboom SLAM/navigation evidence (Yahboom Orin NX)
-- Real Synria arm bring-up (physical arm powered)
-- LeRobot real demonstration recordings (arm + C10 live)

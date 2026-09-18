@@ -43,6 +43,11 @@ What is real, in one table. Labels: **measured** (a committed artifact with devi
 | Autonomous real-arm pick and place | **planned** | | | [`reports/NOT_CLAIMED.md`](reports/NOT_CLAIMED.md) |
 | TensorRT versus PyTorch numerical parity | **planned**, never recorded | | | [`reports/NOT_CLAIMED.md`](reports/NOT_CLAIMED.md) |
 | Sustained thermal and safety validation | **planned**; existing runs are 60 s and 9.9 s | | | [`reports/NOT_CLAIMED.md`](reports/NOT_CLAIMED.md) |
+| Ludo D1: physical Synria demonstrations | **planned** | | | |
+| Ludo D2: learned physical pick-and-place, >=14/20 successes | **planned** | | | |
+| Ludo D3: one successful physical Ludo turn | **planned** | | | |
+| Ludo D4: three consecutive successful physical-roll turns | **planned** | | | |
+| Ludo D5: one successful full physical game | **planned** | | | |
 
 ## Measured Results
 
@@ -118,10 +123,14 @@ Use [RTX setup](docs/SETUP_RTX.md) for Isaac and [Jetson deployment](docs/JETSON
 
 ## What Is Next
 
-- Record tolerance-checked TensorRT/PyTorch output deltas.
-- Validate physical-arm pick/place with observed object-success ground truth.
-- Collect human keyboard demonstrations through the verified recording path.
-- Run sustained thermal/power and safety validation, including command-loss behavior.
+- Complete the read-only Synria recovery and safety artifact from the external
+  Alicia-D checkout: [`reports/synria/recovered_real_arm_state_2026-09-17.md`](reports/synria/recovered_real_arm_state_2026-09-17.md).
+- Only after that artifact is accepted and the operator explicitly authorizes
+  motion, capture reduced-speed controlled-stop evidence on the physical
+  Synria arm and define its versioned dataset state/action contract.
+- Then record a disposable camera-backed Synria smoke episode and proceed
+  toward D1. M3/Yahboom work and unrelated parity/soak work remain parked
+  until D5 unless they directly block a current flagship gate.
 
 ## License and Attribution
 

@@ -67,14 +67,37 @@ hardware phase.
 All 8 RTX-Now simulation activities are shipped and covered by CI tests.
 See `tests/test_synria_upstream_outputs.py` for automated artifact verification.
 
-## Hardware-Later Activities
+## Flagship Phase-0 Physical Prerequisites
+
+Recovered physical Synria/Alicia-D serial/state/MoveIt bring-up and
+real-to-simulation mirroring exist in an external, uncommitted working tree.
+They are **implemented, unmeasured**, not completed evidence for the items
+below. The mirroring's GraspGlue behavior is kinematic attach/release, not a
+measured physical grasp or autonomous policy result. Formalize the recovery in
+this repository with reproducible commands, safety checks, provenance and
+committed reports; do not backfill measurements. Recovery facts and current
+limitations are frozen in
+[`reports/synria/recovered_real_arm_state_2026-09-17.md`](../reports/synria/recovered_real_arm_state_2026-09-17.md).
 
 1. Real serial bring-up and firmware detection
    - Verify serial port discovery, `dialout` permissions, firmware version,
      state reads, and debug logging on the physical arm.
    - Output: `reports/synria/real_serial_bringup.md`
+   - Status: external recovery exists; uncommitted and unmeasured here
 
 2. Safe first motion and zero calibration
-   - Run torque enable/disable, zero calibration, reduced-speed joint motion,
-     gripper checks, and emergency-stop validation.
+   - After the read-only recovery artifact is accepted and the operator is
+     physically present and explicitly authorizes motion, run reduced-speed
+     joint motion, gripper checks, controlled stop/hold and emergency-stop
+     validation. Use torque-off only in a verified support-safe pose or when
+     required by the manufacturer/controller emergency procedure.
    - Output: `reports/synria/first_safe_motion.md`
+   - Status: not established by the recovered mirroring; formal evidence pending
+
+3. Versioned physical dataset state/action contract
+   - Derive dimensions, ordering, units and timing from observed physical
+     controller and recorder interfaces. Add a passive second-finger
+     derivation only if a selected model requires it and physical validation
+     supports it; do not assume a seven-to-eight mapping.
+   - Output: `reports/synria/physical_dataset_contract.md`
+   - Status: planned
