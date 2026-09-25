@@ -7,10 +7,25 @@ adoption trigger.
 |---|---|---|
 | [Newton](https://github.com/newton-physics/newton) | GPU physics engine (Disney/DeepMind/NVIDIA, Warp + MuJoCo-Warp, differentiable, OpenUSD; Linux Foundation) — announced future Isaac Lab backend | When Isaac Lab ships Newton as stable default: migrate with the framework, re-validate contact-sensitive numbers (grasp/release) before trusting old baselines. Differentiable-sim also = alternative lever for dock-skill refinement (see WAM future-work triggers). |
 | Isaac Lab Mimic (MimicGen) | demo multiplication from few demonstrations | Next corpus-scaling need on Ludo-token task (P3) |
-| Isaac ROS + FoundationPose | local 6-DoF object pose on Thor at camera rate | P4 real-hardware bring-up (board/token state) |
+| Isaac ROS 5.0 + FoundationPose | local 6-DoF object pose on Thor at camera rate; requires RGB-D, a detection box and a CAD mesh, so the current monocular C10 path is insufficient by itself | After D1/D2, and only after a measured depth path exists: isolated Thor benchmark on recorded and synthetic cup/die/token frames before any arm-control integration |
 | cuMotion (Isaac Manipulator) | collision-aware GPU motion planning | P4: physical arm over physical tokens (safety) |
 | Cosmos Transfer | world-model visual augmentation for sim-to-real | P4: before first real-camera policy runs |
 | ER-2 streaming endpoint | persistent Live-API session for continuous watching | If G3+ sidecar cadence outgrows request/response |
+
+## Isaac ROS 5.0 adoption constraints (reviewed 2026-09-25)
+
+- The supported baseline is ROS 2 Lyrical on Ubuntu 24.04; Jetson targets use
+  JetPack 7.2 and NVIDIA recommends 128+ GB NVMe. The current Orin NX
+  (Humble, JetPack 6.2, limited free disk) is not an in-place migration
+  target. Keep the current Synria bring-up path unchanged; any post-D1/D2
+  evaluation belongs in an isolated Thor container or workspace.
+- Isaac ROS 5.0 removed the direct NITROS packages. This repository has no
+  direct NITROS dependency today. Future Thor-side nodes must use standard ROS
+  messages with the Lyrical `rosidl::Buffer` CUDA backend rather than adding a
+  dependency on the removed NITROS APIs.
+- FoundationStereo remains parked until calibrated stereo hardware is
+  deliberately adopted and its baseline, synchronization and calibration are
+  measured. A binocular camera label alone is not sufficient evidence.
 
 ## GR00T 1.7 migration (DECIDED 2026-08-19, in progress)
 Chosen: migrate to GR00T-N1.7-3B via LeRobot-native fine-tuning for
