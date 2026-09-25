@@ -192,6 +192,28 @@ avoids hardware dependency.
 produce better fine-tuned policies; the GR00T-Mimic step in Phase 4 multiplies
 coverage regardless.
 
+### Dataset sanity gate — required before amplification or fine-tuning
+
+Inspect every physical Synria seed dataset with the locked
+`i4h-lerobot-viz` workflow before Phase 4 or Phase 5. Follow NVIDIA's
+`i4h-lerobot-viz` skill ([NVIDIA/skills](https://github.com/NVIDIA/skills)); pass an
+absolute dataset path that contains `meta/info.json`.
+
+For representative successes, failures and episode boundaries, verify:
+
+- both `wrist` and `overhead` video streams load and remain synchronized;
+- timestamps are monotonic and images, state and actions align at the expected
+  30 Hz rate;
+- state/action values are finite and use the physically verified Synria
+  ordering, units, ranges and gripper dimensionality;
+- the commanded target is visible and the operator success label matches the
+  recorded physical outcome.
+
+Record the visual-review result, dataset hash, episode count and rejected
+episode count in `reports/training/gr00t_<game>_seed_summary.json`. Do not
+amplify or train on an episode that fails this gate; retain its rejection and
+reason in the dataset/session ledger so negative evidence is not erased.
+
 ---
 
 ## Phase 4 — GR00T-Mimic Amplification (optional, recommended)
