@@ -5,7 +5,7 @@ then-pending Orin identity is resolved by
 [2026-08-20 provenance](../../reports/jetson/yahboom_day_one/provenance.json):
 Orin NX, L4T R36.4.4. The retained Thor and Orin thermal figures describe short
 benchmark/probe runs, not sustained validation.
-Follow-up to docs/notes/first_party_evidence_pull.md. Exact values, never
+Follow-up to an internal evidence audit. Exact values, never
 rounded. Data kind stated per number.
 
 ## TASK A — recoveries
