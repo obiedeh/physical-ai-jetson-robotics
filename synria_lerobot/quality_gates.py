@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -14,12 +14,15 @@ import numpy as np
 
 from synria_lerobot.physical_contract import (
     ACTION_TIMING_KEYS,
+    EPISODE_WINDOW_KEYS,
     ActionSource,
     StateRateMeasurement,
     StateSourceProvenance,
     action_timing_metadata,
+    episode_window_metadata,
 )
 from synria_lerobot.recorder import OperatorLabel, RecordedPhysicalEpisode
+from synria_lerobot.task_registry import TASK_METADATA_KEYS, TaskDefinition
 
 OBJECT_SUCCESS_LIMITATION = (
     "Object success is the operator's label plus a camera still; "
@@ -74,9 +77,21 @@ class EpisodeQualityRecord:
     requested_rate_hz: float | None = None
     state_rate_measurement: dict[str, Any] | None = None
     state_source_provenance: dict[str, Any] | None = None
+    task_definition: TaskDefinition = field(kw_only=True)
+
+    def __post_init__(self) -> None:
+        self.task_definition.require_configured()
+
+    @property
+    def min_episode_s(self) -> float:
+        return self.task_definition.require_configured()["min_episode_s"]
+
+    @property
+    def max_episode_s(self) -> float:
+        return self.task_definition.require_configured()["max_episode_s"]
 
     def as_dict(self) -> dict[str, object]:
-        return asdict(self)
+        return {**asdict(self), **self.task_definition.metadata()}
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> EpisodeQualityRecord:
@@ -84,6 +99,7 @@ class EpisodeQualityRecord:
             raise ValueError("episode indices must be non-negative integers")
         return cls(
             episode_index=payload["episode_index"],
+            task_definition=TaskDefinition.from_metadata(payload),
             fps=float(payload["fps"]),
             duration_s=float(payload["duration_s"]),
             operator_label=str(payload["operator_label"]),
@@ -130,22 +146,20 @@ class PhysicalLimits:
 
 @dataclass(frozen=True)
 class GateConfig:
+    min_episode_s: float
+    max_episode_s: float
     frame_count_tolerance_fraction: float = 0.1
     max_timestamp_skew_s: float = 0.05
     max_source_age_s: float = 0.2
     max_header_delay_s: float = 0.2
     max_header_future_s: float = 0.02
-    min_episode_s: float = 20.0
-    max_episode_s: float = 30.0
     black_mean_threshold: float = 1.0
 
     def __post_init__(self) -> None:
+        episode_window_metadata(self.min_episode_s, self.max_episode_s)
         for value in (self.max_source_age_s, self.max_header_delay_s, self.max_header_future_s):
             if not math.isfinite(value) or value < 0:
                 raise ValueError("freshness thresholds must be non-negative and finite")
-
-
-DEFAULT_GATE_CONFIG = GateConfig()
 
 
 @dataclass(frozen=True)
@@ -215,6 +229,7 @@ def episode_quality_record(
 ) -> EpisodeQualityRecord:
     return EpisodeQualityRecord(
         episode_index=episode.episode_index,
+        task_definition=episode.task_definition,
         fps=fps,
         duration_s=episode.duration_s,
         operator_label=episode.operator_label.value,
@@ -266,8 +281,10 @@ def load_episode_records(path: Path) -> list[EpisodeQualityRecord]:
 def evaluate_episode(
     episode: EpisodeQualityRecord,
     limits: PhysicalLimits,
-    config: GateConfig = DEFAULT_GATE_CONFIG,
+    config: GateConfig,
 ) -> GateReport:
+    if any(getattr(config, name) != getattr(episode, name) for name in EPISODE_WINDOW_KEYS):
+        raise ValueError("gate episode window differs from recorded episode")
     frames = episode.frames
     expected_frames = episode.fps * episode.duration_s
     frame_tolerance = max(1.0, expected_frames * config.frame_count_tolerance_fraction)
@@ -505,7 +522,11 @@ def _merge_capture_provenance(
                 "capture": still,
             })
         _validate_timing_evidence(capture)
-        for name in (*ACTION_TIMING_KEYS, "action_source", "gripper_type", "contract_version"):
+        TaskDefinition.from_metadata(capture)
+        for name in (
+            *ACTION_TIMING_KEYS, *TASK_METADATA_KEYS,
+            "action_source", "gripper_type", "contract_version",
+        ):
             if capture.get(name) != provenance[name]:
                 raise ValueError("capture provenance differs from dataset contract")
         selected.append(capture)
@@ -546,6 +567,7 @@ def _validate_summary_contract(
         ActionSource(provenance["action_source"]), provenance["action_lookahead_steps"],
         provenance["rate_hz"],
     ))
+    expected.update(TaskDefinition.from_metadata(provenance).metadata())
     for name, value in expected.items():
         if name in provenance and provenance[name] != value:
             raise ValueError("supplied timing differs from requested rate and action source")
@@ -557,6 +579,7 @@ def _validate_summary_contract(
         raise ValueError("physical summaries require operator-declared state source provenance")
     if contract_path.is_file():
         contract = json.loads(contract_path.read_text(encoding="utf-8"))
+        TaskDefinition.from_metadata(contract)
         _validate_timing_evidence(contract)
         if any(contract.get(name) != value for name, value in expected.items()):
             raise ValueError("supplied metadata differs from dataset contract")
@@ -579,8 +602,12 @@ def _validate_summary_contract(
             "action_source": episode.action_source,
             **{name: getattr(episode, name) for name in ACTION_TIMING_KEYS},
         })
+        recorded_metadata = {
+            name: getattr(episode, name) for name in expected if name not in TASK_METADATA_KEYS
+        }
+        recorded_metadata.update(episode.task_definition.metadata())
         if episode.fps != expected["requested_rate_hz"] or any(
-            getattr(episode, name) != value for name, value in expected.items()
+            recorded_metadata.get(name) != value for name, value in expected.items()
         ):
             raise ValueError("episode metadata differs from dataset contract")
     return {**provenance, **expected, "state_source_provenance": source_evidence}
@@ -593,7 +620,7 @@ def write_session_artifacts(
     provenance: dict[str, object],
     episodes: list[EpisodeQualityRecord],
     limits: PhysicalLimits,
-    gate_config: GateConfig = DEFAULT_GATE_CONFIG,
+    gate_config: GateConfig,
 ) -> dict[str, object]:
     indices = [episode.episode_index for episode in episodes]
     if any(type(index) is not int or index < 0 for index in indices):
@@ -622,6 +649,8 @@ def write_session_artifacts(
     if missing:
         raise ValueError(f"provenance missing required fields: {missing}")
     provenance = _validate_summary_contract(dataset_path, provenance, episodes)
+    if any(provenance[name] != getattr(gate_config, name) for name in EPISODE_WINDOW_KEYS):
+        raise ValueError("gate episode window differs from dataset contract")
     provenance = _merge_capture_provenance(dataset_path, provenance, episodes)
     sample_rates = [
         {"episode_index": episode.episode_index, "rate_hz": episode.achieved_sample_rate_hz}
@@ -686,6 +715,7 @@ def write_session_artifacts(
         "gripper_type": provenance["gripper_type"],
         "action_source": provenance["action_source"],
         **{name: provenance[name] for name in ACTION_TIMING_KEYS},
+        **{name: provenance[name] for name in TASK_METADATA_KEYS},
         "limits_status": "verified" if limits.verified else UNVERIFIED_LIMITS_LINE,
         "object_success_limitation": OBJECT_SUCCESS_LIMITATION,
     }
@@ -717,6 +747,7 @@ def write_aggregate_summary(
     seen_datasets: set[Path] = set()
     for path in sorted(data_root.glob("*/session_summary.json")):
         summary = json.loads(path.read_text(encoding="utf-8"))
+        TaskDefinition.from_metadata(summary)
         if "dataset_path" in summary:
             dataset = Path(summary["dataset_path"]).resolve()
             if dataset in seen_datasets:
@@ -760,7 +791,7 @@ def write_aggregate_summary(
                 name: summary.get(name)
                 for name in (
                     "dataset_path", "action_source", "contract_version", "gripper_type",
-                    *ACTION_TIMING_KEYS,
+                    *ACTION_TIMING_KEYS, *TASK_METADATA_KEYS,
                 )
             }
             for summary in session_summaries

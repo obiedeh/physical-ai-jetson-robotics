@@ -57,6 +57,7 @@ from synria_lerobot.schema import (
     VALID_TASK_VARIANTS,
     Episode,
 )
+from synria_lerobot.task_registry import TaskDefinition
 
 
 class StateSource(Protocol):
@@ -145,10 +146,6 @@ class PhysicalRecorderConfig:
     fps: float = 30.0
     image_width: int = 224
     image_height: int = 224
-    min_episode_s: float = 20.0
-    max_episode_s: float = 30.0
-    hard_cap_s: float = 30.0
-    task: str = "move the token from square A to square B"
     smoke: bool = False
     state_rate_measurement: StateRateMeasurement | None = None
     state_source_provenance: StateSourceProvenance | None = None
@@ -161,10 +158,26 @@ class PhysicalRecorderConfig:
             self.image_width, self.image_height
         )):
             raise ValueError("image width and height must be positive integers")
-        if not 0 < self.min_episode_s <= self.max_episode_s <= self.hard_cap_s:
-            raise ValueError("episode bounds must satisfy 0 < min <= max <= hard cap")
+        if self.smoke and (self.min_episode_s, self.max_episode_s) != (20.0, 20.0):
+            raise ValueError("smoke requires its explicit disposable 20-second window")
         if not self.repo_id.strip():
             raise ValueError("repo_id is required")
+
+    @property
+    def min_episode_s(self) -> float:
+        return self.contract.min_episode_s
+
+    @property
+    def max_episode_s(self) -> float:
+        return self.contract.max_episode_s
+
+    @property
+    def hard_cap_s(self) -> float:
+        return self.max_episode_s
+
+    @property
+    def task(self) -> str:
+        return self.contract.task_text
 
     def require_outside_repository(self, repository_root: Path) -> None:
         root = repository_root.resolve()
@@ -189,6 +202,15 @@ class RecordedPhysicalEpisode:
     state_rate_measurement: StateRateMeasurement | None = None
     state_source_provenance: StateSourceProvenance | None = None
     final_front_still: ImageFrame | None = None
+    task_definition: TaskDefinition = field(kw_only=True)
+
+    @property
+    def min_episode_s(self) -> float:
+        return self.task_definition.require_configured()["min_episode_s"]
+
+    @property
+    def max_episode_s(self) -> float:
+        return self.task_definition.require_configured()["max_episode_s"]
 
     @property
     def duration_s(self) -> float:
@@ -726,6 +748,10 @@ class LeRobotDatasetWriter:
             or type(episode.action_lookahead_steps) is not int
             or episode.state_rate_measurement != self._state_rate_measurement
             or episode.state_source_provenance != self._state_source_provenance
+            or episode.min_episode_s != self._contract.min_episode_s
+            or episode.max_episode_s != self._contract.max_episode_s
+            or episode.task_definition != self._contract.task_definition
+            or episode.task_definition.sha256 != self._contract.task_definition.sha256
         ):
             raise ValueError("episode metadata differs from dataset contract")
         episode.frames = [
@@ -804,6 +830,7 @@ class LeRobotDatasetWriter:
                         "gripper_type": episode.gripper_type,
                         "final_still": str(episode.final_still_path),
                         "final_still_capture": capture_provenance["final_still_capture"],
+                        **episode.task_definition.metadata(),
                         "smoke": episode.smoke,
                         "achieved_sample_rate_hz": episode.achieved_sample_rate_hz,
                         "state_rate_measurement": (
@@ -890,6 +917,7 @@ class LeRobotDatasetWriter:
             native[name] = {"width": width, "height": height}
         capture: dict[str, object] = {
             "episode_index": episode.episode_index,
+            **episode.task_definition.metadata(),
             "camera_ids": cameras,
             "native_resolution": native,
             "stored_resolution": {"width": self._image_width, "height": self._image_height},
@@ -1100,6 +1128,7 @@ class PhysicalEpisodeRecorder:
             state_rate_measurement=self.config.state_rate_measurement,
             state_source_provenance=self.config.state_source_provenance,
             final_front_still=self._pending_final_front,
+            task_definition=self.config.contract.task_definition,
         )
         self.writer.write_episode(episode)
         self._next_episode_index += 1
@@ -1462,13 +1491,19 @@ def _parse_physical_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def physical_main() -> int:  # pragma: no cover - hardware entry point
+def physical_main(task_definition: TaskDefinition | None = None) -> int:  # pragma: no cover
     args = _parse_physical_args()
+    if task_definition is None:
+        raise ValueError(
+            "explicit configured task snapshot required; registry CLI binding is pending"
+        )
     contract = PhysicalDatasetContract(
         gripper_type=args.gripper_type,
         action_source=ActionSourceKind(args.action_source),
         state_has_velocity=args.state_has_velocity,
         action_lookahead_steps=args.action_lookahead_steps,
+        task_id=task_definition.task_id,
+        task_definition=task_definition,
     )
     with ExitStack() as session_cleanup:
         dataset_path: Path | None = args.dataset_path
@@ -1487,9 +1522,6 @@ def physical_main() -> int:  # pragma: no cover - hardware entry point
             fps=args.fps,
             image_width=args.image_width,
             image_height=args.image_height,
-            min_episode_s=20.0,
-            max_episode_s=20.0 if args.smoke else 30.0,
-            hard_cap_s=20.0 if args.smoke else 30.0,
             smoke=args.smoke,
             state_source_provenance=StateSourceProvenance(
                 args.state_source, args.follower_topic,

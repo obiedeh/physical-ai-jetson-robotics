@@ -8,13 +8,16 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from test_task_registry import synthetic_task
 
 from synria_lerobot.act_training import train, validate_config
 from synria_lerobot.physical_contract import ActionSource, PhysicalDatasetContract
 
 
 def settings(tmp_path: Path) -> tuple[dict[str, Any], dict[str, Any]]:
-    contract = PhysicalDatasetContract("50mm", ActionSource.NEXT_STATE, False).as_dict(fps=15)
+    contract = PhysicalDatasetContract("50mm", ActionSource.NEXT_STATE, False,
+        task_id="die_into_cup", task_definition=synthetic_task(0.1, 1),
+    ).as_dict(fps=15)
     config = json.loads(Path("config/synria_act_training.json").read_text())
     config.update(
         policy_id="synthetic-policy",

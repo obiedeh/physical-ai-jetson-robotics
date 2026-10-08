@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from test_task_registry import synthetic_task
 
 from synria_lerobot.embodiment import SynriaEmbodiment, SynriaObservation
 from synria_lerobot.evaluation import OperatorGrade
@@ -51,7 +52,9 @@ def setup_game(tmp_path: Path, *, fail_trial: bool = False, bad_die: bool = Fals
         load_limits(Path("config/synria_limits.yaml")), verified_by="fake", verified_on="test"
     )
     client = PolicyClient(
-        SynriaEmbodiment(PhysicalDatasetContract("50mm", ActionSource.LEADER, False)),
+        SynriaEmbodiment(PhysicalDatasetContract("50mm", ActionSource.LEADER, False,
+            task_id="die_into_cup", task_definition=synthetic_task(20, 30),
+        )),
         FakePolicy((0,) * 7),
         limits,
         PolicySafetyConfig((0.075,) * 6, 0.0025, 0.01, 0.1, 0.2, "fake", "test"),

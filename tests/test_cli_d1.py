@@ -5,6 +5,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 import pytest
+from test_task_registry import synthetic_task
 from typer.testing import CliRunner
 
 from physical_ai_lab.cli import app
@@ -64,6 +65,7 @@ def _record() -> EpisodeQualityRecord:
         state_source_provenance=StateSourceProvenance(
             "standalone_driver", "/joint_states"
         ).as_dict(),
+        task_definition=synthetic_task(20, 30),
     )
 
 
@@ -74,7 +76,9 @@ def test_d1_session_summary_command_writes_artifacts(
     dataset = tmp_path / "dataset"
     dataset.mkdir()
     (dataset / "payload.bin").write_bytes(b"dataset")
-    contract = PhysicalDatasetContract("50mm", ActionSource.LEADER, False).as_dict(fps=1)
+    contract = PhysicalDatasetContract("50mm", ActionSource.LEADER, False,
+        task_id="die_into_cup", task_definition=synthetic_task(20, 30),
+    ).as_dict(fps=1)
     (dataset / "physical_contract.json").write_text(json.dumps(contract), encoding="utf-8")
     capture = {
         "episode_index": 0,
@@ -92,6 +96,7 @@ def test_d1_session_summary_command_writes_artifacts(
         "contract_version": CONTRACT_VERSION,
         "gripper_type": "50mm",
         **action_timing_metadata(ActionSource.LEADER, 1, 1.0),
+        **synthetic_task(20, 30).metadata(),
     }
     if mismatch == "resolution":
         capture["stored_resolution"] = {"width": 8, "height": 4}
@@ -179,6 +184,7 @@ def test_d1_dataset_summary_command_writes_aggregate_and_timeline(tmp_path: Path
                 "quality_valid_episode_count": 1,
                 "action_source": "leader",
                 "limits_status": "limits unverified by operator",
+                **synthetic_task(20, 30).metadata(),
             }
         )
     )

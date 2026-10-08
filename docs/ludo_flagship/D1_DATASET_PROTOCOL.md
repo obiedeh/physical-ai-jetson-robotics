@@ -6,6 +6,15 @@ their committed summaries exist.
 
 ## Task
 
+Prospective scope correction, 2026-10-08: the work-order task definition is now
+roll-first: `die_into_cup`, `roll_and_dump`, and `cup_return` from the
+[fixed-scene registry](../../config/synria_tasks.json). Token moves and any
+goal-conditioning design are deferred until the roll works. The token-task
+instructions below are superseded and must not be used for new collection.
+Each registry task needs operator timing and a prospective configured window;
+all real windows are currently unset. Recorder task selection is pending its
+dedicated CLI binding and currently fails closed without an explicit snapshot.
+
 Each episode begins with one Ludo token upright in square A. The operator uses
 the existing Alicia-D leader/follower teleoperation to pick up the token, move
 it to square B, place it upright within the square boundary, release it, and
@@ -24,7 +33,8 @@ to the PC by USB. Use the isolated read-only launch described in the
 [runbook](D1_OPERATOR_RUNBOOK.md), explicitly select `--action-source leader`,
 and keep its dataset separate. Existing hardware-sync teleoperation is unchanged.
 
-Episodes target 20–30 seconds and stop at a hard 30-second cap. The C10 wrist
+Episodes use the chosen task's configured minimum/maximum, with that maximum
+also the hard cap; there is no qualifying duration default. The C10 wrist
 camera records `observation.images.wrist`; one fixed USB webcam records
 `observation.images.front`. Every episode stores a timestamp-linked final
 front-camera still.
@@ -118,7 +128,7 @@ records lacking still-resolution evidence remain explicitly unknown.
 
 ## Collection, review, and resumption
 
-Use one process for many episodes: `start`, capture 20–30 seconds, `stop`, then
+Use one process for many episodes: `start`, capture within the configured task window, `stop`, then
 `success` or `failure` to label and save. The hard cap stops capture, not the
 session. After saving, `start` begins the next episode. `retry` preserves the
 same frames/label after a save error; `discard` explicitly abandons unusable

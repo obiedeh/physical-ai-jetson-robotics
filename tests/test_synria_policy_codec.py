@@ -10,6 +10,7 @@ from typing import Any
 
 import numpy as np
 import pytest
+from test_task_registry import synthetic_task
 
 from synria_lerobot import policy_codec as codec
 from synria_lerobot.embodiment import SynriaEmbodiment, SynriaObservation
@@ -216,7 +217,9 @@ def test_http_round_trip_records_local_encode_and_decode_timings(
     monkeypatch.setattr("synria_lerobot.policy_client.urlopen", fake_open)
     ticks = iter([1.0, 1.02, 1.04, 1.05])
     transport = HttpPolicyTransport("http://unused.test", clock=lambda: next(ticks))
-    embodiment = SynriaEmbodiment(PhysicalDatasetContract("50mm", ActionSource.NEXT_STATE, False))
+    embodiment = SynriaEmbodiment(PhysicalDatasetContract("50mm", ActionSource.NEXT_STATE, False,
+        task_id="die_into_cup", task_definition=synthetic_task(20, 30),
+    ))
     source = payload(224)
     observation = SynriaObservation(
         PhysicalState((0,) * 6, 0.01, 10, 100),
@@ -234,6 +237,10 @@ def test_http_round_trip_records_local_encode_and_decode_timings(
     assert decision.request_encode_s == pytest.approx(0.02)
     assert decision.response_decode_s == pytest.approx(0.01)
     assert replies[0].read_limits == [codec.MAX_RESPONSE_BYTES + 1]
+    assert all(
+        seen[0][key] == value
+        for key, value in embodiment.contract.task_definition.metadata().items()
+    )
     for name in IMAGE_KEYS:
         np.testing.assert_array_equal(seen[0][name], source[name])
     client.write_latencies(tmp_path / "latencies.jsonl")

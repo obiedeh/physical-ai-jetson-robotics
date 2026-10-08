@@ -23,3 +23,5 @@ pre-registered D1 dataset protocol permits it; its failed outcome remains
 explicit. Failed D2 evaluations, D3 turns, D4 physical-roll turns and D5 games
 are appended to the appropriate ledgers but do not fill or advance those
 stage cells.
+
+- 2026-10-08 — **Prospective scope, not achievement:** D1 collection is roll-first across `die_into_cup`, `roll_and_dump`, and `cup_return`; the first D2 target is die into cup in a fixed scene. Mark the cup location and die start zone and fix the dump tray. This prospectively changes the work-order task definition. Token moves and any goal-conditioning design are deferred until the roll works. The 100+ episode D1 target and pre-registered 14-of-20 D2 threshold are unchanged; no milestone cell is filled. Task windows remain unconfigured until operator timing and a prospective decision are recorded. See [the task registry](../../config/synria_tasks.json) and [the decision record](DECISIONS.md).

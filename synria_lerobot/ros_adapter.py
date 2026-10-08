@@ -31,6 +31,7 @@ from .policy_client import PolicySafetyConfig
 from .quality_gates import load_limits
 from .recorder import OpenCVFrameSource, RosJointStateSource, _close_all
 from .sessions import OperatorAbort
+from .task_registry import TaskDefinition
 from .turn_executor import TaskMove
 
 TRAJECTORY_ACTION_TYPE = "control_msgs/action/FollowJointTrajectory"
@@ -179,6 +180,8 @@ class RosSessionIO:
             ActionSource(session["action_source"]),
             session["state_has_velocity"],
             action_lookahead_steps=session["action_lookahead_steps"],
+            task_id=session["task_id"],
+            task_definition=TaskDefinition.from_metadata(session),
         )
         self.limits = load_limits(Path(session["limits"]))
         self.operator = session["provenance"]["operator"]

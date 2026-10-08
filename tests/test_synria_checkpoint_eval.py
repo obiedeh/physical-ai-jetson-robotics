@@ -13,6 +13,7 @@ from typing import Any
 import numpy as np
 import pytest
 from test_synria_sessions import FakeIO, ready_config
+from test_task_registry import synthetic_task
 
 from synria_lerobot.checkpoint_eval import (
     CheckpointEvaluator,
@@ -96,7 +97,8 @@ def probe_setup(tmp_path: Path) -> Any:
     dataset = tmp_path / "dataset"
     dataset.mkdir()
     contract = PhysicalDatasetContract(
-        "50mm", ActionSource.NEXT_STATE, False, action_lookahead_steps=2
+        "50mm", ActionSource.NEXT_STATE, False, action_lookahead_steps=2,
+        task_id="die_into_cup", task_definition=synthetic_task(20, 30),
     )
     (dataset / "physical_contract.json").write_text(json.dumps(contract.as_dict(fps=10)))
     (dataset / "synthetic_frames.bin").write_bytes(b"synthetic dataset fixture")

@@ -8,6 +8,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
+from test_task_registry import synthetic_task
 
 from synria_lerobot.physical_contract import (
     ActionSource as ActionSourceKind,
@@ -140,14 +141,12 @@ def _recorder(
         action_source=action_source,
         state_has_velocity=state_has_velocity,
         action_lookahead_steps=action_lookahead_steps,
+        task_id="die_into_cup", task_definition=synthetic_task(20, 20 if smoke else 30),
     )
     config = PhysicalRecorderConfig(
         dataset_path=tmp_path / "dataset",
         repo_id="local/synria-d1",
         contract=contract,
-        min_episode_s=20.0,
-        max_episode_s=30.0,
-        hard_cap_s=30.0,
         smoke=smoke,
     )
     writer = FakeWriter(tmp_path)
@@ -410,6 +409,7 @@ def test_dataset_path_must_be_outside_repository(tmp_path: Path) -> None:
         gripper_type="50mm",
         action_source=ActionSourceKind.LEADER,
         state_has_velocity=False,
+        task_id="die_into_cup", task_definition=synthetic_task(20, 30),
     )
     config = PhysicalRecorderConfig(
         dataset_path=tmp_path / "repo" / "data",
@@ -719,7 +719,7 @@ def test_main_cleans_partial_startup_and_session_failure(
         monkeypatch.setattr(recorder, "PhysicalEpisodeRecorder", fail)
     monkeypatch.setattr(recorder, "run_operator_loop", fail)
     with pytest.raises(OSError, match=f"fake {failure_at} failure"):
-        recorder.physical_main()
+        recorder.physical_main(synthetic_task(20, 30))
     assert closed.count("writer") == int(failure_at != "follower")
     order = ["follower", "wrist", "front", "recorder", "loop"]
     for name in ("follower", "wrist", "front"):
@@ -767,7 +767,7 @@ def test_cli_defaults_to_follower_only_and_keeps_optional_leader(
         recorder, "OpenCVFrameSource", lambda *args, **kwargs: SimpleNamespace(close=lambda: None)
     )
     monkeypatch.setattr(recorder, "run_operator_loop", lambda _: PhysicalSessionResult())
-    assert recorder.physical_main() == 0
+    assert recorder.physical_main(synthetic_task(20, 30)) == 0
     expected = [("/joint_states", True)]
     if action_source == "leader":
         expected.append(("/leader/joint_states", False))
@@ -861,7 +861,7 @@ def test_command_guard_refusal_precedes_dataset_and_cameras(
     monkeypatch.setattr(recorder, "LeRobotDatasetWriter", forbidden)
     monkeypatch.setattr(recorder, "OpenCVFrameSource", forbidden)
     with pytest.raises(RuntimeError, match=failure):
-        recorder.physical_main()
+        recorder.physical_main(synthetic_task(20, 30))
     assert events == ["measured", "guarded", "closed"]
     assert not (tmp_path / "dataset").exists()
 
@@ -973,7 +973,7 @@ def test_failed_state_preflight_never_opens_dataset_or_cameras(
     monkeypatch.setattr(recorder, "LeRobotDatasetWriter", forbidden)
     monkeypatch.setattr(recorder, "OpenCVFrameSource", forbidden)
     with pytest.raises((ValueError, RuntimeError)):
-        recorder.physical_main()
+        recorder.physical_main(synthetic_task(20, 30))
     assert closed == ["follower"]
     assert not (tmp_path / "dataset").exists()
 

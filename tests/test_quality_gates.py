@@ -6,6 +6,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from test_task_registry import synthetic_task
 
 from synria_lerobot.physical_contract import (
     CONTRACT_VERSION,
@@ -24,6 +25,7 @@ from synria_lerobot.quality_gates import (
     OBJECT_SUCCESS_LIMITATION,
     EpisodeQualityRecord,
     FrameQualityRecord,
+    GateConfig,
     ImageDiagnostic,
     episode_quality_record,
     evaluate_episode,
@@ -81,11 +83,12 @@ def _baseline_episode() -> EpisodeQualityRecord:
         frames=frames,
         **action_timing_metadata(ActionSourceKind.LEADER, 1, 1.0),
         state_rate_measurement=asdict(StateRateMeasurement(50, 100, 2, 0, 2, 0.02)),
+        task_definition=synthetic_task(20, 30),
     )
 
 
 def _failed_gates(episode: EpisodeQualityRecord) -> list[str]:
-    report = evaluate_episode(episode, load_limits(LIMITS_PATH))
+    report = evaluate_episode(episode, load_limits(LIMITS_PATH), GateConfig(20, 30))
     assert tuple(report.gates) == GATE_NAMES
     return report.failed_gates
 
@@ -313,6 +316,7 @@ def _record_two_episodes(
         gripper_type="50mm",
         action_source=action_source,
         state_has_velocity=False,
+        task_id="die_into_cup", task_definition=synthetic_task(20, 30),
     )
     recorder = PhysicalEpisodeRecorder(
         config=PhysicalRecorderConfig(
@@ -360,11 +364,81 @@ def _provenance(action_source: str) -> dict[str, object]:
         "camera_ids": {"wrist": "fake-wrist", "front": "fake-front"},
         "resolution": {"width": 4, "height": 4},
         "rate_hz": 1.0,
+        **synthetic_task(20, 30).metadata(),
         "contract_version": CONTRACT_VERSION,
         "gripper_type": "50mm",
         "action_source": action_source,
         **action_timing_metadata(ActionSourceKind(action_source), 1, 1.0),
     }
+
+
+@pytest.mark.parametrize("layer", ["provenance", "episode", "capture"])
+def test_session_refuses_a_different_valid_task_snapshot_before_writes(
+    tmp_path: Path, layer: str,
+) -> None:
+    dataset = tmp_path / "dataset"
+    dataset.mkdir()
+    original = synthetic_task(20, 30)
+    other = synthetic_task(10, 80, "cup_return")
+    contract = PhysicalDatasetContract(
+        "50mm", ActionSourceKind.LEADER, False,
+        task_id=original.task_id, task_definition=original,
+    )
+    (dataset / "physical_contract.json").write_text(json.dumps(contract.as_dict(fps=1)))
+    declaration = StateSourceProvenance("standalone_driver", "/joint_states").as_dict()
+    provenance = {**_provenance("leader"), "state_source_provenance": declaration}
+    episode = replace(_baseline_episode(), state_source_provenance=declaration)
+    capture = {
+        "episode_index": 0, "camera_ids": provenance["camera_ids"],
+        "native_resolution": {"wrist": {"width": 4, "height": 4},
+                              "front": {"width": 4, "height": 4}},
+        "stored_resolution": provenance["resolution"], "stored_color_space": "RGB",
+        "achieved_sample_rate_hz": None, "state_rate_measurement": episode.state_rate_measurement,
+        "state_source_provenance": declaration, **contract.as_dict(fps=1),
+    }
+    if layer == "episode":
+        episode = replace(episode, task_definition=other)
+    else:
+        {"provenance": provenance, "capture": capture}[layer].update(other.metadata())
+    (dataset / "physical_capture_provenance.jsonl").write_text(json.dumps(capture) + "\n")
+    session = tmp_path / "reports" / "session"
+    with pytest.raises(ValueError, match="differs"):
+        write_session_artifacts(
+            session_dir=session, dataset_path=dataset, provenance=provenance, episodes=[episode],
+            limits=load_limits(LIMITS_PATH), gate_config=GateConfig(20, 30),
+        )
+    assert not session.exists()
+
+
+def test_aggregate_keeps_distinct_task_windows_per_dataset(tmp_path: Path) -> None:
+    reports = tmp_path / "reports"
+    tasks = [synthetic_task(20, 30), synthetic_task(10, 80, "cup_return")]
+    for index, task in enumerate(tasks):
+        dataset = tmp_path / f"dataset-{index}"
+        dataset.mkdir()
+        write_session_artifacts(
+            session_dir=reports / f"session-{index}", dataset_path=dataset,
+            provenance={**_provenance("leader"), **task.metadata()},
+            episodes=[replace(_baseline_episode(), task_definition=task)],
+            limits=load_limits(LIMITS_PATH), gate_config=GateConfig(**task.require_configured()),
+        )
+    aggregate = write_aggregate_summary(
+        data_root=reports, output_path=reports / "aggregate.json",
+        timeline_path=tmp_path / "timeline.jsonl",
+    )
+    rows = aggregate["recording_contracts"]
+    assert [row["task_id"] for row in rows] == [task.task_id for task in tasks]
+    assert [row["max_episode_s"] for row in rows] == [30, 80]
+    summary_path = reports / "session-0" / "session_summary.json"
+    payload = json.loads(summary_path.read_text())
+    payload.pop("task_definition")
+    summary_path.write_text(json.dumps(payload))
+    with pytest.raises(ValueError, match="task definition"):
+        write_aggregate_summary(
+            data_root=reports, output_path=reports / "not-written.json",
+            timeline_path=tmp_path / "not-written.jsonl",
+        )
+    assert not (reports / "not-written.json").exists()
 
 
 def test_fake_source_end_to_end_for_both_action_sources(tmp_path: Path) -> None:
@@ -381,6 +455,7 @@ def test_fake_source_end_to_end_for_both_action_sources(tmp_path: Path) -> None:
             provenance=_provenance(source.value),
             episodes=records,
             limits=limits,
+            gate_config=GateConfig(min_episode_s=20, max_episode_s=30),
         )
         assert summary["episode_count"] == 2
         assert summary["quality_valid_episode_count"] == 2, summary["gate_results"]
@@ -411,6 +486,7 @@ def test_smoke_is_diagnosed_but_never_qualifies_or_affects_demo_success(tmp_path
         session_dir=tmp_path / "reports" / "session", dataset_path=dataset,
         provenance=_provenance("leader"),
         episodes=[replace(_baseline_episode(), smoke=True)], limits=limits,
+        gate_config=GateConfig(min_episode_s=20, max_episode_s=30),
     )
     assert summary["recorded_episode_count"] == 1
     assert summary["smoke_episode_count"] == 1
@@ -430,12 +506,18 @@ def test_resumed_dataset_reuses_summary_and_cannot_be_counted_twice(tmp_path: Pa
         dataset_path=dataset, provenance=_provenance("leader"),
         episodes=[_baseline_episode()], limits=limits,
     )
-    write_session_artifacts(session_dir=reports / "session", **kwargs)
+    write_session_artifacts(session_dir=reports / "session", **kwargs,
+        gate_config=GateConfig(min_episode_s=20, max_episode_s=30),
+    )
     with pytest.raises(ValueError, match="already summarized"):
-        write_session_artifacts(session_dir=reports / "duplicate", **kwargs)
+        write_session_artifacts(session_dir=reports / "duplicate", **kwargs,
+            gate_config=GateConfig(min_episode_s=20, max_episode_s=30),
+        )
     assert not (reports / "duplicate").exists()
     kwargs["episodes"] = [_baseline_episode(), replace(_baseline_episode(), episode_index=1)]
-    summary = write_session_artifacts(session_dir=reports / "session", **kwargs)
+    summary = write_session_artifacts(session_dir=reports / "session", **kwargs,
+        gate_config=GateConfig(min_episode_s=20, max_episode_s=30),
+    )
     assert summary["episode_count"] == 2
     duplicate = reports / "duplicate"
     duplicate.mkdir()
@@ -463,6 +545,7 @@ def test_session_refuses_duplicate_or_invalid_indices_before_writing(
         write_session_artifacts(
             session_dir=session, dataset_path=dataset,
             provenance=_provenance("leader"), episodes=episodes, limits=limits,
+            gate_config=GateConfig(min_episode_s=20, max_episode_s=30),
         )
     assert not session.exists()
 
@@ -488,7 +571,9 @@ def test_summary_refuses_relabelled_contract_or_episode_evidence(
 ) -> None:
     dataset = tmp_path / "dataset"
     dataset.mkdir()
-    contract = PhysicalDatasetContract("50mm", ActionSourceKind.LEADER, False).as_dict(fps=1)
+    contract = PhysicalDatasetContract("50mm", ActionSourceKind.LEADER, False,
+        task_id="die_into_cup", task_definition=synthetic_task(20, 30),
+    ).as_dict(fps=1)
     provenance = _provenance("leader")
     declaration = StateSourceProvenance("standalone_driver", "/joint_states").as_dict()
     provenance["state_source_provenance"] = declaration
@@ -503,6 +588,7 @@ def test_summary_refuses_relabelled_contract_or_episode_evidence(
         "state_source_provenance": declaration,
         "action_source": "leader", "contract_version": CONTRACT_VERSION, "gripper_type": "50mm",
         **action_timing_metadata(ActionSourceKind.LEADER, 1, 1),
+        **synthetic_task(20, 30).metadata(),
     }
     if layer == "episode":
         episode = replace(episode, **{field: value})
@@ -518,6 +604,7 @@ def test_summary_refuses_relabelled_contract_or_episode_evidence(
         write_session_artifacts(
             session_dir=session, dataset_path=dataset, provenance=provenance,
             episodes=[episode], limits=load_limits(LIMITS_PATH),
+            gate_config=GateConfig(min_episode_s=20, max_episode_s=30),
         )
     assert not session.exists()
 
@@ -531,7 +618,9 @@ def test_physical_summary_requires_complete_sufficient_incoming_rate_evidence(
 ) -> None:
     dataset = tmp_path / "dataset"
     dataset.mkdir()
-    contract = PhysicalDatasetContract("50mm", ActionSourceKind.LEADER, False).as_dict(fps=1)
+    contract = PhysicalDatasetContract("50mm", ActionSourceKind.LEADER, False,
+        task_id="die_into_cup", task_definition=synthetic_task(20, 30),
+    ).as_dict(fps=1)
     (dataset / "physical_contract.json").write_text(json.dumps(contract), encoding="utf-8")
     session = tmp_path / "reports" / "session"
     declaration = StateSourceProvenance("standalone_driver", "/joint_states").as_dict()
@@ -542,6 +631,7 @@ def test_physical_summary_requires_complete_sufficient_incoming_rate_evidence(
             episodes=[replace(_baseline_episode(), state_rate_measurement=measurement,
                               state_source_provenance=declaration)],
             limits=load_limits(LIMITS_PATH),
+            gate_config=GateConfig(min_episode_s=20, max_episode_s=30),
         )
     assert not session.exists()
 
@@ -553,7 +643,9 @@ def test_physical_summary_refuses_missing_or_conflicting_source_evidence(
 ) -> None:
     dataset = tmp_path / "dataset"
     dataset.mkdir()
-    contract = PhysicalDatasetContract("50mm", ActionSourceKind.LEADER, False).as_dict(fps=1)
+    contract = PhysicalDatasetContract("50mm", ActionSourceKind.LEADER, False,
+        task_id="die_into_cup", task_definition=synthetic_task(20, 30),
+    ).as_dict(fps=1)
     (dataset / "physical_contract.json").write_text(json.dumps(contract))
     declaration = StateSourceProvenance("standalone_driver", "/joint_states").as_dict()
     provenance = {**_provenance("leader"), "state_source_provenance": declaration}
@@ -567,6 +659,7 @@ def test_physical_summary_refuses_missing_or_conflicting_source_evidence(
         "state_source_provenance": declaration,
         "action_source": "leader", "contract_version": CONTRACT_VERSION, "gripper_type": "50mm",
         **action_timing_metadata(ActionSourceKind.LEADER, 1, 1),
+        **synthetic_task(20, 30).metadata(),
     }
     changed = dict(declaration)
     if corruption == "missing":
@@ -590,6 +683,7 @@ def test_physical_summary_refuses_missing_or_conflicting_source_evidence(
         write_session_artifacts(
             session_dir=session, dataset_path=dataset, provenance=provenance,
             episodes=[episode], limits=load_limits(LIMITS_PATH),
+            gate_config=GateConfig(min_episode_s=20, max_episode_s=30),
         )
     assert not session.exists()
 
@@ -613,6 +707,7 @@ def test_summary_validates_native_still_evidence_and_marks_legacy_unknown(
         "state_source_provenance": None, "action_source": "leader",
         "contract_version": CONTRACT_VERSION, "gripper_type": "50mm",
         **action_timing_metadata(ActionSourceKind.LEADER, 1, 1),
+        **synthetic_task(20, 30).metadata(),
     }
     still = {
         "resolution": {"width": 640, "height": 480}, "color_space": "RGB",
@@ -639,12 +734,14 @@ def test_summary_validates_native_still_evidence_and_marks_legacy_unknown(
             write_session_artifacts(
                 session_dir=session, dataset_path=dataset, provenance=provenance,
                 episodes=[episode], limits=load_limits(LIMITS_PATH),
+                gate_config=GateConfig(min_episode_s=20, max_episode_s=30),
             )
         assert not session.exists()
         return
     summary = write_session_artifacts(
         session_dir=session, dataset_path=dataset, provenance=provenance,
         episodes=[episode], limits=load_limits(LIMITS_PATH),
+        gate_config=GateConfig(min_episode_s=20, max_episode_s=30),
     )
     expected = [{
         "episode_index": 0,

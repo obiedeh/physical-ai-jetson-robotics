@@ -27,7 +27,7 @@ from .checkpoint_eval import (
     strict_content_hash,
 )
 from .evaluation import append_policy_row
-from .physical_contract import ActionSource, PhysicalDatasetContract
+from .physical_contract import PhysicalDatasetContract
 
 TRAINING_VERSION = "synria_act_training_v1"
 CADENCE_SEMANTICS = (
@@ -88,13 +88,7 @@ def validate_config(config: dict[str, Any], contract: dict[str, Any]) -> dict[st
         _integer(contract.get(key), key, minimum=0)
     for key in ("requested_rate_hz", "nominal_action_lookahead_s"):
         _number(contract.get(key), key, allow_zero=key != "requested_rate_hz")
-    physical = PhysicalDatasetContract(
-        contract["gripper_type"],
-        ActionSource(contract["action_source"]),
-        contract["state_has_velocity"],
-        version=contract["contract_version"],
-        action_lookahead_steps=contract["action_lookahead_steps"],
-    )
+    physical = PhysicalDatasetContract.from_dict(contract)
     if physical.as_dict(fps=contract["requested_rate_hz"]) != contract:
         raise ValueError("inconsistent physical contract metadata")
     period = _number(config.get("command_period_s"), "command_period_s")

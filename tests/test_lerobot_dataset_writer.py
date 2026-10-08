@@ -12,6 +12,7 @@ from types import ModuleType, SimpleNamespace
 from typing import Any
 
 import pytest
+from test_task_registry import synthetic_task
 
 from synria_lerobot.physical_contract import (
     ActionSource,
@@ -43,9 +44,71 @@ def writer_config(root: Path) -> PhysicalRecorderConfig:
             gripper_type="50mm",
             action_source=ActionSource.NEXT_STATE,
             state_has_velocity=False,
+            task_id="die_into_cup", task_definition=synthetic_task(0.1, 1),
         ),
         fps=15,
     )
+
+
+@pytest.mark.parametrize("change", ["task", "text", "window", "hash", "legacy"])
+def test_real_task_bound_resume_refuses_relabeling_without_mutation(
+    tmp_path: Path, change: str,
+) -> None:
+    library = real_dataset_type()
+    config = replace(writer_config(tmp_path / "dataset"), image_width=48, image_height=32)
+    writer = LeRobotDatasetWriter(config)
+    writer.write_episode(synthetic_episode(width=48, height=32))
+    writer.finalize()
+    contract_path = config.dataset_path / "physical_contract.json"
+    original = contract_path.read_text()
+    requested = config
+    task = config.contract.task_definition
+    if change == "task":
+        task = synthetic_task(0.1, 1, "cup_return")
+    elif change == "text":
+        task = replace(task, task_text="A different synthetic instruction")
+    elif change == "window":
+        task = replace(task, max_episode_s=2)
+    else:
+        payload = json.loads(original)
+        if change == "hash":
+            payload["task_definition_sha256"] = "0" * 64
+        else:
+            for key in ("task_definition", "task_id", "task_text", "task_definition_sha256",
+                        "min_episode_s", "max_episode_s"):
+                payload.pop(key)
+        contract_path.write_text(json.dumps(payload))
+    if change in {"task", "text", "window"}:
+        requested = replace(config, contract=replace(
+            config.contract, task_id=task.task_id, task_definition=task
+        ))
+    before = _file_hashes(config.dataset_path)
+    with pytest.raises(ValueError, match="contract"):
+        LeRobotDatasetWriter(requested)
+    assert _file_hashes(config.dataset_path) == before
+    contract_path.write_text(original)
+    resumed = LeRobotDatasetWriter(config)
+    assert resumed.next_episode_index == 1
+    mixed = replace(synthetic_episode(1, width=48, height=32),
+                    task_definition=synthetic_task(0.1, 1, "roll_and_dump"))
+    before = _file_hashes(config.dataset_path)
+    with pytest.raises(ValueError, match="metadata"):
+        resumed.write_episode(mixed)
+    assert _file_hashes(config.dataset_path) == before
+    resumed.write_episode(synthetic_episode(1, width=48, height=32))
+    resumed.finalize()
+    reloaded = library(config.repo_id, root=config.dataset_path, video_backend="pyav")
+    assert reloaded.num_episodes == 2
+    assert reloaded[0]["task"] == config.contract.task_text
+    for name in ("physical_capture_provenance.jsonl", "physical_quality_records.jsonl",
+                 "physical_episode_metadata.jsonl"):
+        rows = [json.loads(line) for line in (config.dataset_path / name).read_text().splitlines()]
+        assert len(rows) == 2
+        for row in rows:
+            assert all(
+                row[key] == value
+                for key, value in config.contract.task_definition.metadata().items()
+            )
 
 
 def image_features() -> dict[str, dict[str, object]]:
@@ -198,7 +261,7 @@ def test_smoke_uses_nonexisting_child_path(monkeypatch: pytest.MonkeyPatch) -> N
             saved_episode_count=1, last_episode_index=0, smoke=True
         ),
     )
-    assert recorder.physical_main() == 0
+    assert recorder.physical_main(synthetic_task(20, 20)) == 0
     assert len(roots) == 1
     assert not roots[0].parent.exists()
 
@@ -299,6 +362,7 @@ def synthetic_episode(
         action_lookahead_steps=lookahead_steps,
         contract_version="synria_physical_v1",
         gripper_type="50mm",
+        task_definition=synthetic_task(0.1, 1),
     )
 
 
@@ -407,6 +471,7 @@ def test_real_capture_stores_resized_rgb_and_correct_final_still(
     import numpy as np
 
     from synria_lerobot.quality_gates import (
+        GateConfig,
         load_episode_records,
         load_limits,
         write_session_artifacts,
@@ -494,6 +559,7 @@ def test_real_capture_stores_resized_rgb_and_correct_final_still(
         session_dir=session_dir, dataset_path=config.dataset_path,
         provenance=provenance, episodes=episodes,
         limits=load_limits(Path("config/synria_limits.yaml")),
+        gate_config=GateConfig(min_episode_s=0.1, max_episode_s=1),
     )
     expected = [{"episode_index": 0, "status": "native", "capture": evidence}]
     assert summary["final_still_captures"] == expected
