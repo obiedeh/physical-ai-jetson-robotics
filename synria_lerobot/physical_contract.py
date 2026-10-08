@@ -239,6 +239,7 @@ class ImageFrame:
     monotonic_timestamp_s: float
     native_resolution: tuple[int, int] | None = None
     source_id: str | None = None
+    native_data: Any | None = None
 
     def __post_init__(self) -> None:
         if not math.isfinite(self.monotonic_timestamp_s):

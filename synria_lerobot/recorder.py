@@ -188,6 +188,7 @@ class RecordedPhysicalEpisode:
     action_lookahead_steps: int = 1
     state_rate_measurement: StateRateMeasurement | None = None
     state_source_provenance: StateSourceProvenance | None = None
+    final_front_still: ImageFrame | None = None
 
     @property
     def duration_s(self) -> float:
@@ -522,13 +523,16 @@ class OpenCVFrameSource(_LatestSource[ImageFrame]):
             if len(frame.shape) != 3 or frame.shape[2] != 3:
                 raise ValueError("camera must deliver a three-channel BGR image")
             native_resolution = (int(frame.shape[1]), int(frame.shape[0]))
-            rgb = self._cv2.cvtColor(frame, self._cv2.COLOR_BGR2RGB)
+            # Own the native pixels even if a capture backend reuses its input buffer.
+            rgb = self._cv2.cvtColor(frame, self._cv2.COLOR_BGR2RGB).copy()
+            rgb.setflags(write=False)
             stored = self._cv2.resize(
                 rgb, self._stored_resolution, interpolation=self._cv2.INTER_AREA
             )
             self._store(ImageFrame(
                 data=stored, monotonic_timestamp_s=arrived,
                 native_resolution=native_resolution, source_id=self._device_path,
+                native_data=rgb,
             ))
 
     def read(self) -> ImageFrame:
@@ -728,6 +732,7 @@ class LeRobotDatasetWriter:
             replace(frame, state=self._contract.prepare_state(frame.state))
             for frame in episode.frames
         ]
+        final_still = self._native_final_still(episode)
         capture_provenance = self._capture_provenance(episode)
         try:
             self._transaction.begin()
@@ -743,7 +748,7 @@ class LeRobotDatasetWriter:
                     "episode metadata changed during the recording session"
                 )
             episode.final_still_path = self.save_final_still(
-                episode.episode_index, episode.frames[-1].front
+                episode.episode_index, final_still
             )
             self._write_episode_data(episode, capture_provenance)
             if self._dataset.meta.total_episodes != self._next_episode_index + 1:
@@ -798,6 +803,7 @@ class LeRobotDatasetWriter:
                         "contract_version": episode.contract_version,
                         "gripper_type": episode.gripper_type,
                         "final_still": str(episode.final_still_path),
+                        "final_still_capture": capture_provenance["final_still_capture"],
                         "smoke": episode.smoke,
                         "achieved_sample_rate_hz": episode.achieved_sample_rate_hz,
                         "state_rate_measurement": (
@@ -823,6 +829,37 @@ class LeRobotDatasetWriter:
             output.write(json.dumps(quality_record.as_dict(), sort_keys=True) + "\n")
         with self._capture_records_path.open("a", encoding="utf-8") as output:
             output.write(json.dumps(capture_provenance, sort_keys=True) + "\n")
+
+    @staticmethod
+    def _native_final_still(episode: RecordedPhysicalEpisode) -> ImageFrame:
+        import numpy as np
+
+        if not episode.frames:
+            raise ValueError("cannot write an episode without frames")
+        front = episode.frames[-1].front
+        still = episode.final_front_still
+        if still is None:
+            still = replace(
+                front, data=front.native_data if front.native_data is not None else front.data,
+                native_data=None,
+            )
+        if (
+            still.monotonic_timestamp_s != front.monotonic_timestamp_s
+            or still.source_id != front.source_id
+            or still.native_resolution != front.native_resolution
+            or still.native_resolution is None
+        ):
+            raise ValueError("final still must match the last accepted front camera sample")
+        width, height = still.native_resolution
+        if (
+            not isinstance(still.data, np.ndarray)
+            or still.data.shape != (height, width, 3)
+            or still.data.dtype != np.uint8
+        ):
+            raise ValueError(
+                "final still requires native-resolution RGB uint8 pixels; no upscaling"
+            )
+        return still
 
     def _capture_provenance(self, episode: RecordedPhysicalEpisode) -> dict[str, object]:
         import numpy as np
@@ -857,6 +894,12 @@ class LeRobotDatasetWriter:
             "native_resolution": native,
             "stored_resolution": {"width": self._image_width, "height": self._image_height},
             "stored_color_space": "RGB",
+            "final_still_capture": {
+                "resolution": native["front"],
+                "color_space": "RGB",
+                "source_id": cameras["front"],
+                "source_monotonic_s": episode.frames[-1].front.monotonic_timestamp_s,
+            },
             "achieved_sample_rate_hz": episode.achieved_sample_rate_hz,
             "state_rate_measurement": (
                 asdict(episode.state_rate_measurement)
@@ -946,6 +989,7 @@ class PhysicalEpisodeRecorder:
             raise ValueError("declared physical state source requires a command publisher guard")
         self.state = RecorderState.IDLE
         self._pending: list[_PendingFrame] = []
+        self._pending_final_front: ImageFrame | None = None
         self._started = 0.0
         self._ended = 0.0
         self._next_episode_index = writer.next_episode_index
@@ -968,12 +1012,15 @@ class PhysicalEpisodeRecorder:
             )
             self._command_publisher_guard(topics)
         self._pending = []
+        self._pending_final_front = None
         self._pending_label = None
         self._started = self.clock()
         self._ended = self._started
         self.state = RecorderState.RECORDING
 
     def capture_once(self) -> bool:
+        import numpy as np
+
         if self.state is not RecorderState.RECORDING:
             raise RuntimeError("start the recorder before capturing")
         now = self.clock()
@@ -988,12 +1035,19 @@ class PhysicalEpisodeRecorder:
         if sampled - self._started >= self.config.hard_cap_s:
             self.stop()
             return False
+        native = front.native_data if front.native_data is not None else front.data
+        # Pin one accepted native still, not a native image for every dataset frame.
+        # The copy also protects injected sources that reuse writable image buffers.
+        if isinstance(native, np.ndarray):
+            native = native.copy()
+            native.setflags(write=False)
+        self._pending_final_front = replace(front, data=native, native_data=None)
         self._pending.append(
             _PendingFrame(
                 state=follower,
                 action=action,
-                wrist=wrist,
-                front=front,
+                wrist=replace(wrist, native_data=None),
+                front=replace(front, native_data=None),
                 sample_monotonic_s=sampled,
             )
         )
@@ -1016,6 +1070,7 @@ class PhysicalEpisodeRecorder:
         if self.writer.recovery_blocked:
             raise RecordingRecoveryError("recovery is blocked; pending frames must be retained")
         self._pending = []
+        self._pending_final_front = None
         self._pending_label = None
         self.state = RecorderState.IDLE
 
@@ -1044,10 +1099,12 @@ class PhysicalEpisodeRecorder:
             action_lookahead_steps=self.config.contract.action_lookahead_steps,
             state_rate_measurement=self.config.state_rate_measurement,
             state_source_provenance=self.config.state_source_provenance,
+            final_front_still=self._pending_final_front,
         )
         self.writer.write_episode(episode)
         self._next_episode_index += 1
         self._pending = []
+        self._pending_final_front = None
         self._pending_label = None
         self.state = RecorderState.IDLE
         return episode

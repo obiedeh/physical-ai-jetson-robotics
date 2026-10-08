@@ -592,3 +592,66 @@ def test_physical_summary_refuses_missing_or_conflicting_source_evidence(
             episodes=[episode], limits=load_limits(LIMITS_PATH),
         )
     assert not session.exists()
+
+
+@pytest.mark.parametrize("corruption", [
+    None, "legacy", "resolution", "timestamp", "source", "color", "null", "bool_resolution",
+])
+def test_summary_validates_native_still_evidence_and_marks_legacy_unknown(
+    tmp_path: Path, corruption: str | None,
+) -> None:
+    dataset = tmp_path / "dataset"
+    dataset.mkdir()
+    episode = _baseline_episode()
+    provenance = _provenance("leader")
+    capture = {
+        "episode_index": 0, "camera_ids": provenance["camera_ids"],
+        "native_resolution": {"wrist": {"width": 640, "height": 480},
+                              "front": {"width": 640, "height": 480}},
+        "stored_resolution": provenance["resolution"], "stored_color_space": "RGB",
+        "achieved_sample_rate_hz": None, "state_rate_measurement": episode.state_rate_measurement,
+        "state_source_provenance": None, "action_source": "leader",
+        "contract_version": CONTRACT_VERSION, "gripper_type": "50mm",
+        **action_timing_metadata(ActionSourceKind.LEADER, 1, 1),
+    }
+    still = {
+        "resolution": {"width": 640, "height": 480}, "color_space": "RGB",
+        "source_id": provenance["camera_ids"]["front"],
+        "source_monotonic_s": episode.frames[-1].timestamps["front_monotonic_s"],
+    }
+    changes = {
+        "resolution": ("resolution", {"width": 224, "height": 224}),
+        "timestamp": ("source_monotonic_s", 999), "source": ("source_id", "other"),
+        "color": ("color_space", "BGR"),
+    }
+    if corruption in changes:
+        name, value = changes[corruption]
+        still[name] = value
+    if corruption != "legacy":
+        capture["final_still_capture"] = None if corruption == "null" else still
+    if corruption == "bool_resolution":
+        capture["native_resolution"]["front"]["width"] = 1
+        still["resolution"]["width"] = True
+    (dataset / "physical_capture_provenance.jsonl").write_text(json.dumps(capture) + "\n")
+    session = tmp_path / "reports" / "session"
+    if corruption not in (None, "legacy"):
+        with pytest.raises(ValueError, match="final still capture"):
+            write_session_artifacts(
+                session_dir=session, dataset_path=dataset, provenance=provenance,
+                episodes=[episode], limits=load_limits(LIMITS_PATH),
+            )
+        assert not session.exists()
+        return
+    summary = write_session_artifacts(
+        session_dir=session, dataset_path=dataset, provenance=provenance,
+        episodes=[episode], limits=load_limits(LIMITS_PATH),
+    )
+    expected = [{
+        "episode_index": 0,
+        "status": (
+            "unknown: legacy capture has no native still evidence" if corruption else "native"
+        ),
+        "capture": None if corruption else still,
+    }]
+    assert summary["final_still_captures"] == expected
+    assert json.loads((session / "provenance.json").read_text())["final_still_captures"] == expected
