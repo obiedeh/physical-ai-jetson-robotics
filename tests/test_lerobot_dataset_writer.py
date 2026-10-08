@@ -11,8 +11,19 @@ from typing import Any
 
 import pytest
 
-from synria_lerobot.physical_contract import ActionSource, PhysicalDatasetContract
-from synria_lerobot.recorder import LeRobotDatasetWriter, OperatorLabel, PhysicalRecorderConfig
+from synria_lerobot.physical_contract import (
+    ActionSource,
+    ImageFrame,
+    PhysicalDatasetContract,
+    PhysicalFrame,
+    PhysicalState,
+)
+from synria_lerobot.recorder import (
+    LeRobotDatasetWriter,
+    OperatorLabel,
+    PhysicalRecorderConfig,
+    RecordedPhysicalEpisode,
+)
 
 
 def writer_config(root: Path) -> PhysicalRecorderConfig:
@@ -118,12 +129,18 @@ def test_smoke_uses_nonexisting_child_path(monkeypatch: pytest.MonkeyPatch) -> N
         roots.append(config.dataset_path)
         assert config.dataset_path.parent.is_dir()
         assert not config.dataset_path.exists()
-        return object()
+        return SimpleNamespace(finalize=lambda: None)
 
     monkeypatch.setattr(recorder, "LeRobotDatasetWriter", fake_writer)
-    monkeypatch.setattr(recorder, "RosJointStateSource", lambda *args, **kwargs: object())
-    monkeypatch.setattr(recorder, "OpenCVFrameSource", lambda *args, **kwargs: object())
-    monkeypatch.setattr(recorder, "PhysicalEpisodeRecorder", lambda **kwargs: object())
+    monkeypatch.setattr(
+        recorder, "RosJointStateSource", lambda *args, **kwargs: SimpleNamespace(close=lambda: None)
+    )
+    monkeypatch.setattr(
+        recorder, "OpenCVFrameSource", lambda *args, **kwargs: SimpleNamespace(close=lambda: None)
+    )
+    monkeypatch.setattr(
+        recorder, "PhysicalEpisodeRecorder", lambda **kwargs: SimpleNamespace(close=lambda: None)
+    )
     monkeypatch.setattr(
         recorder,
         "run_operator_loop",
@@ -159,12 +176,12 @@ def test_real_writer_creates_nonexisting_root_and_resumes_empty_dataset(tmp_path
             config.contract.as_dict()
         )
     finally:
-        writer._dataset.finalize()
+        writer.finalize()
     resumed = LeRobotDatasetWriter(config)
     try:
         assert resumed.next_episode_index == 0
     finally:
-        resumed._dataset.finalize()
+        resumed.finalize()
 
 
 def test_real_writer_resumes_persisted_episode_index(tmp_path: Path) -> None:
@@ -196,4 +213,105 @@ def test_real_writer_resumes_persisted_episode_index(tmp_path: Path) -> None:
         assert resumed.next_episode_index == 2
         assert resumed._dataset.meta.total_episodes == 2
     finally:
-        resumed._dataset.finalize()
+        resumed.finalize()
+
+
+def synthetic_episode(index: int = 0) -> RecordedPhysicalEpisode:
+    import numpy as np
+
+    frames = []
+    for number in range(3):
+        stamp = number / 15
+        frames.append(
+            PhysicalFrame(
+                state=PhysicalState((0.01,) * 6, 0.01, stamp, stamp + 1000),
+                action=(0.01,) * 7,
+                action_monotonic_timestamp_s=stamp,
+                wrist=ImageFrame(np.full((224, 224, 3), 30 + number, dtype=np.uint8), stamp),
+                front=ImageFrame(np.full((224, 224, 3), 90 + number, dtype=np.uint8), stamp),
+            )
+        )
+    return RecordedPhysicalEpisode(
+        episode_index=index,
+        frames=frames,
+        started_monotonic_s=0,
+        ended_monotonic_s=0.2,
+        operator_label=OperatorLabel.SUCCESS,
+        action_source=ActionSource.NEXT_STATE,
+        contract_version="synria_physical_v1",
+        gripper_type="50mm",
+    )
+
+
+def test_writer_passes_task_in_frame_and_finalizes_once(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    saved_frames = []
+    calls = {"saved": 0, "finalized": 0}
+
+    class Dataset:
+        meta = SimpleNamespace(total_episodes=0)
+
+        @staticmethod
+        def create(**kwargs: Any) -> Dataset:
+            kwargs["root"].mkdir()
+            return Dataset()
+
+        def add_frame(self, frame: dict[str, object]) -> None:
+            saved_frames.append(frame)
+
+        def save_episode(self) -> None:
+            calls["saved"] += 1
+
+        def finalize(self) -> None:
+            calls["finalized"] += 1
+
+    _install_fake_library(monkeypatch, Dataset)
+    config = writer_config(tmp_path / "dataset")
+    writer = LeRobotDatasetWriter(config)
+    writer.write_episode(synthetic_episode())
+    writer.finalize()
+    writer.finalize()
+    assert calls == {"saved": 1, "finalized": 1}
+    assert len(saved_frames) == 3
+    assert all(frame["task"] == config.task for frame in saved_frames)
+    with pytest.raises(RuntimeError, match="finalized"):
+        writer.write_episode(synthetic_episode())
+
+
+def test_contract_write_failure_finalizes_created_dataset(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    finalized = []
+
+    class Dataset:
+        @staticmethod
+        def create(**kwargs: Any) -> SimpleNamespace:
+            kwargs["root"].mkdir()
+            return SimpleNamespace(finalize=lambda: finalized.append(True))
+
+    _install_fake_library(monkeypatch, Dataset)
+
+    def fail_write(*args: Any, **kwargs: Any) -> None:
+        raise OSError("contract write failure")
+
+    monkeypatch.setattr(Path, "write_text", fail_write)
+    with pytest.raises(OSError, match="contract write failure"):
+        LeRobotDatasetWriter(writer_config(tmp_path / "dataset"))
+    assert finalized == [True]
+
+
+def test_real_writer_saves_task_and_finalizes_for_reload(tmp_path: Path) -> None:
+    library = real_dataset_type()
+    config = writer_config(tmp_path / "dataset")
+    writer = LeRobotDatasetWriter(config)
+    try:
+        writer.write_episode(synthetic_episode())
+    finally:
+        writer.finalize()
+    writer.finalize()
+    reloaded = library(config.repo_id, root=config.dataset_path, video_backend="pyav")
+    assert reloaded.num_episodes == 1
+    assert reloaded.num_frames == 3
+    assert reloaded[0]["task"] == config.task
+    assert tuple(reloaded[0]["observation.images.wrist"].shape) == (3, 224, 224)

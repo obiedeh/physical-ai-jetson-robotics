@@ -19,9 +19,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import tempfile
 import time
 from collections.abc import Callable
+from contextlib import ExitStack
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -88,6 +90,8 @@ class DatasetWriter(Protocol):
 
     def write_episode(self, episode: RecordedPhysicalEpisode) -> None: ...
 
+    def finalize(self) -> None: ...
+
     def save_final_still(
         self, episode_index: int, frame: ImageFrame
     ) -> Path: ...
@@ -102,6 +106,22 @@ class RecorderState(str, Enum):
 class OperatorLabel(str, Enum):
     SUCCESS = "success"
     FAILURE = "failure"
+
+
+def _close_all(*callbacks: Callable[[], None]) -> None:
+    """Attempt every cleanup without hiding an exception already being handled."""
+    active_error = sys.exc_info()[1]
+    failures: list[BaseException] = []
+    for callback in callbacks:
+        try:
+            callback()
+        except BaseException as error:
+            failures.append(error)
+    if failures:
+        if active_error is None:
+            raise RuntimeError(f"session cleanup failed: {failures[0]}") from failures[0]
+        for cleanup_error in failures:
+            print(f"Session cleanup also failed: {cleanup_error}", file=sys.stderr)
 
 
 @dataclass(frozen=True)
@@ -221,9 +241,13 @@ class RosJointStateSource:
                 joint_velocities_rad_s=velocities,
             )
 
-        self._subscription = self._node.create_subscription(
-            JointState, topic, on_state, 20
-        )
+        try:
+            self._subscription = self._node.create_subscription(
+                JointState, topic, on_state, 20
+            )
+        except BaseException:
+            _close_all(self._node.destroy_node)
+            raise
 
     def read(self) -> PhysicalState:  # pragma: no cover - depends on ROS installation
         self._rclpy.spin_once(self._node, timeout_sec=0.1)
@@ -248,8 +272,12 @@ class OpenCVFrameSource:
             raise RuntimeError("OpenCV is unavailable") from exc
         self._cv2 = cv2
         self._capture = cv2.VideoCapture(device_path)
-        if not self._capture.isOpened():
-            raise RuntimeError(f"cannot open camera source {device_path}")
+        try:
+            if not self._capture.isOpened():
+                raise RuntimeError(f"cannot open camera source {device_path}")
+        except BaseException:
+            _close_all(self._capture.release)
+            raise
 
     def read(self) -> ImageFrame:  # pragma: no cover - depends on camera
         ok, frame = self._capture.read()
@@ -300,6 +328,7 @@ class LeRobotDatasetWriter:
         self._root = config.dataset_path
         contract_path = self._root / "physical_contract.json"
         contract_payload = config.contract.as_dict()
+        self._finalized = False
         if self._root.exists():
             if not contract_path.is_file() or not (self._root / "meta" / "info.json").is_file():
                 raise ValueError("existing dataset root must contain a physical LeRobot dataset")
@@ -317,10 +346,14 @@ class LeRobotDatasetWriter:
                 robot_type="synria_alicia_d",
                 features=features,
             )
-            contract_path.write_text(
-                json.dumps(contract_payload, indent=2, sort_keys=True) + "\n",
-                encoding="utf-8",
-            )
+            try:
+                contract_path.write_text(
+                    json.dumps(contract_payload, indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8",
+                )
+            except BaseException:
+                _close_all(self.finalize)
+                raise
         self._task = config.task
         self._fps = config.fps
         self._metadata_path = self._root / "physical_episode_metadata.jsonl"
@@ -335,6 +368,8 @@ class LeRobotDatasetWriter:
     ) -> None:  # pragma: no cover - optional dependency
         import numpy as np
 
+        if self._finalized:
+            raise RuntimeError("dataset writer is finalized")
         for frame in episode.frames:
             timestamp_features = {
                 name: np.asarray([value], dtype=np.float64)
@@ -348,9 +383,9 @@ class LeRobotDatasetWriter:
                     "action": np.asarray(frame.action, dtype=np.float32),
                     "observation.images.wrist": frame.wrist.data,
                     "observation.images.front": frame.front.data,
+                    "task": self._task,
                     **timestamp_features,
-                },
-                task=self._task,
+                }
             )
         self._dataset.save_episode()
         self._metadata_path.parent.mkdir(parents=True, exist_ok=True)
@@ -375,6 +410,11 @@ class LeRobotDatasetWriter:
         quality_record = episode_quality_record(episode, fps=self._fps)
         with self._quality_records_path.open("a", encoding="utf-8") as output:
             output.write(json.dumps(quality_record.as_dict(), sort_keys=True) + "\n")
+
+    def finalize(self) -> None:
+        if not self._finalized:
+            self._dataset.finalize()
+            self._finalized = True
 
     def save_final_still(
         self, episode_index: int, frame: ImageFrame
@@ -420,6 +460,7 @@ class PhysicalEpisodeRecorder:
         self._started = 0.0
         self._ended = 0.0
         self._next_episode_index = writer.next_episode_index
+        self._closed = False
 
     def start(self) -> None:
         if self.state is RecorderState.RECORDING:
@@ -516,10 +557,15 @@ class PhysicalEpisodeRecorder:
         return frames
 
     def close(self) -> None:
-        self.state_source.close()
-        self.action_source.close()
-        self.wrist_source.close()
-        self.front_source.close()
+        if not self._closed:
+            self._closed = True
+            _close_all(
+                self.state_source.close,
+                self.action_source.close,
+                self.wrist_source.close,
+                self.front_source.close,
+                self.writer.finalize,
+            )
 
 # ---------------------------------------------------------------------------
 # Per-episode recorder
@@ -802,58 +848,69 @@ def physical_main() -> int:  # pragma: no cover - hardware entry point
         action_source=ActionSourceKind(args.action_source),
         state_has_velocity=args.state_has_velocity,
     )
-    temporary: tempfile.TemporaryDirectory[str] | None = None
-    dataset_path: Path | None = args.dataset_path
-    if args.smoke:
-        temporary = tempfile.TemporaryDirectory(prefix="synria-d1-smoke-")
-        dataset_path = Path(temporary.name) / "dataset"
-    elif dataset_path is None:
-        raise SystemExit("--dataset-path is required unless --smoke is used")
-    assert dataset_path is not None
-    config = PhysicalRecorderConfig(
-        dataset_path=dataset_path,
-        repo_id=args.repo_id,
-        contract=contract,
-        fps=args.fps,
-        min_episode_s=20.0,
-        max_episode_s=20.0 if args.smoke else 30.0,
-        hard_cap_s=20.0 if args.smoke else 30.0,
-        smoke=args.smoke,
-    )
-    config.require_outside_repository(Path(__file__).resolve().parents[1])
-    follower = RosJointStateSource(
-        args.follower_topic, node_name="synria_d1_follower_state"
-    )
-    if contract.action_source is ActionSourceKind.LEADER:
-        leader_state = RosJointStateSource(
-            args.leader_topic, node_name="synria_d1_leader_state"
+    with ExitStack() as session_cleanup:
+        dataset_path: Path | None = args.dataset_path
+        if args.smoke:
+            temporary_path = session_cleanup.enter_context(
+                tempfile.TemporaryDirectory(prefix="synria-d1-smoke-")
+            )
+            dataset_path = Path(temporary_path) / "dataset"
+        elif dataset_path is None:
+            raise SystemExit("--dataset-path is required unless --smoke is used")
+        assert dataset_path is not None
+        config = PhysicalRecorderConfig(
+            dataset_path=dataset_path,
+            repo_id=args.repo_id,
+            contract=contract,
+            fps=args.fps,
+            min_episode_s=20.0,
+            max_episode_s=20.0 if args.smoke else 30.0,
+            hard_cap_s=20.0 if args.smoke else 30.0,
+            smoke=args.smoke,
         )
-        action_source: ActionSource = LeaderActionSource(leader_state)
-    else:
-        action_source = NextStateActionSource()
-    recorder = PhysicalEpisodeRecorder(
-        config=config,
-        state_source=follower,
-        action_source=action_source,
-        wrist_source=OpenCVFrameSource(args.wrist_camera),
-        front_source=OpenCVFrameSource(args.front_camera),
-        writer=LeRobotDatasetWriter(config),
-    )
-    episode = run_operator_loop(recorder)
-    print(
-        json.dumps(
-            {
-                "episode_index": episode.episode_index,
-                "operator_label": episode.operator_label.value,
-                "duration_s": episode.duration_s,
-                "smoke": episode.smoke,
-                "dataset_path": str(dataset_path),
-            },
-            sort_keys=True,
+        config.require_outside_repository(Path(__file__).resolve().parents[1])
+        with ExitStack() as startup_cleanup:
+            writer = LeRobotDatasetWriter(config)
+            startup_cleanup.callback(_close_all, writer.finalize)
+            follower = RosJointStateSource(
+                args.follower_topic, node_name="synria_d1_follower_state"
+            )
+            startup_cleanup.callback(_close_all, follower.close)
+            if contract.action_source is ActionSourceKind.LEADER:
+                leader_state = RosJointStateSource(
+                    args.leader_topic, node_name="synria_d1_leader_state"
+                )
+                startup_cleanup.callback(_close_all, leader_state.close)
+                action_source: ActionSource = LeaderActionSource(leader_state)
+            else:
+                action_source = NextStateActionSource()
+            wrist = OpenCVFrameSource(args.wrist_camera)
+            startup_cleanup.callback(_close_all, wrist.close)
+            front = OpenCVFrameSource(args.front_camera)
+            startup_cleanup.callback(_close_all, front.close)
+            recorder = PhysicalEpisodeRecorder(
+                config=config,
+                state_source=follower,
+                action_source=action_source,
+                wrist_source=wrist,
+                front_source=front,
+                writer=writer,
+            )
+            session_cleanup.callback(_close_all, recorder.close)
+            startup_cleanup.pop_all()
+        episode = run_operator_loop(recorder)
+        print(
+            json.dumps(
+                {
+                    "episode_index": episode.episode_index,
+                    "operator_label": episode.operator_label.value,
+                    "duration_s": episode.duration_s,
+                    "smoke": episode.smoke,
+                    "dataset_path": str(dataset_path),
+                },
+                sort_keys=True,
+            )
         )
-    )
-    if temporary is not None:
-        temporary.cleanup()
     return 0
 
 

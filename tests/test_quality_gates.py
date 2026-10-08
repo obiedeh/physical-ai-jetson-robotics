@@ -206,6 +206,9 @@ class _Frames:
 class _Writer:
     next_episode_index = 0
 
+    def finalize(self) -> None:
+        return None
+
     def __init__(self, root: Path) -> None:
         self.root = root
         self.episodes: list[RecordedPhysicalEpisode] = []
