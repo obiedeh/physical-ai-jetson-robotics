@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import importlib.metadata
+import inspect
 import json
 import math
 import os
@@ -11,7 +12,7 @@ import platform
 import random
 import re
 import subprocess
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -35,6 +36,30 @@ CADENCE_SEMANTICS = (
     "chunk slots 0,q,2q preserve recorded lookahead; physical cadence is unmeasured"
 )
 FEATURE_KEYS = ("observation.state", "observation.images.wrist", "observation.images.front")
+
+
+def _save_upstream_checkpoint(
+    save_checkpoint: Callable[..., None],
+    checkpoint: Path,
+    step: int,
+    config: Any,
+    policy: Any,
+    optimizer: Any,
+    *,
+    preprocessor: Any,
+    postprocessor: Any,
+    accelerator: Any,
+) -> None:
+    """Adapt the named upstream 0.6 save API without retrying failed saves."""
+    kwargs = {"preprocessor": preprocessor, "postprocessor": postprocessor}
+    parameter = inspect.signature(save_checkpoint).parameters.get("accelerator")
+    if parameter is not None and parameter.kind in (
+        inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY,
+    ):
+        kwargs["accelerator"] = accelerator
+    save_checkpoint(
+        checkpoint, step, config, accelerator.unwrap_model(policy), optimizer, **kwargs
+    )
 
 
 def _integer(value: Any, name: str, *, minimum: int = 1) -> int:
@@ -492,7 +517,8 @@ def train(
             checkpoint_manifest["step"] = step
             try:
                 _write(checkpoint / "physical_policy_manifest.json", checkpoint_manifest)
-                save_checkpoint(
+                _save_upstream_checkpoint(
+                    save_checkpoint,
                     checkpoint,
                     step,
                     pipeline,
