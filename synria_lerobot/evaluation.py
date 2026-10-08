@@ -51,6 +51,8 @@ def load_protocol(path: Path, repository: Path, expected_hash: str) -> dict[str,
     trials, threshold = config["trials"], config["success_threshold"]
     if type(trials) is not int or type(threshold) is not int or not 0 < threshold <= trials:
         raise ValueError("invalid trial count or threshold")
+    if type(config["max_attempts"]) is not int or config["max_attempts"] <= 0:
+        raise ValueError("invalid protocol attempt budget")
     return config
 
 
@@ -134,6 +136,8 @@ class EvalLogWriter:
             raise ValueError("trial budget exhausted, empty trial, or missing scene")
         if any(g.label == "success" for g in grades[:-1]):
             raise ValueError("cannot retry after success")
+        if len(grades) > self.config["max_attempts"]:
+            raise ValueError("trial exceeds pre-registered attempt budget")
         attempts = [attempt_record(grade, i + 1) for i, grade in enumerate(grades)]
         record = {
             "turn": self.count + 1,
@@ -163,6 +167,8 @@ def score_evaluation(log: Path, protocol: Path, repository: Path, output: Path) 
     funnel = dict.fromkeys(FUNNEL, 0)
     for record in records:
         attempts = record["attempts"]
+        if len(attempts) > config["max_attempts"]:
+            raise ValueError("trial exceeds pre-registered attempt budget")
         if not attempts or [a["attempt"] for a in attempts] != list(range(1, len(attempts) + 1)):
             raise ValueError("invalid attempt sequence")
         for i, attempt in enumerate(attempts):

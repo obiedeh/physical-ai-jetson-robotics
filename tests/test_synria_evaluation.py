@@ -105,6 +105,7 @@ def test_threshold_is_protocol_driven_and_incomplete_cannot_pass(
         .replace('"trials": 20', '"trials": 2')
         .replace('"success_threshold": 14', '"success_threshold": 1')
     )
+    text = text.replace('"max_attempts": 1', '"max_attempts": 2')
     digest = protocol_digest(text)
     protocol.write_text(HASH_FIELD.sub(f'"protocol_sha256": "{digest}"', text))
     subprocess.run(["git", "add", "protocol.md"], cwd=repo, check=True)

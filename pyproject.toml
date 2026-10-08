@@ -57,7 +57,7 @@ llm = [
 physical-ai-lab = "physical_ai_lab.cli:app"
 
 [tool.setuptools.packages.find]
-include = ["physical_ai_lab*", "arm_control*", "edge_ai*", "slam*", "agents*", "synria_lerobot*", "isaac*"]
+include = ["physical_ai_lab*", "arm_control*", "edge_ai*", "slam*", "agents*", "synria_lerobot*", "isaac*", "ludo_engine*", "game_core*"]
 
 [tool.ruff]
 line-length = 100

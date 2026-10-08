@@ -1,0 +1,33 @@
+{
+  "status": "implemented, unmeasured",
+  "adapter": "",
+  "policy_endpoint": "",
+  "gripper_type": "",
+  "state_has_velocity": false,
+  "action_source": "leader",
+  "limits": "config/synria_limits.yaml",
+  "policy_config": "config/synria_policy.json",
+  "calibration": "config/synria_board_calibration.json",
+  "reachable": "config/synria_reachable_squares.json",
+  "perception_config": "config/synria_perception.json",
+  "accuracy_reports": {},
+  "roll_config": "config/synria_roll.json",
+  "protocol": "docs/ludo_flagship/D2_EVAL_PROTOCOL.md",
+  "protocol_sha256": "",
+  "d2_trials": [],
+  "max_steps": 0,
+  "period_s": 0,
+  "max_turns": 0,
+  "max_attempts": 1,
+  "provenance": {
+    "operator": "",
+    "policy_id": "",
+    "checkpoint_sha256": "",
+    "git_sha": "",
+    "host": "",
+    "utc_date": "",
+    "power_state_start": "",
+    "follower_serial": "",
+    "camera_ids": []
+  }
+}

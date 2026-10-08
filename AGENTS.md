@@ -17,7 +17,7 @@ isaac/             Isaac Sim scripts and USD scene assets
 synria_lerobot/    Synria arm LeRobot episodes, datasets and policy evaluation
 edge_ai/           Jetson inference and benchmarking (ONNX, camera inference)
 slam/              SLAM measurement harness and metrics
-game_core/         Game adapters (Ludo, checkers, chess) and dice
+game_core/         Game adapters (Ludo, chess) and dice
 ludo_engine/       Ludo rules engine
 agents/            Operations copilot over robot telemetry
 scripts/           Platform bootstrap and evidence collection (jetson/, linux_rtx/, windows/)

@@ -6,6 +6,7 @@ import argparse
 import csv
 import hashlib
 import json
+import math
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -185,6 +186,16 @@ def require_accuracy(
     config = json.loads(config_path.read_text(encoding="utf-8"))
     threshold = config["thresholds"][component]
     confusion = report["confusion_counts"]
+    if (
+        not math.isfinite(threshold["accuracy"])
+        or not 0 <= threshold["accuracy"] <= 1
+        or type(threshold["min_images"]) is not int
+        or threshold["min_images"] <= 0
+        or any(
+            type(n) is not int or n < 0 or len(json.loads(key)) != 2 for key, n in confusion.items()
+        )
+    ):
+        raise ValueError("invalid accuracy threshold or confusion counts")
     total = sum(confusion.values())
     correct = sum(n for key, n in confusion.items() if len(set(json.loads(key))) == 1)
     if (

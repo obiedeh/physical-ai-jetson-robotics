@@ -95,6 +95,30 @@ class RollResult:
     error: str | None
 
 
+def validate_roll_config(config: dict[str, Any], *, synthetic: bool = False) -> None:
+    if not synthetic and (not config["verified_by"] or not config["verified_on"]):
+        raise ValueError("roll parameters require physical operator verification")
+    for phase in MOTION_PHASES:
+        params = config["phases"][phase.value]
+        if (
+            not params["task"]
+            or type(params["max_steps"]) is not int
+            or params["max_steps"] <= 0
+            or not math.isfinite(params["period_s"])
+            or params["period_s"] <= 0
+            or len(params["target_xyz_m"]) != 3
+            or not all(math.isfinite(x) for x in params["target_xyz_m"])
+        ):
+            raise ValueError(f"incomplete parameters for {phase.value}")
+    reads = config["read"]
+    if (
+        any(type(reads[k]) is not int for k in ("stable_reads", "max_reads"))
+        or not 1 <= reads["stable_reads"] <= reads["max_reads"]
+        or any(not math.isfinite(reads[k]) or reads[k] <= 0 for k in ("period_s", "max_age_s"))
+    ):
+        raise ValueError("invalid die-read bounds")
+
+
 class RollMachine:
     def __init__(
         self,
@@ -113,25 +137,7 @@ class RollMachine:
             raise ValueError("synthetic accuracy cannot enable a physical roll")
         self.synthetic = synthetic
         self.config_sha256 = hashlib.sha256(config_path.read_bytes()).hexdigest()
-        if not synthetic and (not self.config["verified_by"] or not self.config["verified_on"]):
-            raise ValueError("roll parameters require physical operator verification")
-        for phase in MOTION_PHASES:
-            params = self.config["phases"][phase.value]
-            if (
-                not params["task"]
-                or type(params["max_steps"]) is not int
-                or params["max_steps"] <= 0
-                or not math.isfinite(params["period_s"])
-                or params["period_s"] <= 0
-                or len(params["target_xyz_m"]) != 3
-                or not all(math.isfinite(x) for x in params["target_xyz_m"])
-            ):
-                raise ValueError(f"incomplete parameters for {phase.value}")
-        reads = self.config["read"]
-        if not 1 <= reads["stable_reads"] <= reads["max_reads"] or any(
-            not math.isfinite(reads[k]) or reads[k] <= 0 for k in ("period_s", "max_age_s")
-        ):
-            raise ValueError("invalid die-read bounds")
+        validate_roll_config(self.config, synthetic=synthetic)
         self.arm, self.read_die, self.clock, self.sleep = arm, read_die, clock, sleep
         self.state: RollState | None = None
 
@@ -173,8 +179,8 @@ class RollMachine:
             if value is None:
                 raise ValueError("die reading failed to settle")
             self.state = RollState.DONE
-        except Exception as exc:
-            self.state, error = RollState.FAILED, str(exc)
+        except (Exception, KeyboardInterrupt) as exc:
+            self.state, error = RollState.FAILED, str(exc) or type(exc).__name__
         finally:
             try:
                 self.arm.hold()
@@ -259,7 +265,7 @@ class GameRunner:
                 if self.executor.game.winner:
                     outcome, reason = "winner", "game reached a winner"
                     break
-        except Exception as exc:
+        except (Exception, KeyboardInterrupt) as exc:
             consecutive, reason = 0, f"session fault: {exc}"
             self.executor.record(
                 {
