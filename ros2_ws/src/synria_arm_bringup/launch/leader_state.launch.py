@@ -39,6 +39,8 @@ def _leader_node(context: object) -> list[Node]:
             remappings=[
                 ("/joint_states", "/leader/joint_states"),
                 ("/joint_commands", "/leader/disabled_joint_commands"),
+                ("/zero_calibrate", "/leader/disabled_zero_calibrate"),
+                ("/demonstration", "/leader/disabled_demonstration"),
             ],
         )
     ]
