@@ -4,13 +4,20 @@ Software: **implemented, unmeasured**. D1–D5 remain **planned**. These probes
 are diagnostic only: they are neither D2 trials nor a way to select a policy
 for D2. Pre-register the D2 policy-selection rule separately, before examining
 probe results; do not choose a checkpoint retrospectively from these curves.
-No physical probe or training run has been performed by this change.
+No physical probe or physical-dataset training run has been performed by this
+change. Tiny offline CPU training tests use synthetic data only.
 
 ## Freeze before training
 
 Use a finalized physical dataset outside git and a separate recording/training
 environment with upstream LeRobot 0.6 on Python 3.12. Preserve the dataset's
-physical contract, action source, lookahead and requested rate. Finish the D1
+physical contract, task ID/snapshot/window, action source, lookahead and requested
+rate. Use one of `die_into_cup`, `roll_and_dump` or `cup_return` from the
+[fixed-scene registry](../../config/synria_tasks.json), with one dataset,
+checkpoint and probe set for that skill. Token moves and goal-conditioning
+design remain deferred until the roll works. Real registry windows are unset
+until the operator times each task and prospectively records the choices in
+[DECISIONS.md](DECISIONS.md). Finish the D1
 quality/visual review before training. Do not append to or resume this dataset
 after freezing its content hash.
 
@@ -20,8 +27,15 @@ teleoperation environment: `python3 -m pip install -e '.[robot-learning,vision]'
 Copy the [probe template](../../config/synria_checkpoint_probes.json) to a new
 repository-relative campaign file, named by `PROBE_SET`. Fill its identifier,
 operator/date, dataset content hash, nonempty held-out episode indices and their
-exact frame counts, and fixed physical trials (`trial_id`, `start_square`,
-`target_square`, `token`). Set explicit capture `fps`, `max_duration_s` and
+exact frame counts, `task_id`, and the complete dataset `physical_contract`.
+Each `physical_trials` entry has `trial_id`, that same `task_id`, and `scene`:
+`scene_id`, `cup_mark`, `die_start_zone`, `landing_tray`, `start_state`,
+`die_position_in_zone` and integer `die_face_up` (1–6). Freeze the marked cup,
+zone and tray layout and the skill's starting setup across the list; only the
+die position inside its marked zone and face up may vary. Describe loaded-cup
+or post-dump start states explicitly for their respective skills. These are
+operator declarations, not observed geometry. No square coordinates, token
+identity or changing goal text is accepted. Set explicit capture `fps`, `max_duration_s` and
 `shutdown_timeout_s`. No operator probe choices are supplied by the template.
 For the exact hash and authoritative finalized episode counts, use the
 [evaluation module](../../synria_lerobot/checkpoint_eval.py)'s
@@ -43,6 +57,10 @@ git commit -m "Freeze diagnostic checkpoint probes"
 Save the printed hash as `PROBE_HASH`. The loader requires both committed bytes
 and that hash. Changing the split, trials or capture settings requires a new
 prospective probe campaign, not editing the old evidence.
+The current schema is `synria_fixed_skill_probes_v2`. Earlier square/token probe
+sets cannot be reused for training or physical execution: freeze and commit a
+new task-bound campaign prospectively. Existing diagnostic records remain
+readable for historical playback.
 
 ## Every saved checkpoint
 
@@ -80,12 +98,20 @@ confirmed OFF, and manual arming follows read-only preflight. A hold offer or
 an observed arming command is not proof of physical stopping; the separate
 operator-verified controller/emergency procedure remains necessary.
 
-Explicitly choose one successful checkpoint-evaluation record as
+Explicitly choose one finalized checkpoint-evaluation record as
 `CHECKPOINT_EVALUATION`, a completed `SESSION_CONFIG`, the absolute repository
 root as `REPOSITORY`, and a new `PROBE_OUTPUT` for each run. The session's
-policy id/checkpoint hash and physical contract must match the record. At this
-stage the endpoint's checkpoint identity is **operator-declared**, not attested
-by the server. Checkpoint serving/attestation is a separate implementation step.
+`probe_policy` entry must specify `checkpoint`, the trainer's completion
+`receipt` (`CHECKPOINT_RECORD`), `endpoint`, required per-policy
+`response_timeout_s`, and positive `max_steps`. Configure the common task
+registry, source/adapter settings, command period, verified limits/policy safety,
+operator scene/provenance and diagnostic `max_attempts`. The completion receipt
+and checkpoint-evaluation record are distinct files and must identify the same
+policy, step, dataset, probe set and physical contract. The endpoint's bounded
+metadata must match the receipt, including task, checkpoint hash, cadence,
+image shapes and per-policy timeout, before any source opens. No board
+calibration or token target is needed. Follow the
+[training/serving guide](ACT_TRAINING_RUNBOOK.md) to start the matching server.
 The chosen checkpoint is for diagnostic inspection only, never automatic D2
 selection. `MEDIA_ROOT` must be outside git, the dataset and the checkpoint.
 
@@ -101,8 +127,12 @@ Without `--enable-motion`, this performs read-only adapter preflight and writes
 a read-only report without a command sink or trial clips. Review it; choose
 another new `PROBE_OUTPUT` before repeating the same command with explicit
 `--enable-motion`. The physical trial list is the frozen list, not D2's scene
-schedule. Grade success/failure and each funnel stage from the front still;
-confirm reset before a retry, or type `abort` at an operator prompt.
+schedule. Confirm the frozen scene before each attempt and an operator reset before a
+retry, or type `abort` at an operator prompt. Each command budget uses only the
+selected registry instruction and resets the policy queue. Grade the skill's
+object rule from its native-resolution timestamp-linked front still; optional
+funnel observations are diagnostic, with unknown values explicit, and do not
+decide object success.
 
 An independent bounded worker samples both latest RGB camera views throughout
 each attempt, including the grading pause, and takes an end frame. Each attempt

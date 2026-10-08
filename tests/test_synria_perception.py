@@ -11,6 +11,7 @@ import pytest
 cv2 = pytest.importorskip("cv2")
 
 from synria_lerobot.perception import (  # noqa: E402
+    GatedPerception,
     detect_tokens,
     locate_board,
     measure_accuracy,
@@ -108,6 +109,8 @@ def test_synthetic_accuracy_and_missing_markers(tmp_path: Path) -> None:
             operator="synthetic truth",
         )
         assert report["image_count"] == 24 and report["accuracy"] == 1
+        expected_shape = [240, 240, 3] if component == "die" else [600, 600, 3]
+        assert all(row["image_shape_hwc"] == expected_shape for row in report["inputs"])
     config = json.loads(CONFIG.read_text())
     assert locate_board(render_board(missing=True), config) is None
     assert read_die(render_die(0), config) is None
@@ -157,3 +160,28 @@ def test_wrong_truth_is_counted_as_confusion(tmp_path: Path) -> None:
         "die", truth, CONFIG, tmp_path / "report.json", data_kind="synthetic", operator="test"
     )
     assert report["accuracy"] == 0 and report["confusion_counts"] == {'["6", "2"]': 1}
+
+
+@pytest.mark.parametrize("shape", [None, [240, 241, 3], [240, 240, True], [240, 240], "240x240"])
+def test_new_roll_shape_guard_refuses_missing_or_mismatched_evidence(shape: object) -> None:
+    # The loader's committed-hash/threshold checks are exercised separately above.
+    perception = object.__new__(GatedPerception)
+    perception.reports = {"die": {"inputs": [{"image": "synthetic.png", "image_shape_hwc": shape}]}}
+    with pytest.raises(ValueError, match="dimensions missing or different"):
+        perception.require_input_shape("die", (240, 240, 3))
+
+
+def test_new_roll_shape_guard_checks_every_measured_image() -> None:
+    perception = object.__new__(GatedPerception)
+    perception.reports = {
+        "die": {
+            "inputs": [
+                {"image": "first.png", "image_shape_hwc": [240, 240, 3]},
+                {"image": "second.png", "image_shape_hwc": [480, 640, 3]},
+            ]
+        }
+    }
+    with pytest.raises(ValueError, match="dimensions"):
+        perception.require_input_shape("die", (240, 240, 3))
+    perception.reports["die"]["inputs"].pop()
+    perception.require_input_shape("die", (240, 240, 3))

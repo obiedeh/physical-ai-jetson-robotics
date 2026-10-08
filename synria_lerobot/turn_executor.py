@@ -16,8 +16,97 @@ from ludo_engine.game import LudoGame
 
 from .embodiment import SynriaObservation
 from .evaluation import OperatorGrade, attempt_record
-from .policy_client import GuardedCommandPath
+from .policy_client import CommandSink, GuardedCommandPath
 from .quality_gates import OBJECT_SUCCESS_LIMITATION
+
+
+class OperatorAbort(RuntimeError):
+    """Explicit operator cancellation, distinct from a policy or device failure."""
+
+
+class AbortGuardSink:
+    """Check pending cancellation after inference, immediately before submission."""
+
+    def __init__(self, sink: CommandSink, abort_pending: Callable[[], bool]) -> None:
+        self.sink, self.abort_pending = sink, abort_pending
+
+    def offer(self, action: tuple[float, ...]) -> None:
+        pending = self.abort_pending()
+        if type(pending) is not bool or pending:
+            raise OperatorAbort("operator abort pending before command offer")
+        self.sink.offer(action)
+
+    def hold(self) -> None:
+        self.sink.hold()
+
+
+class FixedSkillExecutor:
+    """Execute a bounded registry skill, never a textual coordinate goal."""
+
+    def __init__(
+        self,
+        path: GuardedCommandPath,
+        observe: Callable[[str], SynriaObservation],
+        abort_pending: Callable[[], bool],
+        *,
+        max_steps: int,
+        period_s: float,
+        sleep: Callable[[float], None] = time.sleep,
+    ) -> None:
+        if type(max_steps) is not int or max_steps <= 0:
+            raise ValueError("explicit positive fixed-skill command budget required")
+        path.client.embodiment.contract.require_qualifying()
+        path.client.config.require_command_period(period_s)
+        self.task = path.client.embodiment.contract.task_definition
+        self.path, self.observe, self.abort_pending = path, observe, abort_pending
+        self.max_steps, self.period_s, self.sleep = max_steps, period_s, sleep
+        self.offered_steps = 0
+        if isinstance(self.path.sink, AbortGuardSink):
+            # Probe retries reuse a path; retain one boundary guard for the current attempt.
+            self.path.sink.abort_pending = abort_pending
+        elif self.path.sink is not None:
+            self.path.sink = AbortGuardSink(self.path.sink, abort_pending)
+
+    def check_abort(self) -> None:
+        pending = self.abort_pending()
+        if type(pending) is not bool:
+            raise ValueError("abort polling must return a boolean")
+        if pending:
+            raise OperatorAbort("operator aborted fixed skill")
+
+    def execute(self) -> int:
+        if not self.path.enabled:
+            raise ValueError("fixed-skill execution requires an enabled guarded command path")
+        self.offered_steps = 0
+        failure: BaseException | None = None
+        try:
+            self.check_abort()
+            # A preceding controlled hold is itself a target; respect its shared cadence.
+            self.sleep(self.period_s)
+            for step in range(self.max_steps):
+                self.check_abort()
+                decision = self.path.step(self.observe(self.task.task_text), reset=step == 0)
+                if decision.hold:
+                    raise RuntimeError(decision.reason)
+                self.offered_steps += 1
+                self.check_abort()
+                # Keep a full command period before another target or the final hold.
+                self.sleep(self.period_s)
+            return self.offered_steps
+        except BaseException as error:
+            failure = error
+            raise
+        finally:
+            try:
+                self.hold()
+            except BaseException as error:
+                if failure is None:
+                    raise
+                if hasattr(failure, "add_note"):
+                    failure.add_note(f"controlled hold also failed: {error}")
+
+    def hold(self) -> None:
+        self.path.hold()
 
 
 def square_id(color: str, position: tuple[Any, ...]) -> str:

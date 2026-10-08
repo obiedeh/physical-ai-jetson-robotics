@@ -13,7 +13,7 @@ import numpy as np
 import pytest
 from test_lerobot_dataset_writer import synthetic_episode, writer_config
 from test_synria_act_training import settings
-from test_synria_checkpoint_eval import commit
+from test_synria_checkpoint_eval import commit, fixed_probe_trial
 
 from synria_lerobot.act_training import train
 from synria_lerobot.checkpoint_eval import register_probes, strict_content_hash
@@ -65,9 +65,11 @@ def training_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[d
         registered_by="synthetic fixture",
         registered_on="2026-10-08",
         dataset_content_sha256=strict_content_hash(dataset),
+        task_id=contract["task_id"],
+        physical_contract=contract,
         held_out_episodes=[2],
         held_out_frame_counts={"2": 3},
-        physical_trials=[dict(trial_id="a", start_square="A", target_square="B", token="red:0")],
+        physical_trials=[fixed_probe_trial("a")],
         capture=dict(fps=15, max_duration_s=10, shutdown_timeout_s=1),
     )
     probe.write_text(json.dumps(values))

@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 from test_lerobot_dataset_writer import real_dataset_type
-from test_synria_checkpoint_eval import batches, commit
+from test_synria_checkpoint_eval import batches, commit, fixed_probe_trial
 from test_task_registry import synthetic_task
 
 from synria_lerobot.checkpoint_eval import (
@@ -48,8 +48,12 @@ def test_real_finalized_episode_metadata_binds_frozen_probe_partition(tmp_path: 
     finally:
         dataset.finalize()
     contract = PhysicalDatasetContract(
-        "50mm", ActionSource.NEXT_STATE, False, action_lookahead_steps=2,
-        task_id="die_into_cup", task_definition=synthetic_task(0.1, 1),
+        "50mm",
+        ActionSource.NEXT_STATE,
+        False,
+        action_lookahead_steps=2,
+        task_id="die_into_cup",
+        task_definition=synthetic_task(0.1, 1),
     )
     (root / "physical_contract.json").write_text(json.dumps(contract.as_dict(fps=10)))
     assert read_episode_metadata(root) == {0: 3, 1: 3, 2: 3}
@@ -63,9 +67,11 @@ def test_real_finalized_episode_metadata_binds_frozen_probe_partition(tmp_path: 
         registered_by="synthetic fixture",
         registered_on="2026-10-08",
         dataset_content_sha256=strict_content_hash(root),
+        task_id=contract.task_id,
+        physical_contract=contract.as_dict(fps=10),
         held_out_episodes=[2],
         held_out_frame_counts={"2": 3},
-        physical_trials=[dict(trial_id="a", start_square="A", target_square="B", token="red:0")],
+        physical_trials=[fixed_probe_trial("a")],
         capture=dict(fps=15, max_duration_s=10, shutdown_timeout_s=1),
     )
     probe.write_text(json.dumps(config))

@@ -2,7 +2,12 @@
 
 Software: **implemented, unmeasured**. D4: **planned**.
 
-Complete [D3 preconditions](D3_OPERATOR_RUNBOOK.md). Print the four configured
+The current executable path is the standalone three-skill roll below. It does
+not require a Ludo board, board calibration or token perception, and does not
+qualify for D4. Token turns and goal conditioning remain deferred. The board
+perception workflow in this document is retained for the later D4 gate.
+
+For that later gate, complete [D3 preconditions](D3_OPERATOR_RUNBOOK.md). Print the four configured
 DICT_4X4_50 fiducials and fix them at board corners in configured clockwise id
 order. Configure the normalized square rectangles, colour ranges and fixed
 dump-pad ROI in [perception config](../../config/synria_perception.json).
@@ -37,30 +42,59 @@ configured accuracy and image-count thresholds. Synthetic reports in
 [software fixtures](../../reports/ludo_flagship/perception/) cannot enable
 physical use. Keep raw image corpora outside git with the recorded hashes.
 
-## Physical roll sequence
+## Standalone fixed-scene roll
 
-Fill and verify [roll parameters](../../config/synria_roll.json) on the real
-rig. Each phase supplies task, target XYZ metres, maximum policy steps and
-step period. The physical sequence is pick die, drop into cup, shake, invert,
-then read the fixed dump pad. The template contains no executable motion
-parameters. Configure the number and age of independent stable die frames.
-The adapter must verify phase completion and provide a timestamped still for
-each read. Motion actions pass through the same limits and delta gates.
+Use [session config](../../config/synria_session.json)'s `roll_skills` entries
+for three separately trained and served checkpoints, in order: `die_into_cup`,
+`roll_and_dump`, `cup_return`. Each requires its local checkpoint directory,
+trainer completion receipt, endpoint, recorded per-policy response timeout and
+an operator-chosen positive `max_steps` command budget. No physical budget is
+supplied by the template. All three share one command period, at least the
+verified bridge move time, one source adapter and one guarded command sink.
+The task registry, contract, checkpoint hash, image shape, cadence and timeout
+must match each endpoint's metadata before sources open. Metadata matching is
+not network authentication or a hardware safety interlock.
+
+Follow the [adapter safety prerequisites](D2_OPERATOR_RUNBOOK.md) and
+[local serving guide](ACT_TRAINING_RUNBOOK.md). Keep the marked cup location,
+die start zone and dump tray fixed. Motion remains opt-in and requires verified
+limits and policy speed settings, leader sync OFF, read-only source preflight
+and manual arming. Never use the historical XYZ phase configuration with these
+task-specific policies.
 
 ```bash
-python3 -m synria_lerobot.sessions d4 --config "$SESSION_CONFIG" \
-  --output "reports/ludo_flagship/rolls/$SESSION"
-python3 -m synria_lerobot.sessions d4 --config "$SESSION_CONFIG" \
+synria-roll-skills --config "$SESSION_CONFIG" \
+  --output "reports/ludo_flagship/rolls/${SESSION}-preflight"
+synria-roll-skills --config "$SESSION_CONFIG" \
   --output "reports/ludo_flagship/rolls/$SESSION" --enable-motion
 ```
 
-Review roll-state events linked to turn numbers, every camera-backed operator
-grade, latency and frozen statistics. D4 needs three consecutive successful
-physical-roll turns. Any failed attempt, including one later retried, resets
-the consecutive count. Skips do not advance the count. Stop using the adapter's
-operator-abort control after the required sequence; preserve the full ledger.
-Read failure requests hold and aborts. Append activity/timeline entries and
-commit the session with its cited stills:
+At each boundary the arm is offered controlled hold before an explicit readiness
+confirmation. Do not manually reset the cup between chained skills. The policy
+runs only its declared command budget, with a full command-period pause before
+the first target and after every offered target. Budget completion is not
+success. After hold, inspect the native-resolution front still and give one
+task-specific success/failure label. Optional funnel diagnostics do not add pass
+conditions. Any failure, declined confirmation or abort is ledgered and stops
+the sequence before another skill. Ctrl-C/EOF are supported during execution;
+use manual disarm and the independently verified site/controller stop procedure
+on a fault. Neither a hold offer nor disarm proves an in-flight trajectory has
+stopped, and neither requests torque-off.
+
+The default die source is the operator's integer 1–6 linked to a front still.
+Optional `fixed_roll.read.source=perception` requires the committed die accuracy
+report, explicit stable-read bounds and `image_shape` matching the model's CHW
+front dimensions. Its input remains stored-size RGB converted to the harness's
+BGR convention; native still pixels do not replace the calibrated image grid.
+Every analyzed image's dimensions must match. Legacy reports without dimension
+evidence must be remeasured and committed for this new roll mode; they are not
+silently upgraded. No synthetic report can enable physical perception.
+
+Review `skill_attempts.jsonl`, per-policy latency files, `roll_result.json` and
+all stills, including failed/aborted attempts. D4 still needs three consecutive
+successful physical-roll **and token-move** turns; this roll-only command never
+increments that count, invokes Ludo or advances D5. Append activity/timeline
+entries and commit the small session artifacts with cited stills:
 
 ```bash
 git add "reports/ludo_flagship/rolls/$SESSION" \

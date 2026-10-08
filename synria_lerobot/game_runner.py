@@ -15,10 +15,12 @@ from typing import Any, Protocol
 from isaac.scripts.ludo_stats import aggregate_records
 
 from .embodiment import SynriaObservation
+from .evaluation import FixedTaskGrade
 from .perception import GatedPerception
 from .policy_client import GuardedCommandPath
 from .quality_gates import OBJECT_SUCCESS_LIMITATION
-from .turn_executor import TurnExecutor
+from .task_registry import TASK_IDS, TaskDefinition
+from .turn_executor import FixedSkillExecutor, OperatorAbort, TurnExecutor
 
 
 class RollState(str, Enum):
@@ -88,6 +90,133 @@ class GatedDieReader:
         return DieRead(self.perception.die(image), still, stamp)
 
 
+class OperatorDieReader:
+    """An operator's camera-linked value, not a perception accuracy claim."""
+
+    def __init__(
+        self,
+        capture: Callable[[], tuple[Any, str, float]],
+        read_value: Callable[[str], int],
+    ) -> None:
+        self.capture, self.read_value = capture, read_value
+
+    def __call__(self) -> DieRead:
+        _, still, stamp = self.capture()
+        value = self.read_value(still)
+        if type(value) is not int or not 1 <= value <= 6:
+            raise ValueError("operator die value must be an integer from 1 through 6")
+        return DieRead(value, still, stamp)
+
+
+class FixedSkillRollArm:
+    """One shared arm executes three independently identified policies."""
+
+    def __init__(
+        self,
+        skills: dict[str, FixedSkillExecutor],
+        confirm: Callable[[TaskDefinition], bool],
+        grade: Callable[[TaskDefinition], FixedTaskGrade],
+        record: Callable[[dict[str, Any]], None],
+        capture: Callable[[], tuple[Any, str, float]],
+        *,
+        clock: Callable[[], float] = time.monotonic,
+    ) -> None:
+        if tuple(skills) != TASK_IDS or any(
+            executor.task.task_id != name for name, executor in skills.items()
+        ):
+            raise ValueError("exactly three ordered task-bound skill executors required")
+        self.skills, self.grade, self.record, self.capture, self.clock = (
+            skills,
+            grade,
+            record,
+            capture,
+            clock,
+        )
+        self.active: FixedSkillExecutor | None = None
+        self.confirm = confirm
+
+    def perform(self, phase: str, parameters: dict[str, Any]) -> None:
+        skill = self.skills[phase]
+        self.active = skill
+        attempt: dict[str, Any] = {
+            "kind": "skill_attempt",
+            "task_id": phase,
+            "status": "started",
+            "started_monotonic_s": self.clock(),
+            "operator_grade": None,
+            "scene_confirmed": False,
+            "offered_steps": 0,
+            "max_steps": skill.max_steps,
+            "period_s": skill.period_s,
+            "object_success_limitation": OBJECT_SUCCESS_LIMITATION,
+            **skill.task.metadata(),
+        }
+        self.record(dict(attempt))
+        failure: BaseException | None = None
+        try:
+            skill.hold()
+            skill.check_abort()
+            confirmed = self.confirm(skill.task)
+            if type(confirmed) is not bool or not confirmed:
+                raise OperatorAbort("operator did not confirm the next fixed skill")
+            attempt["scene_confirmed"] = True
+            skill.execute()
+            skill.check_abort()
+            # execute has already held; a command budget never grades itself.
+            grade = self.grade(skill.task)
+            if grade.task_definition.sha256 != skill.task.sha256:
+                raise ValueError("grade task differs from the executed skill")
+            attempt["operator_grade"] = grade.evidence()
+            attempt["status"] = grade.label
+            if grade.label != "success":
+                raise RuntimeError(f"operator marked {phase} failure")
+        except BaseException as error:
+            failure = error
+            if attempt["status"] == "started":
+                attempt["status"] = (
+                    "aborted"
+                    if isinstance(error, (OperatorAbort, KeyboardInterrupt, EOFError))
+                    else "failed"
+                )
+            attempt["error"] = str(error) or type(error).__name__
+        finally:
+            try:
+                skill.hold()
+            except BaseException as error:
+                attempt["status"] = "failed"
+                attempt["hold_error"] = str(error) or type(error).__name__
+                failure = failure or error
+            if attempt["operator_grade"] is None:
+                try:
+                    _, still, stamp = self.capture()
+                    content = Path(still).read_bytes()
+                    if not content:
+                        raise ValueError("empty failure camera still")
+                    attempt["failure_still"] = {
+                        "path": still,
+                        "source_monotonic_s": stamp,
+                        "sha256": hashlib.sha256(content).hexdigest(),
+                    }
+                except BaseException as error:
+                    attempt["missing_still_reason"] = str(error) or type(error).__name__
+            attempt["offered_steps"] = skill.offered_steps
+            attempt["ended_monotonic_s"] = self.clock()
+            try:
+                self.record(attempt)
+            except BaseException as error:
+                if failure is not None:
+                    raise RuntimeError(
+                        f"attempt failed: {failure}; attempt ledger also failed: {error}"
+                    ) from failure
+                raise
+        if failure is not None:
+            raise failure
+
+    def hold(self) -> None:
+        if self.active is not None:
+            self.active.hold()
+
+
 @dataclass(frozen=True)
 class RollResult:
     value: int | None
@@ -97,6 +226,26 @@ class RollResult:
 
 
 def validate_roll_config(config: dict[str, Any], *, synthetic: bool = False) -> None:
+    if config.get("mode") == "fixed_scene_skills":
+        if config.get("skills") != list(TASK_IDS):
+            raise ValueError("fixed-scene roll must use the three registered skills in order")
+        if config.get("read", {}).get("source") not in {"operator", "perception"}:
+            raise ValueError("explicit operator or gated-perception die source required")
+        if config["read"]["source"] == "operator":
+            return
+        reads = config["read"]
+        if (
+            any(type(reads.get(k)) is not int for k in ("stable_reads", "max_reads"))
+            or not (1 <= reads["stable_reads"] <= reads["max_reads"])
+            or any(
+                type(reads.get(k)) not in (int, float)
+                or not math.isfinite(reads[k])
+                or reads[k] <= 0
+                for k in ("period_s", "max_age_s")
+            )
+        ):
+            raise ValueError("invalid fixed-scene perception read bounds")
+        return
     if not synthetic and (not config["verified_by"] or not config["verified_on"]):
         raise ValueError("roll parameters require physical operator verification")
     for phase in MOTION_PHASES:
@@ -125,19 +274,34 @@ class RollMachine:
         self,
         arm: RollArm,
         read_die: Callable[[], DieRead],
-        config_path: Path,
+        config_path: Path | dict[str, Any],
         *,
         synthetic: bool = False,
         clock: Callable[[], float] = time.monotonic,
         sleep: Callable[[float], None] = time.sleep,
     ) -> None:
-        self.config = json.loads(config_path.read_text(encoding="utf-8"))
-        if not synthetic and not isinstance(read_die, GatedDieReader):
+        self.config = (
+            json.loads(config_path.read_text(encoding="utf-8"))
+            if isinstance(config_path, Path)
+            else json.loads(json.dumps(config_path, allow_nan=False))
+        )
+        self.fixed_skills = self.config.get("mode") == "fixed_scene_skills"
+        if self.fixed_skills and not isinstance(arm, FixedSkillRollArm):
+            raise ValueError("fixed-scene roll requires task-bound executors")
+        operator_read = self.fixed_skills and isinstance(read_die, OperatorDieReader)
+        if self.fixed_skills and operator_read != (self.config["read"]["source"] == "operator"):
+            raise ValueError("declared die source differs from reader")
+        if not synthetic and not operator_read and not isinstance(read_die, GatedDieReader):
             raise ValueError("physical die reader requires accuracy verification")
         if not synthetic and isinstance(read_die, GatedDieReader) and read_die.perception.synthetic:
             raise ValueError("synthetic accuracy cannot enable a physical roll")
         self.synthetic = synthetic
-        self.config_sha256 = hashlib.sha256(config_path.read_bytes()).hexdigest()
+        encoded = (
+            config_path.read_bytes()
+            if isinstance(config_path, Path)
+            else json.dumps(self.config, sort_keys=True, allow_nan=False).encode()
+        )
+        self.config_sha256 = hashlib.sha256(encoded).hexdigest()
         validate_roll_config(self.config, synthetic=synthetic)
         self.arm, self.read_die, self.clock, self.sleep = arm, read_die, clock, sleep
         self.state: RollState | None = None
@@ -146,34 +310,45 @@ class RollMachine:
         events: list[dict[str, Any]] = []
         value, error = None, None
         try:
-            for phase in MOTION_PHASES:
-                self.state = phase
-                events.append(
-                    {"state": phase.value, "status": "started", "monotonic_s": self.clock()}
-                )
-                self.arm.perform(phase.value, self.config["phases"][phase.value])
-                events.append(
-                    {"state": phase.value, "status": "completed", "monotonic_s": self.clock()}
-                )
+            phases = (
+                TASK_IDS if self.fixed_skills else tuple(phase.value for phase in MOTION_PHASES)
+            )
+            for phase in phases:
+                self.state = RollState(phase) if not self.fixed_skills else None
+                events.append({"state": phase, "status": "started", "monotonic_s": self.clock()})
+                self.arm.perform(phase, {} if self.fixed_skills else self.config["phases"][phase])
+                events.append({"state": phase, "status": "completed", "monotonic_s": self.clock()})
             self.state = RollState.READ
             previous, consecutive = None, 0
             last_stamp = -math.inf
             reads = self.config["read"]
-            for _ in range(reads["max_reads"]):
+            operator_read = isinstance(self.read_die, OperatorDieReader)
+            for _ in range(1 if operator_read else reads["max_reads"]):
                 reading = self.read_die()
                 if (
                     not math.isfinite(reading.monotonic_s)
-                    or not 0 <= self.clock() - reading.monotonic_s <= reads["max_age_s"]
+                    or not 0 <= self.clock() - reading.monotonic_s
+                    or (
+                        not operator_read
+                        and self.clock() - reading.monotonic_s > reads["max_age_s"]
+                    )
                     or reading.monotonic_s <= last_stamp
                 ):
                     raise ValueError("stale or repeated die frame")
                 last_stamp = reading.monotonic_s
                 still_hash = hashlib.sha256(Path(reading.still).read_bytes()).hexdigest()
-                events.append({"state": "read", **asdict(reading), "still_sha256": still_hash})
+                events.append(
+                    {
+                        "state": "read",
+                        **asdict(reading),
+                        "still_sha256": still_hash,
+                        "source": "operator" if operator_read else "perception",
+                    }
+                )
                 valid = type(reading.value) is int and 1 <= reading.value <= 6
                 consecutive = consecutive + 1 if valid and reading.value == previous else int(valid)
                 previous = reading.value if valid else None
-                if consecutive >= reads["stable_reads"]:
+                if consecutive >= (1 if operator_read else reads["stable_reads"]):
                     value = reading.value
                     break
                 self.sleep(reads["period_s"])

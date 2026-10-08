@@ -11,7 +11,6 @@ from test_task_registry import synthetic_task
 from synria_lerobot.embodiment import SynriaObservation
 from synria_lerobot.evaluation import OperatorGrade
 from synria_lerobot.physical_contract import ImageFrame, PhysicalState
-from synria_lerobot.policy_client import FakePolicy
 from synria_lerobot.sessions import run_session
 
 
@@ -57,7 +56,8 @@ def ready_config(tmp_path: Path) -> dict:
 
 @pytest.mark.parametrize("configured", [False, True])
 def test_sessions_refuse_disposable_task_before_opening_adapter(
-    tmp_path: Path, configured: bool,
+    tmp_path: Path,
+    configured: bool,
 ) -> None:
     from test_task_registry import REGISTRY
 
@@ -174,25 +174,25 @@ def test_read_only_preflight_accepts_unverified_limits_and_policy(tmp_path: Path
     assert not result["motion_enabled"] and io.closed and not io.sinks
 
 
-def test_session_entry_point_runs_two_turns_with_only_fakes(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+@pytest.mark.parametrize("mode", ["d3", "d4", "d5"])
+def test_roll_task_contract_refuses_deferred_token_motion_before_adapter(
+    tmp_path: Path,
+    mode: str,
 ) -> None:
     config = ready_config(tmp_path)
     io = FakeIO(tmp_path)
-    monkeypatch.setattr(
-        "synria_lerobot.sessions.HttpPolicyTransport", lambda endpoint: FakePolicy((0,) * 7)
-    )
     output = tmp_path / "session"
-    stats = run_session(
-        config, "d3", Path.cwd(), output, enable_motion=True, factory=lambda conf: io
-    )
-    assert stats["turn_level"]["ok"] == 2 and stats["stage_status"] == "planned"
-    assert len(io.offers) == 2 and io.holds >= 2 and io.closed
-    assert (output / "latencies.jsonl").is_file() and (output / "session_end.json").is_file()
-    evidence = json.loads((output / "provenance.json").read_text())["policy_safety"]
-    assert evidence["response_timeout_s"] == 0.15
-    assert evidence["command_period_s"] == 0.01
-    assert evidence["max_joint_speed_rad_s"] == [0.075] * 6
+    calls = []
+    with pytest.raises(ValueError, match="token moves and goal conditioning are deferred"):
+        run_session(
+            config,
+            mode,
+            Path.cwd(),
+            output,
+            enable_motion=True,
+            factory=lambda conf: calls.append(conf),
+        )
+    assert not calls and not io.offers and not output.exists()
 
 
 @pytest.mark.parametrize("field", ["command_period_s", "response_timeout_s"])
@@ -250,34 +250,29 @@ def test_session_rejects_old_duplicate_period_setting(tmp_path: Path) -> None:
         run_session(config, "d3", Path.cwd(), tmp_path / "session")
 
 
-def test_session_preserves_primary_error_and_attempts_all_evidence_cleanup(
+def test_read_only_session_preserves_primary_error_and_attempts_cleanup(
     tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     config = ready_config(tmp_path)
     io = FakeIO(tmp_path)
 
-    def failed_roll() -> int:
-        raise RuntimeError("primary synthetic roll failure")
+    def failed_preflight() -> dict:
+        raise RuntimeError("primary synthetic preflight failure")
 
-    def failed_hold() -> None:
-        raise RuntimeError("secondary synthetic hold failure")
+    def failed_close() -> None:
+        io.closed = True
+        raise RuntimeError("secondary synthetic close failure")
 
-    io.operator_roll = failed_roll
-    io.hold = failed_hold
-    monkeypatch.setattr(
-        "synria_lerobot.sessions.HttpPolicyTransport", lambda endpoint: FakePolicy((0,) * 7)
-    )
+    io.preflight = failed_preflight
+    io.close = failed_close
     output = tmp_path / "session"
-    with pytest.raises(RuntimeError, match="primary synthetic roll failure"):
-        run_session(config, "d3", Path.cwd(), output, enable_motion=True, factory=lambda conf: io)
+    with pytest.raises(RuntimeError, match="primary synthetic preflight failure"):
+        run_session(config, "d3", Path.cwd(), output, factory=lambda conf: io)
     assert io.closed
-    assert (output / "latencies.jsonl").is_file()
-    assert (output / "session_end.json").is_file()
-    assert (output / "provenance.json").is_file()
+    assert not output.exists() and io.sinks == 0
 
 
-def test_session_failed_authorization_closes_and_records_preflight(tmp_path: Path) -> None:
+def test_deferred_motion_refuses_before_authorization_prompt(tmp_path: Path) -> None:
     config = ready_config(tmp_path)
     io = FakeIO(tmp_path)
 
@@ -286,7 +281,6 @@ def test_session_failed_authorization_closes_and_records_preflight(tmp_path: Pat
 
     io.authorize_motion = refused
     output = tmp_path / "session"
-    with pytest.raises(RuntimeError, match="sync confirmation"):
+    with pytest.raises(ValueError, match="deferred"):
         run_session(config, "d3", Path.cwd(), output, enable_motion=True, factory=lambda conf: io)
-    assert io.closed and io.sinks == 0
-    assert (output / "provenance.json").is_file() and (output / "session_end.json").is_file()
+    assert not io.closed and io.sinks == 0 and not output.exists()

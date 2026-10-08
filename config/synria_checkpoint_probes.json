@@ -1,10 +1,12 @@
 {
-  "version": "synria_checkpoint_probes_v1",
+  "version": "synria_fixed_skill_probes_v2",
   "purpose": "diagnostic_only_no_policy_selection",
   "probe_set_id": "",
   "registered_by": "",
   "registered_on": "",
   "dataset_content_sha256": "",
+  "task_id": null,
+  "physical_contract": null,
   "held_out_episodes": [],
   "held_out_frame_counts": {},
   "physical_trials": [],
