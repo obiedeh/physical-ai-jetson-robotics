@@ -19,6 +19,7 @@ from synria_lerobot.physical_contract import (
     PhysicalDatasetContract,
     PhysicalFrame,
     PhysicalState,
+    action_timing_metadata,
 )
 from synria_lerobot.recorder import (
     LeRobotDatasetWriter,
@@ -96,7 +97,7 @@ def test_create_owns_root_and_contract_is_written_after_creation(
     writer = LeRobotDatasetWriter(config)
     assert writer.next_episode_index == 0
     assert json.loads((config.dataset_path / "physical_contract.json").read_text()) == (
-        config.contract.as_dict()
+        config.contract.as_dict(fps=config.fps)
     )
     writer.finalize()
 
@@ -108,7 +109,7 @@ def test_resume_uses_dataset_metadata_and_refuses_contract_mismatch(
     (config.dataset_path / "meta").mkdir(parents=True)
     (config.dataset_path / "meta" / "info.json").write_text("{}", encoding="utf-8")
     contract_path = config.dataset_path / "physical_contract.json"
-    contract_path.write_text(json.dumps(config.contract.as_dict()), encoding="utf-8")
+    contract_path.write_text(json.dumps(config.contract.as_dict(fps=config.fps)), encoding="utf-8")
     calls = []
 
     class Dataset:
@@ -116,7 +117,9 @@ def test_resume_uses_dataset_metadata_and_refuses_contract_mismatch(
         def resume(**kwargs: Any) -> SimpleNamespace:
             calls.append(kwargs)
             return SimpleNamespace(
-                meta=SimpleNamespace(total_episodes=7, features=image_features(), episodes=[]),
+                meta=SimpleNamespace(
+                    total_episodes=7, features=image_features(), episodes=[], fps=15
+                ),
                 finalize=lambda: None,
             )
 
@@ -211,7 +214,7 @@ def test_real_writer_creates_nonexisting_root_and_resumes_empty_dataset(tmp_path
     try:
         assert writer.next_episode_index == 0
         assert json.loads((config.dataset_path / "physical_contract.json").read_text()) == (
-            config.contract.as_dict()
+            config.contract.as_dict(fps=config.fps)
         )
     finally:
         writer.finalize()
@@ -240,7 +243,8 @@ def test_real_writer_resumes_persisted_episode_index(tmp_path: Path) -> None:
 
 
 def synthetic_episode(
-    index: int = 0, *, width: int = 224, height: int = 224
+    index: int = 0, *, width: int = 224, height: int = 224,
+    action_source: ActionSource = ActionSource.NEXT_STATE, lookahead_steps: int = 1,
 ) -> RecordedPhysicalEpisode:
     import numpy as np
 
@@ -269,7 +273,8 @@ def synthetic_episode(
             )
         )
     for frame_index, frame in enumerate(frames):
-        target = frames[min(frame_index + 1, len(frames) - 1)].state
+        offset = lookahead_steps if action_source is ActionSource.NEXT_STATE else 0
+        target = frames[min(frame_index + offset, len(frames) - 1)].state
         frames[frame_index] = replace(
             frame, action_monotonic_timestamp_s=target.monotonic_timestamp_s,
             action_ros_header_stamp_s=target.ros_header_stamp_s,
@@ -281,7 +286,8 @@ def synthetic_episode(
         started_monotonic_s=0,
         ended_monotonic_s=0.2,
         operator_label=OperatorLabel.SUCCESS,
-        action_source=ActionSource.NEXT_STATE,
+        action_source=action_source,
+        action_lookahead_steps=lookahead_steps,
         contract_version="synria_physical_v1",
         gripper_type="50mm",
     )
@@ -295,7 +301,7 @@ def test_writer_passes_task_in_frame_and_finalizes_once(
 
     class Dataset:
         meta = SimpleNamespace(
-            total_episodes=0, total_frames=0, episodes=[], features=image_features()
+            total_episodes=0, total_frames=0, episodes=[], features=image_features(), fps=15
         )
 
         @staticmethod
@@ -484,20 +490,65 @@ def test_real_late_save_failure_rolls_back_then_retries_without_duplicates(
     assert len(list((config.dataset_path / "final_stills").glob("*.jpg"))) == 3
 
 
-def test_real_two_episodes_close_resume_third_and_reload(tmp_path: Path) -> None:
+@pytest.mark.parametrize("source", list(ActionSource))
+def test_real_two_episodes_close_resume_third_and_reload(
+    tmp_path: Path, source: ActionSource
+) -> None:
     library = real_dataset_type()
     config = replace(writer_config(tmp_path / "dataset"), image_width=48, image_height=32)
+    config = replace(config, contract=replace(
+        config.contract, action_source=source, action_lookahead_steps=2
+    ))
     writer = LeRobotDatasetWriter(config)
     for index in range(2):
-        writer.write_episode(synthetic_episode(index, width=48, height=32))
+        writer.write_episode(synthetic_episode(
+            index, width=48, height=32, action_source=source, lookahead_steps=2
+        ))
     writer.finalize()
     resumed = LeRobotDatasetWriter(config)
     assert resumed.next_episode_index == 2
-    resumed.write_episode(synthetic_episode(2, width=48, height=32))
+    resumed.write_episode(synthetic_episode(
+        2, width=48, height=32, action_source=source, lookahead_steps=2
+    ))
     resumed.finalize()
     reloaded = library(config.repo_id, root=config.dataset_path, video_backend="pyav")
     assert (reloaded.num_episodes, reloaded.num_frames) == (3, 9)
     assert tuple(reloaded[8]["observation.images.front"].shape) == (3, 32, 48)
+    assert tuple(reloaded[0]["observation.images.wrist"].shape) == (3, 32, 48)
+    timing = action_timing_metadata(source, 2, 15)
+    contract = json.loads((config.dataset_path / "physical_contract.json").read_text())
+    assert all(contract[name] == value for name, value in timing.items())
+    for name in ("physical_episode_metadata.jsonl", "physical_quality_records.jsonl",
+                 "physical_capture_provenance.jsonl"):
+        records = [
+            json.loads(line) for line in (config.dataset_path / name).read_text().splitlines()
+        ]
+        assert len(records) == 3
+        for record in records:
+            assert all(record[key] == value for key, value in timing.items())
+            assert record["action_source"] == source.value
+    raw = reloaded.hf_dataset.with_format(None)[0]
+    assert raw["action_monotonic_s"] == (2 / 15 if source is ActionSource.NEXT_STATE else 0)
+
+
+@pytest.mark.parametrize("changed", ["lookahead", "rate", "stored_rate"])
+def test_real_resume_refuses_changed_horizon_or_rate(tmp_path: Path, changed: str) -> None:
+    real_dataset_type()
+    config = replace(writer_config(tmp_path / "dataset"), image_width=48, image_height=32)
+    LeRobotDatasetWriter(config).finalize()
+    if changed == "lookahead":
+        config = replace(config, contract=replace(config.contract, action_lookahead_steps=2))
+    elif changed == "rate":
+        config = replace(config, fps=30)
+    else:
+        path = config.dataset_path / "meta" / "info.json"
+        metadata = json.loads(path.read_text())
+        metadata["fps"] = 30
+        path.write_text(json.dumps(metadata), encoding="utf-8")
+    before = _file_hashes(config.dataset_path)
+    with pytest.raises(ValueError, match="contract"):
+        LeRobotDatasetWriter(config)
+    assert _file_hashes(config.dataset_path) == before
 
 
 @pytest.mark.parametrize("fault", ["orphan", "missing", "total_episodes", "total_frames"])
