@@ -12,6 +12,18 @@ it to square B, place it upright within the square boundary, release it, and
 retract the follower arm clear of the board. The recording process observes
 the existing teleoperation; it does not mediate or replace it.
 
+In the operator-confirmed wiring, the leader drives the follower through a
+hardware sync cable and is not connected to the PC. The PC observes only the
+follower's `/joint_states`. The default `next_state` action is the following
+sampled follower position/gripper state, a proxy rather than a directly read
+leader command. This matches the operator-reported vendor recording convention
+for this wiring; no physical recording or vendor runtime was tested here.
+
+Direct `leader` actions are optional when the leader is additionally connected
+to the PC by USB. Use the isolated read-only launch described in the
+[runbook](D1_OPERATOR_RUNBOOK.md), explicitly select `--action-source leader`,
+and keep its dataset separate. Existing hardware-sync teleoperation is unchanged.
+
 Episodes target 20–30 seconds and stop at a hard 30-second cap. The C10 wrist
 camera records `observation.images.wrist`; one fixed USB webcam records
 `observation.images.front`. Every episode stores a timestamp-linked final
@@ -47,7 +59,8 @@ deviation in `session_notes.md`.
 ## Dataset contract and gates
 
 The contract is `synria_physical_v1`. Each dataset declares the gripper type
-(`50mm` or `100mm`) and action source (`leader` or `next_state`). Limits in
+(`50mm` or `100mm`) and action source (default `next_state`, optional `leader`).
+Limits in
 [`config/synria_limits.yaml`](../../config/synria_limits.yaml) are candidate
 values until `verified_by` and `verified_on` are filled by the operator. A
 session may be quality-valid while limits are unverified, but it contributes

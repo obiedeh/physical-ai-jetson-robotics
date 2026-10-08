@@ -1231,7 +1231,7 @@ def _parse_physical_args() -> argparse.Namespace:
     parser.add_argument(
         "--action-source",
         choices=tuple(source.value for source in ActionSourceKind),
-        required=True,
+        default=ActionSourceKind.NEXT_STATE.value,
     )
     parser.add_argument("--follower-topic", default="/joint_states")
     parser.add_argument("--leader-topic", default="/leader/joint_states")
