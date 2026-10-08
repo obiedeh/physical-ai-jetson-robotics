@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass, replace
 from enum import Enum
 from typing import Any, TypedDict
@@ -31,6 +32,55 @@ ACTION_TIMING_KEYS = (
     "action_lookahead_steps", "effective_action_lookahead_steps",
     "nominal_action_lookahead_s", "requested_rate_hz",
 )
+DEFAULT_COMMAND_TOPICS = ("/joint_commands", "/policy_joint_targets")
+STATE_SOURCE_KINDS = ("standalone_driver", "ros2_control")
+
+
+def require_absolute_topic(topic: str) -> None:
+    if not isinstance(topic, str) or re.fullmatch(r"(?:/[A-Za-z_][A-Za-z_0-9]*)+", topic) is None:
+        raise ValueError("topic must be an explicit absolute ROS topic name")
+
+
+def guarded_command_topics(additional: tuple[str, ...] = ()) -> tuple[str, ...]:
+    topics = tuple(dict.fromkeys((*DEFAULT_COMMAND_TOPICS, *additional)))
+    for topic in topics:
+        require_absolute_topic(topic)
+    return topics
+
+
+@dataclass(frozen=True)
+class StateSourceProvenance:
+    """Operator declaration, not automatic identification of the publishing node."""
+
+    state_source: str
+    follower_topic: str
+    guarded_command_topics: tuple[str, ...] = DEFAULT_COMMAND_TOPICS
+    declaration: str = "operator-declared"
+
+    def __post_init__(self) -> None:
+        if self.state_source not in STATE_SOURCE_KINDS or self.declaration != "operator-declared":
+            raise ValueError("state source requires an explicit operator declaration")
+        require_absolute_topic(self.follower_topic)
+        if not isinstance(self.guarded_command_topics, (tuple, list)):
+            raise ValueError("guarded command topics must be a sequence")
+        topics = tuple(self.guarded_command_topics)
+        if topics != guarded_command_topics(topics):
+            raise ValueError("guarded command topics must retain defaults without duplicates")
+        object.__setattr__(self, "guarded_command_topics", topics)
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "state_source": self.state_source, "follower_topic": self.follower_topic,
+            "guarded_command_topics": list(self.guarded_command_topics),
+            "declaration": self.declaration,
+        }
+
+    @classmethod
+    def from_dict(cls, payload: Any) -> StateSourceProvenance:
+        required = {"state_source", "follower_topic", "guarded_command_topics", "declaration"}
+        if not isinstance(payload, dict) or set(payload) != required:
+            raise ValueError("incomplete or invalid operator-declared state source evidence")
+        return cls(**payload)
 
 
 class ActionSource(str, Enum):

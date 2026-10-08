@@ -20,6 +20,7 @@ from synria_lerobot.physical_contract import (
     PhysicalFrame,
     PhysicalState,
     StateRateMeasurement,
+    StateSourceProvenance,
     action_timing_metadata,
 )
 from synria_lerobot.recorder import (
@@ -163,6 +164,7 @@ def test_smoke_uses_nonexisting_child_path(monkeypatch: pytest.MonkeyPatch) -> N
             "--image-height", "32",
             "--smoke",
             "--fps", "15",
+            "--state-source", "standalone_driver",
         ],
     )
     roots = []
@@ -180,6 +182,7 @@ def test_smoke_uses_nonexisting_child_path(monkeypatch: pytest.MonkeyPatch) -> N
             close=lambda: None,
             measure_rate=lambda: StateRateMeasurement(50, 100, 2, 0, 2, 0.02),
             read=lambda: PhysicalState((0.01,) * 6, 0.01, 2, 1000),
+            require_no_command_publishers=lambda topics: None,
         )
     )
     monkeypatch.setattr(
@@ -796,7 +799,10 @@ def test_real_velocity_contract_refuses_missing_state_before_recording(tmp_path:
         resumed.finalize()
 
 
-def test_real_resumed_runs_preserve_distinct_incoming_rate_evidence(tmp_path: Path) -> None:
+@pytest.mark.parametrize("state_source", ["standalone_driver", "ros2_control"])
+def test_real_resumed_runs_preserve_distinct_incoming_rate_evidence(
+    tmp_path: Path, state_source: str
+) -> None:
     library = real_dataset_type()
     from synria_lerobot.quality_gates import (
         GateConfig,
@@ -806,7 +812,11 @@ def test_real_resumed_runs_preserve_distinct_incoming_rate_evidence(tmp_path: Pa
         write_session_artifacts,
     )
 
-    base_config = replace(writer_config(tmp_path / "dataset"), image_width=48, image_height=32)
+    source_provenance = StateSourceProvenance(state_source, "/joint_states")
+    base_config = replace(
+        writer_config(tmp_path / "dataset"), image_width=48, image_height=32,
+        state_source_provenance=source_provenance,
+    )
     measurements = [
         StateRateMeasurement(50, 100, 2, 0, 2, 0.02),
         StateRateMeasurement(40, 80, 2, 10, 12, 0.025),
@@ -815,6 +825,7 @@ def test_real_resumed_runs_preserve_distinct_incoming_rate_evidence(tmp_path: Pa
         config = replace(base_config, state_rate_measurement=measurement)
         episode = synthetic_episode(index, width=48, height=32)
         episode.state_rate_measurement = measurement
+        episode.state_source_provenance = source_provenance
         offset = measurement.ended_monotonic_s + 1
         episode.started_monotonic_s += offset
         episode.ended_monotonic_s += offset
@@ -849,6 +860,7 @@ def test_real_resumed_runs_preserve_distinct_incoming_rate_evidence(tmp_path: Pa
         assert [row["state_rate_measurement"] for row in records] == [
             asdict(measurement) for measurement in measurements
         ]
+        assert all(row["state_source_provenance"] == source_provenance.as_dict() for row in records)
     episodes = load_episode_records(base_config.dataset_path / "physical_quality_records.jsonl")
     provenance = {
         "follower_serial": "fake-follower", "leader_serial": "fake-leader", "host": "fake",
@@ -857,6 +869,7 @@ def test_real_resumed_runs_preserve_distinct_incoming_rate_evidence(tmp_path: Pa
         "camera_ids": {"wrist": "synthetic-wrist", "front": "synthetic-front"},
         "resolution": {"width": 48, "height": 32}, "rate_hz": 15,
         **base_config.contract.as_dict(fps=15),
+        "state_source_provenance": source_provenance.as_dict(),
     }
     data_root = tmp_path / "reports"
     summary = write_session_artifacts(
@@ -870,10 +883,13 @@ def test_real_resumed_runs_preserve_distinct_incoming_rate_evidence(tmp_path: Pa
         for index, measurement in enumerate(measurements)
     ]
     assert summary["state_rate_measurements"] == expected
+    assert summary["state_source_provenance"] == source_provenance.as_dict()
     saved_provenance = json.loads((data_root / "session" / "provenance.json").read_text())
     assert saved_provenance["state_rate_measurements"] == expected
+    assert saved_provenance["state_source_provenance"] == source_provenance.as_dict()
     aggregate = write_aggregate_summary(
         data_root=data_root, output_path=data_root / "aggregate.json",
         timeline_path=tmp_path / "timeline.jsonl",
     )
     assert aggregate["state_rate_measurements"][0]["episodes"] == expected
+    assert aggregate["state_sources"][0]["provenance"] == source_provenance.as_dict()

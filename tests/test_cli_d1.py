@@ -13,6 +13,7 @@ from synria_lerobot.physical_contract import (
     ActionSource,
     PhysicalDatasetContract,
     StateRateMeasurement,
+    StateSourceProvenance,
     action_timing_metadata,
 )
 from synria_lerobot.quality_gates import (
@@ -60,6 +61,9 @@ def _record() -> EpisodeQualityRecord:
         achieved_sample_rate_hz=1.0,
         **action_timing_metadata(ActionSource.LEADER, 1, 1.0),
         state_rate_measurement=asdict(StateRateMeasurement(50, 100, 2, 0, 2, 0.02)),
+        state_source_provenance=StateSourceProvenance(
+            "standalone_driver", "/joint_states"
+        ).as_dict(),
     )
 
 
@@ -83,6 +87,7 @@ def test_d1_session_summary_command_writes_artifacts(
         "stored_color_space": "RGB",
         "achieved_sample_rate_hz": 1.0,
         "state_rate_measurement": _record().state_rate_measurement,
+        "state_source_provenance": _record().state_source_provenance,
         "action_source": "leader",
         "contract_version": CONTRACT_VERSION,
         "gripper_type": "50mm",
@@ -102,6 +107,7 @@ def test_d1_session_summary_command_writes_artifacts(
         app,
         [
             "d1-session-summary",
+            "--state-source", "standalone_driver",
             "--session-id",
             "session-001",
             "--records",

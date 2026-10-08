@@ -22,6 +22,33 @@ in the first-safe-motion record. This repository does not start it or insert
 software between the arms. Mark leader USB fields in safety records as not
 applicable when it is not connected.
 
+The follower state source must run with arm-command writes disabled and torque
+unchanged at startup. The operator confirms that the standalone driver's
+default startup releases torque: **do not use that default**. Do not start a
+second follower process, stop/reconfigure working teleoperation, or open a port
+already owned by an existing state source. Establish the source's read-only,
+unchanged-torque configuration during authorized safety preflight, not by
+trial-and-error startup.
+
+For a future operator-authorized standalone source only, with no existing
+source owning the port, this is an unverified candidate command. Confirm the
+installed driver supports both parameters and the torque behavior before use.
+Use an operator-validated driver terminal with ROS and the external driver
+workspace already sourced:
+
+```bash
+export FOLLOWER_PORT=/dev/serial/by-id/REPLACE_WITH_FOLLOWER_USB_ID
+ros2 run alicia_d_driver alicia_d_driver_node --ros-args \
+  -p port:="$FOLLOWER_PORT" \
+  -p joint_commands_enabled:=false \
+  -p torque_off_on_start:=false
+```
+
+For `ros2_control`, use only an operator-verified read-only configuration that
+leaves torque unchanged. No equivalent startup flags are assumed here. If the
+existing source cannot meet these conditions, stop recording setup and request
+operator direction; do not change the working teleoperation arrangement.
+
 Use a separate recording terminal/environment; never alter the working
 teleoperation environment. Recording requires Python 3.12, compatible ROS 2
 Jazzy `rclpy`/`sensor_msgs`, and upstream LeRobot 0.6.x. Core/fake tests support
@@ -60,6 +87,8 @@ itself: the library creates it or resumes a matching dataset.
 export SESSION=YYYYMMDD-HHMM-operator
 export DATASET_ROOT=/srv/synria-d1/$SESSION
 export GRIPPER_TYPE=REPLACE_WITH_INSTALLED_TYPE
+export STATE_SOURCE=REPLACE_WITH_VERIFIED_SOURCE_KIND
+export FOLLOWER_TOPIC=/joint_states
 export ACTION_SOURCE=next_state
 export ACTION_LOOKAHEAD_STEPS=1
 export FPS=15
@@ -73,7 +102,17 @@ export LEADER_SERIAL="REPLACE_WITH_ADL_SERIAL_FROM_ARM_LABEL"
 export POWER_STATE_START="REPLACE_WITH_OBSERVED_START_STATE"
 export SCENE="REPLACE_WITH_SCENE_DESCRIPTION"
 export GIT_SHA=$(git rev-parse HEAD)
+COMMAND_GUARD_ARGS=()
 ```
+
+`STATE_SOURCE` is required: choose `standalone_driver` or `ros2_control` from
+the verified setup. It is stored as **operator-declared**, not automatically
+identified. Retain `FOLLOWER_TOPIC` as the actual absolute state topic. The
+recorder always guards `/joint_commands` and `/policy_joint_targets`; add any
+other absolute command topics with repeated `--guard-command-topic` flags,
+for example `COMMAND_GUARD_ARGS=(--guard-command-topic /custom/arm_commands)`.
+The same array is used by the recorder and summary commands below; additions
+never remove the default guarded topics.
 
 `--fps` is required and positive integer-valued. The vendor suggests 15 or 30;
 `FPS=15` above is an explicit candidate, not a measurement. Each process counts
@@ -82,6 +121,17 @@ before opening a dataset or camera. It refuses missing/stale data, failed
 sources, or a requested rate above the measured rate. Correct the cause before
 retrying; never assume the driver's timer rate. Requested, incoming, and
 achieved sample rates are separate facts.
+
+After that preflight, before opening a dataset/camera, and before every `start`,
+the recorder queries publisher counts on all guarded topics. Any publisher
+(even one not currently sending), invalid count, graph-query failure, or failed
+state source refuses recording. A refused `start` preserves the idle episode
+index and does not start an episode or append episode frames; background camera
+grabbers may already be running between episodes. Resolve the cause through operator review;
+do not disable the check, kill publishers, or reconfigure teleoperation to
+force collection. ROS graph discovery is eventually consistent and this is
+only a best-effort snapshot: it cannot guarantee that no publisher will appear
+later, detect every non-topic write path, or act as a hardware safety interlock.
 
 Image width/height default to 224. Capture converts BGR to RGB and resizes
 before buffering; provenance records actual native/stored resolutions and
@@ -114,7 +164,9 @@ ros2 launch synria_arm_bringup leader_state.launch.py leader_port:="$LEADER_PORT
 ```
 
 This configuration starts one additional leader instance with
-`joint_commands_enabled=false`, without changing the follower or teleoperation.
+`joint_commands_enabled=false` and `torque_off_on_start=false`, without changing
+the follower or teleoperation. Parameter support and unchanged-torque behavior
+still require operator verification before startup.
 Its four absolute remaps are:
 
 | Original topic | Isolated topic |
@@ -138,6 +190,8 @@ python -m synria_lerobot.recorder \
   --smoke \
   --repo-id local/synria-d1-smoke \
   --gripper-type "$GRIPPER_TYPE" \
+  --state-source "$STATE_SOURCE" --follower-topic "$FOLLOWER_TOPIC" \
+  "${COMMAND_GUARD_ARGS[@]}" \
   --action-source "$ACTION_SOURCE" \
   --action-lookahead-steps "$ACTION_LOOKAHEAD_STEPS" \
   --wrist-camera "$WRIST_CAMERA" \
@@ -160,6 +214,8 @@ python -m synria_lerobot.recorder \
   --dataset-path "$DATASET_ROOT" \
   --repo-id "local/synria-d1-$SESSION" \
   --gripper-type "$GRIPPER_TYPE" \
+  --state-source "$STATE_SOURCE" --follower-topic "$FOLLOWER_TOPIC" \
+  "${COMMAND_GUARD_ARGS[@]}" \
   --action-source "$ACTION_SOURCE" \
   --action-lookahead-steps "$ACTION_LOOKAHEAD_STEPS" \
   --wrist-camera "$WRIST_CAMERA" \
@@ -203,6 +259,7 @@ identity/scene values; do not rerun the initialization block or recompute
 revision while that code/configuration is unchanged.
 Record restarts and power transitions in session notes. Changed requested FPS,
 k, source, gripper, velocity mode, image size, camera identity/native size,
+state-source kind/topic or guarded command topics,
 operator, scene, or recording code/configuration requires a separate dataset/session.
 Incompatible or incomplete roots are refused, not overwritten.
 
@@ -230,6 +287,8 @@ physical-ai-lab d1-session-summary \
   --front-camera-id "$FRONT_CAMERA" \
   --width "$IMAGE_WIDTH" --height "$IMAGE_HEIGHT" --rate-hz "$FPS" \
   --gripper-type "$GRIPPER_TYPE" --action-source "$ACTION_SOURCE" \
+  --state-source "$STATE_SOURCE" --follower-topic "$FOLLOWER_TOPIC" \
+  "${COMMAND_GUARD_ARGS[@]}" \
   --action-lookahead-steps "$ACTION_LOOKAHEAD_STEPS" \
   --utc-date "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
@@ -240,8 +299,11 @@ Review every gate and fill the generated session notes with visual review,
 resets, failures, and restarts. Final-still paths are in the external dataset's
 episode/quality records. Provenance includes native/stored RGB image facts,
 requested rate, incoming count/interval/rate evidence, achieved episode rates,
-and configured/effective lookahead. Contradictory metadata or missing incoming
-rate evidence blocks a physical summary.
+and configured/effective lookahead. The operator-declared state-source kind,
+follower topic, and guarded command topics accompany the per-run rate evidence.
+Contradictory metadata, missing source declarations, or missing incoming-rate
+evidence blocks a physical summary. None of these fields proves driver identity
+or read-only/unchanged-torque behavior on hardware.
 
 Default freshness limits are 0.2 seconds of source age and ROS-header delay,
 0.02 seconds of future-header offset, and 0.05 seconds of contemporaneous source

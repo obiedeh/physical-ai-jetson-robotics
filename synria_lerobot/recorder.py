@@ -34,15 +34,19 @@ from typing import Any, Generic, Protocol, TypeVar
 from edge_ai.camera_inference import CameraInferenceLoop, MockFrameSource
 from synria_lerobot.dataset import SynriaEpisodeDataset, generate_synthetic_episode
 from synria_lerobot.physical_contract import (
-    ActionSource as ActionSourceKind,
-)
-from synria_lerobot.physical_contract import (
+    DEFAULT_COMMAND_TOPICS,
+    STATE_SOURCE_KINDS,
     ImageFrame,
     PhysicalDatasetContract,
     PhysicalFrame,
     PhysicalState,
     StateRateMeasurement,
+    StateSourceProvenance,
     action_timing_metadata,
+    guarded_command_topics,
+)
+from synria_lerobot.physical_contract import (
+    ActionSource as ActionSourceKind,
 )
 from synria_lerobot.recording_transaction import RecordingRecoveryError, RecordingTransaction
 from synria_lerobot.schema import (
@@ -147,6 +151,7 @@ class PhysicalRecorderConfig:
     task: str = "move the token from square A to square B"
     smoke: bool = False
     state_rate_measurement: StateRateMeasurement | None = None
+    state_source_provenance: StateSourceProvenance | None = None
 
     def __post_init__(self) -> None:
         action_timing_metadata(
@@ -182,6 +187,7 @@ class RecordedPhysicalEpisode:
     smoke: bool = False
     action_lookahead_steps: int = 1
     state_rate_measurement: StateRateMeasurement | None = None
+    state_source_provenance: StateSourceProvenance | None = None
 
     @property
     def duration_s(self) -> float:
@@ -376,6 +382,28 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
 
     def read(self) -> PhysicalState:
         return self._read_latest()
+
+    def require_no_command_publishers(self, topics: tuple[str, ...]) -> None:
+        """Refuse observed command publishers; this graph snapshot is not an interlock."""
+        topics = guarded_command_topics(topics)
+        with self._lock:
+            if self._closed or self._error is not None:
+                raise RuntimeError("cannot check command graph: state source failed or closed")
+        offending = []
+        for topic in topics:
+            try:
+                count = self._node.count_publishers(topic)
+            except Exception as error:
+                raise RuntimeError(f"command publisher graph query failed for {topic}") from error
+            if type(count) is not int or count < 0:
+                raise RuntimeError(f"invalid command publisher count for {topic}: {count!r}")
+            if count:
+                offending.append(f"{topic} ({count})")
+        if offending:
+            raise RuntimeError("recording refused: command publishers on " + ", ".join(offending))
+        with self._lock:
+            if self._closed or self._error is not None:
+                raise RuntimeError("state source failed or closed during command graph check")
 
     def _store(self, sample: PhysicalState) -> None:
         with self._lock:
@@ -573,6 +601,7 @@ class LeRobotDatasetWriter:
         self._repo_id = config.repo_id
         self._contract = config.contract
         self._state_rate_measurement = config.state_rate_measurement
+        self._state_source_provenance = config.state_source_provenance
         self._episode_path_template = DEFAULT_EPISODES_PATH
         try:
             if self._root.exists():
@@ -692,6 +721,7 @@ class LeRobotDatasetWriter:
             or episode.action_lookahead_steps != self._contract.action_lookahead_steps
             or type(episode.action_lookahead_steps) is not int
             or episode.state_rate_measurement != self._state_rate_measurement
+            or episode.state_source_provenance != self._state_source_provenance
         ):
             raise ValueError("episode metadata differs from dataset contract")
         episode.frames = [
@@ -774,6 +804,10 @@ class LeRobotDatasetWriter:
                             asdict(episode.state_rate_measurement)
                             if episode.state_rate_measurement is not None else None
                         ),
+                        "state_source_provenance": (
+                            episode.state_source_provenance.as_dict()
+                            if episode.state_source_provenance is not None else None
+                        ),
                         **action_timing_metadata(
                             episode.action_source, episode.action_lookahead_steps, self._fps
                         ),
@@ -828,6 +862,10 @@ class LeRobotDatasetWriter:
                 asdict(episode.state_rate_measurement)
                 if episode.state_rate_measurement is not None else None
             ),
+            "state_source_provenance": (
+                episode.state_source_provenance.as_dict()
+                if episode.state_source_provenance is not None else None
+            ),
             "action_source": episode.action_source.value,
             "contract_version": episode.contract_version,
             "gripper_type": episode.gripper_type,
@@ -839,10 +877,13 @@ class LeRobotDatasetWriter:
             with self._capture_records_path.open(encoding="utf-8") as source:
                 previous = json.loads(next(source))
             for name in (
-                "camera_ids", "native_resolution", "stored_resolution", "stored_color_space"
+                "camera_ids", "native_resolution", "stored_resolution", "stored_color_space",
+                "state_source_provenance",
             ):
-                if capture[name] != previous[name]:
-                    raise ValueError("camera capture settings changed; start a separate dataset")
+                if capture[name] != previous.get(name):
+                    raise ValueError(
+                        "recording source/capture settings changed; start a separate dataset"
+                    )
         return capture
 
     def finalize(self) -> None:
@@ -884,6 +925,7 @@ class PhysicalEpisodeRecorder:
         front_source: FrameSource,
         writer: DatasetWriter,
         clock: Callable[[], float] = time.monotonic,
+        command_publisher_guard: Callable[[tuple[str, ...]], None] | None = None,
     ) -> None:
         if action_source.kind is not config.contract.action_source:
             raise ValueError("action source does not match dataset contract")
@@ -894,6 +936,14 @@ class PhysicalEpisodeRecorder:
         self.front_source = front_source
         self.writer = writer
         self.clock = clock
+        # A real source always supplies its own graph check, even when a fake guard is passed.
+        self._command_publisher_guard = getattr(
+            state_source, "require_no_command_publishers", command_publisher_guard
+        )
+        if config.state_source_provenance is not None and not callable(
+            self._command_publisher_guard
+        ):
+            raise ValueError("declared physical state source requires a command publisher guard")
         self.state = RecorderState.IDLE
         self._pending: list[_PendingFrame] = []
         self._started = 0.0
@@ -911,6 +961,12 @@ class PhysicalEpisodeRecorder:
             )
         if self.config.contract.state_has_velocity:
             self.config.contract.prepare_state(self.state_source.read())
+        if self._command_publisher_guard is not None:
+            topics = (
+                self.config.state_source_provenance.guarded_command_topics
+                if self.config.state_source_provenance is not None else DEFAULT_COMMAND_TOPICS
+            )
+            self._command_publisher_guard(topics)
         self._pending = []
         self._pending_label = None
         self._started = self.clock()
@@ -987,6 +1043,7 @@ class PhysicalEpisodeRecorder:
             smoke=self.config.smoke,
             action_lookahead_steps=self.config.contract.action_lookahead_steps,
             state_rate_measurement=self.config.state_rate_measurement,
+            state_source_provenance=self.config.state_source_provenance,
         )
         self.writer.write_episode(episode)
         self._next_episode_index += 1
@@ -1335,6 +1392,8 @@ def _parse_physical_args() -> argparse.Namespace:
     )
     parser.add_argument("--action-lookahead-steps", type=int, default=1)
     parser.add_argument("--follower-topic", default="/joint_states")
+    parser.add_argument("--state-source", choices=STATE_SOURCE_KINDS, required=True)
+    parser.add_argument("--guard-command-topic", action="append", default=[])
     parser.add_argument("--leader-topic", default="/leader/joint_states")
     parser.add_argument("--wrist-camera", required=True)
     parser.add_argument("--front-camera", required=True)
@@ -1375,6 +1434,10 @@ def physical_main() -> int:  # pragma: no cover - hardware entry point
             max_episode_s=20.0 if args.smoke else 30.0,
             hard_cap_s=20.0 if args.smoke else 30.0,
             smoke=args.smoke,
+            state_source_provenance=StateSourceProvenance(
+                args.state_source, args.follower_topic,
+                guarded_command_topics(tuple(args.guard_command_topic)),
+            ),
         )
         config.require_outside_repository(Path(__file__).resolve().parents[1])
         with ExitStack() as startup_cleanup:
@@ -1390,6 +1453,10 @@ def physical_main() -> int:  # pragma: no cover - hardware entry point
                     f"{measurement.rate_hz:.3f} Hz"
                 )
             contract.prepare_state(follower.read())
+            assert config.state_source_provenance is not None
+            follower.require_no_command_publishers(
+                config.state_source_provenance.guarded_command_topics
+            )
             config = replace(config, state_rate_measurement=measurement)
             print(
                 f"Measured {measurement.rate_hz:.3f} joint states/s from "
