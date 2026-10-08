@@ -314,7 +314,9 @@ class LeRobotDatasetWriter:
             features=features,
         )
         self._task = config.task
+        self._fps = config.fps
         self._metadata_path = self._root / "physical_episode_metadata.jsonl"
+        self._quality_records_path = self._root / "physical_quality_records.jsonl"
 
     def write_episode(
         self, episode: RecordedPhysicalEpisode
@@ -356,6 +358,11 @@ class LeRobotDatasetWriter:
                 )
                 + "\n"
             )
+        from synria_lerobot.quality_gates import episode_quality_record
+
+        quality_record = episode_quality_record(episode, fps=self._fps)
+        with self._quality_records_path.open("a", encoding="utf-8") as output:
+            output.write(json.dumps(quality_record.as_dict(), sort_keys=True) + "\n")
 
     def save_final_still(
         self, episode_index: int, frame: ImageFrame
@@ -481,7 +488,7 @@ class PhysicalEpisodeRecorder:
                 next_state = self._pending[next_index].state
                 action = ActionSample(
                     values=(*next_state.joint_positions_rad, next_state.gripper_m),
-                    monotonic_timestamp_s=next_state.monotonic_timestamp_s,
+                    monotonic_timestamp_s=pending.state.monotonic_timestamp_s,
                 )
             if action is None:
                 raise RuntimeError("action source did not provide an action")
