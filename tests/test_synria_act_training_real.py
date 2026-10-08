@@ -90,6 +90,7 @@ def test_real_two_cpu_updates_save_each_checkpoint_evaluate_and_reload(
         dataset, dataset / "physical_contract.json", tmp_path / "raw-training", 7, 2, config
     )
     assert manifest["status"] == "completed" and manifest["completed_steps"] == 2
+    assert manifest["upstream_version"] == version("lerobot")
     assert manifest["task_text_conditioning"] is False
     assert manifest["declared_input_conditioning"] == [
         "observation.state",
@@ -118,6 +119,7 @@ def test_real_two_cpu_updates_save_each_checkpoint_evaluate_and_reload(
     for entry in manifest["checkpoints"]:
         checkpoint = Path(entry["path"])
         physical_manifest = json.loads((checkpoint / "physical_policy_manifest.json").read_text())
+        assert physical_manifest["upstream_version"] == version("lerobot")
         assert physical_manifest["task_text_conditioning"] is False
         assert physical_manifest["varying_target_motion_eligible"] is False
         assert strict_content_hash(checkpoint) == entry["checkpoint_content_sha256"]

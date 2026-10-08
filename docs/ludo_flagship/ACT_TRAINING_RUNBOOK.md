@@ -30,6 +30,14 @@ dependencies; it is not a vendor fork. Do not modify the working teleoperation
 environment. This wrapper opens no robot interface and starts no ROS process,
 camera, driver, bridge or teleoperation.
 
+Checkpoint compatibility is tested with released upstream 0.6.1 and the local
+0.6.2 development checkout; these are distinct installations, not two claimed
+package-index releases. The wrapper unwraps the model and inspects the installed
+save function, supplying `accelerator` only when that named keyword is supported.
+Save errors are not retried under another signature. The installed package
+version is recorded in every run and checkpoint manifest. The existing optional
+dependency remains `lerobot[training]>=0.6,<0.7` on Python 3.12 or newer.
+
 Finish the D1 quality and visual review, then follow the
 [frozen probe runbook](CHECKPOINT_PROBE_RUNBOOK.md) **before training**. Preserve
 the finalized dataset outside git. The committed probe set specifies held-out

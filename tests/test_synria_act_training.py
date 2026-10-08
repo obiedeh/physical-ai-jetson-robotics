@@ -5,13 +5,72 @@ from __future__ import annotations
 import copy
 import json
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
 from test_task_registry import synthetic_task
 
-from synria_lerobot.act_training import train, validate_config
+from synria_lerobot.act_training import _save_upstream_checkpoint, train, validate_config
 from synria_lerobot.physical_contract import ActionSource, PhysicalDatasetContract
+
+
+@pytest.mark.parametrize("signature", ["released", "development", "kwargs", "positional_only"])
+def test_checkpoint_save_detects_named_keyword_and_unwraps_once(
+    tmp_path: Path, signature: str,
+) -> None:
+    wrapped, model, optimizer, config, pre, post = (object() for _ in range(6))
+    unwrap_calls = []
+    calls = []
+
+    def unwrap(value: object) -> object:
+        unwrap_calls.append(value)
+        return model
+
+    accelerator = SimpleNamespace(unwrap_model=unwrap)
+
+    def released(path, step, cfg, policy, opt, *, preprocessor, postprocessor):
+        calls.append((path, step, cfg, policy, opt, preprocessor, postprocessor, {}))
+
+    def development(path, step, cfg, policy, opt, *, preprocessor, postprocessor, accelerator):
+        calls.append((path, step, cfg, policy, opt, preprocessor, postprocessor,
+                      {"accelerator": accelerator}))
+
+    def kwargs_api(path, step, cfg, policy, opt, *, preprocessor, postprocessor, **kwargs):
+        calls.append((path, step, cfg, policy, opt, preprocessor, postprocessor, kwargs))
+
+    def positional_only(
+        path, step, cfg, policy, opt, accelerator=None, /, *, preprocessor, postprocessor,
+    ):
+        assert accelerator is None
+        calls.append((path, step, cfg, policy, opt, preprocessor, postprocessor, {}))
+
+    save = {"released": released, "development": development,
+            "kwargs": kwargs_api, "positional_only": positional_only}[signature]
+    _save_upstream_checkpoint(
+        save, tmp_path, 2, config, wrapped, optimizer,
+        preprocessor=pre, postprocessor=post, accelerator=accelerator,
+    )
+    assert unwrap_calls == [wrapped]
+    expected = {"accelerator": accelerator} if signature == "development" else {}
+    assert calls == [(tmp_path, 2, config, model, optimizer, pre, post, expected)]
+
+
+def test_checkpoint_save_internal_type_error_is_not_retried_or_replaced(tmp_path: Path) -> None:
+    error = TypeError("synthetic failure inside save")
+    calls = []
+
+    def save(*args, accelerator, **kwargs):
+        calls.append((args, kwargs))
+        raise error
+
+    with pytest.raises(TypeError) as caught:
+        _save_upstream_checkpoint(
+            save, tmp_path, 1, object(), object(), object(), preprocessor=None,
+            postprocessor=None, accelerator=SimpleNamespace(unwrap_model=lambda value: value),
+        )
+    assert caught.value is error
+    assert len(calls) == 1
 
 
 def settings(tmp_path: Path) -> tuple[dict[str, Any], dict[str, Any]]:
