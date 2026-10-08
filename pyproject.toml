@@ -48,7 +48,7 @@ ml = [
 ]
 robot-learning = [
   # Upstream 0.6 requires Python 3.12; core and fake-source tests retain 3.10 support.
-  "lerobot[dataset]>=0.6,<0.7; python_version >= '3.12'"
+  "lerobot[training]>=0.6,<0.7; python_version >= '3.12'"
 ]
 llm = [
   "anthropic>=0.34"
