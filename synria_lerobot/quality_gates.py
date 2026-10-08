@@ -12,6 +12,13 @@ from typing import Any
 
 import numpy as np
 
+from synria_lerobot.physical_contract import (
+    ACTION_TIMING_KEYS,
+    ActionSource,
+    StateRateMeasurement,
+    StateSourceProvenance,
+    action_timing_metadata,
+)
 from synria_lerobot.recorder import OperatorLabel, RecordedPhysicalEpisode
 
 OBJECT_SUCCESS_LIMITATION = (
@@ -25,6 +32,7 @@ GATE_NAMES = (
     "cameras_present",
     "state_action_limits",
     "timestamp_skew",
+    "source_staleness",
     "episode_length",
     "gripper_dimensionality",
     "visual_sanity",
@@ -59,14 +67,23 @@ class EpisodeQualityRecord:
     final_still: str
     smoke: bool
     frames: tuple[FrameQualityRecord, ...]
+    achieved_sample_rate_hz: float | None = None
+    action_lookahead_steps: int = 1
+    effective_action_lookahead_steps: int | None = None
+    nominal_action_lookahead_s: float | None = None
+    requested_rate_hz: float | None = None
+    state_rate_measurement: dict[str, Any] | None = None
+    state_source_provenance: dict[str, Any] | None = None
 
     def as_dict(self) -> dict[str, object]:
         return asdict(self)
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> EpisodeQualityRecord:
+        if type(payload["episode_index"]) is not int or payload["episode_index"] < 0:
+            raise ValueError("episode indices must be non-negative integers")
         return cls(
-            episode_index=int(payload["episode_index"]),
+            episode_index=payload["episode_index"],
             fps=float(payload["fps"]),
             duration_s=float(payload["duration_s"]),
             operator_label=str(payload["operator_label"]),
@@ -75,6 +92,13 @@ class EpisodeQualityRecord:
             gripper_type=str(payload["gripper_type"]),
             final_still=str(payload["final_still"]),
             smoke=bool(payload["smoke"]),
+            achieved_sample_rate_hz=payload.get("achieved_sample_rate_hz"),
+            action_lookahead_steps=payload.get("action_lookahead_steps", 1),
+            effective_action_lookahead_steps=payload.get("effective_action_lookahead_steps"),
+            nominal_action_lookahead_s=payload.get("nominal_action_lookahead_s"),
+            requested_rate_hz=payload.get("requested_rate_hz"),
+            state_rate_measurement=payload.get("state_rate_measurement"),
+            state_source_provenance=payload.get("state_source_provenance"),
             frames=tuple(
                 FrameQualityRecord(
                     state=tuple(float(value) for value in frame["state"]),
@@ -108,9 +132,17 @@ class PhysicalLimits:
 class GateConfig:
     frame_count_tolerance_fraction: float = 0.1
     max_timestamp_skew_s: float = 0.05
+    max_source_age_s: float = 0.2
+    max_header_delay_s: float = 0.2
+    max_header_future_s: float = 0.02
     min_episode_s: float = 20.0
     max_episode_s: float = 30.0
     black_mean_threshold: float = 1.0
+
+    def __post_init__(self) -> None:
+        for value in (self.max_source_age_s, self.max_header_delay_s, self.max_header_future_s):
+            if not math.isfinite(value) or value < 0:
+                raise ValueError("freshness thresholds must be non-negative and finite")
 
 
 DEFAULT_GATE_CONFIG = GateConfig()
@@ -189,6 +221,16 @@ def episode_quality_record(
         gripper_type=episode.gripper_type,
         final_still=str(episode.final_still_path or ""),
         smoke=episode.smoke,
+        achieved_sample_rate_hz=episode.achieved_sample_rate_hz,
+        **action_timing_metadata(episode.action_source, episode.action_lookahead_steps, fps),
+        state_rate_measurement=(
+            asdict(episode.state_rate_measurement)
+            if episode.state_rate_measurement is not None else None
+        ),
+        state_source_provenance=(
+            episode.state_source_provenance.as_dict()
+            if episode.state_source_provenance is not None else None
+        ),
         frames=tuple(
             FrameQualityRecord(
                 state=frame.state.observation_vector(),
@@ -248,19 +290,9 @@ def evaluate_episode(
     )
 
     timestamp_ok = bool(frames) and all(
-        max(
-            value
-            for name, value in frame.timestamps.items()
-            if name.endswith("monotonic_s")
-        )
-        - min(
-            value
-            for name, value in frame.timestamps.items()
-            if name.endswith("monotonic_s")
-        )
-        <= config.max_timestamp_skew_s
-        for frame in frames
+        _timestamp_skew_ok(frame, episode.action_source, config) for frame in frames
     )
+    freshness_ok = _episode_sources_fresh(episode, config)
     length_ok = config.min_episode_s <= episode.duration_s <= config.max_episode_s
     visual_ok = _visual_sanity(frames, config.black_mean_threshold)
     return GateReport(
@@ -271,11 +303,84 @@ def evaluate_episode(
             "cameras_present": cameras_ok,
             "state_action_limits": limits_ok,
             "timestamp_skew": timestamp_ok,
+            "source_staleness": freshness_ok,
             "episode_length": length_ok,
             "gripper_dimensionality": dimensions_ok,
             "visual_sanity": visual_ok,
         },
     )
+
+
+def _timestamp_skew_ok(frame: FrameQualityRecord, action_source: str, config: GateConfig) -> bool:
+    names = ["state_monotonic_s", "wrist_monotonic_s", "front_monotonic_s"]
+    if action_source == "leader":
+        names.append("action_monotonic_s")
+    values = [frame.timestamps.get(name, math.nan) for name in names]
+    return all(math.isfinite(value) for value in values) and (
+        max(values) - min(values) <= config.max_timestamp_skew_s
+    )
+
+
+def _sources_fresh(frame: FrameQualityRecord, action_source: str, config: GateConfig) -> bool:
+    timestamps = frame.timestamps
+    sample = timestamps.get("sample_monotonic_s", math.nan)
+    if not math.isfinite(sample):
+        return False
+    sources = ["state", "wrist", "front"]
+    ros_sources = ["state"]
+    if action_source == "leader":
+        sources.append("action")
+        ros_sources.append("action")
+    for source in sources:
+        arrival = timestamps.get(f"{source}_monotonic_s", math.nan)
+        if not math.isfinite(arrival) or not 0 <= sample - arrival <= config.max_source_age_s:
+            return False
+    for source in ros_sources:
+        arrival = timestamps.get(f"{source}_ros_arrival_s", math.nan)
+        header = timestamps.get(f"{source}_ros_header_s", math.nan)
+        if not all(math.isfinite(value) for value in (arrival, header)):
+            return False
+        if not -config.max_header_future_s <= arrival - header <= config.max_header_delay_s:
+            return False
+    return True
+
+
+def _episode_sources_fresh(episode: EpisodeQualityRecord, config: GateConfig) -> bool:
+    if not episode.frames or episode.action_source not in {"leader", "next_state"}:
+        return False
+    try:
+        expected_timing = action_timing_metadata(
+            ActionSource(episode.action_source), episode.action_lookahead_steps, episode.fps
+        )
+    except (TypeError, ValueError):
+        return False
+    if any(getattr(episode, name) != expected for name, expected in expected_timing.items()):
+        return False
+    samples = [frame.timestamps.get("sample_monotonic_s", math.nan) for frame in episode.frames]
+    if not all(math.isfinite(sample) for sample in samples) or any(
+        newer <= older for older, newer in zip(samples, samples[1:], strict=False)
+    ):
+        return False
+    for index, frame in enumerate(episode.frames):
+        if not _sources_fresh(frame, episode.action_source, config):
+            return False
+        if episode.action_source == "next_state":
+            target = episode.frames[
+                min(index + episode.action_lookahead_steps, len(episode.frames) - 1)
+            ]
+            for action_name, state_name in (
+                ("action_monotonic_s", "state_monotonic_s"),
+                ("action_ros_header_s", "state_ros_header_s"),
+                ("action_ros_arrival_s", "state_ros_arrival_s"),
+            ):
+                actual = frame.timestamps.get(action_name, math.nan)
+                expected = target.timestamps.get(state_name, math.nan)
+                if (
+                    not all(math.isfinite(value) for value in (actual, expected))
+                    or actual != expected
+                ):
+                    return False
+    return True
 
 
 def _vector_within_limits(
@@ -324,6 +429,128 @@ def hash_dataset(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _merge_capture_provenance(
+    dataset_path: Path,
+    provenance: dict[str, object],
+    episodes: list[EpisodeQualityRecord],
+) -> dict[str, object]:
+    path = dataset_path / "physical_capture_provenance.jsonl"
+    if not path.is_file():
+        if episodes and (dataset_path / "physical_contract.json").is_file():
+            raise ValueError("physical dataset is missing recorded capture provenance")
+        return provenance
+    by_index: dict[int, dict[str, Any]] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        record = json.loads(line)
+        index = int(record["episode_index"])
+        if index in by_index:
+            raise ValueError("duplicate episode in capture provenance")
+        by_index[index] = record
+    selected = []
+    for episode in episodes:
+        if episode.episode_index not in by_index:
+            raise ValueError("episode is missing recorded capture provenance")
+        capture = by_index[episode.episode_index]
+        if capture.get("stored_color_space") != "RGB":
+            raise ValueError("recorded camera color space must be RGB")
+        stored = capture.get("stored_resolution", {})
+        native = capture.get("native_resolution", {})
+        for resolution in (stored, native.get("wrist", {}), native.get("front", {})):
+            if any(type(resolution.get(name)) is not int or resolution[name] <= 0 for name in (
+                "width", "height"
+            )):
+                raise ValueError("capture provenance has invalid image resolution")
+        if stored != provenance["resolution"]:
+            raise ValueError("supplied resolution differs from recorded stored resolution")
+        if capture.get("camera_ids") != provenance["camera_ids"]:
+            raise ValueError("supplied camera ids differ from recorded capture provenance")
+        if capture.get("achieved_sample_rate_hz") != episode.achieved_sample_rate_hz:
+            raise ValueError("achieved sample rate differs from recorded capture provenance")
+        if capture.get("state_rate_measurement") != episode.state_rate_measurement:
+            raise ValueError("state rate measurement differs from recorded capture provenance")
+        if capture.get("state_source_provenance") != episode.state_source_provenance:
+            raise ValueError("state source differs from recorded capture provenance")
+        _validate_timing_evidence(capture)
+        for name in (*ACTION_TIMING_KEYS, "action_source", "gripper_type", "contract_version"):
+            if capture.get(name) != provenance[name]:
+                raise ValueError("capture provenance differs from dataset contract")
+        selected.append(capture)
+    if not selected:
+        return provenance
+    native = selected[0]["native_resolution"]
+    if any(capture["native_resolution"] != native for capture in selected):
+        raise ValueError("native camera resolution changed; summarize separate capture sessions")
+    return {
+        **provenance,
+        "native_resolution": native,
+        "stored_resolution": selected[0]["stored_resolution"],
+        "stored_color_space": "RGB",
+        "capture_provenance": selected,
+    }
+
+
+def _validate_timing_evidence(payload: dict[str, Any]) -> None:
+    try:
+        expected = action_timing_metadata(
+            ActionSource(payload["action_source"]), payload["action_lookahead_steps"],
+            payload["requested_rate_hz"],
+        )
+        if any(payload.get(name) != value for name, value in expected.items()):
+            raise ValueError("inconsistent action timing evidence")
+    except (KeyError, TypeError, ValueError) as error:
+        raise ValueError("invalid or missing action timing evidence") from error
+
+
+def _validate_summary_contract(
+    dataset_path: Path, provenance: dict[str, Any], episodes: list[EpisodeQualityRecord]
+) -> dict[str, Any]:
+    expected: dict[str, Any] = {
+        name: provenance[name] for name in ("action_source", "gripper_type", "contract_version")
+    }
+    expected.update(action_timing_metadata(
+        ActionSource(provenance["action_source"]), provenance["action_lookahead_steps"],
+        provenance["rate_hz"],
+    ))
+    for name, value in expected.items():
+        if name in provenance and provenance[name] != value:
+            raise ValueError("supplied timing differs from requested rate and action source")
+    contract_path = dataset_path / "physical_contract.json"
+    source_evidence = provenance.get("state_source_provenance")
+    if source_evidence is not None:
+        source_evidence = StateSourceProvenance.from_dict(source_evidence).as_dict()
+    if contract_path.is_file() and episodes and source_evidence is None:
+        raise ValueError("physical summaries require operator-declared state source provenance")
+    if contract_path.is_file():
+        contract = json.loads(contract_path.read_text(encoding="utf-8"))
+        _validate_timing_evidence(contract)
+        if any(contract.get(name) != value for name, value in expected.items()):
+            raise ValueError("supplied metadata differs from dataset contract")
+    for episode in episodes:
+        if episode.state_source_provenance is not None:
+            recorded_source = StateSourceProvenance.from_dict(
+                episode.state_source_provenance
+            ).as_dict()
+        else:
+            recorded_source = None
+        if recorded_source != source_evidence:
+            raise ValueError("episode state source differs from supplied provenance")
+        if contract_path.is_file() and episode.state_rate_measurement is None:
+            raise ValueError("physical summaries require recorded incoming state rate evidence")
+        if episode.state_rate_measurement is not None:
+            measurement = StateRateMeasurement(**episode.state_rate_measurement)
+            if measurement.rate_hz < episode.fps:
+                raise ValueError("requested rate exceeds recorded incoming state measurement")
+        _validate_timing_evidence({
+            "action_source": episode.action_source,
+            **{name: getattr(episode, name) for name in ACTION_TIMING_KEYS},
+        })
+        if episode.fps != expected["requested_rate_hz"] or any(
+            getattr(episode, name) != value for name, value in expected.items()
+        ):
+            raise ValueError("episode metadata differs from dataset contract")
+    return {**provenance, **expected, "state_source_provenance": source_evidence}
+
+
 def write_session_artifacts(
     *,
     session_dir: Path,
@@ -333,7 +560,11 @@ def write_session_artifacts(
     limits: PhysicalLimits,
     gate_config: GateConfig = DEFAULT_GATE_CONFIG,
 ) -> dict[str, object]:
-    session_dir.mkdir(parents=True, exist_ok=True)
+    indices = [episode.episode_index for episode in episodes]
+    if any(type(index) is not int or index < 0 for index in indices):
+        raise ValueError("episode indices must be non-negative integers")
+    if len(indices) != len(set(indices)):
+        raise ValueError("duplicate episode indices in session records")
     required = {
         "follower_serial",
         "leader_serial",
@@ -350,31 +581,75 @@ def write_session_artifacts(
         "contract_version",
         "gripper_type",
         "action_source",
+        "action_lookahead_steps",
     }
     missing = sorted(required - provenance.keys())
     if missing:
         raise ValueError(f"provenance missing required fields: {missing}")
+    provenance = _validate_summary_contract(dataset_path, provenance, episodes)
+    provenance = _merge_capture_provenance(dataset_path, provenance, episodes)
+    sample_rates = [
+        {"episode_index": episode.episode_index, "rate_hz": episode.achieved_sample_rate_hz}
+        for episode in episodes
+    ]
+    state_rate_measurements = [
+        {"episode_index": episode.episode_index, "measurement": episode.state_rate_measurement}
+        for episode in episodes
+    ]
+    provenance = {
+        **provenance,
+        "achieved_sample_rates_hz": sample_rates,
+        "state_rate_measurements": state_rate_measurements,
+        "freshness_thresholds_s": {
+            "source_age": gate_config.max_source_age_s,
+            "header_delay": gate_config.max_header_delay_s,
+            "header_future": gate_config.max_header_future_s,
+        },
+    }
+    dataset_root = dataset_path.resolve()
+    for existing in session_dir.parent.glob("*/session_summary.json"):
+        if existing.parent.resolve() == session_dir.resolve():
+            continue
+        existing_summary = json.loads(existing.read_text(encoding="utf-8"))
+        if "dataset_path" in existing_summary and Path(
+            existing_summary["dataset_path"]
+        ).resolve() == dataset_root:
+            raise ValueError(
+                "dataset already summarized; reuse its session directory when resuming"
+            )
+    session_dir.mkdir(parents=True, exist_ok=True)
     provenance_path = session_dir / "provenance.json"
     provenance_path.write_text(
         json.dumps(provenance, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
 
     reports = [evaluate_episode(episode, limits, gate_config) for episode in episodes]
-    labels = [episode.operator_label for episode in episodes]
+    retained = [episode for episode in episodes if not episode.smoke]
+    labels = [episode.operator_label for episode in retained]
     successes = sum(label == OperatorLabel.SUCCESS.value for label in labels)
-    quality_valid = sum(report.passed for report in reports)
+    quality_valid = sum(
+        report.passed and not episode.smoke
+        for report, episode in zip(reports, episodes, strict=True)
+    )
     summary: dict[str, object] = {
-        "episode_count": len(episodes),
+        "episode_count": len(retained),
+        "recorded_episode_count": len(episodes),
+        "smoke_episode_count": len(episodes) - len(retained),
+        "episode_indices": [episode.episode_index for episode in retained],
+        "achieved_sample_rates_hz": sample_rates,
+        "state_rate_measurements": state_rate_measurements,
         "quality_valid_episode_count": quality_valid,
+        "state_source_provenance": provenance["state_source_provenance"],
         "qualifying_episode_count": quality_valid if limits.verified else 0,
         "gate_results": [report.as_dict() for report in reports],
         "operator_labels": labels,
-        "demonstration_success_rate": successes / len(episodes) if episodes else 0.0,
-        "dataset_path": str(dataset_path),
+        "demonstration_success_rate": successes / len(retained) if retained else 0.0,
+        "dataset_path": str(dataset_root),
         "dataset_content_sha256": hash_dataset(dataset_path),
         "contract_version": provenance["contract_version"],
         "gripper_type": provenance["gripper_type"],
         "action_source": provenance["action_source"],
+        **{name: provenance[name] for name in ACTION_TIMING_KEYS},
         "limits_status": "verified" if limits.verified else UNVERIFIED_LIMITS_LINE,
         "object_success_limitation": OBJECT_SUCCESS_LIMITATION,
     }
@@ -403,8 +678,15 @@ def write_aggregate_summary(
     now_utc: str | None = None,
 ) -> dict[str, object]:
     session_summaries = []
+    seen_datasets: set[Path] = set()
     for path in sorted(data_root.glob("*/session_summary.json")):
-        session_summaries.append(json.loads(path.read_text(encoding="utf-8")))
+        summary = json.loads(path.read_text(encoding="utf-8"))
+        if "dataset_path" in summary:
+            dataset = Path(summary["dataset_path"]).resolve()
+            if dataset in seen_datasets:
+                raise ValueError("duplicate dataset in session summaries; refusing double counting")
+            seen_datasets.add(dataset)
+        session_summaries.append(summary)
     quality_valid_total = sum(
         int(summary["quality_valid_episode_count"]) for summary in session_summaries
     )
@@ -427,6 +709,26 @@ def write_aggregate_summary(
         "qualifying_episode_count": qualifying_total,
         "session_count": len(session_summaries),
         "action_sources": action_sources,
+        "state_sources": [
+            {"dataset_path": summary.get("dataset_path"),
+             "provenance": summary.get("state_source_provenance")}
+            for summary in session_summaries
+        ],
+        "state_rate_measurements": [
+            {"dataset_path": summary.get("dataset_path"),
+             "episodes": summary.get("state_rate_measurements", [])}
+            for summary in session_summaries
+        ],
+        "recording_contracts": [
+            {
+                name: summary.get(name)
+                for name in (
+                    "dataset_path", "action_source", "contract_version", "gripper_type",
+                    *ACTION_TIMING_KEYS,
+                )
+            }
+            for summary in session_summaries
+        ],
         "progress": {
             str(target): {
                 "target": target,
