@@ -43,7 +43,8 @@ What is real, in one table. Labels: **measured** (a committed artifact with devi
 | Autonomous real-arm pick and place | **planned** | | | [`reports/NOT_CLAIMED.md`](reports/NOT_CLAIMED.md) |
 | TensorRT versus PyTorch numerical parity | **planned**, never recorded | | | [`reports/NOT_CLAIMED.md`](reports/NOT_CLAIMED.md) |
 | Sustained thermal and safety validation | **planned**; existing runs are 60 s and 9.9 s | | | [`reports/NOT_CLAIMED.md`](reports/NOT_CLAIMED.md) |
-| Ludo D1: physical Synria demonstrations | **planned** | | | |
+| Synria D1 recording, quality-gate and summary path | **implemented, unmeasured**; fake-source validation only, no hardware run | 2026-10-08 | none | [`docs/ludo_flagship/D1_DATASET_PROTOCOL.md`](docs/ludo_flagship/D1_DATASET_PROTOCOL.md), [`synria_lerobot/quality_gates.py`](synria_lerobot/quality_gates.py) |
+| Ludo D1: physical Synria demonstrations | **planned**, 0/100 qualifying episodes | | | [`reports/ludo_flagship/data/D1_dataset_summary.json`](reports/ludo_flagship/data/D1_dataset_summary.json) |
 | Ludo D2: learned physical pick-and-place, >=14/20 successes | **planned** | | | |
 | Ludo D3: one successful physical Ludo turn | **planned** | | | |
 | Ludo D4: three consecutive successful physical-roll turns | **planned** | | | |
@@ -123,14 +124,15 @@ Use [RTX setup](docs/SETUP_RTX.md) for Isaac and [Jetson deployment](docs/JETSON
 
 ## What Is Next
 
-- Complete the read-only Synria recovery and safety artifact from the external
-  Alicia-D checkout: [`reports/synria/recovered_real_arm_state_2026-09-17.md`](reports/synria/recovered_real_arm_state_2026-09-17.md).
-- Only after that artifact is accepted and the operator explicitly authorizes
-  motion, capture reduced-speed controlled-stop evidence on the physical
-  Synria arm and define its versioned dataset state/action contract.
-- Then record a disposable camera-backed Synria smoke episode and proceed
-  toward D1. M3/Yahboom work and unrelated parity/soak work remain parked
-  until D5 unless they directly block a current flagship gate.
+- Complete and accept the Phase 0A safety record, verify the candidate limits,
+  and fill the empty operator fields in
+  [`reports/synria/phase0a_safety_recovery.md`](reports/synria/phase0a_safety_recovery.md).
+- Only after explicit operator authorization, complete the reduced-speed
+  evidence template in [`reports/synria/first_safe_motion.md`](reports/synria/first_safe_motion.md).
+- Follow the [D1 operator runbook](docs/ludo_flagship/D1_OPERATOR_RUNBOOK.md):
+  disposable 20-second smoke episode, then 20–30-second labeled sessions.
+  M3/Yahboom and unrelated work remain parked until D5 unless they block a
+  current flagship gate.
 
 ## License and Attribution
 

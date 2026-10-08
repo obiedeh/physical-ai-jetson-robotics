@@ -366,6 +366,7 @@ def write_session_artifacts(
     summary: dict[str, object] = {
         "episode_count": len(episodes),
         "quality_valid_episode_count": quality_valid,
+        "qualifying_episode_count": quality_valid if limits.verified else 0,
         "gate_results": [report.as_dict() for report in reports],
         "operator_labels": labels,
         "demonstration_success_rate": successes / len(episodes) if episodes else 0.0,
@@ -404,19 +405,33 @@ def write_aggregate_summary(
     session_summaries = []
     for path in sorted(data_root.glob("*/session_summary.json")):
         session_summaries.append(json.loads(path.read_text(encoding="utf-8")))
-    total = sum(int(summary["quality_valid_episode_count"]) for summary in session_summaries)
+    quality_valid_total = sum(
+        int(summary["quality_valid_episode_count"]) for summary in session_summaries
+    )
+    qualifying_total = sum(
+        int(
+            summary.get(
+                "qualifying_episode_count",
+                summary["quality_valid_episode_count"]
+                if summary["limits_status"] == "verified"
+                else 0,
+            )
+        )
+        for summary in session_summaries
+    )
     action_sources = sorted({str(summary["action_source"]) for summary in session_summaries})
     aggregate: dict[str, object] = {
         "stage": "D1",
-        "status": "planned" if total < 100 else "measured",
-        "quality_valid_episode_count": total,
+        "status": "planned" if qualifying_total < 100 else "measured",
+        "quality_valid_episode_count": quality_valid_total,
+        "qualifying_episode_count": qualifying_total,
         "session_count": len(session_summaries),
         "action_sources": action_sources,
         "progress": {
             str(target): {
                 "target": target,
-                "reached": total >= target,
-                "remaining": max(0, target - total),
+                "reached": qualifying_total >= target,
+                "remaining": max(0, target - qualifying_total),
             }
             for target in (10, 50, 100)
         },
@@ -440,9 +455,16 @@ def write_aggregate_summary(
                 {
                     "t_utc": timestamp,
                     "kind": "d1_dataset_summary",
-                    "title": f"D1 dataset progress: {total}/100 quality-valid episodes",
+                    "title": (
+                        f"D1 dataset progress: {qualifying_total}/100 "
+                        "qualifying episodes"
+                    ),
                     "artifact": str(output_path),
-                    "numbers": {"episodes": total, "target": 100},
+                    "numbers": {
+                        "qualifying_episodes": qualifying_total,
+                        "quality_valid_episodes": quality_valid_total,
+                        "target": 100,
+                    },
                 },
                 sort_keys=True,
             )

@@ -19,6 +19,7 @@
       "target": 100
     }
   },
+  "qualifying_episode_count": 0,
   "quality_valid_episode_count": 0,
   "session_count": 0,
   "stage": "D1",
