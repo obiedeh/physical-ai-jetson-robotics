@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import sys
-from dataclasses import replace
+from dataclasses import asdict, replace
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
@@ -19,6 +19,7 @@ from synria_lerobot.physical_contract import (
     PhysicalDatasetContract,
     PhysicalFrame,
     PhysicalState,
+    StateRateMeasurement,
     action_timing_metadata,
 )
 from synria_lerobot.recorder import (
@@ -161,6 +162,7 @@ def test_smoke_uses_nonexisting_child_path(monkeypatch: pytest.MonkeyPatch) -> N
             "--image-width", "48",
             "--image-height", "32",
             "--smoke",
+            "--fps", "15",
         ],
     )
     roots = []
@@ -174,7 +176,11 @@ def test_smoke_uses_nonexisting_child_path(monkeypatch: pytest.MonkeyPatch) -> N
 
     monkeypatch.setattr(recorder, "LeRobotDatasetWriter", fake_writer)
     monkeypatch.setattr(
-        recorder, "RosJointStateSource", lambda *args, **kwargs: SimpleNamespace(close=lambda: None)
+        recorder, "RosJointStateSource", lambda *args, **kwargs: SimpleNamespace(
+            close=lambda: None,
+            measure_rate=lambda: StateRateMeasurement(50, 100, 2, 0, 2, 0.02),
+            read=lambda: PhysicalState((0.01,) * 6, 0.01, 2, 1000),
+        )
     )
     monkeypatch.setattr(
         recorder, "OpenCVFrameSource", lambda *args, **kwargs: SimpleNamespace(close=lambda: None)
@@ -788,3 +794,86 @@ def test_real_velocity_contract_refuses_missing_state_before_recording(tmp_path:
         assert resumed.meta.total_episodes == 0
     finally:
         resumed.finalize()
+
+
+def test_real_resumed_runs_preserve_distinct_incoming_rate_evidence(tmp_path: Path) -> None:
+    library = real_dataset_type()
+    from synria_lerobot.quality_gates import (
+        GateConfig,
+        load_episode_records,
+        load_limits,
+        write_aggregate_summary,
+        write_session_artifacts,
+    )
+
+    base_config = replace(writer_config(tmp_path / "dataset"), image_width=48, image_height=32)
+    measurements = [
+        StateRateMeasurement(50, 100, 2, 0, 2, 0.02),
+        StateRateMeasurement(40, 80, 2, 10, 12, 0.025),
+    ]
+    for index, measurement in enumerate(measurements):
+        config = replace(base_config, state_rate_measurement=measurement)
+        episode = synthetic_episode(index, width=48, height=32)
+        episode.state_rate_measurement = measurement
+        offset = measurement.ended_monotonic_s + 1
+        episode.started_monotonic_s += offset
+        episode.ended_monotonic_s += offset
+        episode.frames = [
+            replace(
+                frame,
+                state=replace(frame.state, monotonic_timestamp_s=(
+                    frame.state.monotonic_timestamp_s + offset
+                )),
+                wrist=replace(frame.wrist, monotonic_timestamp_s=(
+                    frame.wrist.monotonic_timestamp_s + offset
+                )),
+                front=replace(frame.front, monotonic_timestamp_s=(
+                    frame.front.monotonic_timestamp_s + offset
+                )),
+                sample_monotonic_timestamp_s=frame.sample_monotonic_timestamp_s + offset,
+                action_monotonic_timestamp_s=frame.action_monotonic_timestamp_s + offset,
+            )
+            for frame in episode.frames
+        ]
+        writer = LeRobotDatasetWriter(config)
+        try:
+            writer.write_episode(episode)
+        finally:
+            writer.finalize()
+    assert library(base_config.repo_id, root=base_config.dataset_path).num_episodes == 2
+    for filename in ("physical_episode_metadata.jsonl", "physical_capture_provenance.jsonl"):
+        records = [
+            json.loads(line)
+            for line in (base_config.dataset_path / filename).read_text().splitlines()
+        ]
+        assert [row["state_rate_measurement"] for row in records] == [
+            asdict(measurement) for measurement in measurements
+        ]
+    episodes = load_episode_records(base_config.dataset_path / "physical_quality_records.jsonl")
+    provenance = {
+        "follower_serial": "fake-follower", "leader_serial": "fake-leader", "host": "fake",
+        "git_sha": "test", "utc_date": "2026-10-08", "operator": "test",
+        "power_state_start": "synthetic", "power_state_end": "synthetic", "scene": "synthetic",
+        "camera_ids": {"wrist": "synthetic-wrist", "front": "synthetic-front"},
+        "resolution": {"width": 48, "height": 32}, "rate_hz": 15,
+        **base_config.contract.as_dict(fps=15),
+    }
+    data_root = tmp_path / "reports"
+    summary = write_session_artifacts(
+        session_dir=data_root / "session", dataset_path=base_config.dataset_path,
+        provenance=provenance, episodes=episodes,
+        limits=load_limits(Path("config/synria_limits.yaml")),
+        gate_config=GateConfig(min_episode_s=0.1, max_episode_s=1),
+    )
+    expected = [
+        {"episode_index": index, "measurement": asdict(measurement)}
+        for index, measurement in enumerate(measurements)
+    ]
+    assert summary["state_rate_measurements"] == expected
+    saved_provenance = json.loads((data_root / "session" / "provenance.json").read_text())
+    assert saved_provenance["state_rate_measurements"] == expected
+    aggregate = write_aggregate_summary(
+        data_root=data_root, output_path=data_root / "aggregate.json",
+        timeline_path=tmp_path / "timeline.jsonl",
+    )
+    assert aggregate["state_rate_measurements"][0]["episodes"] == expected

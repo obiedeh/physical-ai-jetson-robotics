@@ -47,6 +47,32 @@ class ActionTimingMetadata(TypedDict):
     requested_rate_hz: float
 
 
+@dataclass(frozen=True)
+class StateRateMeasurement:
+    """One callback-count measurement, not an assumed driver publication rate."""
+
+    rate_hz: float
+    message_count: int
+    duration_s: float
+    started_monotonic_s: float
+    ended_monotonic_s: float
+    max_callback_gap_s: float
+
+    def __post_init__(self) -> None:
+        values = (self.rate_hz, self.duration_s, self.started_monotonic_s,
+                  self.ended_monotonic_s, self.max_callback_gap_s)
+        if not all(not isinstance(value, bool) and math.isfinite(value) for value in values):
+            raise ValueError("state rate measurement must be finite")
+        if type(self.message_count) is not int or self.message_count <= 0 or self.duration_s < 2:
+            raise ValueError("state rate measurement requires callbacks over at least two seconds")
+        if not math.isclose(self.ended_monotonic_s - self.started_monotonic_s, self.duration_s):
+            raise ValueError("state rate measurement interval is inconsistent")
+        if not math.isclose(self.rate_hz, self.message_count / self.duration_s):
+            raise ValueError("state rate measurement count and rate are inconsistent")
+        if not 0 <= self.max_callback_gap_s <= self.duration_s:
+            raise ValueError("state rate callback gap is outside the measured interval")
+
+
 def action_timing_metadata(
     source: ActionSource, steps: int, fps: float
 ) -> ActionTimingMetadata:

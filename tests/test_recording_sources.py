@@ -231,6 +231,106 @@ def test_velocity_ros_contract_requires_complete_finite_joint_velocities(
         source.close()
 
 
+def test_rate_measurement_counts_callbacks_not_cache_reads_over_full_window(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    control = fake_ros(monkeypatch)
+    clock = SimpleNamespace(now=10.0, next_message=10.02, sleeps=[])
+    monkeypatch.setattr(recorder.time, "monotonic", lambda: clock.now)
+    source = recorder.RosJointStateSource("/unused", node_name="fake", timeout_s=0.01)
+    control.callback(joint_message(0.1))
+
+    def sleep(duration: float) -> None:
+        clock.sleeps.append(duration)
+        clock.now += duration
+        if clock.next_message <= clock.now + 1e-9:
+            control.callback(joint_message(0.1))
+            clock.next_message += 0.02
+        for _ in range(10):
+            source.read()
+
+    try:
+        measured = source.measure_rate(clock=lambda: clock.now, sleep=sleep)
+    finally:
+        source.close()
+    assert measured.duration_s == 2
+    assert measured.message_count == 100
+    assert measured.rate_hz == 50
+    assert measured.max_callback_gap_s <= 0.03
+    assert sum(clock.sleeps) == pytest.approx(2)
+
+
+@pytest.mark.parametrize("failure", ["stopped", "burst", "header", "worker", "missing"])
+def test_rate_measurement_refuses_unhealthy_callback_stream(
+    monkeypatch: pytest.MonkeyPatch, failure: str
+) -> None:
+    control = fake_ros(monkeypatch)
+    clock = SimpleNamespace(now=10.0)
+    monkeypatch.setattr(recorder.time, "monotonic", lambda: clock.now)
+    source = recorder.RosJointStateSource("/unused", node_name="fake", timeout_s=0.01)
+    if failure != "missing":
+        control.callback(joint_message(0.1))
+
+    def sleep(duration: float) -> None:
+        clock.now += 2 if failure == "burst" else duration
+        if failure == "burst":
+            for _ in range(100):
+                control.callback(joint_message(0.1))
+        elif failure == "header":
+            message = joint_message(0.1)
+            message.header.stamp.sec -= 1
+            control.callback(message)
+        elif failure == "worker":
+            control.messages.put(OSError("worker stopped during measurement"))
+            source._thread.join(1)
+
+    try:
+        with pytest.raises(RuntimeError, match="stale|source|background"):
+            source.measure_rate(clock=lambda: clock.now, sleep=sleep)
+        assert source._rate_window_start is None
+    finally:
+        source.close()
+
+
+@pytest.mark.parametrize("max_age", [0, -1, True, float("nan"), float("inf")])
+def test_rate_measurement_rejects_invalid_age_threshold_before_reading(
+    monkeypatch: pytest.MonkeyPatch, max_age: float
+) -> None:
+    fake_ros(monkeypatch)
+    source = recorder.RosJointStateSource("/unused", node_name="fake", timeout_s=0.01)
+    try:
+        with pytest.raises(ValueError, match="positive and finite"):
+            source.measure_rate(max_age_s=max_age)
+    finally:
+        source.close()
+
+
+def test_terminal_worker_fault_cannot_pass_rate_snapshot(monkeypatch: pytest.MonkeyPatch) -> None:
+    control = fake_ros(monkeypatch)
+    state = SimpleNamespace(now=10.0, terminal_clock_reads=0)
+    monkeypatch.setattr(recorder.time, "monotonic", lambda: state.now)
+    source = recorder.RosJointStateSource("/unused", node_name="fake", timeout_s=0.01)
+    control.callback(joint_message(0.1))
+
+    def clock() -> float:
+        if state.now >= 12:
+            state.terminal_clock_reads += 1
+            if state.terminal_clock_reads == 2:
+                source._error = OSError("terminal snapshot fault")
+        return state.now
+
+    def sleep(duration: float) -> None:
+        state.now += duration
+        control.callback(joint_message(0.1))
+
+    try:
+        with pytest.raises(RuntimeError, match="terminal snapshot fault"):
+            source.measure_rate(clock=clock, sleep=sleep)
+        assert source._rate_window_start is None
+    finally:
+        source.close()
+
+
 def fake_camera(monkeypatch: pytest.MonkeyPatch) -> Any:
     control = SimpleNamespace(
         frames=queue.Queue(),
