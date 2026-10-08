@@ -56,17 +56,79 @@ start square, and lighting within safe operating bounds. Keep the board, fixed
 camera, arm mount, and safety perimeter stationary. Record every reset or
 deviation in `session_notes.md`.
 
-## Dataset contract and gates
+## Pre-register the dataset settings
 
 The contract is `synria_physical_v1`. Each dataset declares the gripper type
 (`50mm` or `100mm`) and action source (default `next_state`, optional `leader`).
-Limits in
-[`config/synria_limits.yaml`](../../config/synria_limits.yaml) are candidate
-values until `verified_by` and `verified_on` are filled by the operator. A
-session may be quality-valid while limits are unverified, but it contributes
-zero qualifying D1 episodes until that verification exists.
+Set the runbook's `GRIPPER_TYPE` variable from the installed gripper; there is
+no default. State contains six joint positions in radians and gripper in metres
+using the driver convention, zero open and positive stroke closed. By default,
+reported velocities are dropped. A deliberate velocity contract adds six
+reported joint velocities; missing required values fail before recording.
+
+Pre-register the requested integer `FPS`, `ACTION_LOOKAHEAD_STEPS` (k, default
+1), `ACTION_SOURCE`, and stored `IMAGE_WIDTH`/`IMAGE_HEIGHT` (default 224 each).
+The recorder requires explicit `--fps`. Vendor suggestions of 15 or 30 are not
+source-rate evidence: every process counts incoming follower callbacks for
+two seconds, checks freshness, and refuses a requested rate above the measured
+rate before creating the dataset or opening cameras. The measurement and
+achieved per-episode sample rate remain separate from the requested rate.
+
+For `next_state`, action i uses follower state min(i+k, final frame); k may be
+zero. Actual source timestamps are retained. The contract's nominal lookahead
+is k/FPS, not measured latency, and clamping shortens the final offsets. Direct
+`leader` actions are not shifted: configured k is stored but effective k and
+nominal delay are zero. Never mix configured k, requested FPS, action source,
+gripper, velocity mode, or image shape in one dataset. The writer rejects
+incompatible resumes rather than silently changing the contract.
+
+Images are converted BGR-to-RGB and resized at capture time. Provenance records
+both actual native and stored resolutions, camera identities, requested rate,
+per-run incoming-rate count/interval evidence, achieved sample rate, and
+configured/effective lookahead. Camera identity or native size changes require
+a new dataset. These stored software facts do not establish camera calibration
+or real object success.
+
+## Collection, review, and resumption
+
+Use one process for many episodes: `start`, capture 20–30 seconds, `stop`, then
+`success` or `failure` to label and save. The hard cap stops capture, not the
+session. After saving, `start` begins the next episode. `retry` preserves the
+same frames/label after a save error; `discard` explicitly abandons unusable
+pending frames, and `quit` finalizes only once pending data is resolved.
+Record discarded setup/recording faults and recovery problems in session notes;
+genuine task failures remain labeled. Pending frames are memory-only, so do
+not terminate a process expecting unsaved data to survive.
+
+Smoke mode creates one disposable 20-second episode and deletes its temporary
+dataset/still on exit. It is excluded from progress and provides neither a
+live preview nor an automatic quality-gate report. Next record one retained
+episode, quit, generate its summary, and manually inspect both views and the
+final still before scaling collection. Follow the exact commands in the
+[runbook](D1_OPERATOR_RUNBOOK.md); software tests are not hardware approval.
+
+Resume the same dataset with the same `SESSION` and summary directory so the
+cumulative record is replaced, not counted twice. Episode indices persist.
+Keep session metadata/source revision and physical setup consistent; record
+restarts and power transitions in notes. A changed contract or session identity
+requires a new dataset and session. Incoming-rate measurements may differ on
+resumed runs and are retained per episode, not overwritten by the latest run.
+
+## Quality gates and qualifying counts
+
+Limits in [`config/synria_limits.yaml`](../../config/synria_limits.yaml) remain
+candidates until the operator fills `verified_by` and `verified_on`. While
+empty, summaries carry "limits unverified by operator" and count zero
+qualifying D1 episodes, even if the data is quality-valid.
 
 Every episode must pass frame-count, finite-value, dual-camera presence,
-state/action limit, timestamp-skew, duration, gripper-dimensionality, and
-visual-sanity gates. The visual gate rejects black, frozen, and duplicated
-camera streams. Smoke episodes are disposable and never count.
+state/action limit, timestamp-skew, source-staleness, duration,
+gripper-dimensionality, and visual-sanity gates. Staleness uses original source
+arrival times at sampling and compares ROS headers to ROS-clock arrivals, not
+to a different clock epoch. Derived-action timestamps must match their target
+follower frame. Missing timing or incoming-rate evidence cannot qualify.
+The visual gate rejects black, frozen, and duplicated streams; operator review
+still checks task visibility. Gate thresholds are recorded in provenance and
+must not be relaxed retrospectively to hide failures. Preserve rejected data
+and its reasons; quality-valid failed demonstrations may count as specified
+above, but smoke never counts.
