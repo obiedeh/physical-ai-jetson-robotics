@@ -43,6 +43,10 @@ from .turn_executor import (
 )
 
 
+class OperatorAbort(RuntimeError):
+    """Explicit operator cancellation, distinct from a policy or device failure."""
+
+
 class SessionIO(Protocol):
     """Factory opens read-only sources; command_sink alone creates a publisher.
 

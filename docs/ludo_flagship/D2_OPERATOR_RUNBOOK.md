@@ -81,6 +81,11 @@ requests and non-HTTP fakes, are null rather than invented zero measurements.
 
 ## Pre-register and commit
 
+Keep [frozen checkpoint diagnostics](CHECKPOINT_PROBE_RUNBOOK.md) separate from
+D2. Freeze their held-out episodes and physical trials before training, and
+pre-register the D2 policy-selection rule before viewing their results. They
+must not be used to choose a D2 checkpoint retrospectively.
+
 Choose fresh values for `SESSION`, `SESSION_CONFIG` (absolute path) and
 `PROTOCOL` (a new repository-relative campaign protocol filename).
 
