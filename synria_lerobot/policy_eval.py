@@ -11,7 +11,7 @@ a real ACT policy is trained.
 When a real policy is available, replace ``DeterministicArmPolicy`` with
 a wrapper around the LeRobot policy checkpoint:
 
-    from lerobot.policy_eval import evaluate_policy_on_episode
+    from synria_lerobot.policy_eval import evaluate_policy_on_episode
 
     class MyACTPolicy:
         def predict(self, obs: ObservationFrame) -> ActionFrame:
@@ -21,8 +21,8 @@ a wrapper around the LeRobot policy checkpoint:
 
 Usage::
 
-    from lerobot.policy_eval import DeterministicArmPolicy, evaluate_policy_on_dataset
-    from lerobot.dataset import generate_synthetic_episode, SynriaEpisodeDataset
+    from synria_lerobot.policy_eval import DeterministicArmPolicy, evaluate_policy_on_dataset
+    from synria_lerobot.dataset import generate_synthetic_episode, SynriaEpisodeDataset
 
     dataset = SynriaEpisodeDataset([generate_synthetic_episode(zone="left")])
     policy = DeterministicArmPolicy()
@@ -35,7 +35,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from lerobot.schema import (
+from synria_lerobot.schema import (
     ActionFrame,
     Episode,
     EpisodeStep,
@@ -43,7 +43,7 @@ from lerobot.schema import (
 )
 
 if TYPE_CHECKING:
-    from lerobot.dataset import SynriaEpisodeDataset
+    from synria_lerobot.dataset import SynriaEpisodeDataset
 
 # ---------------------------------------------------------------------------
 # Evaluation result

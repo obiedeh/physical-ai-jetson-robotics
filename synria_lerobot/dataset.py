@@ -2,7 +2,7 @@
 
 Generates demonstration episodes by sampling the canned arm-control demo
 trajectories defined in ``arm_control.demo``. The resulting episodes match
-the observation/action contract in ``lerobot.schema`` and can be written
+the observation/action contract in ``synria_lerobot.schema`` and can be written
 to ``reports/lerobot/`` as evidence of the recording schema.
 
 No real hardware is required; all motion data comes from the validated
@@ -10,7 +10,7 @@ demo waypoints that already pass the ``ArmSafetyGate``.
 
 Usage::
 
-    from lerobot.dataset import generate_synthetic_episode, SynriaEpisodeDataset
+    from synria_lerobot.dataset import generate_synthetic_episode, SynriaEpisodeDataset
 
     ep = generate_synthetic_episode(zone="left", game="chess", n_steps=60)
     ds = SynriaEpisodeDataset([ep])
@@ -29,7 +29,7 @@ from pathlib import Path
 from arm_control.demo import full_pick_place_sequence
 from arm_control.kinematics import LINK_BASE_HEIGHT_M, forward_kinematics_planar
 from arm_control.trajectory import JOINT_NAMES, JointTrajectory, JointWaypoint
-from lerobot.schema import (
+from synria_lerobot.schema import (
     DEFAULT_FPS,
     DEFAULT_ROBOT_ID,
     GRIPPER_CLOSED_M,
@@ -200,7 +200,7 @@ def generate_synthetic_episode(
 
     Samples the four-trajectory pick-place sequence from
     ``arm_control.demo.full_pick_place_sequence`` at ``fps`` Hz, producing
-    per-step :class:`~lerobot.schema.EpisodeStep` objects that match the
+    per-step :class:`~synria_lerobot.schema.EpisodeStep` objects that match the
     LeRobot observation/action contract.
 
     Args:
@@ -214,7 +214,7 @@ def generate_synthetic_episode(
             trajectory).
 
     Returns:
-        A fully populated :class:`~lerobot.schema.Episode`.
+        A fully populated :class:`~synria_lerobot.schema.Episode`.
 
     Raises:
         ValueError: For invalid zone / game / task_variant.
@@ -327,7 +327,7 @@ class SynriaEpisodeDataset:
     """Collection of Synria demonstration episodes.
 
     Attributes:
-        episodes: List of :class:`~lerobot.schema.Episode` objects.
+        episodes: List of :class:`~synria_lerobot.schema.Episode` objects.
     """
 
     episodes: list[Episode]

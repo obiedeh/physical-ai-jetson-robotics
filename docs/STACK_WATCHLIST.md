@@ -40,10 +40,8 @@ real HF LeRobot from git — PyPI 'lerobot' is a squatter package);
 weights at ~/models/gr00t_n17_base.
 STATUS 2026-08-19: migration groundwork DONE — weights at
 ~/models/gr00t_n17_base (6.5G); ~/.venv/lerobot17 has real LeRobot
-0.6.2 with GrootPolicy importable. FOOTGUN: our repo's local
-lerobot/ package (Synria teleop data contracts) SHADOWS the library
-when cwd is the repo — run 1.7 training/eval from outside the repo
-or set PYTHONPATH order explicitly.
+0.6.2 with GrootPolicy importable. The repository-local Synria data-contract
+package is `synria_lerobot/`, so it does not shadow the external library.
 
 BLOCKER 2026-08-19: GR00T 1.7 fine-tune reaches the training loop but
 the backbone processor loads from GATED nvidia/Cosmos-Reason2-2B —

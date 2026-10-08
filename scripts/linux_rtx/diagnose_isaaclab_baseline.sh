@@ -4,7 +4,7 @@
 # Context: Synria training never reaches a PPO iteration. It dies at
 # `sim.reset()` — either deadlocking in SimulationContext's timeline-STOP
 # handler (busy-loop at 100% CPU) or exiting 0 with a misleading
-# "Training complete". Root cause analysis: docs/handoff-2026-07-27-1937-CDT.md.
+# "Training complete". Root cause analysis: docs/SYNRIA_GR00T_LEDGER.md.
 #
 # This script runs a STOCK Isaac Lab task (Isaac-Cartpole-v0) through Isaac
 # Lab's OWN train.py, using the same venv, env vars and headless flags as

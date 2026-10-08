@@ -2,7 +2,7 @@
 
 This package is the repo-local implementation of the LeRobot / ALOHA-compatible
 recording and imitation-learning workflow described in ``docs/LEROBOT_ALOHA.md``
-and ``lerobot/configs/synria_aloha_act_notes.yaml``.
+and ``synria_lerobot/configs/synria_aloha_act_notes.yaml``.
 
 It is intentionally framework-agnostic: no dependency on the external ``lerobot``
 package is required. When LeRobot is available (installed via ``pyproject.toml``
@@ -17,26 +17,26 @@ Public surface:
     cube_sort — colored-cube sorting simulation (MockColorDetector, CubeSortSimulation)
 """
 
-from lerobot.cube_sort import (
+from synria_lerobot.cube_sort import (
     COLOR_TO_ZONE,
     CUBE_COLORS,
     CubeDetection,
     CubeSortSimulation,
     MockColorDetector,
 )
-from lerobot.dataset import (
+from synria_lerobot.dataset import (
     SynriaEpisodeDataset,
     generate_synthetic_episode,
     write_dataset_summary,
 )
-from lerobot.policy_eval import (
+from synria_lerobot.policy_eval import (
     DeterministicArmPolicy,
     PolicyEvalResult,
     evaluate_policy_on_dataset,
     evaluate_policy_on_episode,
 )
-from lerobot.recorder import EpisodeRecorder, RecordingSession
-from lerobot.schema import (
+from synria_lerobot.recorder import EpisodeRecorder, RecordingSession
+from synria_lerobot.schema import (
     ActionFrame,
     EEPose,
     Episode,

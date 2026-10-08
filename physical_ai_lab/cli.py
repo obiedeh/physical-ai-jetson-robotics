@@ -52,14 +52,14 @@ except ImportError:  # pragma: no cover
     _SLAM_AVAILABLE = False
 
 try:
-    from lerobot.cube_sort import CubeSortSimulation
-    from lerobot.dataset import (
+    from synria_lerobot.cube_sort import CubeSortSimulation
+    from synria_lerobot.dataset import (
         SynriaEpisodeDataset,
         generate_synthetic_episode,
         write_dataset_summary,
     )
-    from lerobot.policy_eval import DeterministicArmPolicy, evaluate_policy_on_dataset
-    from lerobot.recorder import RecordingSession
+    from synria_lerobot.policy_eval import DeterministicArmPolicy, evaluate_policy_on_dataset
+    from synria_lerobot.recorder import RecordingSession
 
     _LEROBOT_AVAILABLE = True
 except ImportError:  # pragma: no cover
@@ -797,7 +797,7 @@ def lerobot_policy_eval(
 
     import json as _json
 
-    from lerobot.schema import VALID_STAGING_ZONES
+    from synria_lerobot.schema import VALID_STAGING_ZONES
 
     zones = list(VALID_STAGING_ZONES)
     episodes = [

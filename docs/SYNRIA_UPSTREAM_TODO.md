@@ -48,13 +48,13 @@ hardware phase.
    - Build a colored-cube detection, planning, and pick/place simulation aligned
      with Synria's cube-sort package.
    - Output: `reports/demo/synria_cube_sort_sim.md` — **created 2026-05-28**
-   - Implementation: `lerobot/cube_sort.py` — `CubeSortSimulation`, `MockColorDetector`,
+   - Implementation: `synria_lerobot/cube_sort.py` — `CubeSortSimulation`, `MockColorDetector`,
      `CubeSortPlanner`; CLI command `physical-ai-lab lerobot-cube-sort-demo`
 
 7. ✅ LeRobot recording schema contract
    - Align synthetic and future real demonstration data with Synria/Alicia-D
      record fields: camera, joint state, actions, FPS, episodes, and timing.
-   - Output: `lerobot/configs/synria_aloha_act_notes.yaml` — **created 2026-05-27**
+   - Output: `synria_lerobot/configs/synria_aloha_act_notes.yaml` — **created 2026-05-27**
 
 8. ✅ RoboCore-style kinematics benchmark
    - Benchmark FK, IK, Jacobian, and trajectory targets against our RTX synthetic

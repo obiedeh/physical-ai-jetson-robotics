@@ -1,4 +1,4 @@
-"""Tests for lerobot.recorder — EpisodeRecorder and RecordingSession."""
+"""Tests for synria_lerobot.recorder — EpisodeRecorder and RecordingSession."""
 
 from __future__ import annotations
 
@@ -9,13 +9,13 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from lerobot.dataset import SynriaEpisodeDataset
-from lerobot.recorder import (
+from synria_lerobot.dataset import SynriaEpisodeDataset
+from synria_lerobot.recorder import (
     EpisodeRecorder,
     RecordingSession,
     benchmark_recording_fps,
 )
-from lerobot.schema import VALID_STAGING_ZONES, Episode
+from synria_lerobot.schema import VALID_STAGING_ZONES, Episode
 
 # ---------------------------------------------------------------------------
 # EpisodeRecorder
