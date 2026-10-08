@@ -256,11 +256,17 @@ class TurnExecutor:
                     try:
                         detail["steps"] = self.policy.execute(task)
                         detail.update(attempt_record(self.grade(task), attempt, detail["steps"]))
-                    except Exception as exc:
-                        detail["error"] = str(exc)
+                    except (Exception, KeyboardInterrupt) as exc:
+                        detail["error"] = str(exc) or type(exc).__name__
+                        detail["aborted"] = isinstance(exc, KeyboardInterrupt)
                     record["attempts"].append(detail)
                     succeeded = detail["ok"]
-                    if succeeded or attempt == self.max_attempts or not self.recover(task):
+                    if (
+                        succeeded
+                        or detail.get("aborted")
+                        or attempt == self.max_attempts
+                        or not self.recover(task)
+                    ):
                         break
                 record["ok"].append(succeeded)
                 if not succeeded:
@@ -272,7 +278,7 @@ class TurnExecutor:
             else:
                 self.game.reject()
             record["status"] = "success" if success else "failed"
-        except Exception as exc:
+        except (Exception, KeyboardInterrupt) as exc:
             self.game.reject()
             record.update(status="failed", error=str(exc))
             try:

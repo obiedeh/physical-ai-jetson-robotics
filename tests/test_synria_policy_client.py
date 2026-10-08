@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import threading
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
@@ -150,3 +151,39 @@ def test_invalid_bounds_and_delta_are_rejected() -> None:
     c = client(FakePolicy((0,) * 7))
     with pytest.raises(ValueError, match="ordering"):
         PolicyClient(c.embodiment, c.transport, replace(c.limits, joint_names=("bad",)), c.config)
+
+
+def test_end_to_end_latency_includes_command_offer() -> None:
+    now = [10.01]
+    c = client(FakePolicy((0,) * 7), lambda: now[0])
+    c.limits = replace(c.limits, verified_by="operator", verified_on="date")
+
+    class SlowSink(Sink):
+        def offer(self, action: tuple[float, ...]) -> None:
+            now[0] += 0.025
+            super().offer(action)
+
+    decision = GuardedCommandPath(c, SlowSink, enable_motion=True).step(observation())
+    assert decision.end_to_end_s == pytest.approx(0.025)
+    assert c.latencies[-1] == decision
+
+
+def test_stalled_transport_returns_hold_and_cannot_queue_late_actions() -> None:
+    release = threading.Event()
+    calls = []
+
+    class Stalled(FakePolicy):
+        def request(self, payload: dict, timeout_s: float) -> dict:
+            calls.append(payload["request_id"])
+            release.wait(2)
+            return super().request(payload, timeout_s)
+
+    c = client(Stalled((0,) * 7))
+    c.config = replace(c.config, response_timeout_s=0.01)
+    try:
+        assert c.step(observation()).hold
+        second = c.step(observation())
+        assert second.hold and "pending" in second.reason
+        assert len(calls) == 1
+    finally:
+        release.set()

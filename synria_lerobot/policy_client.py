@@ -5,10 +5,12 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import threading
 import time
 import uuid
 from collections.abc import Callable
-from dataclasses import asdict, dataclass
+from concurrent.futures import Future
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any, Protocol
 from urllib.request import Request, urlopen
@@ -117,6 +119,7 @@ class PolicyClient:
         )
         self.clock = clock
         self.latencies: list[PolicyDecision] = []
+        self._pending: Future[dict[str, Any] | None] | None = None
         if limits.joint_names != DRIVER_JOINT_NAMES:
             raise ValueError("limit joint ordering differs from physical contract")
         self.bounds = (
@@ -129,6 +132,22 @@ class PolicyClient:
             raise ValueError("invalid physical limits")
         if self.bounds[-1] != (0, embodiment.contract.gripper_stroke_m):
             raise ValueError("gripper limits differ from contract")
+
+    def _request(self, payload: dict[str, Any]) -> dict[str, Any] | None:
+        if self._pending is not None and not self._pending.done():
+            raise TimeoutError("previous policy request still pending")
+        future: Future[dict[str, Any] | None] = Future()
+        self._pending = future
+
+        def invoke() -> None:
+            try:
+                future.set_result(self.transport.request(payload, self.config.response_timeout_s))
+            except BaseException as exc:
+                future.set_exception(exc)
+
+        # At most one outstanding request; a stuck server cannot prevent hold or process exit.
+        threading.Thread(target=invoke, daemon=True).start()
+        return future.result(timeout=self.config.response_timeout_s)
 
     def step(self, observation: SynriaObservation, *, reset: bool = False) -> PolicyDecision:
         start = self.clock()
@@ -153,7 +172,7 @@ class PolicyClient:
                 reset=reset,
                 observation_timestamp_s=observation.state.monotonic_timestamp_s,
             )
-            response = self.transport.request(payload, self.config.response_timeout_s)
+            response = self._request(payload)
             elapsed = self.clock() - start
             if not 0 <= elapsed <= self.config.response_timeout_s:
                 raise ValueError("stale policy response")
@@ -211,6 +230,7 @@ class GuardedCommandPath:
         self.sink = sink_factory() if self.enabled else None
 
     def step(self, observation: SynriaObservation, *, reset: bool = False) -> PolicyDecision:
+        start = self.client.clock()
         decision = self.client.step(observation, reset=reset)
         if self.sink is not None:
             try:
@@ -222,6 +242,8 @@ class GuardedCommandPath:
             except BaseException:
                 self.sink.hold()
                 raise
+        decision = replace(decision, end_to_end_s=max(0.0, self.client.clock() - start))
+        self.client.latencies[-1] = decision
         return decision
 
     def hold(self) -> None:

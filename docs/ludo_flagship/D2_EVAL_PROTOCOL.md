@@ -11,6 +11,8 @@ does not constitute operator approval or hardware evidence.
 {
   "trials": 20,
   "success_threshold": 14,
+  "max_attempts": 1,
+  "scene_schedule": [],
   "protocol_sha256": ""
 }
 ```

@@ -45,10 +45,13 @@ What is real, in one table. Labels: **measured** (a committed artifact with devi
 | Sustained thermal and safety validation | **planned**; existing runs are 60 s and 9.9 s | | | [`reports/NOT_CLAIMED.md`](reports/NOT_CLAIMED.md) |
 | Synria D1 recording, quality-gate and summary path | **implemented, unmeasured**; fake-source validation only, no hardware run | 2026-10-08 | none | [`docs/ludo_flagship/D1_DATASET_PROTOCOL.md`](docs/ludo_flagship/D1_DATASET_PROTOCOL.md), [`synria_lerobot/quality_gates.py`](synria_lerobot/quality_gates.py) |
 | Ludo D1: physical Synria demonstrations | **planned**, 0/100 qualifying episodes | | | [`reports/ludo_flagship/data/D1_dataset_summary.json`](reports/ludo_flagship/data/D1_dataset_summary.json) |
-| Ludo D2: learned physical pick-and-place, >=14/20 successes | **planned** | | | |
-| Ludo D3: one successful physical Ludo turn | **planned** | | | |
-| Ludo D4: three consecutive successful physical-roll turns | **planned** | | | |
-| Ludo D5: one successful full physical game | **planned** | | | |
+| Synria evaluation, serving and physical turn software | **implemented, unmeasured**; fake sources only | 2026-10-08 | none | [`synria_lerobot/evaluation.py`](synria_lerobot/evaluation.py), [`synria_lerobot/policy_client.py`](synria_lerobot/policy_client.py), [`synria_lerobot/turn_executor.py`](synria_lerobot/turn_executor.py) |
+| Board, token and die perception | **implemented, unmeasured**; synthetic accuracy fixtures only | 2026-10-08 | none | [`reports/ludo_flagship/perception/`](reports/ludo_flagship/perception/), [`synria_lerobot/perception.py`](synria_lerobot/perception.py) |
+| Configured physical-roll sequence and full game runner | **implemented, unmeasured**; fake winner and abort tests | 2026-10-08 | none | [`synria_lerobot/game_runner.py`](synria_lerobot/game_runner.py), [`tests/test_synria_game_runner.py`](tests/test_synria_game_runner.py) |
+| Ludo D2: learned physical pick-and-place, >=14/20 successes | **planned** | | | [D2 runbook](docs/ludo_flagship/D2_OPERATOR_RUNBOOK.md) |
+| Ludo D3: one successful physical Ludo turn | **planned** | | | [D3 runbook](docs/ludo_flagship/D3_OPERATOR_RUNBOOK.md) |
+| Ludo D4: three consecutive successful physical-roll turns | **planned** | | | [D4 runbook](docs/ludo_flagship/D4_OPERATOR_RUNBOOK.md) |
+| Ludo D5: one successful full physical game | **planned** | | | [D5 runbook](docs/ludo_flagship/D5_OPERATOR_RUNBOOK.md) |
 
 ## Measured Results
 

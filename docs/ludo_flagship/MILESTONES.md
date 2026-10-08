@@ -1,5 +1,11 @@
 # Ludo flagship milestones
 
+D1–D5 remain **planned**. The D2–D5 software is **implemented, unmeasured**
+as of 2026-10-08. Fake evaluation, turn, perception and game tests are software
+validation and do not populate the physical milestone cells below. See the
+[D2 runbook](D2_OPERATOR_RUNBOOK.md), [D3 runbook](D3_OPERATOR_RUNBOOK.md),
+[D4 runbook](D4_OPERATOR_RUNBOOK.md) and [D5 runbook](D5_OPERATOR_RUNBOOK.md).
+
 | Stage | Definition | Reached (UTC) | Artifact | Numbers |
 |---|---|---|---|---|
 | D1 | 100+ physical Synria/Alicia-D teleoperation episodes with provenance and labels | | | |

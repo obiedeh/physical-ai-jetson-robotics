@@ -217,3 +217,16 @@ def test_roll_phase_failure_holds_and_records_started_phase(tmp_path: Path) -> N
     assert calls == ["pick_die", "drop_into_cup", "shake", "hold"]
     assert result.value is None and result.error == "injected shake fault"
     assert result.events[-1]["state"] == "failed"
+
+
+def test_keyboard_abort_preserves_game_statistics(tmp_path: Path) -> None:
+    runner = setup_game(tmp_path)
+
+    def interrupt() -> bool:
+        raise KeyboardInterrupt
+
+    runner.abort_requested = interrupt
+    stats = runner.run()
+    assert stats["outcome"] == "abort"
+    assert json.loads((tmp_path / "turns.jsonl").read_text())["status"] == "failed"
+    assert (tmp_path / "frozen_stats.json").exists()

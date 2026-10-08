@@ -99,6 +99,8 @@ def main() -> int:
                     "steps": d["steps"],
                     "lane": d["lane"],
                     "data_kind": prov.get("data_kind", "simulated"),
+                    "graded_turn_ok": (bool(t.get("ok")) and all(t["ok"])
+                                       if d["lane"] == "synria_physical_policy" else None),
                     "far_pick": d.get("far_pick"),
                     "grasped": d.get("grasped"),
                     "hold_armed": d.get("hold_armed"),
@@ -140,7 +142,8 @@ def main() -> int:
     sd = math.sqrt(p * (1 - p) / n) if n else 0.0
     turn_keys = {(r["session"], r["turn"]) for r in rows}
     turn_ok = sum(1 for s, t in turn_keys if any(
-        r["ok"] for r in rows if r["session"] == s and r["turn"] == t))
+        (r["graded_turn_ok"] if r["graded_turn_ok"] is not None else r["ok"])
+        for r in rows if r["session"] == s and r["turn"] == t))
     errs = sorted(r["err_mm"] for r in firsts if r["ok"] and r["err_mm"] is not None)
     approaches = sorted(r["closest_approach_mm"] for r in rows
                         if r.get("closest_approach_mm") is not None)
