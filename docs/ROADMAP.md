@@ -40,19 +40,19 @@ physical manipulation. Current evidence and exclusions: [README](../README.md).
 - Synria C10 wrist-camera calibration and eye-in-hand perception ✅ (simulation contract
   and pipeline defined; real calibration hardware-later)
 - LeRobot / ALOHA-style demonstration dataset workflow ✅
-  (`lerobot/schema.py`, `dataset.py`, `recorder.py`, `policy_eval.py`)
+  (`synria_lerobot/schema.py`, `dataset.py`, `recorder.py`, `policy_eval.py`)
 - Synria upstream parity TODOs ✅ (all 8 RTX-Now items complete — see
   `docs/SYNRIA_UPSTREAM_TODO.md`)
 - vendor robot-description audit ✅ (`docs/reports/synria_vendor_description_parity.md`)
 - ROS 2 Humble-to-Jazzy compatibility pass ✅ (`docs/reports/synria_ros2_jazzy_port.md`)
 - simulated cube sorting and hand-eye calibration ✅
-  (`lerobot/cube_sort.py`, `reports/synria/hand_eye_calibration_sim.md`,
+  (`synria_lerobot/cube_sort.py`, `reports/synria/hand_eye_calibration_sim.md`,
   `reports/demo/synria_cube_sort_sim.md`)
 
 ## Milestone 4: OpenUSD Digital Twin
 
 - simulated cameras and markers ✅ (USD scene structure, C10 camera xacro)
-- synthetic dataset generation ✅ (`lerobot/dataset.py`, GR00T dataset adapter)
+- synthetic dataset generation ✅ (`synria_lerobot/dataset.py`, GR00T dataset adapter)
 - validation scenes for navigation and manipulation ✅ (Isaac USD scene builders)
 - Yahboom mobile base and 6DOF arm digital twin (RTX-gated — USD re-import from vendor
   URDF needs Isaac Sim)

@@ -13,7 +13,7 @@ Hardware path (hardware-later):
 
 Usage::
 
-    from lerobot.recorder import EpisodeRecorder, RecordingSession
+    from synria_lerobot.recorder import EpisodeRecorder, RecordingSession
 
     recorder = EpisodeRecorder(zone="left", game="chess")
     episode = recorder.record(n_steps=60)
@@ -29,8 +29,8 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from edge_ai.camera_inference import CameraInferenceLoop, MockFrameSource
-from lerobot.dataset import SynriaEpisodeDataset, generate_synthetic_episode
-from lerobot.schema import (
+from synria_lerobot.dataset import SynriaEpisodeDataset, generate_synthetic_episode
+from synria_lerobot.schema import (
     DEFAULT_FPS,
     DEFAULT_ROBOT_ID,
     VALID_GAMES,
@@ -89,7 +89,7 @@ class EpisodeRecorder:
             n_steps: Limit episode to this many steps (0 = full trajectory).
 
         Returns:
-            Populated :class:`~lerobot.schema.Episode`.
+            Populated :class:`~synria_lerobot.schema.Episode`.
         """
         if self.mock:
             return self._record_mock(n_steps=n_steps)
@@ -198,7 +198,7 @@ class RecordingSession:
             n_steps: Per-episode step cap (0 = full trajectory).
 
         Returns:
-            :class:`~lerobot.dataset.SynriaEpisodeDataset` with all episodes.
+            :class:`~synria_lerobot.dataset.SynriaEpisodeDataset` with all episodes.
         """
         combos = [(z, g) for g in self.games for z in self.zones]
         self._recorded = []

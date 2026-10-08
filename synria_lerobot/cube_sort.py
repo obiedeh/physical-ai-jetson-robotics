@@ -24,7 +24,7 @@ intended for pre-hardware planning verification.
 
 Usage::
 
-    from lerobot.cube_sort import CubeSortSimulation
+    from synria_lerobot.cube_sort import CubeSortSimulation
 
     sim = CubeSortSimulation(n_cubes=6, seed=42)
     results = sim.run()

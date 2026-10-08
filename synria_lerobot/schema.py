@@ -2,7 +2,7 @@
 
 These types define the canonical representation of a Synria arm demonstration
 episode as described in ``docs/LEROBOT_ALOHA.md`` and
-``lerobot/configs/synria_aloha_act_notes.yaml``.
+``synria_lerobot/configs/synria_aloha_act_notes.yaml``.
 
 Observation contract
 ---------------------
@@ -21,7 +21,7 @@ Both contracts match the ACT / ALOHA format used by
 
 Usage::
 
-    from lerobot.schema import JointState, EEPose, ActionFrame, Episode
+    from synria_lerobot.schema import JointState, EEPose, ActionFrame, Episode
 
     js = JointState(
         positions_rad=(0.0,) * 6,

@@ -5,7 +5,7 @@
 # Lab stubs, and the unit suite (636 tests) can only exercise those stubs
 # and the pure-math kernels. Eight runtime bugs stacked up invisibly behind
 # green tests — reward sign inversions, impossible grasp thresholds, frame
-# mismatches, dt-crushed milestones (see docs/handoff-2026-07-27-1937-CDT.md).
+# mismatches, dt-crushed milestones (see docs/SYNRIA_GR00T_LEDGER.md).
 # Unit tests CANNOT catch that class of bug; three real training iterations
 # can. Run this on the RTX box before landing ANY change to
 # isaac/isaaclab_tasks/synria_pickplace/ or the train script.

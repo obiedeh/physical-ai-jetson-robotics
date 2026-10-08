@@ -33,10 +33,13 @@ jobs:
           python -m pip install -e ".[dev]"
 
       - name: Lint
-        run: ruff check physical_ai_lab arm_control edge_ai slam agents lerobot isaac/isaaclab_tasks tests
+        run: ruff check physical_ai_lab arm_control edge_ai slam agents synria_lerobot isaac/isaaclab_tasks tests scripts/check_repo_hygiene.py
 
       - name: Type check
-        run: mypy physical_ai_lab arm_control edge_ai slam lerobot isaac/isaaclab_tasks --ignore-missing-imports
+        run: mypy physical_ai_lab arm_control edge_ai slam synria_lerobot isaac/isaaclab_tasks --ignore-missing-imports
+
+      - name: Repository hygiene
+        run: python scripts/check_repo_hygiene.py
 
       - name: Test
         run: pytest -q

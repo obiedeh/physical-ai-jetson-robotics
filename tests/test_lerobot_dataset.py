@@ -1,4 +1,4 @@
-"""Tests for lerobot.dataset — synthetic episode generation and dataset wrapper."""
+"""Tests for synria_lerobot.dataset — synthetic episode generation and dataset wrapper."""
 
 from __future__ import annotations
 
@@ -10,12 +10,12 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from lerobot.dataset import (
+from synria_lerobot.dataset import (
     SynriaEpisodeDataset,
     generate_synthetic_episode,
     write_dataset_summary,
 )
-from lerobot.schema import (
+from synria_lerobot.schema import (
     N_JOINTS,
     VALID_GAMES,
     VALID_STAGING_ZONES,

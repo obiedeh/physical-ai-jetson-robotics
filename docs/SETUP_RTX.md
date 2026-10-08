@@ -16,8 +16,8 @@ output, not a measurement of every installed library's CUDA runtime.
 Use a separate Isaac environment, installed from NVIDIA's distribution with its
 matching dependencies. This repository does not contain a validated fresh-machine
 lockfile. Obtain required checkpoints and the external Isaac-GR00T checkout
-separately. The [July environment notes](handoff-2026-07-27-1937-CDT.md)
-record dependency incompatibilities encountered during the experiments.
+separately. The [environment strategy](ENVIRONMENT_STRATEGY.md) records the
+dependency boundaries used by the project.
 
 ## Verify Your Installation
 

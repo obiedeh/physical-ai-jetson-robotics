@@ -14,7 +14,7 @@ robots/            Robot adapters (ROSMASTER M3 Pro)
 arm_control/       Synria arm kinematics, trajectories and safety limits
 ros2_ws/src/       ROS 2 packages: description, control, bringup, MoveIt config
 isaac/             Isaac Sim scripts and USD scene assets
-lerobot/           Synria arm LeRobot episodes, datasets and policy evaluation
+synria_lerobot/    Synria arm LeRobot episodes, datasets and policy evaluation
 edge_ai/           Jetson inference and benchmarking (ONNX, camera inference)
 slam/              SLAM measurement harness and metrics
 game_core/         Game adapters (Ludo, checkers, chess) and dice
@@ -93,6 +93,8 @@ Do not create:
 - speculative simulation adapters before hardware gates are passed
 - vendor-specific configs or vendor assets in public paths
 - oversized READMEs or architecture essays in code comments
+- handoff, recap, or summary files; session notes belong only in
+  `docs/ludo_flagship/ACTIVITY_LOG.md`
 
 Every new file must justify at least one of: operational necessity,
 reliability, observability, or deployment readiness.

@@ -12,7 +12,7 @@ Primary guide:
 ## Package layout
 
 ```text
-lerobot/
+synria_lerobot/
 ├── schema.py        Data model — JointState, EEPose, ActionFrame,
 │                    ObservationFrame, EpisodeStep, Episode, EpisodeMetadata
 ├── dataset.py       Synthetic episode generator and SynriaEpisodeDataset
@@ -58,7 +58,7 @@ via linear interpolation and finite-difference velocities. EE pose is
 computed with a planar forward-kinematics approximation.
 
 ```python
-from lerobot.dataset import generate_synthetic_episode, SynriaEpisodeDataset
+from synria_lerobot.dataset import generate_synthetic_episode, SynriaEpisodeDataset
 
 ep = generate_synthetic_episode(zone="left", game="chess", fps=30.0)
 print(len(ep.steps))        # number of steps
@@ -78,7 +78,7 @@ Valid games: `"chess"`, `"checkers"`, `"ludo"`
 ## Episode recording
 
 ```python
-from lerobot.recorder import EpisodeRecorder, RecordingSession
+from synria_lerobot.recorder import EpisodeRecorder, RecordingSession
 
 # Single mock episode (synthetic, no hardware required)
 rec = EpisodeRecorder(zone="left", game="chess", mock=True)
@@ -98,8 +98,8 @@ dataset = session.record_all(n_steps=120)
 ## Policy evaluation
 
 ```python
-from lerobot.policy_eval import DeterministicArmPolicy, evaluate_policy_on_dataset
-from lerobot.dataset import generate_synthetic_episode, SynriaEpisodeDataset
+from synria_lerobot.policy_eval import DeterministicArmPolicy, evaluate_policy_on_dataset
+from synria_lerobot.dataset import generate_synthetic_episode, SynriaEpisodeDataset
 
 dataset = SynriaEpisodeDataset([generate_synthetic_episode(zone="left")])
 policy = DeterministicArmPolicy()
