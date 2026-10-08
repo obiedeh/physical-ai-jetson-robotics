@@ -25,6 +25,7 @@ from synria_lerobot.recorder import (
     OperatorLabel,
     PhysicalEpisodeRecorder,
     PhysicalRecorderConfig,
+    PhysicalSessionResult,
     RecordedPhysicalEpisode,
     RecorderState,
     run_operator_loop,
@@ -580,6 +581,47 @@ def test_main_cleans_partial_startup_and_session_failure(
     order = ["follower", "wrist", "front", "recorder", "loop"]
     for name in ("follower", "wrist", "front"):
         assert closed.count(name) == int(order.index(name) < order.index(failure_at))
+
+
+@pytest.mark.parametrize("action_source", [None, "leader"])
+def test_cli_defaults_to_follower_only_and_keeps_optional_leader(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, action_source: str | None
+) -> None:
+    from synria_lerobot import recorder
+
+    arguments = [
+        "recorder", "--dataset-path", str(tmp_path / "dataset"),
+        "--repo-id", "local/fake", "--gripper-type", "50mm",
+        "--wrist-camera", "fake-wrist", "--front-camera", "fake-front",
+        "--state-has-velocity",
+    ]
+    if action_source is not None:
+        arguments.extend(["--action-source", action_source])
+    monkeypatch.setattr(sys, "argv", arguments)
+    assert recorder._parse_physical_args().action_source == (action_source or "next_state")
+    sources = []
+    configs = []
+
+    def state_source(topic: str, **kwargs: Any) -> SimpleNamespace:
+        sources.append((topic, kwargs["state_has_velocity"]))
+        return SimpleNamespace(close=lambda: None)
+
+    def writer(config: PhysicalRecorderConfig) -> FakeWriter:
+        configs.append(config)
+        return FakeWriter(tmp_path)
+
+    monkeypatch.setattr(recorder, "RosJointStateSource", state_source)
+    monkeypatch.setattr(recorder, "LeRobotDatasetWriter", writer)
+    monkeypatch.setattr(
+        recorder, "OpenCVFrameSource", lambda *args, **kwargs: SimpleNamespace(close=lambda: None)
+    )
+    monkeypatch.setattr(recorder, "run_operator_loop", lambda _: PhysicalSessionResult())
+    assert recorder.physical_main() == 0
+    expected = [("/joint_states", True)]
+    if action_source == "leader":
+        expected.append(("/leader/joint_states", False))
+    assert sources == expected
+    assert configs[0].contract.action_source.value == (action_source or "next_state")
 
 
 def test_session_saves_many_episodes_and_returns_no_frame_history(
