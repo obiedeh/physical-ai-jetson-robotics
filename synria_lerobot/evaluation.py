@@ -16,6 +16,7 @@ from isaac.scripts.ludo_stats import aggregate_records
 
 from .physical_contract import CONTRACT_VERSION
 from .quality_gates import OBJECT_SUCCESS_LIMITATION
+from .task_registry import TaskDefinition
 
 FUNNEL = ("reached", "grasped", "lifted", "placed", "released")
 HASH_FIELD = re.compile(r'"protocol_sha256": "[a-f0-9]*"')
@@ -87,6 +88,52 @@ class OperatorGrade:
         if not image:
             raise ValueError("empty camera still")
         return {**asdict(self), "still_sha256": hashlib.sha256(image).hexdigest()}
+
+
+@dataclass(frozen=True)
+class FixedTaskGrade:
+    """Registry outcome label; token funnel observations never decide success."""
+
+    label: str
+    operator: str
+    still: str
+    still_timestamp_s: float
+    task_definition: TaskDefinition
+    native_resolution: tuple[int, int]
+    funnel: dict[str, bool | None] | None = None
+
+    def evidence(self) -> dict[str, Any]:
+        if self.label not in {"success", "failure"} or not self.operator.strip():
+            raise ValueError("operator and success/failure label required")
+        if (
+            type(self.still_timestamp_s) not in (int, float)
+            or not math.isfinite(self.still_timestamp_s)
+            or self.still_timestamp_s < 0
+        ):
+            raise ValueError("invalid camera timestamp")
+        if len(self.native_resolution) != 2 or any(
+            type(side) is not int or side <= 0 for side in self.native_resolution
+        ):
+            raise ValueError("native camera dimensions are required")
+        funnel = self.funnel if self.funnel is not None else dict.fromkeys(FUNNEL)
+        if set(funnel) != set(FUNNEL) or any(
+            value is not None and type(value) is not bool for value in funnel.values()
+        ):
+            raise ValueError("diagnostic funnel values must be boolean or unknown")
+        image = Path(self.still).read_bytes()
+        if not image:
+            raise ValueError("empty camera still")
+        return {
+            **self.task_definition.metadata(),
+            "grading_rule": "fixed_scene_task_outcome",
+            "label": self.label,
+            "operator": self.operator,
+            "still": self.still,
+            "still_timestamp_s": self.still_timestamp_s,
+            "native_resolution": list(self.native_resolution),
+            "funnel": dict(funnel),
+            "still_sha256": hashlib.sha256(image).hexdigest(),
+        }
 
 
 def attempt_record(grade: OperatorGrade, attempt: int, steps: int = 0) -> dict[str, Any]:
@@ -210,8 +257,11 @@ def score_evaluation(log: Path, protocol: Path, repository: Path, output: Path) 
 
 
 def append_policy_row(ledger: Path, fields: list[str], *, response_timeout_s: float) -> None:
-    if (type(response_timeout_s) not in (int, float)
-            or not math.isfinite(response_timeout_s) or response_timeout_s <= 0):
+    if (
+        type(response_timeout_s) not in (int, float)
+        or not math.isfinite(response_timeout_s)
+        or response_timeout_s <= 0
+    ):
         raise ValueError("per-policy response timeout must be positive, finite and not boolean")
     if len(fields) != 8 or any(not value.strip() for value in fields):
         raise ValueError("eight nonempty policy ledger fields required")

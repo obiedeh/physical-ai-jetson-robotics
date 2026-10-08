@@ -22,6 +22,18 @@
   "perception_config": "config/synria_perception.json",
   "accuracy_reports": {},
   "roll_config": "config/synria_roll.json",
+  "task_registry": "config/synria_tasks.json",
+  "probe_policy": {"checkpoint": "", "receipt": "", "endpoint": "", "response_timeout_s": null, "max_steps": null},
+  "roll_skills": {
+    "die_into_cup": {"checkpoint": "", "receipt": "", "endpoint": "", "response_timeout_s": null, "max_steps": null},
+    "roll_and_dump": {"checkpoint": "", "receipt": "", "endpoint": "", "response_timeout_s": null, "max_steps": null},
+    "cup_return": {"checkpoint": "", "receipt": "", "endpoint": "", "response_timeout_s": null, "max_steps": null}
+  },
+  "fixed_roll": {
+    "mode": "fixed_scene_skills",
+    "skills": ["die_into_cup", "roll_and_dump", "cup_return"],
+    "read": {"source": "operator"}
+  },
   "protocol": "docs/ludo_flagship/D2_EVAL_PROTOCOL.md",
   "protocol_sha256": "",
   "d2_trials": [],
@@ -39,6 +51,7 @@
     "utc_date": "",
     "power_state_start": "",
     "follower_serial": "",
-    "camera_ids": []
+    "camera_ids": [],
+    "scene": ""
   }
 }

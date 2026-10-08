@@ -18,7 +18,7 @@ from typing import Any
 import numpy as np
 
 from .embodiment import SynriaObservation
-from .evaluation import FUNNEL, OperatorGrade
+from .evaluation import FUNNEL, FixedTaskGrade, OperatorGrade
 from .physical_contract import (
     DIRECT_JOINT_COMMAND_TOPIC,
     DRIVER_JOINT_NAMES,
@@ -677,9 +677,26 @@ class RosSessionIO:
     def roll_completed(self, phase: str) -> bool:
         return self._prompt(f"{phase} motion ended? [yes/no/abort]: ") == "yes"
 
-    def capture_front(self) -> tuple[Any, str, float]:
+    def capture_front(self, *, require_native: bool = False) -> tuple[Any, str, float]:
         frame = self.observe("camera evidence").front
-        image = frame.data
+        image = frame.native_data
+        native = image is not None
+        if native:
+            if (
+                not isinstance(image, np.ndarray)
+                or frame.native_resolution is None
+                or not isinstance(frame.source_id, str)
+                or not frame.source_id.strip()
+                or frame.source_id != self.settings["front_camera"]
+                or len(frame.native_resolution) != 2
+                or any(type(side) is not int or side <= 0 for side in frame.native_resolution)
+                or image.shape != (frame.native_resolution[1], frame.native_resolution[0], 3)
+            ):
+                raise ValueError("native camera dimensions and source identity are required")
+        elif require_native:
+            raise ValueError("native front-camera pixels are unavailable; no upscaling permitted")
+        else:
+            image = frame.data
         if (
             not isinstance(image, np.ndarray)
             or image.dtype != np.uint8
@@ -688,12 +705,54 @@ class RosSessionIO:
         ):
             raise ValueError("camera evidence must be RGB uint8")
         self._still_index += 1
-        destination = self.output / "stills" / f"front_{self._still_index:06d}.ppm"
+        destination = self.output / "stills" / f"front_{self._still_index:06d}.jpg"
         destination.parent.mkdir(parents=True, exist_ok=True)
+        import cv2
+
+        encoded, buffer = cv2.imencode(".jpg", cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+        if not encoded:
+            raise RuntimeError("front-camera still encoding failed")
         with destination.open("xb") as stream:
-            stream.write(f"P6\n{image.shape[1]} {image.shape[0]}\n255\n".encode())
-            stream.write(image.tobytes())
-        return image, str(destination), frame.monotonic_timestamp_s
+            stream.write(buffer.tobytes())
+        self._evidence["events"].append(
+            {
+                "front_still": str(destination),
+                "source_monotonic_s": frame.monotonic_timestamp_s,
+                "resolution": [int(image.shape[1]), int(image.shape[0])],
+                "source_id": frame.source_id,
+                "native_resolution_confirmed": native,
+            }
+        )
+        # Legacy perception consumes stored-size pixels; the saved evidence can be native.
+        return (
+            image if require_native else frame.data,
+            str(destination),
+            frame.monotonic_timestamp_s,
+        )
+
+    def grade_skill(self, task: TaskDefinition) -> FixedTaskGrade:
+        self.hold()
+        image, still, stamp = self.capture_front(require_native=True)
+        label = self._prompt(
+            f"{task.task_id}: {task.success_rule} {still} [success/failure/abort]: "
+        )
+        grade = FixedTaskGrade(
+            label,
+            self.operator,
+            still,
+            stamp,
+            task,
+            (int(image.shape[1]), int(image.shape[0])),
+        )
+        grade.evidence()
+        return grade
+
+    def confirm_skill(self, task: TaskDefinition) -> bool:
+        self.hold()
+        return self._prompt(
+            f"Ready to run {task.task_id}: {task.task_text}; "
+            "fixed scene unchanged? [yes/no/abort]: "
+        ) == "yes"
 
     def grade(self, move: TaskMove) -> OperatorGrade:
         _, still, stamp = self.capture_front()
@@ -710,11 +769,21 @@ class RosSessionIO:
     def recover(self, move: TaskMove) -> bool:
         return self._prompt("Scene reset confirmed? [yes/no/abort]: ") == "yes"
 
-    def operator_roll(self) -> int:
-        value = int(self._prompt("Operator die value, 1 to 6 (or abort): "))
+    def recover_skill(self, task: TaskDefinition) -> bool:
+        self.hold()
+        return (
+            self._prompt(f"Reset {task.task_id} fixed scene confirmed? [yes/no/abort]: ") == "yes"
+        )
+
+    def operator_roll(self, *, still: str | None = None) -> int:
+        value = int(self._prompt(f"Operator die value, 1 to 6 (or abort), {still or 'scene'}: "))
         if not 1 <= value <= 6:
             raise ValueError("die value must be 1 through 6")
         return value
+
+    def abort_pending(self) -> bool:
+        self._health()
+        return self._aborted
 
     def abort_requested(self) -> bool:
         if self._aborted:

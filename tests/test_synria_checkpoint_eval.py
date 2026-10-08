@@ -12,7 +12,7 @@ from typing import Any
 
 import numpy as np
 import pytest
-from test_synria_sessions import FakeIO, ready_config
+from test_synria_sessions import FakeIO
 from test_task_registry import synthetic_task
 
 from synria_lerobot.checkpoint_eval import (
@@ -97,8 +97,12 @@ def probe_setup(tmp_path: Path) -> Any:
     dataset = tmp_path / "dataset"
     dataset.mkdir()
     contract = PhysicalDatasetContract(
-        "50mm", ActionSource.NEXT_STATE, False, action_lookahead_steps=2,
-        task_id="die_into_cup", task_definition=synthetic_task(20, 30),
+        "50mm",
+        ActionSource.NEXT_STATE,
+        False,
+        action_lookahead_steps=2,
+        task_id="die_into_cup",
+        task_definition=synthetic_task(20, 30),
     )
     (dataset / "physical_contract.json").write_text(json.dumps(contract.as_dict(fps=10)))
     (dataset / "synthetic_frames.bin").write_bytes(b"synthetic dataset fixture")
@@ -109,12 +113,12 @@ def probe_setup(tmp_path: Path) -> Any:
         registered_by="synthetic fixture",
         registered_on="2026-10-08",
         dataset_content_sha256=strict_content_hash(dataset),
+        task_id=contract.task_id,
+        physical_contract=contract.as_dict(fps=10),
         held_out_episodes=[2],
         held_out_frame_counts={"2": 3},
         capture=dict(fps=30, max_duration_s=2, shutdown_timeout_s=0.5),
-        physical_trials=[
-            dict(trial_id="trial-a", start_square="A", target_square="B", token="red:0")
-        ],
+        physical_trials=[fixed_probe_trial()],
     )
     probe.write_text(json.dumps(config))
     digest = register_probes(probe)
@@ -137,6 +141,22 @@ def probe_setup(tmp_path: Path) -> Any:
     )
 
 
+def fixed_probe_trial(identifier: str = "trial-a", task_id: str = "die_into_cup") -> dict:
+    return {
+        "trial_id": identifier,
+        "task_id": task_id,
+        "scene": dict(
+            scene_id="synthetic-fixed",
+            cup_mark="fixed cup mark",
+            die_start_zone="marked zone",
+            landing_tray="fixed tray",
+            start_state="operator-declared fixed start",
+            die_position_in_zone="centre",
+            die_face_up=1,
+        ),
+    }
+
+
 def evaluator(fixture: Any, training_ids: tuple[int, ...] = (0, 1)) -> CheckpointEvaluator:
     return CheckpointEvaluator(
         fixture.probe,
@@ -156,8 +176,12 @@ def test_checkpoint_evaluation_refuses_smoke_dataset(probe_setup: Any, configure
 
     task = synthetic_task(20, 30) if configured else load_task_registry(REGISTRY)["die_into_cup"]
     contract = PhysicalDatasetContract(
-        "50mm", ActionSource.NEXT_STATE, False, task_id=task.task_id,
-        task_definition=task, recording_purpose="disposable_smoke",
+        "50mm",
+        ActionSource.NEXT_STATE,
+        False,
+        task_id=task.task_id,
+        task_definition=task,
+        recording_purpose="disposable_smoke",
     )
     (probe_setup.dataset / "physical_contract.json").write_text(
         json.dumps(contract.as_dict(fps=10))
@@ -189,6 +213,44 @@ def test_probe_template_cannot_be_registered_or_qualify() -> None:
 
     with pytest.raises(ValueError):
         validate_probes(json.loads(Path("config/synria_checkpoint_probes.json").read_text()))
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        "legacy",
+        "task",
+        "square_goal",
+        "second_task",
+        "varying_geometry",
+        "face_boolean",
+    ],
+)
+def test_fixed_probes_refuse_legacy_goal_or_conflicting_task_scene(
+    probe_setup: Any,
+    change: str,
+) -> None:
+    import copy
+
+    from synria_lerobot.checkpoint_eval import validate_probes
+
+    config = copy.deepcopy(probe_setup.config)
+    if change == "legacy":
+        config["version"] = "synria_checkpoint_probes_v1"
+    elif change == "task":
+        config["task_id"] = "cup_return"
+    elif change == "square_goal":
+        config["physical_trials"][0]["target_square"] = "B"
+    elif change == "second_task":
+        config["physical_trials"][0]["task_id"] = "roll_and_dump"
+    elif change == "face_boolean":
+        config["physical_trials"][0]["scene"]["die_face_up"] = True
+    else:
+        other = fixed_probe_trial("trial-b")
+        other["scene"]["cup_mark"] = "different mark"
+        config["physical_trials"].append(other)
+    with pytest.raises(ValueError):
+        validate_probes(config)
 
 
 def test_probes_require_committed_unchanged_matching_hash(probe_setup: Any) -> None:
@@ -451,41 +513,84 @@ def test_hung_clip_worker_retains_writers_until_bounded_retry(tmp_path: Path) ->
 
 
 def physical_setup(fixture: Any, tmp_path: Path) -> tuple[dict, Path, FakeIO]:
+    from test_synria_roll_skills import RollIO, roll_config
+
+    from synria_lerobot.act_training import validate_config
+    from synria_lerobot.policy_server import CheckpointIdentity
+
+    config, _ = roll_config(tmp_path)
+    specification = dict(config["roll_skills"]["die_into_cup"], max_steps=1)
+    config["probe_policy"] = specification
+    fixture.checkpoint = Path(specification["checkpoint"])
+    manifest_path = fixture.checkpoint / "physical_policy_manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest.update(
+        physical_contract=fixture.config["physical_contract"],
+        dataset_content_sha256=fixture.config["dataset_content_sha256"],
+        probe_sha256=fixture.digest,
+        step=10,
+        completed_steps=10,
+    )
+    manifest["configuration"].update(
+        expected_contract=fixture.config["physical_contract"],
+        probe_sha256=fixture.digest,
+    )
+    manifest["cadence"] = validate_config(manifest["configuration"], manifest["physical_contract"])
+    manifest_path.write_text(json.dumps(manifest))
+    registry = Path(config["task_registry"])
+    tasks = json.loads(registry.read_text())
+    tasks["tasks"][0] = synthetic_task(20, 30).as_dict()
+    registry.write_text(json.dumps(tasks))
+    receipt = Path(specification["receipt"])
+    receipt.write_text(
+        json.dumps(
+            {
+                **manifest,
+                "path": str(fixture.checkpoint),
+                "evaluation_status": "evaluated",
+                "checkpoint_content_sha256": strict_content_hash(fixture.checkpoint),
+            }
+        )
+    )
+    CheckpointIdentity.load(fixture.checkpoint, receipt, registry)
     output = tmp_path / "checkpoint-evaluations"
     saved = evaluator(fixture).evaluate(
         fixture.checkpoint,
-        "policy-1",
+        manifest["policy_id"],
         10,
         batches(),
         lambda observations: np.zeros((3, 2, 7)),
         output,
         tmp_path / "timeline.jsonl",
     )
-    config = ready_config(tmp_path)
-    config["action_lookahead_steps"] = 2
     config["provenance"].update(
-        policy_id="policy-1", checkpoint_sha256=saved["checkpoint_content_sha256"]
+        policy_id=manifest["policy_id"], checkpoint_sha256=saved["checkpoint_content_sha256"]
     )
-    for key, values in (
-        ("calibration", {"A": [0, 0, 0], "B": [0.1, 0, 0]}),
-        ("reachable", ["A", "B"]),
-    ):
-        Path(config[key]).write_text(
-            json.dumps(
-                dict(
-                    frame="synthetic",
-                    squares=values,
-                    verified_by="fixture",
-                    verified_on="2026-10-08",
-                )
-            )
-        )
-    return config, next(output.glob("*.json")), FakeIO(tmp_path)
+    io = RollIO(tmp_path)
+    io.confirm_skill = lambda task: True
+    io.recover_skill = lambda task: False
+    return config, next(output.glob("*.json")), io
+
+
+def probe_transport(config: dict, policy: Any = None) -> Any:
+    from synria_lerobot.policy_server import CheckpointIdentity
+
+    specification = config["probe_policy"]
+    identity = CheckpointIdentity.load(
+        Path(specification["checkpoint"]),
+        Path(specification["receipt"]),
+        Path(config["task_registry"]),
+    )
+    return NS(
+        metadata=lambda timeout: identity.metadata(),
+        request=(policy or FakePolicy((0,) * 7)).request,
+    )
 
 
 def physical_run(
     fixture: Any, tmp_path: Path, config: dict, saved: Path, io: FakeIO, **kwargs: Any
 ) -> dict:
+    kwargs["transport"] = probe_transport(config, kwargs.get("transport"))
     return run_physical_probes(
         fixture.probe,
         fixture.digest,
@@ -507,21 +612,23 @@ def test_physical_probe_captures_full_trial_label_and_both_external_clips(
     tmp_path: Path,
 ) -> None:
     config, saved, io = physical_setup(probe_setup, tmp_path)
-    grade = io.grade
+    grade = io.grade_skill
 
     def delayed_grade(move: Any) -> Any:
         time.sleep(0.08)
         return grade(move)
 
-    io.grade = delayed_grade
+    io.grade_skill = delayed_grade
     report = physical_run(probe_setup, tmp_path, config, saved, io, transport=FakePolicy((0,) * 7))
     assert report["status"] == "completed" and io.closed
     attempt = json.loads(Path(report["attempts"][0]["path"]).read_text())
     assert attempt["status"] == "success" and attempt["attempted"]
+    assert attempt["scene_confirmed"] and attempt["steps"] == 1
+    assert attempt["task_id"] == "die_into_cup"
     assert attempt["operator_grade"]["label"] == "success"
     assert attempt["clips"]["frame_count"] >= 3
     assert len(io.offers) == 1
-    assert report["endpoint_checkpoint_identity"].startswith("operator-declared")
+    assert report["endpoint_checkpoint_identity"]["task_id"] == "die_into_cup"
     for media in attempt["clips"]["views"].values():
         assert media["sha256"] and not Path(media["path"]).is_relative_to(probe_setup.repository)
     page = render_report(
@@ -538,13 +645,13 @@ def test_failed_and_aborted_physical_attempts_remain_recorded(
 ) -> None:
     config, saved, io = physical_setup(probe_setup, tmp_path)
     if fault == "early_abort":
-        io.abort_requested = lambda: True
+        io.abort_pending = lambda: True
     elif fault == "label_abort":
 
         def aborted(move: Any) -> Any:
             raise OperatorAbort("synthetic label abort")
 
-        io.grade = aborted
+        io.grade_skill = aborted
     elif fault == "camera":
 
         def failed(task: str) -> Any:
@@ -561,6 +668,43 @@ def test_failed_and_aborted_physical_attempts_remain_recorded(
     assert attempt["operator_grade"] is None and attempt["errors"]
     assert attempt["object_success_limitation"] == report["object_success_limitation"]
     assert attempt["clips"] or attempt["missing_clips_reason"]
+
+
+def test_declined_probe_scene_is_kept_without_offering_motion(
+    probe_setup: Any, tmp_path: Path
+) -> None:
+    config, saved, io = physical_setup(probe_setup, tmp_path)
+    io.confirm_skill = lambda task: False
+    report = physical_run(probe_setup, tmp_path, config, saved, io)
+    attempt = json.loads(Path(report["attempts"][0]["path"]).read_text())
+    assert report["status"] == attempt["status"] == "aborted"
+    assert not attempt["scene_confirmed"] and not attempt["attempted"] and not io.offers
+    assert attempt["clips"] and io.closed
+
+
+def test_diagnostic_record_and_completion_receipt_must_bind_same_task_before_io(
+    probe_setup: Any,
+    tmp_path: Path,
+) -> None:
+    config, saved, io = physical_setup(probe_setup, tmp_path)
+    record = json.loads(saved.read_text())
+    record["physical_contract"]["task_id"] = "cup_return"
+    saved.write_text(json.dumps(record))
+    calls = []
+    with pytest.raises(ValueError, match="policy/checkpoint differs"):
+        run_physical_probes(
+            probe_setup.probe,
+            probe_setup.digest,
+            saved,
+            probe_setup.dataset,
+            config,
+            probe_setup.repository,
+            tmp_path / "reports",
+            tmp_path / "media",
+            factory=lambda settings: calls.append(settings),
+            transport=probe_transport(config),
+        )
+    assert not calls and not io.offers and not (tmp_path / "reports").exists()
 
 
 def test_five_checkpoints_scripted_improvement_keep_every_record_timeline_and_page(
@@ -722,7 +866,7 @@ def test_silent_missing_camera_clip_fails_attempt_but_preserves_operator_label(
         tmp_path / "raw-videos",
         enable_motion=True,
         factory=lambda settings: io,
-        transport=FakePolicy((0,) * 7),
+        transport=probe_transport(config),
         writer_factory=MissingViewWriter,
     )
     attempt = json.loads(Path(report["attempts"][0]["path"]).read_text())
@@ -738,10 +882,10 @@ def test_retry_keeps_every_attempt_and_distinct_media(probe_setup: Any, tmp_path
 
     config, saved, io = physical_setup(probe_setup, tmp_path)
     config["max_attempts"] = 2
-    grade = io.grade
+    grade = io.grade_skill
     labels = iter(("failure", "success"))
-    io.grade = lambda move: replace(grade(move), label=next(labels))
-    io.recover = lambda move: True
+    io.grade_skill = lambda task: replace(grade(task), label=next(labels))
+    io.recover_skill = lambda task: True
     report = physical_run(probe_setup, tmp_path, config, saved, io, transport=FakePolicy((0,) * 7))
     attempts = [json.loads(Path(ref["path"]).read_text()) for ref in report["attempts"]]
     assert [attempt["status"] for attempt in attempts] == ["failure", "success"]
@@ -763,6 +907,7 @@ def test_probe_read_only_preflight_creates_no_sink_or_capture(
         tmp_path / "read-only",
         tmp_path / "media",
         factory=lambda settings: io,
+        transport=probe_transport(config),
     )
     assert report["status"] == "read_only" and io.closed
     assert io.preflight_calls == 1 and io.sinks == io.authorizations == 0

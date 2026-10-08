@@ -22,15 +22,14 @@ import numpy as np
 
 from .embodiment import SynriaObservation
 from .evaluation import committed_bytes
-from .physical_contract import DRIVER_JOINT_NAMES, ActionSource, PhysicalDatasetContract
-from .policy_client import GuardedCommandPath, HttpPolicyTransport, PolicyClient, PolicyTransport
+from .physical_contract import DRIVER_JOINT_NAMES, PhysicalDatasetContract
+from .policy_client import GuardedCommandPath, PolicyClient, PolicyTransport
 from .quality_gates import OBJECT_SUCCESS_LIMITATION, load_limits
-from .task_registry import TaskDefinition
 
 if TYPE_CHECKING:
     from .sessions import SessionIO
 
-PROBE_VERSION = "synria_checkpoint_probes_v1"
+PROBE_VERSION = "synria_fixed_skill_probes_v2"
 DIAGNOSTIC_PURPOSE = "diagnostic_only_no_policy_selection"
 
 
@@ -137,7 +136,9 @@ def _episode_ids(values: Any) -> tuple[int, ...]:
 
 def validate_probes(config: dict[str, Any]) -> None:
     if config.get("version") != PROBE_VERSION or config.get("purpose") != DIAGNOSTIC_PURPOSE:
-        raise ValueError("frozen probes are diagnostic only, never D2 or policy selection")
+        raise ValueError(
+            "fixed-skill probes need prospective registration; legacy square probes are refused"
+        )
     _identifier(config.get("probe_set_id"))
     for key in ("registered_by", "registered_on"):
         if not isinstance(config.get(key), str) or not config[key].strip():
@@ -152,20 +153,46 @@ def validate_probes(config: dict[str, Any]) -> None:
         or any(type(value) is not int or value <= 0 for value in counts.values())
     ):
         raise ValueError("each held-out episode needs its frozen positive frame count")
+    physical = config.get("physical_contract")
+    if type(physical) is not dict or type(physical.get("state_has_velocity")) is not bool:
+        raise ValueError("complete typed physical contract required for frozen probes")
+    contract = PhysicalDatasetContract.from_dict(physical)
+    contract.require_qualifying()
+    if config.get("task_id") != contract.task_id:
+        raise ValueError("probe task must match its frozen physical contract")
     trials = config.get("physical_trials")
     if not isinstance(trials, list) or not trials:
-        raise ValueError("fixed physical start/target/token trials required")
+        raise ValueError("fixed physical skill/scene trials required")
     seen = set()
+    fixed_scene = None
     for trial in trials:
-        if not isinstance(trial, dict):
-            raise ValueError("physical trial must be an object")
+        if type(trial) is not dict or set(trial) != {"trial_id", "task_id", "scene"}:
+            raise ValueError("physical trial needs only a fixed task and scene, no square goals")
         identifier = _identifier(trial.get("trial_id"))
-        if identifier in seen or any(
-            not isinstance(trial.get(key), str) or not trial[key].strip()
-            for key in ("start_square", "target_square", "token")
-        ):
-            raise ValueError("unique trial id and explicit start/target/token required")
+        if identifier in seen or trial["task_id"] != contract.task_id:
+            raise ValueError("unique trial id and the same trained task required")
         seen.add(identifier)
+        scene = trial["scene"]
+        strings = {
+            "scene_id",
+            "cup_mark",
+            "die_start_zone",
+            "landing_tray",
+            "start_state",
+            "die_position_in_zone",
+        }
+        if (
+            type(scene) is not dict
+            or set(scene) != {*strings, "die_face_up"}
+            or any(type(scene[key]) is not str or not scene[key].strip() for key in strings)
+            or type(scene["die_face_up"]) is not int
+            or not 1 <= scene["die_face_up"] <= 6
+        ):
+            raise ValueError("fixed scene and explicit die position/face variation required")
+        geometry = {key: scene[key] for key in strings - {"die_position_in_zone"}}
+        if fixed_scene is not None and geometry != fixed_scene:
+            raise ValueError("probe geometry and start state must stay fixed")
+        fixed_scene = geometry
     capture = config.get("capture")
     if not isinstance(capture, dict):
         raise ValueError("explicit fixed probe capture settings required")
@@ -307,6 +334,8 @@ class CheckpointEvaluator:
         )
         contract = PhysicalDatasetContract.from_dict(self.contract)
         contract.require_qualifying()
+        if self.probes["physical_contract"] != self.contract:
+            raise ValueError("frozen probe task/contract differs from the dataset")
         if contract.as_dict(fps=self.contract["requested_rate_hz"]) != self.contract:
             raise ValueError("dataset physical contract metadata is inconsistent")
 
@@ -628,8 +657,8 @@ def run_physical_probes(
 ) -> dict[str, Any]:
     """Run operator-chosen diagnostic trials, never a D2 evaluation or selection loop."""
     from .embodiment import SynriaEmbodiment
-    from .sessions import OperatorAbort, validate_session
-    from .turn_executor import BoardCalibration, PolicyMoveExecutor, SquareMove
+    from .sessions import OperatorAbort, bind_fixed_skill, fixed_io_configuration
+    from .turn_executor import FixedSkillExecutor
 
     probes = load_probes(probe_path, repository, expected_probe_hash)
     saved = json.loads(checkpoint_record.read_text(encoding="utf-8"))
@@ -643,47 +672,45 @@ def run_physical_probes(
         raise ValueError(
             "physical probes require the matching frozen dataset and checkpoint evaluation"
         )
-    checkpoint = Path(saved["checkpoint_path"])
+    specification = session_config["probe_policy"]
+    checkpoint = Path(specification["checkpoint"])
     if strict_content_hash(checkpoint) != saved["checkpoint_content_sha256"]:
         raise ValueError("selected checkpoint content changed")
     for artifact in (output, media_root):
-        _artifact_destination(artifact, (dataset_root, checkpoint), (probe_path, checkpoint_record))
-    if (
-        session_config["provenance"]["policy_id"] != saved["policy_id"]
-        or session_config["provenance"]["checkpoint_sha256"] != saved["checkpoint_content_sha256"]
+        _artifact_destination(
+            artifact,
+            (dataset_root, checkpoint),
+            (probe_path, checkpoint_record, Path(specification["receipt"])),
+        )
+    binding = bind_fixed_skill(
+        session_config,
+        specification,
+        probes["task_id"],
+        enable_motion=enable_motion,
+        transport=transport,
+    )
+    metadata = binding.metadata
+    if any(
+        metadata[key] != saved[key]
+        for key in (
+            "policy_id",
+            "step",
+            "checkpoint_content_sha256",
+            "probe_sha256",
+            "dataset_content_sha256",
+            "physical_contract",
+        )
     ):
         raise ValueError("operator-selected policy/checkpoint differs from session configuration")
-    safety = validate_session(session_config, "d3", repository, enable_motion=enable_motion)
-    contract = PhysicalDatasetContract(
-        session_config["gripper_type"],
-        ActionSource(session_config["action_source"]),
-        session_config["state_has_velocity"],
-        action_lookahead_steps=session_config["action_lookahead_steps"],
-        task_id=session_config["task_id"],
-        task_definition=TaskDefinition.from_metadata(session_config),
-        recording_purpose=session_config["recording_purpose"],
-    )
-    if (
-        contract.as_dict(fps=saved["physical_contract"]["requested_rate_hz"])
-        != saved["physical_contract"]
-    ):
-        raise ValueError("session physical contract differs from evaluated checkpoint")
+    session_config = fixed_io_configuration(session_config, binding)
+    safety, contract = binding.safety, binding.contract
+    if type(session_config.get("max_attempts")) is not int or session_config["max_attempts"] <= 0:
+        raise ValueError("explicit positive diagnostic attempt budget required")
     if any(
         media_root.resolve().is_relative_to(root.resolve())
         for root in (repository, dataset_root, checkpoint)
     ):
         raise ValueError("probe videos must be outside git, the frozen dataset and the checkpoint")
-    calibration = BoardCalibration(
-        Path(session_config["calibration"]), Path(session_config["reachable"])
-    )
-    moves = []
-    for trial in probes["physical_trials"]:
-        move = calibration.task(
-            SquareMove(trial["start_square"], trial["target_square"], trial["token"], "probe")
-        )
-        if move is None:
-            raise ValueError("frozen physical trial is unreachable")
-        moves.append(move)
     output.mkdir(parents=True, exist_ok=False)
     report: dict[str, Any] = {
         "kind": "physical_checkpoint_probe",
@@ -696,7 +723,7 @@ def run_physical_probes(
         "physical_contract": saved["physical_contract"],
         "session_provenance": session_config["provenance"],
         "policy_safety": asdict(safety),
-        "endpoint_checkpoint_identity": "operator-declared; server attestation not yet available",
+        "endpoint_checkpoint_identity": metadata,
         "utc": datetime.now(timezone.utc).isoformat(),
         "motion_enabled": enable_motion,
         "status": "failed",
@@ -724,7 +751,7 @@ def run_physical_probes(
             report["source_preflight"] = io.authorize_motion()
             client = PolicyClient(
                 SynriaEmbodiment(contract),
-                transport or HttpPolicyTransport(session_config["policy_endpoint"]),
+                binding.transport,
                 load_limits(Path(session_config["limits"])),
                 safety,
             )
@@ -746,7 +773,7 @@ def run_physical_probes(
             path = GuardedCommandPath(client, CaptureGuardSink, enable_motion=True)
             abort = False
             terminal_status = "completed"
-            for trial, move in zip(probes["physical_trials"], moves, strict=True):
+            for trial in probes["physical_trials"]:
                 for number in range(1, session_config["max_attempts"] + 1):
                     identifier = f"{trial['trial_id']}-{number}-{uuid.uuid4().hex}"
                     attempt_path = output / f"{identifier}.json"
@@ -757,6 +784,10 @@ def run_physical_probes(
                         "status": "failed",
                         "attempted": False,
                         "motion_completed": False,
+                        "scene_confirmed": False,
+                        "steps": 0,
+                        "task_id": contract.task_id,
+                        "task_definition_sha256": contract.task_definition.sha256,
                         "operator_grade": None,
                         "clips": None,
                         "errors": [],
@@ -768,8 +799,9 @@ def run_physical_probes(
                         "probe_sha256": expected_probe_hash,
                     }
                     capture: TrialClipCapture | None = None
+                    mover: FixedSkillExecutor | None = None
                     try:
-                        if io.abort_requested():
+                        if io.abort_pending():
                             raise OperatorAbort("operator aborted before trial capture")
                         capture = TrialClipCapture(
                             io.observe,
@@ -783,6 +815,10 @@ def run_physical_probes(
                         captures.append(capture)
                         active_capture = capture
                         capture.start()
+                        print(f"Frozen probe {trial['trial_id']}: {_json(trial['scene']).strip()}")
+                        if io.confirm_skill(contract.task_definition) is not True:
+                            raise OperatorAbort("operator declined the frozen probe scene")
+                        attempt["scene_confirmed"] = True
 
                         def observe(
                             task: str, recording: TrialClipCapture = capture
@@ -791,17 +827,19 @@ def run_physical_probes(
                             recording.check()
                             return io.observe(task)
 
-                        mover = PolicyMoveExecutor(
+                        mover = FixedSkillExecutor(
                             path,
                             observe,
-                            io.completed,
-                            max_steps=session_config["max_steps"],
+                            io.abort_pending,
+                            max_steps=binding.max_steps,
                             period_s=safety.command_period_s,
                         )
                         attempt["attempted"] = True
-                        mover.execute(move)
+                        mover.execute()
                         attempt["motion_completed"] = True
-                        grade = io.grade(move)
+                        grade = io.grade_skill(contract.task_definition)
+                        if grade.task_definition != contract.task_definition:
+                            raise ValueError("probe grade differs from the frozen skill")
                         attempt["operator_grade"] = grade.evidence()
                         attempt["status"] = "success" if grade.label == "success" else "failure"
                     except (OperatorAbort, KeyboardInterrupt, EOFError) as error:
@@ -814,6 +852,7 @@ def run_physical_probes(
                         terminal_status = "failed"
                         attempt["errors"].append(str(error) or type(error).__name__)
                     finally:
+                        attempt["steps"] = mover.offered_steps if mover is not None else 0
                         for callback in (path.hold, capture.stop if capture else lambda: None):
                             try:
                                 callback()
@@ -857,7 +896,7 @@ def run_physical_probes(
                         or number == session_config["max_attempts"]
                     ):
                         break
-                    if not io.recover(move):
+                    if not io.recover_skill(contract.task_definition):
                         break
                 if abort:
                     break

@@ -148,7 +148,9 @@ def measure_accuracy(
             pairs.append((str(truth), str(read_die(image, config))))
         for expected, predicted in pairs:
             confusion[json.dumps([expected, predicted])] += 1
-        inputs.append({"image": row["image"], "sha256": file_hash(path)})
+        inputs.append(
+            {"image": row["image"], "sha256": file_hash(path), "image_shape_hwc": list(image.shape)}
+        )
     total = sum(confusion.values())
     correct = sum(n for key, n in confusion.items() if len(set(json.loads(key))) == 1)
     report = {
@@ -229,9 +231,28 @@ class GatedPerception:
         self.synthetic = synthetic
         self.enabled = set(reports)
         self.report_hashes = {}
+        self.reports = {}
         for component, path in reports.items():
-            require_accuracy(component, path, config_path, repository, synthetic=synthetic)
+            self.reports[component] = require_accuracy(
+                component,
+                path,
+                config_path,
+                repository,
+                synthetic=synthetic,
+            )
             self.report_hashes[component] = file_hash(path)
+
+    def require_input_shape(self, component: str, shape_hwc: tuple[int, int, int]) -> None:
+        """New fixed-skill use requires measured image dimensions, never a legacy guess."""
+        inputs = self.reports[component]["inputs"]
+        if not inputs or any(
+            not isinstance(row.get("image_shape_hwc"), list)
+            or len(row["image_shape_hwc"]) != 3
+            or any(type(side) is not int or side <= 0 for side in row["image_shape_hwc"])
+            or row["image_shape_hwc"] != list(shape_hwc)
+            for row in inputs
+        ):
+            raise ValueError("accuracy report image dimensions missing or different; remeasure")
 
     def board(self, image: Any) -> tuple[Any, Any] | None:
         if "board" not in self.enabled:

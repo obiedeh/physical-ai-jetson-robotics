@@ -343,7 +343,9 @@ def ready(setup: Any) -> RosSessionIO:
 
 @pytest.mark.parametrize("configured", [False, True])
 def test_direct_adapter_refuses_smoke_before_ros_or_sources(
-    setup: Any, monkeypatch: pytest.MonkeyPatch, configured: bool,
+    setup: Any,
+    monkeypatch: pytest.MonkeyPatch,
+    configured: bool,
 ) -> None:
     from test_task_registry import REGISTRY
 
@@ -1047,7 +1049,7 @@ def test_twenty_graded_trials_use_adapter_fake_ros_and_stub_policy(
     assert stats["stage_status"] == "planned"
     assert len(requests) == len(setup.ros.goals) == 20
     assert all(request["reset"] and request["action_lookahead_steps"] == 2 for request in requests)
-    assert len(list((output / "stills").glob("*.ppm"))) == 20
+    assert len(list((output / "stills").glob("*.jpg"))) == 20
     provenance = json.loads((output / "provenance.json").read_text())
     source = provenance["source_preflight"]
     assert (
@@ -1056,6 +1058,119 @@ def test_twenty_graded_trials_use_adapter_fake_ros_and_stub_policy(
     )
     assert source["leader_sync_off"]["operator_confirmed"] is True
     assert source["command_period_s"] == source["bridge_move_time_s"] == 0.4
-    assert len(source["events"]) == 20
+    assert sum("measured_arm_hold_monotonic_s" in event for event in source["events"]) == 20
+    assert sum("front_still" in event for event in source["events"]) == 20
     assert (output / "EvalLog.jsonl").is_file() and (output / "session_end.json").is_file()
+    assert "node" in setup.ros.closed and not setup.answers
+
+
+def test_fixed_skill_native_still_preserves_stored_policy_image(setup: Any) -> None:
+    import cv2
+
+    setup.settings.update(image_width=224, image_height=224)
+    io = ready(setup)
+    stored = np.full((224, 224, 3), (40, 80, 160), np.uint8)
+    native = np.full((480, 640, 3), (40, 80, 160), np.uint8)
+    source_stamp = setup.clock()
+    frame = ImageFrame(
+        stored,
+        source_stamp,
+        native_resolution=(640, 480),
+        source_id=setup.settings["front_camera"],
+        native_data=native,
+    )
+    io.front.read = lambda: frame
+    setup.answers.append("success")
+    task = synthetic_task(20, 30)
+    grade = io.grade_skill(task)
+    decoded = cv2.imread(grade.still)
+    assert decoded.shape == (480, 640, 3)
+    assert np.allclose(decoded[0, 0], (160, 80, 40), atol=2)
+    assert grade.native_resolution == (640, 480) and grade.still_timestamp_s == source_stamp
+    assert grade.evidence()["funnel"] == dict.fromkeys(
+        ("reached", "grasped", "lifted", "placed", "released")
+    )
+    observed, path, stamp = io.capture_front()
+    assert observed is stored and observed.shape == (224, 224, 3)
+    assert cv2.imread(path).shape == (480, 640, 3) and stamp == source_stamp
+    assert np.array_equal(stored, np.full((224, 224, 3), (40, 80, 160), np.uint8))
+    event = io.session_evidence()["events"][-1]
+    assert event["native_resolution_confirmed"] and event["resolution"] == [640, 480]
+    assert event["source_id"] == setup.settings["front_camera"]
+    io.close()
+
+
+def test_fixed_skill_grade_refuses_missing_native_pixels_before_prompt(setup: Any) -> None:
+    io = ready(setup)
+    with pytest.raises(ValueError, match="native front-camera pixels"):
+        io.grade_skill(synthetic_task(20, 30))
+    assert not list(Path(setup.config["session_output"]).glob("stills/*"))
+    io.close()
+
+
+def test_three_roll_skills_use_one_fake_ros_publisher_and_native_stills(
+    setup: Any,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from test_synria_roll_skills import roll_config
+
+    from synria_lerobot.sessions import run_roll_skills
+    from synria_lerobot.task_registry import TASK_IDS
+
+    config, transports = roll_config(tmp_path)
+    setup.config.update(config)
+    setup.config.update(enable_motion=True, session_output=str(tmp_path / "session"))
+    setup.settings.update(image_width=4, image_height=4)
+    original_camera = setup.sources.camera
+
+    def camera(device: str, *, width: int, height: int):
+        source = original_camera(device, width=width, height=height)
+        source.read = lambda: ImageFrame(
+            np.full((height, width, 3), 120, np.uint8),
+            setup.clock(),
+            native_resolution=(640, 480),
+            source_id=device,
+            native_data=np.full((480, 640, 3), 120, np.uint8),
+        )
+        return source
+
+    setup.sources.camera = camera
+    Path(config["adapter_config"]).write_text(json.dumps(setup.settings))
+    setup.answers.extend(
+        [
+            "sync-off",
+            "armed",
+            "yes",
+            "success",
+            "yes",
+            "success",
+            "yes",
+            "success",
+            "4",
+            "unchanged",
+        ]
+    )
+    monkeypatch.setattr(
+        "synria_lerobot.sessions.PolicyClient", lambda *args: PolicyClient(*args, clock=setup.clock)
+    )
+    result = run_roll_skills(
+        setup.config,
+        Path.cwd(),
+        tmp_path / "session",
+        enable_motion=True,
+        factory=lambda settings: (setup.config.update(settings), setup.create())[1],
+        transports=transports,
+        sleep=setup.clock.sleep,
+    )
+    assert result["status"] == "completed", result
+    assert result["roll"]["value"] == 4
+    assert setup.ros.publisher_topics == [setup.settings["policy_target_topic"]]
+    assert "/joint_commands" not in setup.ros.publisher_topics
+    assert setup.settings["armed_topic"] not in setup.ros.publisher_topics
+    assert setup.ros.action_clients == [setup.settings["gripper_action"]]
+    assert len(setup.ros.goals) == 6
+    assert [transports[task].model.reset_count for task in TASK_IDS] == [1, 1, 1]
+    stills = [event for event in result["source_preflight"]["events"] if "front_still" in event]
+    assert len(stills) == 4 and all(event["resolution"] == [640, 480] for event in stills)
     assert "node" in setup.ros.closed and not setup.answers
