@@ -95,6 +95,21 @@ def test_twenty_trials_frozen_stats_and_still_integrity(
         score_evaluation(log, protocol, repo, tmp_path / "other.json")
 
 
+@pytest.mark.parametrize("line_ending", [b"\n", b"\r\n"])
+def test_checkout_line_endings_preserve_content_gate(
+    protocol_repo: tuple, line_ending: bytes
+) -> None:
+    repo, protocol, digest = protocol_repo
+    text = protocol.read_bytes().replace(b"\r\n", b"\n")
+    protocol.write_bytes(text.replace(b"\n", line_ending))
+    assert load_protocol(protocol, repo, digest)["success_threshold"] == 14
+    with pytest.raises(ValueError, match="hash"):
+        load_protocol(protocol, repo, "0" * 64)
+    protocol.write_bytes(protocol.read_bytes().replace(b'"trials": 20', b'"trials": 21'))
+    with pytest.raises(ValueError, match="committed"):
+        load_protocol(protocol, repo, digest)
+
+
 def test_threshold_is_protocol_driven_and_incomplete_cannot_pass(
     protocol_repo: tuple,
     tmp_path: Path,

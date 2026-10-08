@@ -29,11 +29,14 @@ def protocol_digest(text: str) -> str:
 
 
 def committed_bytes(path: Path, repository: Path) -> bytes:
+    """Require committed text, allowing only Git's LF/CRLF checkout conversion."""
     relative = path.resolve().relative_to(repository.resolve()).as_posix()
     result = subprocess.run(
         ["git", "show", f"HEAD:{relative}"], cwd=repository, capture_output=True, check=False
     )
-    if result.returncode or result.stdout != path.read_bytes():
+    if result.returncode or result.stdout.replace(b"\r\n", b"\n") != path.read_bytes().replace(
+        b"\r\n", b"\n"
+    ):
         raise ValueError(f"file must be committed and unchanged: {relative}")
     return result.stdout
 
