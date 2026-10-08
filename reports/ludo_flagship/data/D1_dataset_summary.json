@@ -1,0 +1,26 @@
+{
+  "action_sources": [],
+  "limits_status": "limits unverified by operator",
+  "object_success_limitation": "Object success is the operator's label plus a camera still; no independent sensor confirms it.",
+  "progress": {
+    "10": {
+      "reached": false,
+      "remaining": 10,
+      "target": 10
+    },
+    "50": {
+      "reached": false,
+      "remaining": 50,
+      "target": 50
+    },
+    "100": {
+      "reached": false,
+      "remaining": 100,
+      "target": 100
+    }
+  },
+  "quality_valid_episode_count": 0,
+  "session_count": 0,
+  "stage": "D1",
+  "status": "planned"
+}
