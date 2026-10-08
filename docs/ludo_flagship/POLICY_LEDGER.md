@@ -2,6 +2,11 @@
 
 One row per trained policy version. Negative results are rows.
 
+New policy rows must record the required per-policy `response_timeout_s` in
+the recipe/hyperparameter cell. The row helper requires an explicit timeout;
+there is no shared default. Historical rows have no recorded timeout and are
+not evidence for choosing a physical policy's response deadline.
+
 | Date (UTC) | Policy id | Data (dataset, episodes, hash) | Recipe and key hyperparameters | Checkpoint hash | Evaluation artifact | Result | Decision |
 |---|---|---|---|---|---|---|---|
 | 2026-08-20 | ludo_groot17_v1 | ludo_corpus01 (sim, target-blind) | GR00T N1.7 LoRA | see reports/training/ludo_groot17_v1 | reports/ludo_groot17_eval01 | 0/20 corrected | Corpus made target-observable |

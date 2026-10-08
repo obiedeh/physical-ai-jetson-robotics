@@ -35,24 +35,62 @@ class CommandSink(Protocol):
 
 @dataclass(frozen=True)
 class PolicySafetyConfig:
-    max_delta: tuple[float, ...]
+    max_joint_speed_rad_s: tuple[float, ...]
+    max_gripper_speed_m_s: float
+    command_period_s: float
     response_timeout_s: float
     max_observation_age_s: float
+    verified_by: str = ""
+    verified_on: str = ""
 
     def __post_init__(self) -> None:
-        if len(self.max_delta) != 7 or any(not math.isfinite(x) or x <= 0 for x in self.max_delta):
-            raise ValueError("seven positive finite step deltas required")
-        if any(
-            not math.isfinite(x) or x <= 0
-            for x in (self.response_timeout_s, self.max_observation_age_s)
+        if not isinstance(self.max_joint_speed_rad_s, (tuple, list)) or len(
+            self.max_joint_speed_rad_s
+        ) != 6:
+            raise ValueError("six joint speeds required")
+        for name, values in (
+            ("joint speeds", self.max_joint_speed_rad_s),
+            ("gripper speed", (self.max_gripper_speed_m_s,)),
+            ("command period", (self.command_period_s,)),
+            ("per-policy response timeout", (self.response_timeout_s,)),
+            ("observation age", (self.max_observation_age_s,)),
         ):
-            raise ValueError("timeouts must be positive and finite")
+            if any(type(value) not in (int, float) or not math.isfinite(value) or value <= 0
+                   for value in values):
+                raise ValueError(f"{name} must be positive finite numbers, not booleans")
+        if any(not isinstance(value, str) for value in (self.verified_by, self.verified_on)):
+            raise ValueError("policy verification fields must be strings")
+        object.__setattr__(self, "max_joint_speed_rad_s", tuple(self.max_joint_speed_rad_s))
+        if any(not math.isfinite(value) or value <= 0 for value in self.max_delta):
+            raise ValueError("speed times command period must be positive and finite")
+
+    @property
+    def max_delta(self) -> tuple[float, ...]:
+        """Derived rad/m bounds; never an independently configured step limit."""
+        return tuple(
+            speed * self.command_period_s
+            for speed in (*self.max_joint_speed_rad_s, self.max_gripper_speed_m_s)
+        )
+
+    @property
+    def verified(self) -> bool:
+        return bool(self.verified_by.strip() and self.verified_on.strip())
+
+    def require_command_period(self, period_s: float) -> None:
+        if type(period_s) not in (int, float) or period_s != self.command_period_s:
+            raise ValueError("motion-loop period must match the configured command period")
 
     @classmethod
-    def load(cls, path: Path) -> PolicySafetyConfig:
+    def load(
+        cls, path: Path, *, command_period_s: float, response_timeout_s: float
+    ) -> PolicySafetyConfig:
         data = json.loads(path.read_text(encoding="utf-8"))
+        if {"max_delta", "response_timeout_s", "command_period_s"} & data.keys():
+            raise ValueError("shared config cannot set step deltas, period or policy timeout")
         return cls(
-            tuple(data["max_delta"]), data["response_timeout_s"], data["max_observation_age_s"]
+            data["max_joint_speed_rad_s"], data["max_gripper_speed_m_s"],
+            command_period_s, response_timeout_s, data["max_observation_age_s"],
+            data["verified_by"], data["verified_on"],
         )
 
 
@@ -214,7 +252,7 @@ class PolicyClient:
 
 
 class GuardedCommandPath:
-    """The sink factory is never invoked unless both motion gates pass."""
+    """The sink factory requires opt-in plus verified position and speed limits."""
 
     def __init__(
         self,
@@ -224,9 +262,10 @@ class GuardedCommandPath:
         enable_motion: bool = False,
     ) -> None:
         self.client = client
-        self.enabled = enable_motion and client.limits.verified
-        if enable_motion and not client.limits.verified:
-            raise ValueError("motion requires operator-verified limits")
+        verified = client.limits.verified and client.config.verified
+        self.enabled = enable_motion and verified
+        if enable_motion and not verified:
+            raise ValueError("motion requires operator-verified limits and policy safety config")
         self.sink = sink_factory() if self.enabled else None
 
     def step(self, observation: SynriaObservation, *, reset: bool = False) -> PolicyDecision:
@@ -256,5 +295,5 @@ def add_motion_arguments(parser: argparse.ArgumentParser) -> None:
         "--enable-motion",
         action="store_true",
         default=False,
-        help="Allow a command sink only with operator-verified limits.",
+        help="Allow a command sink only with verified limits and policy safety config.",
     )

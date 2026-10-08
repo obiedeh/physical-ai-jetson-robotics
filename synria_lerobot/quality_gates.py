@@ -173,10 +173,12 @@ class GateReport:
 def load_limits(path: Path) -> PhysicalLimits:
     """Load the JSON-compatible YAML limits file."""
     payload = json.loads(path.read_text(encoding="utf-8"))
+    if any(not isinstance(payload.get(name, ""), str) for name in ("verified_by", "verified_on")):
+        raise ValueError("limits verification fields must be strings")
     names = tuple(str(name) for name in payload["joint_names"])
     return PhysicalLimits(
-        verified_by=str(payload.get("verified_by", "")),
-        verified_on=str(payload.get("verified_on", "")),
+        verified_by=payload.get("verified_by", ""),
+        verified_on=payload.get("verified_on", ""),
         joint_names=names,
         joint_limits_rad=tuple(
             _bounds(payload["joint_limits_rad"][name]) for name in names
