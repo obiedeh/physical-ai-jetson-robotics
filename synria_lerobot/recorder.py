@@ -130,6 +130,8 @@ class PhysicalRecorderConfig:
     repo_id: str
     contract: PhysicalDatasetContract
     fps: float = 30.0
+    image_width: int = 224
+    image_height: int = 224
     min_episode_s: float = 20.0
     max_episode_s: float = 30.0
     hard_cap_s: float = 30.0
@@ -139,6 +141,10 @@ class PhysicalRecorderConfig:
     def __post_init__(self) -> None:
         if self.fps <= 0:
             raise ValueError("fps must be positive")
+        if any(type(value) is not int or value <= 0 for value in (
+            self.image_width, self.image_height
+        )):
+            raise ValueError("image width and height must be positive integers")
         if not 0 < self.min_episode_s <= self.max_episode_s <= self.hard_cap_s:
             raise ValueError("episode bounds must satisfy 0 < min <= max <= hard cap")
         if not self.repo_id.strip():
@@ -263,14 +269,18 @@ class RosJointStateSource:
 class OpenCVFrameSource:
     """Lazy camera adapter that requires a stable by-id device path."""
 
-    def __init__(self, device_path: str) -> None:
+    def __init__(self, device_path: str, *, width: int = 224, height: int = 224) -> None:
         if not device_path.startswith("/dev/v4l/by-id/"):
             raise ValueError("camera source must use a stable /dev/v4l/by-id path")
+        if any(type(value) is not int or value <= 0 for value in (width, height)):
+            raise ValueError("image width and height must be positive integers")
         try:
             import cv2  # type: ignore[import-not-found]
         except ImportError as exc:  # pragma: no cover - depends on vision extra
             raise RuntimeError("OpenCV is unavailable") from exc
         self._cv2 = cv2
+        self._device_path = device_path
+        self._stored_resolution = (width, height)
         self._capture = cv2.VideoCapture(device_path)
         try:
             if not self._capture.isOpened():
@@ -283,7 +293,20 @@ class OpenCVFrameSource:
         ok, frame = self._capture.read()
         if not ok:
             raise RuntimeError("camera frame read failed")
-        return ImageFrame(data=frame, monotonic_timestamp_s=time.monotonic())
+        arrived = time.monotonic()
+        if len(frame.shape) != 3 or frame.shape[2] != 3:
+            raise ValueError("camera must deliver a three-channel BGR image")
+        native_resolution = (int(frame.shape[1]), int(frame.shape[0]))
+        rgb = self._cv2.cvtColor(frame, self._cv2.COLOR_BGR2RGB)
+        stored = self._cv2.resize(
+            rgb, self._stored_resolution, interpolation=self._cv2.INTER_AREA
+        )
+        return ImageFrame(
+            data=stored,
+            monotonic_timestamp_s=arrived,
+            native_resolution=native_resolution,
+            source_id=self._device_path,
+        )
 
     def close(self) -> None:  # pragma: no cover - depends on camera
         self._capture.release()
@@ -308,12 +331,12 @@ class LeRobotDatasetWriter:
             "action": {"dtype": "float32", "shape": (7,)},
             "observation.images.wrist": {
                 "dtype": "video",
-                "shape": (3, 224, 224),
+                "shape": (3, config.image_height, config.image_width),
                 "names": ["channels", "height", "width"],
             },
             "observation.images.front": {
                 "dtype": "video",
-                "shape": (3, 224, 224),
+                "shape": (3, config.image_height, config.image_width),
                 "names": ["channels", "height", "width"],
             },
         }
@@ -338,6 +361,16 @@ class LeRobotDatasetWriter:
                 repo_id=config.repo_id,
                 root=config.dataset_path,
             )
+            try:
+                for name in ("observation.images.wrist", "observation.images.front"):
+                    stored = self._dataset.meta.features.get(name, {})
+                    if stored.get("dtype") != features[name]["dtype"] or tuple(
+                        stored.get("shape", ())
+                    ) != features[name]["shape"]:
+                        raise ValueError("image features differ from existing dataset")
+            except BaseException:
+                _close_all(self.finalize)
+                raise
         else:
             self._dataset = LeRobotDataset.create(
                 repo_id=config.repo_id,
@@ -356,8 +389,11 @@ class LeRobotDatasetWriter:
                 raise
         self._task = config.task
         self._fps = config.fps
+        self._image_width = config.image_width
+        self._image_height = config.image_height
         self._metadata_path = self._root / "physical_episode_metadata.jsonl"
         self._quality_records_path = self._root / "physical_quality_records.jsonl"
+        self._capture_records_path = self._root / "physical_capture_provenance.jsonl"
 
     @property
     def next_episode_index(self) -> int:
@@ -370,6 +406,7 @@ class LeRobotDatasetWriter:
 
         if self._finalized:
             raise RuntimeError("dataset writer is finalized")
+        capture_provenance = self._capture_provenance(episode)
         for frame in episode.frames:
             timestamp_features = {
                 name: np.asarray([value], dtype=np.float64)
@@ -410,6 +447,43 @@ class LeRobotDatasetWriter:
         quality_record = episode_quality_record(episode, fps=self._fps)
         with self._quality_records_path.open("a", encoding="utf-8") as output:
             output.write(json.dumps(quality_record.as_dict(), sort_keys=True) + "\n")
+        with self._capture_records_path.open("a", encoding="utf-8") as output:
+            output.write(json.dumps(capture_provenance, sort_keys=True) + "\n")
+
+    def _capture_provenance(self, episode: RecordedPhysicalEpisode) -> dict[str, object]:
+        import numpy as np
+
+        if not episode.frames:
+            raise ValueError("cannot write an episode without frames")
+        cameras: dict[str, str] = {}
+        native: dict[str, dict[str, int]] = {}
+        expected_shape = (self._image_height, self._image_width, 3)
+        for name in ("wrist", "front"):
+            images = [getattr(frame, name) for frame in episode.frames]
+            first = images[0]
+            if first.native_resolution is None or not isinstance(first.source_id, str) or not (
+                first.source_id.strip()
+            ):
+                raise ValueError("camera frame must include native resolution and source id")
+            for image in images:
+                if not isinstance(image.data, np.ndarray) or image.data.shape != expected_shape:
+                    raise ValueError("camera image shape differs from configured stored resolution")
+                if image.data.dtype != np.uint8:
+                    raise ValueError("camera frames must be RGB uint8")
+                if image.native_resolution != first.native_resolution or image.source_id != (
+                    first.source_id
+                ):
+                    raise ValueError("camera identity or native resolution changed during episode")
+            cameras[name] = first.source_id
+            width, height = first.native_resolution
+            native[name] = {"width": width, "height": height}
+        return {
+            "episode_index": episode.episode_index,
+            "camera_ids": cameras,
+            "native_resolution": native,
+            "stored_resolution": {"width": self._image_width, "height": self._image_height},
+            "stored_color_space": "RGB",
+        }
 
     def finalize(self) -> None:
         if not self._finalized:
@@ -427,7 +501,8 @@ class LeRobotDatasetWriter:
         still_dir.mkdir(parents=True, exist_ok=True)
         stamp_ns = int(frame.monotonic_timestamp_s * 1_000_000_000)
         path = still_dir / f"episode_{episode_index:06d}_{stamp_ns}.jpg"
-        if not cv2.imwrite(str(path), frame.data):
+        bgr = cv2.cvtColor(frame.data, cv2.COLOR_RGB2BGR)
+        if not cv2.imwrite(str(path), bgr):
             raise RuntimeError(f"failed to write final still {path}")
         return path
 
@@ -836,6 +911,8 @@ def _parse_physical_args() -> argparse.Namespace:
     parser.add_argument("--wrist-camera", required=True)
     parser.add_argument("--front-camera", required=True)
     parser.add_argument("--fps", type=float, default=30.0)
+    parser.add_argument("--image-width", type=int, default=224)
+    parser.add_argument("--image-height", type=int, default=224)
     parser.add_argument("--state-has-velocity", action="store_true")
     parser.add_argument("--smoke", action="store_true")
     return parser.parse_args()
@@ -863,6 +940,8 @@ def physical_main() -> int:  # pragma: no cover - hardware entry point
             repo_id=args.repo_id,
             contract=contract,
             fps=args.fps,
+            image_width=args.image_width,
+            image_height=args.image_height,
             min_episode_s=20.0,
             max_episode_s=20.0 if args.smoke else 30.0,
             hard_cap_s=20.0 if args.smoke else 30.0,
@@ -884,9 +963,13 @@ def physical_main() -> int:  # pragma: no cover - hardware entry point
                 action_source: ActionSource = LeaderActionSource(leader_state)
             else:
                 action_source = NextStateActionSource()
-            wrist = OpenCVFrameSource(args.wrist_camera)
+            wrist = OpenCVFrameSource(
+                args.wrist_camera, width=config.image_width, height=config.image_height
+            )
             startup_cleanup.callback(_close_all, wrist.close)
-            front = OpenCVFrameSource(args.front_camera)
+            front = OpenCVFrameSource(
+                args.front_camera, width=config.image_width, height=config.image_height
+            )
             startup_cleanup.callback(_close_all, front.close)
             recorder = PhysicalEpisodeRecorder(
                 config=config,

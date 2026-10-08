@@ -109,10 +109,17 @@ class ImageFrame:
 
     data: Any
     monotonic_timestamp_s: float
+    native_resolution: tuple[int, int] | None = None
+    source_id: str | None = None
 
     def __post_init__(self) -> None:
         if not math.isfinite(self.monotonic_timestamp_s):
             raise ValueError("image monotonic timestamp must be finite")
+        if self.native_resolution is not None and (
+            len(self.native_resolution) != 2
+            or any(type(value) is not int or value <= 0 for value in self.native_resolution)
+        ):
+            raise ValueError("native image resolution must contain positive width and height")
 
 
 @dataclass(frozen=True)
