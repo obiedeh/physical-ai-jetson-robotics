@@ -449,6 +449,7 @@ def _merge_capture_provenance(
             raise ValueError("duplicate episode in capture provenance")
         by_index[index] = record
     selected = []
+    final_stills = []
     for episode in episodes:
         if episode.episode_index not in by_index:
             raise ValueError("episode is missing recorded capture provenance")
@@ -472,6 +473,37 @@ def _merge_capture_provenance(
             raise ValueError("state rate measurement differs from recorded capture provenance")
         if capture.get("state_source_provenance") != episode.state_source_provenance:
             raise ValueError("state source differs from recorded capture provenance")
+        still = capture.get("final_still_capture")
+        if "final_still_capture" not in capture:
+            final_stills.append({
+                "episode_index": episode.episode_index,
+                "status": "unknown: legacy capture has no native still evidence",
+                "capture": None,
+            })
+        else:
+            if (
+                not isinstance(still, dict)
+                or not isinstance(still.get("resolution"), dict)
+                or any(
+                    type(still["resolution"].get(name)) is not int
+                    or still["resolution"][name] <= 0
+                    for name in ("width", "height")
+                )
+                or still.get("resolution") != native["front"]
+                or still.get("source_id") != capture["camera_ids"]["front"]
+                or still.get("color_space") != "RGB"
+                or not episode.frames
+                or type(still.get("source_monotonic_s")) not in (int, float)
+                or not math.isfinite(still["source_monotonic_s"])
+                or still["source_monotonic_s"] != (
+                    episode.frames[-1].timestamps.get("front_monotonic_s")
+                )
+            ):
+                raise ValueError("final still capture differs from the last native front sample")
+            final_stills.append({
+                "episode_index": episode.episode_index, "status": "native",
+                "capture": still,
+            })
         _validate_timing_evidence(capture)
         for name in (*ACTION_TIMING_KEYS, "action_source", "gripper_type", "contract_version"):
             if capture.get(name) != provenance[name]:
@@ -488,6 +520,7 @@ def _merge_capture_provenance(
         "stored_resolution": selected[0]["stored_resolution"],
         "stored_color_space": "RGB",
         "capture_provenance": selected,
+        "final_still_captures": final_stills,
     }
 
 
@@ -641,6 +674,7 @@ def write_session_artifacts(
         "achieved_sample_rates_hz": sample_rates,
         "state_rate_measurements": state_rate_measurements,
         "quality_valid_episode_count": quality_valid,
+        "final_still_captures": provenance.get("final_still_captures", []),
         "state_source_provenance": provenance["state_source_provenance"],
         "qualifying_episode_count": quality_valid if limits.verified else 0,
         "gate_results": [report.as_dict() for report in reports],

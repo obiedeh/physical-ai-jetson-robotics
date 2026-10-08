@@ -106,7 +106,7 @@ class FakeWriter:
 
     def write_episode(self, episode: RecordedPhysicalEpisode) -> None:
         episode.final_still_path = self.save_final_still(
-            episode.episode_index, episode.frames[-1].front
+            episode.episode_index, episode.final_front_still or episode.frames[-1].front
         )
         self.episodes.append(episode)
 
@@ -462,9 +462,111 @@ def test_camera_capture_resizes_rgb_before_returning(monkeypatch: pytest.MonkeyP
     assert frame.data[0, 0].tolist() == [230, 20, 10]
     assert frame.native_resolution == (640, 480)
     assert frame.source_id == "/dev/v4l/by-id/fake-test"
+    assert frame.native_data.shape == (480, 640, 3)
+    assert not frame.native_data.flags.writeable
     assert resized_inputs and all(item == ([230, 20, 10], (48, 32), 2) for item in resized_inputs)
     raw[:] = 0
     assert frame.data[0, 0].tolist() == [230, 20, 10]
+    assert frame.native_data[0, 0].tolist() == [230, 20, 10]
+
+
+def test_recorder_pins_only_final_native_front_through_failed_save_and_retry(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import numpy as np
+
+    clock = FakeClock()
+    recorder, writer = _recorder(
+        tmp_path, action_source=ActionSourceKind.NEXT_STATE,
+        states=[_state(0.01, float(index)) for index in range(8)], clock=clock,
+    )
+    native = np.zeros((480, 640, 3), dtype=np.uint8)
+
+    def read() -> ImageFrame:
+        native[:] = (int(clock()), 30, 220)
+        return ImageFrame(
+            np.full((224, 224, 3), native[0, 0], dtype=np.uint8), clock(),
+            (640, 480), "synthetic-front", native,
+        )
+
+    monkeypatch.setattr(recorder.front_source, "read", read)
+    monkeypatch.setattr(recorder.wrist_source, "read", read)
+    written = []
+
+    def save_still(index: int, frame: ImageFrame) -> Path:
+        written.append(frame)
+        path = tmp_path / f"still-{index}.jpg"
+        path.write_bytes(b"synthetic still")
+        return path
+
+    monkeypatch.setattr(writer, "save_final_still", save_still)
+    recorder.start()
+    for index in range(8):
+        clock.now = float(index)
+        assert recorder.capture_once()
+    assert all(
+        pending.front.native_data is None and pending.wrist.native_data is None
+        and pending.front.data.shape == (224, 224, 3)
+        for pending in recorder._pending
+    )
+    pinned = recorder._pending_final_front
+    assert pinned is not None and pinned.data.shape == (480, 640, 3)
+    assert not pinned.data.flags.writeable
+    recorder.stop()
+    original_save = writer.write_episode
+
+    def fail_save(episode: RecordedPhysicalEpisode) -> None:
+        assert episode.final_front_still is pinned
+        raise OSError("synthetic save failure")
+
+    monkeypatch.setattr(writer, "write_episode", fail_save)
+    with pytest.raises(OSError, match="synthetic save failure"):
+        recorder.mark_success()
+    assert recorder._pending_final_front is pinned
+    clock.now = 99.0
+    read()  # Reuse the backend buffer after stop and before retry.
+    monkeypatch.setattr(writer, "write_episode", original_save)
+    episode = recorder.retry()
+    assert written == [pinned]
+    assert pinned.data[0, 0].tolist() == [7, 30, 220]
+    assert pinned.monotonic_timestamp_s == episode.frames[-1].front.monotonic_timestamp_s == 7
+    assert recorder._pending_final_front is None
+    assert recorder._pending == []
+
+
+def test_hard_cap_rejected_grab_cannot_replace_pinned_native_still(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import numpy as np
+
+    clock = FakeClock()
+    recorder, _ = _recorder(
+        tmp_path, action_source=ActionSourceKind.NEXT_STATE,
+        states=[_state(0.01, 1), _state(0.01, 29)], clock=clock,
+    )
+
+    def read() -> ImageFrame:
+        stamp = clock()
+        if stamp == 29:
+            clock.now = 30
+        return ImageFrame(
+            np.zeros((224, 224, 3), dtype=np.uint8), stamp, (640, 480),
+            "synthetic-front", np.full((480, 640, 3), int(stamp), dtype=np.uint8),
+        )
+
+    monkeypatch.setattr(recorder.front_source, "read", read)
+    recorder.start()
+    clock.now = 1
+    assert recorder.capture_once()
+    pinned = recorder._pending_final_front
+    clock.now = 29
+    assert not recorder.capture_once()
+    assert recorder.state is RecorderState.STOPPED
+    assert recorder._pending_final_front is pinned
+    assert len(recorder._pending) == 1
+    assert pinned is not None and pinned.monotonic_timestamp_s == 1
+    recorder.discard()
+    assert recorder._pending_final_front is None
 
 
 @pytest.mark.parametrize("width,height", [(0, 224), (224, -1), (1.5, 224), (True, 224)])

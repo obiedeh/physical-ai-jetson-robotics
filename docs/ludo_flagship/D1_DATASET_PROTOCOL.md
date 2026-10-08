@@ -109,6 +109,13 @@ configured/effective lookahead. Camera identity or native size changes require
 a new dataset. These stored software facts do not establish camera calibration
 or real object success.
 
+The final front-board still uses native RGB pixels from the same last accepted
+sample, not an upscaled dataset frame or a later camera read. Only one native
+front still is retained per pending episode, including through a save retry;
+dataset frames keep their configured stored size. Capture/session provenance
+records the still's native resolution and exact source timestamp. Legacy
+records lacking still-resolution evidence remain explicitly unknown.
+
 ## Collection, review, and resumption
 
 Use one process for many episodes: `start`, capture 20–30 seconds, `stop`, then

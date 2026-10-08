@@ -395,30 +395,50 @@ def test_resume_rejects_image_shape_changes_before_writing(tmp_path: Path) -> No
         LeRobotDatasetWriter(replace(config, image_width=320))
 
 
+@pytest.mark.parametrize(
+    "native_size,stored_size", [((320, 240), (48, 32)), ((640, 480), (224, 224))]
+)
 def test_real_capture_stores_resized_rgb_and_correct_final_still(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    native_size: tuple[int, int], stored_size: tuple[int, int],
 ) -> None:
     library = real_dataset_type()
     import cv2
     import numpy as np
 
+    from synria_lerobot.quality_gates import (
+        load_episode_records,
+        load_limits,
+        write_session_artifacts,
+    )
     from synria_lerobot.recorder import OpenCVFrameSource
 
-    raw = np.full((240, 320, 3), (5, 30, 220), dtype=np.uint8)
+    native_width, native_height = native_size
+    width, height = stored_size
+    raw = np.full((native_height, native_width, 3), (5, 30, 220), dtype=np.uint8)
     capture = SimpleNamespace(
         isOpened=lambda: True, read=lambda: (True, raw.copy()), release=lambda: None
     )
     monkeypatch.setattr(cv2, "VideoCapture", lambda path: capture)
-    source = OpenCVFrameSource("/dev/v4l/by-id/synthetic-camera", width=48, height=32)
+    source = OpenCVFrameSource("/dev/v4l/by-id/synthetic-camera", width=width, height=height)
     try:
         captured = source.read()
     finally:
         source.close()
-    assert captured.data.shape == (32, 48, 3)
+    assert captured.data.shape == (height, width, 3)
     assert captured.data[0, 0].tolist() == [220, 30, 5]
-    assert captured.native_resolution == (320, 240)
-    config = replace(writer_config(tmp_path / "dataset"), image_width=48, image_height=32)
-    episode = synthetic_episode(width=48, height=32)
+    captured_pixels = captured.data.copy()
+    assert captured.native_resolution == native_size
+    measurement = StateRateMeasurement(50, 100, 2, 0, 2, 0.02)
+    declaration = StateSourceProvenance("standalone_driver", "/joint_states")
+    config = replace(
+        writer_config(tmp_path / "dataset"), image_width=width, image_height=height,
+        state_rate_measurement=measurement, state_source_provenance=declaration,
+    )
+    episode = replace(
+        synthetic_episode(width=width, height=height),
+        state_rate_measurement=measurement, state_source_provenance=declaration,
+    )
     episode.frames = [
         replace(
             frame,
@@ -434,15 +454,73 @@ def test_real_capture_stores_resized_rgb_and_correct_final_still(
         writer.finalize()
     stored = library(config.repo_id, root=config.dataset_path, video_backend="pyav")
     rgb = stored[0]["observation.images.wrist"]
-    assert tuple(rgb.shape) == (3, 32, 48)
+    assert tuple(rgb.shape) == (3, height, width)
+    assert tuple(stored.meta.features["observation.images.front"]["shape"]) == (3, height, width)
     assert rgb[:, 0, 0].tolist() == pytest.approx([220 / 255, 30 / 255, 5 / 255], abs=0.03)
+    front_rgb = stored[0]["observation.images.front"]
+    assert tuple(front_rgb.shape) == (3, height, width)
+    assert front_rgb[:, 0, 0].tolist() == pytest.approx(
+        [220 / 255, 30 / 255, 5 / 255], abs=0.03
+    )
+    np.testing.assert_array_equal(captured.data, captured_pixels)
     bgr = cv2.imread(str(episode.final_still_path))
+    assert bgr.shape == (native_height, native_width, 3)
     assert bgr[0, 0].tolist() == pytest.approx([5, 30, 220], abs=3)
     capture_record = json.loads(
         (config.dataset_path / "physical_capture_provenance.jsonl").read_text()
     )
-    assert capture_record["native_resolution"]["wrist"] == {"width": 320, "height": 240}
-    assert capture_record["stored_resolution"] == {"width": 48, "height": 32}
+    assert capture_record["native_resolution"]["wrist"] == {
+        "width": native_width, "height": native_height,
+    }
+    assert capture_record["stored_resolution"] == {"width": width, "height": height}
+    evidence = {
+        "resolution": {"width": native_width, "height": native_height}, "color_space": "RGB",
+        "source_id": captured.source_id,
+        "source_monotonic_s": episode.frames[-1].front.monotonic_timestamp_s,
+    }
+    assert capture_record["final_still_capture"] == evidence
+    episodes = load_episode_records(config.dataset_path / "physical_quality_records.jsonl")
+    provenance = {
+        "follower_serial": "fake", "leader_serial": None, "host": "fake", "git_sha": "test",
+        "utc_date": "2026-10-08", "operator": "test", "power_state_start": "synthetic",
+        "power_state_end": "synthetic", "scene": "synthetic",
+        "camera_ids": {"wrist": captured.source_id, "front": captured.source_id},
+        "resolution": {"width": width, "height": height}, "rate_hz": config.fps,
+        **config.contract.as_dict(fps=config.fps),
+        "state_source_provenance": declaration.as_dict(),
+    }
+    session_dir = tmp_path / "reports" / "session"
+    summary = write_session_artifacts(
+        session_dir=session_dir, dataset_path=config.dataset_path,
+        provenance=provenance, episodes=episodes,
+        limits=load_limits(Path("config/synria_limits.yaml")),
+    )
+    expected = [{"episode_index": 0, "status": "native", "capture": evidence}]
+    assert summary["final_still_captures"] == expected
+    recorded_provenance = json.loads((session_dir / "provenance.json").read_text())
+    assert recorded_provenance["final_still_captures"] == expected
+
+
+@pytest.mark.parametrize("corruption", ["missing_native", "stamp", "source", "size", "dtype"])
+def test_native_final_still_requires_exact_last_front_identity(corruption: str) -> None:
+    import numpy as np
+
+    episode = synthetic_episode()
+    front = replace(episode.frames[-1].front, native_resolution=(640, 480))
+    episode.frames[-1] = replace(episode.frames[-1], front=front)
+    still = replace(front, data=np.zeros((480, 640, 3), dtype=np.uint8))
+    if corruption == "stamp":
+        still = replace(still, monotonic_timestamp_s=still.monotonic_timestamp_s + 1)
+    elif corruption == "source":
+        still = replace(still, source_id="different-camera")
+    elif corruption == "size":
+        still = replace(still, native_resolution=(224, 224))
+    elif corruption == "dtype":
+        still = replace(still, data=still.data.astype(np.float32))
+    if corruption != "missing_native":
+        episode.final_front_still = still
+    with pytest.raises(ValueError, match="final still"):
+        LeRobotDatasetWriter._native_final_still(episode)
 
 
 def _file_hashes(root: Path) -> dict[str, str]:
@@ -457,15 +535,31 @@ def test_real_late_save_failure_rolls_back_then_retries_without_duplicates(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fault_stage: str
 ) -> None:
     library = real_dataset_type()
+    import cv2
+    import numpy as np
     from lerobot.datasets.dataset_metadata import LeRobotDatasetMetadata
     from lerobot.datasets.dataset_writer import DatasetWriter
 
     config = replace(writer_config(tmp_path / "dataset"), image_width=48, image_height=32)
     writer = LeRobotDatasetWriter(config)
+
+    def native_episode(index: int) -> RecordedPhysicalEpisode:
+        result = synthetic_episode(index, width=48, height=32)
+        result.frames = [
+            replace(frame, front=replace(frame.front, native_resolution=(640, 480)))
+            for frame in result.frames
+        ]
+        result.final_front_still = replace(
+            result.frames[-1].front,
+            data=np.full((480, 640, 3), (11, 90, 200), dtype=np.uint8),
+        )
+        return result
+
     for index in range(2):
-        writer.write_episode(synthetic_episode(index, width=48, height=32))
+        writer.write_episode(native_episode(index))
     baseline = _file_hashes(config.dataset_path)
-    episode = synthetic_episode(2, width=48, height=32)
+    episode = native_episode(2)
+    pinned = episode.final_front_still
     target, method = {
         "data": (DatasetWriter, "_save_episode_data"),
         "metadata": (LeRobotDatasetMetadata, "save_episode"),
@@ -485,6 +579,7 @@ def test_real_late_save_failure_rolls_back_then_retries_without_duplicates(
     assert not writer.recovery_blocked
     assert len(episode.frames) == 3
     assert episode.final_still_path is None
+    assert episode.final_front_still is pinned
     assert _file_hashes(config.dataset_path) == baseline
     writer.write_episode(episode)
     writer.finalize()
@@ -497,6 +592,9 @@ def test_real_late_save_failure_rolls_back_then_retries_without_duplicates(
         rows = [json.loads(line) for line in (config.dataset_path / name).read_text().splitlines()]
         assert [row["episode_index"] for row in rows] == [0, 1, 2]
     assert len(list((config.dataset_path / "final_stills").glob("*.jpg"))) == 3
+    still = cv2.imread(str(episode.final_still_path))
+    assert still.shape == (480, 640, 3)
+    assert still[0, 0].tolist() == pytest.approx([200, 90, 11], abs=3)
 
 
 @pytest.mark.parametrize("source", list(ActionSource))

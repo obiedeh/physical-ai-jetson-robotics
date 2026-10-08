@@ -135,7 +135,12 @@ later, detect every non-topic write path, or act as a hardware safety interlock.
 
 Image width/height default to 224. Capture converts BGR to RGB and resizes
 before buffering; provenance records actual native/stored resolutions and
-camera IDs. Leave `--state-has-velocity` absent for the seven-value state.
+camera IDs. The final front-board still retains the native RGB resolution from
+the last accepted sample, with the same source timestamp; stopping or retrying
+a save never grabs a replacement. Dataset images remain at the configured
+stored size. Session provenance and summaries carry each still's resolution
+and timestamp; older capture records without that evidence are explicitly
+unknown, not assumed native. Leave `--state-has-velocity` absent for the seven-value state.
 Use it consistently only for a new contract requiring six additional reported
 finite joint velocities; missing required velocities fail preflight/capture.
 
