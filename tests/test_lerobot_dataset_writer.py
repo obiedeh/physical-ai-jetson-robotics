@@ -43,10 +43,19 @@ def writer_config(root: Path) -> PhysicalRecorderConfig:
 
 
 def image_features() -> dict[str, dict[str, object]]:
-    return {
+    features: dict[str, dict[str, object]] = {
         f"observation.images.{name}": {"dtype": "video", "shape": (3, 224, 224)}
         for name in ("wrist", "front")
     }
+    features["observation.state"] = {"dtype": "float32", "shape": (7,)}
+    features["action"] = {"dtype": "float32", "shape": (7,)}
+    for name in (
+        "state_monotonic_s", "state_ros_header_s", "action_monotonic_s",
+        "wrist_monotonic_s", "front_monotonic_s", "sample_monotonic_s",
+        "state_ros_arrival_s", "action_ros_header_s", "action_ros_arrival_s",
+    ):
+        features[name] = {"dtype": "float64", "shape": (1,)}
+    return features
 
 
 def _install_fake_library(monkeypatch: pytest.MonkeyPatch, library: type) -> None:
@@ -237,9 +246,15 @@ def synthetic_episode(
         stamp = number / 15
         frames.append(
             PhysicalFrame(
-                state=PhysicalState((0.01,) * 6, 0.01, stamp, stamp + 1000),
+                state=PhysicalState(
+                    (0.01,) * 6, 0.01, stamp, stamp + 1000,
+                    ros_arrival_stamp_s=stamp + 1000,
+                ),
                 action=(0.01,) * 7,
                 action_monotonic_timestamp_s=stamp,
+                sample_monotonic_timestamp_s=stamp + 0.001,
+                action_ros_header_stamp_s=stamp + 1000,
+                action_ros_arrival_stamp_s=stamp + 1000,
                 wrist=ImageFrame(
                     np.full((height, width, 3), 30 + number, dtype=np.uint8),
                     stamp, (width, height), "synthetic-wrist",
@@ -249,6 +264,13 @@ def synthetic_episode(
                     stamp, (width, height), "synthetic-front",
                 ),
             )
+        )
+    for frame_index, frame in enumerate(frames):
+        target = frames[min(frame_index + 1, len(frames) - 1)].state
+        frames[frame_index] = replace(
+            frame, action_monotonic_timestamp_s=target.monotonic_timestamp_s,
+            action_ros_header_stamp_s=target.ros_header_stamp_s,
+            action_ros_arrival_stamp_s=target.ros_arrival_stamp_s,
         )
     return RecordedPhysicalEpisode(
         episode_index=index,
@@ -555,3 +577,65 @@ def test_real_camera_setting_changes_are_rejected_before_dataset_mutation(tmp_pa
         writer.write_episode(changed)
     writer.finalize()
     assert _file_hashes(config.dataset_path) == baseline
+
+
+@pytest.mark.parametrize("stale", [False, True])
+def test_real_timestamp_evidence_preserves_precision_and_fails_stale_sources(
+    tmp_path: Path, stale: bool
+) -> None:
+    dataset_type = real_dataset_type()
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    from synria_lerobot.quality_gates import (
+        EpisodeQualityRecord,
+        GateConfig,
+        evaluate_episode,
+        load_limits,
+    )
+
+    config = replace(writer_config(tmp_path / "dataset"), image_width=48, image_height=32)
+    episode = synthetic_episode(width=48, height=32)
+    for index, frame in enumerate(episode.frames):
+        arrival = 123_456 + index / config.fps
+        header = 1_800_000_000.125 + index / config.fps
+        episode.frames[index] = replace(
+            frame,
+            state=replace(
+                frame.state, monotonic_timestamp_s=arrival, ros_header_stamp_s=header,
+                ros_arrival_stamp_s=header + (1 if stale and index == 1 else 0.01),
+            ),
+            wrist=replace(frame.wrist, monotonic_timestamp_s=arrival),
+            front=replace(frame.front, monotonic_timestamp_s=arrival),
+            sample_monotonic_timestamp_s=arrival + 0.001,
+        )
+    for index, frame in enumerate(episode.frames):
+        target = episode.frames[min(index + 1, len(episode.frames) - 1)].state
+        episode.frames[index] = replace(
+            frame, action_monotonic_timestamp_s=target.monotonic_timestamp_s,
+            action_ros_header_stamp_s=target.ros_header_stamp_s,
+            action_ros_arrival_stamp_s=target.ros_arrival_stamp_s,
+        )
+    writer = LeRobotDatasetWriter(config)
+    try:
+        writer.write_episode(episode)
+    finally:
+        writer.finalize()
+    reloaded = dataset_type(config.repo_id, root=config.dataset_path)
+    raw = reloaded.hf_dataset.with_format(None)[0]
+    table = pq.read_table(next((config.dataset_path / "data").rglob("*.parquet")))
+    for key, expected in episode.frames[0].timestamps().items():
+        assert table.schema.field(key).type == pa.float64()
+        assert raw[key] == expected
+    payload = json.loads((config.dataset_path / "physical_quality_records.jsonl").read_text())
+    record = EpisodeQualityRecord.from_dict(payload)
+    assert record.achieved_sample_rate_hz == pytest.approx(15)
+    report = evaluate_episode(
+        record, load_limits(Path("config/synria_limits.yaml")),
+        GateConfig(min_episode_s=0.1, max_episode_s=1),
+    )
+    assert report.failed_gates == (["source_staleness"] if stale else [])
+    capture = json.loads(
+        (config.dataset_path / "physical_capture_provenance.jsonl").read_text()
+    )
+    assert capture["achieved_sample_rate_hz"] == pytest.approx(15)

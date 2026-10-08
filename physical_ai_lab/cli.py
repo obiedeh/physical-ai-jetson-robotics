@@ -1233,6 +1233,9 @@ def d1_session_summary(
     width: int = typer.Option(..., min=1),
     height: int = typer.Option(..., min=1),
     rate_hz: float = typer.Option(..., min=0.1),
+    max_source_age_s: float = typer.Option(0.2, min=0),
+    max_header_delay_s: float = typer.Option(0.2, min=0),
+    max_header_future_s: float = typer.Option(0.02, min=0),
     gripper_type: str = typer.Option(...),
     action_source: str = typer.Option(...),
     utc_date: str = typer.Option(...),
@@ -1242,6 +1245,7 @@ def d1_session_summary(
     """Gate one physical recording session and write its evidence artifacts."""
     from synria_lerobot.physical_contract import CONTRACT_VERSION
     from synria_lerobot.quality_gates import (
+        GateConfig,
         load_episode_records,
         load_limits,
         write_session_artifacts,
@@ -1269,6 +1273,11 @@ def d1_session_summary(
         },
         episodes=load_episode_records(records),
         limits=load_limits(limits_path),
+        gate_config=GateConfig(
+            max_source_age_s=max_source_age_s,
+            max_header_delay_s=max_header_delay_s,
+            max_header_future_s=max_header_future_s,
+        ),
     )
     console.print(json.dumps(summary, indent=2, sort_keys=True))
 

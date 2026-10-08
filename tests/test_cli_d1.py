@@ -29,6 +29,10 @@ def _record() -> EpisodeQualityRecord:
                 "action_monotonic_s": float(index),
                 "wrist_monotonic_s": float(index),
                 "front_monotonic_s": float(index),
+                "sample_monotonic_s": index + 0.01,
+                "state_ros_arrival_s": 1000.0 + index,
+                "action_ros_header_s": 1000.0 + index,
+                "action_ros_arrival_s": 1000.0 + index,
             },
             wrist=ImageDiagnostic(True, 50.0, f"wrist-{index}"),
             front=ImageDiagnostic(True, 60.0, f"front-{index}"),
@@ -46,6 +50,7 @@ def _record() -> EpisodeQualityRecord:
         final_still="episode_000000_final.jpg",
         smoke=False,
         frames=frames,
+        achieved_sample_rate_hz=1.0,
     )
 
 
@@ -66,6 +71,7 @@ def test_d1_session_summary_command_writes_artifacts(
         },
         "stored_resolution": {"width": 4, "height": 4},
         "stored_color_space": "RGB",
+        "achieved_sample_rate_hz": 1.0,
     }
     if mismatch == "resolution":
         capture["stored_resolution"] = {"width": 8, "height": 4}
@@ -138,6 +144,8 @@ def test_d1_session_summary_command_writes_artifacts(
     assert provenance["native_resolution"] == capture["native_resolution"]
     assert provenance["stored_resolution"] == {"width": 4, "height": 4}
     assert provenance["capture_provenance"] == [capture]
+    assert provenance["achieved_sample_rates_hz"] == [{"episode_index": 0, "rate_hz": 1.0}]
+    assert provenance["freshness_thresholds_s"]["source_age"] == 0.2
 
 
 def test_d1_dataset_summary_command_writes_aggregate_and_timeline(tmp_path: Path) -> None:

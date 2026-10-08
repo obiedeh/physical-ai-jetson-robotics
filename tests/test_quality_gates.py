@@ -55,6 +55,10 @@ def _baseline_episode() -> EpisodeQualityRecord:
                 "action_monotonic_s": index + 0.01,
                 "wrist_monotonic_s": index + 0.02,
                 "front_monotonic_s": index + 0.03,
+                "sample_monotonic_s": index + 0.04,
+                "state_ros_arrival_s": 1000.0 + index + 0.01,
+                "action_ros_header_s": 1000.0 + index,
+                "action_ros_arrival_s": 1000.0 + index + 0.01,
             },
             wrist=_image("wrist", index),
             front=_image("front", index),
@@ -119,9 +123,66 @@ def test_corrupt_limit_fails_exact_gate() -> None:
 def test_corrupt_timestamp_skew_fails_exact_gate() -> None:
     episode = _baseline_episode()
     timestamps = dict(episode.frames[0].timestamps)
-    timestamps["front_monotonic_s"] = 1.0
+    timestamps["front_monotonic_s"] = 0.1
+    timestamps["sample_monotonic_s"] = 0.11
     frame = replace(episode.frames[0], timestamps=timestamps)
     assert _failed_gates(_replace_frame(episode, 0, frame)) == ["timestamp_skew"]
+
+
+@pytest.mark.parametrize(
+    "corruption", ["old_sources", "header_delay", "future_header", "leader_age", "missing_sample",
+                   "missing_header_arrival", "repeated_sample", "backwards_sample"]
+)
+def test_corrupt_source_freshness_fails_exact_gate(corruption: str) -> None:
+    episode = _baseline_episode()
+    index = 1 if corruption in {"repeated_sample", "backwards_sample"} else 0
+    timestamps = dict(episode.frames[index].timestamps)
+    if corruption == "old_sources":
+        for name in (
+            "state_monotonic_s", "action_monotonic_s", "wrist_monotonic_s", "front_monotonic_s"
+        ):
+            timestamps[name] -= 1
+    elif corruption == "header_delay":
+        timestamps["state_ros_arrival_s"] += 1
+    elif corruption == "future_header":
+        timestamps["state_ros_header_s"] += 1
+    elif corruption == "leader_age":
+        timestamps.update(state_monotonic_s=0.04, wrist_monotonic_s=0.04, front_monotonic_s=0.04,
+                          action_monotonic_s=0.0, sample_monotonic_s=0.21)
+    elif corruption == "missing_sample":
+        timestamps.pop("sample_monotonic_s")
+    elif corruption == "missing_header_arrival":
+        timestamps.pop("state_ros_arrival_s")
+    else:
+        timestamps["sample_monotonic_s"] = 0.04 if corruption == "repeated_sample" else 0.03
+    frame = replace(episode.frames[index], timestamps=timestamps)
+    assert _failed_gates(_replace_frame(episode, index, frame)) == ["source_staleness"]
+
+
+@pytest.mark.parametrize(
+    "corruption", [None, "missing", "unrelated", "nonfinite", "unknown_source"]
+)
+def test_derived_actions_require_true_next_state_timestamp_lineage(corruption: str | None) -> None:
+    episode = _baseline_episode()
+    frames = []
+    for index, frame in enumerate(episode.frames):
+        target = episode.frames[min(index + 1, len(episode.frames) - 1)].timestamps
+        timestamps = {
+            **frame.timestamps, "action_monotonic_s": target["state_monotonic_s"],
+            "action_ros_header_s": target["state_ros_header_s"],
+            "action_ros_arrival_s": target["state_ros_arrival_s"],
+        }
+        frames.append(replace(frame, timestamps=timestamps))
+    if corruption == "missing":
+        frames[0].timestamps.pop("action_ros_arrival_s")
+    elif corruption == "unrelated":
+        frames[0].timestamps["action_monotonic_s"] += 1
+    elif corruption == "nonfinite":
+        frames[0].timestamps["action_ros_header_s"] = float("nan")
+    episode = replace(episode, frames=tuple(frames), action_source=(
+        "unknown" if corruption == "unknown_source" else "next_state"
+    ))
+    assert _failed_gates(episode) == ([] if corruption is None else ["source_staleness"])
 
 
 def test_corrupt_duration_fails_exact_gate() -> None:
@@ -167,6 +228,7 @@ class _StateSource:
             gripper_m=0.01,
             monotonic_timestamp_s=self.clock(),
             ros_header_stamp_s=1000.0 + self.clock(),
+            ros_arrival_stamp_s=1000.0 + self.clock(),
         )
 
     def close(self) -> None:
@@ -180,6 +242,8 @@ class _LeaderActions:
         return ActionSample(
             (*follower_state.joint_positions_rad, follower_state.gripper_m),
             follower_state.monotonic_timestamp_s,
+            follower_state.ros_header_stamp_s,
+            follower_state.ros_arrival_stamp_s,
         )
 
     def close(self) -> None:

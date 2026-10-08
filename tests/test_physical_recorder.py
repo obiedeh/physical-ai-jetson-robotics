@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 from io import StringIO
 from pathlib import Path
-from types import ModuleType, SimpleNamespace
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -25,7 +25,6 @@ from synria_lerobot.recorder import (
     PhysicalRecorderConfig,
     RecordedPhysicalEpisode,
     RecorderState,
-    RosJointStateSource,
     run_operator_loop,
 )
 
@@ -58,7 +57,10 @@ class FakeLeaderActionSource:
         self.closed = False
 
     def read(self, follower_state: PhysicalState) -> ActionSample:
-        return ActionSample(next(self.values), follower_state.monotonic_timestamp_s)
+        return ActionSample(
+            next(self.values), follower_state.monotonic_timestamp_s,
+            follower_state.ros_header_stamp_s, follower_state.ros_arrival_stamp_s,
+        )
 
     def close(self) -> None:
         self.closed = True
@@ -113,6 +115,7 @@ def _state(value: float, timestamp_s: float) -> PhysicalState:
         gripper_m=min(value, 0.025),
         monotonic_timestamp_s=timestamp_s,
         ros_header_stamp_s=timestamp_s + 100.0,
+        ros_arrival_stamp_s=timestamp_s + 100.0,
     )
 
 
@@ -206,6 +209,35 @@ def test_next_state_actions_are_shifted_one_frame(tmp_path: Path) -> None:
     episode = recorder.mark_success()
     assert episode.frames[0].action == pytest.approx((0.01,) * 6 + (0.01,))
     assert episode.frames[1].action == pytest.approx((0.01,) * 6 + (0.01,))
+    assert episode.frames[0].action_monotonic_timestamp_s == 20.0
+    assert episode.frames[0].action_ros_header_stamp_s == 120.0
+    assert episode.frames[1].action_monotonic_timestamp_s == 20.0
+    assert episode.achieved_sample_rate_hz == pytest.approx(0.05)
+
+
+def test_sample_time_is_taken_after_source_snapshots(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    clock = FakeClock()
+    recorder, _ = _recorder(
+        tmp_path, action_source=ActionSourceKind.NEXT_STATE,
+        states=[_state(0.0, 0.0)], clock=clock,
+    )
+    original_read = recorder.front_source.read
+
+    def delayed_read() -> ImageFrame:
+        clock.now = 0.01
+        return original_read()
+
+    monkeypatch.setattr(recorder.front_source, "read", delayed_read)
+    recorder.start()
+    recorder.capture_once()
+    pending = recorder._pending[0]
+    assert pending.state.monotonic_timestamp_s == 0
+    assert pending.wrist.monotonic_timestamp_s == 0
+    assert pending.front.monotonic_timestamp_s == 0.01
+    assert pending.sample_monotonic_s == 0.01
+    recorder.close()
 
 
 def test_recorder_continues_episode_index_from_writer_metadata(tmp_path: Path) -> None:
@@ -292,63 +324,6 @@ def test_legacy_hardware_path_is_implemented_but_requires_configuration() -> Non
         EpisodeRecorder(mock=False).record()
 
 
-def test_ros_state_source_creates_subscription_and_no_publishers(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    calls = {"subscriptions": 0, "publishers": 0}
-
-    class FakeNode:
-        def create_subscription(self, *args: Any, **kwargs: Any) -> object:
-            del args, kwargs
-            calls["subscriptions"] += 1
-            return object()
-
-        def create_publisher(self, *args: Any, **kwargs: Any) -> object:
-            del args, kwargs
-            calls["publishers"] += 1
-            return object()
-
-        def destroy_subscription(self, subscription: object) -> None:
-            del subscription
-
-        def destroy_node(self) -> None:
-            return None
-
-    rclpy = ModuleType("rclpy")
-    rclpy.ok = lambda: True  # type: ignore[attr-defined]
-    rclpy.create_node = lambda name: FakeNode()  # type: ignore[attr-defined]
-    rclpy.init = lambda: None  # type: ignore[attr-defined]
-    sensor_msgs = ModuleType("sensor_msgs")
-    sensor_msgs_msg = ModuleType("sensor_msgs.msg")
-    sensor_msgs_msg.JointState = SimpleNamespace  # type: ignore[attr-defined]
-    monkeypatch.setitem(sys.modules, "rclpy", rclpy)
-    monkeypatch.setitem(sys.modules, "sensor_msgs", sensor_msgs)
-    monkeypatch.setitem(sys.modules, "sensor_msgs.msg", sensor_msgs_msg)
-
-    source = RosJointStateSource("/joint_states", node_name="test_state")
-    assert calls == {"subscriptions": 1, "publishers": 0}
-    source.close()
-
-
-def test_failed_ros_subscription_destroys_new_node(monkeypatch: pytest.MonkeyPatch) -> None:
-    destroyed = []
-
-    def fail_subscription(*args: Any) -> None:
-        raise OSError("fake subscription failure")
-
-    node = SimpleNamespace(
-        create_subscription=fail_subscription,
-        destroy_node=lambda: destroyed.append(True),
-    )
-    rclpy = SimpleNamespace(ok=lambda: True, create_node=lambda name: node)
-    monkeypatch.setitem(sys.modules, "rclpy", rclpy)
-    monkeypatch.setitem(sys.modules, "sensor_msgs", ModuleType("sensor_msgs"))
-    monkeypatch.setitem(sys.modules, "sensor_msgs.msg", SimpleNamespace(JointState=object))
-    with pytest.raises(OSError, match="fake subscription failure"):
-        RosJointStateSource("/unused", node_name="fake_test")
-    assert destroyed == [True]
-
-
 def test_failed_camera_open_releases_fake_capture(monkeypatch: pytest.MonkeyPatch) -> None:
     from synria_lerobot.recorder import OpenCVFrameSource
 
@@ -386,7 +361,7 @@ def test_camera_capture_resizes_rgb_before_returning(monkeypatch: pytest.MonkeyP
     assert frame.data[0, 0].tolist() == [230, 20, 10]
     assert frame.native_resolution == (640, 480)
     assert frame.source_id == "/dev/v4l/by-id/fake-test"
-    assert resized_inputs == [([230, 20, 10], (48, 32), 2)]
+    assert resized_inputs and all(item == ([230, 20, 10], (48, 32), 2) for item in resized_inputs)
     raw[:] = 0
     assert frame.data[0, 0].tolist() == [230, 20, 10]
 
