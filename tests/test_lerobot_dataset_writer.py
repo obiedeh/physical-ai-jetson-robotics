@@ -22,10 +22,13 @@ from synria_lerobot.physical_contract import (
 )
 from synria_lerobot.recorder import (
     LeRobotDatasetWriter,
+    NextStateActionSource,
     OperatorLabel,
+    PhysicalEpisodeRecorder,
     PhysicalRecorderConfig,
     PhysicalSessionResult,
     RecordedPhysicalEpisode,
+    RecorderState,
 )
 
 
@@ -639,3 +642,98 @@ def test_real_timestamp_evidence_preserves_precision_and_fails_stale_sources(
         (config.dataset_path / "physical_capture_provenance.jsonl").read_text()
     )
     assert capture["achieved_sample_rate_hz"] == pytest.approx(15)
+
+
+@pytest.mark.parametrize("required", [False, True])
+def test_real_dataset_persists_exact_contract_state_vector(
+    tmp_path: Path, required: bool
+) -> None:
+    dataset_type = real_dataset_type()
+    config = replace(writer_config(tmp_path / "dataset"), image_width=48, image_height=32)
+    config = replace(config, contract=replace(config.contract, state_has_velocity=required))
+    frames = synthetic_episode(width=48, height=32).frames
+    states = [replace(frame.state, joint_velocities_rad_s=(0.2,) * 6) for frame in frames]
+    # Preflight is an explicit additional latest-state read only in required-velocity mode.
+    state_reads = iter(([states[0]] if required else []) + states)
+    wrist_reads = iter(frame.wrist for frame in frames)
+    front_reads = iter(frame.front for frame in frames)
+    clock = SimpleNamespace(now=0.0)
+    writer = LeRobotDatasetWriter(config)
+    recorder = PhysicalEpisodeRecorder(
+        config=config,
+        state_source=SimpleNamespace(read=lambda: next(state_reads), close=lambda: None),
+        action_source=NextStateActionSource(),
+        wrist_source=SimpleNamespace(read=lambda: next(wrist_reads), close=lambda: None),
+        front_source=SimpleNamespace(read=lambda: next(front_reads), close=lambda: None),
+        writer=writer, clock=lambda: clock.now,
+    )
+    try:
+        recorder.start()
+        for index in range(3):
+            clock.now = index / config.fps + 0.001
+            recorder.capture_once()
+        clock.now = 0.2
+        recorder.stop()
+        episode = recorder.mark_success()
+    finally:
+        recorder.close()
+    reloaded = dataset_type(config.repo_id, root=config.dataset_path)
+    raw = reloaded.hf_dataset.with_format(None)[0]
+    assert len(raw["observation.state"]) == (13 if required else 7)
+    assert len(raw["action"]) == 7
+    assert len(episode.frames[0].state.observation_vector()) == (13 if required else 7)
+    if required:
+        assert raw["observation.state"][-6:] == pytest.approx([0.2] * 6)
+    quality = json.loads((config.dataset_path / "physical_quality_records.jsonl").read_text())
+    assert len(quality["frames"][0]["state"]) == (13 if required else 7)
+
+
+def test_real_writer_removes_reported_velocities_for_position_only_contract(tmp_path: Path) -> None:
+    dataset_type = real_dataset_type()
+    config = replace(writer_config(tmp_path / "dataset"), image_width=48, image_height=32)
+    episode = synthetic_episode(width=48, height=32)
+    episode.frames = [
+        replace(frame, state=replace(frame.state, joint_velocities_rad_s=(0.2,) * 6))
+        for frame in episode.frames
+    ]
+    writer = LeRobotDatasetWriter(config)
+    try:
+        writer.write_episode(episode)
+    finally:
+        writer.finalize()
+    reloaded = dataset_type(config.repo_id, root=config.dataset_path)
+    assert len(reloaded.hf_dataset.with_format(None)[0]["observation.state"]) == 7
+
+
+def test_real_velocity_contract_refuses_missing_state_before_recording(tmp_path: Path) -> None:
+    dataset_type = real_dataset_type()
+    config = replace(writer_config(tmp_path / "dataset"), image_width=48, image_height=32)
+    config = replace(config, contract=replace(config.contract, state_has_velocity=True))
+    writer = LeRobotDatasetWriter(config)
+    frame = synthetic_episode(width=48, height=32).frames[0]
+
+    def unexpected_capture() -> None:
+        raise AssertionError("no image should be sampled after failed state preflight")
+
+    recorder = PhysicalEpisodeRecorder(
+        config=config,
+        state_source=SimpleNamespace(read=lambda: frame.state, close=lambda: None),
+        action_source=NextStateActionSource(),
+        wrist_source=SimpleNamespace(read=unexpected_capture, close=lambda: None),
+        front_source=SimpleNamespace(read=unexpected_capture, close=lambda: None),
+        writer=writer,
+    )
+    try:
+        with pytest.raises(ValueError, match="requires six reported joint velocities"):
+            recorder.start()
+        assert recorder.state is RecorderState.IDLE
+        assert recorder._pending == []
+    finally:
+        recorder.close()
+    assert writer.next_episode_index == 0
+    assert not (config.dataset_path / "physical_quality_records.jsonl").exists()
+    resumed = dataset_type.resume(config.repo_id, root=config.dataset_path)
+    try:
+        assert resumed.meta.total_episodes == 0
+    finally:
+        resumed.finalize()
