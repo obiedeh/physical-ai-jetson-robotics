@@ -215,6 +215,7 @@ class GatedPerception:
         synthetic: bool = False,
     ) -> None:
         self.config = json.loads(config_path.read_text(encoding="utf-8"))
+        self.synthetic = synthetic
         self.enabled = set(reports)
         self.report_hashes = {}
         for component, path in reports.items():

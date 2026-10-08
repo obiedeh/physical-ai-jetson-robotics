@@ -1,0 +1,13 @@
+{
+  "status": "implemented, unmeasured",
+  "verified_by": "",
+  "verified_on": "",
+  "phases": {
+    "pick_die": {"task": "", "target_xyz_m": [], "max_steps": 0, "period_s": 0},
+    "drop_into_cup": {"task": "", "target_xyz_m": [], "max_steps": 0, "period_s": 0},
+    "shake": {"task": "", "target_xyz_m": [], "max_steps": 0, "period_s": 0},
+    "invert": {"task": "", "target_xyz_m": [], "max_steps": 0, "period_s": 0}
+  },
+  "read": {"max_reads": 6, "stable_reads": 3, "period_s": 0.1, "max_age_s": 0.2},
+  "note": "Operator must supply physical parameters; no simulation motion parameters are used."
+}
