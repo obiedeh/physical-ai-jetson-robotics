@@ -23,7 +23,21 @@ def protocol_repo(tmp_path: Path) -> tuple[Path, Path, str]:
     repository.mkdir()
     subprocess.run(["git", "init", "-q", str(repository)], check=True)
     path = repository / "protocol.md"
-    text = Path("docs/ludo_flagship/D2_EVAL_PROTOCOL.md").read_text(encoding="utf-8")
+    # Historical token logs remain readable after the prospective task change.
+    text = (
+        "# Legacy token evaluation fixture\n\n```json\n"
+        + json.dumps(
+            dict(
+                trials=20,
+                success_threshold=14,
+                max_attempts=1,
+                scene_schedule=[],
+                protocol_sha256="",
+            ),
+            indent=2,
+        )
+        + "\n```\n"
+    )
     digest = protocol_digest(text)
     path.write_text(HASH_FIELD.sub(f'"protocol_sha256": "{digest}"', text), encoding="utf-8")
     subprocess.run(["git", "add", "protocol.md"], cwd=repository, check=True)

@@ -14,12 +14,65 @@ from typing import Any
 
 from isaac.scripts.ludo_stats import aggregate_records
 
-from .physical_contract import CONTRACT_VERSION
+from .physical_contract import CONTRACT_VERSION, PhysicalDatasetContract
 from .quality_gates import OBJECT_SUCCESS_LIMITATION
-from .task_registry import TaskDefinition
+from .task_registry import TaskDefinition, validate_fixed_scene_schedule
 
 FUNNEL = ("reached", "grasped", "lifted", "placed", "released")
 HASH_FIELD = re.compile(r'"protocol_sha256": "[a-f0-9]*"')
+FIXED_D2_KIND = "synria_fixed_skill_d2_v1"
+
+
+def _canonical(value: Any) -> str:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
+
+
+def validate_fixed_protocol(config: dict[str, Any]) -> PhysicalDatasetContract:
+    if config.get("kind") != FIXED_D2_KIND or config.get("task_id") != "die_into_cup":
+        raise ValueError("the first fixed-scene D2 protocol must be die_into_cup")
+    physical = config.get("physical_contract")
+    if type(physical) is not dict or type(physical.get("state_has_velocity")) is not bool:
+        raise ValueError("complete frozen physical contract required")
+    contract = PhysicalDatasetContract.from_dict(physical)
+    contract.require_qualifying()
+    if contract.task_id != config["task_id"] or config.get("task_definition_sha256") != (
+        contract.task_definition.sha256
+    ):
+        raise ValueError("protocol task/definition differs from its physical contract")
+    for key in ("policy_id", "registered_by", "registered_on", "selection_rule"):
+        if type(config.get(key)) is not str or not config[key].strip():
+            raise ValueError("prospective operator, policy and independent selection rule required")
+    if (
+        type(config.get("checkpoint_content_sha256")) is not str
+        or re.fullmatch(
+            r"[0-9a-f]{64}",
+            config["checkpoint_content_sha256"],
+        )
+        is None
+    ):
+        raise ValueError("frozen checkpoint content hash required")
+    for key in ("command_period_s", "response_timeout_s"):
+        value = config.get(key)
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or (not math.isfinite(value) or value <= 0)
+        ):
+            raise ValueError("frozen command period and per-policy timeout required")
+    if type(config.get("max_steps")) is not int or config["max_steps"] <= 0:
+        raise ValueError("frozen positive command budget required")
+    if type(config.get("randomisation_seed")) is not int:
+        raise ValueError("prospective scene-order seed required")
+    validate_fixed_scene_schedule(config.get("scene_schedule"), contract.task_id)
+    if len(config["scene_schedule"]) != config["trials"]:
+        raise ValueError("frozen scene schedule must match the protocol trial count")
+    return contract
+
+
+def load_fixed_protocol(path: Path, repository: Path, expected_hash: str) -> dict[str, Any]:
+    config = load_protocol(path, repository, expected_hash)
+    validate_fixed_protocol(config)
+    return config
 
 
 def protocol_digest(text: str) -> str:
@@ -161,6 +214,8 @@ class EvalLogWriter:
         data_kind: str,
     ) -> None:
         self.config = load_protocol(protocol, repository, protocol_hash)
+        if self.config.get("kind") == FIXED_D2_KIND:
+            raise ValueError("fixed-task protocols require camera-linked fixed-task records")
         if data_kind not in {"physical", "synthetic"} or not policy_id.strip():
             raise ValueError("policy id and explicit data kind required")
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -205,6 +260,8 @@ def score_evaluation(log: Path, protocol: Path, repository: Path, output: Path) 
     lines = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines()]
     meta, records = lines[0], lines[1:]
     config = load_protocol(protocol, repository, meta["protocol_sha256"])
+    if config.get("kind") == FIXED_D2_KIND:
+        return _score_fixed_evaluation(lines, config, output)
     if meta["contract_version"] != CONTRACT_VERSION or meta["data_kind"] not in {
         "physical",
         "synthetic",
@@ -247,6 +304,294 @@ def score_evaluation(log: Path, protocol: Path, repository: Path, output: Path) 
             and successes >= config["success_threshold"],
             "stage_status": "planned",
             "object_success_limitation": OBJECT_SUCCESS_LIMITATION,
+        }
+    )
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open("x", encoding="utf-8") as stream:
+        json.dump(stats, stream, indent=2, allow_nan=False)
+        stream.write("\n")
+    return stats
+
+
+def fixed_attempt_record(
+    grade: FixedTaskGrade | None,
+    attempt: int,
+    *,
+    execution_status: str,
+    steps: int,
+    scene_confirmed: bool,
+    errors: list[str],
+) -> dict[str, Any]:
+    evidence = grade.evidence() if grade is not None else None
+    success = grade.label == "success" if grade is not None else None
+    return {
+        "attempt": attempt,
+        "operator_grade": evidence,
+        "operator_object_success": success,
+        "execution_status": execution_status,
+        "scene_confirmed": scene_confirmed,
+        "steps": steps,
+        "errors": list(errors),
+        "ok": execution_status == "completed" and success is True,
+        "funnel": evidence["funnel"] if evidence else dict.fromkeys(FUNNEL),
+        "lane": "synria_physical_policy",
+        "err_mm": None,
+        "final_tilt_deg": None,
+        "hold_armed": False,
+    }
+
+
+def _validate_fixed_attempt(attempt: dict[str, Any], config: dict[str, Any]) -> None:
+    if type(attempt.get("steps")) is not int or not 0 <= attempt["steps"] <= config["max_steps"]:
+        raise ValueError("attempt command count differs from frozen budget")
+    if (
+        type(attempt.get("scene_confirmed")) is not bool
+        or attempt.get("execution_status")
+        not in {
+            "completed",
+            "fault",
+            "policy_hold",
+            "aborted",
+            "declined",
+        }
+        or type(attempt.get("errors")) is not list
+        or any(type(error) is not str for error in attempt["errors"])
+    ):
+        raise ValueError("invalid execution status, scene confirmation or fault evidence")
+    evidence = attempt.get("operator_grade")
+    success = None
+    if evidence is not None:
+        task = TaskDefinition.from_metadata(evidence)
+        if _canonical(task.as_dict()) != _canonical(config["physical_contract"]["task_definition"]):
+            raise ValueError("operator grade task differs from the frozen protocol")
+        grade = FixedTaskGrade(
+            evidence["label"],
+            evidence["operator"],
+            evidence["still"],
+            evidence["still_timestamp_s"],
+            task,
+            tuple(evidence["native_resolution"]),
+            evidence["funnel"],
+        )
+        if _canonical(grade.evidence()) != _canonical(evidence):
+            raise ValueError("camera still hash or fixed-task evidence mismatch")
+        success = grade.label == "success"
+    if attempt.get("operator_object_success") is not success:
+        raise ValueError("raw object score differs from operator label")
+    completed = attempt["execution_status"] == "completed"
+    if completed and (
+        not attempt["scene_confirmed"]
+        or evidence is None
+        or (attempt["steps"] != config["max_steps"] or attempt["errors"])
+    ):
+        raise ValueError("completed attempt requires its confirmed budget and label")
+    if type(attempt.get("ok")) is not bool or attempt["ok"] != (completed and success is True):
+        raise ValueError("score differs from completed execution and operator label")
+    expected_funnel = evidence["funnel"] if evidence else dict.fromkeys(FUNNEL)
+    if _canonical(attempt.get("funnel")) != _canonical(expected_funnel):
+        raise ValueError("funnel diagnostics differ from their operator evidence")
+
+
+def _validate_fixed_trial(
+    attempts: list[dict[str, Any]],
+    scene: dict[str, Any],
+    config: dict[str, Any],
+    index: int,
+) -> None:
+    if index >= config["trials"] or not attempts or len(attempts) > config["max_attempts"]:
+        raise ValueError("trial exceeds the frozen budget")
+    if _canonical(scene) != _canonical(config["scene_schedule"][index]):
+        raise ValueError("trial scene differs from its frozen order")
+    for number, attempt in enumerate(attempts):
+        if type(attempt["attempt"]) is not int or attempt["attempt"] != number + 1:
+            raise ValueError("invalid attempt sequence")
+        _validate_fixed_attempt(attempt, config)
+        if attempt["ok"] and number < len(attempts) - 1:
+            raise ValueError("cannot retry after qualified success")
+        if attempt["execution_status"] != "completed" and number < len(attempts) - 1:
+            raise ValueError("cannot retry after a stopped execution")
+
+
+class FixedEvalLogWriter:
+    def __init__(
+        self,
+        path: Path,
+        protocol: Path,
+        repository: Path,
+        protocol_hash: str,
+        *,
+        data_kind: str,
+    ) -> None:
+        self.config = load_fixed_protocol(protocol, repository, protocol_hash)
+        if data_kind not in {"physical", "synthetic"}:
+            raise ValueError("explicit physical or synthetic evaluation kind required")
+        self.path, self.count, self.ended = path, 0, False
+        path.parent.mkdir(parents=True, exist_ok=True)
+        self._append(
+            {
+                "kind": "metadata",
+                "grading_rule": FIXED_D2_KIND,
+                "protocol_sha256": protocol_hash,
+                "data_kind": data_kind,
+                "contract_version": CONTRACT_VERSION,
+                **{
+                    key: self.config[key]
+                    for key in (
+                        "task_id",
+                        "task_definition_sha256",
+                        "physical_contract",
+                        "policy_id",
+                        "checkpoint_content_sha256",
+                        "command_period_s",
+                        "response_timeout_s",
+                        "max_steps",
+                    )
+                },
+                "object_success_limitation": OBJECT_SUCCESS_LIMITATION,
+            },
+            create=True,
+        )
+
+    def _append(self, record: dict[str, Any], *, create: bool = False) -> None:
+        with self.path.open("x" if create else "a", encoding="utf-8") as stream:
+            stream.write(json.dumps(record, allow_nan=False) + "\n")
+
+    def trial(self, attempts: list[dict[str, Any]], scene: dict[str, Any]) -> None:
+        if self.ended:
+            raise ValueError("evaluation has already ended")
+        _validate_fixed_trial(attempts, scene, self.config, self.count)
+        self._append(
+            {
+                "kind": "trial",
+                "turn": self.count + 1,
+                "trial": scene,
+                "desc": json.dumps(scene, sort_keys=True),
+                "commands": 1,
+                "ok": [attempts[-1]["ok"]],
+                "attempts": attempts,
+            }
+        )
+        self.count += 1
+
+    def finish(self, status: str, errors: list[str]) -> None:
+        if self.ended or status not in {"completed", "aborted", "failed"}:
+            raise ValueError("evaluation must end once with an explicit status")
+        self._append({"kind": "session_end", "status": status, "errors": errors})
+        self.ended = True
+
+
+def _score_fixed_evaluation(
+    lines: list[dict[str, Any]],
+    config: dict[str, Any],
+    output: Path,
+) -> dict[str, Any]:
+    validate_fixed_protocol(config)
+    meta = lines[0]
+    if (
+        meta.get("kind") != "metadata"
+        or meta.get("grading_rule") != FIXED_D2_KIND
+        or meta.get("data_kind")
+        not in {
+            "physical",
+            "synthetic",
+        }
+        or meta.get("contract_version") != CONTRACT_VERSION
+    ):
+        raise ValueError("wrong fixed-task log contract or data kind")
+    for key in (
+        "task_id",
+        "task_definition_sha256",
+        "physical_contract",
+        "policy_id",
+        "checkpoint_content_sha256",
+        "command_period_s",
+        "response_timeout_s",
+        "max_steps",
+    ):
+        if _canonical(meta.get(key)) != _canonical(config[key]):
+            raise ValueError("EvalLog task/checkpoint binding differs from its committed protocol")
+    if (
+        len(lines) < 2
+        or lines[-1].get("kind") != "session_end"
+        or (lines[-1].get("status") not in {"completed", "aborted", "failed"})
+    ):
+        raise ValueError("fixed evaluation requires its final session status")
+    records = lines[1:-1]
+    terminal = lines[-1]
+    if (
+        type(terminal.get("errors")) is not list
+        or any(type(error) is not str for error in terminal["errors"])
+        or (terminal["status"] == "completed" and terminal["errors"])
+    ):
+        raise ValueError("invalid or inconsistent terminal error evidence")
+    if len(records) > config["trials"]:
+        raise ValueError("too many fixed evaluation trials")
+    for index, record in enumerate(records):
+        if (
+            record.get("kind") != "trial"
+            or type(record.get("turn")) is not int
+            or (record["turn"] != index + 1)
+        ):
+            raise ValueError("out-of-order fixed trial ids")
+        _validate_fixed_trial(record["attempts"], record["trial"], config, index)
+        stopped = any(a["execution_status"] != "completed" for a in record["attempts"])
+        if stopped and (index != len(records) - 1 or terminal["status"] == "completed"):
+            raise ValueError("evaluation cannot continue or complete after a stopped execution")
+        if record.get("ok") != [record["attempts"][-1]["ok"]]:
+            raise ValueError("trial score differs from its final attempt")
+    stats = aggregate_records(records, data_kind=meta["data_kind"])
+    attempts = [attempt for record in records for attempt in record["attempts"]]
+    funnel = {}
+    unknown = {}
+    for name in FUNNEL:
+        observed = [
+            any(a["funnel"][name] is True for a in r["attempts"])
+            for r in records
+            if any(a["funnel"][name] is not None for a in r["attempts"])
+        ]
+        funnel[name] = sum(observed) if observed else None
+        unknown[name] = len(records) - len(observed)
+    successes = sum(record["attempts"][-1]["ok"] for record in records)
+    stats.update(
+        {
+            "protocol_sha256": meta["protocol_sha256"],
+            "policy_id": meta["policy_id"],
+            "task_id": meta["task_id"],
+            "task_definition_sha256": meta["task_definition_sha256"],
+            "checkpoint_content_sha256": meta["checkpoint_content_sha256"],
+            "funnel": funnel,
+            "funnel_unknown_trials": unknown,
+            "trial_count": len(records),
+            "successes": successes,
+            "operator_object_successes": sum(
+                r["attempts"][-1]["operator_object_success"] is True for r in records
+            ),
+            "operator_object_success_attempts": sum(
+                a["operator_object_success"] is True for a in attempts
+            ),
+            "required_trials": config["trials"],
+            "threshold": config["success_threshold"],
+            "threshold_met": len(records) == config["trials"]
+            and lines[-1]["status"] == "completed"
+            and successes >= config["success_threshold"],
+            "session_status": lines[-1]["status"],
+            "incomplete": len(records) < config["trials"],
+            "stage_status": "planned",
+            "object_success_limitation": OBJECT_SUCCESS_LIMITATION,
+            "failure_taxonomy_counts": {
+                "operator-labeled object failure": sum(
+                    a["operator_object_success"] is False for a in attempts
+                ),
+                "execution fault or policy hold": sum(
+                    a["execution_status"] in {"fault", "policy_hold"} for a in attempts
+                ),
+                "aborted or declined": sum(
+                    a["execution_status"] in {"aborted", "declined"} for a in attempts
+                ),
+                "object outcome unknown": sum(
+                    a["operator_object_success"] is None for a in attempts
+                ),
+            },
         }
     )
     output.parent.mkdir(parents=True, exist_ok=True)

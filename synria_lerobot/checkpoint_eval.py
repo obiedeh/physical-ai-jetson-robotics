@@ -25,6 +25,7 @@ from .evaluation import committed_bytes
 from .physical_contract import DRIVER_JOINT_NAMES, PhysicalDatasetContract
 from .policy_client import GuardedCommandPath, PolicyClient, PolicyTransport
 from .quality_gates import OBJECT_SUCCESS_LIMITATION, load_limits
+from .task_registry import validate_fixed_scene_schedule
 
 if TYPE_CHECKING:
     from .sessions import SessionIO
@@ -160,39 +161,7 @@ def validate_probes(config: dict[str, Any]) -> None:
     contract.require_qualifying()
     if config.get("task_id") != contract.task_id:
         raise ValueError("probe task must match its frozen physical contract")
-    trials = config.get("physical_trials")
-    if not isinstance(trials, list) or not trials:
-        raise ValueError("fixed physical skill/scene trials required")
-    seen = set()
-    fixed_scene = None
-    for trial in trials:
-        if type(trial) is not dict or set(trial) != {"trial_id", "task_id", "scene"}:
-            raise ValueError("physical trial needs only a fixed task and scene, no square goals")
-        identifier = _identifier(trial.get("trial_id"))
-        if identifier in seen or trial["task_id"] != contract.task_id:
-            raise ValueError("unique trial id and the same trained task required")
-        seen.add(identifier)
-        scene = trial["scene"]
-        strings = {
-            "scene_id",
-            "cup_mark",
-            "die_start_zone",
-            "landing_tray",
-            "start_state",
-            "die_position_in_zone",
-        }
-        if (
-            type(scene) is not dict
-            or set(scene) != {*strings, "die_face_up"}
-            or any(type(scene[key]) is not str or not scene[key].strip() for key in strings)
-            or type(scene["die_face_up"]) is not int
-            or not 1 <= scene["die_face_up"] <= 6
-        ):
-            raise ValueError("fixed scene and explicit die position/face variation required")
-        geometry = {key: scene[key] for key in strings - {"die_position_in_zone"}}
-        if fixed_scene is not None and geometry != fixed_scene:
-            raise ValueError("probe geometry and start state must stay fixed")
-        fixed_scene = geometry
+    validate_fixed_scene_schedule(config.get("physical_trials"), contract.task_id)
     capture = config.get("capture")
     if not isinstance(capture, dict):
         raise ValueError("explicit fixed probe capture settings required")

@@ -36,6 +36,10 @@
   },
   "protocol": "docs/ludo_flagship/D2_EVAL_PROTOCOL.md",
   "protocol_sha256": "",
+  "d2_policy": {
+    "checkpoint": "", "receipt": "", "endpoint": "",
+    "response_timeout_s": null, "max_steps": null
+  },
   "d2_trials": [],
   "max_steps": 0,
   "command_period_s": null,
