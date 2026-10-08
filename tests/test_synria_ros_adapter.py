@@ -953,7 +953,7 @@ def test_interrupt_during_pending_action_cancels_only_owned_goal(setup: Any) -> 
     assert setup.ros.published[-1].position == [0] * 6
 
 
-def test_twenty_graded_trials_use_adapter_fake_ros_and_stub_policy(
+def test_legacy_token_d2_motion_is_refused_before_adapter_factory(
     setup: Any,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1042,26 +1042,19 @@ def test_twenty_graded_trials_use_adapter_fake_ros_and_stub_policy(
         "synria_lerobot.sessions.PolicyClient", lambda *args: PolicyClient(*args, clock=setup.clock)
     )
     output = Path(config["session_output"])
-    stats = run_session(
-        config, "d2", repository, output, enable_motion=True, factory=lambda conf: io
-    )
-    assert stats["threshold_met"] and stats["first_try"]["rate"] == 0.7
-    assert stats["stage_status"] == "planned"
-    assert len(requests) == len(setup.ros.goals) == 20
-    assert all(request["reset"] and request["action_lookahead_steps"] == 2 for request in requests)
-    assert len(list((output / "stills").glob("*.jpg"))) == 20
-    provenance = json.loads((output / "provenance.json").read_text())
-    source = provenance["source_preflight"]
-    assert (
-        source["state_source"] == "ros2_control"
-        and source["state_rate_measurement"]["rate_hz"] == 30
-    )
-    assert source["leader_sync_off"]["operator_confirmed"] is True
-    assert source["command_period_s"] == source["bridge_move_time_s"] == 0.4
-    assert sum("measured_arm_hold_monotonic_s" in event for event in source["events"]) == 20
-    assert sum("front_still" in event for event in source["events"]) == 20
-    assert (output / "EvalLog.jsonl").is_file() and (output / "session_end.json").is_file()
-    assert "node" in setup.ros.closed and not setup.answers
+    opened = []
+    with pytest.raises(ValueError, match="legacy token D2 motion is deferred"):
+        run_session(
+            config,
+            "d2",
+            repository,
+            output,
+            enable_motion=True,
+            factory=lambda conf: opened.append(conf),
+        )
+    assert not opened and not requests and not setup.ros.goals and not output.exists()
+    assert not setup.ros.publisher_topics
+    io.close()
 
 
 def test_fixed_skill_native_still_preserves_stored_policy_image(setup: Any) -> None:
@@ -1108,16 +1101,18 @@ def test_fixed_skill_grade_refuses_missing_native_pixels_before_prompt(setup: An
     io.close()
 
 
+@pytest.mark.parametrize("initial_epoch", [3.0, 100.0])
 def test_three_roll_skills_use_one_fake_ros_publisher_and_native_stills(
     setup: Any,
     tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
+    initial_epoch: float,
 ) -> None:
     from test_synria_roll_skills import roll_config
 
     from synria_lerobot.sessions import run_roll_skills
     from synria_lerobot.task_registry import TASK_IDS
 
+    setup.clock.now = initial_epoch
     config, transports = roll_config(tmp_path)
     setup.config.update(config)
     setup.config.update(enable_motion=True, session_output=str(tmp_path / "session"))
@@ -1151,9 +1146,6 @@ def test_three_roll_skills_use_one_fake_ros_publisher_and_native_stills(
             "unchanged",
         ]
     )
-    monkeypatch.setattr(
-        "synria_lerobot.sessions.PolicyClient", lambda *args: PolicyClient(*args, clock=setup.clock)
-    )
     result = run_roll_skills(
         setup.config,
         Path.cwd(),
@@ -1161,10 +1153,16 @@ def test_three_roll_skills_use_one_fake_ros_publisher_and_native_stills(
         enable_motion=True,
         factory=lambda settings: (setup.config.update(settings), setup.create())[1],
         transports=transports,
-        sleep=setup.clock.sleep,
+        # A real sleep meets or exceeds its period; avoid fake float under-rounding.
+        sleep=lambda seconds: setup.clock.sleep(seconds + 1e-9),
+        clock=setup.clock,
     )
     assert result["status"] == "completed", result
     assert result["roll"]["value"] == 4
+    assert result["roll"]["events"][0]["monotonic_s"] == initial_epoch
+    assert all(
+        initial_epoch <= event["monotonic_s"] <= setup.clock() for event in result["roll"]["events"]
+    )
     assert setup.ros.publisher_topics == [setup.settings["policy_target_topic"]]
     assert "/joint_commands" not in setup.ros.publisher_topics
     assert setup.settings["armed_topic"] not in setup.ros.publisher_topics

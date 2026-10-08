@@ -7,7 +7,7 @@ import importlib
 import json
 import time
 from collections.abc import Callable
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from functools import partial
 from pathlib import Path
 from typing import Any, Protocol
@@ -16,9 +16,13 @@ from isaac.scripts.ludo_stats import aggregate_records
 
 from .embodiment import SynriaEmbodiment, SynriaObservation
 from .evaluation import (
+    FIXED_D2_KIND,
     EvalLogWriter,
+    FixedEvalLogWriter,
     FixedTaskGrade,
     OperatorGrade,
+    fixed_attempt_record,
+    load_fixed_protocol,
     load_protocol,
     score_evaluation,
 )
@@ -72,6 +76,7 @@ class SessionIO(Protocol):
     def command_sink(self) -> CommandSink: ...
     def grade(self, move: TaskMove) -> OperatorGrade: ...
     def grade_skill(self, task: TaskDefinition) -> FixedTaskGrade: ...
+    def funnel_observations(self) -> dict[str, bool | None]: ...
     def confirm_skill(self, task: TaskDefinition) -> bool: ...
     def recover(self, move: TaskMove) -> bool: ...
     def recover_skill(self, task: TaskDefinition) -> bool: ...
@@ -188,6 +193,7 @@ def run_roll_skills(
     factory: Callable[[dict[str, Any]], SessionIO] | None = None,
     transports: dict[str, Any] | None = None,
     sleep: Callable[[float], None] = time.sleep,
+    clock: Callable[[], float] = time.monotonic,
 ) -> dict[str, Any]:
     """A standalone fixed-scene roll; no board move, game or milestone advancement."""
     if output.exists():
@@ -296,6 +302,7 @@ def run_roll_skills(
                     binding.transport,
                     load_limits(Path(config["limits"])),
                     binding.safety,
+                    clock=clock,
                 )
                 clients[task] = client
                 path = GuardedCommandPath(client, lambda: shared_sink, enable_motion=True)
@@ -321,7 +328,14 @@ def run_roll_skills(
             def capture() -> tuple[Any, str, float]:
                 return io.capture_front(require_native=True)
 
-            arm = FixedSkillRollArm(executors, io.confirm_skill, io.grade_skill, record, capture)
+            arm = FixedSkillRollArm(
+                executors,
+                io.confirm_skill,
+                io.grade_skill,
+                record,
+                capture,
+                clock=clock,
+            )
 
             def capture_perception() -> tuple[Any, str, float]:
                 import cv2
@@ -337,7 +351,7 @@ def run_roll_skills(
                 if perception is None
                 else GatedDieReader(perception, capture_perception)
             )
-            result = RollMachine(arm, reader, roll_config, sleep=sleep).run()
+            result = RollMachine(arm, reader, roll_config, sleep=sleep, clock=clock).run()
             report["roll"] = asdict(result)
             report["status"] = "completed" if result.error is None else "failed"
     except BaseException as error:
@@ -371,6 +385,255 @@ def run_roll_skills(
             json.dumps(report, indent=2, allow_nan=False), encoding="utf-8"
         )
     return report
+
+
+def run_fixed_evaluation(
+    config: dict[str, Any],
+    repository: Path,
+    output: Path,
+    *,
+    enable_motion: bool = False,
+    factory: Callable[[dict[str, Any]], SessionIO] | None = None,
+    transport: Any = None,
+    sleep: Callable[[float], None] = time.sleep,
+    clock: Callable[[], float] = time.monotonic,
+) -> dict[str, Any]:
+    """Hash-gated single fixed-task trials, without board coordinates or goal text."""
+    from .checkpoint_eval import _artifact_destination
+
+    protocol = load_fixed_protocol(Path(config["protocol"]), repository, config["protocol_sha256"])
+    specification = config["d2_policy"]
+    binding = bind_fixed_skill(
+        config,
+        specification,
+        protocol["task_id"],
+        enable_motion=enable_motion,
+        transport=transport,
+    )
+    expected = {
+        "physical_contract": binding.metadata["physical_contract"],
+        "task_definition_sha256": binding.contract.task_definition.sha256,
+        "policy_id": binding.metadata["policy_id"],
+        "checkpoint_content_sha256": binding.metadata["checkpoint_content_sha256"],
+        "command_period_s": binding.safety.command_period_s,
+        "response_timeout_s": binding.safety.response_timeout_s,
+        "max_steps": binding.max_steps,
+    }
+    if any(
+        json.dumps(protocol[key], sort_keys=True) != json.dumps(value, sort_keys=True)
+        for key, value in expected.items()
+    ):
+        raise ValueError("D2 protocol task/checkpoint/cadence differs from its bound policy")
+    if config["max_attempts"] != protocol["max_attempts"]:
+        raise ValueError("retry budget must match the committed D2 protocol")
+    io_config = fixed_io_configuration(config, binding)
+    _artifact_destination(
+        output,
+        (Path(specification["checkpoint"]),),
+        (Path(config["protocol"]), Path(specification["receipt"])),
+    )
+    if output.exists():
+        raise FileExistsError("use a new directory for every evaluation")
+    if factory is None:
+        module, name = config["adapter"].split(":", 1)
+        factory = getattr(importlib.import_module(module), name)
+    output.mkdir(parents=True)
+    io: SessionIO | None = None
+    client: PolicyClient | None = None
+    path: GuardedCommandPath | None = None
+    writer: FixedEvalLogWriter | None = None
+    status, errors = "completed", []
+    provenance = {
+        **io_config["provenance"],
+        "policy_binding": binding.metadata,
+        "protocol_sha256": config["protocol_sha256"],
+        "policy_safety": asdict(binding.safety),
+        "object_success_limitation": OBJECT_SUCCESS_LIMITATION,
+    }
+    stats: dict[str, Any] = {}
+    try:
+        if enable_motion:
+            writer = FixedEvalLogWriter(
+                output / "EvalLog.jsonl",
+                Path(config["protocol"]),
+                repository,
+                config["protocol_sha256"],
+                data_kind=config.get("data_kind", "physical"),
+            )
+        io = factory({**io_config, "enable_motion": enable_motion, "session_output": str(output)})
+        provenance["source_preflight"] = io.preflight()
+        if not enable_motion:
+            status = "read_only"
+            stats = {
+                "motion_enabled": False,
+                "status": status,
+                "validated": True,
+                "policy_binding": binding.metadata,
+            }
+        else:
+            provenance["source_preflight"] = io.authorize_motion()
+            client = PolicyClient(
+                SynriaEmbodiment(binding.contract),
+                binding.transport,
+                load_limits(Path(config["limits"])),
+                binding.safety,
+                clock=clock,
+            )
+            path = GuardedCommandPath(client, io.command_sink, enable_motion=True)
+            # The readiness prompt may offer an eligible hold before any skill budget.
+            path.hold()
+            assert writer is not None
+            stop = False
+            for scene in protocol["scene_schedule"]:
+                attempts = []
+                for number in range(1, protocol["max_attempts"] + 1):
+                    grade: FixedTaskGrade | None = None
+                    confirmed, execution = False, "completed"
+                    attempt_errors: list[str] = []
+                    executor: FixedSkillExecutor | None = None
+                    try:
+                        print(
+                            f"D2 trial {scene['trial_id']}: "
+                            f"{json.dumps(scene['scene'], sort_keys=True)}"
+                        )
+                        if io.abort_pending():
+                            raise OperatorAbort("operator aborted before trial")
+                        confirmed = io.confirm_skill(binding.contract.task_definition)
+                        if confirmed is not True:
+                            raise OperatorAbort("operator declined frozen trial scene")
+                        executor = FixedSkillExecutor(
+                            path,
+                            io.observe,
+                            io.abort_pending,
+                            max_steps=binding.max_steps,
+                            period_s=binding.safety.command_period_s,
+                            sleep=sleep,
+                        )
+                        executor.execute()
+                        grade = io.grade_skill(binding.contract.task_definition)
+                        grade.evidence()
+                        grade = replace(grade, funnel=io.funnel_observations())
+                        grade.evidence()
+                    except (OperatorAbort, KeyboardInterrupt, EOFError) as error:
+                        execution, status, stop = "aborted", "aborted", True
+                        attempt_errors.append(str(error) or type(error).__name__)
+                    except Exception as error:
+                        execution, status, stop = "fault", "failed", True
+                        attempt_errors.append(str(error) or type(error).__name__)
+                    finally:
+                        try:
+                            path.hold()
+                        except BaseException as error:
+                            interrupted = isinstance(
+                                error, (KeyboardInterrupt, EOFError, OperatorAbort)
+                            )
+                            execution = "aborted" if interrupted else "fault"
+                            status, stop = "aborted" if interrupted else "failed", True
+                            attempt_errors.append(str(error) or type(error).__name__)
+                        attempts.append(
+                            fixed_attempt_record(
+                                grade,
+                                number,
+                                execution_status=execution,
+                                steps=executor.offered_steps if executor else 0,
+                                scene_confirmed=confirmed is True,
+                                errors=attempt_errors,
+                            )
+                        )
+                    if stop or attempts[-1]["ok"] or number == protocol["max_attempts"]:
+                        break
+                    try:
+                        if not io.recover_skill(binding.contract.task_definition):
+                            status, stop = "aborted", True
+                            errors.append("operator declined the trial reset")
+                            break
+                    except (OperatorAbort, KeyboardInterrupt, EOFError) as error:
+                        status, stop = "aborted", True
+                        errors.append(str(error) or type(error).__name__)
+                        break
+                    except Exception as error:
+                        status, stop = "failed", True
+                        errors.append(str(error) or type(error).__name__)
+                        break
+                writer.trial(attempts, scene)
+                if stop:
+                    break
+    except (OperatorAbort, KeyboardInterrupt, EOFError) as error:
+        status = "aborted"
+        errors.append(str(error) or type(error).__name__)
+    except Exception as error:
+        status = "failed"
+        errors.append(str(error) or type(error).__name__)
+    finally:
+        callbacks = []
+        if path is not None:
+            callbacks.append(path.hold)
+        if io is not None:
+            callbacks.extend(
+                [
+                    lambda: provenance.update(source_preflight=io.session_evidence()),
+                    lambda: provenance.update(power_state_end=io.power_state_end()),
+                    io.close,
+                ]
+            )
+        if client is not None:
+            callbacks.append(lambda: client.write_latencies(output / "latencies.jsonl"))
+        for callback in callbacks:
+            try:
+                callback()
+            except BaseException as error:
+                if status in {"completed", "read_only"}:
+                    status = (
+                        "aborted"
+                        if isinstance(error, (KeyboardInterrupt, EOFError, OperatorAbort))
+                        else "failed"
+                    )
+                errors.append(str(error) or type(error).__name__)
+        provenance.update(session_status=status, errors=errors)
+
+        def write_provenance() -> None:
+            provenance.update(session_status=status, errors=errors)
+            (output / "provenance.json").write_text(
+                json.dumps(
+                    provenance,
+                    indent=2,
+                    allow_nan=False,
+                ),
+                encoding="utf-8",
+            )
+
+        def finalize_stats() -> None:
+            nonlocal stats
+            if writer is not None:
+                stats = score_evaluation(
+                    writer.path,
+                    Path(config["protocol"]),
+                    repository,
+                    output / "frozen_stats.json",
+                )
+            else:
+                stats.update(status=status, errors=errors)
+
+        final_writes = [write_provenance]
+        if writer is not None:
+            final_writes.append(lambda: writer.finish(status, errors))
+        final_writes.append(finalize_stats)
+        primary_evidence_error: BaseException | None = None
+        for callback in final_writes:
+            try:
+                callback()
+            except BaseException as error:
+                if status in {"completed", "read_only"}:
+                    status = (
+                        "aborted"
+                        if isinstance(error, (KeyboardInterrupt, EOFError, OperatorAbort))
+                        else "failed"
+                    )
+                errors.append(str(error) or type(error).__name__)
+                primary_evidence_error = primary_evidence_error or error
+        if primary_evidence_error is not None:
+            raise primary_evidence_error
+    return stats
 
 
 def validate_session(
@@ -467,6 +730,18 @@ def run_session(
     enable_motion: bool = False,
     factory: Callable[[dict[str, Any]], SessionIO] | None = None,
 ) -> dict[str, Any]:
+    if mode == "d2":
+        protocol = load_protocol(Path(config["protocol"]), repository, config["protocol_sha256"])
+        if protocol.get("kind") == FIXED_D2_KIND:
+            return run_fixed_evaluation(
+                config,
+                repository,
+                output,
+                enable_motion=enable_motion,
+                factory=factory,
+            )
+        if enable_motion:
+            raise ValueError("legacy token D2 motion is deferred under the roll-first decision")
     safety = validate_session(config, mode, repository, enable_motion=enable_motion)
     if output.exists():
         raise FileExistsError("use a new output directory for each session")

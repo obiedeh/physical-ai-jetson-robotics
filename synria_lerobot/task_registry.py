@@ -15,8 +15,13 @@ EPISODE_WINDOW_KEYS = ("min_episode_s", "max_episode_s")
 QUALIFYING = "qualifying"
 DISPOSABLE_SMOKE = "disposable_smoke"
 TASK_METADATA_KEYS = (
-    "task_id", "task_text", "task_definition", "task_definition_sha256", *EPISODE_WINDOW_KEYS,
-    "recording_purpose", "episode_window_override",
+    "task_id",
+    "task_text",
+    "task_definition",
+    "task_definition_sha256",
+    *EPISODE_WINDOW_KEYS,
+    "recording_purpose",
+    "episode_window_override",
 )
 
 
@@ -27,14 +32,63 @@ def recording_purpose(smoke: bool) -> str:
 
 
 def episode_window_metadata(min_episode_s: Any, max_episode_s: Any) -> dict[str, float]:
-    if any(
-        type(value) not in (int, float) or not math.isfinite(value) or value <= 0
-        for value in (min_episode_s, max_episode_s)
-    ) or min_episode_s > max_episode_s:
+    if (
+        any(
+            type(value) not in (int, float) or not math.isfinite(value) or value <= 0
+            for value in (min_episode_s, max_episode_s)
+        )
+        or min_episode_s > max_episode_s
+    ):
         raise ValueError(
             "episode window requires finite positive min <= max; operator timing required"
         )
     return {"min_episode_s": min_episode_s, "max_episode_s": max_episode_s}
+
+
+def validate_fixed_scene_schedule(trials: Any, task_id: str) -> None:
+    """Freeze marked geometry/start setup; only declared die position/face may vary."""
+    if task_id not in TASK_IDS or type(trials) is not list or not trials:
+        raise ValueError("fixed physical skill/scene trials required")
+    identifiers = set()
+    geometry = None
+    fields = {
+        "scene_id",
+        "cup_mark",
+        "die_start_zone",
+        "landing_tray",
+        "start_state",
+        "die_position_in_zone",
+    }
+    for trial in trials:
+        if type(trial) is not dict or set(trial) != {"trial_id", "task_id", "scene"}:
+            raise ValueError("physical trial needs only a fixed task and scene, no square goals")
+        identifier = trial["trial_id"]
+        if (
+            type(identifier) is not str
+            or not identifier
+            or not identifier[0].isalnum()
+            or not all(
+                character.isascii() and (character.isalnum() or character in "_-")
+                for character in identifier
+            )
+            or identifier in identifiers
+            or trial["task_id"] != task_id
+        ):
+            raise ValueError("unique trial id and the same trained task required")
+        identifiers.add(identifier)
+        scene = trial["scene"]
+        if (
+            type(scene) is not dict
+            or set(scene) != {*fields, "die_face_up"}
+            or any(type(scene[key]) is not str or not scene[key].strip() for key in fields)
+            or type(scene["die_face_up"]) is not int
+            or not 1 <= scene["die_face_up"] <= 6
+        ):
+            raise ValueError("fixed scene and explicit die position/face variation required")
+        current = {key: scene[key] for key in fields - {"die_position_in_zone"}}
+        if geometry is not None and current != geometry:
+            raise ValueError("trial geometry and start state must stay fixed")
+        geometry = current
 
 
 @dataclass(frozen=True)
@@ -49,12 +103,17 @@ class TaskDefinition:
     def __post_init__(self) -> None:
         if type(self.task_id) is not str or self.task_id not in TASK_IDS:
             raise ValueError("unknown fixed-scene task id")
-        if any(type(value) is not str or not value.strip() for value in (
-            self.task_text, self.success_rule,
-        )):
+        if any(
+            type(value) is not str or not value.strip()
+            for value in (
+                self.task_text,
+                self.success_rule,
+            )
+        ):
             raise ValueError("task text and success rule must be nonempty strings")
         if (
-            type(self.scene_requirements) is not tuple or not self.scene_requirements
+            type(self.scene_requirements) is not tuple
+            or not self.scene_requirements
             or any(type(value) is not str or not value.strip() for value in self.scene_requirements)
         ):
             raise ValueError("task scene requirements must be a nonempty immutable string sequence")
@@ -66,11 +125,16 @@ class TaskDefinition:
 
     def as_dict(self) -> dict[str, Any]:
         return {
-            "task_id": self.task_id, "task_text": self.task_text, "success_rule": self.success_rule,
-            "scene_requirements": list(self.scene_requirements), "declared_fixed_scene": True,
+            "task_id": self.task_id,
+            "task_text": self.task_text,
+            "success_rule": self.success_rule,
+            "scene_requirements": list(self.scene_requirements),
+            "declared_fixed_scene": True,
             "requires_unobserved_goal": False,
-            "episode_window": {"min_episode_s": self.min_episode_s,
-                               "max_episode_s": self.max_episode_s},
+            "episode_window": {
+                "min_episode_s": self.min_episode_s,
+                "max_episode_s": self.max_episode_s,
+            },
         }
 
     @property
@@ -90,12 +154,16 @@ class TaskDefinition:
     def metadata(self, purpose: str = QUALIFYING) -> dict[str, Any]:
         window = self.recording_window(purpose)
         return {
-            "task_id": self.task_id, "task_text": self.task_text,
-            "task_definition": self.as_dict(), "task_definition_sha256": self.sha256,
-            **window, "recording_purpose": purpose,
+            "task_id": self.task_id,
+            "task_text": self.task_text,
+            "task_definition": self.as_dict(),
+            "task_definition_sha256": self.sha256,
+            **window,
+            "recording_purpose": purpose,
             "episode_window_override": (
                 {**window, "reason": "disposable smoke; never qualifying"}
-                if purpose == DISPOSABLE_SMOKE else None
+                if purpose == DISPOSABLE_SMOKE
+                else None
             ),
         }
 
@@ -107,8 +175,10 @@ class TaskDefinition:
         purpose = payload.get("recording_purpose")
         if type(purpose) is not str:
             raise ValueError("explicit recording purpose is required")
-        if any(key not in payload or payload[key] != value
-               for key, value in task.metadata(purpose).items()):
+        if any(
+            key not in payload or payload[key] != value
+            for key, value in task.metadata(purpose).items()
+        ):
             raise ValueError("task id, text, window or definition hash differs from its snapshot")
         episode_window_metadata(payload.get("min_episode_s"), payload.get("max_episode_s"))
         override = payload["episode_window_override"]
@@ -120,8 +190,15 @@ class TaskDefinition:
 
     @classmethod
     def from_dict(cls, value: Any) -> TaskDefinition:
-        keys = {"task_id", "task_text", "success_rule", "scene_requirements",
-                "declared_fixed_scene", "requires_unobserved_goal", "episode_window"}
+        keys = {
+            "task_id",
+            "task_text",
+            "success_rule",
+            "scene_requirements",
+            "declared_fixed_scene",
+            "requires_unobserved_goal",
+            "episode_window",
+        }
         if type(value) is not dict or set(value) != keys:
             raise ValueError("task definition has missing or unknown fields")
         if (
@@ -137,8 +214,12 @@ class TaskDefinition:
         if type(value["scene_requirements"]) is not list:
             raise ValueError("task scene requirements must be a list")
         return cls(
-            value["task_id"], value["task_text"], value["success_rule"],
-            tuple(value["scene_requirements"]), window["min_episode_s"], window["max_episode_s"],
+            value["task_id"],
+            value["task_text"],
+            value["success_rule"],
+            tuple(value["scene_requirements"]),
+            window["min_episode_s"],
+            window["max_episode_s"],
         )
 
 
@@ -152,8 +233,10 @@ def load_task_registry(path: Path) -> dict[str, TaskDefinition]:
         return result
 
     payload = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=unique_fields)
-    if type(payload) is not dict or set(payload) != {"version", "tasks"} or (
-        payload["version"] != REGISTRY_VERSION or type(payload["tasks"]) is not list
+    if (
+        type(payload) is not dict
+        or set(payload) != {"version", "tasks"}
+        or (payload["version"] != REGISTRY_VERSION or type(payload["tasks"]) is not list)
     ):
         raise ValueError("unsupported fixed-scene task registry")
     tasks = [TaskDefinition.from_dict(value) for value in payload["tasks"]]
@@ -163,7 +246,10 @@ def load_task_registry(path: Path) -> dict[str, TaskDefinition]:
 
 
 def select_recording_task(
-    path: Path, task_id: str, *, purpose: str = QUALIFYING,
+    path: Path,
+    task_id: str,
+    *,
+    purpose: str = QUALIFYING,
 ) -> TaskDefinition:
     tasks = load_task_registry(path)
     if type(task_id) is not str or task_id not in tasks:

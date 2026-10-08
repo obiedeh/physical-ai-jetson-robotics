@@ -749,10 +749,23 @@ class RosSessionIO:
 
     def confirm_skill(self, task: TaskDefinition) -> bool:
         self.hold()
-        return self._prompt(
-            f"Ready to run {task.task_id}: {task.task_text}; "
-            "fixed scene unchanged? [yes/no/abort]: "
-        ) == "yes"
+        return (
+            self._prompt(
+                f"Ready to run {task.task_id}: {task.task_text}; "
+                "fixed scene unchanged? [yes/no/abort]: "
+            )
+            == "yes"
+        )
+
+    def funnel_observations(self) -> dict[str, bool | None]:
+        """Independent diagnostics; unknown observations never change the object label."""
+        result = {}
+        for name in FUNNEL:
+            answer = self._prompt(f"Observed {name}? [yes/no/unknown/abort]: ")
+            if answer not in {"yes", "no", "unknown"}:
+                raise ValueError("funnel observation must be yes, no or unknown")
+            result[name] = None if answer == "unknown" else answer == "yes"
+        return result
 
     def grade(self, move: TaskMove) -> OperatorGrade:
         _, still, stamp = self.capture_front()

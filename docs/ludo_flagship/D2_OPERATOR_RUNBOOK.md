@@ -4,21 +4,38 @@ Software: **implemented, unmeasured**. D2: **planned**. All commands here are
 for a future operator-authorized session. This implementation was tested only
 with fakes and synthetic images.
 
+The prospective [2026-10-08 decision](DECISIONS.md) makes the first D2 task
+`die_into_cup`. Use its [collection protocol](DIE_INTO_CUP_PROTOCOL.md) and
+complete, hash-register and commit the
+[20-trial evaluation protocol](D2_EVAL_PROTOCOL.md) before running. The pass
+rule is die inside the cup at the end with a camera still attached; the
+threshold remains 14 of 20. Token moves and goal-conditioning design are deferred.
+The fixed D2 path does not load board coordinates or send variable goal text.
+
 ## Preconditions and device bindings
 
 Accept the [Phase 0A record](../../reports/synria/phase0a_safety_recovery.md) and
 [first-safe-motion record](../../reports/synria/first_safe_motion.md). Complete
 the operator fields in the [limits](../../config/synria_limits.yaml),
-[policy safety configuration](../../config/synria_policy.json),
-[calibration](../../config/synria_board_calibration.json) and
-[reachable squares](../../config/synria_reachable_squares.json). Coordinates
-are XYZ metres in the named task frame. Track squares use `track:0` through
-`track:51`; yard/home squares use colour, kind and index, such as `red:yard:0`
-or `red:home:5`. All capture-return squares must also be reachable.
+[policy safety configuration](../../config/synria_policy.json) and fixed scene.
+Real task windows remain unset until operator timing and a prospective decision.
+Use the trained task's configured registry and matching dataset/checkpoint;
+no default task window or changing target is inferred.
 
 Copy the [session configuration](../../config/synria_session.json) and
 [ROS adapter configuration](../../config/synria_ros_adapter.json) to
-operator-owned files and fill every required field. The session's `adapter`
+operator-owned files. Complete the common source/provenance settings and
+`d2_policy` entry: checkpoint,
+trainer completion receipt, endpoint, per-policy response timeout and positive
+command budget. Bind these to the committed protocol's complete task contract,
+checkpoint hash, ordered scene schedule and cadence. Keep `max_attempts` equal
+to the protocol. The endpoint metadata must match the receipt before sources
+open; see the [serving guide](ACT_TRAINING_RUNBOOK.md). Legacy token schedules
+cannot enable motion under the current roll-first contract. Confirm the fixed
+scene/reset before each trial. Grade the native timestamp-linked front still,
+then independently answer each funnel diagnostic yes/no/unknown. Funnel
+observations do not determine object success; unknown values remain explicit.
+The session's `adapter`
 selects the included [read-only-first adapter](../../synria_lerobot/ros_adapter.py);
 `adapter_config` points to the completed copy. No driver, bridge, controller,
 launch file or teleoperation is started, stopped or reconfigured by this code.
@@ -95,8 +112,9 @@ cp docs/ludo_flagship/D2_EVAL_PROTOCOL.md "$PROTOCOL"
 ```
 
 Fill the protocol operator fields and its 20-entry `scene_schedule` JSON list.
-Each entry contains `source`, `target`, `piece`, plus scene/randomisation
-details. Copy that exact list into `d2_trials` in the session configuration.
+Each entry contains `trial_id`, `task_id: "die_into_cup"` and the fixed `scene`
+fields documented in the template, with die position/face variations. The
+committed protocol alone supplies the schedule; no legacy `d2_trials` copy is used.
 Freeze the policy/checkpoint, retries, conditions and scene schedule before
 collecting labels. The template threshold is 14 of 20; changing it requires
 a prospective operator decision.
@@ -122,13 +140,14 @@ publisher or action client created:
 
 ```bash
 python3 -m synria_lerobot.sessions d2 --config "$SESSION_CONFIG" \
-  --output "reports/ludo_flagship/eval/$SESSION"
+  --output "reports/ludo_flagship/eval/${SESSION}-preflight"
 ```
 
 Unverified safety files may be inspected read-only; they cannot enable motion.
 Preflight requires an observed actual `false` armed-state message, not a missing
 message or an already-armed bridge. After reviewing the read-only result and
 all physical prerequisites, leave the bridge disarmed and run:
+Use a fresh motion output directory; never reuse the preflight directory.
 
 ```bash
 python3 -m synria_lerobot.sessions d2 --config "$SESSION_CONFIG" \
@@ -168,15 +187,16 @@ Cancellation acceptance is not proof of physical stopping; unresolved outcomes
 are reported and owned resources retained for cleanup. Verify this behavior on
 hardware before use. Type `abort` at prompts or interrupt the process to abort.
 
-Follow the committed scene schedule. Grade reached/grasped/lifted/placed/
-released and success/failure from the front still. Success requires the token
-upright within the intended square, gripper released and arm retracted.
+Follow the committed scene schedule. Grade die inside the cup at the end from
+the timestamp-linked native front still, then record the five independent
+funnel observations as yes/no/unknown. They are not extra pass conditions.
 Preserve every failed attempt. Confirm a reset before retrying. A fault,
 closed input or uncertain scene requires the site's verified hold and operator
 reconciliation. An incomplete trial set cannot pass.
 
 The session writes EvalLog, provenance, frozen statistics, latency records and
-end-power state. Faults are recorded separately when present. Review the
+end-power state. Attempt and terminal records preserve faults and interruptions
+separately from the original object labels. Review the
 first-try rate, funnel counts, trial result and threshold. To independently
 re-score into a fresh file:
 
