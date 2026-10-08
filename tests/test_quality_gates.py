@@ -5,6 +5,7 @@ from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from synria_lerobot.physical_contract import (
     CONTRACT_VERSION,
@@ -205,6 +206,7 @@ class _Frames:
 
 class _Writer:
     next_episode_index = 0
+    recovery_blocked = False
 
     def finalize(self) -> None:
         return None
@@ -220,6 +222,9 @@ class _Writer:
         return path
 
     def write_episode(self, episode: RecordedPhysicalEpisode) -> None:
+        episode.final_still_path = self.save_final_still(
+            episode.episode_index, episode.frames[-1].front
+        )
         self.episodes.append(episode)
         (self.root / f"episode_{episode.episode_index:06d}.json").write_text(
             json.dumps({"frames": len(episode.frames), "label": episode.operator_label.value})
@@ -318,3 +323,75 @@ def test_fake_source_end_to_end_for_both_action_sources(tmp_path: Path) -> None:
     assert aggregate["status"] == "planned"
     assert aggregate["action_sources"] == ["leader", "next_state"]
     assert (tmp_path / "timeline.jsonl").read_text().count("d1_dataset_summary") == 1
+
+
+def test_smoke_is_diagnosed_but_never_qualifies_or_affects_demo_success(tmp_path: Path) -> None:
+    dataset = tmp_path / "dataset"
+    dataset.mkdir()
+    limits = replace(load_limits(LIMITS_PATH), verified_by="test", verified_on="2026-10-08")
+    summary = write_session_artifacts(
+        session_dir=tmp_path / "reports" / "session", dataset_path=dataset,
+        provenance=_provenance("leader"),
+        episodes=[replace(_baseline_episode(), smoke=True)], limits=limits,
+    )
+    assert summary["recorded_episode_count"] == 1
+    assert summary["smoke_episode_count"] == 1
+    assert summary["episode_count"] == 0
+    assert summary["quality_valid_episode_count"] == 0
+    assert summary["qualifying_episode_count"] == 0
+    assert summary["demonstration_success_rate"] == 0
+    assert len(summary["gate_results"]) == 1
+
+
+def test_resumed_dataset_reuses_summary_and_cannot_be_counted_twice(tmp_path: Path) -> None:
+    dataset = tmp_path / "dataset"
+    dataset.mkdir()
+    reports = tmp_path / "reports"
+    limits = load_limits(LIMITS_PATH)
+    kwargs = dict(
+        dataset_path=dataset, provenance=_provenance("leader"),
+        episodes=[_baseline_episode()], limits=limits,
+    )
+    write_session_artifacts(session_dir=reports / "session", **kwargs)
+    with pytest.raises(ValueError, match="already summarized"):
+        write_session_artifacts(session_dir=reports / "duplicate", **kwargs)
+    assert not (reports / "duplicate").exists()
+    kwargs["episodes"] = [_baseline_episode(), replace(_baseline_episode(), episode_index=1)]
+    summary = write_session_artifacts(session_dir=reports / "session", **kwargs)
+    assert summary["episode_count"] == 2
+    duplicate = reports / "duplicate"
+    duplicate.mkdir()
+    (duplicate / "session_summary.json").write_text(json.dumps(summary), encoding="utf-8")
+    with pytest.raises(ValueError, match="double counting"):
+        write_aggregate_summary(
+            data_root=reports, output_path=reports / "aggregate.json",
+            timeline_path=tmp_path / "timeline.jsonl",
+        )
+
+
+@pytest.mark.parametrize("bad_index", [0, -1, 0.5, True, "1"])
+def test_session_refuses_duplicate_or_invalid_indices_before_writing(
+    tmp_path: Path, bad_index: object
+) -> None:
+    dataset = tmp_path / "dataset"
+    dataset.mkdir()
+    session = tmp_path / "reports" / "session"
+    limits = replace(load_limits(LIMITS_PATH), verified_by="test", verified_on="2026-10-08")
+    episodes = [
+        _baseline_episode(),
+        replace(_baseline_episode(), episode_index=bad_index, smoke=True),
+    ]
+    with pytest.raises(ValueError, match="episode indices"):
+        write_session_artifacts(
+            session_dir=session, dataset_path=dataset,
+            provenance=_provenance("leader"), episodes=episodes, limits=limits,
+        )
+    assert not session.exists()
+
+
+@pytest.mark.parametrize("bad_index", [-1, 0.5, True, "1"])
+def test_quality_record_parser_does_not_coerce_invalid_episode_indices(bad_index: object) -> None:
+    payload = _baseline_episode().as_dict()
+    payload["episode_index"] = bad_index
+    with pytest.raises(ValueError, match="episode indices"):
+        EpisodeQualityRecord.from_dict(payload)

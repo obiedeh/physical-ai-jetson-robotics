@@ -65,8 +65,10 @@ class EpisodeQualityRecord:
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> EpisodeQualityRecord:
+        if type(payload["episode_index"]) is not int or payload["episode_index"] < 0:
+            raise ValueError("episode indices must be non-negative integers")
         return cls(
-            episode_index=int(payload["episode_index"]),
+            episode_index=payload["episode_index"],
             fps=float(payload["fps"]),
             duration_s=float(payload["duration_s"]),
             operator_label=str(payload["operator_label"]),
@@ -383,6 +385,11 @@ def write_session_artifacts(
     limits: PhysicalLimits,
     gate_config: GateConfig = DEFAULT_GATE_CONFIG,
 ) -> dict[str, object]:
+    indices = [episode.episode_index for episode in episodes]
+    if any(type(index) is not int or index < 0 for index in indices):
+        raise ValueError("episode indices must be non-negative integers")
+    if len(indices) != len(set(indices)):
+        raise ValueError("duplicate episode indices in session records")
     required = {
         "follower_serial",
         "leader_serial",
@@ -404,6 +411,17 @@ def write_session_artifacts(
     if missing:
         raise ValueError(f"provenance missing required fields: {missing}")
     provenance = _merge_capture_provenance(dataset_path, provenance, episodes)
+    dataset_root = dataset_path.resolve()
+    for existing in session_dir.parent.glob("*/session_summary.json"):
+        if existing.parent.resolve() == session_dir.resolve():
+            continue
+        existing_summary = json.loads(existing.read_text(encoding="utf-8"))
+        if "dataset_path" in existing_summary and Path(
+            existing_summary["dataset_path"]
+        ).resolve() == dataset_root:
+            raise ValueError(
+                "dataset already summarized; reuse its session directory when resuming"
+            )
     session_dir.mkdir(parents=True, exist_ok=True)
     provenance_path = session_dir / "provenance.json"
     provenance_path.write_text(
@@ -411,17 +429,24 @@ def write_session_artifacts(
     )
 
     reports = [evaluate_episode(episode, limits, gate_config) for episode in episodes]
-    labels = [episode.operator_label for episode in episodes]
+    retained = [episode for episode in episodes if not episode.smoke]
+    labels = [episode.operator_label for episode in retained]
     successes = sum(label == OperatorLabel.SUCCESS.value for label in labels)
-    quality_valid = sum(report.passed for report in reports)
+    quality_valid = sum(
+        report.passed and not episode.smoke
+        for report, episode in zip(reports, episodes, strict=True)
+    )
     summary: dict[str, object] = {
-        "episode_count": len(episodes),
+        "episode_count": len(retained),
+        "recorded_episode_count": len(episodes),
+        "smoke_episode_count": len(episodes) - len(retained),
+        "episode_indices": [episode.episode_index for episode in retained],
         "quality_valid_episode_count": quality_valid,
         "qualifying_episode_count": quality_valid if limits.verified else 0,
         "gate_results": [report.as_dict() for report in reports],
         "operator_labels": labels,
-        "demonstration_success_rate": successes / len(episodes) if episodes else 0.0,
-        "dataset_path": str(dataset_path),
+        "demonstration_success_rate": successes / len(retained) if retained else 0.0,
+        "dataset_path": str(dataset_root),
         "dataset_content_sha256": hash_dataset(dataset_path),
         "contract_version": provenance["contract_version"],
         "gripper_type": provenance["gripper_type"],
@@ -454,8 +479,15 @@ def write_aggregate_summary(
     now_utc: str | None = None,
 ) -> dict[str, object]:
     session_summaries = []
+    seen_datasets: set[Path] = set()
     for path in sorted(data_root.glob("*/session_summary.json")):
-        session_summaries.append(json.loads(path.read_text(encoding="utf-8")))
+        summary = json.loads(path.read_text(encoding="utf-8"))
+        if "dataset_path" in summary:
+            dataset = Path(summary["dataset_path"]).resolve()
+            if dataset in seen_datasets:
+                raise ValueError("duplicate dataset in session summaries; refusing double counting")
+            seen_datasets.add(dataset)
+        session_summaries.append(summary)
     quality_valid_total = sum(
         int(summary["quality_valid_episode_count"]) for summary in session_summaries
     )
