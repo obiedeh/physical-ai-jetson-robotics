@@ -23,7 +23,26 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 
 
-def _percentile(sorted_vals: list, p: float):
+def aggregate_records(records: list[dict], *, data_kind: str) -> dict:
+    """Aggregate camera-graded turns without inventing geometric measurements."""
+    attempts = [a for r in records for a in r.get("attempts", [])]
+    firsts = [a for a in attempts if a["attempt"] == 1]
+    turns = [r for r in records if r.get("attempts")]
+    ok = sum(bool(r.get("ok")) and all(r["ok"]) for r in turns)
+    n, k = len(firsts), sum(bool(a["ok"]) for a in firsts)
+    return {
+        "data_kind": data_kind, "attempts": len(attempts),
+        "first_try": {"n": n, "ok": k, "rate": k / n if n else 0.0},
+        "turn_level": {"n": len(turns), "ok": ok, "rate": ok / len(turns) if turns else 0.0},
+        "retries_used": sum(a["attempt"] > 1 for a in attempts),
+        "misses": sum(not a["ok"] for a in attempts),
+        "skipped": sum(r.get("status") == "skipped" for r in records),
+        "ok_err_mm": {"p50": None, "p95": None, "n": 0},
+        "failure_taxonomy_counts": {"operator-labeled failure": sum(not a["ok"] for a in attempts)},
+    }
+
+
+def _percentile(sorted_vals: list[float], p: float) -> float | None:
     """Index-based percentile, ported from physical-ai-safety-observability
     telemetry/runtime.py — the portfolio audit (2026-08-19) found three
     distinct off-by-one percentile implementations and exactly one correct
@@ -36,6 +55,8 @@ def _percentile(sorted_vals: list, p: float):
 
 def classify_failure(d: dict) -> str:
     """Symptom-level taxonomy from the attempt record alone."""
+    if d.get("lane") == "synria_physical_policy":
+        return "operator-labeled failure"
     if not d.get("grasped"):
         return "never-grasped (approach failed)"
     if d.get("final_tilt_deg", 0) > 45:
@@ -77,6 +98,7 @@ def main() -> int:
                     "final_tilt_deg": d["final_tilt_deg"],
                     "steps": d["steps"],
                     "lane": d["lane"],
+                    "data_kind": prov.get("data_kind", "simulated"),
                     "far_pick": d.get("far_pick"),
                     "grasped": d.get("grasped"),
                     "hold_armed": d.get("hold_armed"),
@@ -114,12 +136,12 @@ def main() -> int:
     firsts = [r for r in rows if r["attempt"] == 1]
     n = len(firsts)
     k = sum(1 for r in firsts if r["ok"])
-    p = k / n
+    p = k / n if n else 0.0
     sd = math.sqrt(p * (1 - p) / n) if n else 0.0
     turn_keys = {(r["session"], r["turn"]) for r in rows}
     turn_ok = sum(1 for s, t in turn_keys if any(
         r["ok"] for r in rows if r["session"] == s and r["turn"] == t))
-    errs = sorted(r["err_mm"] for r in firsts if r["ok"])
+    errs = sorted(r["err_mm"] for r in firsts if r["ok"] and r["err_mm"] is not None)
     approaches = sorted(r["closest_approach_mm"] for r in rows
                         if r.get("closest_approach_mm") is not None)
     tax: dict = {}
@@ -144,7 +166,9 @@ def main() -> int:
                                 "p95": _percentile(approaches, 95),
                                 "n": len(approaches)},
         "failure_taxonomy_counts": tax,
-        "data_kind": "simulated",
+        "data_kind": (rows[0]["data_kind"]
+                      if all(r["data_kind"] == rows[0]["data_kind"] for r in rows)
+                      else "mixed"),
         "note": "first_try = attempt 1 only; turn_level counts the "
                 "built-in single retry; success != reward != normalized "
                 "score (no reward exists in this pipeline)",
