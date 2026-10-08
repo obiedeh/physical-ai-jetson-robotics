@@ -19,15 +19,17 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 import tempfile
+import threading
 import time
 from collections.abc import Callable
 from contextlib import ExitStack
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Generic, Protocol, TypeVar
 
 from edge_ai.camera_inference import CameraInferenceLoop, MockFrameSource
 from synria_lerobot.dataset import SynriaEpisodeDataset, generate_synthetic_episode
@@ -63,6 +65,8 @@ class StateSource(Protocol):
 class ActionSample:
     values: tuple[float, ...]
     monotonic_timestamp_s: float
+    ros_header_stamp_s: float | None = None
+    ros_arrival_stamp_s: float | None = None
 
 
 class ActionSource(Protocol):
@@ -177,6 +181,15 @@ class RecordedPhysicalEpisode:
     def duration_s(self) -> float:
         return self.ended_monotonic_s - self.started_monotonic_s
 
+    @property
+    def achieved_sample_rate_hz(self) -> float:
+        samples = [frame.sample_monotonic_timestamp_s for frame in self.frames]
+        if len(samples) < 2 or any(value is None for value in samples):
+            return 0.0
+        start, end = samples[0], samples[-1]
+        assert start is not None and end is not None
+        return (len(samples) - 1) / (end - start) if end > start else 0.0
+
 
 @dataclass
 class PhysicalSessionResult:
@@ -185,6 +198,7 @@ class PhysicalSessionResult:
     failed_save_count: int = 0
     last_episode_index: int | None = None
     smoke: bool = False
+    last_achieved_sample_rate_hz: float | None = None
 
 
 @dataclass(frozen=True)
@@ -193,6 +207,7 @@ class _PendingFrame:
     action: ActionSample | None
     wrist: ImageFrame
     front: ImageFrame
+    sample_monotonic_s: float
 
 
 class NextStateActionSource:
@@ -218,70 +233,164 @@ class LeaderActionSource:
         return ActionSample(
             values=(*leader.joint_positions_rad, leader.gripper_m),
             monotonic_timestamp_s=leader.monotonic_timestamp_s,
+            ros_header_stamp_s=leader.ros_header_stamp_s,
+            ros_arrival_stamp_s=leader.ros_arrival_stamp_s,
         )
 
     def close(self) -> None:
         self._source.close()
 
 
-class RosJointStateSource:
-    """Lazy ROS subscriber adapter; it never creates a publisher."""
+_Sample = TypeVar("_Sample")
 
-    def __init__(self, topic: str, *, node_name: str) -> None:
+
+class _LatestSource(Generic[_Sample]):
+    """A bounded latest-only cache whose worker failure is never hidden."""
+
+    def __init__(self, *, timeout_s: float) -> None:
+        if not math.isfinite(timeout_s) or timeout_s <= 0:
+            raise ValueError("source timeout must be positive and finite")
+        self._timeout_s = timeout_s
+        self._lock = threading.Lock()
+        self._ready = threading.Event()
+        self._stop = threading.Event()
+        self._latest: _Sample | None = None
+        self._error: BaseException | None = None
+        self._thread: threading.Thread | None = None
+        self._closed = False
+        self._received_count = 0
+
+    def _store(self, sample: _Sample) -> None:
+        with self._lock:
+            self._latest = sample
+            self._received_count += 1
+        self._ready.set()
+
+    def _start_worker(self, target: Callable[[], None], name: str) -> None:
+        def run() -> None:
+            try:
+                target()
+            except BaseException as error:
+                with self._lock:
+                    self._error = error
+                self._ready.set()
+
+        self._thread = threading.Thread(target=run, name=name, daemon=True)
+        self._thread.start()
+
+    def _read_latest(self) -> _Sample:
+        if self._closed:
+            raise RuntimeError("source is closed")
+        self._ready.wait(self._timeout_s)
+        with self._lock:
+            if self._error is not None:
+                raise RuntimeError(f"background source failed: {self._error}") from self._error
+            if self._latest is None:
+                raise RuntimeError("no source sample has been received")
+            return self._latest
+
+    def _join(self, timeout_s: float | None = None) -> None:
+        if self._thread is not None:
+            self._thread.join(self._timeout_s if timeout_s is None else timeout_s)
+            if self._thread.is_alive():
+                raise RuntimeError("background source did not stop; resources retained")
+
+
+class RosJointStateSource(_LatestSource[PhysicalState]):
+    """Owned-context, depth-one subscriber; no command publisher is created."""
+
+    def __init__(self, topic: str, *, node_name: str, timeout_s: float = 1.0) -> None:
+        super().__init__(timeout_s=timeout_s)
         try:
             import rclpy  # type: ignore[import-not-found]
+            from rclpy.context import Context  # type: ignore[import-not-found]
+            from rclpy.executors import (  # type: ignore[import-not-found]
+                ExternalShutdownException,
+                SingleThreadedExecutor,
+            )
             from sensor_msgs.msg import JointState  # type: ignore[import-not-found]
-        except ImportError as exc:  # pragma: no cover - depends on ROS installation
+        except ImportError as exc:  # pragma: no cover - optional ROS dependency
             raise RuntimeError("ROS 2 state dependencies are unavailable") from exc
-
         self._rclpy = rclpy
-        if not rclpy.ok():
-            rclpy.init()
-        self._node = rclpy.create_node(node_name)
-        self._latest: PhysicalState | None = None
-
-        def on_state(message: Any) -> None:
-            values = dict(zip(message.name, message.position, strict=True))
-            velocities = None
-            if len(message.velocity) == len(message.name):
-                by_name = dict(zip(message.name, message.velocity, strict=True))
-                velocities = tuple(float(by_name[f"Joint{i}"]) for i in range(1, 7))
-            stamp = float(message.header.stamp.sec) + float(
-                message.header.stamp.nanosec
-            ) / 1_000_000_000
-            self._latest = PhysicalState(
-                joint_positions_rad=tuple(
-                    float(values[f"Joint{i}"]) for i in range(1, 7)
-                ),
-                gripper_m=float(values["Gripper"]),
-                monotonic_timestamp_s=time.monotonic(),
-                ros_header_stamp_s=stamp,
-                joint_velocities_rad_s=velocities,
+        self._context = Context()
+        with ExitStack() as startup:
+            rclpy.init(context=self._context)
+            startup.callback(_close_all, lambda: rclpy.shutdown(context=self._context))
+            self._node = rclpy.create_node(node_name, context=self._context)
+            startup.callback(_close_all, self._node.destroy_node)
+            self._executor = SingleThreadedExecutor(context=self._context)
+            startup.callback(
+                _close_all, lambda: self._executor.shutdown(timeout_sec=self._timeout_s)
             )
 
+            def on_state(message: Any) -> None:
+                arrived = time.monotonic()
+                ros_arrival = self._node.get_clock().now().nanoseconds / 1_000_000_000
+                values = dict(zip(message.name, message.position, strict=True))
+                velocities = None
+                if len(message.velocity) == len(message.name):
+                    by_name = dict(zip(message.name, message.velocity, strict=True))
+                    velocities = tuple(float(by_name[f"Joint{i}"]) for i in range(1, 7))
+                stamp = float(message.header.stamp.sec) + float(
+                    message.header.stamp.nanosec
+                ) / 1_000_000_000
+                self._store(PhysicalState(
+                    joint_positions_rad=tuple(float(values[f"Joint{i}"]) for i in range(1, 7)),
+                    gripper_m=float(values["Gripper"]), monotonic_timestamp_s=arrived,
+                    ros_header_stamp_s=stamp, joint_velocities_rad_s=velocities,
+                    ros_arrival_stamp_s=ros_arrival,
+                ))
+
+            self._subscription = self._node.create_subscription(JointState, topic, on_state, 1)
+            startup.callback(
+                _close_all, lambda: self._node.destroy_subscription(self._subscription)
+            )
+            self._executor.add_node(self._node)
+
+            def spin() -> None:
+                try:
+                    self._executor.spin()
+                    if not self._stop.is_set():
+                        raise RuntimeError("ROS executor stopped unexpectedly")
+                except ExternalShutdownException:
+                    if not self._stop.is_set():
+                        raise
+
+            self._start_worker(spin, node_name)
+            startup.pop_all()
+
+    def read(self) -> PhysicalState:
+        return self._read_latest()
+
+    def close(self) -> None:
+        if self._closed:
+            return
+        self._stop.set()
+        started = time.monotonic()
+        shutdown_error: BaseException | None = None
         try:
-            self._subscription = self._node.create_subscription(
-                JointState, topic, on_state, 20
-            )
-        except BaseException:
-            _close_all(self._node.destroy_node)
-            raise
-
-    def read(self) -> PhysicalState:  # pragma: no cover - depends on ROS installation
-        self._rclpy.spin_once(self._node, timeout_sec=0.1)
-        if self._latest is None:
-            raise RuntimeError("no joint state has been received")
-        return self._latest
-
-    def close(self) -> None:  # pragma: no cover - depends on ROS installation
-        self._node.destroy_subscription(self._subscription)
-        self._node.destroy_node()
+            self._executor.shutdown(timeout_sec=self._timeout_s)
+        except BaseException as error:
+            shutdown_error = error
+        self._join(max(0.0, self._timeout_s - (time.monotonic() - started)))
+        self._closed = True
+        _close_all(
+            lambda: self._executor.remove_node(self._node),
+            lambda: self._node.destroy_subscription(self._subscription),
+            self._node.destroy_node,
+            lambda: self._rclpy.shutdown(context=self._context),
+        )
+        if shutdown_error is not None:
+            raise RuntimeError("ROS executor shutdown failed") from shutdown_error
 
 
-class OpenCVFrameSource:
+class OpenCVFrameSource(_LatestSource[ImageFrame]):
     """Lazy camera adapter that requires a stable by-id device path."""
 
-    def __init__(self, device_path: str, *, width: int = 224, height: int = 224) -> None:
+    def __init__(
+        self, device_path: str, *, width: int = 224, height: int = 224, timeout_s: float = 1.0
+    ) -> None:
+        super().__init__(timeout_s=timeout_s)
         if not device_path.startswith("/dev/v4l/by-id/"):
             raise ValueError("camera source must use a stable /dev/v4l/by-id path")
         if any(type(value) is not int or value <= 0 for value in (width, height)):
@@ -297,31 +406,40 @@ class OpenCVFrameSource:
         try:
             if not self._capture.isOpened():
                 raise RuntimeError(f"cannot open camera source {device_path}")
+            self._start_worker(self._grab, "synria-camera-grabber")
         except BaseException:
             _close_all(self._capture.release)
             raise
 
-    def read(self) -> ImageFrame:  # pragma: no cover - depends on camera
-        ok, frame = self._capture.read()
-        if not ok:
-            raise RuntimeError("camera frame read failed")
-        arrived = time.monotonic()
-        if len(frame.shape) != 3 or frame.shape[2] != 3:
-            raise ValueError("camera must deliver a three-channel BGR image")
-        native_resolution = (int(frame.shape[1]), int(frame.shape[0]))
-        rgb = self._cv2.cvtColor(frame, self._cv2.COLOR_BGR2RGB)
-        stored = self._cv2.resize(
-            rgb, self._stored_resolution, interpolation=self._cv2.INTER_AREA
-        )
-        return ImageFrame(
-            data=stored,
-            monotonic_timestamp_s=arrived,
-            native_resolution=native_resolution,
-            source_id=self._device_path,
-        )
+    def _grab(self) -> None:
+        while not self._stop.is_set():
+            ok, frame = self._capture.read()
+            arrived = time.monotonic()
+            if not ok:
+                if self._stop.is_set():
+                    return
+                raise RuntimeError("camera frame read failed")
+            if len(frame.shape) != 3 or frame.shape[2] != 3:
+                raise ValueError("camera must deliver a three-channel BGR image")
+            native_resolution = (int(frame.shape[1]), int(frame.shape[0]))
+            rgb = self._cv2.cvtColor(frame, self._cv2.COLOR_BGR2RGB)
+            stored = self._cv2.resize(
+                rgb, self._stored_resolution, interpolation=self._cv2.INTER_AREA
+            )
+            self._store(ImageFrame(
+                data=stored, monotonic_timestamp_s=arrived,
+                native_resolution=native_resolution, source_id=self._device_path,
+            ))
 
-    def close(self) -> None:  # pragma: no cover - depends on camera
-        self._capture.release()
+    def read(self) -> ImageFrame:
+        return self._read_latest()
+
+    def close(self) -> None:
+        if not self._closed:
+            self._stop.set()
+            self._join()
+            self._capture.release()
+            self._closed = True
 
 
 class LeRobotDatasetWriter:
@@ -359,6 +477,10 @@ class LeRobotDatasetWriter:
             "action_monotonic_s",
             "wrist_monotonic_s",
             "front_monotonic_s",
+            "sample_monotonic_s",
+            "state_ros_arrival_s",
+            "action_ros_header_s",
+            "action_ros_arrival_s",
         ):
             features[timestamp_name] = {"dtype": "float64", "shape": (1,)}
         config.require_outside_repository(Path(__file__).resolve().parents[1])
@@ -395,6 +517,12 @@ class LeRobotDatasetWriter:
                         stored.get("shape", ())
                     ) != features[name]["shape"]:
                         raise ValueError("image features differ from existing dataset")
+                for name, expected in features.items():
+                    stored = self._dataset.meta.features.get(name, {})
+                    if stored.get("dtype") != expected["dtype"] or tuple(
+                        stored.get("shape", ())
+                    ) != expected["shape"]:
+                        raise ValueError("physical frame features differ from existing dataset")
             else:
                 self._dataset = LeRobotDataset.create(
                     repo_id=config.repo_id,
@@ -552,6 +680,7 @@ class LeRobotDatasetWriter:
                         "gripper_type": episode.gripper_type,
                         "final_still": str(episode.final_still_path),
                         "smoke": episode.smoke,
+                        "achieved_sample_rate_hz": episode.achieved_sample_rate_hz,
                     },
                     sort_keys=True,
                 )
@@ -598,6 +727,7 @@ class LeRobotDatasetWriter:
             "native_resolution": native,
             "stored_resolution": {"width": self._image_width, "height": self._image_height},
             "stored_color_space": "RGB",
+            "achieved_sample_rate_hz": episode.achieved_sample_rate_hz,
         }
         if self._capture_records_path.is_file():
             with self._capture_records_path.open(encoding="utf-8") as source:
@@ -687,15 +817,23 @@ class PhysicalEpisodeRecorder:
             self.stop()
             return False
         follower = self.state_source.read()
+        action = self.action_source.read(follower)
+        wrist = self.wrist_source.read()
+        front = self.front_source.read()
+        sampled = self.clock()
+        if sampled - self._started >= self.config.hard_cap_s:
+            self.stop()
+            return False
         self._pending.append(
             _PendingFrame(
                 state=follower,
-                action=self.action_source.read(follower),
-                wrist=self.wrist_source.read(),
-                front=self.front_source.read(),
+                action=action,
+                wrist=wrist,
+                front=front,
+                sample_monotonic_s=sampled,
             )
         )
-        self._ended = now
+        self._ended = sampled
         return True
 
     def stop(self) -> None:
@@ -756,7 +894,9 @@ class PhysicalEpisodeRecorder:
                 next_state = self._pending[next_index].state
                 action = ActionSample(
                     values=(*next_state.joint_positions_rad, next_state.gripper_m),
-                    monotonic_timestamp_s=pending.state.monotonic_timestamp_s,
+                    monotonic_timestamp_s=next_state.monotonic_timestamp_s,
+                    ros_header_stamp_s=next_state.ros_header_stamp_s,
+                    ros_arrival_stamp_s=next_state.ros_arrival_stamp_s,
                 )
             if action is None:
                 raise RuntimeError("action source did not provide an action")
@@ -767,6 +907,9 @@ class PhysicalEpisodeRecorder:
                     action_monotonic_timestamp_s=action.monotonic_timestamp_s,
                     wrist=pending.wrist,
                     front=pending.front,
+                    sample_monotonic_timestamp_s=pending.sample_monotonic_s,
+                    action_ros_header_stamp_s=action.ros_header_stamp_s,
+                    action_ros_arrival_stamp_s=action.ros_arrival_stamp_s,
                 )
             )
         return frames
@@ -1045,7 +1188,12 @@ def run_operator_loop(recorder: PhysicalEpisodeRecorder) -> PhysicalSessionResul
                         continue
                     result.saved_episode_count += 1
                     result.last_episode_index = episode.episode_index
-                    print(f"Saved episode {episode.episode_index}: {episode.operator_label.value}.")
+                    result.last_achieved_sample_rate_hz = episode.achieved_sample_rate_hz
+                    print(
+                        f"Saved episode {episode.episode_index}: {episode.operator_label.value}; "
+                        f"achieved {episode.achieved_sample_rate_hz:.2f} samples/s "
+                        f"(requested {recorder.config.fps:g})."
+                    )
                     del episode
                     if recorder.config.smoke:
                         return result

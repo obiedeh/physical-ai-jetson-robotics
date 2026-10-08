@@ -25,6 +25,7 @@ GATE_NAMES = (
     "cameras_present",
     "state_action_limits",
     "timestamp_skew",
+    "source_staleness",
     "episode_length",
     "gripper_dimensionality",
     "visual_sanity",
@@ -59,6 +60,7 @@ class EpisodeQualityRecord:
     final_still: str
     smoke: bool
     frames: tuple[FrameQualityRecord, ...]
+    achieved_sample_rate_hz: float | None = None
 
     def as_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -77,6 +79,7 @@ class EpisodeQualityRecord:
             gripper_type=str(payload["gripper_type"]),
             final_still=str(payload["final_still"]),
             smoke=bool(payload["smoke"]),
+            achieved_sample_rate_hz=payload.get("achieved_sample_rate_hz"),
             frames=tuple(
                 FrameQualityRecord(
                     state=tuple(float(value) for value in frame["state"]),
@@ -110,9 +113,17 @@ class PhysicalLimits:
 class GateConfig:
     frame_count_tolerance_fraction: float = 0.1
     max_timestamp_skew_s: float = 0.05
+    max_source_age_s: float = 0.2
+    max_header_delay_s: float = 0.2
+    max_header_future_s: float = 0.02
     min_episode_s: float = 20.0
     max_episode_s: float = 30.0
     black_mean_threshold: float = 1.0
+
+    def __post_init__(self) -> None:
+        for value in (self.max_source_age_s, self.max_header_delay_s, self.max_header_future_s):
+            if not math.isfinite(value) or value < 0:
+                raise ValueError("freshness thresholds must be non-negative and finite")
 
 
 DEFAULT_GATE_CONFIG = GateConfig()
@@ -191,6 +202,7 @@ def episode_quality_record(
         gripper_type=episode.gripper_type,
         final_still=str(episode.final_still_path or ""),
         smoke=episode.smoke,
+        achieved_sample_rate_hz=episode.achieved_sample_rate_hz,
         frames=tuple(
             FrameQualityRecord(
                 state=frame.state.observation_vector(),
@@ -250,19 +262,9 @@ def evaluate_episode(
     )
 
     timestamp_ok = bool(frames) and all(
-        max(
-            value
-            for name, value in frame.timestamps.items()
-            if name.endswith("monotonic_s")
-        )
-        - min(
-            value
-            for name, value in frame.timestamps.items()
-            if name.endswith("monotonic_s")
-        )
-        <= config.max_timestamp_skew_s
-        for frame in frames
+        _timestamp_skew_ok(frame, episode.action_source, config) for frame in frames
     )
+    freshness_ok = _episode_sources_fresh(episode, config)
     length_ok = config.min_episode_s <= episode.duration_s <= config.max_episode_s
     visual_ok = _visual_sanity(frames, config.black_mean_threshold)
     return GateReport(
@@ -273,11 +275,74 @@ def evaluate_episode(
             "cameras_present": cameras_ok,
             "state_action_limits": limits_ok,
             "timestamp_skew": timestamp_ok,
+            "source_staleness": freshness_ok,
             "episode_length": length_ok,
             "gripper_dimensionality": dimensions_ok,
             "visual_sanity": visual_ok,
         },
     )
+
+
+def _timestamp_skew_ok(frame: FrameQualityRecord, action_source: str, config: GateConfig) -> bool:
+    names = ["state_monotonic_s", "wrist_monotonic_s", "front_monotonic_s"]
+    if action_source == "leader":
+        names.append("action_monotonic_s")
+    values = [frame.timestamps.get(name, math.nan) for name in names]
+    return all(math.isfinite(value) for value in values) and (
+        max(values) - min(values) <= config.max_timestamp_skew_s
+    )
+
+
+def _sources_fresh(frame: FrameQualityRecord, action_source: str, config: GateConfig) -> bool:
+    timestamps = frame.timestamps
+    sample = timestamps.get("sample_monotonic_s", math.nan)
+    if not math.isfinite(sample):
+        return False
+    sources = ["state", "wrist", "front"]
+    ros_sources = ["state"]
+    if action_source == "leader":
+        sources.append("action")
+        ros_sources.append("action")
+    for source in sources:
+        arrival = timestamps.get(f"{source}_monotonic_s", math.nan)
+        if not math.isfinite(arrival) or not 0 <= sample - arrival <= config.max_source_age_s:
+            return False
+    for source in ros_sources:
+        arrival = timestamps.get(f"{source}_ros_arrival_s", math.nan)
+        header = timestamps.get(f"{source}_ros_header_s", math.nan)
+        if not all(math.isfinite(value) for value in (arrival, header)):
+            return False
+        if not -config.max_header_future_s <= arrival - header <= config.max_header_delay_s:
+            return False
+    return True
+
+
+def _episode_sources_fresh(episode: EpisodeQualityRecord, config: GateConfig) -> bool:
+    if not episode.frames or episode.action_source not in {"leader", "next_state"}:
+        return False
+    samples = [frame.timestamps.get("sample_monotonic_s", math.nan) for frame in episode.frames]
+    if not all(math.isfinite(sample) for sample in samples) or any(
+        newer <= older for older, newer in zip(samples, samples[1:], strict=False)
+    ):
+        return False
+    for index, frame in enumerate(episode.frames):
+        if not _sources_fresh(frame, episode.action_source, config):
+            return False
+        if episode.action_source == "next_state":
+            target = episode.frames[min(index + 1, len(episode.frames) - 1)]
+            for action_name, state_name in (
+                ("action_monotonic_s", "state_monotonic_s"),
+                ("action_ros_header_s", "state_ros_header_s"),
+                ("action_ros_arrival_s", "state_ros_arrival_s"),
+            ):
+                actual = frame.timestamps.get(action_name, math.nan)
+                expected = target.timestamps.get(state_name, math.nan)
+                if (
+                    not all(math.isfinite(value) for value in (actual, expected))
+                    or actual != expected
+                ):
+                    return False
+    return True
 
 
 def _vector_within_limits(
@@ -361,6 +426,8 @@ def _merge_capture_provenance(
             raise ValueError("supplied resolution differs from recorded stored resolution")
         if capture.get("camera_ids") != provenance["camera_ids"]:
             raise ValueError("supplied camera ids differ from recorded capture provenance")
+        if capture.get("achieved_sample_rate_hz") != episode.achieved_sample_rate_hz:
+            raise ValueError("achieved sample rate differs from recorded capture provenance")
         selected.append(capture)
     if not selected:
         return provenance
@@ -411,6 +478,19 @@ def write_session_artifacts(
     if missing:
         raise ValueError(f"provenance missing required fields: {missing}")
     provenance = _merge_capture_provenance(dataset_path, provenance, episodes)
+    sample_rates = [
+        {"episode_index": episode.episode_index, "rate_hz": episode.achieved_sample_rate_hz}
+        for episode in episodes
+    ]
+    provenance = {
+        **provenance,
+        "achieved_sample_rates_hz": sample_rates,
+        "freshness_thresholds_s": {
+            "source_age": gate_config.max_source_age_s,
+            "header_delay": gate_config.max_header_delay_s,
+            "header_future": gate_config.max_header_future_s,
+        },
+    }
     dataset_root = dataset_path.resolve()
     for existing in session_dir.parent.glob("*/session_summary.json"):
         if existing.parent.resolve() == session_dir.resolve():
@@ -441,6 +521,7 @@ def write_session_artifacts(
         "recorded_episode_count": len(episodes),
         "smoke_episode_count": len(episodes) - len(retained),
         "episode_indices": [episode.episode_index for episode in retained],
+        "achieved_sample_rates_hz": sample_rates,
         "quality_valid_episode_count": quality_valid,
         "qualifying_episode_count": quality_valid if limits.verified else 0,
         "gate_results": [report.as_dict() for report in reports],

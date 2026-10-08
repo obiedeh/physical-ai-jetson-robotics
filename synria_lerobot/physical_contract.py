@@ -80,6 +80,7 @@ class PhysicalState:
     monotonic_timestamp_s: float
     ros_header_stamp_s: float
     joint_velocities_rad_s: tuple[float, ...] | None = None
+    ros_arrival_stamp_s: float | None = None
 
     def __post_init__(self) -> None:
         if len(self.joint_positions_rad) != 6:
@@ -91,6 +92,8 @@ class PhysicalState:
         )
         if self.gripper_m < 0.0:
             raise ValueError("gripper_m must be non-negative")
+        if self.ros_arrival_stamp_s is not None and not math.isfinite(self.ros_arrival_stamp_s):
+            raise ValueError("ROS arrival stamp must be finite")
         if self.joint_velocities_rad_s is not None:
             if len(self.joint_velocities_rad_s) != 6:
                 raise ValueError("joint_velocities_rad_s must contain six values")
@@ -131,6 +134,9 @@ class PhysicalFrame:
     action_monotonic_timestamp_s: float
     wrist: ImageFrame
     front: ImageFrame
+    sample_monotonic_timestamp_s: float | None = None
+    action_ros_header_stamp_s: float | None = None
+    action_ros_arrival_stamp_s: float | None = None
 
     def __post_init__(self) -> None:
         if len(self.action) != 7:
@@ -140,13 +146,22 @@ class PhysicalFrame:
             raise ValueError("action monotonic timestamp must be finite")
 
     def timestamps(self) -> dict[str, float]:
-        return {
+        result = {
             "state_monotonic_s": self.state.monotonic_timestamp_s,
             "state_ros_header_s": self.state.ros_header_stamp_s,
             "action_monotonic_s": self.action_monotonic_timestamp_s,
             "wrist_monotonic_s": self.wrist.monotonic_timestamp_s,
             "front_monotonic_s": self.front.monotonic_timestamp_s,
         }
+        for name, value in (
+            ("sample_monotonic_s", self.sample_monotonic_timestamp_s),
+            ("state_ros_arrival_s", self.state.ros_arrival_stamp_s),
+            ("action_ros_header_s", self.action_ros_header_stamp_s),
+            ("action_ros_arrival_s", self.action_ros_arrival_stamp_s),
+        ):
+            if value is not None:
+                result[name] = value
+        return result
 
 
 @dataclass(frozen=True)
