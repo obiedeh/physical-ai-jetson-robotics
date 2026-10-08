@@ -6,7 +6,7 @@ import hashlib
 import json
 import math
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -447,7 +447,7 @@ def write_aggregate_summary(
     output_path.write_text(
         json.dumps(aggregate, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    timestamp = now_utc or datetime.now(UTC).isoformat(timespec="seconds")
+    timestamp = now_utc or datetime.now(timezone.utc).isoformat(timespec="seconds")
     timeline_path.parent.mkdir(parents=True, exist_ok=True)
     with timeline_path.open("a", encoding="utf-8") as timeline:
         timeline.write(
