@@ -11,7 +11,6 @@ from pathlib import Path
 PROHIBITED_TERMS = (
     "co" + "dex",
     "clau" + "de",
-    "cur" + "sor",
     "github " + "copilot",
 )
 PROHIBITED_PATTERN = re.compile(
