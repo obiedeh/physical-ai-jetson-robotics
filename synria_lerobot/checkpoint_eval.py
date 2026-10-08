@@ -25,6 +25,7 @@ from .evaluation import committed_bytes
 from .physical_contract import DRIVER_JOINT_NAMES, ActionSource, PhysicalDatasetContract
 from .policy_client import GuardedCommandPath, HttpPolicyTransport, PolicyClient, PolicyTransport
 from .quality_gates import OBJECT_SUCCESS_LIMITATION, load_limits
+from .task_registry import TaskDefinition
 
 if TYPE_CHECKING:
     from .sessions import SessionIO
@@ -304,13 +305,7 @@ class CheckpointEvaluator:
         self.contract = json.loads(
             (dataset_root / "physical_contract.json").read_text(encoding="utf-8")
         )
-        contract = PhysicalDatasetContract(
-            self.contract["gripper_type"],
-            ActionSource(self.contract["action_source"]),
-            self.contract["state_has_velocity"],
-            version=self.contract["contract_version"],
-            action_lookahead_steps=self.contract["action_lookahead_steps"],
-        )
+        contract = PhysicalDatasetContract.from_dict(self.contract)
         if contract.as_dict(fps=self.contract["requested_rate_hz"]) != self.contract:
             raise ValueError("dataset physical contract metadata is inconsistent")
 
@@ -663,6 +658,8 @@ def run_physical_probes(
         ActionSource(session_config["action_source"]),
         session_config["state_has_velocity"],
         action_lookahead_steps=session_config["action_lookahead_steps"],
+        task_id=session_config["task_id"],
+        task_definition=TaskDefinition.from_metadata(session_config),
     )
     if (
         contract.as_dict(fps=saved["physical_contract"]["requested_rate_hz"])

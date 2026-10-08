@@ -9,6 +9,7 @@ from typing import Any
 
 import numpy as np
 import pytest
+from test_task_registry import synthetic_task
 
 from synria_lerobot.embodiment import SynriaEmbodiment, SynriaObservation
 from synria_lerobot.physical_contract import (
@@ -50,7 +51,9 @@ class Sink:
 
 def client(transport: Any, clock: Any = lambda: 10.01) -> PolicyClient:
     return PolicyClient(
-        SynriaEmbodiment(PhysicalDatasetContract("50mm", ActionSource.LEADER, False)),
+        SynriaEmbodiment(PhysicalDatasetContract("50mm", ActionSource.LEADER, False,
+            task_id="die_into_cup", task_definition=synthetic_task(20, 30),
+        )),
         transport,
         load_limits(Path("config/synria_limits.yaml")),
         PolicySafetyConfig.load(

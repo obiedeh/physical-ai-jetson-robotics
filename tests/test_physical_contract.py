@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from test_task_registry import synthetic_task
 
 from synria_lerobot.physical_contract import (
     CONTRACT_VERSION,
@@ -36,11 +37,13 @@ def test_contract_requires_gripper_type_and_records_action_source() -> None:
         PhysicalDatasetContract(  # type: ignore[call-arg]
             action_source=ActionSource.LEADER,
             state_has_velocity=False,
+            task_id="die_into_cup", task_definition=synthetic_task(20, 30),
         )
     contract = PhysicalDatasetContract(
         gripper_type="50mm",
         action_source=ActionSource.LEADER,
         state_has_velocity=False,
+        task_id="die_into_cup", task_definition=synthetic_task(20, 30),
     )
     payload = contract.as_dict()
     assert payload["contract_version"] == CONTRACT_VERSION
@@ -61,7 +64,9 @@ def test_observation_appends_velocity_only_when_reported() -> None:
 
 @pytest.mark.parametrize("required", [False, True])
 def test_contract_selects_velocity_fields(required: bool) -> None:
-    contract = PhysicalDatasetContract("50mm", ActionSource.NEXT_STATE, required)
+    contract = PhysicalDatasetContract("50mm", ActionSource.NEXT_STATE, required,
+        task_id="die_into_cup", task_definition=synthetic_task(20, 30),
+    )
     state = _state(velocities=(0.2,) * 6)
     prepared = contract.prepare_state(state)
     assert len(prepared.observation_vector()) == (13 if required else 7)
@@ -75,7 +80,8 @@ def test_contract_selects_velocity_fields(required: bool) -> None:
 def test_contract_rejects_malformed_action_lookahead(steps: object) -> None:
     with pytest.raises(ValueError, match="non-negative integer"):
         PhysicalDatasetContract(
-            "50mm", ActionSource.NEXT_STATE, False, action_lookahead_steps=steps
+            "50mm", ActionSource.NEXT_STATE, False, action_lookahead_steps=steps,
+            task_id="die_into_cup", task_definition=synthetic_task(20, 30),
         )
 
 
@@ -87,7 +93,9 @@ def test_nominal_action_time_requires_supported_requested_rate(fps: float) -> No
 
 @pytest.mark.parametrize("source", list(ActionSource))
 def test_contract_records_configured_and_effective_action_horizon(source: ActionSource) -> None:
-    contract = PhysicalDatasetContract("50mm", source, False, action_lookahead_steps=2)
+    contract = PhysicalDatasetContract("50mm", source, False, action_lookahead_steps=2,
+        task_id="die_into_cup", task_definition=synthetic_task(20, 30),
+    )
     payload = contract.as_dict(fps=30.0)
     assert payload["action_lookahead_steps"] == 2
     expected_steps = 2 if source is ActionSource.NEXT_STATE else 0
@@ -131,6 +139,7 @@ def test_mapping_names_and_reverses_gripper_sense(
         gripper_type=gripper_type,
         action_source=ActionSource.NEXT_STATE,
         state_has_velocity=False,
+        task_id="die_into_cup", task_definition=synthetic_task(20, 30),
     )
     open_mapping = map_physical_state_to_simulation(
         _state(gripper_m=0.0), contract, simulation_gripper_open_m=0.085

@@ -4,9 +4,19 @@ from __future__ import annotations
 
 import math
 import re
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from enum import Enum
 from typing import Any, TypedDict
+
+from synria_lerobot.task_registry import (
+    EPISODE_WINDOW_KEYS as EPISODE_WINDOW_KEYS,
+)
+from synria_lerobot.task_registry import (
+    TaskDefinition,
+)
+from synria_lerobot.task_registry import (
+    episode_window_metadata as episode_window_metadata,
+)
 
 CONTRACT_VERSION = "synria_physical_v1"
 DRIVER_JOINT_NAMES = (
@@ -157,6 +167,8 @@ class PhysicalDatasetContract:
     state_has_velocity: bool
     version: str = CONTRACT_VERSION
     action_lookahead_steps: int = 1
+    task_id: str = field(kw_only=True)
+    task_definition: TaskDefinition = field(kw_only=True)
 
     def __post_init__(self) -> None:
         if self.gripper_type not in GRIPPER_STROKE_M:
@@ -164,6 +176,36 @@ class PhysicalDatasetContract:
         if self.version != CONTRACT_VERSION:
             raise ValueError(f"unsupported physical contract version: {self.version}")
         action_timing_metadata(self.action_source, self.action_lookahead_steps, 1)
+        if not isinstance(self.task_definition, TaskDefinition) or self.task_id != (
+            self.task_definition.task_id
+        ):
+            raise ValueError("contract requires the matching fixed-scene task snapshot")
+        self.task_definition.require_configured()
+
+    @property
+    def min_episode_s(self) -> float:
+        return self.task_definition.require_configured()["min_episode_s"]
+
+    @property
+    def max_episode_s(self) -> float:
+        return self.task_definition.require_configured()["max_episode_s"]
+
+    @property
+    def task_text(self) -> str:
+        return self.task_definition.task_text
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, Any]) -> PhysicalDatasetContract:
+        task = TaskDefinition.from_metadata(payload)
+        contract = cls(
+            payload["gripper_type"], ActionSource(payload["action_source"]),
+            payload["state_has_velocity"], version=payload["contract_version"],
+            action_lookahead_steps=payload["action_lookahead_steps"],
+            task_id=task.task_id, task_definition=task,
+        )
+        if contract.as_dict(fps=payload.get("requested_rate_hz")) != payload:
+            raise ValueError("inconsistent physical contract metadata")
+        return contract
 
     @property
     def gripper_stroke_m(self) -> float:
@@ -188,6 +230,7 @@ class PhysicalDatasetContract:
             "state_names": [*DRIVER_JOINT_NAMES, "Gripper"],
             "image_keys": list(IMAGE_KEYS),
             "action_lookahead_steps": self.action_lookahead_steps,
+            **self.task_definition.metadata(),
         }
         if fps is not None:
             payload.update(

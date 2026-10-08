@@ -10,6 +10,7 @@ import numpy as np
 import pytest
 from test_lerobot_dataset_writer import real_dataset_type
 from test_synria_checkpoint_eval import batches, commit
+from test_task_registry import synthetic_task
 
 from synria_lerobot.checkpoint_eval import (
     CheckpointEvaluator,
@@ -47,7 +48,8 @@ def test_real_finalized_episode_metadata_binds_frozen_probe_partition(tmp_path: 
     finally:
         dataset.finalize()
     contract = PhysicalDatasetContract(
-        "50mm", ActionSource.NEXT_STATE, False, action_lookahead_steps=2
+        "50mm", ActionSource.NEXT_STATE, False, action_lookahead_steps=2,
+        task_id="die_into_cup", task_definition=synthetic_task(0.1, 1),
     )
     (root / "physical_contract.json").write_text(json.dumps(contract.as_dict(fps=10)))
     assert read_episode_metadata(root) == {0: 3, 1: 3, 2: 3}

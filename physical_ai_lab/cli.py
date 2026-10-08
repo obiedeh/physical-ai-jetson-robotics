@@ -1249,6 +1249,7 @@ def d1_session_summary(
     """Gate one physical recording session and write its evidence artifacts."""
     from synria_lerobot.physical_contract import (
         CONTRACT_VERSION,
+        PhysicalDatasetContract,
         StateSourceProvenance,
         guarded_command_topics,
     )
@@ -1259,6 +1260,9 @@ def d1_session_summary(
         write_session_artifacts,
     )
 
+    contract = PhysicalDatasetContract.from_dict(json.loads(
+        (dataset_path / "physical_contract.json").read_text(encoding="utf-8")
+    ))
     summary = write_session_artifacts(
         session_dir=data_root / session_id,
         dataset_path=dataset_path,
@@ -1275,6 +1279,7 @@ def d1_session_summary(
             "camera_ids": {"wrist": wrist_camera_id, "front": front_camera_id},
             "resolution": {"width": width, "height": height},
             "rate_hz": rate_hz,
+            **contract.task_definition.metadata(),
             "contract_version": CONTRACT_VERSION,
             "gripper_type": gripper_type,
             "action_source": action_source,
@@ -1287,6 +1292,8 @@ def d1_session_summary(
         episodes=load_episode_records(records),
         limits=load_limits(limits_path),
         gate_config=GateConfig(
+            min_episode_s=contract.min_episode_s,
+            max_episode_s=contract.max_episode_s,
             max_source_age_s=max_source_age_s,
             max_header_delay_s=max_header_delay_s,
             max_header_future_s=max_header_future_s,

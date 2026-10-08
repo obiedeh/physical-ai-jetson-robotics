@@ -133,7 +133,9 @@ Use [RTX setup](docs/SETUP_RTX.md) for Isaac and [Jetson deployment](docs/JETSON
 - Only after explicit operator authorization, complete the reduced-speed
   evidence template in [`reports/synria/first_safe_motion.md`](reports/synria/first_safe_motion.md).
 - Follow the [D1 operator runbook](docs/ludo_flagship/D1_OPERATOR_RUNBOOK.md):
-  disposable 20-second smoke episode, then 20–30-second labeled sessions.
+  collection is now roll-first using the [fixed-scene task registry](config/synria_tasks.json).
+  Qualifying windows require operator timing and configuration; none is set yet.
+  The disposable smoke episode remains separate from qualifying collection.
   M3/Yahboom and unrelated work remain parked until D5 unless they block a
   current flagship gate.
 

@@ -6,6 +6,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from test_task_registry import synthetic_task
 
 from synria_lerobot.embodiment import SynriaObservation
 from synria_lerobot.evaluation import OperatorGrade
@@ -38,6 +39,7 @@ def ready_config(tmp_path: Path) -> dict:
             )
         )
         config[key] = str(path)
+    config.update(synthetic_task(20, 30).metadata())
     config.update(
         limits=str(limits_path),
         adapter="never.imported:factory",

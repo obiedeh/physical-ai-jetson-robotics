@@ -9,6 +9,7 @@ from typing import Any
 
 import numpy as np
 import pytest
+from test_task_registry import synthetic_task
 
 from synria_lerobot.evaluation import protocol_digest
 from synria_lerobot.physical_contract import ImageFrame, PhysicalState, StateRateMeasurement
@@ -288,6 +289,7 @@ def setup(tmp_path: Path) -> Any:
             verified_on="2026-10-08",
         ),
     )
+    config.update(synthetic_task(20, 30).metadata())
     config.update(
         adapter_config=str(tmp_path / "adapter.json"),
         gripper_type="50mm",

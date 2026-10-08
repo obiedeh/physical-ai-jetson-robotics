@@ -1,0 +1,44 @@
+{
+  "version": "synria_fixed_scene_tasks_v1",
+  "tasks": [
+    {
+      "task_id": "die_into_cup",
+      "task_text": "Pick the die from the marked start zone and release it inside the cup at its marked location.",
+      "success_rule": "The die is inside the cup, confirmed by the operator and front-camera still.",
+      "scene_requirements": [
+        "The cup occupies its fixed marked location.",
+        "The die starts inside the fixed marked start zone.",
+        "The cup, die and gripper remain visible in the fixed front-camera view."
+      ],
+      "declared_fixed_scene": true,
+      "requires_unobserved_goal": false,
+      "episode_window": {"min_episode_s": null, "max_episode_s": null}
+    },
+    {
+      "task_id": "roll_and_dump",
+      "task_text": "Pick the loaded cup from its marked location, shake it and invert it over the fixed dump tray.",
+      "success_rule": "The die is at rest on the fixed dump tray and the cup was not dropped, confirmed by the operator and front-camera evidence.",
+      "scene_requirements": [
+        "The cup contains the die and occupies its fixed marked location.",
+        "The dump tray is fixed in the declared camera-visible location.",
+        "The cup, gripper and dump tray remain visible during the trial."
+      ],
+      "declared_fixed_scene": true,
+      "requires_unobserved_goal": false,
+      "episode_window": {"min_episode_s": null, "max_episode_s": null}
+    },
+    {
+      "task_id": "cup_return",
+      "task_text": "Return the cup from the declared post-dump pose to its fixed marked location and release it upright.",
+      "success_rule": "The cup is upright on its fixed mark, confirmed by the operator and front-camera still.",
+      "scene_requirements": [
+        "The cup begins in the declared post-dump pose visible to the cameras.",
+        "The cup return location has a fixed visible mark.",
+        "The die remains in the fixed dump tray and is not part of the return grasp."
+      ],
+      "declared_fixed_scene": true,
+      "requires_unobserved_goal": false,
+      "episode_window": {"min_episode_s": null, "max_episode_s": null}
+    }
+  ]
+}

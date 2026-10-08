@@ -33,6 +33,7 @@ from .policy_client import (
 )
 from .quality_gates import OBJECT_SUCCESS_LIMITATION, load_limits
 from .recorder import _close_all
+from .task_registry import TaskDefinition
 from .turn_executor import (
     BoardCalibration,
     PhysicalLudoGame,
@@ -87,6 +88,8 @@ def validate_session(
         ActionSource(config["action_source"]),
         config["state_has_velocity"],
         action_lookahead_steps=config["action_lookahead_steps"],
+        task_id=config["task_id"],
+        task_definition=TaskDefinition.from_metadata(config),
     )
     if not {"command_period_s", "response_timeout_s"} <= config.keys():
         raise ValueError("command period and per-policy response timeout are required")
@@ -192,6 +195,8 @@ def run_session(
             ActionSource(config["action_source"]),
             config["state_has_velocity"],
             action_lookahead_steps=config["action_lookahead_steps"],
+            task_id=config["task_id"],
+            task_definition=TaskDefinition.from_metadata(config),
         )
         client = PolicyClient(
             SynriaEmbodiment(contract),

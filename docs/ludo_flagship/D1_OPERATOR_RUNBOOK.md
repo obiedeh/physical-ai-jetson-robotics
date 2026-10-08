@@ -7,6 +7,13 @@ episodes. Checks used fakes and synthetic images, including upstream LeRobot
 
 ## 1. Safety, wiring, and recording environment
 
+Prospective roll-first correction, 2026-10-08: new collection must use one of
+the [three fixed-scene tasks](../../config/synria_tasks.json), not token moves.
+The operator must time each task and record the chosen window in
+[DECISIONS.md](DECISIONS.md) before configuring it. All real task windows are
+currently unset; task-id CLI binding is pending, so the older recording commands
+below are not yet usable for new collection and fail closed without a snapshot.
+
 Complete and accept the
 [Phase 0A record](../../reports/synria/phase0a_safety_recovery.md) and
 [first-safe-motion record](../../reports/synria/first_safe_motion.md) before
@@ -232,7 +239,7 @@ python -m synria_lerobot.recorder \
 At the prompt:
 
 - `start`: begin the next episode while idle.
-- `stop`: finish capture after 20–30 seconds. The 30-second hard cap also stops
+- `stop`: finish capture within the selected task's configured window. Its maximum also stops
   capture. Stopping alone neither saves nor labels the episode.
 - `success` or `failure`: label and save the stopped episode plus final still.
   The saved line reports achieved sample rate.
