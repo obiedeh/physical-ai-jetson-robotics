@@ -45,6 +45,47 @@ jobs:
         timeout-minutes: 10
         run: python -u -X faulthandler -m pytest -vv -o faulthandler_timeout=60 --durations=20
 
+  synria-cpu-acceptance:
+    name: Synria CPU acceptance on released LeRobot 0.6.1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      CUDA_VISIBLE_DEVICES: ""
+      HF_HUB_OFFLINE: "1"
+      HF_DATASETS_OFFLINE: "1"
+      WANDB_MODE: disabled
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+      - name: Install CPU recording and training dependencies
+        timeout-minutes: 15
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --upgrade pip
+          python -m pip install torch==2.11.0 torchvision==0.26.0 torchcodec==0.11.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -e '.[dev,vision,robot-learning]' 'lerobot[training]==0.6.1'
+          python -m pip check
+      - name: Verify the released CPU environment
+        run: |
+          python -c "from importlib.metadata import version; import torch; assert version('lerobot') == '0.6.1'; assert torch.version.cuda is None; print('LeRobot', version('lerobot'), 'CPU tensor runtime', torch.__version__)"
+      - name: Record, train, serve and evaluate with fake devices
+        timeout-minutes: 10
+        run: >-
+          python -u -X faulthandler -m pytest -vv
+          -o faulthandler_timeout=60 --durations=20
+          tests/test_lerobot_dataset_writer.py
+          tests/test_checkpoint_eval_lerobot.py
+          tests/test_synria_act_training_real.py
+          tests/test_synria_roll_acceptance_real.py
+
   ros2-lint:
     name: ROS 2 description package build
     runs-on: ubuntu-latest

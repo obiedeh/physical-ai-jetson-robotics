@@ -135,8 +135,93 @@ For a future authorized session, follow this order: existing ros2_control
 source; operator-validated bridge **disarmed**; policy server; read-only session
 preflight. Use the site's validated ROS/recording environment with dependencies
 already sourced. Do not launch another owner of the follower port. From the
-repository root, run actual read-only graph/source preflight, with no command
+repository root, run read-only graph/source preflight, with no command
 publisher or action client created:
+
+### Candidate operator start commands
+
+These are unverified interface candidates for the operator to confirm against
+the installed stack and accepted safety records, not commands executed during
+software validation. In separate operator-controlled terminals, replace the
+placeholders and restore the same variables. Use an already sourced, verified
+ROS/controller environment; never start a second owner of the follower port.
+The policy path requires ros2_control, not the standalone driver: standalone
+`/joint_commands` writes go directly to servos without the controller limit
+check and are prohibited here.
+
+```bash
+export FOLLOWER_PORT=/dev/serial/by-id/REPLACE_WITH_VERIFIED_FOLLOWER_ID
+export GRIPPER_TYPE=REPLACE_WITH_INSTALLED_50mm_OR_100mm
+export SPEED_DEG_S=REPLACE_WITH_VERIFIED_REDUCED_SPEED
+export POLICY_TARGET_TOPIC=/policy_joint_targets
+export POLICY_ARM_TOPIC=/policy_arm
+export BRIDGE_SCRIPT=REPLACE_WITH_OPERATOR_VERIFIED_EXTERNAL_BRIDGE_SCRIPT
+export BRIDGE_MAX_STEP_DEG=REPLACE_WITH_VERIFIED_MESSAGE_CAP
+export BRIDGE_MOVE_S=REPLACE_WITH_VERIFIED_MOVE_TIME
+export BRIDGE_STALE_S=REPLACE_WITH_VERIFIED_STALE_TIMEOUT
+```
+
+1. Start the operator-confirmed real-robot MoveIt/controller stack, with writes
+   enabled and startup/shutdown torque changes disabled:
+
+```bash
+ros2 launch alicia_d_moveit real_robot.launch.py \
+  port:="$FOLLOWER_PORT" gripper_type:="$GRIPPER_TYPE" \
+  speed_deg_s:="$SPEED_DEG_S" write_enabled:=true \
+  allow_leader_writes:=false torque_on_on_activate:=false \
+  torque_off_on_deactivate:=false max_write_delta_rad:=0.017453292519943295
+```
+
+The candidate hardware interface caps each write at **one degree per control
+cycle** (the radian value above). Do not raise that cap without a prospective
+recorded operator decision and safety evidence. Confirm both configured arm and
+gripper controller action servers are present, and no standalone driver runs.
+The reported controller rate of 25 Hz is a candidate, not a measurement.
+
+2. Start the operator's existing bridge, which must begin disarmed:
+
+```bash
+python3 "$BRIDGE_SCRIPT" \
+  --target-topic "$POLICY_TARGET_TOPIC" --arm-topic "$POLICY_ARM_TOPIC" \
+  --max-step-deg "$BRIDGE_MAX_STEP_DEG" --move-sec "$BRIDGE_MOVE_S" \
+  --stale-sec "$BRIDGE_STALE_S"
+```
+
+Leave that foreground bridge terminal running. In a separate control terminal,
+restore the variables and explicitly disarm:
+
+```bash
+ros2 topic pub --once "$POLICY_ARM_TOPIC" std_msgs/msg/Bool '{data: false}'
+```
+
+Confirm these CLI options and the bridge's actual state; no `--disarmed` option
+is assumed. Keep its source/version and verified stop behavior in the safety
+record. The candidate move time is 0.4 s; the session period must not be shorter
+than the deployed value. The vendor's 10 Hz policy reference does not override
+this floor. The adapter never publishes the arming topic, `/joint_commands` or
+an arm-controller trajectory goal; gripper offers use the separate action.
+
+3. Start the selected `die_into_cup` checkpoint server in its separate installed
+   environment. Set these paths to the committed protocol's selected checkpoint,
+   trainer completion receipt and configured task registry:
+
+```bash
+export CHECKPOINT_ROOT=REPLACE_WITH_LOCAL_FINALIZED_CHECKPOINT
+export CHECKPOINT_RECORD=REPLACE_WITH_MATCHING_COMMITTED_COMPLETION_RECEIPT
+export TASK_REGISTRY=config/synria_tasks.json
+python3 scripts/serve_synria_policy.py \
+  --checkpoint "$CHECKPOINT_ROOT" --checkpoint-record "$CHECKPOINT_RECORD" \
+  --task-registry "$TASK_REGISTRY" --device cpu --host 127.0.0.1 --port 8080
+```
+
+Default loopback serving assumes the server and client share a host. Any
+different operator-verified host/binding must be recorded in provenance; metadata
+matching is not network authentication. Do not substitute another skill's policy.
+
+4. Start the observe-only session below. In the control terminal, repeat the
+   `false` command while its subscriber is waiting: a prior one-shot message
+   may not be retained. Both preflight and the later motion session require an
+   observed disarmed message; an absent message does not mean disarmed.
 
 ```bash
 python3 -m synria_lerobot.sessions d2 --config "$SESSION_CONFIG" \
@@ -148,6 +233,7 @@ Preflight requires an observed actual `false` armed-state message, not a missing
 message or an already-armed bridge. After reviewing the read-only result and
 all physical prerequisites, leave the bridge disarmed and run:
 Use a fresh motion output directory; never reuse the preflight directory.
+Repeat the `false` command when the new session waits for disarmed state.
 
 ```bash
 python3 -m synria_lerobot.sessions d2 --config "$SESSION_CONFIG" \
@@ -159,6 +245,15 @@ leader hardware sync is **OFF**, records that confirmation with operator and
 time, then asks for manual bridge arming. It waits for a new actual `true`
 message after the confirmation. It never publishes an arming message. Only
 then can it create its policy-target publisher and gripper action client.
+Physically set and verify the leader sync switch OFF, then enter `sync-off`
+at the confirmation prompt. Only after that confirmation and the manual-arm
+prompt, issue this candidate command in the control terminal and confirm the
+prompt as `armed`:
+
+```bash
+ros2 topic pub --once "$POLICY_ARM_TOPIC" std_msgs/msg/Bool '{data: true}'
+```
+
 The candidate armed topic is an observed operator command channel, not an
 independent bridge acknowledgment. The operator must verify the configured
 topic's meaning and the bridge's actual state; observing a Bool alone does not
@@ -186,6 +281,17 @@ are cancelled with bounded waits on failure/shutdown, including late acceptance.
 Cancellation acceptance is not proof of physical stopping; unresolved outcomes
 are reported and owned resources retained for cleanup. Verify this behavior on
 hardware before use. Type `abort` at prompts or interrupt the process to abort.
+On any fault, stop the session and manually disarm in the control terminal:
+
+```bash
+ros2 topic pub --once "$POLICY_ARM_TOPIC" std_msgs/msg/Bool '{data: false}'
+```
+
+Then apply the independently verified site/controller stop procedure; use the
+manufacturer's emergency procedure if required. Disarm and a one-shot hold
+offer do not cancel or prove the end of an already accepted trajectory. Do not
+request torque-off on an unsupported arm. Keep all fault evidence, inspect the
+scene and reconcile the cause before a new preflight/session.
 
 Follow the committed scene schedule. Grade die inside the cup at the end from
 the timestamp-linked native front still, then record the five independent
@@ -206,19 +312,16 @@ python3 -m synria_lerobot.evaluation score \
   --protocol "$PROTOCOL" --output "/tmp/$SESSION-recheck.json"
 ```
 
-Add exactly one policy row with eight fields in the
-[policy ledger](POLICY_LEDGER.md): date, policy id, dataset/episode count/hash,
-recipe/hyperparameters, checkpoint hash, evaluation artifact, result, decision.
-The helper requires this policy's explicit `RESPONSE_TIMEOUT_S` and records it
-in the recipe/hyperparameter cell; historical rows are unchanged.
+The trainer already created the policy's one row in the
+[policy ledger](POLICY_LEDGER.md), including its per-policy response timeout.
+Do not call `policy-row` again for that policy or add a duplicate training row.
+Append the completed evaluation reference/result to the activity and timeline,
+and record any operator policy decision in [DECISIONS.md](DECISIONS.md), linking
+the existing policy ID and frozen EvalLog/statistics. Preserve the original row.
 
 ```bash
-python3 -m synria_lerobot.evaluation policy-row \
-  --ledger docs/ludo_flagship/POLICY_LEDGER.md \
-  --response-timeout-s "$RESPONSE_TIMEOUT_S" \
-  "$UTC_DATE" "$POLICY_ID" "$DATA_DESCRIPTION" "$RECIPE" \
-  "$CHECKPOINT_HASH" "$EVALUATION_ARTIFACT" "$RESULT" "$DECISION"
-git add "reports/ludo_flagship/eval/$SESSION" docs/ludo_flagship/POLICY_LEDGER.md \
+git add "reports/ludo_flagship/eval/${SESSION}-preflight" \
+  "reports/ludo_flagship/eval/$SESSION" docs/ludo_flagship/DECISIONS.md \
   docs/ludo_flagship/ACTIVITY_LOG.md docs/ludo_flagship/timeline.jsonl
 git commit -m "Record Synria evaluation evidence"
 ```

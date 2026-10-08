@@ -121,6 +121,9 @@ Follow its collection protocol:
 [die into cup](DIE_INTO_CUP_PROTOCOL.md),
 [roll and dump](ROLL_AND_DUMP_PROTOCOL.md), or
 [cup return](CUP_RETURN_PROTOCOL.md).
+Use a new `SESSION` and `DATASET_ROOT` for each skill. A process may record many
+episodes of that one task; changing `--task-id` cannot relabel or resume another
+task's dataset. Keep each skill's configured window and task-definition hash.
 Describe the actual marked cup position, die start zone and dump tray in `SCENE` as relevant
 to the selected registry entry. Before qualifying collection, prospectively record
 the observed task timing, chosen minimum/maximum, rationale, operator and date in
@@ -368,5 +371,10 @@ git commit -m "Record Synria D1 session $SESSION"
 
 Resumption updates the same committed session record rather than counting old
 episodes again. No delivery stage changes without qualifying committed evidence.
+After dataset review, follow the [training guide](ACT_TRAINING_RUNBOOK.md) and
+[probe guide](CHECKPOINT_PROBE_RUNBOOK.md) for that task's separate checkpoint.
+The first [D2 evaluation](D2_OPERATOR_RUNBOOK.md) is `die_into_cup`; the
+[standalone roll](D4_OPERATOR_RUNBOOK.md#standalone-fixed-scene-roll) later chains
+all three policies without claiming a token move or a D4 milestone.
 
 Object success is the operator's label plus a camera still; no independent sensor confirms it.
