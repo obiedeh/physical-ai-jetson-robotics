@@ -16,16 +16,35 @@ are XYZ metres in the named task frame. Track squares use `track:0` through
 `track:51`; yard/home squares use colour, kind and index, such as `red:yard:0`
 or `red:home:5`. All capture-return squares must also be reachable.
 
-Copy the [session configuration](../../config/synria_session.json) to an
-operator-owned configuration file and fill every field. Set `adapter` to an
-installed `module:factory` implementing [SessionIO](../../synria_lerobot/sessions.py).
-The site adapter binds the existing follower state and two camera sources,
-operator completion/label/reset prompts, final still capture and the verified
-controller command/hold path. No driver-specific adapter or default device
-is assumed here. Its factory must create no command publisher;
-`command_sink()` is the only publisher factory, invoked after motion gates.
-Every observation uses the physical seven-value state and driver gripper
-sense. Supply velocities only when reported by the driver.
+Copy the [session configuration](../../config/synria_session.json) and
+[ROS adapter configuration](../../config/synria_ros_adapter.json) to
+operator-owned files and fill every required field. The session's `adapter`
+selects the included [read-only-first adapter](../../synria_lerobot/ros_adapter.py);
+`adapter_config` points to the completed copy. No driver, bridge, controller,
+launch file or teleoperation is started, stopped or reconfigured by this code.
+The configured source must be the existing ros2_control stack, with both
+operator-confirmed arm and gripper `FollowJointTrajectory` servers present
+and no standalone driver node in any namespace. The arm action name and
+physical gripper action joint/unit mapping are deliberately unconfigured:
+do not infer them from the mock simulation controller. Fill and verify the
+gripper joint name, units (`m` or `rad`), fully-open and fully-closed action
+positions, `verified_by` and `verified_on` before enabling motion.
+
+Configure absolute state, policy-target, armed-state and action names plus
+distinct stable camera paths. The adapter strictly accepts `Joint1` through
+`Joint6` and `Gripper`, using D1's zero-open, positive-closed metres; incompatible
+state interfaces refuse startup. Set `state_has_velocity` to match the dataset:
+false drops unused velocities, true requires all six. Preserve its
+`action_source` and `action_lookahead_steps`, not an assumed default. Images
+are captured as RGB at the configured stored size. State callbacks, camera
+arrivals and ROS header delay must remain fresh. Preflight measures the incoming
+state rate and records the result, configured endpoints and bridge timing.
+
+The candidate bridge move time is 0.4 s, **unverified**. Explicitly configure
+`bridge_move_time_s` from the deployed bridge and require session
+`command_period_s` to be at least that long; a 10 Hz example does not override
+the bridge duration. The adapter enforces the period between normal offers
+and derives its own bounds from the measured state and configured speeds.
 
 Use the selected trained policy's physical-contract HTTP endpoint. Requests
 contain the contract, observation keys, task, reset flag, request id and host
@@ -89,20 +108,60 @@ and this hash. The hash excludes only its own value, avoiding self-reference.
 
 ## Validate, collect, score
 
-From the repository root, validate configuration without loading the adapter:
+For a future authorized session, follow this order: existing ros2_control
+source; operator-validated bridge **disarmed**; policy server; read-only session
+preflight. Use the site's validated ROS/recording environment with dependencies
+already sourced. Do not launch another owner of the follower port. From the
+repository root, run actual read-only graph/source preflight, with no command
+publisher or action client created:
 
 ```bash
 python3 -m synria_lerobot.sessions d2 --config "$SESSION_CONFIG" \
   --output "reports/ludo_flagship/eval/$SESSION"
 ```
 
-After explicit motion authorization, power-on/preflight and the site's
-validated policy-server startup procedure, run:
+Unverified safety files may be inspected read-only; they cannot enable motion.
+Preflight requires an observed actual `false` armed-state message, not a missing
+message or an already-armed bridge. After reviewing the read-only result and
+all physical prerequisites, leave the bridge disarmed and run:
 
 ```bash
 python3 -m synria_lerobot.sessions d2 --config "$SESSION_CONFIG" \
   --output "reports/ludo_flagship/eval/$SESSION" --enable-motion
 ```
+
+The process repeats read-only preflight, asks the operator to confirm the
+leader hardware sync is **OFF**, records that confirmation with operator and
+time, then asks for manual bridge arming. It waits for a new actual `true`
+message after the confirmation. It never publishes an arming message. Only
+then can it create its policy-target publisher and gripper action client.
+The candidate armed topic is an observed operator command channel, not an
+independent bridge acknowledgment. The operator must verify the configured
+topic's meaning and the bridge's actual state; observing a Bool alone does not
+prove that the bridge accepted it or that hardware is safe.
+The policy target contains six arm joints only; gripper commands use the
+separate verified mapping/action. It never publishes to `/joint_commands` or
+sends a goal to the arm action server. Every offer rechecks graph ownership,
+armed state, configuration verification and fresh measured state. Clamps use
+the final measured snapshot before arm submission and refresh the gripper
+snapshot before its separate submission. Normal command cadence is anchored
+after successful arm publication, including eligible holds. Competing
+policy publishers, any direct-command publisher, graph errors or missing
+controller servers refuse motion. Its own policy endpoint is pinned by graph
+identity, not excluded by subtracting one publisher from a count.
+
+Graph discovery and armed-state callbacks are best-effort snapshots: they
+cannot eliminate discovery delay or a change immediately after a check and
+are **not a hardware safety interlock**. On timeout, fault, abort or cleanup,
+an eligible hold sends at most one fresh measured six-joint arm target before
+any bounded gripper-cancellation wait, then stops. It sends no gripper position
+or torque-off command. A disarmed, stale,
+unverified or graph-conflicted path sends no hold; use the bridge's separately
+validated stop procedure. Accepted gripper goals owned by this session alone
+are cancelled with bounded waits on failure/shutdown, including late acceptance.
+Cancellation acceptance is not proof of physical stopping; unresolved outcomes
+are reported and owned resources retained for cleanup. Verify this behavior on
+hardware before use. Type `abort` at prompts or interrupt the process to abort.
 
 Follow the committed scene schedule. Grade reached/grasped/lifted/placed/
 released and success/failure from the front still. Success requires the token

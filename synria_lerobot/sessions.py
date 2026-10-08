@@ -32,6 +32,7 @@ from .policy_client import (
     add_motion_arguments,
 )
 from .quality_gates import OBJECT_SUCCESS_LIMITATION, load_limits
+from .recorder import _close_all
 from .turn_executor import (
     BoardCalibration,
     PhysicalLudoGame,
@@ -50,6 +51,8 @@ class SessionIO(Protocol):
     """
 
     def observe(self, task: str) -> SynriaObservation: ...
+    def preflight(self) -> dict[str, Any]: ...
+    def authorize_motion(self) -> dict[str, Any]: ...
     def completed(self) -> bool: ...
     def roll_completed(self, phase: str) -> bool: ...
     def command_sink(self) -> CommandSink: ...
@@ -59,26 +62,36 @@ class SessionIO(Protocol):
     def capture_front(self) -> tuple[Any, str, float]: ...
     def abort_requested(self) -> bool: ...
     def power_state_end(self) -> str: ...
+    def session_evidence(self) -> dict[str, Any]: ...
     def close(self) -> None: ...
 
 
 def validate_session(
-    config: dict[str, Any], mode: str, repository: Path
+    config: dict[str, Any],
+    mode: str,
+    repository: Path,
+    *,
+    enable_motion: bool = False,
 ) -> PolicySafetyConfig:
     if mode not in {"d2", "d3", "d4", "d5"}:
         raise ValueError("unknown session mode")
-    if not load_limits(Path(config["limits"])).verified:
+    limits = load_limits(Path(config["limits"]))
+    if enable_motion and not limits.verified:
         raise ValueError("operator-verified limits required")
     PhysicalDatasetContract(
-        config["gripper_type"], ActionSource(config["action_source"]), config["state_has_velocity"]
+        config["gripper_type"],
+        ActionSource(config["action_source"]),
+        config["state_has_velocity"],
+        action_lookahead_steps=config["action_lookahead_steps"],
     )
     if not {"command_period_s", "response_timeout_s"} <= config.keys():
         raise ValueError("command period and per-policy response timeout are required")
     safety = PolicySafetyConfig.load(
-        Path(config["policy_config"]), command_period_s=config["command_period_s"],
+        Path(config["policy_config"]),
+        command_period_s=config["command_period_s"],
         response_timeout_s=config["response_timeout_s"],
     )
-    if not safety.verified:
+    if enable_motion and not safety.verified:
         raise ValueError("operator-verified policy safety config required")
     if "period_s" in config:
         raise ValueError("use command_period_s as the single session command period")
@@ -141,24 +154,40 @@ def run_session(
     enable_motion: bool = False,
     factory: Callable[[dict[str, Any]], SessionIO] | None = None,
 ) -> dict[str, Any]:
-    safety = validate_session(config, mode, repository)
-    if not enable_motion:
-        return {"motion_enabled": False, "validated": True, "status": "implemented, unmeasured"}
+    safety = validate_session(config, mode, repository, enable_motion=enable_motion)
     if output.exists():
         raise FileExistsError("use a new output directory for each session")
-    output.mkdir(parents=True)
     if factory is None:
         module, name = config["adapter"].split(":", 1)
         factory = getattr(importlib.import_module(module), name)
     assert factory is not None
-    io = factory(config)
+    io = factory({**config, "enable_motion": enable_motion, "session_output": str(output)})
     path: GuardedCommandPath | None = None
     client: PolicyClient | None = None
+    provenance: dict[str, Any] | None = None
     try:
+        source_evidence = io.preflight()
+        if not enable_motion:
+            return {
+                "motion_enabled": False,
+                "validated": True,
+                "source_preflight": source_evidence,
+                "status": "implemented, unmeasured",
+            }
+        output.mkdir(parents=True)
+        provenance = {
+            **config["provenance"],
+            "policy_safety": asdict(safety),
+            "source_preflight": source_evidence,
+        }
+        (output / "provenance.json").write_text(json.dumps(provenance, indent=2), encoding="utf-8")
+        provenance["source_preflight"] = io.authorize_motion()
+        (output / "provenance.json").write_text(json.dumps(provenance, indent=2), encoding="utf-8")
         contract = PhysicalDatasetContract(
             config["gripper_type"],
             ActionSource(config["action_source"]),
             config["state_has_velocity"],
+            action_lookahead_steps=config["action_lookahead_steps"],
         )
         client = PolicyClient(
             SynriaEmbodiment(contract),
@@ -175,7 +204,6 @@ def run_session(
             period_s=safety.command_period_s,
         )
         calibration = BoardCalibration(Path(config["calibration"]), Path(config["reachable"]))
-        provenance = {**config["provenance"], "policy_safety": asdict(safety)}
         if mode == "d2":
             writer = EvalLogWriter(
                 output / "EvalLog.jsonl",
@@ -288,16 +316,26 @@ def run_session(
                 ).run()
         return stats
     finally:
-        try:
-            if path is not None:
-                path.hold()
-            if client is not None:
-                client.write_latencies(output / "latencies.jsonl")
-            (output / "session_end.json").write_text(
-                json.dumps({"power_state_end": io.power_state_end()}), encoding="utf-8"
-            )
-        finally:
-            io.close()
+
+        def end_evidence() -> None:
+            if output.exists():
+                (output / "session_end.json").write_text(
+                    json.dumps({"power_state_end": io.power_state_end()}), encoding="utf-8"
+                )
+
+        def final_provenance() -> None:
+            if provenance is not None:
+                provenance["source_preflight"] = io.session_evidence()
+                (output / "provenance.json").write_text(
+                    json.dumps(provenance, indent=2), encoding="utf-8"
+                )
+
+        callbacks = [io.close, final_provenance, end_evidence]
+        if client is not None:
+            callbacks.insert(0, lambda: client.write_latencies(output / "latencies.jsonl"))
+        if path is not None:
+            callbacks.insert(0, path.hold)
+        _close_all(*callbacks)
 
 
 def main() -> None:

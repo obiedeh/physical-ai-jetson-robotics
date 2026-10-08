@@ -32,7 +32,8 @@ ACTION_TIMING_KEYS = (
     "action_lookahead_steps", "effective_action_lookahead_steps",
     "nominal_action_lookahead_s", "requested_rate_hz",
 )
-DEFAULT_COMMAND_TOPICS = ("/joint_commands", "/policy_joint_targets")
+DIRECT_JOINT_COMMAND_TOPIC = "/joint_commands"
+DEFAULT_COMMAND_TOPICS = (DIRECT_JOINT_COMMAND_TOPIC, "/policy_joint_targets")
 STATE_SOURCE_KINDS = ("standalone_driver", "ros2_control")
 
 

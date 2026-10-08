@@ -1,0 +1,31 @@
+{
+  "status": "implemented, unmeasured",
+  "joint_state_topic": "/joint_states",
+  "policy_target_topic": "/policy_joint_targets",
+  "armed_topic": "/policy_arm",
+  "arm_action": "",
+  "gripper_action": "/Gripper_controller/follow_joint_trajectory",
+  "standalone_driver_node": "alicia_d_driver_node",
+  "unsafe_command_topics": ["/joint_commands"],
+  "bridge_move_time_s": 0.4,
+  "discovery_timeout_s": 2.0,
+  "arming_timeout_s": 30.0,
+  "action_timeout_s": 2.0,
+  "shutdown_timeout_s": 1.0,
+  "max_source_age_s": 0.2,
+  "max_header_delay_s": 0.2,
+  "max_header_future_s": 0.02,
+  "wrist_camera": "",
+  "front_camera": "",
+  "image_width": 224,
+  "image_height": 224,
+  "gripper_mapping": {
+    "joint_name": "",
+    "units": "",
+    "open_position": null,
+    "closed_position": null,
+    "verified_by": "",
+    "verified_on": ""
+  },
+  "note": "Candidate endpoints and bridge duration only. Confirm the actual arm action, D1-compatible state interface, read-only setup, gripper joint units/range/sense and controlled hold before motion. Never start a driver or bridge from this adapter."
+}
