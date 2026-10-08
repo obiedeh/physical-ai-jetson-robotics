@@ -131,11 +131,13 @@ def _recorder(
     smoke: bool = False,
     initial_episode_index: int = 0,
     state_has_velocity: bool = False,
+    action_lookahead_steps: int = 1,
 ) -> tuple[PhysicalEpisodeRecorder, FakeWriter]:
     contract = PhysicalDatasetContract(
         gripper_type="50mm",
         action_source=action_source,
         state_has_velocity=state_has_velocity,
+        action_lookahead_steps=action_lookahead_steps,
     )
     config = PhysicalRecorderConfig(
         dataset_path=tmp_path / "dataset",
@@ -217,6 +219,36 @@ def test_next_state_actions_are_shifted_one_frame(tmp_path: Path) -> None:
     assert episode.frames[0].action_ros_header_stamp_s == 120.0
     assert episode.frames[1].action_monotonic_timestamp_s == 20.0
     assert episode.achieved_sample_rate_hz == pytest.approx(0.05)
+
+
+@pytest.mark.parametrize("steps", [0, 1, 2, 9])
+@pytest.mark.parametrize("source", list(ActionSourceKind))
+def test_configured_lookahead_shifts_only_follower_actions_and_clamps_tail(
+    tmp_path: Path, steps: int, source: ActionSourceKind
+) -> None:
+    clock = FakeClock()
+    states = [_state((index + 1) / 1000, float(index)) for index in range(3)]
+    recorder, _ = _recorder(
+        tmp_path, action_source=source, states=states, clock=clock, action_lookahead_steps=steps
+    )
+    recorder.start()
+    for index in range(3):
+        clock.now = float(index)
+        recorder.capture_once()
+    clock.now = 20
+    recorder.stop()
+    episode = recorder.mark_success()
+    recorder.close()
+    assert episode.action_lookahead_steps == steps
+    for index, frame in enumerate(episode.frames):
+        target = min(index + steps, 2) if source is ActionSourceKind.NEXT_STATE else index
+        expected = (
+            states[target].observation_vector()
+            if source is ActionSourceKind.NEXT_STATE else (0.01,) * 7
+        )
+        assert frame.action == expected
+        assert frame.action_monotonic_timestamp_s == states[target].monotonic_timestamp_s
+        assert frame.action_ros_header_stamp_s == states[target].ros_header_stamp_s
 
 
 def test_sample_time_is_taken_after_source_snapshots(
@@ -549,7 +581,7 @@ def test_main_cleans_partial_startup_and_session_failure(
     args = SimpleNamespace(
         dataset_path=tmp_path / "dataset", repo_id="local/test", gripper_type="50mm",
         action_source="next_state", state_has_velocity=False, smoke=False, fps=15,
-        image_width=224, image_height=224,
+        image_width=224, image_height=224, action_lookahead_steps=1,
         follower_topic="follower", leader_topic="leader",
         wrist_camera="wrist", front_camera="front",
     )
@@ -594,6 +626,7 @@ def test_cli_defaults_to_follower_only_and_keeps_optional_leader(
         "--repo-id", "local/fake", "--gripper-type", "50mm",
         "--wrist-camera", "fake-wrist", "--front-camera", "fake-front",
         "--state-has-velocity",
+        "--action-lookahead-steps", "2",
     ]
     if action_source is not None:
         arguments.extend(["--action-source", action_source])
@@ -622,6 +655,7 @@ def test_cli_defaults_to_follower_only_and_keeps_optional_leader(
         expected.append(("/leader/joint_states", False))
     assert sources == expected
     assert configs[0].contract.action_source.value == (action_source or "next_state")
+    assert configs[0].contract.action_lookahead_steps == 2
 
 
 def test_session_saves_many_episodes_and_returns_no_frame_history(

@@ -7,7 +7,12 @@ import pytest
 from typer.testing import CliRunner
 
 from physical_ai_lab.cli import app
-from synria_lerobot.physical_contract import CONTRACT_VERSION
+from synria_lerobot.physical_contract import (
+    CONTRACT_VERSION,
+    ActionSource,
+    PhysicalDatasetContract,
+    action_timing_metadata,
+)
 from synria_lerobot.quality_gates import (
     EpisodeQualityRecord,
     FrameQualityRecord,
@@ -51,6 +56,7 @@ def _record() -> EpisodeQualityRecord:
         smoke=False,
         frames=frames,
         achieved_sample_rate_hz=1.0,
+        **action_timing_metadata(ActionSource.LEADER, 1, 1.0),
     )
 
 
@@ -61,7 +67,8 @@ def test_d1_session_summary_command_writes_artifacts(
     dataset = tmp_path / "dataset"
     dataset.mkdir()
     (dataset / "payload.bin").write_bytes(b"dataset")
-    (dataset / "physical_contract.json").write_text("{}", encoding="utf-8")
+    contract = PhysicalDatasetContract("50mm", ActionSource.LEADER, False).as_dict(fps=1)
+    (dataset / "physical_contract.json").write_text(json.dumps(contract), encoding="utf-8")
     capture = {
         "episode_index": 0,
         "camera_ids": {"wrist": "wrist", "front": "front"},
@@ -72,6 +79,10 @@ def test_d1_session_summary_command_writes_artifacts(
         "stored_resolution": {"width": 4, "height": 4},
         "stored_color_space": "RGB",
         "achieved_sample_rate_hz": 1.0,
+        "action_source": "leader",
+        "contract_version": CONTRACT_VERSION,
+        "gripper_type": "50mm",
+        **action_timing_metadata(ActionSource.LEADER, 1, 1.0),
     }
     if mismatch == "resolution":
         capture["stored_resolution"] = {"width": 8, "height": 4}

@@ -12,6 +12,7 @@ from synria_lerobot.physical_contract import (
     ImageFrame,
     PhysicalDatasetContract,
     PhysicalState,
+    action_timing_metadata,
 )
 from synria_lerobot.physical_contract import (
     ActionSource as ActionSourceKind,
@@ -76,6 +77,7 @@ def _baseline_episode() -> EpisodeQualityRecord:
         final_still="episode_000000_final.jpg",
         smoke=False,
         frames=frames,
+        **action_timing_metadata(ActionSourceKind.LEADER, 1, 1.0),
     )
 
 
@@ -162,11 +164,14 @@ def test_corrupt_source_freshness_fails_exact_gate(corruption: str) -> None:
 @pytest.mark.parametrize(
     "corruption", [None, "missing", "unrelated", "nonfinite", "unknown_source"]
 )
-def test_derived_actions_require_true_next_state_timestamp_lineage(corruption: str | None) -> None:
+@pytest.mark.parametrize("steps", [0, 1, 2, 25])
+def test_derived_actions_require_true_next_state_timestamp_lineage(
+    corruption: str | None, steps: int
+) -> None:
     episode = _baseline_episode()
     frames = []
     for index, frame in enumerate(episode.frames):
-        target = episode.frames[min(index + 1, len(episode.frames) - 1)].timestamps
+        target = episode.frames[min(index + steps, len(episode.frames) - 1)].timestamps
         timestamps = {
             **frame.timestamps, "action_monotonic_s": target["state_monotonic_s"],
             "action_ros_header_s": target["state_ros_header_s"],
@@ -179,9 +184,11 @@ def test_derived_actions_require_true_next_state_timestamp_lineage(corruption: s
         frames[0].timestamps["action_monotonic_s"] += 1
     elif corruption == "nonfinite":
         frames[0].timestamps["action_ros_header_s"] = float("nan")
-    episode = replace(episode, frames=tuple(frames), action_source=(
-        "unknown" if corruption == "unknown_source" else "next_state"
-    ))
+    episode = replace(
+        episode, frames=tuple(frames), action_source=(
+            "unknown" if corruption == "unknown_source" else "next_state"
+        ), **action_timing_metadata(ActionSourceKind.NEXT_STATE, steps, 1.0),
+    )
     assert _failed_gates(episode) == ([] if corruption is None else ["source_staleness"])
 
 
@@ -353,6 +360,7 @@ def _provenance(action_source: str) -> dict[str, object]:
         "contract_version": CONTRACT_VERSION,
         "gripper_type": "50mm",
         "action_source": action_source,
+        **action_timing_metadata(ActionSourceKind(action_source), 1, 1.0),
     }
 
 
@@ -386,6 +394,9 @@ def test_fake_source_end_to_end_for_both_action_sources(tmp_path: Path) -> None:
     assert aggregate["qualifying_episode_count"] == 0
     assert aggregate["status"] == "planned"
     assert aggregate["action_sources"] == ["leader", "next_state"]
+    assert [item["nominal_action_lookahead_s"] for item in aggregate["recording_contracts"]] == [
+        0.0, 1.0
+    ]
     assert (tmp_path / "timeline.jsonl").read_text().count("d1_dataset_summary") == 1
 
 
@@ -459,3 +470,46 @@ def test_quality_record_parser_does_not_coerce_invalid_episode_indices(bad_index
     payload["episode_index"] = bad_index
     with pytest.raises(ValueError, match="episode indices"):
         EpisodeQualityRecord.from_dict(payload)
+
+
+@pytest.mark.parametrize("layer", ["contract", "provenance", "episode", "capture"])
+@pytest.mark.parametrize(
+    "field,value",
+    [("action_source", "next_state"), ("contract_version", "unknown"),
+     ("gripper_type", "100mm"), ("requested_rate_hz", 2), ("action_lookahead_steps", 2),
+     ("action_lookahead_steps", True), ("effective_action_lookahead_steps", 1),
+     ("nominal_action_lookahead_s", 0.5)],
+)
+def test_summary_refuses_relabelled_contract_or_episode_evidence(
+    tmp_path: Path, layer: str, field: str, value: object
+) -> None:
+    dataset = tmp_path / "dataset"
+    dataset.mkdir()
+    contract = PhysicalDatasetContract("50mm", ActionSourceKind.LEADER, False).as_dict(fps=1)
+    provenance = _provenance("leader")
+    episode = _baseline_episode()
+    capture = {
+        "episode_index": 0, "camera_ids": provenance["camera_ids"],
+        "native_resolution": {"wrist": {"width": 4, "height": 4},
+                              "front": {"width": 4, "height": 4}},
+        "stored_resolution": provenance["resolution"], "stored_color_space": "RGB",
+        "achieved_sample_rate_hz": None,
+        "action_source": "leader", "contract_version": CONTRACT_VERSION, "gripper_type": "50mm",
+        **action_timing_metadata(ActionSourceKind.LEADER, 1, 1),
+    }
+    if layer == "episode":
+        episode = replace(episode, **{field: value})
+    else:
+        target = {"contract": contract, "provenance": provenance, "capture": capture}[layer]
+        target[field] = value
+    (dataset / "physical_contract.json").write_text(json.dumps(contract), encoding="utf-8")
+    (dataset / "physical_capture_provenance.jsonl").write_text(
+        json.dumps(capture) + "\n", encoding="utf-8"
+    )
+    session = tmp_path / "reports" / "session"
+    with pytest.raises(ValueError):
+        write_session_artifacts(
+            session_dir=session, dataset_path=dataset, provenance=provenance,
+            episodes=[episode], limits=load_limits(LIMITS_PATH),
+        )
+    assert not session.exists()

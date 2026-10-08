@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, replace
 from enum import Enum
-from typing import Any
+from typing import Any, TypedDict
 
 CONTRACT_VERSION = "synria_physical_v1"
 DRIVER_JOINT_NAMES = (
@@ -27,6 +27,10 @@ SIMULATION_JOINT_NAMES = (
 JOINT_NAME_MAPPING = dict(zip(DRIVER_JOINT_NAMES, SIMULATION_JOINT_NAMES, strict=True))
 GRIPPER_STROKE_M = {"50mm": 0.025, "100mm": 0.05}
 IMAGE_KEYS = ("observation.images.wrist", "observation.images.front")
+ACTION_TIMING_KEYS = (
+    "action_lookahead_steps", "effective_action_lookahead_steps",
+    "nominal_action_lookahead_s", "requested_rate_hz",
+)
 
 
 class ActionSource(str, Enum):
@@ -34,6 +38,32 @@ class ActionSource(str, Enum):
 
     LEADER = "leader"
     NEXT_STATE = "next_state"
+
+
+class ActionTimingMetadata(TypedDict):
+    action_lookahead_steps: int
+    effective_action_lookahead_steps: int
+    nominal_action_lookahead_s: float
+    requested_rate_hz: float
+
+
+def action_timing_metadata(
+    source: ActionSource, steps: int, fps: float
+) -> ActionTimingMetadata:
+    """Describe configured and effective horizons using the requested sample rate."""
+    if type(steps) is not int or steps < 0:
+        raise ValueError("action lookahead steps must be a non-negative integer")
+    if not isinstance(source, ActionSource):
+        raise ValueError("action source must be leader or next_state")
+    if isinstance(fps, bool) or not math.isfinite(fps) or fps <= 0 or int(fps) != fps:
+        raise ValueError("requested sample rate must be a positive finite integer")
+    effective_steps = steps if source is ActionSource.NEXT_STATE else 0
+    return {
+        "action_lookahead_steps": steps,
+        "effective_action_lookahead_steps": effective_steps,
+        "nominal_action_lookahead_s": effective_steps / fps,
+        "requested_rate_hz": fps,
+    }
 
 
 def _require_finite(values: tuple[float, ...], label: str) -> None:
@@ -49,12 +79,14 @@ class PhysicalDatasetContract:
     action_source: ActionSource
     state_has_velocity: bool
     version: str = CONTRACT_VERSION
+    action_lookahead_steps: int = 1
 
     def __post_init__(self) -> None:
         if self.gripper_type not in GRIPPER_STROKE_M:
             raise ValueError("gripper_type must be '50mm' or '100mm'")
         if self.version != CONTRACT_VERSION:
             raise ValueError(f"unsupported physical contract version: {self.version}")
+        action_timing_metadata(self.action_source, self.action_lookahead_steps, 1)
 
     @property
     def gripper_stroke_m(self) -> float:
@@ -70,15 +102,21 @@ class PhysicalDatasetContract:
             return replace(state, joint_velocities_rad_s=None)
         return state
 
-    def as_dict(self) -> dict[str, object]:
-        return {
+    def as_dict(self, *, fps: float | None = None) -> dict[str, object]:
+        payload: dict[str, object] = {
             "contract_version": self.version,
             "gripper_type": self.gripper_type,
             "action_source": self.action_source.value,
             "state_has_velocity": self.state_has_velocity,
             "state_names": [*DRIVER_JOINT_NAMES, "Gripper"],
             "image_keys": list(IMAGE_KEYS),
+            "action_lookahead_steps": self.action_lookahead_steps,
         }
+        if fps is not None:
+            payload.update(
+                action_timing_metadata(self.action_source, self.action_lookahead_steps, fps)
+            )
+        return payload
 
 
 @dataclass(frozen=True)

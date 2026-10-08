@@ -41,6 +41,7 @@ from synria_lerobot.physical_contract import (
     PhysicalDatasetContract,
     PhysicalFrame,
     PhysicalState,
+    action_timing_metadata,
 )
 from synria_lerobot.recording_transaction import RecordingRecoveryError, RecordingTransaction
 from synria_lerobot.schema import (
@@ -146,8 +147,9 @@ class PhysicalRecorderConfig:
     smoke: bool = False
 
     def __post_init__(self) -> None:
-        if self.fps <= 0:
-            raise ValueError("fps must be positive")
+        action_timing_metadata(
+            self.contract.action_source, self.contract.action_lookahead_steps, self.fps
+        )
         if any(type(value) is not int or value <= 0 for value in (
             self.image_width, self.image_height
         )):
@@ -176,6 +178,7 @@ class RecordedPhysicalEpisode:
     gripper_type: str
     final_still_path: Path | None = None
     smoke: bool = False
+    action_lookahead_steps: int = 1
 
     @property
     def duration_s(self) -> float:
@@ -497,7 +500,7 @@ class LeRobotDatasetWriter:
         self._transaction = RecordingTransaction(config.dataset_path)
         self._root = self._transaction.root
         contract_path = self._root / "physical_contract.json"
-        contract_payload = config.contract.as_dict()
+        contract_payload = config.contract.as_dict(fps=config.fps)
         self._finalized = False
         self._dataset_open = False
         self.recovery_blocked = False
@@ -517,6 +520,8 @@ class LeRobotDatasetWriter:
                     raise ValueError("physical dataset contract differs from existing dataset")
                 self._dataset = LeRobotDataset.resume(repo_id=config.repo_id, root=self._root)
                 self._dataset_open = True
+                if self._dataset.meta.fps != config.fps:
+                    raise ValueError("persisted dataset rate differs from physical contract")
                 for name in ("observation.images.wrist", "observation.images.front"):
                     stored = self._dataset.meta.features.get(name, {})
                     if stored.get("dtype") != features[name]["dtype"] or tuple(
@@ -615,6 +620,14 @@ class LeRobotDatasetWriter:
             raise RecordingRecoveryError("dataset recovery is blocked; pending frames retained")
         if episode.episode_index != self._next_episode_index:
             raise ValueError("episode index differs from persisted dataset metadata")
+        if (
+            episode.action_source is not self._contract.action_source
+            or episode.gripper_type != self._contract.gripper_type
+            or episode.contract_version != self._contract.version
+            or episode.action_lookahead_steps != self._contract.action_lookahead_steps
+            or type(episode.action_lookahead_steps) is not int
+        ):
+            raise ValueError("episode metadata differs from dataset contract")
         episode.frames = [
             replace(frame, state=self._contract.prepare_state(frame.state))
             for frame in episode.frames
@@ -691,6 +704,9 @@ class LeRobotDatasetWriter:
                         "final_still": str(episode.final_still_path),
                         "smoke": episode.smoke,
                         "achieved_sample_rate_hz": episode.achieved_sample_rate_hz,
+                        **action_timing_metadata(
+                            episode.action_source, episode.action_lookahead_steps, self._fps
+                        ),
                     },
                     sort_keys=True,
                 )
@@ -738,6 +754,12 @@ class LeRobotDatasetWriter:
             "stored_resolution": {"width": self._image_width, "height": self._image_height},
             "stored_color_space": "RGB",
             "achieved_sample_rate_hz": episode.achieved_sample_rate_hz,
+            "action_source": episode.action_source.value,
+            "contract_version": episode.contract_version,
+            "gripper_type": episode.gripper_type,
+            **action_timing_metadata(
+                episode.action_source, episode.action_lookahead_steps, self._fps
+            ),
         }
         if self._capture_records_path.is_file():
             with self._capture_records_path.open(encoding="utf-8") as source:
@@ -889,6 +911,7 @@ class PhysicalEpisodeRecorder:
             contract_version=self.config.contract.version,
             gripper_type=self.config.contract.gripper_type,
             smoke=self.config.smoke,
+            action_lookahead_steps=self.config.contract.action_lookahead_steps,
         )
         self.writer.write_episode(episode)
         self._next_episode_index += 1
@@ -902,7 +925,9 @@ class PhysicalEpisodeRecorder:
         for index, pending in enumerate(self._pending):
             action = pending.action
             if self.config.contract.action_source is ActionSourceKind.NEXT_STATE:
-                next_index = min(index + 1, len(self._pending) - 1)
+                next_index = min(
+                    index + self.config.contract.action_lookahead_steps, len(self._pending) - 1
+                )
                 next_state = self._pending[next_index].state
                 action = ActionSample(
                     values=(*next_state.joint_positions_rad, next_state.gripper_m),
@@ -1233,6 +1258,7 @@ def _parse_physical_args() -> argparse.Namespace:
         choices=tuple(source.value for source in ActionSourceKind),
         default=ActionSourceKind.NEXT_STATE.value,
     )
+    parser.add_argument("--action-lookahead-steps", type=int, default=1)
     parser.add_argument("--follower-topic", default="/joint_states")
     parser.add_argument("--leader-topic", default="/leader/joint_states")
     parser.add_argument("--wrist-camera", required=True)
@@ -1251,6 +1277,7 @@ def physical_main() -> int:  # pragma: no cover - hardware entry point
         gripper_type=args.gripper_type,
         action_source=ActionSourceKind(args.action_source),
         state_has_velocity=args.state_has_velocity,
+        action_lookahead_steps=args.action_lookahead_steps,
     )
     with ExitStack() as session_cleanup:
         dataset_path: Path | None = args.dataset_path

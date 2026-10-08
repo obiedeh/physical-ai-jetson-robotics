@@ -12,6 +12,11 @@ from typing import Any
 
 import numpy as np
 
+from synria_lerobot.physical_contract import (
+    ACTION_TIMING_KEYS,
+    ActionSource,
+    action_timing_metadata,
+)
 from synria_lerobot.recorder import OperatorLabel, RecordedPhysicalEpisode
 
 OBJECT_SUCCESS_LIMITATION = (
@@ -61,6 +66,10 @@ class EpisodeQualityRecord:
     smoke: bool
     frames: tuple[FrameQualityRecord, ...]
     achieved_sample_rate_hz: float | None = None
+    action_lookahead_steps: int = 1
+    effective_action_lookahead_steps: int | None = None
+    nominal_action_lookahead_s: float | None = None
+    requested_rate_hz: float | None = None
 
     def as_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -80,6 +89,10 @@ class EpisodeQualityRecord:
             final_still=str(payload["final_still"]),
             smoke=bool(payload["smoke"]),
             achieved_sample_rate_hz=payload.get("achieved_sample_rate_hz"),
+            action_lookahead_steps=payload.get("action_lookahead_steps", 1),
+            effective_action_lookahead_steps=payload.get("effective_action_lookahead_steps"),
+            nominal_action_lookahead_s=payload.get("nominal_action_lookahead_s"),
+            requested_rate_hz=payload.get("requested_rate_hz"),
             frames=tuple(
                 FrameQualityRecord(
                     state=tuple(float(value) for value in frame["state"]),
@@ -203,6 +216,7 @@ def episode_quality_record(
         final_still=str(episode.final_still_path or ""),
         smoke=episode.smoke,
         achieved_sample_rate_hz=episode.achieved_sample_rate_hz,
+        **action_timing_metadata(episode.action_source, episode.action_lookahead_steps, fps),
         frames=tuple(
             FrameQualityRecord(
                 state=frame.state.observation_vector(),
@@ -320,6 +334,14 @@ def _sources_fresh(frame: FrameQualityRecord, action_source: str, config: GateCo
 def _episode_sources_fresh(episode: EpisodeQualityRecord, config: GateConfig) -> bool:
     if not episode.frames or episode.action_source not in {"leader", "next_state"}:
         return False
+    try:
+        expected_timing = action_timing_metadata(
+            ActionSource(episode.action_source), episode.action_lookahead_steps, episode.fps
+        )
+    except (TypeError, ValueError):
+        return False
+    if any(getattr(episode, name) != expected for name, expected in expected_timing.items()):
+        return False
     samples = [frame.timestamps.get("sample_monotonic_s", math.nan) for frame in episode.frames]
     if not all(math.isfinite(sample) for sample in samples) or any(
         newer <= older for older, newer in zip(samples, samples[1:], strict=False)
@@ -329,7 +351,9 @@ def _episode_sources_fresh(episode: EpisodeQualityRecord, config: GateConfig) ->
         if not _sources_fresh(frame, episode.action_source, config):
             return False
         if episode.action_source == "next_state":
-            target = episode.frames[min(index + 1, len(episode.frames) - 1)]
+            target = episode.frames[
+                min(index + episode.action_lookahead_steps, len(episode.frames) - 1)
+            ]
             for action_name, state_name in (
                 ("action_monotonic_s", "state_monotonic_s"),
                 ("action_ros_header_s", "state_ros_header_s"),
@@ -428,6 +452,10 @@ def _merge_capture_provenance(
             raise ValueError("supplied camera ids differ from recorded capture provenance")
         if capture.get("achieved_sample_rate_hz") != episode.achieved_sample_rate_hz:
             raise ValueError("achieved sample rate differs from recorded capture provenance")
+        _validate_timing_evidence(capture)
+        for name in (*ACTION_TIMING_KEYS, "action_source", "gripper_type", "contract_version"):
+            if capture.get(name) != provenance[name]:
+                raise ValueError("capture provenance differs from dataset contract")
         selected.append(capture)
     if not selected:
         return provenance
@@ -441,6 +469,49 @@ def _merge_capture_provenance(
         "stored_color_space": "RGB",
         "capture_provenance": selected,
     }
+
+
+def _validate_timing_evidence(payload: dict[str, Any]) -> None:
+    try:
+        expected = action_timing_metadata(
+            ActionSource(payload["action_source"]), payload["action_lookahead_steps"],
+            payload["requested_rate_hz"],
+        )
+        if any(payload.get(name) != value for name, value in expected.items()):
+            raise ValueError("inconsistent action timing evidence")
+    except (KeyError, TypeError, ValueError) as error:
+        raise ValueError("invalid or missing action timing evidence") from error
+
+
+def _validate_summary_contract(
+    dataset_path: Path, provenance: dict[str, Any], episodes: list[EpisodeQualityRecord]
+) -> dict[str, Any]:
+    expected: dict[str, Any] = {
+        name: provenance[name] for name in ("action_source", "gripper_type", "contract_version")
+    }
+    expected.update(action_timing_metadata(
+        ActionSource(provenance["action_source"]), provenance["action_lookahead_steps"],
+        provenance["rate_hz"],
+    ))
+    for name, value in expected.items():
+        if name in provenance and provenance[name] != value:
+            raise ValueError("supplied timing differs from requested rate and action source")
+    contract_path = dataset_path / "physical_contract.json"
+    if contract_path.is_file():
+        contract = json.loads(contract_path.read_text(encoding="utf-8"))
+        _validate_timing_evidence(contract)
+        if any(contract.get(name) != value for name, value in expected.items()):
+            raise ValueError("supplied metadata differs from dataset contract")
+    for episode in episodes:
+        _validate_timing_evidence({
+            "action_source": episode.action_source,
+            **{name: getattr(episode, name) for name in ACTION_TIMING_KEYS},
+        })
+        if episode.fps != expected["requested_rate_hz"] or any(
+            getattr(episode, name) != value for name, value in expected.items()
+        ):
+            raise ValueError("episode metadata differs from dataset contract")
+    return {**provenance, **expected}
 
 
 def write_session_artifacts(
@@ -473,10 +544,12 @@ def write_session_artifacts(
         "contract_version",
         "gripper_type",
         "action_source",
+        "action_lookahead_steps",
     }
     missing = sorted(required - provenance.keys())
     if missing:
         raise ValueError(f"provenance missing required fields: {missing}")
+    provenance = _validate_summary_contract(dataset_path, provenance, episodes)
     provenance = _merge_capture_provenance(dataset_path, provenance, episodes)
     sample_rates = [
         {"episode_index": episode.episode_index, "rate_hz": episode.achieved_sample_rate_hz}
@@ -532,6 +605,7 @@ def write_session_artifacts(
         "contract_version": provenance["contract_version"],
         "gripper_type": provenance["gripper_type"],
         "action_source": provenance["action_source"],
+        **{name: provenance[name] for name in ACTION_TIMING_KEYS},
         "limits_status": "verified" if limits.verified else UNVERIFIED_LIMITS_LINE,
         "object_success_limitation": OBJECT_SUCCESS_LIMITATION,
     }
@@ -591,6 +665,16 @@ def write_aggregate_summary(
         "qualifying_episode_count": qualifying_total,
         "session_count": len(session_summaries),
         "action_sources": action_sources,
+        "recording_contracts": [
+            {
+                name: summary.get(name)
+                for name in (
+                    "dataset_path", "action_source", "contract_version", "gripper_type",
+                    *ACTION_TIMING_KEYS,
+                )
+            }
+            for summary in session_summaries
+        ],
         "progress": {
             str(target): {
                 "target": target,

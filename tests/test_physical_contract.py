@@ -12,6 +12,7 @@ from synria_lerobot.physical_contract import (
     PhysicalDatasetContract,
     PhysicalFrame,
     PhysicalState,
+    action_timing_metadata,
     map_physical_state_to_simulation,
 )
 
@@ -68,6 +69,31 @@ def test_contract_selects_velocity_fields(required: bool) -> None:
     if required:
         with pytest.raises(ValueError, match="requires six reported joint velocities"):
             contract.prepare_state(_state())
+
+
+@pytest.mark.parametrize("steps", [-1, 1.5, True, "2", None])
+def test_contract_rejects_malformed_action_lookahead(steps: object) -> None:
+    with pytest.raises(ValueError, match="non-negative integer"):
+        PhysicalDatasetContract(
+            "50mm", ActionSource.NEXT_STATE, False, action_lookahead_steps=steps
+        )
+
+
+@pytest.mark.parametrize("fps", [0, -1, 30.5, True, float("nan"), float("inf")])
+def test_nominal_action_time_requires_supported_requested_rate(fps: float) -> None:
+    with pytest.raises(ValueError, match="positive finite integer"):
+        action_timing_metadata(ActionSource.NEXT_STATE, 2, fps)
+
+
+@pytest.mark.parametrize("source", list(ActionSource))
+def test_contract_records_configured_and_effective_action_horizon(source: ActionSource) -> None:
+    contract = PhysicalDatasetContract("50mm", source, False, action_lookahead_steps=2)
+    payload = contract.as_dict(fps=30.0)
+    assert payload["action_lookahead_steps"] == 2
+    expected_steps = 2 if source is ActionSource.NEXT_STATE else 0
+    assert payload["effective_action_lookahead_steps"] == expected_steps
+    assert payload["nominal_action_lookahead_s"] == expected_steps / 30
+    assert payload["requested_rate_hz"] == 30
 
 
 def test_frame_has_seven_float_action_and_all_timestamps() -> None:
