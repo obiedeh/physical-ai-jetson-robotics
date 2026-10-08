@@ -45,8 +45,9 @@ def find_violations(root: Path, paths: list[Path] | None = None) -> list[str]:
     """Return deterministic hygiene violations for repository-relative paths."""
     violations: list[str] = []
     for relative in sorted(paths if paths is not None else repository_paths(root)):
+        display_path = relative.as_posix()
         if relative.name.lower().startswith("handoff-") and relative.suffix.lower() == ".md":
-            violations.append(f"{relative}: prohibited handoff file")
+            violations.append(f"{display_path}: prohibited handoff file")
 
         absolute = root / relative
         if not absolute.is_file() or content_is_allowed(relative):
@@ -57,7 +58,7 @@ def find_violations(root: Path, paths: list[Path] | None = None) -> list[str]:
         for line_number, line in enumerate(data.decode(errors="replace").splitlines(), 1):
             if PROHIBITED_PATTERN.search(line):
                 violations.append(
-                    f"{relative}:{line_number}: prohibited coding-tool name"
+                    f"{display_path}:{line_number}: prohibited coding-tool name"
                 )
     return violations
 
