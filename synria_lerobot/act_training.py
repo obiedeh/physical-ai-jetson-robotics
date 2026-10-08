@@ -89,6 +89,7 @@ def validate_config(config: dict[str, Any], contract: dict[str, Any]) -> dict[st
     for key in ("requested_rate_hz", "nominal_action_lookahead_s"):
         _number(contract.get(key), key, allow_zero=key != "requested_rate_hz")
     physical = PhysicalDatasetContract.from_dict(contract)
+    physical.require_qualifying()
     if physical.as_dict(fps=contract["requested_rate_hz"]) != contract:
         raise ValueError("inconsistent physical contract metadata")
     period = _number(config.get("command_period_s"), "command_period_s")

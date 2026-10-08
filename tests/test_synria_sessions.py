@@ -55,6 +55,22 @@ def ready_config(tmp_path: Path) -> dict:
     return config
 
 
+@pytest.mark.parametrize("configured", [False, True])
+def test_sessions_refuse_disposable_task_before_opening_adapter(
+    tmp_path: Path, configured: bool,
+) -> None:
+    from test_task_registry import REGISTRY
+
+    from synria_lerobot.sessions import validate_session
+    from synria_lerobot.task_registry import load_task_registry
+
+    config = ready_config(tmp_path)
+    task = synthetic_task(20, 30) if configured else load_task_registry(REGISTRY)["die_into_cup"]
+    config.update(task.metadata("disposable_smoke"))
+    with pytest.raises(ValueError, match="disposable smoke"):
+        validate_session(config, "d3", tmp_path, enable_motion=False)
+
+
 class FakeIO:
     def __init__(self, tmp_path: Path) -> None:
         self.offers = []

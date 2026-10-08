@@ -148,6 +148,28 @@ def evaluator(fixture: Any, training_ids: tuple[int, ...] = (0, 1)) -> Checkpoin
     )
 
 
+@pytest.mark.parametrize("configured", [False, True])
+def test_checkpoint_evaluation_refuses_smoke_dataset(probe_setup: Any, configured: bool) -> None:
+    from test_task_registry import REGISTRY
+
+    from synria_lerobot.task_registry import load_task_registry
+
+    task = synthetic_task(20, 30) if configured else load_task_registry(REGISTRY)["die_into_cup"]
+    contract = PhysicalDatasetContract(
+        "50mm", ActionSource.NEXT_STATE, False, task_id=task.task_id,
+        task_definition=task, recording_purpose="disposable_smoke",
+    )
+    (probe_setup.dataset / "physical_contract.json").write_text(
+        json.dumps(contract.as_dict(fps=10))
+    )
+    probe_setup.config["dataset_content_sha256"] = strict_content_hash(probe_setup.dataset)
+    probe_setup.probe.write_text(json.dumps(probe_setup.config))
+    probe_setup.digest = register_probes(probe_setup.probe)
+    commit(probe_setup.repository, probe_setup.probe)
+    with pytest.raises(ValueError, match="disposable smoke"):
+        evaluator(probe_setup)
+
+
 def batches() -> list[PredictionBatch]:
     actions = np.zeros((3, 2, 7))
     actions[2, 1] = 1000

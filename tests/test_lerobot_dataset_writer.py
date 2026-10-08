@@ -218,6 +218,7 @@ def test_smoke_uses_nonexisting_child_path(monkeypatch: pytest.MonkeyPatch) -> N
         "argv",
         [
             "recorder",
+            "--task-id", "die_into_cup",
             "--repo-id", "local/smoke",
             "--gripper-type", "50mm",
             "--action-source", "next_state",
@@ -237,6 +238,10 @@ def test_smoke_uses_nonexisting_child_path(monkeypatch: pytest.MonkeyPatch) -> N
         assert config.dataset_path.parent.is_dir()
         assert not config.dataset_path.exists()
         assert (config.image_width, config.image_height) == (48, 32)
+        assert config.contract.recording_purpose == "disposable_smoke"
+        assert config.contract.task_definition.min_episode_s is None
+        assert config.contract.task_definition.max_episode_s is None
+        assert config.min_episode_s == config.max_episode_s == config.hard_cap_s == 20
         return SimpleNamespace(finalize=lambda: None)
 
     monkeypatch.setattr(recorder, "LeRobotDatasetWriter", fake_writer)
@@ -261,9 +266,86 @@ def test_smoke_uses_nonexisting_child_path(monkeypatch: pytest.MonkeyPatch) -> N
             saved_episode_count=1, last_episode_index=0, smoke=True
         ),
     )
-    assert recorder.physical_main(synthetic_task(20, 20)) == 0
+    assert recorder.physical_main() == 0
     assert len(roots) == 1
     assert not roots[0].parent.exists()
+
+
+@pytest.mark.parametrize("configured", [False, True])
+def test_real_disposable_dataset_preserves_registry_identity_across_resume(
+    tmp_path: Path, configured: bool,
+) -> None:
+    from test_task_registry import REGISTRY
+
+    from synria_lerobot.task_registry import TaskDefinition, load_task_registry
+
+    dataset_type = real_dataset_type()
+    task = synthetic_task(20, 20) if configured else load_task_registry(REGISTRY)["die_into_cup"]
+    baseline = writer_config(tmp_path / "disposable")
+    config = replace(
+        baseline, smoke=True,
+        contract=replace(
+            baseline.contract, task_definition=task, recording_purpose="disposable_smoke",
+        ),
+    )
+    for index in (0, 1):
+        writer = LeRobotDatasetWriter(config)
+        assert writer.next_episode_index == index
+        writer.write_episode(replace(synthetic_episode(index), smoke=True, task_definition=task))
+        writer.finalize()
+    payload = json.loads((config.dataset_path / "physical_contract.json").read_text())
+    assert payload["task_definition"] == task.as_dict()
+    assert payload["task_definition_sha256"] == task.sha256
+    assert payload["min_episode_s"] == payload["max_episode_s"] == 20
+    for name in (
+        "physical_episode_metadata", "physical_quality_records", "physical_capture_provenance",
+    ):
+        records = [json.loads(line) for line in
+                   (config.dataset_path / f"{name}.jsonl").read_text().splitlines()]
+        assert len(records) == 2
+        for record in records:
+            assert record["smoke"] is True
+            assert record["recording_purpose"] == "disposable_smoke"
+            assert TaskDefinition.from_metadata(record) == task
+            assert record["episode_window_override"] == payload["episode_window_override"]
+    loaded = dataset_type(repo_id=config.repo_id, root=config.dataset_path, video_backend="pyav")
+    assert loaded.num_episodes == 2
+    assert tuple(loaded[0]["observation.images.front"].shape) == (
+        3, config.image_height, config.image_width,
+    )
+    if configured:
+        qualified = replace(config, smoke=False, contract=replace(
+            config.contract, recording_purpose="qualifying",
+        ))
+        with pytest.raises(ValueError, match="contract differs"):
+            LeRobotDatasetWriter(qualified)
+    writer = LeRobotDatasetWriter(config)
+    with pytest.raises(ValueError):
+        writer.write_episode(replace(synthetic_episode(2), task_definition=synthetic_task(20, 20)))
+    writer.finalize()
+
+
+@pytest.mark.parametrize("sidecar", [
+    "physical_episode_metadata", "physical_quality_records", "physical_capture_provenance",
+])
+def test_resume_refuses_contract_purpose_relabelled_against_recorded_evidence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, sidecar: str,
+) -> None:
+    config = writer_config(tmp_path / "dataset")
+    task = synthetic_task(20, 20)
+    config = replace(config, contract=replace(config.contract, task_definition=task))
+    config.dataset_path.mkdir()
+    (config.dataset_path / "meta").mkdir()
+    (config.dataset_path / "meta" / "info.json").write_text("{}")
+    (config.dataset_path / "physical_contract.json").write_text(json.dumps(
+        config.contract.as_dict(fps=config.fps)
+    ))
+    (config.dataset_path / f"{sidecar}.jsonl").write_text(json.dumps({
+        **task.metadata("disposable_smoke"), "smoke": True,
+    }) + "\n")
+    _install_fake_library(monkeypatch, type("MustNotResume", (), {}))
+    with pytest.raises(ValueError, match="recorded task or purpose"):
+        LeRobotDatasetWriter(config)
 
 
 def real_dataset_type() -> Any:

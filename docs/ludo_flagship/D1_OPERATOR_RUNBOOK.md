@@ -2,8 +2,8 @@
 
 For an explicitly operator-authorized future physical Synria/Alicia-D session.
 The path is **implemented, unmeasured**; D1 is **planned** at 0/100 qualifying
-episodes. Checks used fakes and synthetic images, including upstream LeRobot
-0.6.2. They do not verify the robot, cameras, or ROS runtime.
+episodes. Checks used fakes and synthetic images, including released upstream
+LeRobot 0.6.1. They do not verify the robot, cameras, or ROS runtime.
 
 ## 1. Safety, wiring, and recording environment
 
@@ -11,8 +11,10 @@ Prospective roll-first correction, 2026-10-08: new collection must use one of
 the [three fixed-scene tasks](../../config/synria_tasks.json), not token moves.
 The operator must time each task and record the chosen window in
 [DECISIONS.md](DECISIONS.md) before configuring it. All real task windows are
-currently unset; task-id CLI binding is pending, so the older recording commands
-below are not yet usable for new collection and fail closed without a snapshot.
+currently unset. Qualifying recording refuses an unset window; only explicitly
+disposable smoke may use its separate 20-second window before timing is configured.
+Select the task before starting the recorder; it loads instruction, scene requirements,
+success rule and window from the registry, not from command-line text or duration overrides.
 
 Complete and accept the
 [Phase 0A record](../../reports/synria/phase0a_safety_recovery.md) and
@@ -93,6 +95,8 @@ itself: the library creates it or resumes a matching dataset.
 ```bash
 export SESSION=YYYYMMDD-HHMM-operator
 export DATASET_ROOT=/srv/synria-d1/$SESSION
+export TASK_ID=REPLACE_WITH_FIXED_SCENE_TASK_ID
+export TASK_REGISTRY=config/synria_tasks.json
 export GRIPPER_TYPE=REPLACE_WITH_INSTALLED_TYPE
 export STATE_SOURCE=REPLACE_WITH_VERIFIED_SOURCE_KIND
 export FOLLOWER_TOPIC=/joint_states
@@ -111,6 +115,14 @@ export SCENE="REPLACE_WITH_SCENE_DESCRIPTION"
 export GIT_SHA=$(git rev-parse HEAD)
 COMMAND_GUARD_ARGS=()
 ```
+
+Choose `TASK_ID` from `die_into_cup`, `roll_and_dump`, or `cup_return`. Describe
+the actual marked cup position, die start zone and dump tray in `SCENE` as relevant
+to the selected registry entry. Before qualifying collection, prospectively record
+the observed task timing, chosen minimum/maximum, rationale, operator and date in
+[DECISIONS.md](DECISIONS.md), then configure that entry's window. There are no
+qualifying duration defaults or CLI overrides. The saved per-task snapshot/hash
+binds these settings; changing another task's entry does not change this dataset.
 
 `STATE_SOURCE` is required: choose `standalone_driver` or `ros2_control` from
 the verified setup. It is stored as **operator-declared**, not automatically
@@ -200,6 +212,7 @@ After authorized preflight and the existing teleoperation procedure, run:
 ```bash
 python -m synria_lerobot.recorder \
   --smoke \
+  --task-id "$TASK_ID" --task-registry "$TASK_REGISTRY" \
   --repo-id local/synria-d1-smoke \
   --gripper-type "$GRIPPER_TYPE" \
   --state-source "$STATE_SOURCE" --follower-topic "$FOLLOWER_TOPIC" \
@@ -218,12 +231,18 @@ episode, the process finalizes and exits. Its temporary dataset and still are
 deleted on exit and never count toward D1. Smoke checks the write path; there
 is no live preview or automatic quality-gate report, and no retained visual
 evidence from its deleted still. Resolve failures, then review retained data.
+Its contract and every sidecar record `recording_purpose=disposable_smoke` plus
+an explicit 20/20-second window override. The original selected registry snapshot
+and hash remain unchanged, including null operator timing. This override is not
+an operator measurement. Smoke cannot resume into qualifying data, contribute to
+counts, or supply a training/evaluation motion contract.
 
 ## 4. Multi-episode recording; review the first before scaling
 
 ```bash
 python -m synria_lerobot.recorder \
   --dataset-path "$DATASET_ROOT" \
+  --task-id "$TASK_ID" --task-registry "$TASK_REGISTRY" \
   --repo-id "local/synria-d1-$SESSION" \
   --gripper-type "$GRIPPER_TYPE" \
   --state-source "$STATE_SOURCE" --follower-topic "$FOLLOWER_TOPIC" \
@@ -271,7 +290,7 @@ identity/scene values; do not rerun the initialization block or recompute
 revision while that code/configuration is unchanged.
 Record restarts and power transitions in session notes. Changed requested FPS,
 k, source, gripper, velocity mode, image size, camera identity/native size,
-state-source kind/topic or guarded command topics,
+state-source kind/topic or guarded command topics, selected task text/scene/window/hash,
 operator, scene, or recording code/configuration requires a separate dataset/session.
 Incompatible or incomplete roots are refused, not overwritten.
 
@@ -313,6 +332,10 @@ episode/quality records. Provenance includes native/stored RGB image facts,
 requested rate, incoming count/interval/rate evidence, achieved episode rates,
 and configured/effective lookahead. The operator-declared state-source kind,
 follower topic, and guarded command topics accompany the per-run rate evidence.
+Task identity, original registry snapshot/hash, purpose and effective window are
+read from the dataset contract and checked against every episode/capture record;
+the summary command cannot select a different task or window. Missing legacy
+purpose metadata is refused rather than silently backfilled. Use a new dataset.
 Contradictory metadata, missing source declarations, or missing incoming-rate
 evidence blocks a physical summary. None of these fields proves driver identity
 or read-only/unchanged-torque behavior on hardware.

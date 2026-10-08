@@ -75,6 +75,26 @@ def test_absolute_and_delta_clamps_and_latency(tmp_path: Path) -> None:
     assert d.request_encode_s is None and d.response_decode_s is None
 
 
+@pytest.mark.parametrize("configured", [False, True])
+def test_disposable_smoke_cannot_create_motion_sink(configured: bool) -> None:
+    from test_task_registry import REGISTRY
+
+    from synria_lerobot.task_registry import load_task_registry
+
+    c = client(FakePolicy((0,) * 7))
+    task = synthetic_task(20, 30) if configured else load_task_registry(REGISTRY)["die_into_cup"]
+    c.embodiment = SynriaEmbodiment(replace(
+        c.embodiment.contract, task_definition=task, recording_purpose="disposable_smoke",
+    ))
+    c.limits = replace(c.limits, verified_by="synthetic", verified_on="2026-10-08")
+    c.config = replace(c.config, verified_by="synthetic", verified_on="2026-10-08")
+    created = []
+    assert GuardedCommandPath(c, lambda: created.append(True)).sink is None
+    with pytest.raises(ValueError, match="disposable smoke"):
+        GuardedCommandPath(c, lambda: created.append(True), enable_motion=True)
+    assert created == []
+
+
 @pytest.mark.parametrize(
     "fault", ["missing", "stale", "mismatch", "nan", "short", "timeout", "latency", "expired"]
 )

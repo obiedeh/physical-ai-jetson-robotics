@@ -22,7 +22,12 @@ from synria_lerobot.physical_contract import (
     episode_window_metadata,
 )
 from synria_lerobot.recorder import OperatorLabel, RecordedPhysicalEpisode
-from synria_lerobot.task_registry import TASK_METADATA_KEYS, TaskDefinition
+from synria_lerobot.task_registry import (
+    DISPOSABLE_SMOKE,
+    TASK_METADATA_KEYS,
+    TaskDefinition,
+    recording_purpose,
+)
 
 OBJECT_SUCCESS_LIMITATION = (
     "Object success is the operator's label plus a camera still; "
@@ -80,18 +85,22 @@ class EpisodeQualityRecord:
     task_definition: TaskDefinition = field(kw_only=True)
 
     def __post_init__(self) -> None:
-        self.task_definition.require_configured()
+        self.task_definition.recording_window(self.recording_purpose)
+
+    @property
+    def recording_purpose(self) -> str:
+        return recording_purpose(self.smoke)
 
     @property
     def min_episode_s(self) -> float:
-        return self.task_definition.require_configured()["min_episode_s"]
+        return self.task_definition.recording_window(self.recording_purpose)["min_episode_s"]
 
     @property
     def max_episode_s(self) -> float:
-        return self.task_definition.require_configured()["max_episode_s"]
+        return self.task_definition.recording_window(self.recording_purpose)["max_episode_s"]
 
     def as_dict(self) -> dict[str, object]:
-        return {**asdict(self), **self.task_definition.metadata()}
+        return {**asdict(self), **self.task_definition.metadata(self.recording_purpose)}
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> EpisodeQualityRecord:
@@ -107,7 +116,7 @@ class EpisodeQualityRecord:
             contract_version=str(payload["contract_version"]),
             gripper_type=str(payload["gripper_type"]),
             final_still=str(payload["final_still"]),
-            smoke=bool(payload["smoke"]),
+            smoke=payload["smoke"],
             achieved_sample_rate_hz=payload.get("achieved_sample_rate_hz"),
             action_lookahead_steps=payload.get("action_lookahead_steps", 1),
             effective_action_lookahead_steps=payload.get("effective_action_lookahead_steps"),
@@ -567,7 +576,9 @@ def _validate_summary_contract(
         ActionSource(provenance["action_source"]), provenance["action_lookahead_steps"],
         provenance["rate_hz"],
     ))
-    expected.update(TaskDefinition.from_metadata(provenance).metadata())
+    expected.update(TaskDefinition.from_metadata(provenance).metadata(
+        provenance["recording_purpose"]
+    ))
     for name, value in expected.items():
         if name in provenance and provenance[name] != value:
             raise ValueError("supplied timing differs from requested rate and action source")
@@ -605,7 +616,7 @@ def _validate_summary_contract(
         recorded_metadata = {
             name: getattr(episode, name) for name in expected if name not in TASK_METADATA_KEYS
         }
-        recorded_metadata.update(episode.task_definition.metadata())
+        recorded_metadata.update(episode.task_definition.metadata(episode.recording_purpose))
         if episode.fps != expected["requested_rate_hz"] or any(
             recorded_metadata.get(name) != value for name, value in expected.items()
         ):
@@ -748,6 +759,16 @@ def write_aggregate_summary(
     for path in sorted(data_root.glob("*/session_summary.json")):
         summary = json.loads(path.read_text(encoding="utf-8"))
         TaskDefinition.from_metadata(summary)
+        if summary["recording_purpose"] == DISPOSABLE_SMOKE and (
+            any(type(summary.get(key)) is not int or summary[key] != 0 for key in (
+                "episode_count", "quality_valid_episode_count", "qualifying_episode_count",
+            )) or summary.get("episode_indices") != []
+            or summary.get("operator_labels") != []
+            or summary.get("demonstration_success_rate") != 0.0
+        ):
+            raise ValueError(
+                "disposable smoke summary cannot claim retained or qualifying episodes"
+            )
         if "dataset_path" in summary:
             dataset = Path(summary["dataset_path"]).resolve()
             if dataset in seen_datasets:

@@ -135,7 +135,8 @@ Use [RTX setup](docs/SETUP_RTX.md) for Isaac and [Jetson deployment](docs/JETSON
 - Follow the [D1 operator runbook](docs/ludo_flagship/D1_OPERATOR_RUNBOOK.md):
   collection is now roll-first using the [fixed-scene task registry](config/synria_tasks.json).
   Qualifying windows require operator timing and configuration; none is set yet.
-  The disposable smoke episode remains separate from qualifying collection.
+  Required `--task-id` selects its registry instruction/window; disposable smoke
+  preserves that snapshot with a separate nonqualifying 20-second override.
   M3/Yahboom and unrelated work remain parked until D5 unless they block a
   current flagship gate.
 

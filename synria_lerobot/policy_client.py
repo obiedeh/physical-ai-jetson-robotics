@@ -293,6 +293,8 @@ class GuardedCommandPath:
         enable_motion: bool = False,
     ) -> None:
         self.client = client
+        if enable_motion:
+            client.embodiment.contract.require_qualifying()
         verified = client.limits.verified and client.config.verified
         self.enabled = enable_motion and verified
         if enable_motion and not verified:

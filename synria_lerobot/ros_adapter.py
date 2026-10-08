@@ -182,7 +182,9 @@ class RosSessionIO:
             action_lookahead_steps=session["action_lookahead_steps"],
             task_id=session["task_id"],
             task_definition=TaskDefinition.from_metadata(session),
+            recording_purpose=session["recording_purpose"],
         )
+        self.contract.require_qualifying()
         self.limits = load_limits(Path(session["limits"]))
         self.operator = session["provenance"]["operator"]
         self.output = Path(session["session_output"])

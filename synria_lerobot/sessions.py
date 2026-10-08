@@ -83,14 +83,16 @@ def validate_session(
     limits = load_limits(Path(config["limits"]))
     if enable_motion and not limits.verified:
         raise ValueError("operator-verified limits required")
-    PhysicalDatasetContract(
+    contract = PhysicalDatasetContract(
         config["gripper_type"],
         ActionSource(config["action_source"]),
         config["state_has_velocity"],
         action_lookahead_steps=config["action_lookahead_steps"],
         task_id=config["task_id"],
         task_definition=TaskDefinition.from_metadata(config),
+        recording_purpose=config["recording_purpose"],
     )
+    contract.require_qualifying()
     if not {"command_period_s", "response_timeout_s"} <= config.keys():
         raise ValueError("command period and per-policy response timeout are required")
     safety = PolicySafetyConfig.load(
@@ -197,6 +199,7 @@ def run_session(
             action_lookahead_steps=config["action_lookahead_steps"],
             task_id=config["task_id"],
             task_definition=TaskDefinition.from_metadata(config),
+            recording_purpose=config["recording_purpose"],
         )
         client = PolicyClient(
             SynriaEmbodiment(contract),

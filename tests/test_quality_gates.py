@@ -478,15 +478,24 @@ def test_fake_source_end_to_end_for_both_action_sources(tmp_path: Path) -> None:
     assert (tmp_path / "timeline.jsonl").read_text().count("d1_dataset_summary") == 1
 
 
-def test_smoke_is_diagnosed_but_never_qualifies_or_affects_demo_success(tmp_path: Path) -> None:
+@pytest.mark.parametrize("configured", [False, True])
+def test_smoke_is_diagnosed_but_never_qualifies_or_affects_demo_success(
+    tmp_path: Path, configured: bool,
+) -> None:
+    from test_task_registry import REGISTRY
+
+    from synria_lerobot.task_registry import load_task_registry
+
     dataset = tmp_path / "dataset"
     dataset.mkdir()
+    task = synthetic_task(20, 30) if configured else load_task_registry(REGISTRY)["die_into_cup"]
     limits = replace(load_limits(LIMITS_PATH), verified_by="test", verified_on="2026-10-08")
     summary = write_session_artifacts(
         session_dir=tmp_path / "reports" / "session", dataset_path=dataset,
-        provenance=_provenance("leader"),
-        episodes=[replace(_baseline_episode(), smoke=True)], limits=limits,
-        gate_config=GateConfig(min_episode_s=20, max_episode_s=30),
+        provenance={**_provenance("leader"),
+                    **task.metadata("disposable_smoke")},
+        episodes=[replace(_baseline_episode(), smoke=True, task_definition=task)], limits=limits,
+        gate_config=GateConfig(min_episode_s=20, max_episode_s=20),
     )
     assert summary["recorded_episode_count"] == 1
     assert summary["smoke_episode_count"] == 1
@@ -495,6 +504,50 @@ def test_smoke_is_diagnosed_but_never_qualifies_or_affects_demo_success(tmp_path
     assert summary["qualifying_episode_count"] == 0
     assert summary["demonstration_success_rate"] == 0
     assert len(summary["gate_results"]) == 1
+    aggregate = write_aggregate_summary(
+        data_root=tmp_path / "reports", output_path=tmp_path / "aggregate.json",
+        timeline_path=tmp_path / "timeline.jsonl",
+    )
+    assert aggregate["qualifying_episode_count"] == 0
+    assert aggregate["quality_valid_episode_count"] == 0
+    recorded = aggregate["recording_contracts"][0]
+    assert recorded["recording_purpose"] == "disposable_smoke"
+    assert recorded["task_definition"] == task.as_dict()
+    assert recorded["task_definition_sha256"] == task.sha256
+
+
+@pytest.mark.parametrize("smoke", [False, 0, 1, "true", None])
+def test_quality_record_cannot_relabel_disposable_episode(smoke: object) -> None:
+    payload = replace(_baseline_episode(), smoke=True).as_dict()
+    payload["smoke"] = smoke
+    with pytest.raises(ValueError, match="smoke"):
+        EpisodeQualityRecord.from_dict(payload)
+
+
+@pytest.mark.parametrize("field", [
+    "episode_count", "quality_valid_episode_count", "qualifying_episode_count",
+    "episode_indices", "operator_labels", "demonstration_success_rate",
+])
+def test_aggregate_refuses_smoke_counts_tampering(tmp_path: Path, field: str) -> None:
+    dataset = tmp_path / "dataset"
+    dataset.mkdir()
+    data = tmp_path / "reports"
+    task = synthetic_task(20, 30)
+    summary = write_session_artifacts(
+        session_dir=data / "smoke", dataset_path=dataset,
+        provenance={**_provenance("leader"), **task.metadata("disposable_smoke")},
+        episodes=[replace(_baseline_episode(), smoke=True)], limits=load_limits(LIMITS_PATH),
+        gate_config=GateConfig(min_episode_s=20, max_episode_s=20),
+    )
+    summary[field] = [0] if field in {"episode_indices", "operator_labels"} else 1
+    (data / "smoke" / "session_summary.json").write_text(json.dumps(summary))
+    with pytest.raises(ValueError, match="disposable smoke summary"):
+        write_aggregate_summary(
+            data_root=data, output_path=tmp_path / "aggregate.json",
+            timeline_path=tmp_path / "timeline.jsonl",
+        )
+    assert not (tmp_path / "aggregate.json").exists()
+    assert not (tmp_path / "timeline.jsonl").exists()
 
 
 def test_resumed_dataset_reuses_summary_and_cannot_be_counted_twice(tmp_path: Path) -> None:

@@ -25,6 +25,13 @@ def synthetic_task(minimum: float, maximum: float, task_id: str = "die_into_cup"
     )
 
 
+def synthetic_registry(path: Path, minimum: float, maximum: float) -> Path:
+    payload = json.loads(REGISTRY.read_text())
+    payload["tasks"] = [synthetic_task(minimum, maximum, task_id).as_dict() for task_id in TASK_IDS]
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    return path
+
+
 def test_registry_is_exactly_three_unconfigured_fixed_scene_tasks() -> None:
     tasks = load_task_registry(REGISTRY)
     assert tuple(tasks) == TASK_IDS
@@ -133,3 +140,46 @@ def test_contract_binds_snapshot_without_registry_io(monkeypatch: pytest.MonkeyP
     payload.pop("task_definition")
     with pytest.raises(ValueError, match="task definition"):
         PhysicalDatasetContract.from_dict(payload)
+
+
+@pytest.mark.parametrize("configured", [False, True])
+def test_smoke_preserves_original_task_snapshot_and_uses_explicit_override(
+    configured: bool,
+) -> None:
+    from synria_lerobot.physical_contract import ActionSource, PhysicalDatasetContract
+
+    task = synthetic_task(40, 80) if configured else load_task_registry(REGISTRY)["die_into_cup"]
+    contract = PhysicalDatasetContract(
+        "50mm", ActionSource.NEXT_STATE, False, task_id=task.task_id,
+        task_definition=task, recording_purpose="disposable_smoke",
+    )
+    payload = contract.as_dict(fps=15)
+    assert payload["task_definition"] == task.as_dict()
+    assert payload["task_definition_sha256"] == task.sha256
+    assert payload["min_episode_s"] == payload["max_episode_s"] == 20
+    assert payload["episode_window_override"] == {
+        "min_episode_s": 20, "max_episode_s": 20, "reason": "disposable smoke; never qualifying",
+    }
+    assert PhysicalDatasetContract.from_dict(payload) == contract
+    with pytest.raises(ValueError, match="disposable smoke"):
+        contract.require_qualifying()
+
+
+@pytest.mark.parametrize("field,value", [
+    ("recording_purpose", None), ("recording_purpose", "qualifying"),
+    ("episode_window_override", None), ("episode_window_override", {"min_episode_s": 20}),
+    ("min_episode_s", 19), ("max_episode_s", 30),
+    ("smoke", False), ("smoke", 1), ("smoke", "true"), ("smoke", None),
+])
+def test_smoke_metadata_refuses_relabelling(field: str, value: object) -> None:
+    payload = synthetic_task(20, 20).metadata("disposable_smoke")
+    payload["smoke"] = True
+    payload[field] = value
+    with pytest.raises(ValueError):
+        TaskDefinition.from_metadata(payload)
+
+
+def test_smoke_registry_selection_does_not_require_operator_timing() -> None:
+    task = select_recording_task(REGISTRY, "cup_return", purpose="disposable_smoke")
+    assert task == load_task_registry(REGISTRY)["cup_return"]
+    assert task.min_episode_s is None and task.max_episode_s is None

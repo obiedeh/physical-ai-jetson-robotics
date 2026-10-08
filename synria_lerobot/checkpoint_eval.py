@@ -306,6 +306,7 @@ class CheckpointEvaluator:
             (dataset_root / "physical_contract.json").read_text(encoding="utf-8")
         )
         contract = PhysicalDatasetContract.from_dict(self.contract)
+        contract.require_qualifying()
         if contract.as_dict(fps=self.contract["requested_rate_hz"]) != self.contract:
             raise ValueError("dataset physical contract metadata is inconsistent")
 
@@ -660,6 +661,7 @@ def run_physical_probes(
         action_lookahead_steps=session_config["action_lookahead_steps"],
         task_id=session_config["task_id"],
         task_definition=TaskDefinition.from_metadata(session_config),
+        recording_purpose=session_config["recording_purpose"],
     )
     if (
         contract.as_dict(fps=saved["physical_contract"]["requested_rate_hz"])

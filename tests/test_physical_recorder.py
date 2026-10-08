@@ -8,7 +8,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
-from test_task_registry import synthetic_task
+from test_task_registry import synthetic_registry, synthetic_task
 
 from synria_lerobot.physical_contract import (
     ActionSource as ActionSourceKind,
@@ -141,7 +141,8 @@ def _recorder(
         action_source=action_source,
         state_has_velocity=state_has_velocity,
         action_lookahead_steps=action_lookahead_steps,
-        task_id="die_into_cup", task_definition=synthetic_task(20, 20 if smoke else 30),
+        task_id="die_into_cup", task_definition=synthetic_task(20, 30),
+        recording_purpose="disposable_smoke" if smoke else "qualifying",
     )
     config = PhysicalRecorderConfig(
         dataset_path=tmp_path / "dataset",
@@ -683,6 +684,8 @@ def test_main_cleans_partial_startup_and_session_failure(
 
     closed = []
     args = SimpleNamespace(
+        task_id="die_into_cup",
+        task_registry=synthetic_registry(tmp_path / "tasks.json", 20, 30),
         dataset_path=tmp_path / "dataset", repo_id="local/test", gripper_type="50mm",
         action_source="next_state", state_has_velocity=False, smoke=False, fps=15,
         image_width=224, image_height=224, action_lookahead_steps=1,
@@ -719,7 +722,7 @@ def test_main_cleans_partial_startup_and_session_failure(
         monkeypatch.setattr(recorder, "PhysicalEpisodeRecorder", fail)
     monkeypatch.setattr(recorder, "run_operator_loop", fail)
     with pytest.raises(OSError, match=f"fake {failure_at} failure"):
-        recorder.physical_main(synthetic_task(20, 30))
+        recorder.physical_main()
     assert closed.count("writer") == int(failure_at != "follower")
     order = ["follower", "wrist", "front", "recorder", "loop"]
     for name in ("follower", "wrist", "front"):
@@ -727,13 +730,16 @@ def test_main_cleans_partial_startup_and_session_failure(
 
 
 @pytest.mark.parametrize("action_source", [None, "leader"])
+@pytest.mark.parametrize("task_id", ["die_into_cup", "roll_and_dump", "cup_return"])
 def test_cli_defaults_to_follower_only_and_keeps_optional_leader(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, action_source: str | None
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, action_source: str | None, task_id: str,
 ) -> None:
     from synria_lerobot import recorder
 
     arguments = [
         "recorder", "--dataset-path", str(tmp_path / "dataset"),
+        "--task-id", task_id,
+        "--task-registry", str(synthetic_registry(tmp_path / "tasks.json", 20, 30)),
         "--repo-id", "local/fake", "--gripper-type", "50mm",
         "--wrist-camera", "fake-wrist", "--front-camera", "fake-front",
         "--state-has-velocity",
@@ -767,7 +773,7 @@ def test_cli_defaults_to_follower_only_and_keeps_optional_leader(
         recorder, "OpenCVFrameSource", lambda *args, **kwargs: SimpleNamespace(close=lambda: None)
     )
     monkeypatch.setattr(recorder, "run_operator_loop", lambda _: PhysicalSessionResult())
-    assert recorder.physical_main(synthetic_task(20, 30)) == 0
+    assert recorder.physical_main() == 0
     expected = [("/joint_states", True)]
     if action_source == "leader":
         expected.append(("/leader/joint_states", False))
@@ -775,6 +781,70 @@ def test_cli_defaults_to_follower_only_and_keeps_optional_leader(
     assert configs[0].contract.action_source.value == (action_source or "next_state")
     assert configs[0].contract.action_lookahead_steps == 2
     assert configs[0].state_rate_measurement.rate_hz == 50
+    assert configs[0].contract.task_id == task_id
+    assert configs[0].task == synthetic_task(20, 30, task_id).task_text
+    assert (configs[0].min_episode_s, configs[0].max_episode_s) == (20, 30)
+    assert configs[0].contract.recording_purpose == "qualifying"
+
+
+@pytest.mark.parametrize("task_id", [None, "unknown"])
+def test_cli_requires_known_task_before_sources(
+    monkeypatch: pytest.MonkeyPatch, task_id: str | None,
+) -> None:
+    from synria_lerobot import recorder
+
+    arguments = [
+        "recorder", "--repo-id", "local/fake", "--gripper-type", "50mm",
+        "--wrist-camera", "fake", "--front-camera", "fake", "--fps", "15",
+        "--state-source", "ros2_control", "--smoke",
+    ]
+    if task_id is not None:
+        arguments.extend(["--task-id", task_id])
+    monkeypatch.setattr(sys, "argv", arguments)
+    monkeypatch.setattr(
+        recorder, "RosJointStateSource", lambda *a, **k: pytest.fail("source opened")
+    )
+    with pytest.raises(SystemExit) as error:
+        recorder.physical_main()
+    assert error.value.code == 2
+
+
+@pytest.mark.parametrize("fault", ["unset", "malformed", "goal", "override"])
+def test_registry_refusal_precedes_temporary_directory_and_all_sources(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fault: str,
+) -> None:
+    import json
+
+    from test_task_registry import REGISTRY
+
+    from synria_lerobot import recorder
+
+    path = tmp_path / "tasks.json"
+    payload = json.loads(REGISTRY.read_text())
+    if fault == "goal":
+        payload["tasks"][0]["requires_unobserved_goal"] = True
+    path.write_text("{" if fault == "malformed" else json.dumps(payload))
+    arguments = [
+        "recorder", "--repo-id", "local/fake", "--gripper-type", "50mm",
+        "--wrist-camera", "fake", "--front-camera", "fake", "--fps", "15",
+        "--state-source", "ros2_control", "--task-id", "die_into_cup",
+        "--task-registry", str(path), "--dataset-path", str(tmp_path / "dataset"),
+    ]
+    if fault != "unset":
+        arguments.append("--smoke")
+    if fault == "override":
+        arguments.extend(["--min-episode-s", "1", "--max-episode-s", "60"])
+    monkeypatch.setattr(sys, "argv", arguments)
+
+    def forbidden(*args: Any, **kwargs: Any) -> None:
+        pytest.fail("registry refusal must precede any resource creation")
+
+    for name in ("RosJointStateSource", "OpenCVFrameSource", "LeRobotDatasetWriter"):
+        monkeypatch.setattr(recorder, name, forbidden)
+    monkeypatch.setattr(recorder.tempfile, "TemporaryDirectory", forbidden)
+    with pytest.raises((ValueError, SystemExit)):
+        recorder.physical_main()
+    assert not (tmp_path / "dataset").exists()
 
 
 def test_recorder_cli_requires_explicit_fps(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -784,6 +854,7 @@ def test_recorder_cli_requires_explicit_fps(monkeypatch: pytest.MonkeyPatch) -> 
         "recorder", "--repo-id", "local/fake", "--gripper-type", "50mm",
         "--wrist-camera", "fake-wrist", "--front-camera", "fake-front", "--smoke",
         "--state-source", "standalone_driver",
+        "--task-id", "die_into_cup",
     ])
     with pytest.raises(SystemExit) as error:
         recorder._parse_physical_args()
@@ -801,6 +872,7 @@ def test_recorder_cli_requires_declared_source_and_retains_default_guard_topics(
         "recorder", "--repo-id", "local/fake", "--gripper-type", "50mm",
         "--wrist-camera", "fake", "--front-camera", "fake", "--fps", "15", "--smoke",
         "--guard-command-topic", "/extra/one", "--guard-command-topic", "/extra/two",
+        "--task-id", "die_into_cup",
     ]
     if state_source is not None:
         arguments.extend(["--state-source", state_source])
@@ -836,6 +908,8 @@ def test_command_guard_refusal_precedes_dataset_and_cameras(
     monkeypatch.setattr(sys, "argv", [
         "recorder", "--dataset-path", str(tmp_path / "dataset"),
         "--repo-id", "local/fake", "--gripper-type", "50mm", "--state-source", "ros2_control",
+        "--task-id", "die_into_cup",
+        "--task-registry", str(synthetic_registry(tmp_path / "tasks.json", 20, 30)),
         "--wrist-camera", "fake", "--front-camera", "fake", "--fps", "15",
     ])
     events = []
@@ -861,7 +935,7 @@ def test_command_guard_refusal_precedes_dataset_and_cameras(
     monkeypatch.setattr(recorder, "LeRobotDatasetWriter", forbidden)
     monkeypatch.setattr(recorder, "OpenCVFrameSource", forbidden)
     with pytest.raises(RuntimeError, match=failure):
-        recorder.physical_main(synthetic_task(20, 30))
+        recorder.physical_main()
     assert events == ["measured", "guarded", "closed"]
     assert not (tmp_path / "dataset").exists()
 
@@ -952,6 +1026,8 @@ def test_failed_state_preflight_never_opens_dataset_or_cameras(
         "--wrist-camera", "fake-wrist", "--front-camera", "fake-front", "--fps", "30",
         "--state-source", "standalone_driver",
         *( ["--state-has-velocity"] if failure == "velocities" else [] ),
+        "--task-id", "die_into_cup",
+        "--task-registry", str(synthetic_registry(tmp_path / "tasks.json", 20, 30)),
     ])
     closed = []
 
@@ -973,7 +1049,7 @@ def test_failed_state_preflight_never_opens_dataset_or_cameras(
     monkeypatch.setattr(recorder, "LeRobotDatasetWriter", forbidden)
     monkeypatch.setattr(recorder, "OpenCVFrameSource", forbidden)
     with pytest.raises((ValueError, RuntimeError)):
-        recorder.physical_main(synthetic_task(20, 30))
+        recorder.physical_main()
     assert closed == ["follower"]
     assert not (tmp_path / "dataset").exists()
 
