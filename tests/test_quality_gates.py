@@ -309,6 +309,7 @@ def test_fake_source_end_to_end_for_both_action_sources(tmp_path: Path) -> None:
         now_utc="2026-10-07T00:00:00+00:00",
     )
     assert aggregate["quality_valid_episode_count"] == 4
+    assert aggregate["qualifying_episode_count"] == 0
     assert aggregate["status"] == "planned"
     assert aggregate["action_sources"] == ["leader", "next_state"]
     assert (tmp_path / "timeline.jsonl").read_text().count("d1_dataset_summary") == 1
