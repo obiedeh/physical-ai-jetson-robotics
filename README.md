@@ -43,7 +43,7 @@ What is real, in one table. Labels: **measured** (a committed artifact with devi
 | Autonomous real-arm pick and place | **planned** | | | [`reports/NOT_CLAIMED.md`](reports/NOT_CLAIMED.md) |
 | TensorRT versus PyTorch numerical parity | **planned**, never recorded | | | [`reports/NOT_CLAIMED.md`](reports/NOT_CLAIMED.md) |
 | Sustained thermal and safety validation | **planned**; existing runs are 60 s and 9.9 s | | | [`reports/NOT_CLAIMED.md`](reports/NOT_CLAIMED.md) |
-| Synria D1 recording, quality-gate and summary path | **implemented, unmeasured**; fake-source validation only, no hardware run | 2026-10-08 | none | [`docs/ludo_flagship/D1_DATASET_PROTOCOL.md`](docs/ludo_flagship/D1_DATASET_PROTOCOL.md), [`synria_lerobot/quality_gates.py`](synria_lerobot/quality_gates.py) |
+| Synria D1 recording, quality-gate and summary path | **implemented, unmeasured**; fake-source and upstream 0.6.2 synthetic-dataset validation, no hardware run | 2026-10-08 | none | [`docs/ludo_flagship/D1_DATASET_PROTOCOL.md`](docs/ludo_flagship/D1_DATASET_PROTOCOL.md), [`tests/test_lerobot_dataset_writer.py`](tests/test_lerobot_dataset_writer.py), [`synria_lerobot/quality_gates.py`](synria_lerobot/quality_gates.py) |
 | Ludo D1: physical Synria demonstrations | **planned**, 0/100 qualifying episodes | | | [`reports/ludo_flagship/data/D1_dataset_summary.json`](reports/ludo_flagship/data/D1_dataset_summary.json) |
 | Ludo D2: learned physical pick-and-place, >=14/20 successes | **planned** | | | |
 | Ludo D3: one successful physical Ludo turn | **planned** | | | |
