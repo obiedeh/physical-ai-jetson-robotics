@@ -243,7 +243,10 @@ def test_http_round_trip_records_local_encode_and_decode_timings(
     assert row["inference_s"] == 0.003 and "end_to_end_s" in row
 
 
-@pytest.mark.parametrize("bad_response", [b'[]', b'{"action":[NaN]}', b"x" * (1024 * 1024 + 1)])
+@pytest.mark.parametrize(
+    "bad_response", [b'[]', b'{"action":[NaN]}', b"x" * (1024 * 1024 + 1)],
+    ids=["non-object", "nonfinite", "oversized"],
+)
 def test_transport_faults_return_request_local_timings(
     monkeypatch: pytest.MonkeyPatch, bad_response: bytes,
 ) -> None:

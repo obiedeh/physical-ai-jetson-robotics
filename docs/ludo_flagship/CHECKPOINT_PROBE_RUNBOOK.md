@@ -48,8 +48,8 @@ prospective probe campaign, not editing the old evidence.
 
 The training integration must construct `CheckpointEvaluator` before training
 and call its `evaluate(...)` hook after **every** finalized checkpoint save.
-This change supplies the hook and fake integration; the upstream training
-wrapper is a separate implementation step. Callers supply observation-only
+The [upstream ACT wrapper](ACT_TRAINING_RUNBOOK.md) performs this integration.
+Other callers must supply observation-only
 prediction inputs, physical-unit `B×T×7` predictions/targets, boolean padding
 masks, and every held-out episode/frame index exactly once. Normalization must
 come from training episodes alone. Do not apply the dataset lookahead again.
