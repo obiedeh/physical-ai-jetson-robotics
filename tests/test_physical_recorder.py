@@ -17,6 +17,7 @@ from synria_lerobot.physical_contract import (
     PhysicalDatasetContract,
     PhysicalState,
     StateRateMeasurement,
+    StateSourceProvenance,
 )
 from synria_lerobot.recorder import (
     ActionSample,
@@ -583,7 +584,8 @@ def test_main_cleans_partial_startup_and_session_failure(
         dataset_path=tmp_path / "dataset", repo_id="local/test", gripper_type="50mm",
         action_source="next_state", state_has_velocity=False, smoke=False, fps=15,
         image_width=224, image_height=224, action_lookahead_steps=1,
-        follower_topic="follower", leader_topic="leader",
+        follower_topic="/follower", leader_topic="/leader",
+        state_source="standalone_driver", guard_command_topic=[],
         wrist_camera="wrist", front_camera="front",
     )
     monkeypatch.setattr(recorder, "_parse_physical_args", lambda: args)
@@ -595,12 +597,14 @@ def test_main_cleans_partial_startup_and_session_failure(
     )
 
     def source(name: str, **kwargs: Any) -> SimpleNamespace:
+        name = name.lstrip("/")
         if name == failure_at:
             raise OSError(f"fake {name} failure")
         return SimpleNamespace(
             close=lambda: closed.append(name),
             measure_rate=lambda: StateRateMeasurement(50, 100, 2, 0, 2, 0.02),
             read=lambda: _state(0.01, 0),
+            require_no_command_publishers=lambda topics: None,
         )
 
     monkeypatch.setattr(recorder, "RosJointStateSource", source)
@@ -633,6 +637,7 @@ def test_cli_defaults_to_follower_only_and_keeps_optional_leader(
         "--state-has-velocity",
         "--action-lookahead-steps", "2",
         "--fps", "15",
+        "--state-source", "standalone_driver",
     ]
     if action_source is not None:
         arguments.extend(["--action-source", action_source])
@@ -647,6 +652,7 @@ def test_cli_defaults_to_follower_only_and_keeps_optional_leader(
             close=lambda: None,
             measure_rate=lambda: StateRateMeasurement(50, 100, 2, 0, 2, 0.02),
             read=lambda: replace(_state(0.01, 0), joint_velocities_rad_s=(0.1,) * 6),
+            require_no_command_publishers=lambda topics: None,
         )
 
     def writer(config: PhysicalRecorderConfig) -> FakeWriter:
@@ -675,10 +681,161 @@ def test_recorder_cli_requires_explicit_fps(monkeypatch: pytest.MonkeyPatch) -> 
     monkeypatch.setattr(sys, "argv", [
         "recorder", "--repo-id", "local/fake", "--gripper-type", "50mm",
         "--wrist-camera", "fake-wrist", "--front-camera", "fake-front", "--smoke",
+        "--state-source", "standalone_driver",
     ])
     with pytest.raises(SystemExit) as error:
         recorder._parse_physical_args()
     assert error.value.code == 2
+
+
+@pytest.mark.parametrize("state_source", [None, "unknown", "standalone_driver", "ros2_control"])
+def test_recorder_cli_requires_declared_source_and_retains_default_guard_topics(
+    monkeypatch: pytest.MonkeyPatch, state_source: str | None
+) -> None:
+    from synria_lerobot import recorder
+    from synria_lerobot.physical_contract import guarded_command_topics
+
+    arguments = [
+        "recorder", "--repo-id", "local/fake", "--gripper-type", "50mm",
+        "--wrist-camera", "fake", "--front-camera", "fake", "--fps", "15", "--smoke",
+        "--guard-command-topic", "/extra/one", "--guard-command-topic", "/extra/two",
+    ]
+    if state_source is not None:
+        arguments.extend(["--state-source", state_source])
+    monkeypatch.setattr(sys, "argv", arguments)
+    if state_source in {None, "unknown"}:
+        with pytest.raises(SystemExit) as error:
+            recorder._parse_physical_args()
+        assert error.value.code == 2
+    else:
+        args = recorder._parse_physical_args()
+        assert args.state_source == state_source
+        assert guarded_command_topics(tuple(args.guard_command_topic)) == (
+            "/joint_commands", "/policy_joint_targets", "/extra/one", "/extra/two"
+        )
+
+
+@pytest.mark.parametrize("topic", ["relative", "/", "/bad//topic", "/1bad", " /joint_commands"])
+def test_source_declaration_rejects_nonabsolute_or_invalid_topics(topic: str) -> None:
+    from synria_lerobot.physical_contract import guarded_command_topics
+
+    with pytest.raises(ValueError, match="absolute"):
+        StateSourceProvenance("standalone_driver", topic)
+    with pytest.raises(ValueError, match="absolute"):
+        guarded_command_topics((topic,))
+
+
+@pytest.mark.parametrize("failure", ["publisher", "graph"])
+def test_command_guard_refusal_precedes_dataset_and_cameras(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure: str
+) -> None:
+    from synria_lerobot import recorder
+
+    monkeypatch.setattr(sys, "argv", [
+        "recorder", "--dataset-path", str(tmp_path / "dataset"),
+        "--repo-id", "local/fake", "--gripper-type", "50mm", "--state-source", "ros2_control",
+        "--wrist-camera", "fake", "--front-camera", "fake", "--fps", "15",
+    ])
+    events = []
+
+    def measure() -> StateRateMeasurement:
+        events.append("measured")
+        return StateRateMeasurement(50, 100, 2, 0, 2, 0.02)
+
+    def guard(topics: tuple[str, ...]) -> None:
+        events.append("guarded")
+        assert topics == ("/joint_commands", "/policy_joint_targets")
+        raise RuntimeError(f"fake {failure} refusal")
+
+    source = SimpleNamespace(
+        measure_rate=measure, read=lambda: _state(0.01, 0),
+        require_no_command_publishers=guard, close=lambda: events.append("closed"),
+    )
+
+    def forbidden(*args: Any, **kwargs: Any) -> None:
+        raise AssertionError("guard refusal must precede dataset and camera construction")
+
+    monkeypatch.setattr(recorder, "RosJointStateSource", lambda *args, **kwargs: source)
+    monkeypatch.setattr(recorder, "LeRobotDatasetWriter", forbidden)
+    monkeypatch.setattr(recorder, "OpenCVFrameSource", forbidden)
+    with pytest.raises(RuntimeError, match=failure):
+        recorder.physical_main()
+    assert events == ["measured", "guarded", "closed"]
+    assert not (tmp_path / "dataset").exists()
+
+
+def test_late_publisher_refuses_next_episode_without_losing_pending_state(tmp_path: Path) -> None:
+    clock = FakeClock()
+    recorder, writer = _recorder(
+        tmp_path, action_source=ActionSourceKind.NEXT_STATE,
+        states=[_state(0.01, 0)], clock=clock,
+    )
+    counts = [0]
+    queries = []
+
+    def guard(topics: tuple[str, ...]) -> None:
+        queries.append(topics)
+        if counts[0]:
+            raise RuntimeError("recording refused: command publishers on /joint_commands")
+
+    recorder._command_publisher_guard = guard
+    recorder.start()
+    recorder.capture_once()
+    recorder.stop()
+    recorder.mark_success()
+    counts[0] = 1
+    snapshot = (recorder._started, recorder._ended, recorder._next_episode_index, recorder._pending)
+    with pytest.raises(RuntimeError, match="/joint_commands"):
+        recorder.start()
+    assert recorder.state is RecorderState.IDLE
+    assert snapshot == (
+        recorder._started, recorder._ended, recorder._next_episode_index, recorder._pending
+    )
+    assert len(writer.episodes) == 1
+    assert recorder.wrist_source.count == recorder.front_source.count == 1
+    assert len(queries) == 2
+    counts[0] = 0
+    recorder.start()
+    recorder.stop()
+    with pytest.raises(RuntimeError, match="pending episode"):
+        recorder.start()
+    assert len(queries) == 3
+    recorder.discard()
+    recorder.close()
+
+
+def test_source_guard_cannot_be_replaced_by_an_injected_noop(tmp_path: Path) -> None:
+    clock = FakeClock()
+    existing, writer = _recorder(
+        tmp_path, action_source=ActionSourceKind.NEXT_STATE, states=[], clock=clock,
+    )
+    config = replace(existing.config, state_source_provenance=StateSourceProvenance(
+        "standalone_driver", "/joint_states"
+    ))
+
+    def refuse(topics: tuple[str, ...]) -> None:
+        raise RuntimeError("source graph refusal")
+
+    source = SimpleNamespace(require_no_command_publishers=refuse, close=lambda: None)
+    arguments = dict(
+        config=config, action_source=NextStateActionSource(), writer=writer,
+        wrist_source=existing.wrist_source, front_source=existing.front_source, clock=clock,
+    )
+    recorder = PhysicalEpisodeRecorder(
+        **arguments, state_source=source, command_publisher_guard=lambda topics: None
+    )
+    with pytest.raises(RuntimeError, match="source graph refusal"):
+        recorder.start()
+    assert recorder.state is RecorderState.IDLE
+    assert existing.wrist_source.count == 0
+    with pytest.raises(ValueError, match="requires a command publisher guard"):
+        PhysicalEpisodeRecorder(**arguments, state_source=FakeStateSource([]))
+    fake = PhysicalEpisodeRecorder(
+        **arguments, state_source=FakeStateSource([]), command_publisher_guard=lambda topics: None
+    )
+    fake.start()
+    assert fake.state is RecorderState.RECORDING
+    recorder.close()
 
 
 @pytest.mark.parametrize("failure", ["rate", "missing", "stale", "worker", "velocities"])
@@ -691,6 +848,7 @@ def test_failed_state_preflight_never_opens_dataset_or_cameras(
         "recorder", "--dataset-path", str(tmp_path / "dataset"),
         "--repo-id", "local/fake", "--gripper-type", "50mm",
         "--wrist-camera", "fake-wrist", "--front-camera", "fake-front", "--fps", "30",
+        "--state-source", "standalone_driver",
         *( ["--state-has-velocity"] if failure == "velocities" else [] ),
     ])
     closed = []

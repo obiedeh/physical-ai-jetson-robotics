@@ -1239,12 +1239,19 @@ def d1_session_summary(
     gripper_type: str = typer.Option(...),
     action_source: str = typer.Option(...),
     action_lookahead_steps: int = typer.Option(1, min=0),
+    state_source: str = typer.Option(...),
+    follower_topic: str = typer.Option("/joint_states"),
+    guard_command_topic: Annotated[list[str] | None, typer.Option()] = None,
     utc_date: str = typer.Option(...),
     data_root: Path = Path("reports/ludo_flagship/data"),
     limits_path: Path = Path("config/synria_limits.yaml"),
 ) -> None:
     """Gate one physical recording session and write its evidence artifacts."""
-    from synria_lerobot.physical_contract import CONTRACT_VERSION
+    from synria_lerobot.physical_contract import (
+        CONTRACT_VERSION,
+        StateSourceProvenance,
+        guarded_command_topics,
+    )
     from synria_lerobot.quality_gates import (
         GateConfig,
         load_episode_records,
@@ -1272,6 +1279,10 @@ def d1_session_summary(
             "gripper_type": gripper_type,
             "action_source": action_source,
             "action_lookahead_steps": action_lookahead_steps,
+            "state_source_provenance": StateSourceProvenance(
+                state_source, follower_topic,
+                guarded_command_topics(tuple(guard_command_topic or ())),
+            ).as_dict(),
         },
         episodes=load_episode_records(records),
         limits=load_limits(limits_path),

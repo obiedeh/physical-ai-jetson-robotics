@@ -27,9 +27,18 @@ def fake_ros(monkeypatch: pytest.MonkeyPatch, *, fail_subscription: bool = False
         count=0,
         hang=False,
         callback_thread=None,
+        graph_counts={},
+        graph_queries=[],
     )
 
     class Node:
+        def count_publishers(self, topic: str) -> int:
+            control.graph_queries.append(topic)
+            value = control.graph_counts.get(topic, 0)
+            if isinstance(value, BaseException):
+                raise value
+            return value
+
         def create_subscription(self, kind: Any, topic: str, callback: Any, qos: int) -> object:
             if fail_subscription:
                 raise OSError("fake subscription failure")
@@ -121,6 +130,55 @@ def joint_message(value: float) -> Any:
         velocity=[],
         header=SimpleNamespace(stamp=SimpleNamespace(sec=1_800_000_000, nanosec=125_000_000)),
     )
+
+
+@pytest.mark.parametrize("topic", ["/joint_commands", "/policy_joint_targets", "/custom/commands"])
+@pytest.mark.parametrize("count", [1, 3, -1, True, 0.0, None, OSError("graph unavailable")])
+def test_command_graph_refuses_publishers_or_invalid_queries(
+    monkeypatch: pytest.MonkeyPatch, topic: str, count: Any
+) -> None:
+    control = fake_ros(monkeypatch)
+    control.graph_counts[topic] = count
+    source = recorder.RosJointStateSource("/joint_states", node_name="fake")
+    try:
+        with pytest.raises(RuntimeError, match=topic):
+            source.require_no_command_publishers(("/custom/commands",))
+        assert control.publishers == 0
+    finally:
+        source.close()
+
+
+def test_command_graph_checks_defaults_and_custom_topic_with_no_publishers(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    control = fake_ros(monkeypatch)
+    source = recorder.RosJointStateSource("/joint_states", node_name="fake")
+    try:
+        source.require_no_command_publishers(("/custom/commands",))
+        assert control.graph_queries == [
+            "/joint_commands", "/policy_joint_targets", "/custom/commands"
+        ]
+        assert control.publishers == 0
+    finally:
+        source.close()
+
+
+def test_command_graph_refuses_worker_failure_during_query(monkeypatch: pytest.MonkeyPatch) -> None:
+    control = fake_ros(monkeypatch)
+    source = recorder.RosJointStateSource("/joint_states", node_name="fake")
+
+    def query(topic: str) -> int:
+        with source._lock:
+            source._error = OSError("terminal worker failure")
+        return 0
+
+    monkeypatch.setattr(source._node, "count_publishers", query)
+    try:
+        with pytest.raises(RuntimeError, match="during command graph check"):
+            source.require_no_command_publishers(())
+        assert control.publishers == 0
+    finally:
+        source.close()
 
 
 def test_ros_caches_newest_depth_one_message_and_never_publishes(

@@ -58,6 +58,26 @@ deviation in `session_notes.md`.
 
 ## Pre-register the dataset settings
 
+Declare the follower `STATE_SOURCE` as `standalone_driver` or `ros2_control`,
+its absolute `FOLLOWER_TOPIC`, and all guarded command topics. This is an
+operator declaration, not automatic identification of the state publisher.
+The source must have arm-command writes disabled and leave torque unchanged
+at startup. The operator confirms that standalone-driver default startup
+releases torque; that default is prohibited. Use the
+[runbook](D1_OPERATOR_RUNBOOK.md) for the unverified explicit-parameter
+standalone candidate and operator-verified `ros2_control` preflight. Never start
+a second follower or change the working hardware-sync teleoperation for recording.
+
+Publisher-count checks always include `/joint_commands` and
+`/policy_joint_targets`, plus configured additional absolute topics, before
+dataset/camera startup and before each episode. Any publisher or graph failure
+refuses recording. Discovery is eventually consistent; this snapshot is not
+a hardware interlock or proof that later/non-topic writes cannot occur.
+Episode and capture records retain the declared source, follower topic, and
+guarded topics alongside measured incoming-rate evidence. Physical summaries
+require consistent, complete declarations; changed source settings require a
+separate dataset/session.
+
 The contract is `synria_physical_v1`. Each dataset declares the gripper type
 (`50mm` or `100mm`) and action source (default `next_state`, optional `leader`).
 Set the runbook's `GRIPPER_TYPE` variable from the installed gripper; there is

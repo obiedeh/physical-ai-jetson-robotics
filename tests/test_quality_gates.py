@@ -13,6 +13,7 @@ from synria_lerobot.physical_contract import (
     PhysicalDatasetContract,
     PhysicalState,
     StateRateMeasurement,
+    StateSourceProvenance,
     action_timing_metadata,
 )
 from synria_lerobot.physical_contract import (
@@ -489,7 +490,9 @@ def test_summary_refuses_relabelled_contract_or_episode_evidence(
     dataset.mkdir()
     contract = PhysicalDatasetContract("50mm", ActionSourceKind.LEADER, False).as_dict(fps=1)
     provenance = _provenance("leader")
-    episode = _baseline_episode()
+    declaration = StateSourceProvenance("standalone_driver", "/joint_states").as_dict()
+    provenance["state_source_provenance"] = declaration
+    episode = replace(_baseline_episode(), state_source_provenance=declaration)
     capture = {
         "episode_index": 0, "camera_ids": provenance["camera_ids"],
         "native_resolution": {"wrist": {"width": 4, "height": 4},
@@ -497,6 +500,7 @@ def test_summary_refuses_relabelled_contract_or_episode_evidence(
         "stored_resolution": provenance["resolution"], "stored_color_space": "RGB",
         "achieved_sample_rate_hz": None,
         "state_rate_measurement": episode.state_rate_measurement,
+        "state_source_provenance": declaration,
         "action_source": "leader", "contract_version": CONTRACT_VERSION, "gripper_type": "50mm",
         **action_timing_metadata(ActionSourceKind.LEADER, 1, 1),
     }
@@ -530,10 +534,61 @@ def test_physical_summary_requires_complete_sufficient_incoming_rate_evidence(
     contract = PhysicalDatasetContract("50mm", ActionSourceKind.LEADER, False).as_dict(fps=1)
     (dataset / "physical_contract.json").write_text(json.dumps(contract), encoding="utf-8")
     session = tmp_path / "reports" / "session"
+    declaration = StateSourceProvenance("standalone_driver", "/joint_states").as_dict()
     with pytest.raises((ValueError, TypeError)):
         write_session_artifacts(
-            session_dir=session, dataset_path=dataset, provenance=_provenance("leader"),
-            episodes=[replace(_baseline_episode(), state_rate_measurement=measurement)],
+            session_dir=session, dataset_path=dataset,
+            provenance={**_provenance("leader"), "state_source_provenance": declaration},
+            episodes=[replace(_baseline_episode(), state_rate_measurement=measurement,
+                              state_source_provenance=declaration)],
             limits=load_limits(LIMITS_PATH),
+        )
+    assert not session.exists()
+
+
+@pytest.mark.parametrize("layer", ["provenance", "episode", "capture"])
+@pytest.mark.parametrize("corruption", ["missing", "kind", "topic", "guards", "declaration"])
+def test_physical_summary_refuses_missing_or_conflicting_source_evidence(
+    tmp_path: Path, layer: str, corruption: str
+) -> None:
+    dataset = tmp_path / "dataset"
+    dataset.mkdir()
+    contract = PhysicalDatasetContract("50mm", ActionSourceKind.LEADER, False).as_dict(fps=1)
+    (dataset / "physical_contract.json").write_text(json.dumps(contract))
+    declaration = StateSourceProvenance("standalone_driver", "/joint_states").as_dict()
+    provenance = {**_provenance("leader"), "state_source_provenance": declaration}
+    episode = replace(_baseline_episode(), state_source_provenance=declaration)
+    capture = {
+        "episode_index": 0, "camera_ids": provenance["camera_ids"],
+        "native_resolution": {"wrist": {"width": 4, "height": 4},
+                              "front": {"width": 4, "height": 4}},
+        "stored_resolution": provenance["resolution"], "stored_color_space": "RGB",
+        "achieved_sample_rate_hz": None, "state_rate_measurement": episode.state_rate_measurement,
+        "state_source_provenance": declaration,
+        "action_source": "leader", "contract_version": CONTRACT_VERSION, "gripper_type": "50mm",
+        **action_timing_metadata(ActionSourceKind.LEADER, 1, 1),
+    }
+    changed = dict(declaration)
+    if corruption == "missing":
+        broken = None
+    else:
+        name, value = {
+            "kind": ("state_source", "ros2_control"),
+            "topic": ("follower_topic", "/different_states"),
+            "guards": ("guarded_command_topics", ["/joint_commands"]),
+            "declaration": ("declaration", "automatically-identified"),
+        }[corruption]
+        changed[name] = value
+        broken = changed
+    if layer == "episode":
+        episode = replace(episode, state_source_provenance=broken)
+    else:
+        {"provenance": provenance, "capture": capture}[layer]["state_source_provenance"] = broken
+    (dataset / "physical_capture_provenance.jsonl").write_text(json.dumps(capture) + "\n")
+    session = tmp_path / "reports" / "session"
+    with pytest.raises(ValueError, match="state source|command topics"):
+        write_session_artifacts(
+            session_dir=session, dataset_path=dataset, provenance=provenance,
+            episodes=[episode], limits=load_limits(LIMITS_PATH),
         )
     assert not session.exists()

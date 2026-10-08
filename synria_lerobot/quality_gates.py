@@ -16,6 +16,7 @@ from synria_lerobot.physical_contract import (
     ACTION_TIMING_KEYS,
     ActionSource,
     StateRateMeasurement,
+    StateSourceProvenance,
     action_timing_metadata,
 )
 from synria_lerobot.recorder import OperatorLabel, RecordedPhysicalEpisode
@@ -72,6 +73,7 @@ class EpisodeQualityRecord:
     nominal_action_lookahead_s: float | None = None
     requested_rate_hz: float | None = None
     state_rate_measurement: dict[str, Any] | None = None
+    state_source_provenance: dict[str, Any] | None = None
 
     def as_dict(self) -> dict[str, object]:
         return asdict(self)
@@ -96,6 +98,7 @@ class EpisodeQualityRecord:
             nominal_action_lookahead_s=payload.get("nominal_action_lookahead_s"),
             requested_rate_hz=payload.get("requested_rate_hz"),
             state_rate_measurement=payload.get("state_rate_measurement"),
+            state_source_provenance=payload.get("state_source_provenance"),
             frames=tuple(
                 FrameQualityRecord(
                     state=tuple(float(value) for value in frame["state"]),
@@ -223,6 +226,10 @@ def episode_quality_record(
         state_rate_measurement=(
             asdict(episode.state_rate_measurement)
             if episode.state_rate_measurement is not None else None
+        ),
+        state_source_provenance=(
+            episode.state_source_provenance.as_dict()
+            if episode.state_source_provenance is not None else None
         ),
         frames=tuple(
             FrameQualityRecord(
@@ -461,6 +468,8 @@ def _merge_capture_provenance(
             raise ValueError("achieved sample rate differs from recorded capture provenance")
         if capture.get("state_rate_measurement") != episode.state_rate_measurement:
             raise ValueError("state rate measurement differs from recorded capture provenance")
+        if capture.get("state_source_provenance") != episode.state_source_provenance:
+            raise ValueError("state source differs from recorded capture provenance")
         _validate_timing_evidence(capture)
         for name in (*ACTION_TIMING_KEYS, "action_source", "gripper_type", "contract_version"):
             if capture.get(name) != provenance[name]:
@@ -506,12 +515,25 @@ def _validate_summary_contract(
         if name in provenance and provenance[name] != value:
             raise ValueError("supplied timing differs from requested rate and action source")
     contract_path = dataset_path / "physical_contract.json"
+    source_evidence = provenance.get("state_source_provenance")
+    if source_evidence is not None:
+        source_evidence = StateSourceProvenance.from_dict(source_evidence).as_dict()
+    if contract_path.is_file() and episodes and source_evidence is None:
+        raise ValueError("physical summaries require operator-declared state source provenance")
     if contract_path.is_file():
         contract = json.loads(contract_path.read_text(encoding="utf-8"))
         _validate_timing_evidence(contract)
         if any(contract.get(name) != value for name, value in expected.items()):
             raise ValueError("supplied metadata differs from dataset contract")
     for episode in episodes:
+        if episode.state_source_provenance is not None:
+            recorded_source = StateSourceProvenance.from_dict(
+                episode.state_source_provenance
+            ).as_dict()
+        else:
+            recorded_source = None
+        if recorded_source != source_evidence:
+            raise ValueError("episode state source differs from supplied provenance")
         if contract_path.is_file() and episode.state_rate_measurement is None:
             raise ValueError("physical summaries require recorded incoming state rate evidence")
         if episode.state_rate_measurement is not None:
@@ -526,7 +548,7 @@ def _validate_summary_contract(
             getattr(episode, name) != value for name, value in expected.items()
         ):
             raise ValueError("episode metadata differs from dataset contract")
-    return {**provenance, **expected}
+    return {**provenance, **expected, "state_source_provenance": source_evidence}
 
 
 def write_session_artifacts(
@@ -617,6 +639,7 @@ def write_session_artifacts(
         "achieved_sample_rates_hz": sample_rates,
         "state_rate_measurements": state_rate_measurements,
         "quality_valid_episode_count": quality_valid,
+        "state_source_provenance": provenance["state_source_provenance"],
         "qualifying_episode_count": quality_valid if limits.verified else 0,
         "gate_results": [report.as_dict() for report in reports],
         "operator_labels": labels,
@@ -686,6 +709,11 @@ def write_aggregate_summary(
         "qualifying_episode_count": qualifying_total,
         "session_count": len(session_summaries),
         "action_sources": action_sources,
+        "state_sources": [
+            {"dataset_path": summary.get("dataset_path"),
+             "provenance": summary.get("state_source_provenance")}
+            for summary in session_summaries
+        ],
         "state_rate_measurements": [
             {"dataset_path": summary.get("dataset_path"),
              "episodes": summary.get("state_rate_measurements", [])}
