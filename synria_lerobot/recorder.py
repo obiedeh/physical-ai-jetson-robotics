@@ -26,7 +26,7 @@ import threading
 import time
 from collections.abc import Callable
 from contextlib import ExitStack
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from enum import Enum
 from pathlib import Path
 from typing import Any, Generic, Protocol, TypeVar
@@ -299,7 +299,10 @@ class _LatestSource(Generic[_Sample]):
 class RosJointStateSource(_LatestSource[PhysicalState]):
     """Owned-context, depth-one subscriber; no command publisher is created."""
 
-    def __init__(self, topic: str, *, node_name: str, timeout_s: float = 1.0) -> None:
+    def __init__(
+        self, topic: str, *, node_name: str, state_has_velocity: bool = False,
+        timeout_s: float = 1.0,
+    ) -> None:
         super().__init__(timeout_s=timeout_s)
         try:
             import rclpy  # type: ignore[import-not-found]
@@ -328,7 +331,9 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
                 ros_arrival = self._node.get_clock().now().nanoseconds / 1_000_000_000
                 values = dict(zip(message.name, message.position, strict=True))
                 velocities = None
-                if len(message.velocity) == len(message.name):
+                if state_has_velocity:
+                    if len(message.velocity) != len(message.name):
+                        raise ValueError("physical contract requires six reported joint velocities")
                     by_name = dict(zip(message.name, message.velocity, strict=True))
                     velocities = tuple(float(by_name[f"Joint{i}"]) for i in range(1, 7))
                 stamp = float(message.header.stamp.sec) + float(
@@ -499,6 +504,7 @@ class LeRobotDatasetWriter:
         self._dataset: Any = None
         self._dataset_type = LeRobotDataset
         self._repo_id = config.repo_id
+        self._contract = config.contract
         self._episode_path_template = DEFAULT_EPISODES_PATH
         try:
             if self._root.exists():
@@ -609,6 +615,10 @@ class LeRobotDatasetWriter:
             raise RecordingRecoveryError("dataset recovery is blocked; pending frames retained")
         if episode.episode_index != self._next_episode_index:
             raise ValueError("episode index differs from persisted dataset metadata")
+        episode.frames = [
+            replace(frame, state=self._contract.prepare_state(frame.state))
+            for frame in episode.frames
+        ]
         capture_provenance = self._capture_provenance(episode)
         try:
             self._transaction.begin()
@@ -803,6 +813,8 @@ class PhysicalEpisodeRecorder:
             raise RuntimeError(
                 "save, retry, or discard the pending episode before starting another"
             )
+        if self.config.contract.state_has_velocity:
+            self.config.contract.prepare_state(self.state_source.read())
         self._pending = []
         self._pending_label = None
         self._started = self.clock()
@@ -816,7 +828,7 @@ class PhysicalEpisodeRecorder:
         if now - self._started >= self.config.hard_cap_s:
             self.stop()
             return False
-        follower = self.state_source.read()
+        follower = self.config.contract.prepare_state(self.state_source.read())
         action = self.action_source.read(follower)
         wrist = self.wrist_source.read()
         front = self.front_source.read()
@@ -1267,12 +1279,13 @@ def physical_main() -> int:  # pragma: no cover - hardware entry point
             writer = LeRobotDatasetWriter(config)
             startup_cleanup.callback(_close_all, writer.finalize)
             follower = RosJointStateSource(
-                args.follower_topic, node_name="synria_d1_follower_state"
+                args.follower_topic, node_name="synria_d1_follower_state",
+                state_has_velocity=contract.state_has_velocity,
             )
             startup_cleanup.callback(_close_all, follower.close)
             if contract.action_source is ActionSourceKind.LEADER:
                 leader_state = RosJointStateSource(
-                    args.leader_topic, node_name="synria_d1_leader_state"
+                    args.leader_topic, node_name="synria_d1_leader_state", state_has_velocity=False,
                 )
                 startup_cleanup.callback(_close_all, leader_state.close)
                 action_source: ActionSource = LeaderActionSource(leader_state)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from dataclasses import replace
 from io import StringIO
 from pathlib import Path
 from types import SimpleNamespace
@@ -19,6 +20,7 @@ from synria_lerobot.physical_contract import (
 from synria_lerobot.recorder import (
     ActionSample,
     EpisodeRecorder,
+    LeaderActionSource,
     NextStateActionSource,
     OperatorLabel,
     PhysicalEpisodeRecorder,
@@ -127,11 +129,12 @@ def _recorder(
     clock: FakeClock,
     smoke: bool = False,
     initial_episode_index: int = 0,
+    state_has_velocity: bool = False,
 ) -> tuple[PhysicalEpisodeRecorder, FakeWriter]:
     contract = PhysicalDatasetContract(
         gripper_type="50mm",
         action_source=action_source,
-        state_has_velocity=False,
+        state_has_velocity=state_has_velocity,
     )
     config = PhysicalRecorderConfig(
         dataset_path=tmp_path / "dataset",
@@ -254,6 +257,69 @@ def test_recorder_continues_episode_index_from_writer_metadata(tmp_path: Path) -
     clock.now = 20.0
     recorder.stop()
     assert recorder.mark_success().episode_index == 7
+
+
+def test_missing_required_velocity_refuses_start_without_capture_or_save(tmp_path: Path) -> None:
+    recorder, writer = _recorder(
+        tmp_path, action_source=ActionSourceKind.NEXT_STATE, states=[_state(0.01, 0.0)],
+        clock=FakeClock(), state_has_velocity=True,
+    )
+    with pytest.raises(ValueError, match="requires six reported joint velocities"):
+        recorder.start()
+    assert recorder.state is RecorderState.IDLE
+    assert recorder._pending == [] and writer.episodes == []
+    assert recorder.wrist_source.count == recorder.front_source.count == 0
+    recorder.close()
+    assert writer.finalized == 1
+
+
+@pytest.mark.parametrize("required", [False, True])
+def test_state_contract_is_applied_at_capture_and_preflight_never_replaces_latest(
+    tmp_path: Path, required: bool
+) -> None:
+    initial = replace(_state(0.01, 0), joint_velocities_rad_s=(0.1,) * 6)
+    latest = replace(_state(0.02, 0), joint_velocities_rad_s=(0.2,) * 6)
+    # Required-velocity preflight consumes one explicit read; capture reads the newer state.
+    states = [initial, latest] if required else [latest]
+    clock = FakeClock()
+    recorder, _ = _recorder(
+        tmp_path, action_source=ActionSourceKind.NEXT_STATE, states=states,
+        clock=clock, state_has_velocity=required,
+    )
+    recorder.start()
+    recorder.capture_once()
+    assert recorder._pending[0].state.joint_positions_rad == (0.02,) * 6
+    clock.now = 20
+    recorder.stop()
+    episode = recorder.mark_success()
+    assert len(episode.frames[0].state.observation_vector()) == (13 if required else 7)
+    assert len(episode.frames[0].action) == 7
+    recorder.close()
+
+
+def test_velocity_loss_after_preflight_fails_before_a_frame_is_accepted(tmp_path: Path) -> None:
+    states = [replace(_state(0.01, 0), joint_velocities_rad_s=(0.1,) * 6), _state(0.02, 0)]
+    recorder, writer = _recorder(
+        tmp_path, action_source=ActionSourceKind.NEXT_STATE, states=states,
+        clock=FakeClock(), state_has_velocity=True,
+    )
+    recorder.start()
+    with pytest.raises(ValueError, match="requires six reported joint velocities"):
+        recorder.capture_once()
+    assert recorder._pending == [] and writer.episodes == []
+    assert recorder.wrist_source.count == recorder.front_source.count == 0
+    recorder.close()
+
+
+def test_leader_actions_never_include_reported_velocities() -> None:
+    leader = replace(_state(0.02, 1.0), joint_velocities_rad_s=(0.2,) * 6)
+    source = FakeStateSource([leader])
+    actions = LeaderActionSource(source)
+    sample = actions.read(_state(0.01, 1.0))
+    assert sample.values == (0.02,) * 7
+    assert sample.monotonic_timestamp_s == 1.0
+    actions.close()
+    assert source.closed
 
 
 def test_hard_cap_stops_before_collecting_late_frame(tmp_path: Path) -> None:

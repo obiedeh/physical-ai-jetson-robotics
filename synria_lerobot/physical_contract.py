@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import Enum
 from typing import Any
 
@@ -59,6 +59,16 @@ class PhysicalDatasetContract:
     @property
     def gripper_stroke_m(self) -> float:
         return GRIPPER_STROKE_M[self.gripper_type]
+
+    def prepare_state(self, state: PhysicalState) -> PhysicalState:
+        """Select the dataset's state fields, never infer them from one message."""
+        if self.state_has_velocity:
+            if state.joint_velocities_rad_s is None:
+                raise ValueError("physical contract requires six reported joint velocities")
+            return state
+        if state.joint_velocities_rad_s is not None:
+            return replace(state, joint_velocities_rad_s=None)
+        return state
 
     def as_dict(self) -> dict[str, object]:
         return {

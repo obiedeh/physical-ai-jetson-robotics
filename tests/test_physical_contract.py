@@ -58,6 +58,18 @@ def test_observation_appends_velocity_only_when_reported() -> None:
     assert _state(velocities=velocities).observation_vector()[-6:] == velocities
 
 
+@pytest.mark.parametrize("required", [False, True])
+def test_contract_selects_velocity_fields(required: bool) -> None:
+    contract = PhysicalDatasetContract("50mm", ActionSource.NEXT_STATE, required)
+    state = _state(velocities=(0.2,) * 6)
+    prepared = contract.prepare_state(state)
+    assert len(prepared.observation_vector()) == (13 if required else 7)
+    assert state.joint_velocities_rad_s == (0.2,) * 6
+    if required:
+        with pytest.raises(ValueError, match="requires six reported joint velocities"):
+            contract.prepare_state(_state())
+
+
 def test_frame_has_seven_float_action_and_all_timestamps() -> None:
     frame = PhysicalFrame(
         state=_state(),

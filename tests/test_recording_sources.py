@@ -193,6 +193,44 @@ def test_failed_subscription_closes_only_owned_resources(monkeypatch: pytest.Mon
     assert control.events[-3:] == ["shutdown_executor", "destroy_node", "shutdown_context"]
 
 
+@pytest.mark.parametrize("velocities", [[0.1] * 7, [float("nan")] * 7, ["bad"], None])
+def test_position_only_ros_contract_ignores_unused_velocities(
+    monkeypatch: pytest.MonkeyPatch, velocities: Any
+) -> None:
+    control = fake_ros(monkeypatch)
+    source = recorder.RosJointStateSource(
+        "/unused", node_name="fake", state_has_velocity=False
+    )
+    message = joint_message(0.1)
+    message.velocity = velocities
+    control.messages.put(message)
+    try:
+        assert source.read().joint_velocities_rad_s is None
+    finally:
+        source.close()
+
+
+@pytest.mark.parametrize("velocities", [[], [0.1] * 6, [float("nan")] * 7, [0.1] * 7])
+def test_velocity_ros_contract_requires_complete_finite_joint_velocities(
+    monkeypatch: pytest.MonkeyPatch, velocities: list[float]
+) -> None:
+    control = fake_ros(monkeypatch)
+    source = recorder.RosJointStateSource(
+        "/unused", node_name="fake", state_has_velocity=True
+    )
+    message = joint_message(0.1)
+    message.velocity = velocities
+    control.messages.put(message)
+    try:
+        if velocities == [0.1] * 7:
+            assert source.read().joint_velocities_rad_s == (0.1,) * 6
+        else:
+            with pytest.raises(RuntimeError, match="background source failed"):
+                source.read()
+    finally:
+        source.close()
+
+
 def fake_camera(monkeypatch: pytest.MonkeyPatch) -> Any:
     control = SimpleNamespace(
         frames=queue.Queue(),
