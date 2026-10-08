@@ -83,6 +83,9 @@ class FrameSource(Protocol):
 class DatasetWriter(Protocol):
     """Persist one labeled episode and its final front-camera still."""
 
+    @property
+    def next_episode_index(self) -> int: ...
+
     def write_episode(self, episode: RecordedPhysicalEpisode) -> None: ...
 
     def save_final_still(
@@ -295,28 +298,37 @@ class LeRobotDatasetWriter:
         ):
             features[timestamp_name] = {"dtype": "float64", "shape": (1,)}
         self._root = config.dataset_path
-        self._root.mkdir(parents=True, exist_ok=True)
         contract_path = self._root / "physical_contract.json"
         contract_payload = config.contract.as_dict()
-        if contract_path.exists():
+        if self._root.exists():
+            if not contract_path.is_file() or not (self._root / "meta" / "info.json").is_file():
+                raise ValueError("existing dataset root must contain a physical LeRobot dataset")
             if json.loads(contract_path.read_text(encoding="utf-8")) != contract_payload:
                 raise ValueError("physical dataset contract differs from existing dataset")
+            self._dataset = LeRobotDataset.resume(
+                repo_id=config.repo_id,
+                root=config.dataset_path,
+            )
         else:
+            self._dataset = LeRobotDataset.create(
+                repo_id=config.repo_id,
+                root=config.dataset_path,
+                fps=int(config.fps),
+                robot_type="synria_alicia_d",
+                features=features,
+            )
             contract_path.write_text(
                 json.dumps(contract_payload, indent=2, sort_keys=True) + "\n",
                 encoding="utf-8",
             )
-        self._dataset = LeRobotDataset.create(
-            repo_id=config.repo_id,
-            root=config.dataset_path,
-            fps=int(config.fps),
-            robot_type="synria_alicia_d",
-            features=features,
-        )
         self._task = config.task
         self._fps = config.fps
         self._metadata_path = self._root / "physical_episode_metadata.jsonl"
         self._quality_records_path = self._root / "physical_quality_records.jsonl"
+
+    @property
+    def next_episode_index(self) -> int:
+        return int(self._dataset.meta.total_episodes)
 
     def write_episode(
         self, episode: RecordedPhysicalEpisode
@@ -407,7 +419,7 @@ class PhysicalEpisodeRecorder:
         self._pending: list[_PendingFrame] = []
         self._started = 0.0
         self._ended = 0.0
-        self._next_episode_index = 0
+        self._next_episode_index = writer.next_episode_index
 
     def start(self) -> None:
         if self.state is RecorderState.RECORDING:
@@ -794,7 +806,7 @@ def physical_main() -> int:  # pragma: no cover - hardware entry point
     dataset_path: Path | None = args.dataset_path
     if args.smoke:
         temporary = tempfile.TemporaryDirectory(prefix="synria-d1-smoke-")
-        dataset_path = Path(temporary.name)
+        dataset_path = Path(temporary.name) / "dataset"
     elif dataset_path is None:
         raise SystemExit("--dataset-path is required unless --smoke is used")
     assert dataset_path is not None
