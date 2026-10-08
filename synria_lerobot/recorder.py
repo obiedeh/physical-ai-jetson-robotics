@@ -24,7 +24,7 @@ import tempfile
 import time
 from collections.abc import Callable
 from contextlib import ExitStack
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any, Protocol
@@ -40,6 +40,7 @@ from synria_lerobot.physical_contract import (
     PhysicalFrame,
     PhysicalState,
 )
+from synria_lerobot.recording_transaction import RecordingRecoveryError, RecordingTransaction
 from synria_lerobot.schema import (
     DEFAULT_FPS,
     DEFAULT_ROBOT_ID,
@@ -87,6 +88,8 @@ class DatasetWriter(Protocol):
 
     @property
     def next_episode_index(self) -> int: ...
+
+    recovery_blocked: bool
 
     def write_episode(self, episode: RecordedPhysicalEpisode) -> None: ...
 
@@ -173,6 +176,15 @@ class RecordedPhysicalEpisode:
     @property
     def duration_s(self) -> float:
         return self.ended_monotonic_s - self.started_monotonic_s
+
+
+@dataclass
+class PhysicalSessionResult:
+    saved_episode_count: int = 0
+    discarded_episode_count: int = 0
+    failed_save_count: int = 0
+    last_episode_index: int | None = None
+    smoke: bool = False
 
 
 @dataclass(frozen=True)
@@ -317,6 +329,7 @@ class LeRobotDatasetWriter:
 
     def __init__(self, config: PhysicalRecorderConfig) -> None:
         try:
+            from lerobot.datasets import DEFAULT_EPISODES_PATH  # type: ignore[import-not-found]
             from lerobot.datasets.lerobot_dataset import (  # type: ignore[import-not-found]
                 LeRobotDataset,
             )
@@ -348,45 +361,59 @@ class LeRobotDatasetWriter:
             "front_monotonic_s",
         ):
             features[timestamp_name] = {"dtype": "float64", "shape": (1,)}
-        self._root = config.dataset_path
+        config.require_outside_repository(Path(__file__).resolve().parents[1])
+        if config.dataset_path.exists() and not all(
+            (config.dataset_path / name).is_file()
+            for name in ("physical_contract.json", "meta/info.json")
+        ):
+            raise ValueError("existing dataset root must contain a physical LeRobot dataset")
+        self._transaction = RecordingTransaction(config.dataset_path)
+        self._root = self._transaction.root
         contract_path = self._root / "physical_contract.json"
         contract_payload = config.contract.as_dict()
         self._finalized = False
-        if self._root.exists():
-            if not contract_path.is_file() or not (self._root / "meta" / "info.json").is_file():
-                raise ValueError("existing dataset root must contain a physical LeRobot dataset")
-            if json.loads(contract_path.read_text(encoding="utf-8")) != contract_payload:
-                raise ValueError("physical dataset contract differs from existing dataset")
-            self._dataset = LeRobotDataset.resume(
-                repo_id=config.repo_id,
-                root=config.dataset_path,
-            )
-            try:
+        self._dataset_open = False
+        self.recovery_blocked = False
+        self._dataset: Any = None
+        self._dataset_type = LeRobotDataset
+        self._repo_id = config.repo_id
+        self._episode_path_template = DEFAULT_EPISODES_PATH
+        try:
+            if self._root.exists():
+                self._transaction.files()
+                if not contract_path.is_file() or not (self._root / "meta" / "info.json").is_file():
+                    raise ValueError(
+                        "existing dataset root must contain a physical LeRobot dataset"
+                    )
+                if json.loads(contract_path.read_text(encoding="utf-8")) != contract_payload:
+                    raise ValueError("physical dataset contract differs from existing dataset")
+                self._dataset = LeRobotDataset.resume(repo_id=config.repo_id, root=self._root)
+                self._dataset_open = True
                 for name in ("observation.images.wrist", "observation.images.front"):
                     stored = self._dataset.meta.features.get(name, {})
                     if stored.get("dtype") != features[name]["dtype"] or tuple(
                         stored.get("shape", ())
                     ) != features[name]["shape"]:
                         raise ValueError("image features differ from existing dataset")
-            except BaseException:
-                _close_all(self.finalize)
-                raise
-        else:
-            self._dataset = LeRobotDataset.create(
-                repo_id=config.repo_id,
-                root=config.dataset_path,
-                fps=int(config.fps),
-                robot_type="synria_alicia_d",
-                features=features,
-            )
-            try:
+            else:
+                self._dataset = LeRobotDataset.create(
+                    repo_id=config.repo_id,
+                    root=self._root,
+                    fps=int(config.fps),
+                    robot_type="synria_alicia_d",
+                    features=features,
+                )
+                self._dataset_open = True
                 contract_path.write_text(
                     json.dumps(contract_payload, indent=2, sort_keys=True) + "\n",
                     encoding="utf-8",
                 )
-            except BaseException:
-                _close_all(self.finalize)
-                raise
+            self._validate_segments()
+            self._next_episode_index = int(self._dataset.meta.total_episodes)
+            self._close_dataset()
+        except BaseException:
+            _close_all(self._close_dataset, self._transaction.close)
+            raise
         self._task = config.task
         self._fps = config.fps
         self._image_width = config.image_width
@@ -397,16 +424,104 @@ class LeRobotDatasetWriter:
 
     @property
     def next_episode_index(self) -> int:
-        return int(self._dataset.meta.total_episodes)
+        return self._next_episode_index
+
+    def _validate_segments(self) -> None:
+        """Reject incomplete/orphan segments before upstream can reuse their names."""
+        referenced: set[str] = set()
+        meta = self._dataset.meta
+        rows = list(meta.episodes) if meta.total_episodes else []
+        if len(rows) != meta.total_episodes:
+            raise RecordingRecoveryError("persisted episode metadata count is inconsistent")
+        expected_frame = 0
+        for index, row in enumerate(rows):
+            start = int(row["dataset_from_index"])
+            end = int(row["dataset_to_index"])
+            if row["episode_index"] != index or start != expected_frame or (
+                end <= start or row["length"] != end - start
+            ):
+                raise RecordingRecoveryError("persisted episode frame ranges are inconsistent")
+            expected_frame = end
+        if expected_frame != meta.total_frames:
+            raise RecordingRecoveryError("persisted frame metadata count is inconsistent")
+        if meta.total_episodes:
+            for row in rows:
+                referenced.add(meta.data_path.format(
+                    chunk_index=row["data/chunk_index"], file_index=row["data/file_index"]
+                ))
+                referenced.add(self._episode_path_template.format(
+                    chunk_index=row["meta/episodes/chunk_index"],
+                    file_index=row["meta/episodes/file_index"],
+                ))
+                for key in meta.video_keys:
+                    referenced.add(meta.video_path.format(
+                        video_key=key, chunk_index=row[f"videos/{key}/chunk_index"],
+                        file_index=row[f"videos/{key}/file_index"],
+                    ))
+        files = self._transaction.files()
+        segments = {
+            name for name in files
+            if (name.startswith(("data/", "meta/episodes/")) and name.endswith(".parquet"))
+            or (name.startswith("videos/") and name.endswith(".mp4"))
+        }
+        if segments != referenced:
+            raise RecordingRecoveryError("dataset has missing or orphan recording segments")
+
+    def _close_dataset(self) -> None:
+        if self._dataset_open:
+            self._dataset.finalize()
+            self._dataset_open = False
 
     def write_episode(
         self, episode: RecordedPhysicalEpisode
     ) -> None:  # pragma: no cover - optional dependency
-        import numpy as np
-
         if self._finalized:
             raise RuntimeError("dataset writer is finalized")
+        if self.recovery_blocked:
+            raise RecordingRecoveryError("dataset recovery is blocked; pending frames retained")
+        if episode.episode_index != self._next_episode_index:
+            raise ValueError("episode index differs from persisted dataset metadata")
         capture_provenance = self._capture_provenance(episode)
+        try:
+            self._transaction.begin()
+        except BaseException:
+            self.recovery_blocked = self._transaction.pending
+            raise
+        try:
+            self._dataset = self._dataset_type.resume(repo_id=self._repo_id, root=self._root)
+            self._dataset_open = True
+            self._validate_segments()
+            if self._dataset.meta.total_episodes != self._next_episode_index:
+                raise RecordingRecoveryError(
+                    "episode metadata changed during the recording session"
+                )
+            episode.final_still_path = self.save_final_still(
+                episode.episode_index, episode.frames[-1].front
+            )
+            self._write_episode_data(episode, capture_provenance)
+            if self._dataset.meta.total_episodes != self._next_episode_index + 1:
+                raise RecordingRecoveryError("saved episode count differs from expected metadata")
+            self._close_dataset()
+            self._transaction.commit()
+        except BaseException as save_error:
+            try:
+                self._close_dataset()
+                self._transaction.rollback()
+                episode.final_still_path = None
+            except BaseException as recovery_error:
+                self.recovery_blocked = True
+                raise RecordingRecoveryError(
+                    f"save failed ({save_error}); recovery blocked ({recovery_error}); "
+                    "frames, journal, and lock retained"
+                ) from recovery_error
+            raise
+        self._next_episode_index += 1
+
+    def _write_episode_data(
+        self, episode: RecordedPhysicalEpisode, capture_provenance: dict[str, object]
+    ) -> None:
+        import numpy as np
+
         for frame in episode.frames:
             timestamp_features = {
                 name: np.asarray([value], dtype=np.float64)
@@ -424,7 +539,7 @@ class LeRobotDatasetWriter:
                     **timestamp_features,
                 }
             )
-        self._dataset.save_episode()
+        self._dataset.save_episode(parallel_encoding=False)
         self._metadata_path.parent.mkdir(parents=True, exist_ok=True)
         with self._metadata_path.open("a", encoding="utf-8") as output:
             output.write(
@@ -477,17 +592,27 @@ class LeRobotDatasetWriter:
             cameras[name] = first.source_id
             width, height = first.native_resolution
             native[name] = {"width": width, "height": height}
-        return {
+        capture: dict[str, object] = {
             "episode_index": episode.episode_index,
             "camera_ids": cameras,
             "native_resolution": native,
             "stored_resolution": {"width": self._image_width, "height": self._image_height},
             "stored_color_space": "RGB",
         }
+        if self._capture_records_path.is_file():
+            with self._capture_records_path.open(encoding="utf-8") as source:
+                previous = json.loads(next(source))
+            for name in (
+                "camera_ids", "native_resolution", "stored_resolution", "stored_color_space"
+            ):
+                if capture[name] != previous[name]:
+                    raise ValueError("camera capture settings changed; start a separate dataset")
+        return capture
 
     def finalize(self) -> None:
         if not self._finalized:
-            self._dataset.finalize()
+            self._close_dataset()
+            self._transaction.close()
             self._finalized = True
 
     def save_final_still(
@@ -501,6 +626,9 @@ class LeRobotDatasetWriter:
         still_dir.mkdir(parents=True, exist_ok=True)
         stamp_ns = int(frame.monotonic_timestamp_s * 1_000_000_000)
         path = still_dir / f"episode_{episode_index:06d}_{stamp_ns}.jpg"
+        self._transaction.safe_path(path.relative_to(self._root).as_posix())
+        if path.exists():
+            raise FileExistsError("refusing to overwrite an existing episode still")
         bgr = cv2.cvtColor(frame.data, cv2.COLOR_RGB2BGR)
         if not cv2.imwrite(str(path), bgr):
             raise RuntimeError(f"failed to write final still {path}")
@@ -536,11 +664,17 @@ class PhysicalEpisodeRecorder:
         self._ended = 0.0
         self._next_episode_index = writer.next_episode_index
         self._closed = False
+        self._pending_label: OperatorLabel | None = None
 
     def start(self) -> None:
-        if self.state is RecorderState.RECORDING:
-            raise RuntimeError("an episode is already recording")
+        if self.writer.recovery_blocked:
+            raise RecordingRecoveryError("recovery is blocked; pending frames must be retained")
+        if self.state is not RecorderState.IDLE:
+            raise RuntimeError(
+                "save, retry, or discard the pending episode before starting another"
+            )
         self._pending = []
+        self._pending_label = None
         self._started = self.clock()
         self._ended = self._started
         self.state = RecorderState.RECORDING
@@ -577,14 +711,23 @@ class PhysicalEpisodeRecorder:
         return self._finalize(OperatorLabel.FAILURE)
 
     def discard(self) -> None:
+        if self.writer.recovery_blocked:
+            raise RecordingRecoveryError("recovery is blocked; pending frames must be retained")
         self._pending = []
+        self._pending_label = None
         self.state = RecorderState.IDLE
+
+    def retry(self) -> RecordedPhysicalEpisode:
+        if self._pending_label is None:
+            raise RuntimeError("no failed labeled episode is available to retry")
+        return self._finalize(self._pending_label)
 
     def _finalize(self, label: OperatorLabel) -> RecordedPhysicalEpisode:
         if self.state is not RecorderState.STOPPED:
             raise RuntimeError("stop the episode before applying an operator label")
         if not self._pending:
             raise RuntimeError("cannot save an episode with no frames")
+        self._pending_label = label
         frames = self._build_frames()
         episode = RecordedPhysicalEpisode(
             episode_index=self._next_episode_index,
@@ -597,13 +740,10 @@ class PhysicalEpisodeRecorder:
             gripper_type=self.config.contract.gripper_type,
             smoke=self.config.smoke,
         )
-        episode.final_still_path = self.writer.save_final_still(
-            episode.episode_index, frames[-1].front
-        )
         self.writer.write_episode(episode)
-        if not self.config.smoke:
-            self._next_episode_index += 1
+        self._next_episode_index += 1
         self._pending = []
+        self._pending_label = None
         self.state = RecorderState.IDLE
         return episode
 
@@ -686,7 +826,7 @@ class EpisodeRecorder:
         if self.fps <= 0.0:
             raise ValueError(f"fps={self.fps} must be positive.")
 
-    def record(self, n_steps: int = 0) -> Episode | RecordedPhysicalEpisode:
+    def record(self, n_steps: int = 0) -> Episode | PhysicalSessionResult:
         """Record (or simulate) one demonstration episode.
 
         Args:
@@ -718,7 +858,7 @@ class EpisodeRecorder:
     # Hardware path (stub — filled in during Jetson bring-up)
     # ------------------------------------------------------------------
 
-    def _record_hardware(self, n_steps: int) -> RecordedPhysicalEpisode:
+    def _record_hardware(self, n_steps: int) -> PhysicalSessionResult:
         """Run the operator-controlled physical recorder configured by the caller."""
         del n_steps
         if self.hardware_recorder is None:
@@ -852,12 +992,13 @@ def benchmark_recording_fps(n_frames: int = 60, fps: float = DEFAULT_FPS) -> dic
     }
 
 
-def run_operator_loop(recorder: PhysicalEpisodeRecorder) -> RecordedPhysicalEpisode:
-    """Run the start/stop/label/discard keyboard state machine."""
+def run_operator_loop(recorder: PhysicalEpisodeRecorder) -> PhysicalSessionResult:
+    """Record many episodes while retaining only the currently pending frames."""
     import select
     import sys
 
-    print("Commands: start | stop | success | failure | discard | quit")
+    print("Commands: start | stop | success | failure | retry | discard | quit")
+    result = PhysicalSessionResult(smoke=recorder.config.smoke)
     next_sample = recorder.clock()
     try:
         while True:
@@ -876,22 +1017,48 @@ def run_operator_loop(recorder: PhysicalEpisodeRecorder) -> RecordedPhysicalEpis
             if command_line == "":
                 raise RuntimeError("operator input closed")
             command = command_line.strip().lower()
-            if command == "start":
-                recorder.start()
-                next_sample = recorder.clock()
-            elif command == "stop":
-                recorder.stop()
-            elif command == "success":
-                return recorder.mark_success()
-            elif command == "failure":
-                return recorder.mark_failure()
-            elif command == "discard":
-                recorder.discard()
-            elif command in {"quit", "q", "exit"}:
-                recorder.discard()
-                raise RuntimeError("recording cancelled by operator")
-            elif command:
-                print("Unknown command. Use: start | stop | success | failure | discard | quit")
+            if command in {"quit", "q", "exit"}:
+                if recorder.state is not RecorderState.IDLE:
+                    print(
+                        "Pending frames retained. Save, retry, or explicitly discard before quit."
+                    )
+                    continue
+                return result
+            try:
+                if command == "start":
+                    recorder.start()
+                    next_sample = recorder.clock()
+                elif command == "stop":
+                    recorder.stop()
+                elif command in {"success", "failure", "retry"}:
+                    try:
+                        episode = {
+                            "success": recorder.mark_success,
+                            "failure": recorder.mark_failure,
+                            "retry": recorder.retry,
+                        }[command]()
+                    except Exception as error:
+                        result.failed_save_count += 1
+                        print(
+                            f"Episode save failed: {error}. Frames retained; use retry or discard."
+                        )
+                        continue
+                    result.saved_episode_count += 1
+                    result.last_episode_index = episode.episode_index
+                    print(f"Saved episode {episode.episode_index}: {episode.operator_label.value}.")
+                    del episode
+                    if recorder.config.smoke:
+                        return result
+                elif command == "discard":
+                    had_pending = recorder.state is not RecorderState.IDLE
+                    recorder.discard()
+                    result.discarded_episode_count += int(had_pending)
+                elif command:
+                    print(
+                        "Unknown command. Use start, stop, success, failure, retry, discard, quit."
+                    )
+            except Exception as error:
+                print(f"Command refused: {error}")
     finally:
         recorder.close()
 
@@ -981,14 +1148,11 @@ def physical_main() -> int:  # pragma: no cover - hardware entry point
             )
             session_cleanup.callback(_close_all, recorder.close)
             startup_cleanup.pop_all()
-        episode = run_operator_loop(recorder)
+        result = run_operator_loop(recorder)
         print(
             json.dumps(
                 {
-                    "episode_index": episode.episode_index,
-                    "operator_label": episode.operator_label.value,
-                    "duration_s": episode.duration_s,
-                    "smoke": episode.smoke,
+                    **asdict(result),
                     "dataset_path": str(dataset_path),
                 },
                 sort_keys=True,

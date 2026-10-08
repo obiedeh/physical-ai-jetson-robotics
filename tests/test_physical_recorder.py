@@ -84,6 +84,7 @@ class FakeFrameSource:
 
 class FakeWriter:
     next_episode_index = 0
+    recovery_blocked = False
 
     def __init__(self, root: Path) -> None:
         self.root = root
@@ -97,6 +98,9 @@ class FakeWriter:
         return path
 
     def write_episode(self, episode: RecordedPhysicalEpisode) -> None:
+        episode.final_still_path = self.save_final_still(
+            episode.episode_index, episode.frames[-1].front
+        )
         self.episodes.append(episode)
 
     def finalize(self) -> None:
@@ -249,7 +253,7 @@ def test_discard_writes_nothing(tmp_path: Path) -> None:
     assert recorder.state is RecorderState.IDLE
 
 
-def test_smoke_episode_does_not_advance_count(tmp_path: Path) -> None:
+def test_smoke_dataset_still_uses_unique_episode_indices(tmp_path: Path) -> None:
     clock = FakeClock()
     recorder, _ = _recorder(
         tmp_path,
@@ -258,13 +262,13 @@ def test_smoke_episode_does_not_advance_count(tmp_path: Path) -> None:
         clock=clock,
         smoke=True,
     )
-    for end in (20.0, 21.0):
+    for index, end in enumerate((20.0, 21.0)):
         recorder.start()
         recorder.capture_once()
         clock.now = end
         recorder.stop()
         episode = recorder.mark_failure()
-        assert episode.episode_index == 0
+        assert episode.episode_index == index
         assert episode.smoke is True
 
 
@@ -409,7 +413,7 @@ def test_operator_loop_finalizes_on_every_exit(
         clock=clock,
     )
     commands = {
-        "success": "start\nstop\nsuccess\n",
+        "success": "start\nstop\nsuccess\nquit\n",
         "quit": "quit\n",
         "eof": "",
         "interrupt": "",
@@ -428,7 +432,7 @@ def test_operator_loop_finalizes_on_every_exit(
             raise OSError("fake state failure")
 
         monkeypatch.setattr(recorder.state_source, "read", fail_capture)
-    if exit_kind == "success":
+    if exit_kind in {"success", "quit"}:
         run_operator_loop(recorder)
     else:
         expected_error = {
@@ -511,7 +515,7 @@ def test_main_cleans_partial_startup_and_session_failure(
     monkeypatch.setattr(
         recorder, "LeRobotDatasetWriter",
         lambda config: SimpleNamespace(
-            next_episode_index=0, finalize=lambda: closed.append("writer")
+            next_episode_index=0, recovery_blocked=False, finalize=lambda: closed.append("writer")
         ),
     )
 
@@ -535,3 +539,91 @@ def test_main_cleans_partial_startup_and_session_failure(
     order = ["follower", "wrist", "front", "recorder", "loop"]
     for name in ("follower", "wrist", "front"):
         assert closed.count(name) == int(order.index(name) < order.index(failure_at))
+
+
+def test_session_saves_many_episodes_and_returns_no_frame_history(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import select
+
+    recorder, writer = _recorder(
+        tmp_path, action_source=ActionSourceKind.NEXT_STATE,
+        states=[_state(0.01, 0.0), _state(0.02, 0.0)], clock=FakeClock(),
+    )
+    monkeypatch.setattr(
+        sys, "stdin", StringIO("start\nstop\nsuccess\nstart\nstop\nfailure\nquit\n")
+    )
+    monkeypatch.setattr(select, "select", lambda *args: ([sys.stdin], [], []))
+    result = EpisodeRecorder(mock=False, hardware_recorder=recorder).record()
+    assert result.saved_episode_count == 2
+    assert result.last_episode_index == 1
+    assert not hasattr(result, "frames")
+    assert [episode.episode_index for episode in writer.episodes] == [0, 1]
+    assert recorder._pending == []
+
+
+@pytest.mark.parametrize("choice", ["retry", "discard"])
+def test_failed_save_retains_frames_until_explicit_retry_or_discard(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], choice: str
+) -> None:
+    import select
+
+    recorder, writer = _recorder(
+        tmp_path, action_source=ActionSourceKind.NEXT_STATE,
+        states=[_state(0.01, 0.0)], clock=FakeClock(),
+    )
+    original = writer.write_episode
+    attempts = []
+
+    def fail_once(episode: RecordedPhysicalEpisode) -> None:
+        attempts.append(episode.frames[0].wrist.data)
+        if len(attempts) == 1:
+            raise OSError("injected save failure")
+        original(episode)
+
+    monkeypatch.setattr(writer, "write_episode", fail_once)
+    commands = f"start\nstop\nsuccess\nstart\nquit\n{choice}\nquit\n"
+    monkeypatch.setattr(sys, "stdin", StringIO(commands))
+    monkeypatch.setattr(select, "select", lambda *args: ([sys.stdin], [], []))
+    result = run_operator_loop(recorder)
+    assert result.failed_save_count == 1
+    assert result.saved_episode_count == int(choice == "retry")
+    assert result.discarded_episode_count == int(choice == "discard")
+    if choice == "retry":
+        assert attempts[0] is attempts[1]
+    output = capsys.readouterr().out
+    assert "Frames retained" in output
+    assert "Command refused" in output
+    assert "explicitly discard before quit" in output
+
+
+def test_smoke_session_exits_after_exactly_one_saved_episode(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import select
+
+    recorder, writer = _recorder(
+        tmp_path, action_source=ActionSourceKind.NEXT_STATE,
+        states=[_state(0.01, 0.0)], clock=FakeClock(), smoke=True,
+    )
+    monkeypatch.setattr(sys, "stdin", StringIO("start\nstop\nsuccess\nstart\n"))
+    monkeypatch.setattr(select, "select", lambda *args: ([sys.stdin], [], []))
+    result = run_operator_loop(recorder)
+    assert result.smoke and result.saved_episode_count == 1
+    assert len(writer.episodes) == 1
+
+
+def test_blocked_recovery_prevents_discard_or_new_capture(tmp_path: Path) -> None:
+    recorder, writer = _recorder(
+        tmp_path, action_source=ActionSourceKind.NEXT_STATE,
+        states=[_state(0.01, 0.0)], clock=FakeClock(),
+    )
+    recorder.start()
+    recorder.capture_once()
+    recorder.stop()
+    writer.recovery_blocked = True
+    with pytest.raises(RuntimeError, match="recovery is blocked"):
+        recorder.discard()
+    with pytest.raises(RuntimeError, match="recovery is blocked"):
+        recorder.start()
+    assert len(recorder._pending) == 1

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from dataclasses import replace
@@ -23,6 +24,7 @@ from synria_lerobot.recorder import (
     LeRobotDatasetWriter,
     OperatorLabel,
     PhysicalRecorderConfig,
+    PhysicalSessionResult,
     RecordedPhysicalEpisode,
 )
 
@@ -50,6 +52,9 @@ def image_features() -> dict[str, dict[str, object]]:
 def _install_fake_library(monkeypatch: pytest.MonkeyPatch, library: type) -> None:
     package = ModuleType("lerobot")
     datasets = ModuleType("lerobot.datasets")
+    datasets.DEFAULT_EPISODES_PATH = (  # type: ignore[attr-defined]
+        "meta/episodes/chunk-{chunk_index:03d}/file-{file_index:03d}.parquet"
+    )
     module = ModuleType("lerobot.datasets.lerobot_dataset")
     module.LeRobotDataset = library  # type: ignore[attr-defined]
     monkeypatch.setitem(sys.modules, "lerobot", package)
@@ -71,7 +76,9 @@ def test_create_owns_root_and_contract_is_written_after_creation(
             (root / "meta").mkdir()
             (root / "meta" / "info.json").write_text("{}", encoding="utf-8")
             assert not (root / "physical_contract.json").exists()
-            return SimpleNamespace(meta=SimpleNamespace(total_episodes=0))
+            return SimpleNamespace(
+                meta=SimpleNamespace(total_episodes=0, total_frames=0), finalize=lambda: None
+            )
 
     _install_fake_library(monkeypatch, Dataset)
     writer = LeRobotDatasetWriter(config)
@@ -79,6 +86,7 @@ def test_create_owns_root_and_contract_is_written_after_creation(
     assert json.loads((config.dataset_path / "physical_contract.json").read_text()) == (
         config.contract.as_dict()
     )
+    writer.finalize()
 
 
 def test_resume_uses_dataset_metadata_and_refuses_contract_mismatch(
@@ -96,14 +104,16 @@ def test_resume_uses_dataset_metadata_and_refuses_contract_mismatch(
         def resume(**kwargs: Any) -> SimpleNamespace:
             calls.append(kwargs)
             return SimpleNamespace(
-                meta=SimpleNamespace(total_episodes=7, features=image_features()),
+                meta=SimpleNamespace(total_episodes=7, features=image_features(), episodes=[]),
                 finalize=lambda: None,
             )
 
     _install_fake_library(monkeypatch, Dataset)
+    monkeypatch.setattr(LeRobotDatasetWriter, "_validate_segments", lambda self: None)
     writer = LeRobotDatasetWriter(config)
     assert writer.next_episode_index == 7
     assert calls == [{"repo_id": config.repo_id, "root": config.dataset_path}]
+    writer.finalize()
     with pytest.raises(ValueError, match="image features differ"):
         LeRobotDatasetWriter(replace(config, image_width=48))
     contract_path.write_text("{}", encoding="utf-8")
@@ -160,8 +170,8 @@ def test_smoke_uses_nonexisting_child_path(monkeypatch: pytest.MonkeyPatch) -> N
     monkeypatch.setattr(
         recorder,
         "run_operator_loop",
-        lambda recorder: SimpleNamespace(
-            episode_index=0, operator_label=OperatorLabel.FAILURE, duration_s=20.0, smoke=True
+        lambda recorder: PhysicalSessionResult(
+            saved_episode_count=1, last_episode_index=0, smoke=True
         ),
     )
     assert recorder.physical_main() == 0
@@ -259,18 +269,27 @@ def test_writer_passes_task_in_frame_and_finalizes_once(
     calls = {"saved": 0, "finalized": 0}
 
     class Dataset:
-        meta = SimpleNamespace(total_episodes=0)
+        meta = SimpleNamespace(
+            total_episodes=0, total_frames=0, episodes=[], features=image_features()
+        )
 
         @staticmethod
         def create(**kwargs: Any) -> Dataset:
             kwargs["root"].mkdir()
+            (kwargs["root"] / "meta").mkdir()
+            (kwargs["root"] / "meta" / "info.json").write_text("{}", encoding="utf-8")
+            return Dataset()
+
+        @staticmethod
+        def resume(**kwargs: Any) -> Dataset:
             return Dataset()
 
         def add_frame(self, frame: dict[str, object]) -> None:
             saved_frames.append(frame)
 
-        def save_episode(self) -> None:
+        def save_episode(self, **kwargs: Any) -> None:
             calls["saved"] += 1
+            self.meta.total_episodes += 1
 
         def finalize(self) -> None:
             calls["finalized"] += 1
@@ -278,10 +297,11 @@ def test_writer_passes_task_in_frame_and_finalizes_once(
     _install_fake_library(monkeypatch, Dataset)
     config = writer_config(tmp_path / "dataset")
     writer = LeRobotDatasetWriter(config)
+    monkeypatch.setattr(writer, "save_final_still", lambda index, frame: tmp_path / "fake.jpg")
     writer.write_episode(synthetic_episode())
     writer.finalize()
     writer.finalize()
-    assert calls == {"saved": 1, "finalized": 1}
+    assert calls == {"saved": 1, "finalized": 2}
     assert len(saved_frames) == 3
     assert all(frame["task"] == config.task for frame in saved_frames)
     with pytest.raises(RuntimeError, match="finalized"):
@@ -369,7 +389,6 @@ def test_real_capture_stores_resized_rgb_and_correct_final_still(
     ]
     writer = LeRobotDatasetWriter(config)
     try:
-        episode.final_still_path = writer.save_final_still(0, episode.frames[-1].front)
         writer.write_episode(episode)
     finally:
         writer.finalize()
@@ -384,3 +403,155 @@ def test_real_capture_stores_resized_rgb_and_correct_final_still(
     )
     assert capture_record["native_resolution"]["wrist"] == {"width": 320, "height": 240}
     assert capture_record["stored_resolution"] == {"width": 48, "height": 32}
+
+
+def _file_hashes(root: Path) -> dict[str, str]:
+    return {
+        path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in root.rglob("*") if path.is_file()
+    }
+
+
+@pytest.mark.parametrize("fault_stage", ["data", "metadata", "sidecars"])
+def test_real_late_save_failure_rolls_back_then_retries_without_duplicates(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fault_stage: str
+) -> None:
+    library = real_dataset_type()
+    from lerobot.datasets.dataset_metadata import LeRobotDatasetMetadata
+    from lerobot.datasets.dataset_writer import DatasetWriter
+
+    config = replace(writer_config(tmp_path / "dataset"), image_width=48, image_height=32)
+    writer = LeRobotDatasetWriter(config)
+    for index in range(2):
+        writer.write_episode(synthetic_episode(index, width=48, height=32))
+    baseline = _file_hashes(config.dataset_path)
+    episode = synthetic_episode(2, width=48, height=32)
+    target, method = {
+        "data": (DatasetWriter, "_save_episode_data"),
+        "metadata": (LeRobotDatasetMetadata, "save_episode"),
+        "sidecars": (LeRobotDatasetWriter, "_write_episode_data"),
+    }[fault_stage]
+    original = getattr(target, method)
+
+    def fail_after_write(self: Any, *args: Any, **kwargs: Any) -> Any:
+        original(self, *args, **kwargs)
+        raise OSError(f"injected failure after {fault_stage}")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(target, method, fail_after_write)
+        with pytest.raises(OSError, match="injected failure"):
+            writer.write_episode(episode)
+    assert writer.next_episode_index == 2
+    assert not writer.recovery_blocked
+    assert len(episode.frames) == 3
+    assert episode.final_still_path is None
+    assert _file_hashes(config.dataset_path) == baseline
+    writer.write_episode(episode)
+    writer.finalize()
+    restored = library(config.repo_id, root=config.dataset_path, video_backend="pyav")
+    assert restored.num_episodes == 3
+    assert restored.num_frames == 9
+    assert sorted({int(row["episode_index"]) for row in restored.hf_dataset}) == [0, 1, 2]
+    for name in ("physical_episode_metadata.jsonl", "physical_quality_records.jsonl",
+                 "physical_capture_provenance.jsonl"):
+        rows = [json.loads(line) for line in (config.dataset_path / name).read_text().splitlines()]
+        assert [row["episode_index"] for row in rows] == [0, 1, 2]
+    assert len(list((config.dataset_path / "final_stills").glob("*.jpg"))) == 3
+
+
+def test_real_two_episodes_close_resume_third_and_reload(tmp_path: Path) -> None:
+    library = real_dataset_type()
+    config = replace(writer_config(tmp_path / "dataset"), image_width=48, image_height=32)
+    writer = LeRobotDatasetWriter(config)
+    for index in range(2):
+        writer.write_episode(synthetic_episode(index, width=48, height=32))
+    writer.finalize()
+    resumed = LeRobotDatasetWriter(config)
+    assert resumed.next_episode_index == 2
+    resumed.write_episode(synthetic_episode(2, width=48, height=32))
+    resumed.finalize()
+    reloaded = library(config.repo_id, root=config.dataset_path, video_backend="pyav")
+    assert (reloaded.num_episodes, reloaded.num_frames) == (3, 9)
+    assert tuple(reloaded[8]["observation.images.front"].shape) == (3, 32, 48)
+
+
+@pytest.mark.parametrize("fault", ["orphan", "missing", "total_episodes", "total_frames"])
+def test_real_resume_rejects_incomplete_or_orphan_metadata(tmp_path: Path, fault: str) -> None:
+    real_dataset_type()
+    config = replace(writer_config(tmp_path / "dataset"), image_width=48, image_height=32)
+    writer = LeRobotDatasetWriter(config)
+    writer.write_episode(synthetic_episode(width=48, height=32))
+    writer.finalize()
+    if fault == "orphan":
+        (config.dataset_path / "data" / "orphan.parquet").write_bytes(b"unrelated")
+    elif fault == "missing":
+        next((config.dataset_path / "data").rglob("*.parquet")).unlink()
+    else:
+        path = config.dataset_path / "meta" / "info.json"
+        info = json.loads(path.read_text())
+        info[fault] += 1
+        path.write_text(json.dumps(info), encoding="utf-8")
+    baseline = _file_hashes(config.dataset_path)
+    with pytest.raises(RuntimeError, match="inconsistent|missing|orphan"):
+        LeRobotDatasetWriter(config)
+    assert _file_hashes(config.dataset_path) == baseline
+
+
+@pytest.mark.parametrize("blocked_at", ["finalize", "rollback"])
+def test_real_failed_recovery_retains_frames_journal_and_lock(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, blocked_at: str
+) -> None:
+    real_dataset_type()
+    config = replace(writer_config(tmp_path / "dataset"), image_width=48, image_height=32)
+    writer = LeRobotDatasetWriter(config)
+    writer.write_episode(synthetic_episode(width=48, height=32))
+    baseline = _file_hashes(config.dataset_path)
+    episode = synthetic_episode(1, width=48, height=32)
+    original_write = writer._write_episode_data
+
+    def fail_after_write(*args: Any) -> None:
+        original_write(*args)
+        raise OSError("injected save fault")
+
+    def fail_recovery() -> None:
+        raise OSError("injected recovery fault")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(writer, "_write_episode_data", fail_after_write)
+        if blocked_at == "finalize":
+            patch.setattr(writer, "_close_dataset", fail_recovery)
+        else:
+            patch.setattr(writer._transaction, "rollback", fail_recovery)
+        with pytest.raises(RuntimeError, match="recovery blocked"):
+            writer.write_episode(episode)
+    assert writer.recovery_blocked
+    assert len(episode.frames) == 3
+    assert writer._transaction.journal.is_file()
+    assert (tmp_path / ".dataset.recording.lock").is_file()
+    with pytest.raises(RuntimeError, match="recovery is blocked"):
+        writer.write_episode(episode)
+    with pytest.raises(RuntimeError, match="retained for recovery"):
+        writer.finalize()
+    # Explicit test-only recovery after verifying that automatic continuation is blocked.
+    writer._close_dataset()
+    writer._transaction.rollback()
+    writer.recovery_blocked = False
+    writer.finalize()
+    assert _file_hashes(config.dataset_path) == baseline
+
+
+def test_real_camera_setting_changes_are_rejected_before_dataset_mutation(tmp_path: Path) -> None:
+    real_dataset_type()
+    config = replace(writer_config(tmp_path / "dataset"), image_width=48, image_height=32)
+    writer = LeRobotDatasetWriter(config)
+    writer.write_episode(synthetic_episode(width=48, height=32))
+    baseline = _file_hashes(config.dataset_path)
+    changed = synthetic_episode(1, width=48, height=32)
+    changed.frames = [
+        replace(frame, wrist=replace(frame.wrist, source_id="changed-camera"))
+        for frame in changed.frames
+    ]
+    with pytest.raises(ValueError, match="start a separate dataset"):
+        writer.write_episode(changed)
+    writer.finalize()
+    assert _file_hashes(config.dataset_path) == baseline
