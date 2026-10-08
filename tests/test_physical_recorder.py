@@ -81,6 +81,8 @@ class FakeFrameSource:
 
 
 class FakeWriter:
+    next_episode_index = 0
+
     def __init__(self, root: Path) -> None:
         self.root = root
         self.episodes: list[RecordedPhysicalEpisode] = []
@@ -111,6 +113,7 @@ def _recorder(
     states: list[PhysicalState],
     clock: FakeClock,
     smoke: bool = False,
+    initial_episode_index: int = 0,
 ) -> tuple[PhysicalEpisodeRecorder, FakeWriter]:
     contract = PhysicalDatasetContract(
         gripper_type="50mm",
@@ -127,6 +130,7 @@ def _recorder(
         smoke=smoke,
     )
     writer = FakeWriter(tmp_path)
+    writer.next_episode_index = initial_episode_index
     source = FakeStateSource(states)
     actions = (
         FakeLeaderActionSource([(0.01,) * 7 for _ in states])
@@ -192,6 +196,22 @@ def test_next_state_actions_are_shifted_one_frame(tmp_path: Path) -> None:
     episode = recorder.mark_success()
     assert episode.frames[0].action == pytest.approx((0.01,) * 6 + (0.01,))
     assert episode.frames[1].action == pytest.approx((0.01,) * 6 + (0.01,))
+
+
+def test_recorder_continues_episode_index_from_writer_metadata(tmp_path: Path) -> None:
+    clock = FakeClock()
+    recorder, _ = _recorder(
+        tmp_path,
+        action_source=ActionSourceKind.NEXT_STATE,
+        states=[_state(0.0, 0.0)],
+        clock=clock,
+        initial_episode_index=7,
+    )
+    recorder.start()
+    recorder.capture_once()
+    clock.now = 20.0
+    recorder.stop()
+    assert recorder.mark_success().episode_index == 7
 
 
 def test_hard_cap_stops_before_collecting_late_frame(tmp_path: Path) -> None:
