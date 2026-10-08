@@ -9,20 +9,25 @@ their committed summaries exist.
 Prospective scope correction, 2026-10-08: the work-order task definition is now
 roll-first: `die_into_cup`, `roll_and_dump`, and `cup_return` from the
 [fixed-scene registry](../../config/synria_tasks.json). Token moves and any
-goal-conditioning design are deferred until the roll works. The token-task
-instructions below are superseded and must not be used for new collection.
+goal-conditioning design are deferred until the roll works. This prospectively
+replaces the work order's collection task, without changing stage thresholds.
+Use one skill per dataset:
+
+| Task ID | Collection protocol | Final pass rule |
+|---|---|---|
+| `die_into_cup` | [Die into cup](DIE_INTO_CUP_PROTOCOL.md) | Die inside the cup. |
+| `roll_and_dump` | [Roll and dump](ROLL_AND_DUMP_PROTOCOL.md) | Die at rest on the tray; cup was not dropped. |
+| `cup_return` | [Cup return](CUP_RETURN_PROTOCOL.md) | Cup upright on its mark. |
+
 Each registry task needs operator timing and a prospective configured window;
 all real windows are currently unset. The recorder requires `--task-id` and
 selects the exact instruction and window from `--task-registry` (default
 `config/synria_tasks.json`) before opening any source. Qualifying collection
 refuses unconfigured timing; command-line duration/text overrides are not accepted.
-Use the selected registry success rule, not the superseded token conditions below.
-
-Each episode begins with one Ludo token upright in square A. The operator uses
-the existing Alicia-D leader/follower teleoperation to pick up the token, move
-it to square B, place it upright within the square boundary, release it, and
-retract the follower arm clear of the board. The recording process observes
-the existing teleoperation; it does not mediate or replace it.
+The operator demonstrates the selected skill using the existing Alicia-D
+leader/follower teleoperation. The recording process observes that path; it
+does not mediate or replace it. Record each skill's start setup, reset and
+observed final state using its protocol.
 
 In the operator-confirmed wiring, the leader drives the follower through a
 hardware sync cable and is not connected to the PC. The PC observes only the
@@ -44,14 +49,11 @@ front-camera still.
 
 ## Operator labels
 
-Mark `success` only when all of these are visually true in the final state:
-
-1. The intended token moved from square A to square B.
-2. The token is upright and entirely within square B.
-3. The gripper released the token.
-4. The follower arm retracted clear of the token and board.
-
-Mark `failure` when any condition is false or uncertain. Use `discard` only
+Mark `success` only when the selected skill's pass rule is visually confirmed
+and its timestamp-linked native front still is attached. For `roll_and_dump`,
+the operator must also observe that the cup was not dropped during the episode;
+the still alone cannot establish that history. Mark `failure` when any required
+condition is false or uncertain. Use `discard` only
 for a setup interruption, accidental key press, missing consent, or a recorder
 fault that makes the episode unusable. Do not discard a genuine task failure.
 
@@ -63,11 +65,15 @@ Object success is the operator's label plus a camera still; no independent senso
 
 ## Scene randomisation
 
-Pre-register square A and square B for every episode. Across a session, vary
-reachable start and target squares, token colour, token orientation within the
-start square, and lighting within safe operating bounds. Keep the board, fixed
-camera, arm mount, and safety perimeter stationary. Record every reset or
-deviation in `session_notes.md`.
+Use a fixed scene with a marked cup position, marked die start zone and fixed
+landing tray. The skill protocols define each start state. Between episodes,
+the die position may vary inside its marked start zone and its face up may vary;
+these variations apply where the die begins outside the cup. For a loaded-cup
+start, record the face used when loading without introducing a new cup or tray
+location. Keep the arm mount, camera poses, cup mark, zone, tray and lighting
+fixed within the declared session conditions. Record each reset and variation
+in `session_notes.md`. Stop and declare a new scene before changing this setup;
+do not introduce token targets or an unobserved goal.
 
 ## Pre-register the dataset settings
 
@@ -112,7 +118,8 @@ zero. Actual source timestamps are retained. The contract's nominal lookahead
 is k/FPS, not measured latency, and clamping shortens the final offsets. Direct
 `leader` actions are not shifted: configured k is stored but effective k and
 nominal delay are zero. Never mix configured k, requested FPS, action source,
-gripper, velocity mode, or image shape in one dataset. The writer rejects
+gripper, velocity mode, image shape, task ID, task definition or episode window
+in one dataset. The writer rejects
 incompatible resumes rather than silently changing the contract.
 
 Images are converted BGR-to-RGB and resized at capture time. Provenance records

@@ -116,8 +116,12 @@ export GIT_SHA=$(git rev-parse HEAD)
 COMMAND_GUARD_ARGS=()
 ```
 
-Choose `TASK_ID` from `die_into_cup`, `roll_and_dump`, or `cup_return`. Describe
-the actual marked cup position, die start zone and dump tray in `SCENE` as relevant
+Choose `TASK_ID` from `die_into_cup`, `roll_and_dump`, or `cup_return`.
+Follow its collection protocol:
+[die into cup](DIE_INTO_CUP_PROTOCOL.md),
+[roll and dump](ROLL_AND_DUMP_PROTOCOL.md), or
+[cup return](CUP_RETURN_PROTOCOL.md).
+Describe the actual marked cup position, die start zone and dump tray in `SCENE` as relevant
 to the selected registry entry. Before qualifying collection, prospectively record
 the observed task timing, chosen minimum/maximum, rationale, operator and date in
 [DECISIONS.md](DECISIONS.md), then configure that entry's window. There are no
