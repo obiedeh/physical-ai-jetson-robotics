@@ -168,7 +168,7 @@ class CameraInferenceLoop:
         self._stats: InferenceLoopStats | None = None
 
         if isinstance(source, MockFrameSource):
-            self._cap = source
+            self._cap: MockFrameSource | cv2.VideoCapture = source
             self._source_type = "mock"
         elif not _CV2_AVAILABLE:
             self._cap = MockFrameSource()
