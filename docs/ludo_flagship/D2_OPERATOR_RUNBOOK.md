@@ -29,7 +29,15 @@ sense. Supply velocities only when reported by the driver.
 
 Use the selected trained policy's physical-contract HTTP endpoint. Requests
 contain the contract, observation keys, task, reset flag, request id and host
-observation timestamp. Responses must echo `request_id` and
+observation timestamp. The shared [wire codec](../../synria_lerobot/policy_codec.py)
+wraps requests as `{"codec":"synria_rgb_uint8_v1","payload":{...}}`. Wrist and
+front images are raw uint8 RGB bytes encoded as base64, with explicit HWC
+`shape`, `dtype`, `color_space` and `encoding`; JSON pixel lists are rejected.
+Each image is at most 512×512×3 bytes, both decoded images at most 1.5 MiB,
+and the entire encoded request at most 3 MiB. Responses are bounded to 1 MiB
+and must be finite JSON objects; no executable deserialization is used.
+Two 224×224 RGB views are covered by synthetic round-trip tests, not a
+hardware/network performance measurement. Responses must echo `request_id` and
 `observation_timestamp_s`, and contain seven absolute action floats plus
 `inference_s`. Server-side monotonic clocks are not compared across hosts.
 Set the required session `command_period_s` and the trained policy's explicit
@@ -45,7 +53,12 @@ including roll phases, must match the session period. Do not use a shorter
 period than the deployed command path supports. Missing/stale/invalid
 responses request hold. Verify the actual controller hold and timeout behavior
 before use; no torque-off fallback exists. Latency records contain server
-inference time and local request-through-command-offer time.
+inference time and local request-through-command-offer time. Separate
+`request_encode_s` and `response_decode_s` fields measure local request byte
+encoding and response JSON decoding using a monotonic performance clock.
+They do not measure server-side image decoding. Request-local records avoid
+cross-request timing reuse; unavailable timings, including unfinished timed-out
+requests and non-HTTP fakes, are null rather than invented zero measurements.
 
 ## Pre-register and commit
 

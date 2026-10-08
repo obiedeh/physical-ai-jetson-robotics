@@ -69,6 +69,7 @@ def test_absolute_and_delta_clamps_and_latency(tmp_path: Path) -> None:
     assert d.action is not None and d.action[0] == 2.51 and d.action[6] == 0.025
     c.write_latencies(tmp_path / "latency.jsonl")
     assert json.loads((tmp_path / "latency.jsonl").read_text().splitlines()[0])["inference_s"] == 0
+    assert d.request_encode_s is None and d.response_decode_s is None
 
 
 @pytest.mark.parametrize(
