@@ -68,6 +68,7 @@ jobs:
             rosmaster_m3pro_control \
             rosmaster_m3pro_bringup \
             synria_arm_description \
+            synria_arm_bringup \
             --cmake-args -DCMAKE_BUILD_TYPE=Release
         working-directory: ros2_ws
         shell: bash
