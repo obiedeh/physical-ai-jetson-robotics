@@ -99,6 +99,8 @@ def test_real_two_cpu_updates_save_each_checkpoint_evaluate_and_reload(
     ]
     assert manifest["visual_goal_cue_declared"] is False
     assert manifest["varying_target_motion_eligible"] is False
+    assert manifest["fixed_scene_motion_eligible"] is True
+    assert manifest["eligible_task_ids"] == ["die_into_cup"]
     assert [entry["step"] for entry in manifest["checkpoints"]] == [1, 2]
     assert all(entry["evaluation_status"] == "evaluated" for entry in manifest["checkpoints"])
     assert strict_content_hash(dataset) == before
@@ -122,6 +124,8 @@ def test_real_two_cpu_updates_save_each_checkpoint_evaluate_and_reload(
         assert physical_manifest["upstream_version"] == version("lerobot")
         assert physical_manifest["task_text_conditioning"] is False
         assert physical_manifest["varying_target_motion_eligible"] is False
+        assert physical_manifest["fixed_scene_motion_eligible"] is True
+        assert physical_manifest["eligible_task_ids"] == ["die_into_cup"]
         assert strict_content_hash(checkpoint) == entry["checkpoint_content_sha256"]
         local = checkpoint / "pretrained_model"
         saved = ACTConfig.from_pretrained(local, local_files_only=True)
@@ -150,6 +154,51 @@ def test_real_two_cpu_updates_save_each_checkpoint_evaluate_and_reload(
         np.testing.assert_allclose(zero_physical[0, 0].numpy(), stats["action"]["mean"], atol=1e-6)
         assert (local / "policy_preprocessor.json").is_file()
         assert (local / "policy_postprocessor.json").is_file()
+
+    # The same finalized upstream checkpoint serves the physical HTTP protocol.
+    import threading
+
+    from test_task_registry import synthetic_registry
+
+    from synria_lerobot.policy_client import HttpPolicyTransport
+    from synria_lerobot.policy_server import (
+        CheckpointIdentity,
+        FixedScenePolicyService,
+        LocalACTModel,
+        make_http_server,
+    )
+
+    registry = synthetic_registry(tmp_path / "serving-registry.json", 0.1, 1)
+    identity = CheckpointIdentity.load(
+        checkpoint, evidence / "checkpoint-step-000000002.json", registry,
+    )
+    model = LocalACTModel(identity, "cpu")
+    service = FixedScenePolicyService(identity, model)
+    server = make_http_server(service, port=0)
+    worker = threading.Thread(target=server.serve_forever, daemon=True)
+    worker.start()
+    try:
+        request = {
+            **identity.contract.as_dict(), "embodiment": "synria_alicia_d",
+            "observation.state": [0.0] * 7,
+            **{key: np.zeros(shape, np.uint8) for key, shape in model.image_shapes.items()},
+            "timestamps": dict(state=1.0, state_ros=10.0, wrist=1.0, front=1.0),
+            "task": identity.contract.task_text, "request_id": "real-synthetic-checkpoint",
+            "reset": True, "observation_timestamp_s": 1.0,
+        }
+        result = HttpPolicyTransport(
+            f"http://127.0.0.1:{server.server_address[1]}",
+        ).request(request, 10)
+        assert result.error is None and result.response is not None
+        assert len(result.response["action"]) == 7
+        assert np.isfinite(result.response["action"]).all()
+        assert result.response["request_id"] == request["request_id"]
+        assert identity.metadata()["eligible_task_ids"] == ["die_into_cup"]
+    finally:
+        server.shutdown()
+        worker.join(timeout=3)
+        server.server_close()
+    assert not worker.is_alive()
 
 
 @pytest.mark.parametrize(

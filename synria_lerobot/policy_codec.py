@@ -178,3 +178,8 @@ def decode_policy_request(data: bytes) -> dict[str, Any]:
 def decode_policy_response(data: bytes) -> dict[str, Any]:
     """Decode a bounded finite JSON response, never executable objects."""
     return _decode_json(data, MAX_RESPONSE_BYTES)
+
+
+def encode_policy_response(payload: dict[str, Any]) -> bytes:
+    """Encode a bounded finite response using the same limits as the client."""
+    return _encode_json(payload, MAX_RESPONSE_BYTES)

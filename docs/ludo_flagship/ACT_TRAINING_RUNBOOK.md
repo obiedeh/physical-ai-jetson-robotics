@@ -4,7 +4,7 @@ Software: **implemented, unmeasured**. D1–D5 remain **planned**. Validation us
 temporary synthetic datasets and tiny CPU updates, not a trained physical
 policy or a physical evaluation.
 
-## Known goal-observability blocker
+## Fixed-scene task eligibility
 
 This ACT policy consumes **state and images only**. It ignores task text. The
 existing move executor expresses the planned target XYZ and token identity in
@@ -15,11 +15,38 @@ therefore cannot condition this model on the new target.
 These checkpoints are **not cleared for varying-target D2, D3, D4 or D5 motion**.
 Run and checkpoint manifests explicitly record the input features,
 `task_text_conditioning: false`, no declared visual goal cue, and
-`varying_target_motion_eligible: false`. Serving and physical integration must
-wait for an operator-approved observable-goal design or a prospectively defined
-restricted task scope. Neither is implemented or assumed here. Do not treat
+`varying_target_motion_eligible: false`. The prospective 2026-10-08 decision
+allows the three [fixed-scene roll skills](../../config/synria_tasks.json).
+Each new checkpoint records `fixed_scene_motion_eligible: true` and
+`eligible_task_ids` containing only its trained task. Use a separate dataset
+and checkpoint for each skill. Token moves and goal-conditioning design remain
+deferred until the roll works. Fixed-scene eligibility does not verify limits,
+the safety bridge or physical motion. Do not treat
 finite predictions, low held-out error or a successful local reload as resolving
 this limitation.
+
+Serve a finalized checkpoint with its trainer-written completion receipt:
+
+```bash
+python scripts/serve_synria_policy.py \
+  --checkpoint "$CHECKPOINT_ROOT" \
+  --checkpoint-record "$CHECKPOINT_RECORD" \
+  --task-registry "$TASK_REGISTRY" --device cpu
+```
+
+The default address is `127.0.0.1:8080`. Set these variables to the chosen
+checkpoint directory, its committed `checkpoint-step-<step>.json` evidence and
+the operator-configured registry. The server verifies the receipt, content
+hash, task snapshot and saved cadence, then loads only local model weights and
+saved normalizers. Its `evaluated` receipt status confirms completed diagnostic
+capture, not a metric threshold or policy selection. Missing/partial or changed
+checkpoints are refused. Loading accepts only the wrapper's default registered
+ACT processor steps with tensor state confined to the hashed checkpoint;
+custom processor imports and pretrained-backbone downloads are refused before
+model construction. Each request must carry the exact trained task text
+and contract. Reset at each trial; chunk slots follow the saved command-period
+stride. `/metadata` exposes the serving identity for inspection. This command
+starts no ROS, camera or command path.
 
 ## Inputs and isolation
 

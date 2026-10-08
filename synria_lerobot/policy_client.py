@@ -144,6 +144,15 @@ class HttpPolicyTransport:
         except Exception as error:
             return TransportResult(None, encode_s, decode_s, str(error) or type(error).__name__)
 
+    def metadata(self, timeout_s: float) -> dict[str, Any]:
+        """Read bounded server identity; callers must compare it with their frozen evidence."""
+        if type(timeout_s) not in (int, float) or not math.isfinite(timeout_s) or timeout_s <= 0:
+            raise ValueError("explicit positive metadata response timeout required")
+        request = Request(self.endpoint.rstrip("/") + "/metadata")
+        with urlopen(request, timeout=timeout_s) as response:
+            raw = response.read(MAX_RESPONSE_BYTES + 1)
+        return decode_policy_response(raw)
+
 
 class FakePolicy:
     def __init__(self, action: tuple[float, ...]) -> None:

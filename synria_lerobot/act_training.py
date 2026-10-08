@@ -451,8 +451,13 @@ def train(
         "normalization": "training episodes only",
         "task_text_conditioning": False,
         "declared_input_conditioning": list(FEATURE_KEYS),
+        "model_feature_shapes": {
+            key: list(feature.shape) for key, feature in {**inputs, **outputs}.items()
+        },
         "visual_goal_cue_declared": False,
         "varying_target_motion_eligible": False,
+        "fixed_scene_motion_eligible": True,
+        "eligible_task_ids": [contract["task_id"]],
         "training_stats": _plain_stats(stats),
         "pretrained_backbone_weights": None,
         "stage_status": "planned",
