@@ -30,6 +30,7 @@ from .physical_contract import (
 from .policy_client import PolicySafetyConfig
 from .quality_gates import load_limits
 from .recorder import OpenCVFrameSource, RosJointStateSource, _close_all
+from .sessions import OperatorAbort
 from .turn_executor import TaskMove
 
 TRAJECTORY_ACTION_TYPE = "control_msgs/action/FollowJointTrajectory"
@@ -396,11 +397,11 @@ class RosSessionIO:
         except (EOFError, KeyboardInterrupt) as error:
             self._aborted = True
             _close_all(self.hold, self._cancel_owned_goal)
-            raise RuntimeError("operator input closed or interrupted") from error
+            raise OperatorAbort("operator input closed or interrupted") from error
         if answer.lower() == "abort":
             self._aborted = True
             _close_all(self.hold, self._cancel_owned_goal)
-            raise RuntimeError("operator aborted session")
+            raise OperatorAbort("operator aborted session")
         return answer
 
     def authorize_motion(self) -> dict[str, Any]:
