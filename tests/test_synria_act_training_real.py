@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+from collections.abc import Callable
 from dataclasses import replace
 from importlib.metadata import PackageNotFoundError, version
 from importlib.util import find_spec
@@ -20,7 +21,13 @@ from synria_lerobot.checkpoint_eval import register_probes, strict_content_hash
 from synria_lerobot.recorder import LeRobotDatasetWriter
 
 
-def training_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[dict, Path]:
+def training_fixture(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    episode_values: tuple[float, ...] = (0.01, 0.03, 0.9),
+    record_dataset: Callable[[Path, tuple[float, ...]], None] | None = None,
+) -> tuple[dict, Path]:
     monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")
     monkeypatch.setenv("HF_HUB_OFFLINE", "1")
     monkeypatch.setenv("WANDB_MODE", "disabled")
@@ -35,23 +42,28 @@ def training_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[d
 
     torch.set_num_threads(1)
     dataset = tmp_path / "dataset"
-    writer = LeRobotDatasetWriter(replace(writer_config(dataset), image_width=32, image_height=32))
-    try:
-        for index, value in enumerate((0.01, 0.03, 0.9)):
-            episode = synthetic_episode(index, width=32, height=32)
-            episode.frames[:] = [
-                replace(
-                    frame,
-                    state=replace(
-                        frame.state, joint_positions_rad=(value,) * 6, gripper_m=value / 100
-                    ),
-                    action=(*((value,) * 6), value / 100),
-                )
-                for frame in episode.frames
-            ]
-            writer.write_episode(episode)
-    finally:
-        writer.finalize()
+    if record_dataset is not None:
+        record_dataset(dataset, episode_values)
+    else:
+        writer = LeRobotDatasetWriter(
+            replace(writer_config(dataset), image_width=32, image_height=32)
+        )
+        try:
+            for index, value in enumerate(episode_values):
+                episode = synthetic_episode(index, width=32, height=32)
+                episode.frames[:] = [
+                    replace(
+                        frame,
+                        state=replace(
+                            frame.state, joint_positions_rad=(value,) * 6, gripper_m=value / 100
+                        ),
+                        action=(*((value,) * 6), value / 100),
+                    )
+                    for frame in episode.frames
+                ]
+                writer.write_episode(episode)
+        finally:
+            writer.finalize()
     config, contract = settings(tmp_path)
     assert json.loads((dataset / "physical_contract.json").read_text()) == contract
     repository = Path(config["repository"])
@@ -67,8 +79,8 @@ def training_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[d
         dataset_content_sha256=strict_content_hash(dataset),
         task_id=contract["task_id"],
         physical_contract=contract,
-        held_out_episodes=[2],
-        held_out_frame_counts={"2": 3},
+        held_out_episodes=[len(episode_values) - 1],
+        held_out_frame_counts={str(len(episode_values) - 1): 3},
         physical_trials=[fixed_probe_trial("a")],
         capture=dict(fps=15, max_duration_s=10, shutdown_timeout_s=1),
     )

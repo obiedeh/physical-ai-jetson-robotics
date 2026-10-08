@@ -25,6 +25,15 @@ the safety bridge or physical motion. Do not treat
 finite predictions, low held-out error or a successful local reload as resolving
 this limitation.
 
+Choose `TASK_ID` as `die_into_cup`, `roll_and_dump` or `cup_return` for the
+workflow's paths and identifiers. Training does not accept a task override:
+`expected_contract` must exactly match that dataset's full task snapshot/hash
+and operator-configured episode window. All checked-in real windows remain
+null; first time the physical skill and record a prospective choice in
+[DECISIONS.md](DECISIONS.md), then collect and review its D1 data. Keep the
+marked cup position, die start zone and fixed tray from its
+[collection protocol](D1_DATASET_PROTOCOL.md).
+
 Serve a finalized checkpoint with its trainer-written completion receipt:
 
 ```bash
@@ -80,7 +89,8 @@ Complete an operator-owned copy of the
 - `policy_id`: a new identifier absent from the policy ledger; `dataset_repo_id`
   identifies the existing local dataset.
 - `expected_contract`: copy the complete dataset `physical_contract.json`
-  object, including action source, velocity flag, gripper, lookahead and rate.
+  object, including task ID/definition/hash/window, recording purpose, action
+  source, velocity flag, gripper, lookahead and rate. Smoke cannot train.
 - `repository`, committed `probe_set` and `probe_sha256`; new
   `evidence_directory` inside the repository; separate existing `policy_ledger`
   and `timeline` destinations. Relative config paths resolve under `repository`.
@@ -150,8 +160,37 @@ error manually before another run, using a new policy id/output destination;
 do not erase negative results or suppress failed diagnostics.
 
 Commit the small evidence, ledger, activity entry and timeline with the run.
+The trainer creates exactly one policy-ledger row for this optimization run;
+checkpoint saves and later D2 sessions must not create duplicate rows for it.
 Keep raw datasets and checkpoints outside git. Use the
 [playback script](../../scripts/playback_synria_training.py) for diagnostic
 curves; neither its metrics nor the latest checkpoint automatically select a
 D2 policy or advance a stage. Physical probe execution and server attestation
 remain separate, explicitly authorized workflows.
+
+For the [standalone three-skill roll](D4_OPERATOR_RUNBOOK.md#standalone-fixed-scene-roll),
+repeat collection, frozen probes and training separately for all three task IDs.
+Serve three finalized task-bound checkpoints on distinct local ports, each with
+its matching completion receipt and task registry:
+
+```bash
+python3 scripts/serve_synria_policy.py \
+  --checkpoint "$DIE_INTO_CUP_CHECKPOINT" --checkpoint-record "$DIE_INTO_CUP_RECEIPT" \
+  --task-registry "$TASK_REGISTRY" --device cpu --host 127.0.0.1 --port 8080
+python3 scripts/serve_synria_policy.py \
+  --checkpoint "$ROLL_AND_DUMP_CHECKPOINT" --checkpoint-record "$ROLL_AND_DUMP_RECEIPT" \
+  --task-registry "$TASK_REGISTRY" --device cpu --host 127.0.0.1 --port 8081
+python3 scripts/serve_synria_policy.py \
+  --checkpoint "$CUP_RETURN_CHECKPOINT" --checkpoint-record "$CUP_RETURN_RECEIPT" \
+  --task-registry "$TASK_REGISTRY" --device cpu --host 127.0.0.1 --port 8082
+```
+
+Run each server in its own terminal after setting the six explicit checkpoint
+and receipt variables; these are separate long-running commands, not a shell
+pipeline. Set the corresponding session `roll_skills` endpoints to the three
+addresses. Their command periods and stored image sizes must match the shared
+adapter; retain each policy's own trained response timeout and command budget.
+Metadata refuses a substituted task, checkpoint or cadence. Serving makes no
+arm offers; use D2's disarmed preflight/manual arming procedure before the roll
+runner. For D2, serve only the prospectively selected `die_into_cup` checkpoint;
+probe metrics and the latest save never make that selection automatically.

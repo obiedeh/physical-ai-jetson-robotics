@@ -18,6 +18,7 @@ from synria_lerobot.evaluation import (
     FixedEvalLogWriter,
     FixedTaskGrade,
     fixed_attempt_record,
+    load_fixed_protocol,
     protocol_digest,
     score_evaluation,
 )
@@ -33,10 +34,18 @@ def fixed_setup(tmp_path: Path, *, trials: int = 20, threshold: int = 14) -> tup
     repository = tmp_path / "protocol-repo"
     repository.mkdir()
     subprocess.run(["git", "init", "-q", str(repository)], check=True)
+    register_fixed_protocol(config, transport.identity.metadata(), repository, trials, threshold)
+    return config, transport, repository
+
+
+def register_fixed_protocol(
+    config: dict, metadata: dict, repository: Path, trials: int = 20, threshold: int = 14,
+    *, selection_rule: str = "Preselected checkpoint; diagnostic probes never select D2 policy",
+) -> None:
+    """Commit a synthetic campaign using the explicitly supplied checkpoint identity."""
     path = repository / "protocol.md"
-    text = Path("docs/ludo_flagship/D2_EVAL_PROTOCOL.md").read_text()
+    text = Path("docs/ludo_flagship/D2_EVAL_PROTOCOL.md").read_text(encoding="utf-8")
     protocol = json.loads(re.search(r"```json\s*(.*?)\s*```", text, re.S).group(1))
-    metadata = transport.identity.metadata()
     scenes = []
     for index in range(trials):
         scene = fixed_probe_trial(f"trial-{index + 1}")
@@ -50,7 +59,7 @@ def fixed_setup(tmp_path: Path, *, trials: int = 20, threshold: int = 14) -> tup
         max_steps=1,
         registered_by="synthetic operator",
         registered_on="2026-10-08",
-        selection_rule="Preselected checkpoint; diagnostic probes never select D2 policy",
+        selection_rule=selection_rule,
         randomisation_seed=7,
         scene_schedule=scenes,
         **{
@@ -73,10 +82,9 @@ def fixed_setup(tmp_path: Path, *, trials: int = 20, threshold: int = 14) -> tup
         flags=re.S,
     )
     digest = protocol_digest(text)
-    path.write_text(HASH_FIELD.sub(f'"protocol_sha256": "{digest}"', text))
+    path.write_text(HASH_FIELD.sub(f'"protocol_sha256": "{digest}"', text), encoding="utf-8")
     commit(repository, path)
     config.update(protocol=str(path), protocol_sha256=digest)
-    return config, transport, repository
 
 
 class EvalIO(RollIO):
@@ -126,11 +134,11 @@ def test_twenty_operator_labels_pass_without_extra_funnel_gate(tmp_path: Path) -
 def test_protocol_or_checkpoint_mismatch_refuses_before_io(tmp_path: Path, change: str) -> None:
     config, transport, repository = fixed_setup(tmp_path)
     path = Path(config["protocol"])
-    text = path.read_text()
+    text = path.read_text(encoding="utf-8")
     if change == "hash":
         config["protocol_sha256"] = "0" * 64
     elif change == "uncommitted":
-        path.write_text(text + "changed\n")
+        path.write_text(text + "changed\n", encoding="utf-8")
     else:
         payload = json.loads(re.search(r"```json\s*(.*?)\s*```", text, re.S).group(1))
         if change == "task":
@@ -145,7 +153,10 @@ def test_protocol_or_checkpoint_mismatch_refuses_before_io(tmp_path: Path, chang
             r"```json\s*.*?\s*```", "```json\n" + json.dumps(payload) + "\n```", text, flags=re.S
         )
         config["protocol_sha256"] = protocol_digest(text)
-        path.write_text(HASH_FIELD.sub(f'"protocol_sha256": "{config["protocol_sha256"]}"', text))
+        path.write_text(
+            HASH_FIELD.sub(f'"protocol_sha256": "{config["protocol_sha256"]}"', text),
+            encoding="utf-8",
+        )
         commit(repository, path)
     calls = []
     with pytest.raises(ValueError):
@@ -274,10 +285,13 @@ def test_fault_preserves_raw_object_label_and_does_not_call_it_operator_failure(
 def test_failed_attempt_is_saved_when_operator_stops_at_reset(tmp_path: Path, reset: str) -> None:
     config, transport, repository = fixed_setup(tmp_path, trials=2, threshold=1)
     path = Path(config["protocol"])
-    text = path.read_text().replace('"max_attempts": 1', '"max_attempts": 2')
+    text = path.read_text(encoding="utf-8").replace('"max_attempts": 1', '"max_attempts": 2')
     config["max_attempts"] = 2
     config["protocol_sha256"] = protocol_digest(text)
-    path.write_text(HASH_FIELD.sub(f'"protocol_sha256": "{config["protocol_sha256"]}"', text))
+    path.write_text(
+        HASH_FIELD.sub(f'"protocol_sha256": "{config["protocol_sha256"]}"', text),
+        encoding="utf-8",
+    )
     commit(repository, path)
     io = EvalIO(tmp_path, successes=0)
 
@@ -299,7 +313,7 @@ def test_failed_attempt_is_saved_when_operator_stops_at_reset(tmp_path: Path, re
     assert stats["session_status"] == "aborted" and stats["trial_count"] == 1
     records = [
         json.loads(line)
-        for line in (tmp_path / "evaluation/EvalLog.jsonl").read_text().splitlines()
+        for line in (tmp_path / "evaluation/EvalLog.jsonl").read_text(encoding="utf-8").splitlines()
     ]
     assert records[1]["attempts"][0]["operator_grade"]["label"] == "failure"
     assert records[1]["attempts"][0]["execution_status"] == "completed"
@@ -329,7 +343,8 @@ def test_cleanup_interrupt_keeps_trial_and_attempts_remaining_evidence(tmp_path:
     assert closed and stats["trial_count"] == 2 and stats["session_status"] == "aborted"
     assert not stats["threshold_met"]
     assert (output / "latencies.jsonl").is_file() and (output / "provenance.json").is_file()
-    assert json.loads((output / "EvalLog.jsonl").read_text().splitlines()[-1])["errors"]
+    terminal = (output / "EvalLog.jsonl").read_text(encoding="utf-8").splitlines()[-1]
+    assert json.loads(terminal)["errors"]
 
 
 @pytest.mark.parametrize("change", ["terminal_errors", "false_completed", "continued_after_fault"])
@@ -354,7 +369,7 @@ def test_fixed_scorer_refuses_inconsistent_terminal_or_stopped_history(
     )
     writer.trial([attempt], writer.config["scene_schedule"][0])
     writer.finish("failed", ["fault"])
-    rows = [json.loads(line) for line in writer.path.read_text().splitlines()]
+    rows = [json.loads(line) for line in writer.path.read_text(encoding="utf-8").splitlines()]
     if change == "terminal_errors":
         rows[-1]["errors"] = "not a list"
     elif change == "false_completed":
@@ -363,6 +378,24 @@ def test_fixed_scorer_refuses_inconsistent_terminal_or_stopped_history(
         second = copy.deepcopy(rows[1])
         second.update(turn=2, trial=writer.config["scene_schedule"][1])
         rows.insert(2, second)
-    writer.path.write_text("\n".join(json.dumps(row) for row in rows))
+    writer.path.write_text("\n".join(json.dumps(row) for row in rows), encoding="utf-8")
     with pytest.raises(ValueError, match="terminal|stopped execution"):
         score_evaluation(writer.path, Path(config["protocol"]), repository, tmp_path / "stats.json")
+
+
+def test_protocol_fixture_uses_utf8_under_a_windows_legacy_text_default(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_open = Path.open
+
+    def legacy_open(self, mode="r", buffering=-1, encoding=None, errors=None, newline=None):
+        if "b" not in mode and encoding is None:
+            encoding = "cp1252"
+        return original_open(self, mode, buffering, encoding, errors, newline)
+
+    template = Path("docs/ludo_flagship/D2_EVAL_PROTOCOL.md").read_bytes()
+    assert template.decode("cp1252") != template.decode("utf-8")
+    monkeypatch.setattr(Path, "open", legacy_open)
+    config, _, repository = fixed_setup(tmp_path)
+    protocol = load_fixed_protocol(Path(config["protocol"]), repository, config["protocol_sha256"])
+    assert protocol["trials"] == 20 and protocol["success_threshold"] == 14

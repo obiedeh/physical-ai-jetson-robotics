@@ -114,6 +114,11 @@ calibration or token target is needed. Follow the
 [training/serving guide](ACT_TRAINING_RUNBOOK.md) to start the matching server.
 The chosen checkpoint is for diagnostic inspection only, never automatic D2
 selection. `MEDIA_ROOT` must be outside git, the dataset and the checkpoint.
+Use the selected task's [collection/reset protocol](D1_DATASET_PROTOCOL.md).
+Diagnostic trials reset that one skill independently; they are not the chained
+roll and do not reuse another skill's checkpoint. Keep the three frozen task
+campaigns and their held-out splits separate. A front still retains native
+resolution while both probe clips use the shared stored image size.
 
 ```bash
 python3 -m synria_lerobot.checkpoint_eval probe \
