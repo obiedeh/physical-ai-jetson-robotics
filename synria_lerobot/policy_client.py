@@ -15,15 +15,24 @@ from pathlib import Path
 from typing import Any, Protocol
 from urllib.request import Request, urlopen
 
-import numpy as np
-
 from .embodiment import SynriaEmbodiment, SynriaObservation
 from .physical_contract import DRIVER_JOINT_NAMES
+from .policy_codec import MAX_RESPONSE_BYTES, decode_policy_response, encode_policy_request
 from .quality_gates import PhysicalLimits
 
 
+@dataclass(frozen=True)
+class TransportResult:
+    response: dict[str, Any] | None
+    request_encode_s: float | None
+    response_decode_s: float | None
+    error: str | None = None
+
+
 class PolicyTransport(Protocol):
-    def request(self, payload: dict[str, Any], timeout_s: float) -> dict[str, Any] | None: ...
+    def request(
+        self, payload: dict[str, Any], timeout_s: float
+    ) -> TransportResult | dict[str, Any] | None: ...
 
 
 class CommandSink(Protocol):
@@ -102,28 +111,38 @@ class PolicyDecision:
     inference_s: float | None
     end_to_end_s: float
     request_id: str
+    request_encode_s: float | None = None
+    response_decode_s: float | None = None
 
 
 class HttpPolicyTransport:
     """JSON protocol with a bounded socket wait; no executable deserialization."""
 
-    def __init__(self, endpoint: str) -> None:
+    def __init__(self, endpoint: str, *, clock: Callable[[], float] = time.perf_counter) -> None:
         self.endpoint = endpoint
+        self.clock = clock
 
-    def request(self, payload: dict[str, Any], timeout_s: float) -> dict[str, Any] | None:
-        def encode(value: Any) -> Any:
-            if isinstance(value, np.ndarray):
-                return value.tolist()
-            raise TypeError(f"unsupported observation field: {type(value)}")
-
-        body = json.dumps(payload, default=encode, allow_nan=False).encode()
-        request = Request(self.endpoint, data=body, headers={"Content-Type": "application/json"})
-        with urlopen(request, timeout=timeout_s) as response:
-            raw = response.read(1024 * 1024 + 1)
-        if len(raw) > 1024 * 1024:
-            raise ValueError("oversized policy response")
-        result: dict[str, Any] = json.loads(raw)
-        return result
+    def request(self, payload: dict[str, Any], timeout_s: float) -> TransportResult:
+        encode_s = decode_s = None
+        try:
+            started = self.clock()
+            try:
+                body = encode_policy_request(payload)
+            finally:
+                encode_s = self.clock() - started
+            request = Request(
+                self.endpoint, data=body, headers={"Content-Type": "application/json"}
+            )
+            with urlopen(request, timeout=timeout_s) as response:
+                raw = response.read(MAX_RESPONSE_BYTES + 1)
+            started = self.clock()
+            try:
+                result = decode_policy_response(raw)
+            finally:
+                decode_s = self.clock() - started
+            return TransportResult(result, encode_s, decode_s)
+        except Exception as error:
+            return TransportResult(None, encode_s, decode_s, str(error) or type(error).__name__)
 
 
 class FakePolicy:
@@ -157,7 +176,7 @@ class PolicyClient:
         )
         self.clock = clock
         self.latencies: list[PolicyDecision] = []
-        self._pending: Future[dict[str, Any] | None] | None = None
+        self._pending: Future[TransportResult | dict[str, Any] | None] | None = None
         if limits.joint_names != DRIVER_JOINT_NAMES:
             raise ValueError("limit joint ordering differs from physical contract")
         self.bounds = (
@@ -171,10 +190,10 @@ class PolicyClient:
         if self.bounds[-1] != (0, embodiment.contract.gripper_stroke_m):
             raise ValueError("gripper limits differ from contract")
 
-    def _request(self, payload: dict[str, Any]) -> dict[str, Any] | None:
+    def _request(self, payload: dict[str, Any]) -> TransportResult | dict[str, Any] | None:
         if self._pending is not None and not self._pending.done():
             raise TimeoutError("previous policy request still pending")
-        future: Future[dict[str, Any] | None] = Future()
+        future: Future[TransportResult | dict[str, Any] | None] = Future()
         self._pending = future
 
         def invoke() -> None:
@@ -191,6 +210,8 @@ class PolicyClient:
         start = self.clock()
         request_id = uuid.uuid4().hex
         inference: float | None = None
+        encode_s: float | None = None
+        decode_s: float | None = None
         action: tuple[float, ...] | None = None
         reason = "accepted"
         try:
@@ -211,6 +232,15 @@ class PolicyClient:
                 observation_timestamp_s=observation.state.monotonic_timestamp_s,
             )
             response = self._request(payload)
+            if isinstance(response, TransportResult):
+                timings = (response.request_encode_s, response.response_decode_s)
+                if any(value is not None and (type(value) not in (int, float)
+                       or not math.isfinite(value) or value < 0) for value in timings):
+                    raise ValueError("invalid local transport timing")
+                encode_s, decode_s = timings
+                if response.error is not None:
+                    raise ValueError(response.error)
+                response = response.response
             elapsed = self.clock() - start
             if not 0 <= elapsed <= self.config.response_timeout_s:
                 raise ValueError("stale policy response")
@@ -240,7 +270,8 @@ class PolicyClient:
             if inference is not None and (not math.isfinite(inference) or inference < 0):
                 inference = None
         decision = PolicyDecision(
-            action, action is None, reason, inference, max(0.0, self.clock() - start), request_id
+            action, action is None, reason, inference, max(0.0, self.clock() - start), request_id,
+            encode_s, decode_s,
         )
         self.latencies.append(decision)
         return decision
