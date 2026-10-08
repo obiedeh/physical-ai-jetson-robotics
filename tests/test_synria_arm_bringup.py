@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import sys
 from pathlib import Path
 from xml.etree import ElementTree
@@ -36,9 +37,20 @@ def test_launch_is_isolated_and_read_only() -> None:
     assert '"joint_commands_dry_run": False' in source
     assert '"torque_off_on_start": False' in source
     assert '"allow_leader_writes": False' in source
-    assert '("/joint_states", "/leader/joint_states")' in source
-    assert '("/joint_commands", "/leader/disabled_joint_commands")' in source
+    nodes = [
+        node for node in ast.walk(ast.parse(source))
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "Node"
+    ]
+    assert len(nodes) == 1
+    remappings = next(keyword.value for keyword in nodes[0].keywords if keyword.arg == "remappings")
+    assert ast.literal_eval(remappings) == [
+        ("/joint_states", "/leader/joint_states"),
+        ("/joint_commands", "/leader/disabled_joint_commands"),
+        ("/zero_calibrate", "/leader/disabled_zero_calibrate"),
+        ("/demonstration", "/leader/disabled_demonstration"),
+    ]
     assert "follower" not in source.lower()
+    assert "teleop" not in source.lower()
 
 
 def test_launch_reports_missing_external_driver_clearly() -> None:
