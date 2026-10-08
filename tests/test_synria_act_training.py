@@ -70,6 +70,25 @@ def test_training_cadence_preserves_recorded_lookahead(tmp_path: Path) -> None:
     assert "0,q,2q" in cadence["semantics"]
 
 
+@pytest.mark.parametrize("configured", [False, True])
+def test_training_refuses_disposable_contract_even_when_expected_matches(
+    tmp_path: Path, configured: bool,
+) -> None:
+    from test_task_registry import REGISTRY
+
+    from synria_lerobot.task_registry import load_task_registry
+
+    config, _ = settings(tmp_path)
+    task = synthetic_task(20, 30) if configured else load_task_registry(REGISTRY)["die_into_cup"]
+    contract = PhysicalDatasetContract(
+        "50mm", ActionSource.NEXT_STATE, False, task_id=task.task_id,
+        task_definition=task, recording_purpose="disposable_smoke",
+    ).as_dict(fps=15)
+    config["expected_contract"] = contract
+    with pytest.raises(ValueError, match="disposable smoke"):
+        validate_config(config, contract)
+
+
 @pytest.mark.parametrize(
     "key,value",
     [

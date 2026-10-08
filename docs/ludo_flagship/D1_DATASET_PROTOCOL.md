@@ -12,8 +12,11 @@ roll-first: `die_into_cup`, `roll_and_dump`, and `cup_return` from the
 goal-conditioning design are deferred until the roll works. The token-task
 instructions below are superseded and must not be used for new collection.
 Each registry task needs operator timing and a prospective configured window;
-all real windows are currently unset. Recorder task selection is pending its
-dedicated CLI binding and currently fails closed without an explicit snapshot.
+all real windows are currently unset. The recorder requires `--task-id` and
+selects the exact instruction and window from `--task-registry` (default
+`config/synria_tasks.json`) before opening any source. Qualifying collection
+refuses unconfigured timing; command-line duration/text overrides are not accepted.
+Use the selected registry success rule, not the superseded token conditions below.
 
 Each episode begins with one Ludo token upright in square A. The operator uses
 the existing Alicia-D leader/follower teleoperation to pick up the token, move
@@ -138,7 +141,12 @@ genuine task failures remain labeled. Pending frames are memory-only, so do
 not terminate a process expecting unsaved data to survive.
 
 Smoke mode creates one disposable 20-second episode and deletes its temporary
-dataset/still on exit. It is excluded from progress and provides neither a
+dataset/still on exit. Its original task snapshot/hash remains unchanged, even
+when the registry window is null. Separate `recording_purpose=disposable_smoke`
+and explicit 20/20-second override metadata identify it as nonqualifying, not an
+operator-timed task window. Smoke and qualifying data cannot mix or resume into
+each other; disposable contracts are also refused by training and motion paths.
+It is excluded from progress and provides neither a
 live preview nor an automatic quality-gate report. Next record one retained
 episode, quit, generate its summary, and manually inspect both views and the
 final still before scaling collection. Follow the exact commands in the

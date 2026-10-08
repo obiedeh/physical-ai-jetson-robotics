@@ -57,7 +57,13 @@ from synria_lerobot.schema import (
     VALID_TASK_VARIANTS,
     Episode,
 )
-from synria_lerobot.task_registry import TaskDefinition
+from synria_lerobot.task_registry import (
+    TASK_IDS,
+    TASK_METADATA_KEYS,
+    TaskDefinition,
+    recording_purpose,
+    select_recording_task,
+)
 
 
 class StateSource(Protocol):
@@ -158,8 +164,8 @@ class PhysicalRecorderConfig:
             self.image_width, self.image_height
         )):
             raise ValueError("image width and height must be positive integers")
-        if self.smoke and (self.min_episode_s, self.max_episode_s) != (20.0, 20.0):
-            raise ValueError("smoke requires its explicit disposable 20-second window")
+        if recording_purpose(self.smoke) != self.contract.recording_purpose:
+            raise ValueError("smoke flag differs from the dataset recording purpose")
         if not self.repo_id.strip():
             raise ValueError("repo_id is required")
 
@@ -204,13 +210,20 @@ class RecordedPhysicalEpisode:
     final_front_still: ImageFrame | None = None
     task_definition: TaskDefinition = field(kw_only=True)
 
+    def __post_init__(self) -> None:
+        self.task_definition.recording_window(self.recording_purpose)
+
+    @property
+    def recording_purpose(self) -> str:
+        return recording_purpose(self.smoke)
+
     @property
     def min_episode_s(self) -> float:
-        return self.task_definition.require_configured()["min_episode_s"]
+        return self.task_definition.recording_window(self.recording_purpose)["min_episode_s"]
 
     @property
     def max_episode_s(self) -> float:
-        return self.task_definition.require_configured()["max_episode_s"]
+        return self.task_definition.recording_window(self.recording_purpose)["max_episode_s"]
 
     @property
     def duration_s(self) -> float:
@@ -638,6 +651,21 @@ class LeRobotDatasetWriter:
                     )
                 if json.loads(contract_path.read_text(encoding="utf-8")) != contract_payload:
                     raise ValueError("physical dataset contract differs from existing dataset")
+                for name in (
+                    "physical_episode_metadata.jsonl", "physical_quality_records.jsonl",
+                    "physical_capture_provenance.jsonl",
+                ):
+                    sidecar = self._root / name
+                    if sidecar.exists():
+                        with sidecar.open(encoding="utf-8") as stream:
+                            for line in stream:
+                                recorded = json.loads(line)
+                                TaskDefinition.from_metadata(recorded)
+                                if any(recorded.get(key) != contract_payload[key]
+                                       for key in TASK_METADATA_KEYS):
+                                    raise ValueError(
+                                        "recorded task or purpose differs from dataset"
+                                    )
                 self._dataset = LeRobotDataset.resume(repo_id=config.repo_id, root=self._root)
                 self._dataset_open = True
                 if self._dataset.meta.fps != config.fps:
@@ -752,6 +780,7 @@ class LeRobotDatasetWriter:
             or episode.max_episode_s != self._contract.max_episode_s
             or episode.task_definition != self._contract.task_definition
             or episode.task_definition.sha256 != self._contract.task_definition.sha256
+            or episode.recording_purpose != self._contract.recording_purpose
         ):
             raise ValueError("episode metadata differs from dataset contract")
         episode.frames = [
@@ -830,7 +859,7 @@ class LeRobotDatasetWriter:
                         "gripper_type": episode.gripper_type,
                         "final_still": str(episode.final_still_path),
                         "final_still_capture": capture_provenance["final_still_capture"],
-                        **episode.task_definition.metadata(),
+                        **episode.task_definition.metadata(episode.recording_purpose),
                         "smoke": episode.smoke,
                         "achieved_sample_rate_hz": episode.achieved_sample_rate_hz,
                         "state_rate_measurement": (
@@ -917,7 +946,8 @@ class LeRobotDatasetWriter:
             native[name] = {"width": width, "height": height}
         capture: dict[str, object] = {
             "episode_index": episode.episode_index,
-            **episode.task_definition.metadata(),
+            **episode.task_definition.metadata(episode.recording_purpose),
+            "smoke": episode.smoke,
             "camera_ids": cameras,
             "native_resolution": native,
             "stored_resolution": {"width": self._image_width, "height": self._image_height},
@@ -1468,6 +1498,11 @@ def run_operator_loop(recorder: PhysicalEpisodeRecorder) -> PhysicalSessionResul
 
 def _parse_physical_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Record physical Synria demonstrations")
+    parser.add_argument("--task-id", choices=TASK_IDS, required=True)
+    parser.add_argument(
+        "--task-registry", type=Path,
+        default=Path(__file__).resolve().parents[1] / "config" / "synria_tasks.json",
+    )
     parser.add_argument("--dataset-path", type=Path)
     parser.add_argument("--repo-id", required=True)
     parser.add_argument("--gripper-type", choices=("50mm", "100mm"), required=True)
@@ -1491,12 +1526,10 @@ def _parse_physical_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def physical_main(task_definition: TaskDefinition | None = None) -> int:  # pragma: no cover
+def physical_main() -> int:  # pragma: no cover
     args = _parse_physical_args()
-    if task_definition is None:
-        raise ValueError(
-            "explicit configured task snapshot required; registry CLI binding is pending"
-        )
+    purpose = recording_purpose(args.smoke)
+    task_definition = select_recording_task(args.task_registry, args.task_id, purpose=purpose)
     contract = PhysicalDatasetContract(
         gripper_type=args.gripper_type,
         action_source=ActionSourceKind(args.action_source),
@@ -1504,6 +1537,7 @@ def physical_main(task_definition: TaskDefinition | None = None) -> int:  # prag
         action_lookahead_steps=args.action_lookahead_steps,
         task_id=task_definition.task_id,
         task_definition=task_definition,
+        recording_purpose=purpose,
     )
     with ExitStack() as session_cleanup:
         dataset_path: Path | None = args.dataset_path

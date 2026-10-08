@@ -13,6 +13,8 @@
   "task_text": null,
   "task_definition": null,
   "task_definition_sha256": null,
+  "recording_purpose": "qualifying",
+  "episode_window_override": null,
   "limits": "config/synria_limits.yaml",
   "policy_config": "config/synria_policy.json",
   "calibration": "config/synria_board_calibration.json",

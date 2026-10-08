@@ -341,6 +341,28 @@ def ready(setup: Any) -> RosSessionIO:
     return io.command_sink()
 
 
+@pytest.mark.parametrize("configured", [False, True])
+def test_direct_adapter_refuses_smoke_before_ros_or_sources(
+    setup: Any, monkeypatch: pytest.MonkeyPatch, configured: bool,
+) -> None:
+    from test_task_registry import REGISTRY
+
+    from synria_lerobot import ros_adapter
+    from synria_lerobot.task_registry import load_task_registry
+
+    task = synthetic_task(20, 30) if configured else load_task_registry(REGISTRY)["die_into_cup"]
+    setup.config.update(task.metadata("disposable_smoke"))
+    Path(setup.config["adapter_config"]).write_text(json.dumps(setup.settings))
+
+    def forbidden(*args: Any, **kwargs: Any) -> None:
+        pytest.fail("disposable contract must be rejected before ROS or source construction")
+
+    monkeypatch.setattr(ros_adapter, "_load_ros", forbidden)
+    with pytest.raises(ValueError, match="disposable smoke"):
+        RosSessionIO(setup.config, state_factory=forbidden, frame_factory=forbidden)
+    assert setup.sources.opened == []
+
+
 def test_read_only_preflight_has_no_command_resources_and_drops_unused_velocity(setup: Any) -> None:
     setup.config["enable_motion"] = False
     io = setup.create()

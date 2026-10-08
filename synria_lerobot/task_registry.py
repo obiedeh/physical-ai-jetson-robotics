@@ -12,9 +12,18 @@ from typing import Any
 REGISTRY_VERSION = "synria_fixed_scene_tasks_v1"
 TASK_IDS = ("die_into_cup", "roll_and_dump", "cup_return")
 EPISODE_WINDOW_KEYS = ("min_episode_s", "max_episode_s")
+QUALIFYING = "qualifying"
+DISPOSABLE_SMOKE = "disposable_smoke"
 TASK_METADATA_KEYS = (
     "task_id", "task_text", "task_definition", "task_definition_sha256", *EPISODE_WINDOW_KEYS,
+    "recording_purpose", "episode_window_override",
 )
+
+
+def recording_purpose(smoke: bool) -> str:
+    if type(smoke) is not bool:
+        raise ValueError("smoke must be an explicit boolean")
+    return DISPOSABLE_SMOKE if smoke else QUALIFYING
 
 
 def episode_window_metadata(min_episode_s: Any, max_episode_s: Any) -> dict[str, float]:
@@ -71,11 +80,23 @@ class TaskDefinition:
         )
         return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
-    def metadata(self) -> dict[str, Any]:
+    def recording_window(self, purpose: str) -> dict[str, float]:
+        if purpose == QUALIFYING:
+            return self.require_configured()
+        if purpose == DISPOSABLE_SMOKE:
+            return episode_window_metadata(20.0, 20.0)
+        raise ValueError("recording purpose must be qualifying or disposable_smoke")
+
+    def metadata(self, purpose: str = QUALIFYING) -> dict[str, Any]:
+        window = self.recording_window(purpose)
         return {
             "task_id": self.task_id, "task_text": self.task_text,
             "task_definition": self.as_dict(), "task_definition_sha256": self.sha256,
-            **self.require_configured(),
+            **window, "recording_purpose": purpose,
+            "episode_window_override": (
+                {**window, "reason": "disposable smoke; never qualifying"}
+                if purpose == DISPOSABLE_SMOKE else None
+            ),
         }
 
     @classmethod
@@ -83,9 +104,18 @@ class TaskDefinition:
         if type(payload) is not dict:
             raise ValueError("task identity metadata is required")
         task = cls.from_dict(payload.get("task_definition"))
-        if any(payload.get(key) != value for key, value in task.metadata().items()):
+        purpose = payload.get("recording_purpose")
+        if type(purpose) is not str:
+            raise ValueError("explicit recording purpose is required")
+        if any(key not in payload or payload[key] != value
+               for key, value in task.metadata(purpose).items()):
             raise ValueError("task id, text, window or definition hash differs from its snapshot")
         episode_window_metadata(payload.get("min_episode_s"), payload.get("max_episode_s"))
+        override = payload["episode_window_override"]
+        if override is not None:
+            episode_window_metadata(override.get("min_episode_s"), override.get("max_episode_s"))
+        if "smoke" in payload and recording_purpose(payload["smoke"]) != purpose:
+            raise ValueError("smoke flag differs from the recorded purpose")
         return task
 
     @classmethod
@@ -132,10 +162,12 @@ def load_task_registry(path: Path) -> dict[str, TaskDefinition]:
     return {task.task_id: task for task in tasks}
 
 
-def select_recording_task(path: Path, task_id: str) -> TaskDefinition:
+def select_recording_task(
+    path: Path, task_id: str, *, purpose: str = QUALIFYING,
+) -> TaskDefinition:
     tasks = load_task_registry(path)
     if type(task_id) is not str or task_id not in tasks:
         raise ValueError("unknown fixed-scene task id")
     selected = tasks[task_id]
-    selected.require_configured()
+    selected.recording_window(purpose)
     return selected

@@ -1279,7 +1279,7 @@ def d1_session_summary(
             "camera_ids": {"wrist": wrist_camera_id, "front": front_camera_id},
             "resolution": {"width": width, "height": height},
             "rate_hz": rate_hz,
-            **contract.task_definition.metadata(),
+            **contract.task_definition.metadata(contract.recording_purpose),
             "contract_version": CONTRACT_VERSION,
             "gripper_type": gripper_type,
             "action_source": action_source,
