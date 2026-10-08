@@ -41,6 +41,14 @@ and record its exact command in
 for that external procedure is assumed by this repository. No additional
 leader driver is needed for the default recording path.
 
+`--fps` is required. The vendor suggests 15 or 30; these are suggestions, not
+measured publication rates. On every process start, the recorder counts actual
+follower callbacks over two seconds and checks source freshness before opening
+a dataset or camera. It refuses a requested rate above the measured rate. Use
+an explicit supported integer rate at or below that result; a stale, missing,
+or failed source must be corrected before retrying. Incoming and achieved
+sample rates are recorded separately from the requested dataset rate.
+
 ### Optional: leader actions with an additional USB connection
 
 Only if the operator also connects the leader to the PC by USB and chooses

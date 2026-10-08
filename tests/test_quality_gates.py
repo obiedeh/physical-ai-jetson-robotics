@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import replace
+from dataclasses import asdict, replace
 from pathlib import Path
 
 import numpy as np
@@ -12,6 +12,7 @@ from synria_lerobot.physical_contract import (
     ImageFrame,
     PhysicalDatasetContract,
     PhysicalState,
+    StateRateMeasurement,
     action_timing_metadata,
 )
 from synria_lerobot.physical_contract import (
@@ -78,6 +79,7 @@ def _baseline_episode() -> EpisodeQualityRecord:
         smoke=False,
         frames=frames,
         **action_timing_metadata(ActionSourceKind.LEADER, 1, 1.0),
+        state_rate_measurement=asdict(StateRateMeasurement(50, 100, 2, 0, 2, 0.02)),
     )
 
 
@@ -494,6 +496,7 @@ def test_summary_refuses_relabelled_contract_or_episode_evidence(
                               "front": {"width": 4, "height": 4}},
         "stored_resolution": provenance["resolution"], "stored_color_space": "RGB",
         "achieved_sample_rate_hz": None,
+        "state_rate_measurement": episode.state_rate_measurement,
         "action_source": "leader", "contract_version": CONTRACT_VERSION, "gripper_type": "50mm",
         **action_timing_metadata(ActionSourceKind.LEADER, 1, 1),
     }
@@ -511,5 +514,26 @@ def test_summary_refuses_relabelled_contract_or_episode_evidence(
         write_session_artifacts(
             session_dir=session, dataset_path=dataset, provenance=provenance,
             episodes=[episode], limits=load_limits(LIMITS_PATH),
+        )
+    assert not session.exists()
+
+
+@pytest.mark.parametrize("measurement", [None, {"rate_hz": 50}, {
+    "rate_hz": 0.5, "message_count": 1, "duration_s": 2,
+    "started_monotonic_s": 0, "ended_monotonic_s": 2, "max_callback_gap_s": 2,
+}])
+def test_physical_summary_requires_complete_sufficient_incoming_rate_evidence(
+    tmp_path: Path, measurement: dict[str, object] | None
+) -> None:
+    dataset = tmp_path / "dataset"
+    dataset.mkdir()
+    contract = PhysicalDatasetContract("50mm", ActionSourceKind.LEADER, False).as_dict(fps=1)
+    (dataset / "physical_contract.json").write_text(json.dumps(contract), encoding="utf-8")
+    session = tmp_path / "reports" / "session"
+    with pytest.raises((ValueError, TypeError)):
+        write_session_artifacts(
+            session_dir=session, dataset_path=dataset, provenance=_provenance("leader"),
+            episodes=[replace(_baseline_episode(), state_rate_measurement=measurement)],
+            limits=load_limits(LIMITS_PATH),
         )
     assert not session.exists()

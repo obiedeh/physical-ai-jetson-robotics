@@ -16,6 +16,7 @@ from synria_lerobot.physical_contract import (
     ImageFrame,
     PhysicalDatasetContract,
     PhysicalState,
+    StateRateMeasurement,
 )
 from synria_lerobot.recorder import (
     ActionSample,
@@ -596,7 +597,11 @@ def test_main_cleans_partial_startup_and_session_failure(
     def source(name: str, **kwargs: Any) -> SimpleNamespace:
         if name == failure_at:
             raise OSError(f"fake {name} failure")
-        return SimpleNamespace(close=lambda: closed.append(name))
+        return SimpleNamespace(
+            close=lambda: closed.append(name),
+            measure_rate=lambda: StateRateMeasurement(50, 100, 2, 0, 2, 0.02),
+            read=lambda: _state(0.01, 0),
+        )
 
     monkeypatch.setattr(recorder, "RosJointStateSource", source)
     monkeypatch.setattr(recorder, "OpenCVFrameSource", source)
@@ -609,7 +614,7 @@ def test_main_cleans_partial_startup_and_session_failure(
     monkeypatch.setattr(recorder, "run_operator_loop", fail)
     with pytest.raises(OSError, match=f"fake {failure_at} failure"):
         recorder.physical_main()
-    assert closed.count("writer") == 1
+    assert closed.count("writer") == int(failure_at != "follower")
     order = ["follower", "wrist", "front", "recorder", "loop"]
     for name in ("follower", "wrist", "front"):
         assert closed.count(name) == int(order.index(name) < order.index(failure_at))
@@ -627,6 +632,7 @@ def test_cli_defaults_to_follower_only_and_keeps_optional_leader(
         "--wrist-camera", "fake-wrist", "--front-camera", "fake-front",
         "--state-has-velocity",
         "--action-lookahead-steps", "2",
+        "--fps", "15",
     ]
     if action_source is not None:
         arguments.extend(["--action-source", action_source])
@@ -637,7 +643,11 @@ def test_cli_defaults_to_follower_only_and_keeps_optional_leader(
 
     def state_source(topic: str, **kwargs: Any) -> SimpleNamespace:
         sources.append((topic, kwargs["state_has_velocity"]))
-        return SimpleNamespace(close=lambda: None)
+        return SimpleNamespace(
+            close=lambda: None,
+            measure_rate=lambda: StateRateMeasurement(50, 100, 2, 0, 2, 0.02),
+            read=lambda: replace(_state(0.01, 0), joint_velocities_rad_s=(0.1,) * 6),
+        )
 
     def writer(config: PhysicalRecorderConfig) -> FakeWriter:
         configs.append(config)
@@ -656,6 +666,56 @@ def test_cli_defaults_to_follower_only_and_keeps_optional_leader(
     assert sources == expected
     assert configs[0].contract.action_source.value == (action_source or "next_state")
     assert configs[0].contract.action_lookahead_steps == 2
+    assert configs[0].state_rate_measurement.rate_hz == 50
+
+
+def test_recorder_cli_requires_explicit_fps(monkeypatch: pytest.MonkeyPatch) -> None:
+    from synria_lerobot import recorder
+
+    monkeypatch.setattr(sys, "argv", [
+        "recorder", "--repo-id", "local/fake", "--gripper-type", "50mm",
+        "--wrist-camera", "fake-wrist", "--front-camera", "fake-front", "--smoke",
+    ])
+    with pytest.raises(SystemExit) as error:
+        recorder._parse_physical_args()
+    assert error.value.code == 2
+
+
+@pytest.mark.parametrize("failure", ["rate", "missing", "stale", "worker", "velocities"])
+def test_failed_state_preflight_never_opens_dataset_or_cameras(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure: str
+) -> None:
+    from synria_lerobot import recorder
+
+    monkeypatch.setattr(sys, "argv", [
+        "recorder", "--dataset-path", str(tmp_path / "dataset"),
+        "--repo-id", "local/fake", "--gripper-type", "50mm",
+        "--wrist-camera", "fake-wrist", "--front-camera", "fake-front", "--fps", "30",
+        *( ["--state-has-velocity"] if failure == "velocities" else [] ),
+    ])
+    closed = []
+
+    def measure() -> StateRateMeasurement:
+        if failure in {"missing", "stale", "worker"}:
+            raise RuntimeError(f"fake {failure} preflight")
+        rate = 15 if failure == "rate" else 50
+        return StateRateMeasurement(rate, 2 * rate, 2, 0, 2, 1 / rate)
+
+    source = SimpleNamespace(
+        measure_rate=measure, read=lambda: _state(0.01, 0),
+        close=lambda: closed.append("follower"),
+    )
+
+    def forbidden(*args: Any, **kwargs: Any) -> None:
+        raise AssertionError("preflight must precede dataset and camera construction")
+
+    monkeypatch.setattr(recorder, "RosJointStateSource", lambda *args, **kwargs: source)
+    monkeypatch.setattr(recorder, "LeRobotDatasetWriter", forbidden)
+    monkeypatch.setattr(recorder, "OpenCVFrameSource", forbidden)
+    with pytest.raises((ValueError, RuntimeError)):
+        recorder.physical_main()
+    assert closed == ["follower"]
+    assert not (tmp_path / "dataset").exists()
 
 
 def test_session_saves_many_episodes_and_returns_no_frame_history(

@@ -41,6 +41,7 @@ from synria_lerobot.physical_contract import (
     PhysicalDatasetContract,
     PhysicalFrame,
     PhysicalState,
+    StateRateMeasurement,
     action_timing_metadata,
 )
 from synria_lerobot.recording_transaction import RecordingRecoveryError, RecordingTransaction
@@ -145,6 +146,7 @@ class PhysicalRecorderConfig:
     hard_cap_s: float = 30.0
     task: str = "move the token from square A to square B"
     smoke: bool = False
+    state_rate_measurement: StateRateMeasurement | None = None
 
     def __post_init__(self) -> None:
         action_timing_metadata(
@@ -179,6 +181,7 @@ class RecordedPhysicalEpisode:
     final_still_path: Path | None = None
     smoke: bool = False
     action_lookahead_steps: int = 1
+    state_rate_measurement: StateRateMeasurement | None = None
 
     @property
     def duration_s(self) -> float:
@@ -307,6 +310,10 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
         timeout_s: float = 1.0,
     ) -> None:
         super().__init__(timeout_s=timeout_s)
+        self._rate_window_start: float | None = None
+        self._rate_window_count = 0
+        self._rate_window_last = 0.0
+        self._rate_window_max_gap = 0.0
         try:
             import rclpy  # type: ignore[import-not-found]
             from rclpy.context import Context  # type: ignore[import-not-found]
@@ -369,6 +376,63 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
 
     def read(self) -> PhysicalState:
         return self._read_latest()
+
+    def _store(self, sample: PhysicalState) -> None:
+        with self._lock:
+            self._latest = sample
+            self._received_count += 1
+            stamp = sample.monotonic_timestamp_s
+            if self._rate_window_start is not None and stamp >= self._rate_window_start:
+                self._rate_window_count += 1
+                self._rate_window_max_gap = max(
+                    self._rate_window_max_gap, stamp - self._rate_window_last
+                )
+                self._rate_window_last = stamp
+        self._ready.set()
+
+    def measure_rate(
+        self, *, clock: Callable[[], float] = time.monotonic,
+        sleep: Callable[[float], None] = time.sleep, max_age_s: float = 0.2,
+    ) -> StateRateMeasurement:
+        """Count distinct callbacks over a full two-second window; never count reads."""
+        if isinstance(max_age_s, bool) or not math.isfinite(max_age_s) or max_age_s <= 0:
+            raise ValueError("source age threshold must be positive and finite")
+        initial = self.read()
+        with self._lock:
+            started = clock()
+            self._rate_window_start = started
+            self._rate_window_count = 0
+            self._rate_window_last = started
+            self._rate_window_max_gap = 0.0
+        try:
+            state = initial
+            while True:
+                now = clock()
+                arrival = state.ros_arrival_stamp_s
+                if not 0 <= now - state.monotonic_timestamp_s <= max_age_s:
+                    raise RuntimeError("joint state source is stale during rate measurement")
+                if arrival is None or not -0.02 <= arrival - state.ros_header_stamp_s <= max_age_s:
+                    raise RuntimeError("joint state ROS header is stale during rate measurement")
+                if now - started >= 2.0:
+                    break
+                sleep(min(0.01, started + 2.0 - now))
+                state = self.read()
+            with self._lock:
+                ended = clock()
+                if self._error is not None:
+                    raise RuntimeError(f"background source failed: {self._error}") from self._error
+                count = self._rate_window_count
+                max_gap = max(self._rate_window_max_gap, ended - self._rate_window_last)
+            if count == 0 or max_gap > max_age_s:
+                raise RuntimeError("joint state callback stream has a stale gap")
+            return StateRateMeasurement(
+                rate_hz=count / (ended - started), message_count=count,
+                duration_s=ended - started, started_monotonic_s=started,
+                ended_monotonic_s=ended, max_callback_gap_s=max_gap,
+            )
+        finally:
+            with self._lock:
+                self._rate_window_start = None
 
     def close(self) -> None:
         if self._closed:
@@ -508,6 +572,7 @@ class LeRobotDatasetWriter:
         self._dataset_type = LeRobotDataset
         self._repo_id = config.repo_id
         self._contract = config.contract
+        self._state_rate_measurement = config.state_rate_measurement
         self._episode_path_template = DEFAULT_EPISODES_PATH
         try:
             if self._root.exists():
@@ -626,6 +691,7 @@ class LeRobotDatasetWriter:
             or episode.contract_version != self._contract.version
             or episode.action_lookahead_steps != self._contract.action_lookahead_steps
             or type(episode.action_lookahead_steps) is not int
+            or episode.state_rate_measurement != self._state_rate_measurement
         ):
             raise ValueError("episode metadata differs from dataset contract")
         episode.frames = [
@@ -704,6 +770,10 @@ class LeRobotDatasetWriter:
                         "final_still": str(episode.final_still_path),
                         "smoke": episode.smoke,
                         "achieved_sample_rate_hz": episode.achieved_sample_rate_hz,
+                        "state_rate_measurement": (
+                            asdict(episode.state_rate_measurement)
+                            if episode.state_rate_measurement is not None else None
+                        ),
                         **action_timing_metadata(
                             episode.action_source, episode.action_lookahead_steps, self._fps
                         ),
@@ -754,6 +824,10 @@ class LeRobotDatasetWriter:
             "stored_resolution": {"width": self._image_width, "height": self._image_height},
             "stored_color_space": "RGB",
             "achieved_sample_rate_hz": episode.achieved_sample_rate_hz,
+            "state_rate_measurement": (
+                asdict(episode.state_rate_measurement)
+                if episode.state_rate_measurement is not None else None
+            ),
             "action_source": episode.action_source.value,
             "contract_version": episode.contract_version,
             "gripper_type": episode.gripper_type,
@@ -912,6 +986,7 @@ class PhysicalEpisodeRecorder:
             gripper_type=self.config.contract.gripper_type,
             smoke=self.config.smoke,
             action_lookahead_steps=self.config.contract.action_lookahead_steps,
+            state_rate_measurement=self.config.state_rate_measurement,
         )
         self.writer.write_episode(episode)
         self._next_episode_index += 1
@@ -1263,7 +1338,7 @@ def _parse_physical_args() -> argparse.Namespace:
     parser.add_argument("--leader-topic", default="/leader/joint_states")
     parser.add_argument("--wrist-camera", required=True)
     parser.add_argument("--front-camera", required=True)
-    parser.add_argument("--fps", type=float, default=30.0)
+    parser.add_argument("--fps", type=float, required=True)
     parser.add_argument("--image-width", type=int, default=224)
     parser.add_argument("--image-height", type=int, default=224)
     parser.add_argument("--state-has-velocity", action="store_true")
@@ -1303,13 +1378,25 @@ def physical_main() -> int:  # pragma: no cover - hardware entry point
         )
         config.require_outside_repository(Path(__file__).resolve().parents[1])
         with ExitStack() as startup_cleanup:
-            writer = LeRobotDatasetWriter(config)
-            startup_cleanup.callback(_close_all, writer.finalize)
             follower = RosJointStateSource(
                 args.follower_topic, node_name="synria_d1_follower_state",
                 state_has_velocity=contract.state_has_velocity,
             )
             startup_cleanup.callback(_close_all, follower.close)
+            measurement = follower.measure_rate()
+            if config.fps > measurement.rate_hz:
+                raise ValueError(
+                    f"requested {config.fps:g} fps exceeds measured joint state rate "
+                    f"{measurement.rate_hz:.3f} Hz"
+                )
+            contract.prepare_state(follower.read())
+            config = replace(config, state_rate_measurement=measurement)
+            print(
+                f"Measured {measurement.rate_hz:.3f} joint states/s from "
+                f"{measurement.message_count} callbacks over {measurement.duration_s:.3f} s."
+            )
+            writer = LeRobotDatasetWriter(config)
+            startup_cleanup.callback(_close_all, writer.finalize)
             if contract.action_source is ActionSourceKind.LEADER:
                 leader_state = RosJointStateSource(
                     args.leader_topic, node_name="synria_d1_leader_state", state_has_velocity=False,

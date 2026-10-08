@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import asdict
 from pathlib import Path
 
 import pytest
@@ -11,6 +12,7 @@ from synria_lerobot.physical_contract import (
     CONTRACT_VERSION,
     ActionSource,
     PhysicalDatasetContract,
+    StateRateMeasurement,
     action_timing_metadata,
 )
 from synria_lerobot.quality_gates import (
@@ -57,6 +59,7 @@ def _record() -> EpisodeQualityRecord:
         frames=frames,
         achieved_sample_rate_hz=1.0,
         **action_timing_metadata(ActionSource.LEADER, 1, 1.0),
+        state_rate_measurement=asdict(StateRateMeasurement(50, 100, 2, 0, 2, 0.02)),
     )
 
 
@@ -79,6 +82,7 @@ def test_d1_session_summary_command_writes_artifacts(
         "stored_resolution": {"width": 4, "height": 4},
         "stored_color_space": "RGB",
         "achieved_sample_rate_hz": 1.0,
+        "state_rate_measurement": _record().state_rate_measurement,
         "action_source": "leader",
         "contract_version": CONTRACT_VERSION,
         "gripper_type": "50mm",
