@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from io import StringIO
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from typing import Any
@@ -25,6 +26,7 @@ from synria_lerobot.recorder import (
     RecordedPhysicalEpisode,
     RecorderState,
     RosJointStateSource,
+    run_operator_loop,
 )
 
 
@@ -86,6 +88,7 @@ class FakeWriter:
     def __init__(self, root: Path) -> None:
         self.root = root
         self.episodes: list[RecordedPhysicalEpisode] = []
+        self.finalized = 0
 
     def save_final_still(self, episode_index: int, frame: ImageFrame) -> Path:
         path = self.root / f"episode_{episode_index:06d}_final.jpg"
@@ -95,6 +98,9 @@ class FakeWriter:
 
     def write_episode(self, episode: RecordedPhysicalEpisode) -> None:
         self.episodes.append(episode)
+
+    def finalize(self) -> None:
+        self.finalized += 1
 
 
 def _state(value: float, timestamp_s: float) -> PhysicalState:
@@ -318,3 +324,174 @@ def test_ros_state_source_creates_subscription_and_no_publishers(
     source = RosJointStateSource("/joint_states", node_name="test_state")
     assert calls == {"subscriptions": 1, "publishers": 0}
     source.close()
+
+
+def test_failed_ros_subscription_destroys_new_node(monkeypatch: pytest.MonkeyPatch) -> None:
+    destroyed = []
+
+    def fail_subscription(*args: Any) -> None:
+        raise OSError("fake subscription failure")
+
+    node = SimpleNamespace(
+        create_subscription=fail_subscription,
+        destroy_node=lambda: destroyed.append(True),
+    )
+    rclpy = SimpleNamespace(ok=lambda: True, create_node=lambda name: node)
+    monkeypatch.setitem(sys.modules, "rclpy", rclpy)
+    monkeypatch.setitem(sys.modules, "sensor_msgs", ModuleType("sensor_msgs"))
+    monkeypatch.setitem(sys.modules, "sensor_msgs.msg", SimpleNamespace(JointState=object))
+    with pytest.raises(OSError, match="fake subscription failure"):
+        RosJointStateSource("/unused", node_name="fake_test")
+    assert destroyed == [True]
+
+
+def test_failed_camera_open_releases_fake_capture(monkeypatch: pytest.MonkeyPatch) -> None:
+    from synria_lerobot.recorder import OpenCVFrameSource
+
+    released = []
+    capture = SimpleNamespace(isOpened=lambda: False, release=lambda: released.append(True))
+    monkeypatch.setitem(sys.modules, "cv2", SimpleNamespace(VideoCapture=lambda path: capture))
+    with pytest.raises(RuntimeError, match="cannot open camera source"):
+        OpenCVFrameSource("/dev/v4l/by-id/fake-test")
+    assert released == [True]
+
+
+@pytest.mark.parametrize("exit_kind", ["success", "quit", "eof", "interrupt", "capture_error"])
+def test_operator_loop_finalizes_on_every_exit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, exit_kind: str
+) -> None:
+    import select
+
+    clock = FakeClock()
+    recorder, writer = _recorder(
+        tmp_path,
+        action_source=ActionSourceKind.NEXT_STATE,
+        states=[_state(0.0, 0.0)],
+        clock=clock,
+    )
+    commands = {
+        "success": "start\nstop\nsuccess\n",
+        "quit": "quit\n",
+        "eof": "",
+        "interrupt": "",
+        "capture_error": "start\n",
+    }
+    monkeypatch.setattr(sys, "stdin", StringIO(commands[exit_kind]))
+
+    def ready(*args: Any) -> tuple[list[Any], list[Any], list[Any]]:
+        if exit_kind == "interrupt":
+            raise KeyboardInterrupt
+        return [sys.stdin], [], []
+
+    monkeypatch.setattr(select, "select", ready)
+    if exit_kind == "capture_error":
+        def fail_capture() -> PhysicalState:
+            raise OSError("fake state failure")
+
+        monkeypatch.setattr(recorder.state_source, "read", fail_capture)
+    if exit_kind == "success":
+        run_operator_loop(recorder)
+    else:
+        expected_error = {
+            "quit": RuntimeError,
+            "eof": RuntimeError,
+            "interrupt": KeyboardInterrupt,
+            "capture_error": OSError,
+        }[exit_kind]
+        with pytest.raises(expected_error):
+            run_operator_loop(recorder)
+    recorder.close()
+    assert writer.finalized == 1
+    assert recorder.state_source.closed
+    assert recorder.wrist_source.closed
+    assert recorder.front_source.closed
+
+
+def test_cleanup_attempts_finalization_after_source_close_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    recorder, writer = _recorder(
+        tmp_path,
+        action_source=ActionSourceKind.NEXT_STATE,
+        states=[],
+        clock=FakeClock(),
+    )
+
+    def fail_close() -> None:
+        raise OSError("fake close failure")
+
+    monkeypatch.setattr(recorder.state_source, "close", fail_close)
+    with pytest.raises(RuntimeError, match="session cleanup failed"):
+        recorder.close()
+    assert recorder.wrist_source.closed
+    assert recorder.front_source.closed
+    assert writer.finalized == 1
+    recorder.close()
+    assert writer.finalized == 1
+
+
+def test_cleanup_failure_does_not_hide_original_session_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    import select
+
+    recorder, writer = _recorder(
+        tmp_path,
+        action_source=ActionSourceKind.NEXT_STATE,
+        states=[],
+        clock=FakeClock(),
+    )
+
+    def fail_close() -> None:
+        raise OSError("fake close failure")
+
+    monkeypatch.setattr(recorder.state_source, "close", fail_close)
+    monkeypatch.setattr(sys, "stdin", StringIO(""))
+    monkeypatch.setattr(select, "select", lambda *args: ([sys.stdin], [], []))
+    with pytest.raises(RuntimeError, match="operator input closed"):
+        run_operator_loop(recorder)
+    assert writer.finalized == 1
+    assert "fake close failure" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("failure_at", ["follower", "wrist", "front", "recorder", "loop"])
+def test_main_cleans_partial_startup_and_session_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure_at: str
+) -> None:
+    from synria_lerobot import recorder
+
+    closed = []
+    args = SimpleNamespace(
+        dataset_path=tmp_path / "dataset", repo_id="local/test", gripper_type="50mm",
+        action_source="next_state", state_has_velocity=False, smoke=False, fps=15,
+        follower_topic="follower", leader_topic="leader",
+        wrist_camera="wrist", front_camera="front",
+    )
+    monkeypatch.setattr(recorder, "_parse_physical_args", lambda: args)
+    monkeypatch.setattr(
+        recorder, "LeRobotDatasetWriter",
+        lambda config: SimpleNamespace(
+            next_episode_index=0, finalize=lambda: closed.append("writer")
+        ),
+    )
+
+    def source(name: str, **kwargs: Any) -> SimpleNamespace:
+        if name == failure_at:
+            raise OSError(f"fake {name} failure")
+        return SimpleNamespace(close=lambda: closed.append(name))
+
+    monkeypatch.setattr(recorder, "RosJointStateSource", source)
+    monkeypatch.setattr(recorder, "OpenCVFrameSource", source)
+
+    def fail(*args: Any, **kwargs: Any) -> Any:
+        raise OSError(f"fake {failure_at} failure")
+
+    if failure_at == "recorder":
+        monkeypatch.setattr(recorder, "PhysicalEpisodeRecorder", fail)
+    monkeypatch.setattr(recorder, "run_operator_loop", fail)
+    with pytest.raises(OSError, match=f"fake {failure_at} failure"):
+        recorder.physical_main()
+    assert closed.count("writer") == 1
+    order = ["follower", "wrist", "front", "recorder", "loop"]
+    for name in ("follower", "wrist", "front"):
+        assert closed.count(name) == int(order.index(name) < order.index(failure_at))
