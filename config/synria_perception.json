@@ -1,0 +1,22 @@
+{
+  "status": "implemented, unmeasured",
+  "marker_ids": [0, 1, 2, 3],
+  "board_pixels": 600,
+  "corner_pixels": [[40, 40], [560, 40], [560, 560], [40, 560]],
+  "squares": {"A": [120, 120, 120, 120], "B": [360, 360, 120, 120]},
+  "colours": {
+    "red": [[[0, 100, 60], [10, 255, 255]], [[170, 100, 60], [179, 255, 255]]],
+    "blue": [[[100, 100, 60], [130, 255, 255]]],
+    "green": [[[40, 100, 60], [85, 255, 255]]],
+    "yellow": [[[20, 100, 60], [35, 255, 255]]]
+  },
+  "token_min_fraction": 0.02,
+  "die_roi": [0, 0, 240, 240],
+  "max_corner_error_px": 5.0,
+  "thresholds": {
+    "board": {"accuracy": 0.95, "min_images": 20},
+    "tokens": {"accuracy": 0.95, "min_images": 20},
+    "die": {"accuracy": 0.95, "min_images": 20}
+  },
+  "note": "Example geometry only; calibrate for the physical board and fixed dump pad, then measure accuracy."
+}

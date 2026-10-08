@@ -1,0 +1,9 @@
+{
+  "max_joint_speed_rad_s": [0.075, 0.075, 0.075, 0.075, 0.075, 0.075],
+  "max_gripper_speed_m_s": 0.0025,
+  "max_observation_age_s": 0.2,
+  "verified_by": "",
+  "verified_on": "",
+  "status": "implemented, unmeasured",
+  "note": "Unverified candidate rad/s and m/s speed bounds; operator validation required. Command period and per-policy response timeout are required session inputs, not shared defaults."
+}

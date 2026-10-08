@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>synria_arm_bringup</name>
+  <version>0.1.0</version>
+  <description>Read-only leader state bring-up for Synria data recording.</description>
+  <maintainer email="obiedeh@gmail.com">Obinna Edeh</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>alicia_d_driver</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

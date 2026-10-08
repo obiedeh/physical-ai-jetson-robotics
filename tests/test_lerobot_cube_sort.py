@@ -1,10 +1,10 @@
-"""Tests for lerobot.cube_sort — CubeSortSimulation, MockColorDetector, CubeSortPlanner."""
+"""Tests for synria_lerobot.cube_sort — CubeSortSimulation, MockColorDetector, CubeSortPlanner."""
 
 from __future__ import annotations
 
 import pytest
 
-from lerobot.cube_sort import (
+from synria_lerobot.cube_sort import (
     COLOR_TO_ZONE,
     CUBE_COLORS,
     CubeDetection,

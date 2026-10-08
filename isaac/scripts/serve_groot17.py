@@ -3,8 +3,8 @@
 campaign's ZMQ protocol — every existing eval client (eval_gr00t_sequence,
 eval_gr00t_system, funnel clients) works unmodified.
 
-Run from OUTSIDE the repo (the repo-local lerobot/ package shadows the
-library) in the lerobot17 venv:
+Run in the lerobot17 venv. The repository-local helpers use the distinct
+``synria_lerobot`` package name:
 
     cd /tmp && env -u HF_TOKEN \
       LD_LIBRARY_PATH=$HOME/.venv/lerobot17/lib/python3.12/site-packages/nvidia/cu13/lib \

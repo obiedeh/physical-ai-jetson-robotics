@@ -1,12 +1,8 @@
 # Artifact manifest — where everything lives
 
-Latest resumption note: [September 7 handoff](handoff-2026-09-07.md), including
-corrected results, vendor-asset prerequisites and validation limits.
-
 Historical inventory notice, 2026-09-07: the local paths and sizes below record
 the July 2026 migration, not a current inventory or completeness guarantee.
-The July handoff is a dated resumption note. Current status is in the
-[README](../README.md); vendor-source geometry is now locally obtained and
+Current status is in the [README](../README.md); vendor-source geometry is now locally obtained and
 excluded from the current tracked tree. Evidence and metadata remain unchanged.
 
 Nothing that matters lives in `/tmp` any more. Scratch space is wiped on
@@ -34,7 +30,6 @@ repository.
 | `reports/synria_grasp_audit.md` | Grasp audit **plus both amendments** (self-corrections kept, not deleted). |
 | `reports/failure_analysis.md`, `docs/experiment_ledger.md` | Reliability program findings and the per-experiment record. |
 | `docs/SYNRIA_GR00T_LEDGER.md` | Full narrative ledger, G0 → repair mission. |
-| `docs/handoff-2026-07-31-2023-CDT.md` | Historical July resumption note; use the September 7 handoff above for current prerequisites. |
 | `docs/CLOUD_FINETUNE_FRANKA.md` | Unfrozen-DiT cloud run instructions. |
 
 ## Outside the repository (persistent on disk, too large for git)

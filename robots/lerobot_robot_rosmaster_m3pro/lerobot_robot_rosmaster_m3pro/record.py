@@ -5,7 +5,7 @@ vendor joystick. Runs on the 5090 (lerobot >= 0.6.2); the Orin host must run in
 
   # on the Orin:
   bash scripts/jetson/m3pro_host.sh --passive --cameras front:0:640:480:15
-  # on the 5090 (from OUTSIDE the repo; repo-local lerobot/ shadows the lib):
+  # on the 5090:
   cd /tmp && ~/.venv/lerobot17/bin/python -m lerobot_robot_rosmaster_m3pro.record \
       --repo-id oedeh/m3pro_teleop_v1 --episodes 10 --episode-time-s 20 \
       --remote-ip 192.168.1.251 --task "pick up the cube and place it on the plate"

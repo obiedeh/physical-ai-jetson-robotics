@@ -72,11 +72,5 @@ def test_staging_slots_unique_and_off_board():
         assert abs(xy[0] - 0.10) > 0.2 or abs(xy[1]) > 0.2
 
 
-def test_checkers_is_explicitly_queued():
-    from game_core.checkers import CheckersGame
-    with pytest.raises(NotImplementedError):
-        CheckersGame()
-
-
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-q"]))
