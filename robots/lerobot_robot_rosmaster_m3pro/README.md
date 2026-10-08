@@ -19,8 +19,8 @@ distributions and the types register themselves:
   This class runs a deadman thread (zeros after `deadman_timeout_s` without a
   fresh action) and always zeros on disconnect/exception.
 - DDS: vendor agent runs as user `jetson` on ROS_DOMAIN_ID=30; another user
-  needs the UDP-only FastDDS profile (`fastdds_profile`). Run from OUTSIDE the
-  repo root (the repo-local `lerobot/` folder shadows the library).
+  needs the UDP-only FastDDS profile (`fastdds_profile`). The repository-local
+  helpers use the distinct `synria_lerobot/` package name.
 
 ## Run (on the robot)
     source /opt/ros/humble/setup.bash

@@ -100,7 +100,7 @@ def test_synria_mock_ros2_controllers_yaml_exists() -> None:
 
 def test_synria_lerobot_recording_schema_contract_exists() -> None:
     """Item 7: LeRobot recording schema contract — already present."""
-    path = REPO_ROOT / "lerobot" / "configs" / "synria_aloha_act_notes.yaml"
+    path = REPO_ROOT / "synria_lerobot" / "configs" / "synria_aloha_act_notes.yaml"
     assert path.exists(), f"Missing: {path.relative_to(REPO_ROOT)}"
 
 

@@ -52,14 +52,14 @@ except ImportError:  # pragma: no cover
     _SLAM_AVAILABLE = False
 
 try:
-    from lerobot.cube_sort import CubeSortSimulation
-    from lerobot.dataset import (
+    from synria_lerobot.cube_sort import CubeSortSimulation
+    from synria_lerobot.dataset import (
         SynriaEpisodeDataset,
         generate_synthetic_episode,
         write_dataset_summary,
     )
-    from lerobot.policy_eval import DeterministicArmPolicy, evaluate_policy_on_dataset
-    from lerobot.recorder import RecordingSession
+    from synria_lerobot.policy_eval import DeterministicArmPolicy, evaluate_policy_on_dataset
+    from synria_lerobot.recorder import RecordingSession
 
     _LEROBOT_AVAILABLE = True
 except ImportError:  # pragma: no cover
@@ -797,7 +797,7 @@ def lerobot_policy_eval(
 
     import json as _json
 
-    from lerobot.schema import VALID_STAGING_ZONES
+    from synria_lerobot.schema import VALID_STAGING_ZONES
 
     zones = list(VALID_STAGING_ZONES)
     episodes = [
@@ -1213,6 +1213,110 @@ def gr00t_inference_dry_run(
     table.add_row("report", str(report))
     console.print(table)
     console.print("\nFull recipe: docs/SYNRIA_GR00T_FINETUNE.md — Phase 6 (Evaluate)", markup=False)
+
+
+@app.command("d1-session-summary")
+def d1_session_summary(
+    session_id: Annotated[str, typer.Option(help="Unique recording-session identifier.")],
+    records: Annotated[Path, typer.Option(help="physical_quality_records.jsonl path.")],
+    dataset_path: Annotated[Path, typer.Option(help="LeRobotDataset root outside git.")],
+    follower_serial: str = typer.Option(...),
+    leader_serial: str = typer.Option(...),
+    host: str = typer.Option(...),
+    git_sha: str = typer.Option(...),
+    operator: str = typer.Option(...),
+    power_state_start: str = typer.Option(...),
+    power_state_end: str = typer.Option(...),
+    scene: str = typer.Option(...),
+    wrist_camera_id: str = typer.Option(...),
+    front_camera_id: str = typer.Option(...),
+    width: int = typer.Option(..., min=1),
+    height: int = typer.Option(..., min=1),
+    rate_hz: float = typer.Option(..., min=0.1),
+    max_source_age_s: float = typer.Option(0.2, min=0),
+    max_header_delay_s: float = typer.Option(0.2, min=0),
+    max_header_future_s: float = typer.Option(0.02, min=0),
+    gripper_type: str = typer.Option(...),
+    action_source: str = typer.Option(...),
+    action_lookahead_steps: int = typer.Option(1, min=0),
+    state_source: str = typer.Option(...),
+    follower_topic: str = typer.Option("/joint_states"),
+    guard_command_topic: Annotated[list[str] | None, typer.Option()] = None,
+    utc_date: str = typer.Option(...),
+    data_root: Path = Path("reports/ludo_flagship/data"),
+    limits_path: Path = Path("config/synria_limits.yaml"),
+) -> None:
+    """Gate one physical recording session and write its evidence artifacts."""
+    from synria_lerobot.physical_contract import (
+        CONTRACT_VERSION,
+        PhysicalDatasetContract,
+        StateSourceProvenance,
+        guarded_command_topics,
+    )
+    from synria_lerobot.quality_gates import (
+        GateConfig,
+        load_episode_records,
+        load_limits,
+        write_session_artifacts,
+    )
+
+    contract = PhysicalDatasetContract.from_dict(json.loads(
+        (dataset_path / "physical_contract.json").read_text(encoding="utf-8")
+    ))
+    summary = write_session_artifacts(
+        session_dir=data_root / session_id,
+        dataset_path=dataset_path,
+        provenance={
+            "follower_serial": follower_serial,
+            "leader_serial": leader_serial,
+            "host": host,
+            "git_sha": git_sha,
+            "utc_date": utc_date,
+            "operator": operator,
+            "power_state_start": power_state_start,
+            "power_state_end": power_state_end,
+            "scene": scene,
+            "camera_ids": {"wrist": wrist_camera_id, "front": front_camera_id},
+            "resolution": {"width": width, "height": height},
+            "rate_hz": rate_hz,
+            **contract.task_definition.metadata(contract.recording_purpose),
+            "contract_version": CONTRACT_VERSION,
+            "gripper_type": gripper_type,
+            "action_source": action_source,
+            "action_lookahead_steps": action_lookahead_steps,
+            "state_source_provenance": StateSourceProvenance(
+                state_source, follower_topic,
+                guarded_command_topics(tuple(guard_command_topic or ())),
+            ).as_dict(),
+        },
+        episodes=load_episode_records(records),
+        limits=load_limits(limits_path),
+        gate_config=GateConfig(
+            min_episode_s=contract.min_episode_s,
+            max_episode_s=contract.max_episode_s,
+            max_source_age_s=max_source_age_s,
+            max_header_delay_s=max_header_delay_s,
+            max_header_future_s=max_header_future_s,
+        ),
+    )
+    console.print(json.dumps(summary, indent=2, sort_keys=True))
+
+
+@app.command("d1-dataset-summary")
+def d1_dataset_summary(
+    data_root: Path = Path("reports/ludo_flagship/data"),
+    output: Path = Path("reports/ludo_flagship/data/D1_dataset_summary.json"),
+    timeline: Path = Path("docs/ludo_flagship/timeline.jsonl"),
+) -> None:
+    """Aggregate all committed D1 session summaries and append the timeline."""
+    from synria_lerobot.quality_gates import write_aggregate_summary
+
+    summary = write_aggregate_summary(
+        data_root=data_root,
+        output_path=output,
+        timeline_path=timeline,
+    )
+    console.print(json.dumps(summary, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

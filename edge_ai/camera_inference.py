@@ -166,6 +166,7 @@ class CameraInferenceLoop:
         self._target_w = frame_width
         self._results: list[InferenceResult] = []
         self._stats: InferenceLoopStats | None = None
+        self._cap: MockFrameSource | cv2.VideoCapture
 
         if isinstance(source, MockFrameSource):
             self._cap = source

@@ -325,7 +325,7 @@ space stop, 0 home). `m3pro-smoke` console script. Verified on the 5090:
 types register, 13 obs / 9 action features. Orin: venv
 `~/.venv-lerobot` (system-site: Jetson torch) + editable install of the
 plugin; rclpy/arm_msgs come from the sourced ROS env; run from /tmp
-(repo-local `lerobot/` dir shadows the library).
+(the repository-local helpers now use the distinct `synria_lerobot/` package).
 
 ## 14. Leg B PIVOT (2026-08-20): host/client split (LeKiwi pattern)
 BLOCKER: LeRobot 0.6.2 requires Python >=3.12; the Orin is Python 3.10 and

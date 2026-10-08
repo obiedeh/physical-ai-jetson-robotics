@@ -1,4 +1,4 @@
-"""Tests for lerobot.policy_eval — DeterministicArmPolicy and evaluation pipeline."""
+"""Tests for synria_lerobot.policy_eval — DeterministicArmPolicy and evaluation pipeline."""
 
 from __future__ import annotations
 
@@ -9,14 +9,14 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from lerobot.dataset import SynriaEpisodeDataset, generate_synthetic_episode
-from lerobot.policy_eval import (
+from synria_lerobot.dataset import SynriaEpisodeDataset, generate_synthetic_episode
+from synria_lerobot.policy_eval import (
     DeterministicArmPolicy,
     PolicyEvalResult,
     evaluate_policy_on_dataset,
     evaluate_policy_on_episode,
 )
-from lerobot.schema import (
+from synria_lerobot.schema import (
     N_JOINTS,
     ActionFrame,
     Episode,
@@ -182,7 +182,7 @@ def test_eval_dataset_length() -> None:
 
 
 def test_eval_dataset_all_pass() -> None:
-    from lerobot.schema import VALID_STAGING_ZONES
+    from synria_lerobot.schema import VALID_STAGING_ZONES
 
     eps = [generate_synthetic_episode(zone=z, n_steps=20) for z in VALID_STAGING_ZONES]
     ds = SynriaEpisodeDataset(eps)

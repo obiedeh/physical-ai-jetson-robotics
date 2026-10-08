@@ -29,7 +29,7 @@ if ! ~/.venv/isaacsim5/bin/python -c "import torch,sys; sys.exit(0 if torch.cuda
   touch reports/groot17_eval.FAIL; exit 2
 fi
 
-# 1. server (run from OUTSIDE the repo: the repo-local lerobot/ shadows the lib)
+# 1. server
 ( cd /tmp && env -u HF_TOKEN \
   LD_LIBRARY_PATH=$HOME/.venv/lerobot17/lib/python3.12/site-packages/nvidia/cu13/lib \
   $HOME/.venv/lerobot17/bin/python \

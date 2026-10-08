@@ -7,7 +7,7 @@ an autonomous physical Synria game-playing pipeline is not established.
 ## Implemented Components
 
 - `game_core/` and `ludo_engine/` emit game commands. Chess uses python-chess;
-  checkers remains a stub.
+  checkers has no rules adapter; its unused stub was removed.
 - `isaac/scripts/ludo_turn_executor.py` normally loads an RSL-RL PPO checkpoint
   for parts of approach/carry, with scripted grasp, placement and fallback
   behavior. Kinematic attach and release-hold are simulator interventions.

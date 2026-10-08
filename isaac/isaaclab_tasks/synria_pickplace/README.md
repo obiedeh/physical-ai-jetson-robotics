@@ -270,7 +270,7 @@ The package is import-safe on any environment without Isaac Lab:
 ## What's out of scope until RTX first-run
 
 - **Training runs** — needs RTX 5090 and PPO convergence (~1–2 days compute)
-- **Imitation-learning data** — handled by the LeRobot track (`lerobot/`)
+- **Imitation-learning data** — handled by the LeRobot track (`synria_lerobot/`)
 - **Camera observations** — needs `Camera` sensor config wired to the scene USD
 - **Sim-to-real transfer** — post-training, via Jetson AGX Thor deployment
 - **PPO hyperparameter sweep** — after first successful sim episode

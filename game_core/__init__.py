@@ -1,6 +1,6 @@
 """game_core — the product's game-agnostic task layer (L4).
 
-Every supported game (ludo, chess, checkers) reduces to one robot
+Every supported game (ludo, chess) reduces to one robot
 primitive stream: PickPlaceCommand{pick_xy, place_xy}. Game rules live
 in per-game engines; geometry adapters map logical squares to world XY;
 captured pieces route to staging-zone slots. The executor (L1) consumes
@@ -21,7 +21,4 @@ def __getattr__(name):
     if name == "ChessGameAdapter":
         from .chess_adapter import ChessGameAdapter
         return ChessGameAdapter
-    if name in ("CheckersGame", "CheckersAdapter"):
-        from . import checkers
-        return getattr(checkers, name)
     raise AttributeError(name)

@@ -1,0 +1,17 @@
+{
+  "verified_by": "",
+  "verified_on": "",
+  "joint_names": ["Joint1", "Joint2", "Joint3", "Joint4", "Joint5", "Joint6"],
+  "joint_limits_rad": {
+    "Joint1": [-2.70, 2.51],
+    "Joint2": [-1.52, 1.67],
+    "Joint3": [-0.593, 2.36],
+    "Joint4": [-1.95, 1.54],
+    "Joint5": [-1.20, 1.14],
+    "Joint6": [-2.98, 3.08]
+  },
+  "gripper_limits_m": {
+    "50mm": [0.0, 0.025],
+    "100mm": [0.0, 0.05]
+  }
+}

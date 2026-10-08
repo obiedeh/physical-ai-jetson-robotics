@@ -1,4 +1,4 @@
-"""Tests for lerobot.schema — observation, action, and episode data types."""
+"""Tests for synria_lerobot.schema — observation, action, and episode data types."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from lerobot.schema import (
+from synria_lerobot.schema import (
     GRIPPER_OPEN_M,
     N_JOINTS,
     ActionFrame,

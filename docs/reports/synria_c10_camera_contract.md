@@ -86,7 +86,7 @@ Real pipeline (hardware-later):
 
 ## LeRobot Schema Alignment
 
-The `lerobot/configs/synria_aloha_act_notes.yaml` expects:
+The `synria_lerobot/configs/synria_aloha_act_notes.yaml` file expects:
 
 ```yaml
 observations:

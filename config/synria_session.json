@@ -1,0 +1,61 @@
+{
+  "status": "implemented, unmeasured",
+  "adapter": "synria_lerobot.ros_adapter:create_session_io",
+  "adapter_config": "config/synria_ros_adapter.json",
+  "policy_endpoint": "",
+  "gripper_type": "",
+  "state_has_velocity": false,
+  "action_source": "next_state",
+  "action_lookahead_steps": 1,
+  "min_episode_s": null,
+  "max_episode_s": null,
+  "task_id": null,
+  "task_text": null,
+  "task_definition": null,
+  "task_definition_sha256": null,
+  "recording_purpose": "qualifying",
+  "episode_window_override": null,
+  "limits": "config/synria_limits.yaml",
+  "policy_config": "config/synria_policy.json",
+  "calibration": "config/synria_board_calibration.json",
+  "reachable": "config/synria_reachable_squares.json",
+  "perception_config": "config/synria_perception.json",
+  "accuracy_reports": {},
+  "roll_config": "config/synria_roll.json",
+  "task_registry": "config/synria_tasks.json",
+  "probe_policy": {"checkpoint": "", "receipt": "", "endpoint": "", "response_timeout_s": null, "max_steps": null},
+  "roll_skills": {
+    "die_into_cup": {"checkpoint": "", "receipt": "", "endpoint": "", "response_timeout_s": null, "max_steps": null},
+    "roll_and_dump": {"checkpoint": "", "receipt": "", "endpoint": "", "response_timeout_s": null, "max_steps": null},
+    "cup_return": {"checkpoint": "", "receipt": "", "endpoint": "", "response_timeout_s": null, "max_steps": null}
+  },
+  "fixed_roll": {
+    "mode": "fixed_scene_skills",
+    "skills": ["die_into_cup", "roll_and_dump", "cup_return"],
+    "read": {"source": "operator"}
+  },
+  "protocol": "docs/ludo_flagship/D2_EVAL_PROTOCOL.md",
+  "protocol_sha256": "",
+  "d2_policy": {
+    "checkpoint": "", "receipt": "", "endpoint": "",
+    "response_timeout_s": null, "max_steps": null
+  },
+  "d2_trials": [],
+  "max_steps": 0,
+  "command_period_s": null,
+  "response_timeout_s": null,
+  "max_turns": 0,
+  "max_attempts": 1,
+  "provenance": {
+    "operator": "",
+    "policy_id": "",
+    "checkpoint_sha256": "",
+    "git_sha": "",
+    "host": "",
+    "utc_date": "",
+    "power_state_start": "",
+    "follower_serial": "",
+    "camera_ids": [],
+    "scene": ""
+  }
+}

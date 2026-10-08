@@ -43,11 +43,17 @@ What is real, in one table. Labels: **measured** (a committed artifact with devi
 | Autonomous real-arm pick and place | **planned** | | | [`reports/NOT_CLAIMED.md`](reports/NOT_CLAIMED.md) |
 | TensorRT versus PyTorch numerical parity | **planned**, never recorded | | | [`reports/NOT_CLAIMED.md`](reports/NOT_CLAIMED.md) |
 | Sustained thermal and safety validation | **planned**; existing runs are 60 s and 9.9 s | | | [`reports/NOT_CLAIMED.md`](reports/NOT_CLAIMED.md) |
-| Ludo D1: physical Synria demonstrations | **planned** | | | |
-| Ludo D2: learned physical pick-and-place, >=14/20 successes | **planned** | | | |
-| Ludo D3: one successful physical Ludo turn | **planned** | | | |
-| Ludo D4: three consecutive successful physical-roll turns | **planned** | | | |
-| Ludo D5: one successful full physical game | **planned** | | | |
+| Synria D1 task-bound recording, native final stills, gates and summaries | **implemented, unmeasured**; fake sources and released upstream 0.6.1 synthetic datasets, no hardware run | 2026-10-08 | none | [D1 protocol](docs/ludo_flagship/D1_DATASET_PROTOCOL.md), [task registry](config/synria_tasks.json), [writer tests](tests/test_lerobot_dataset_writer.py) |
+| Ludo D1: physical Synria demonstrations | **planned**, 0/100 qualifying episodes | | | [`reports/ludo_flagship/data/D1_dataset_summary.json`](reports/ludo_flagship/data/D1_dataset_summary.json) |
+| Synria fixed-task ACT training and checkpoint diagnostics/playback | **implemented, unmeasured**; tiny CPU updates on synthetic data, no physical policy trained | 2026-10-08 | none | [training guide](docs/ludo_flagship/ACT_TRAINING_RUNBOOK.md), [probe guide](docs/ludo_flagship/CHECKPOINT_PROBE_RUNBOOK.md), [trainer](scripts/train_synria_act.py) |
+| Synria checkpoint HTTP serving and die-into-cup D2 evaluation | **implemented, unmeasured**; saved model/normalizers, localhost and fake-ROS trials only | 2026-10-08 | none | [server](scripts/serve_synria_policy.py), [D2 protocol](docs/ludo_flagship/D2_EVAL_PROTOCOL.md), [evaluation](synria_lerobot/evaluation.py) |
+| Board, token and die perception | **implemented, unmeasured**; synthetic accuracy fixtures only | 2026-10-08 | none | [`reports/ludo_flagship/perception/`](reports/ludo_flagship/perception/), [`synria_lerobot/perception.py`](synria_lerobot/perception.py) |
+| Synria standalone die-into-cup, roll-and-dump and cup-return sequence | **implemented, unmeasured**; three task-bound policies, fake sources and operator labels, no physical roll | 2026-10-08 | none | [roll runbook](docs/ludo_flagship/D4_OPERATOR_RUNBOOK.md#standalone-fixed-scene-roll), [runner](synria_lerobot/game_runner.py), [tests](tests/test_synria_roll_skills.py) |
+| Legacy turn/full-game software | **implemented, unmeasured**; fake winner/abort tests; token motion and goal design deferred | 2026-10-08 | none | [turn executor](synria_lerobot/turn_executor.py), [game tests](tests/test_synria_game_runner.py) |
+| Ludo D2: first learned physical skill, die into cup, >=14/20 successes | **planned** | | | [D2 runbook](docs/ludo_flagship/D2_OPERATOR_RUNBOOK.md) |
+| Ludo D3: one successful physical Ludo turn | **planned** | | | [D3 runbook](docs/ludo_flagship/D3_OPERATOR_RUNBOOK.md) |
+| Ludo D4: three consecutive successful physical-roll turns | **planned** | | | [D4 runbook](docs/ludo_flagship/D4_OPERATOR_RUNBOOK.md) |
+| Ludo D5: one successful full physical game | **planned** | | | [D5 runbook](docs/ludo_flagship/D5_OPERATOR_RUNBOOK.md) |
 
 ## Measured Results
 
@@ -123,14 +129,27 @@ Use [RTX setup](docs/SETUP_RTX.md) for Isaac and [Jetson deployment](docs/JETSON
 
 ## What Is Next
 
-- Complete the read-only Synria recovery and safety artifact from the external
-  Alicia-D checkout: [`reports/synria/recovered_real_arm_state_2026-09-17.md`](reports/synria/recovered_real_arm_state_2026-09-17.md).
-- Only after that artifact is accepted and the operator explicitly authorizes
-  motion, capture reduced-speed controlled-stop evidence on the physical
-  Synria arm and define its versioned dataset state/action contract.
-- Then record a disposable camera-backed Synria smoke episode and proceed
-  toward D1. M3/Yahboom work and unrelated parity/soak work remain parked
-  until D5 unless they directly block a current flagship gate.
+- Complete and accept the Phase 0A safety record, verify the candidate limits,
+  and fill the empty operator fields in
+  [`reports/synria/phase0a_safety_recovery.md`](reports/synria/phase0a_safety_recovery.md).
+- Only after explicit operator authorization, complete the reduced-speed
+  evidence template in [`reports/synria/first_safe_motion.md`](reports/synria/first_safe_motion.md).
+- Follow the [D1 operator runbook](docs/ludo_flagship/D1_OPERATOR_RUNBOOK.md):
+  collection is now roll-first using the [fixed-scene task registry](config/synria_tasks.json).
+  Qualifying windows require operator timing and configuration; none is set yet.
+  Required `--task-id` selects its registry instruction/window; disposable smoke
+  preserves that snapshot with a separate nonqualifying 20-second override.
+  Each skill has its own dataset and trained checkpoint; the front still keeps
+  native pixels while stored observations keep the configured image size.
+  Follow [training](docs/ludo_flagship/ACT_TRAINING_RUNBOOK.md) and
+  [frozen diagnostics](docs/ludo_flagship/CHECKPOINT_PROBE_RUNBOOK.md), then the
+  first [die-into-cup D2 evaluation](docs/ludo_flagship/D2_OPERATOR_RUNBOOK.md).
+  The [three-skill roll](docs/ludo_flagship/D4_OPERATOR_RUNBOOK.md#standalone-fixed-scene-roll)
+  uses operator die input; roll-only success cannot advance D4 or D5. This is
+  the prospective [2026-10-08 decision](docs/ludo_flagship/DECISIONS.md), with
+  token moves and goal-conditioning design deferred until the roll works.
+  M3/Yahboom and unrelated work remain parked until D5 unless they block a
+  current flagship gate.
 
 ## License and Attribution
 

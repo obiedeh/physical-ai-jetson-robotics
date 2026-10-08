@@ -3,7 +3,8 @@
 Interface correction, 2026-09-07: examples below use the recorded G3 migration
 (`new_embodiment`, wrist/overhead, step-based training). Step counts are explicit
 example budgets, not conversions from epochs. Historical environment, resource
-and performance claims still require revalidation; see the [current handoff](handoff-2026-09-07.md).
+and performance claims still require revalidation; see the
+[experiment ledger](SYNRIA_GR00T_LEDGER.md).
 
 End-to-end recipe for post-training **NVIDIA Isaac GR00T N1.7** on the Synria
 6DOF arm for board-game pick-and-place. Eight phases from environment setup
