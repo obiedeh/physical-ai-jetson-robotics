@@ -5,8 +5,8 @@ from __future__ import annotations
 import argparse
 import importlib
 import json
-import math
 from collections.abc import Callable
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -62,7 +62,9 @@ class SessionIO(Protocol):
     def close(self) -> None: ...
 
 
-def validate_session(config: dict[str, Any], mode: str, repository: Path) -> None:
+def validate_session(
+    config: dict[str, Any], mode: str, repository: Path
+) -> PolicySafetyConfig:
     if mode not in {"d2", "d3", "d4", "d5"}:
         raise ValueError("unknown session mode")
     if not load_limits(Path(config["limits"])).verified:
@@ -70,7 +72,16 @@ def validate_session(config: dict[str, Any], mode: str, repository: Path) -> Non
     PhysicalDatasetContract(
         config["gripper_type"], ActionSource(config["action_source"]), config["state_has_velocity"]
     )
-    PolicySafetyConfig.load(Path(config["policy_config"]))
+    if not {"command_period_s", "response_timeout_s"} <= config.keys():
+        raise ValueError("command period and per-policy response timeout are required")
+    safety = PolicySafetyConfig.load(
+        Path(config["policy_config"]), command_period_s=config["command_period_s"],
+        response_timeout_s=config["response_timeout_s"],
+    )
+    if not safety.verified:
+        raise ValueError("operator-verified policy safety config required")
+    if "period_s" in config:
+        raise ValueError("use command_period_s as the single session command period")
     calibration = BoardCalibration(Path(config["calibration"]), Path(config["reachable"]))
     required = {
         "operator",
@@ -90,8 +101,6 @@ def validate_session(config: dict[str, Any], mode: str, repository: Path) -> Non
             type(config[k]) is not int or config[k] <= 0
             for k in ("max_steps", "max_turns", "max_attempts")
         )
-        or not math.isfinite(config["period_s"])
-        or config["period_s"] <= 0
         or not required <= config["provenance"].keys()
         or not all(config["provenance"][key] for key in required)
     ):
@@ -118,6 +127,9 @@ def validate_session(config: dict[str, Any], mode: str, repository: Path) -> Non
         )
         roll = json.loads(Path(config["roll_config"]).read_text(encoding="utf-8"))
         validate_roll_config(roll)
+        for phase in roll["phases"].values():
+            safety.require_command_period(phase["period_s"])
+    return safety
 
 
 def run_session(
@@ -129,7 +141,7 @@ def run_session(
     enable_motion: bool = False,
     factory: Callable[[dict[str, Any]], SessionIO] | None = None,
 ) -> dict[str, Any]:
-    validate_session(config, mode, repository)
+    safety = validate_session(config, mode, repository)
     if not enable_motion:
         return {"motion_enabled": False, "validated": True, "status": "implemented, unmeasured"}
     if output.exists():
@@ -152,7 +164,7 @@ def run_session(
             SynriaEmbodiment(contract),
             HttpPolicyTransport(config["policy_endpoint"]),
             load_limits(Path(config["limits"])),
-            PolicySafetyConfig.load(Path(config["policy_config"])),
+            safety,
         )
         path = GuardedCommandPath(client, io.command_sink, enable_motion=enable_motion)
         mover = PolicyMoveExecutor(
@@ -160,9 +172,10 @@ def run_session(
             io.observe,
             io.completed,
             max_steps=config["max_steps"],
-            period_s=config["period_s"],
+            period_s=safety.command_period_s,
         )
         calibration = BoardCalibration(Path(config["calibration"]), Path(config["reachable"]))
+        provenance = {**config["provenance"], "policy_safety": asdict(safety)}
         if mode == "d2":
             writer = EvalLogWriter(
                 output / "EvalLog.jsonl",
@@ -173,7 +186,7 @@ def run_session(
                 data_kind="physical",
             )
             (output / "provenance.json").write_text(
-                json.dumps(config["provenance"], indent=2), encoding="utf-8"
+                json.dumps(provenance, indent=2), encoding="utf-8"
             )
             try:
                 for trial in config["d2_trials"]:
@@ -239,7 +252,7 @@ def run_session(
                         stage_status="planned", object_success_limitation=OBJECT_SUCCESS_LIMITATION
                     )
                     (output / "provenance.json").write_text(
-                        json.dumps(config["provenance"], indent=2), encoding="utf-8"
+                        json.dumps(provenance, indent=2), encoding="utf-8"
                     )
                     (output / "frozen_stats.json").write_text(
                         json.dumps(stats, indent=2), encoding="utf-8"
@@ -269,7 +282,7 @@ def run_session(
                     executor,
                     roller,
                     output,
-                    config["provenance"],
+                    provenance,
                     max_turns=config["max_turns"],
                     abort_requested=io.abort_requested,
                 ).run()

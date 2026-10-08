@@ -163,6 +163,38 @@ def test_operator_funnel_and_policy_ledger(tmp_path: Path) -> None:
     ledger = tmp_path / "ledger.md"
     ledger.write_text("# Policy ledger\n")
     row = ["2026-10-08", "policy", "data/hash/100", "recipe", "sha", "eval", "0/20", "retry"]
-    append_policy_row(ledger, row)
+    append_policy_row(ledger, row, response_timeout_s=0.35)
+    assert "recipe; response_timeout_s=0.35" in ledger.read_text()
     with pytest.raises(ValueError, match="already"):
-        append_policy_row(ledger, row)
+        append_policy_row(ledger, row, response_timeout_s=0.35)
+
+
+@pytest.mark.parametrize("timeout", [None, True, 0, -1, float("nan"), float("inf"), "0.1"])
+def test_policy_ledger_rejects_invalid_timeout_without_changing_history(
+    tmp_path: Path, timeout: object
+) -> None:
+    ledger = tmp_path / "ledger.md"
+    history = "# Ledger\n\n| earlier | historical policy | original evidence |\n"
+    ledger.write_text(history)
+    fields = ["date", "new policy", "data", "recipe", "sha", "eval", "result", "decision"]
+    with pytest.raises(ValueError, match="per-policy response timeout"):
+        append_policy_row(ledger, fields, response_timeout_s=timeout)
+    assert ledger.read_text() == history
+
+
+def test_policy_ledger_requires_explicit_timeout_and_preserves_existing_rows(
+    tmp_path: Path,
+) -> None:
+    ledger = tmp_path / "ledger.md"
+    history = Path("docs/ludo_flagship/POLICY_LEDGER.md").read_text()
+    ledger.write_text(history)
+    fields = ["date", "new policy", "data", "recipe", "sha", "eval", "result", "decision"]
+    with pytest.raises(TypeError):
+        append_policy_row(ledger, fields)
+    assert ledger.read_text() == history
+    append_policy_row(ledger, fields, response_timeout_s=0.45)
+    assert ledger.read_text() == history + (
+        "| date | new policy | data | recipe; response_timeout_s=0.45 "
+        "| sha | eval | result | decision |\n"
+    )
+    assert fields[3] == "recipe"

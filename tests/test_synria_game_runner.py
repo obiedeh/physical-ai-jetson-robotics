@@ -54,7 +54,7 @@ def setup_game(tmp_path: Path, *, fail_trial: bool = False, bad_die: bool = Fals
         SynriaEmbodiment(PhysicalDatasetContract("50mm", ActionSource.LEADER, False)),
         FakePolicy((0,) * 7),
         limits,
-        PolicySafetyConfig((0.01,) * 7, 0.1, 0.2),
+        PolicySafetyConfig((0.075,) * 6, 0.0025, 0.01, 0.1, 0.2, "fake", "test"),
         clock=lambda: clock[0],
     )
     path = GuardedCommandPath(client, lambda: arm, enable_motion=True)

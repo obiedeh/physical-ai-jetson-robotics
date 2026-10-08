@@ -209,7 +209,10 @@ def score_evaluation(log: Path, protocol: Path, repository: Path, output: Path) 
     return stats
 
 
-def append_policy_row(ledger: Path, fields: list[str]) -> None:
+def append_policy_row(ledger: Path, fields: list[str], *, response_timeout_s: float) -> None:
+    if (type(response_timeout_s) not in (int, float)
+            or not math.isfinite(response_timeout_s) or response_timeout_s <= 0):
+        raise ValueError("per-policy response timeout must be positive, finite and not boolean")
     if len(fields) != 8 or any(not value.strip() for value in fields):
         raise ValueError("eight nonempty policy ledger fields required")
     if any("|" in value or "\n" in value or "\r" in value for value in fields):
@@ -222,7 +225,9 @@ def append_policy_row(ledger: Path, fields: list[str]) -> None:
     ):
         raise ValueError("policy id already recorded")
     with ledger.open("a", encoding="utf-8") as stream:
-        stream.write("| " + " | ".join(fields) + " |\n")
+        row = list(fields)
+        row[3] += f"; response_timeout_s={response_timeout_s!r}"
+        stream.write("| " + " | ".join(row) + " |\n")
 
 
 def main() -> None:
@@ -237,6 +242,7 @@ def main() -> None:
     score.add_argument("--output", type=Path, required=True)
     row = sub.add_parser("policy-row")
     row.add_argument("--ledger", type=Path, required=True)
+    row.add_argument("--response-timeout-s", type=float, required=True)
     row.add_argument("fields", nargs=8)
     args = parser.parse_args()
     if args.command == "register-protocol":
@@ -247,7 +253,7 @@ def main() -> None:
         )
         print(digest)
     elif args.command == "policy-row":
-        append_policy_row(args.ledger, args.fields)
+        append_policy_row(args.ledger, args.fields, response_timeout_s=args.response_timeout_s)
     else:
         print(json.dumps(score_evaluation(args.log, args.protocol, args.repository, args.output)))
 

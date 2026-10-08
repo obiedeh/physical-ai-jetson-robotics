@@ -148,8 +148,9 @@ class PolicyMoveExecutor:
         period_s: float,
         sleep: Callable[[float], None] = time.sleep,
     ) -> None:
-        if max_steps <= 0 or not math.isfinite(period_s) or period_s <= 0:
+        if type(max_steps) is not int or max_steps <= 0:
             raise ValueError("bounded positive step count and period required")
+        path.client.config.require_command_period(period_s)
         self.path, self.observe, self.finished = path, observe, finished
         self.max_steps, self.period_s, self.sleep = max_steps, period_s, sleep
 

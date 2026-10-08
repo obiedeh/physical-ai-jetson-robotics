@@ -9,6 +9,7 @@ with fakes and synthetic images.
 Accept the [Phase 0A record](../../reports/synria/phase0a_safety_recovery.md) and
 [first-safe-motion record](../../reports/synria/first_safe_motion.md). Complete
 the operator fields in the [limits](../../config/synria_limits.yaml),
+[policy safety configuration](../../config/synria_policy.json),
 [calibration](../../config/synria_board_calibration.json) and
 [reachable squares](../../config/synria_reachable_squares.json). Coordinates
 are XYZ metres in the named task frame. Track squares use `track:0` through
@@ -31,7 +32,17 @@ contain the contract, observation keys, task, reset flag, request id and host
 observation timestamp. Responses must echo `request_id` and
 `observation_timestamp_s`, and contain seven absolute action floats plus
 `inference_s`. Server-side monotonic clocks are not compared across hosts.
-The client clamps absolute limits and per-step deltas. Missing/stale/invalid
+Set the required session `command_period_s` and the trained policy's explicit
+`response_timeout_s`; the null template values are not usable defaults. There
+is no shared response timeout: choose it for this policy and record it in the
+policy ledger. Session provenance records the applied safety settings.
+The client clamps absolute limits and derives each step bound from six joint
+speed limits (rad/s) and one gripper speed limit (m/s), multiplied by that
+command period. Candidate speeds remain unverified; both limits and policy
+safety files need nonempty operator `verified_by` and `verified_on` before a
+command sink can be created, even with `--enable-motion`. Motion-loop periods,
+including roll phases, must match the session period. Do not use a shorter
+period than the deployed command path supports. Missing/stale/invalid
 responses request hold. Verify the actual controller hold and timeout behavior
 before use; no torque-off fallback exists. Latency records contain server
 inference time and local request-through-command-offer time.
@@ -101,10 +112,13 @@ python3 -m synria_lerobot.evaluation score \
 Add exactly one policy row with eight fields in the
 [policy ledger](POLICY_LEDGER.md): date, policy id, dataset/episode count/hash,
 recipe/hyperparameters, checkpoint hash, evaluation artifact, result, decision.
+The helper requires this policy's explicit `RESPONSE_TIMEOUT_S` and records it
+in the recipe/hyperparameter cell; historical rows are unchanged.
 
 ```bash
 python3 -m synria_lerobot.evaluation policy-row \
   --ledger docs/ludo_flagship/POLICY_LEDGER.md \
+  --response-timeout-s "$RESPONSE_TIMEOUT_S" \
   "$UTC_DATE" "$POLICY_ID" "$DATA_DESCRIPTION" "$RECIPE" \
   "$CHECKPOINT_HASH" "$EVALUATION_ARTIFACT" "$RESULT" "$DECISION"
 git add "reports/ludo_flagship/eval/$SESSION" docs/ludo_flagship/POLICY_LEDGER.md \

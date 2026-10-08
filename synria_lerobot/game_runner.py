@@ -51,6 +51,7 @@ class PolicyRollArm:
         self.path, self.observe, self.completed, self.sleep = path, observe, completed, sleep
 
     def perform(self, phase: str, parameters: dict[str, Any]) -> None:
+        self.path.client.config.require_command_period(parameters["period_s"])
         task = json.dumps({"phase": phase, **parameters}, sort_keys=True)
         for step in range(parameters["max_steps"]):
             decision = self.path.step(self.observe(task), reset=step == 0)
