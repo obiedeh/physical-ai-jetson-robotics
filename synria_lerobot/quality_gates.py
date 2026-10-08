@@ -324,6 +324,56 @@ def hash_dataset(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _merge_capture_provenance(
+    dataset_path: Path,
+    provenance: dict[str, object],
+    episodes: list[EpisodeQualityRecord],
+) -> dict[str, object]:
+    path = dataset_path / "physical_capture_provenance.jsonl"
+    if not path.is_file():
+        if episodes and (dataset_path / "physical_contract.json").is_file():
+            raise ValueError("physical dataset is missing recorded capture provenance")
+        return provenance
+    by_index: dict[int, dict[str, Any]] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        record = json.loads(line)
+        index = int(record["episode_index"])
+        if index in by_index:
+            raise ValueError("duplicate episode in capture provenance")
+        by_index[index] = record
+    selected = []
+    for episode in episodes:
+        if episode.episode_index not in by_index:
+            raise ValueError("episode is missing recorded capture provenance")
+        capture = by_index[episode.episode_index]
+        if capture.get("stored_color_space") != "RGB":
+            raise ValueError("recorded camera color space must be RGB")
+        stored = capture.get("stored_resolution", {})
+        native = capture.get("native_resolution", {})
+        for resolution in (stored, native.get("wrist", {}), native.get("front", {})):
+            if any(type(resolution.get(name)) is not int or resolution[name] <= 0 for name in (
+                "width", "height"
+            )):
+                raise ValueError("capture provenance has invalid image resolution")
+        if stored != provenance["resolution"]:
+            raise ValueError("supplied resolution differs from recorded stored resolution")
+        if capture.get("camera_ids") != provenance["camera_ids"]:
+            raise ValueError("supplied camera ids differ from recorded capture provenance")
+        selected.append(capture)
+    if not selected:
+        return provenance
+    native = selected[0]["native_resolution"]
+    if any(capture["native_resolution"] != native for capture in selected):
+        raise ValueError("native camera resolution changed; summarize separate capture sessions")
+    return {
+        **provenance,
+        "native_resolution": native,
+        "stored_resolution": selected[0]["stored_resolution"],
+        "stored_color_space": "RGB",
+        "capture_provenance": selected,
+    }
+
+
 def write_session_artifacts(
     *,
     session_dir: Path,
@@ -333,7 +383,6 @@ def write_session_artifacts(
     limits: PhysicalLimits,
     gate_config: GateConfig = DEFAULT_GATE_CONFIG,
 ) -> dict[str, object]:
-    session_dir.mkdir(parents=True, exist_ok=True)
     required = {
         "follower_serial",
         "leader_serial",
@@ -354,6 +403,8 @@ def write_session_artifacts(
     missing = sorted(required - provenance.keys())
     if missing:
         raise ValueError(f"provenance missing required fields: {missing}")
+    provenance = _merge_capture_provenance(dataset_path, provenance, episodes)
+    session_dir.mkdir(parents=True, exist_ok=True)
     provenance_path = session_dir / "provenance.json"
     provenance_path.write_text(
         json.dumps(provenance, indent=2, sort_keys=True) + "\n", encoding="utf-8"

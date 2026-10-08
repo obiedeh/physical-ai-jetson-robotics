@@ -356,6 +356,45 @@ def test_failed_camera_open_releases_fake_capture(monkeypatch: pytest.MonkeyPatc
     assert released == [True]
 
 
+def test_camera_capture_resizes_rgb_before_returning(monkeypatch: pytest.MonkeyPatch) -> None:
+    import numpy as np
+
+    from synria_lerobot.recorder import OpenCVFrameSource
+
+    raw = np.full((480, 640, 3), (10, 20, 230), dtype=np.uint8)
+    resized_inputs = []
+
+    def resize(rgb: Any, resolution: tuple[int, int], *, interpolation: int) -> Any:
+        resized_inputs.append((rgb[0, 0].tolist(), resolution, interpolation))
+        width, height = resolution
+        return np.broadcast_to(rgb[0, 0], (height, width, 3)).copy()
+
+    capture = SimpleNamespace(isOpened=lambda: True, read=lambda: (True, raw), release=lambda: None)
+    fake_cv = SimpleNamespace(
+        VideoCapture=lambda path: capture, COLOR_BGR2RGB=1, INTER_AREA=2,
+        cvtColor=lambda frame, code: frame[:, :, ::-1], resize=resize,
+    )
+    monkeypatch.setitem(sys.modules, "cv2", fake_cv)
+    source = OpenCVFrameSource("/dev/v4l/by-id/fake-test", width=48, height=32)
+    frame = source.read()
+    source.close()
+    assert frame.data.shape == (32, 48, 3)
+    assert frame.data[0, 0].tolist() == [230, 20, 10]
+    assert frame.native_resolution == (640, 480)
+    assert frame.source_id == "/dev/v4l/by-id/fake-test"
+    assert resized_inputs == [([230, 20, 10], (48, 32), 2)]
+    raw[:] = 0
+    assert frame.data[0, 0].tolist() == [230, 20, 10]
+
+
+@pytest.mark.parametrize("width,height", [(0, 224), (224, -1), (1.5, 224), (True, 224)])
+def test_invalid_image_size_is_rejected_before_capture(width: Any, height: Any) -> None:
+    from synria_lerobot.recorder import OpenCVFrameSource
+
+    with pytest.raises(ValueError, match="positive integers"):
+        OpenCVFrameSource("/dev/v4l/by-id/not-opened", width=width, height=height)
+
+
 @pytest.mark.parametrize("exit_kind", ["success", "quit", "eof", "interrupt", "capture_error"])
 def test_operator_loop_finalizes_on_every_exit(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, exit_kind: str
@@ -464,6 +503,7 @@ def test_main_cleans_partial_startup_and_session_failure(
     args = SimpleNamespace(
         dataset_path=tmp_path / "dataset", repo_id="local/test", gripper_type="50mm",
         action_source="next_state", state_has_velocity=False, smoke=False, fps=15,
+        image_width=224, image_height=224,
         follower_topic="follower", leader_topic="leader",
         wrist_camera="wrist", front_camera="front",
     )

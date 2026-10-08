@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from physical_ai_lab.cli import app
@@ -48,10 +49,32 @@ def _record() -> EpisodeQualityRecord:
     )
 
 
-def test_d1_session_summary_command_writes_artifacts(tmp_path: Path) -> None:
+@pytest.mark.parametrize("mismatch", [None, "resolution", "camera_ids", "missing"])
+def test_d1_session_summary_command_writes_artifacts(
+    tmp_path: Path, mismatch: str | None
+) -> None:
     dataset = tmp_path / "dataset"
     dataset.mkdir()
     (dataset / "payload.bin").write_bytes(b"dataset")
+    (dataset / "physical_contract.json").write_text("{}", encoding="utf-8")
+    capture = {
+        "episode_index": 0,
+        "camera_ids": {"wrist": "wrist", "front": "front"},
+        "native_resolution": {
+            "wrist": {"width": 640, "height": 480},
+            "front": {"width": 1280, "height": 720},
+        },
+        "stored_resolution": {"width": 4, "height": 4},
+        "stored_color_space": "RGB",
+    }
+    if mismatch == "resolution":
+        capture["stored_resolution"] = {"width": 8, "height": 4}
+    elif mismatch == "camera_ids":
+        capture["camera_ids"] = {"wrist": "wrong", "front": "front"}
+    if mismatch != "missing":
+        (dataset / "physical_capture_provenance.jsonl").write_text(
+            json.dumps(capture) + "\n", encoding="utf-8"
+        )
     records = write_episode_records([_record()], dataset / "records.jsonl")
     data_root = tmp_path / "reports"
     result = runner.invoke(
@@ -102,11 +125,19 @@ def test_d1_session_summary_command_writes_artifacts(tmp_path: Path) -> None:
             str(Path("config/synria_limits.yaml")),
         ],
     )
-    assert result.exit_code == 0, result.output
     session = data_root / "session-001"
+    if mismatch is not None:
+        assert result.exit_code != 0
+        assert not session.exists()
+        return
+    assert result.exit_code == 0, result.output
     assert (session / "provenance.json").is_file()
     assert (session / "session_summary.json").is_file()
     assert (session / "session_notes.md").is_file()
+    provenance = json.loads((session / "provenance.json").read_text())
+    assert provenance["native_resolution"] == capture["native_resolution"]
+    assert provenance["stored_resolution"] == {"width": 4, "height": 4}
+    assert provenance["capture_provenance"] == [capture]
 
 
 def test_d1_dataset_summary_command_writes_aggregate_and_timeline(tmp_path: Path) -> None:
