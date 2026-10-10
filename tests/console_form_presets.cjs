@@ -49,8 +49,10 @@ fps.value = "12";
 
 const values = {fps:fps.value, action_lookahead_steps:"1", image_width:"224", image_height:"224",
   state_startup_timeout_s:"10", target_episodes:"100", guard_command_topic:" /extra ",
-  action_source:"next_state", follower_topic:"/joint_states"};
-context.$ = () => ({elements:{state_has_velocity:{checked:false}}});
+  action_source:"next_state", follower_topic:"/joint_states", follower_serial:"__manual__"};
+context.$ = selector => selector === "follower-serial-custom"
+  ? {value:"ADF-manually-entered"}
+  : {elements:{state_has_velocity:{checked:false}}};
 context.FormData = class {
   /** Yield the same named scalar pairs as an HTML form with a hidden preset-backed input. */
   [Symbol.iterator]() { return Object.entries(values)[Symbol.iterator](); }
@@ -62,6 +64,7 @@ assert.equal(result.fps, 12);
 assert.equal(result.image_width, 224);
 assert.equal(result.action_lookahead_steps, 1);
 assert.equal(result.action_source, "next_state");
+assert.equal(result.follower_serial, "ADF-manually-entered");
 assert.equal(result.state_has_velocity, false);
 assert.deepEqual(Array.from(result.guard_command_topic), ["/extra"]);
 fps.select.value = "15";

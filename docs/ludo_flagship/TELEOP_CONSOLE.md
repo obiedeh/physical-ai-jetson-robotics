@@ -98,11 +98,12 @@ The optional hint is stored separately in session settings and its mirror,
 never copied into the manufacturer serial or used to open a port. Missing
 required fields are named individually. Unknown manufacturer identity remains
 a recording blocker; selecting a USB ID does not remove that requirement.
-The manufacturer-serial field offers values saved in prior physical sessions
-and in the private workspace file `follower_serial_options.json`; these are
-suggestions for reuse, not a live device probe. The ROS joint-state topic does
-not publish the manufacturer serial. On first use, enter the value printed on
-the follower label once; it is then available in future session suggestions.
+The manufacturer-serial dropdown offers values saved in prior physical
+sessions and in the private workspace file `follower_serial_options.json`; a
+manual option is available for first use. These are explicit choices, not a
+live device probe. The ROS joint-state topic does not publish the manufacturer
+serial. Enter the value printed on the follower label once; it is then
+available in future session dropdowns.
 This file stays outside the repository and demo mode never reads these values.
 Missing manufacturer serial or starting-power text does not block the no-episode
 connection diagnostic. Its separate **recording metadata** check lists these
