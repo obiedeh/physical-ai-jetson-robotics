@@ -96,6 +96,10 @@ def test_training_curriculum_is_visible_without_enabling_unregistered_tasks(
     ):
         assert skill in markup
     assert 'id="task-window-list"' in markup
+    assert 'id="task-timing-entry"' in markup
+    assert 'id="task-window-registration"' in markup
+    assert "Task timing controls are not in this console" in markup
+    assert "There are no timing inputs here by design" in markup
     assert "Physical training curriculum · staged, not all recordable yet" in markup
     assert "min_episode_s" not in form.fields
     assert "max_episode_s" not in form.fields

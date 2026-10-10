@@ -28,6 +28,7 @@
 </ol><button type="button" data-guide-help="source">State-source setup procedure</button> <button type="button" data-guide-doc="safety">Safety record</button></article>
 <article><h3>What this console does</h3><p>Prepare recording libraries → check read-only inputs → record and label → review both views.</p><p>It never moves the arm, starts a driver, changes torque, launches a bridge or arms a policy.</p><h3>Know the three outcomes</h3><p><strong>Connection check:</strong> temporary source check, no episode.</p><p><strong>Disposable smoke:</strong> one 20-second practice capture, never counted.</p><p><strong>Qualifying collection:</strong> operator-timed task, identity and verified limits required. The console cannot set or waive them.</p><button type="button" data-guide-doc="runbook">Read the full operator procedure</button></article></div>
 <article id="environment-context"><h3>This console’s environment</h3><p id="environment-facts">Loading local environment details…</p><p>Compare the ROS domain and middleware with the existing state-source terminal. Loading libraries does not start that source.</p></article>
+<article id="task-timing-entry"><h3>Task timing controls are not in this console</h3><p>Qualifying recording stays blocked until each real task has an operator-timed minimum and maximum registered in the repository. You can check which tasks are registered and open the exact procedure from the next setup step.</p><div class="actions"><button type="button" data-go-step="configure" class="primary">Open task timing status</button><button type="button" data-guide-help="timing">How to time and register a task</button></div></article>
 <button type="button" data-go-step="configure" class="primary">Continue to configuration →</button></div>
 <p id="mode-help"></p>
 <article><h3>Suggested setup</h3><p id="setup-facts">Loading available host and connection information…</p>
@@ -39,8 +40,9 @@ running state source and actual camera IDs. Custom values retain all recorder ch
 <form id="new-form"><div id="setup-configure" class="setup-page" hidden><div class="form-grid">
 <label>Session name<input name="name" required maxlength="120"></label>
 <label>Task<select name="task_id" id="task" required></select></label>
-<fieldset class="wide"><legend>Task timing registration · read only</legend><div id="task-window-list"></div>
-<small>Qualifying windows are not editable here. Time the real task, record each chosen window and rationale in DECISIONS.md, then register it through a reviewed change to config/synria_tasks.json. Unset windows continue to block qualifying sessions.</small></fieldset>
+<fieldset class="wide" id="task-window-registration"><legend>Task timing registration · read only</legend><div id="task-window-list"></div>
+<ol><li>Choose a skill and time the real task using the approved physical procedure.</li><li>Record the observed timing, chosen minimum and maximum, rationale, operator and date in <code>docs/ludo_flagship/DECISIONS.md</code>.</li><li>Register the reviewed window in <code>config/synria_tasks.json</code>. The console does not edit this registry.</li><li>Reopen the console and confirm the task shows “registered”; unset windows continue to block qualifying sessions.</li></ol>
+<small>There are no timing inputs here by design. Do not use suggested presets, synthetic runs or the disposable smoke duration as a real task window.</small><br><button type="button" data-guide-help="timing">Open the full timing procedure</button></fieldset>
 <article class="wide" id="training-curriculum"><h3>Physical training curriculum · staged, not all recordable yet</h3>
 <p>Keep datasets single-task. The registry above is the authority for what can be recorded; these next skills are a planning guide, not extra task choices.</p>
 <h4>Object-control foundations</h4><ul>

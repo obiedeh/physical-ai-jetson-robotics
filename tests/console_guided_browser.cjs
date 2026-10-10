@@ -59,6 +59,7 @@ const server = http.createServer(async (req, res) => {
   else if(route==="serial-connections")value={connections:[],message:"No physical connections in test"};
   else if(route==="software")value={status:"ready",label:"Ready",dependencies:{lerobot:true,cv2:true,rclpy:true,sensor_msgs:true,ffmpeg:true},message:"Fake dependency discovery"};
   else if(route==="operator-guide")value={environment:{host:"synthetic-test",python:"fake-python",ros_domain:"23",ros_distribution:"fake",middleware:"fake"},limits_verified:false,documents:{}};
+  else if(route==="help/limits")value={path:"config/synria_limits.yaml",text:"Synthetic candidate ranges; verified_by and verified_on are empty."};
   else if(route.startsWith("help/"))value={path:"docs/ludo_flagship/D1_OPERATOR_RUNBOOK.md",text:"Synthetic reference fixture. Never start a second follower."};
   else if(route==="setup-suggestions")value={host:"synthetic-test",account:"test",free_disk_bytes:1e11,
     recommended:{fps:15,image_width:224,image_height:224,action_lookahead_steps:1,state_startup_timeout_s:10,target_episodes:100},
@@ -120,8 +121,13 @@ async function run() {
     assert.match(await evaluate("document.querySelector('#help-content').textContent"),/No verified startup command/);
     assert.match(await evaluate("document.querySelector('#help-content').textContent"),/joint_commands_enabled:=false/);
     assert.match(await evaluate("document.querySelector('#help-content pre').textContent"),/--ros-args \\\n/);
-    await evaluate("document.querySelector('#close-help').click();document.querySelector('[data-setup-step=configure]').click()");
+    await evaluate("document.querySelector('#close-help').click();document.querySelector('[data-guide-help=timing]').click()");
+    assert.match(await evaluate("document.querySelector('#help-content').textContent"),/config\/synria_tasks.json/);
+    assert.match(await evaluate("document.querySelector('#help-content').textContent"),/cannot set or override/);
+    await evaluate("document.querySelector('#close-help').click();document.querySelector('#task-timing-entry [data-go-step=configure]').click()");
     assert.equal(await evaluate("document.querySelector('#setup-configure').hidden"),false);
+    assert.match(await evaluate("document.querySelector('#task-window-registration').textContent"),/There are no timing inputs here by design/);
+    assert.match(await evaluate("document.querySelector('#task-window-registration').textContent"),/docs\/ludo_flagship\/DECISIONS.md/);
     assert.equal(await evaluate("new Set([...document.querySelectorAll('[id]')].map(n=>n.id)).size===document.querySelectorAll('[id]').length"),true,"no duplicate controls");
     await evaluate("const fpsPreset=document.querySelector('[data-preset-for=fps]');fpsPreset.value='custom';fpsPreset.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('[name=fps]').value='0';document.querySelector('[data-setup-step=check]').click();document.querySelector('#check-readiness').click()");
     assert.equal(calls.length,0,"invalid native form constraints cannot open sources");
@@ -139,6 +145,23 @@ async function run() {
     assert.match(await evaluate("document.querySelector('#connection-paths').textContent"),/Not ready.*Follower state/s);
     assert.match(await evaluate("document.querySelector('#connection-paths').textContent"),/Not checked.*Wrist camera/s);
     assert.ok(!await evaluate("document.querySelector('#all-check-details').textContent.includes('Ready · state source')"));
+    assert.match(await evaluate("document.querySelector('#recording-blockers').textContent"),/Go to the missing serial \/ power fields/);
+    assert.match(await evaluate("document.querySelector('#recording-blockers').textContent"),/Go to task timing status/);
+    assert.match(await evaluate("document.querySelector('#recording-blockers').textContent"),/Open candidate Synria limits file/);
+    await evaluate("[...document.querySelectorAll('#recording-blockers button')].find(n=>n.textContent.includes('Go to the missing')).click()");
+    assert.equal(await evaluate("document.activeElement.name"),"follower_serial","metadata shortcut opens Configure and focuses the first missing field");
+    await evaluate("[...document.querySelectorAll('#recording-blockers button')].find(n=>n.textContent.includes('Where to find')).click()");
+    assert.match(await evaluate("document.querySelector('#help-content').textContent"),/follower arm label/);
+    assert.match(await evaluate("document.querySelector('#help-content').textContent"),/torque state/);
+    await evaluate("document.querySelector('#close-help').click();[...document.querySelectorAll('#recording-blockers button')].find(n=>n.textContent.includes('Open candidate Synria limits')).click()");
+    await until("document.querySelector('#help-title').textContent==='config/synria_limits.yaml'");
+    assert.match(await evaluate("document.querySelector('#help-title').textContent"),/config\/synria_limits.yaml/);
+    assert.match(await evaluate("document.querySelector('#help-content').textContent"),/verified_by and verified_on are empty/);
+    await evaluate("document.querySelector('#close-help').click();document.querySelector('[data-setup-step=check]').click()");
+    await evaluate("[...document.querySelectorAll('#recording-blockers button')].find(n=>n.textContent==='Go to task timing status').click()");
+    assert.equal(await evaluate("document.querySelector('#setup-configure').hidden"),false);
+    assert.match(await evaluate("document.querySelector('#task-window-registration').textContent"),/Register the reviewed window in config\/synria_tasks.json/);
+    await evaluate("document.querySelector('[data-setup-step=check]').click()");
     if(process.env.SYNRIA_GUIDE_EXTRA_SHOTS)fs.writeFileSync(screenshot.replace(/\.png$/,"-failure.png"),Buffer.from((await send("Page.captureScreenshot",{format:"png"})).data,"base64"));
     await evaluate("document.querySelector('#next-action-button').click()");
     assert.match(await evaluate("document.querySelector('#help-content').textContent"),/ROS domain/);

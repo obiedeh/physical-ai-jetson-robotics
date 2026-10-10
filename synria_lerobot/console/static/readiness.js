@@ -69,8 +69,8 @@ function renderReadiness(report) {
   const pathNames = {follower_sample:"Follower state", action_sample:"Action source", wrist_sample:"Wrist camera", front_sample:"Overhead / front camera", source_startup:"Read-only source startup"};
   for (const [name, check] of Object.entries(report.checks)) {
     const node = document.createElement("li");
-    node.className = check.passed ? "passed" : "failed";
     const level = check.status || (check.message === "Not run" ? "not_checked" : (check.passed ? "ready" : "not_ready"));
+    node.className = check.passed ? "passed" : (level === "not_checked" ? "not-checked" : "failed");
     const label = {not_checked:"Not checked", launching:"Launching", ready:"Ready", not_ready:"Not ready", configured:"Configured"}[level];
     node.dataset.level = level;
     node.textContent = `${label} · ${pathNames[name] || name.replaceAll("_", " ")} — ${check.message}`;
