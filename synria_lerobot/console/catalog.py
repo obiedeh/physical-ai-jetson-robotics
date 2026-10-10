@@ -81,12 +81,16 @@ class Catalog:
         self.connection = sqlite3.connect(
             self.workspace / "console.sqlite3", check_same_thread=False
         )
-        self.connection.row_factory = sqlite3.Row
-        self.connection.execute("PRAGMA foreign_keys=ON")
-        self.connection.execute("PRAGMA journal_mode=WAL")
-        self._migrate()
-        if backup:
-            self.backup()
+        try:
+            self.connection.row_factory = sqlite3.Row
+            self.connection.execute("PRAGMA foreign_keys=ON")
+            self.connection.execute("PRAGMA journal_mode=WAL")
+            self._migrate()
+            if backup:
+                self.backup()
+        except BaseException:
+            self.connection.close()
+            raise
 
     def _migrate(self) -> None:
         """Create version one without guessing how to downgrade a newer database."""
@@ -150,8 +154,11 @@ class Catalog:
                 root
                 / f"console-{datetime.now(timezone.utc):%Y%m%dT%H%M%S%f}-{uuid.uuid4().hex}.sqlite3"
             )
-            with sqlite3.connect(path) as target:
+            target = sqlite3.connect(path)
+            try:
                 self.connection.backup(target)
+            finally:
+                target.close()
             for old in sorted(root.glob("console-*.sqlite3"))[:-5]:
                 old.unlink()
             return path
