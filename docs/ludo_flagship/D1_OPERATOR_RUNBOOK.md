@@ -356,6 +356,22 @@ Candidate [limits](../../config/synria_limits.yaml) require operator
 `verified_by` and `verified_on`. While empty, summaries say
 "limits unverified by operator" and count zero qualifying D1 episodes.
 
+## Troubleshooting
+
+The recorder waits up to 10 seconds for the first state message to allow ROS 2
+discovery. Set `--state-startup-timeout-s` to a positive, finite number of
+seconds if a different startup wait is needed; it applies to the follower and,
+when selected, the USB leader state source. A timeout names the topic and wait:
+check that the state source is running and that this terminal uses the same
+ROS domain. This grace period applies only before the first message; the
+one-second source timeout thereafter, rate measurement and steady-state
+freshness gates are unchanged.
+
+A camera preview application can keep a camera open even after its window is
+closed, causing the recorder to fail to open that camera. Check for a remaining
+preview process with `pgrep -a cheese` and stop it before recording. Closing the
+window alone is not sufficient.
+
 ## 6. Commit the evidence
 
 Datasets, videos, and frame records stay outside git. Small generated session

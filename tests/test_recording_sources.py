@@ -289,6 +289,110 @@ def test_velocity_ros_contract_requires_complete_finite_joint_velocities(
         source.close()
 
 
+def test_ros_discovery_wait_precedes_rate_measurement(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A first callback after one second succeeds without shortening the rate window."""
+    control = fake_ros(monkeypatch)
+    clock = SimpleNamespace(now=0.0)
+    monkeypatch.setattr(recorder.time, "monotonic", lambda: clock.now)
+    source = recorder.RosJointStateSource("/joint_states", node_name="fake")
+    waits = []
+
+    def wait(timeout: float) -> bool:
+        """Simulate discovery taking longer than the steady-state timeout."""
+        waits.append(timeout)
+        if not source._ready.is_set():
+            clock.now += min(timeout, 1.25)
+            if timeout >= 1.25:
+                control.callback(joint_message(0.1))
+        return source._ready.is_set()
+
+    def sleep(duration: float) -> None:
+        """Deliver a fresh callback on every synthetic measurement tick."""
+        clock.now += duration
+        control.callback(joint_message(0.1))
+
+    monkeypatch.setattr(source._ready, "wait", wait)
+    try:
+        measured = source.measure_rate(clock=lambda: clock.now, sleep=sleep)
+        assert measured.started_monotonic_s == 1.25
+        assert measured.duration_s == 2.0
+        assert measured.message_count >= 200
+        assert measured.max_callback_gap_s <= 0.011
+        assert waits[0] == 10.0
+        assert set(waits[1:]) == {1.0}
+    finally:
+        source.close()
+
+
+@pytest.mark.parametrize("startup_wait", [10.0, 2.5])
+def test_ros_discovery_timeout_names_topic_wait_and_remedy(
+    monkeypatch: pytest.MonkeyPatch, startup_wait: float,
+) -> None:
+    """Missing first state reports an actionable error without an extra source wait."""
+    fake_ros(monkeypatch)
+    source = recorder.RosJointStateSource(
+        "/custom/states", node_name="fake", first_sample_timeout_s=startup_wait,
+    )
+    waits = []
+
+    def wait(timeout: float) -> bool:
+        """Exhaust the requested wait without delivering a fake message."""
+        waits.append(timeout)
+        return False
+
+    monkeypatch.setattr(source._ready, "wait", wait)
+    try:
+        with pytest.raises(RuntimeError) as error:
+            source.measure_rate()
+        assert str(error.value) == (
+            f"No state sample received on /custom/states after waiting {startup_wait:g} s; "
+            "check that the state source is running and that this terminal uses "
+            "the same ROS domain."
+        )
+        assert waits == [startup_wait]
+    finally:
+        source.close()
+
+
+def test_ros_discovery_grace_does_not_relax_staleness(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Once a state arrives, reads keep the one-second wait and rate checks reject stale data."""
+    control = fake_ros(monkeypatch)
+    clock = SimpleNamespace(now=0.0)
+    monkeypatch.setattr(recorder.time, "monotonic", lambda: clock.now)
+    source = recorder.RosJointStateSource("/joint_states", node_name="fake")
+    control.callback(joint_message(0.1))
+    waits = []
+
+    def wait(timeout: float) -> bool:
+        """Observe the unchanged timeout on an already-ready source."""
+        waits.append(timeout)
+        return source._ready.is_set()
+
+    monkeypatch.setattr(source._ready, "wait", wait)
+    try:
+        assert source.read().monotonic_timestamp_s == 0.0
+        clock.now = 0.21
+        with pytest.raises(RuntimeError, match="joint state source is stale"):
+            source.measure_rate(clock=lambda: clock.now)
+        assert waits == [1.0, 1.0]
+        assert source._timeout_s == 1.0
+    finally:
+        source.close()
+
+
+@pytest.mark.parametrize("timeout", [0, -1, float("nan"), float("inf"), -float("inf"), True])
+def test_ros_discovery_timeout_requires_positive_finite_value(
+    monkeypatch: pytest.MonkeyPatch, timeout: float,
+) -> None:
+    """Invalid discovery waits fail before creating any ROS resources."""
+    control = fake_ros(monkeypatch)
+    with pytest.raises(ValueError, match="first sample timeout must be positive and finite"):
+        recorder.RosJointStateSource(
+            "/joint_states", node_name="fake", first_sample_timeout_s=timeout,
+        )
+    assert control.events == []
+
+
 def test_rate_measurement_counts_callbacks_not_cache_reads_over_full_window(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -322,14 +426,18 @@ def test_rate_measurement_counts_callbacks_not_cache_reads_over_full_window(
 def test_rate_measurement_refuses_unhealthy_callback_stream(
     monkeypatch: pytest.MonkeyPatch, failure: str
 ) -> None:
+    """Discovery and steady-state callback failures all refuse rate measurement."""
     control = fake_ros(monkeypatch)
     clock = SimpleNamespace(now=10.0)
     monkeypatch.setattr(recorder.time, "monotonic", lambda: clock.now)
-    source = recorder.RosJointStateSource("/unused", node_name="fake", timeout_s=0.01)
+    source = recorder.RosJointStateSource(
+        "/unused", node_name="fake", timeout_s=0.01, first_sample_timeout_s=0.01,
+    )
     if failure != "missing":
         control.callback(joint_message(0.1))
 
     def sleep(duration: float) -> None:
+        """Inject the selected stream fault during the synthetic measurement window."""
         clock.now += 2 if failure == "burst" else duration
         if failure == "burst":
             for _ in range(100):

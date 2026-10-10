@@ -349,9 +349,15 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
 
     def __init__(
         self, topic: str, *, node_name: str, state_has_velocity: bool = False,
-        timeout_s: float = 1.0,
+        timeout_s: float = 1.0, first_sample_timeout_s: float = 10.0,
     ) -> None:
+        """Allow initial discovery without relaxing subsequent source timeouts."""
+        if (isinstance(first_sample_timeout_s, bool)
+                or not math.isfinite(first_sample_timeout_s) or first_sample_timeout_s <= 0):
+            raise ValueError("first sample timeout must be positive and finite")
         super().__init__(timeout_s=timeout_s)
+        self._first_sample_timeout_s = first_sample_timeout_s
+        self._topic = topic
         self._rate_window_start: float | None = None
         self._rate_window_count = 0
         self._rate_window_last = 0.0
@@ -379,6 +385,7 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
             )
 
             def on_state(message: Any) -> None:
+                """Cache the newest state with host arrival and ROS timestamps."""
                 arrived = time.monotonic()
                 ros_arrival = self._node.get_clock().now().nanoseconds / 1_000_000_000
                 values = dict(zip(message.name, message.position, strict=True))
@@ -405,6 +412,7 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
             self._executor.add_node(self._node)
 
             def spin() -> None:
+                """Run callbacks until owned shutdown and surface unexpected stops."""
                 try:
                     self._executor.spin()
                     if not self._stop.is_set():
@@ -417,6 +425,18 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
             startup.pop_all()
 
     def read(self) -> PhysicalState:
+        """Wait for discovery only before the first message, then use the normal cache."""
+        with self._lock:
+            awaiting_first = not self._received_count and self._error is None and not self._closed
+        if awaiting_first:
+            self._ready.wait(self._first_sample_timeout_s)
+            with self._lock:
+                if self._latest is None and self._error is None and not self._closed:
+                    raise RuntimeError(
+                        f"No state sample received on {self._topic} after waiting "
+                        f"{self._first_sample_timeout_s:g} s; check that the state source "
+                        "is running and that this terminal uses the same ROS domain."
+                    )
         return self._read_latest()
 
     def require_no_command_publishers(self, topics: tuple[str, ...]) -> None:
@@ -1497,6 +1517,7 @@ def run_operator_loop(recorder: PhysicalEpisodeRecorder) -> PhysicalSessionResul
 
 
 def _parse_physical_args() -> argparse.Namespace:
+    """Parse recording configuration, including the ROS discovery wait."""
     parser = argparse.ArgumentParser(description="Record physical Synria demonstrations")
     parser.add_argument("--task-id", choices=TASK_IDS, required=True)
     parser.add_argument(
@@ -1513,6 +1534,10 @@ def _parse_physical_args() -> argparse.Namespace:
     )
     parser.add_argument("--action-lookahead-steps", type=int, default=1)
     parser.add_argument("--follower-topic", default="/joint_states")
+    parser.add_argument(
+        "--state-startup-timeout-s", type=float, default=10.0,
+        help="Seconds to wait for the first state message only (default: 10).",
+    )
     parser.add_argument("--state-source", choices=STATE_SOURCE_KINDS, required=True)
     parser.add_argument("--guard-command-topic", action="append", default=[])
     parser.add_argument("--leader-topic", default="/leader/joint_states")
@@ -1527,6 +1552,7 @@ def _parse_physical_args() -> argparse.Namespace:
 
 
 def physical_main() -> int:  # pragma: no cover
+    """Create read-only sources and record a session with owned-resource cleanup."""
     args = _parse_physical_args()
     purpose = recording_purpose(args.smoke)
     task_definition = select_recording_task(args.task_registry, args.task_id, purpose=purpose)
@@ -1567,6 +1593,7 @@ def physical_main() -> int:  # pragma: no cover
             follower = RosJointStateSource(
                 args.follower_topic, node_name="synria_d1_follower_state",
                 state_has_velocity=contract.state_has_velocity,
+                first_sample_timeout_s=args.state_startup_timeout_s,
             )
             startup_cleanup.callback(_close_all, follower.close)
             measurement = follower.measure_rate()
@@ -1590,6 +1617,7 @@ def physical_main() -> int:  # pragma: no cover
             if contract.action_source is ActionSourceKind.LEADER:
                 leader_state = RosJointStateSource(
                     args.leader_topic, node_name="synria_d1_leader_state", state_has_velocity=False,
+                    first_sample_timeout_s=args.state_startup_timeout_s,
                 )
                 startup_cleanup.callback(_close_all, leader_state.close)
                 action_source: ActionSource = LeaderActionSource(leader_state)

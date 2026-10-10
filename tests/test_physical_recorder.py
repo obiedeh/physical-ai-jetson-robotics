@@ -680,6 +680,7 @@ def test_cleanup_failure_does_not_hide_original_session_error(
 def test_main_cleans_partial_startup_and_session_failure(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure_at: str
 ) -> None:
+    """Close every successfully constructed resource after startup or session failure."""
     from synria_lerobot import recorder
 
     closed = []
@@ -690,6 +691,7 @@ def test_main_cleans_partial_startup_and_session_failure(
         action_source="next_state", state_has_velocity=False, smoke=False, fps=15,
         image_width=224, image_height=224, action_lookahead_steps=1,
         follower_topic="/follower", leader_topic="/leader",
+        state_startup_timeout_s=10.0,
         state_source="standalone_driver", guard_command_topic=[],
         wrist_camera="wrist", front_camera="front",
     )
@@ -702,6 +704,7 @@ def test_main_cleans_partial_startup_and_session_failure(
     )
 
     def source(name: str, **kwargs: Any) -> SimpleNamespace:
+        """Return a tracked fake resource or fail at the selected startup boundary."""
         name = name.lstrip("/")
         if name == failure_at:
             raise OSError(f"fake {name} failure")
@@ -716,6 +719,7 @@ def test_main_cleans_partial_startup_and_session_failure(
     monkeypatch.setattr(recorder, "OpenCVFrameSource", source)
 
     def fail(*args: Any, **kwargs: Any) -> Any:
+        """Inject the requested construction or operator-loop failure."""
         raise OSError(f"fake {failure_at} failure")
 
     if failure_at == "recorder":
@@ -731,9 +735,12 @@ def test_main_cleans_partial_startup_and_session_failure(
 
 @pytest.mark.parametrize("action_source", [None, "leader"])
 @pytest.mark.parametrize("task_id", ["die_into_cup", "roll_and_dump", "cup_return"])
+@pytest.mark.parametrize("startup_wait", [None, 3.5])
 def test_cli_defaults_to_follower_only_and_keeps_optional_leader(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, action_source: str | None, task_id: str,
+    startup_wait: float | None,
 ) -> None:
+    """Forward the default or explicit discovery wait to each selected state source."""
     from synria_lerobot import recorder
 
     arguments = [
@@ -749,13 +756,16 @@ def test_cli_defaults_to_follower_only_and_keeps_optional_leader(
     ]
     if action_source is not None:
         arguments.extend(["--action-source", action_source])
+    if startup_wait is not None:
+        arguments.extend(["--state-startup-timeout-s", str(startup_wait)])
     monkeypatch.setattr(sys, "argv", arguments)
     assert recorder._parse_physical_args().action_source == (action_source or "next_state")
     sources = []
     configs = []
 
     def state_source(topic: str, **kwargs: Any) -> SimpleNamespace:
-        sources.append((topic, kwargs["state_has_velocity"]))
+        """Capture source configuration without initializing ROS."""
+        sources.append((topic, kwargs["state_has_velocity"], kwargs["first_sample_timeout_s"]))
         return SimpleNamespace(
             close=lambda: None,
             measure_rate=lambda: StateRateMeasurement(50, 100, 2, 0, 2, 0.02),
@@ -764,6 +774,7 @@ def test_cli_defaults_to_follower_only_and_keeps_optional_leader(
         )
 
     def writer(config: PhysicalRecorderConfig) -> FakeWriter:
+        """Capture dataset configuration without an optional library or device."""
         configs.append(config)
         return FakeWriter(tmp_path)
 
@@ -774,9 +785,10 @@ def test_cli_defaults_to_follower_only_and_keeps_optional_leader(
     )
     monkeypatch.setattr(recorder, "run_operator_loop", lambda _: PhysicalSessionResult())
     assert recorder.physical_main() == 0
-    expected = [("/joint_states", True)]
+    expected_wait = 10.0 if startup_wait is None else startup_wait
+    expected = [("/joint_states", True, expected_wait)]
     if action_source == "leader":
-        expected.append(("/leader/joint_states", False))
+        expected.append(("/leader/joint_states", False, expected_wait))
     assert sources == expected
     assert configs[0].contract.action_source.value == (action_source or "next_state")
     assert configs[0].contract.action_lookahead_steps == 2
