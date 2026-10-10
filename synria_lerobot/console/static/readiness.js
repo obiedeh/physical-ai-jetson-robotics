@@ -29,7 +29,8 @@ function renderReadiness(report) {
   for (const [name, check] of Object.entries(report.checks)) {
     const node = document.createElement("li");
     node.className = check.passed ? "passed" : "failed";
-    node.textContent = `${check.passed ? "PASS" : "NEEDS ATTENTION"} · ${name.replaceAll("_", " ")} — ${check.message}`;
+    const label = check.message === "Not run" ? "NOT CHECKED" : (check.passed ? "PASS" : "NEEDS ATTENTION");
+    node.textContent = `${label} · ${name.replaceAll("_", " ")} — ${check.message}`;
     if (check.details) node.append(text("pre", JSON.stringify(check.details, null, 2)));
     $("readiness-results").append(node);
   }
