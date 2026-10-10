@@ -16,11 +16,11 @@ async function api(path, payload) {
   return result;
 }
 /** Show an operator-facing refusal without interpreting it as a successful check. */
-function error(value) { $("notice").textContent = value ? String(value.message || value) : ""; }
+function error(value) { if(window.SynriaGuide){window.SynriaGuide.renderError(value);return;} $("notice").textContent = value ? String(value.message || value) : ""; }
 /** Surface asynchronous UI failures while leaving server-owned state intact. */
-async function safe(operation) { try { error(""); return await operation(); } catch (reason) { error(reason); } }
+async function safe(operation) { try { return await operation(); } catch (reason) { error(reason); } }
 /** Select a view without changing capture ownership or timing. */
-function screen(id) { document.querySelectorAll(".screen").forEach(node => {node.hidden = node.id !== id;}); }
+function screen(id) { document.querySelectorAll(".screen").forEach(node => {node.hidden = node.id !== id;}); document.querySelectorAll("[data-screen]").forEach(node=>{if(node.dataset.screen===id)node.setAttribute("aria-current","page");else node.removeAttribute("aria-current");}); }
 /** Build a labeled action control with shared refusal handling. */
 function button(label, action, kind = "") { const node = document.createElement("button"); node.textContent = label; node.className = kind; node.onclick = () => safe(action); return node; }
 /** Create text-only content so operator data cannot become executable markup. */
@@ -126,12 +126,14 @@ async function refreshState() {
   for(const camera of ["wrist","front"]){const info=c.cameras?.[camera]||{};$(camera+"-health").textContent=JSON.stringify(info);$(camera+"-preview").closest("figure").classList.toggle("stale",Boolean(info.error)||(info.age_s??0)>0.2);if(active)$(camera+"-preview").src=`/media/preview/${camera}?v=${Date.now()}`;}
   const cue=recording?(elapsed>=max-2?"cap":elapsed>=min?"minimum":"start"):c.last_episode?`saved-${c.last_episode.episode_index}`:"";
   if(cue&&cue!==lastCue){tone();lastCue=cue;}lastCapture=c.state;
+  window.dispatchEvent(new Event("console-state"));
 }
 /** Request one existing recorder transition and refresh the resulting state. */
 async function command(name) {
   if(name==="start"&&Number($("countdown").value)>0)await api("record/countdown",{seconds:Number($("countdown").value)});
   else await api(`record/${name}`,{});
   await refreshState();if(["success","failure","retry"].includes(name))await refreshSessions();
+  if(!state.capture?.error&&!state.capture?.catalog_error)error("");
 }
 /** Display saved labels and gates without changing episode evidence. */
 async function loadEpisodes() {
@@ -195,7 +197,17 @@ $("review-latest").onclick=()=>safe(async()=>{await refreshSessions();$("review-
 $("task").onchange=taskDescription;$("search").oninput=()=>safe(refreshSessions);$("review-session").onchange=()=>safe(loadEpisodes);
 $("previous").onclick=()=>safe(async()=>{frame=Math.max(0,frame-1);await showFrame();});$("next").onclick=()=>safe(async()=>{frame=Math.min(Number($("scrub").max),frame+1);await showFrame();});
 $("scrub").oninput=()=>safe(async()=>{frame=Number($("scrub").value);await showFrame();});$("play").onclick=()=>{playing=!playing;$("play").textContent=playing?"Pause":"Play";if(playing)advance();};
-document.addEventListener("keydown",event=>{if(event.repeat||$("record").hidden||/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))return;let cmd;if(event.code==="Space")cmd=lastCapture==="recording"?"stop":"start";else if(lastCapture==="stopped"&&event.key.toLowerCase()==="s")cmd="success";else if(lastCapture==="stopped"&&event.key.toLowerCase()==="f")cmd="failure";if(cmd&&state.capture?.controls?.[cmd]){event.preventDefault();safe(()=>command(cmd));}});
+/** Accept hands-busy shortcuts only on the recording canvas, never within dialogs or focused controls. */
+function recordingShortcut(event) {
+  if(event.repeat||event.isComposing||event.ctrlKey||event.metaKey||event.altKey||$("record").hidden||
+    document.querySelector("dialog[open]")||document.activeElement.closest("input,select,textarea,button,a,summary,[contenteditable=true]"))return;
+  let cmd;
+  if(event.code==="Space")cmd=lastCapture==="recording"?"stop":"start";
+  else if(lastCapture==="stopped"&&event.key.toLowerCase()==="s")cmd="success";
+  else if(lastCapture==="stopped"&&event.key.toLowerCase()==="f")cmd="failure";
+  if(cmd&&state.capture?.controls?.[cmd]){event.preventDefault();safe(()=>command(cmd));}
+}
+document.addEventListener("keydown",recordingShortcut);
 /** Load server state and form choices before announcing that setup suggestions may apply. */
 async function boot(){await refreshState();tasks=await api("tasks");for(const task of tasks){const option=text("option",task.task_id);option.value=task.task_id;$("task").append(option);}const cameras=await api("cameras");$("camera-note").textContent=cameras.message;for(const id of ["wrist-choice","front-choice"]){$(id).append(text("option",""));for(const camera of cameras.cameras){const option=text("option",camera);option.value=camera;$(id).append(option);}}$("mode-help").textContent=state.demo?"Synthetic demo only. No ROS, serial ports or camera devices are opened. These datasets are refused by physical summaries, training and evaluation.":"All runbook safety, wiring and preflight rules apply unchanged. This app never starts a driver or teleoperation.";$("source").disabled=state.demo;$("smoke").hidden=state.demo;taskDescription();await refreshSessions();if(state.active_session)screen("record");window.synriaConsoleReady=true;window.dispatchEvent(new Event("console-ready"));}
 safe(boot);setInterval(()=>safe(refreshState),700);

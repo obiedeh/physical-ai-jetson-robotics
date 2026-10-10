@@ -38,6 +38,7 @@ async function checkSoftware() {
     return false;
   } finally {
     $("check-software").disabled = false;
+    if(typeof window !== "undefined")window.dispatchEvent(new Event("console-readiness"));
   }
 }
 
@@ -70,7 +71,7 @@ function renderReadiness(report) {
     const node = document.createElement("li");
     node.className = check.passed ? "passed" : "failed";
     const level = check.status || (check.message === "Not run" ? "not_checked" : (check.passed ? "ready" : "not_ready"));
-    const label = {not_checked:"Not checked", launching:"Launching", ready:"Ready", not_ready:"Not ready"}[level];
+    const label = {not_checked:"Not checked", launching:"Launching", ready:"Ready", not_ready:"Not ready", configured:"Configured"}[level];
     node.dataset.level = level;
     node.textContent = `${label} · ${pathNames[name] || name.replaceAll("_", " ")} — ${check.message}`;
     if (check.details) {
@@ -82,6 +83,7 @@ function renderReadiness(report) {
   }
   $("readiness-confirmations").hidden = Boolean(state.demo);
   $("check-readiness").disabled = readinessBusy || report.status === "checking" || Boolean(state.active_session);
+  if(typeof window !== "undefined")window.dispatchEvent(new Event("console-readiness"));
 }
 
 /** Explicit operator action starts a bounded diagnostic, never a recording or driver. */
@@ -92,6 +94,8 @@ async function runReadiness() {
   if (!state.demo && Object.values(confirmations).some(value => !value)) {
     throw Error("Complete the physical safety confirmations before opening read-only sources.");
   }
+  // A deliberate new attempt supersedes the earlier setup error; background polling never does.
+  if (typeof window !== "undefined") error("");
   readinessBusy = true;
   $("check-readiness").disabled = true;
   try {
