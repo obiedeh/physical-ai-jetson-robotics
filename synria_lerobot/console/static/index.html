@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Synria Teleop Console</title><link rel="stylesheet" href="/app.css"><script src="/app.js" defer></script></head>
+<body><header><div><span class="eyebrow">READ-ONLY COLLECTION</span><h1>Synria Teleop Console</h1></div>
+<span id="mode" class="badge">Connecting</span><button id="quit">Quit console</button></header>
+<div id="notice" role="alert"></div><nav aria-label="Console screens">
+<button data-screen="sessions">Sessions</button><button data-screen="new">New session</button>
+<button data-screen="record">Record</button><button data-screen="review">Review</button>
+<button data-screen="trash">Trash</button></nav>
+<main><section id="sessions" class="screen"><div class="section-head"><h2>Demonstration sessions</h2>
+<input id="search" placeholder="Search by name" aria-label="Search sessions"><button id="reindex">Reindex from disk</button></div>
+<p>Datasets are authoritative. The local catalog is a rebuildable index and audit log.</p><div id="session-list" class="cards"></div></section>
+<section id="new" class="screen" hidden><h2>New recording session</h2>
+<p id="mode-help"></p><form id="new-form"><div class="form-grid">
+<label>Session name<input name="name" required maxlength="120"></label>
+<label>Task<select name="task_id" id="task" required></select></label>
+<label>Gripper<select name="gripper_type" required><option value="">Choose installed gripper</option><option>50mm</option><option>100mm</option></select></label>
+<label>State source<select name="state_source" id="source"><option value="">Choose verified source</option><option value="standalone_driver">Standalone driver</option><option value="ros2_control">ros2_control</option></select></label>
+<label>Follower topic<input name="follower_topic" value="/joint_states"></label>
+<label>Action source<select name="action_source"><option value="next_state">Next follower state</option><option value="leader">USB leader state (optional)</option></select></label>
+<label>USB leader topic<input name="leader_topic" value="/leader/joint_states"></label>
+<label>Lookahead steps<input name="action_lookahead_steps" type="number" min="0" value="1" required></label>
+<label>Requested FPS (required)<input name="fps" type="number" min="1" step="1" required></label>
+<label>Stored image width<input name="image_width" type="number" min="1" value="224" required></label>
+<label>Stored image height<input name="image_height" type="number" min="1" value="224" required></label>
+<label>Wrist camera<select name="wrist_camera" id="wrist-choice"></select></label>
+<label>Overhead / front (fixed)<select name="front_camera" id="front-choice"></select></label>
+<label>Additional guarded topics<input name="guard_command_topic" placeholder="Comma-separated absolute topics"></label>
+<label>First state wait (seconds)<input name="state_startup_timeout_s" type="number" min="0.1" step="0.1" value="10" required></label>
+<label>Operator<input name="operator" required></label><label>Follower serial<input name="follower_serial"></label>
+<label>Leader serial<input name="leader_serial"></label><label>Starting power state<input name="power_state_start"></label>
+<label>Target episode count<input name="target_episodes" type="number" min="1" value="100" required></label>
+<label class="check"><input name="state_has_velocity" type="checkbox">Require reported joint velocities</label>
+<label class="wide">Scene description<textarea name="scene" required rows="2"></textarea></label>
+<label class="wide">Session notes<textarea name="notes" rows="2"></textarea></label></div>
+<article id="task-description"></article><p id="camera-note"></p>
+<button id="create" class="primary" type="submit">Create session</button>
+<button id="smoke" type="button">Disposable 20-second smoke check</button></form></section>
+<section id="record" class="screen" hidden><div class="section-head"><h2 id="record-title">No session open</h2><button id="close-session">Close sources</button></div>
+<p id="capture-header">Open a session to start.</p><div id="counters" class="metrics"></div>
+<div class="cameras"><figure><figcaption>Wrist <span id="wrist-health"></span></figcaption><img id="wrist-preview" alt="Latest wrist camera frame"></figure>
+<figure><figcaption>Overhead / front (fixed) <span id="front-health"></span></figcaption><img id="front-preview" alt="Latest fixed camera frame"></figure></div>
+<div class="controls"><button data-command="start" class="primary">Start · Space</button><button data-command="stop">Stop · Space</button>
+<button data-command="success" class="success">Success · S</button><button data-command="failure">Failure · F</button>
+<button data-command="retry">Retry save</button><button id="discard" class="danger">Discard…</button>
+<label>Start countdown <input id="countdown" type="number" min="0" max="30" value="0"></label>
+<button data-command="cancel_countdown">Cancel countdown</button><label class="check"><input id="audio" type="checkbox">Audio cues</label></div>
+<p>Save task failures with the failure label. Discard is only for a capture or setup fault. Pending frames exist only in memory.</p>
+<div class="split"><article><h3>Follower state · read only</h3><div id="joint-values"></div><canvas id="live-trace" width="650" height="160"></canvas></article>
+<article><h3>Preflight · cannot be bypassed</h3><pre id="preflight"></pre></article></div>
+<article id="last-save"><h3>Last saved episode</h3><pre id="save-result"></pre><button id="review-latest">Review episode</button></article></section>
+<section id="review" class="screen" hidden><div class="section-head"><h2>Frame-exact review</h2><select id="review-session" aria-label="Session to review"></select></div>
+<p>Playback reviews recorded data on screen. It never moves the robot.</p><div class="table-scroll"><table><thead><tr><th>Episode</th><th>Label</th><th>Seconds</th><th>Frames</th><th>Rate</th><th>Gates</th><th>Excluded</th><th>Note / actions</th></tr></thead><tbody id="episodes"></tbody></table></div>
+<article id="player" hidden><h3 id="player-title"></h3><div class="cameras"><figure><figcaption>Wrist</figcaption><img id="play-wrist" alt="Recorded wrist frame"></figure><figure><figcaption>Overhead / front (fixed)</figcaption><img id="play-front" alt="Recorded front frame"></figure></div>
+<div class="controls"><button id="previous">← Frame</button><button id="play">Play</button><button id="next">Frame →</button>
+<label>Speed<select id="speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label><span id="frame-label"></span></div>
+<input id="scrub" type="range" min="0" max="0" value="0" aria-label="Frame index">
+<canvas id="review-trace" width="1000" height="200"></canvas><p>Solid: state · dashed: action · vertical cursor: selected frame</p>
+<details open><summary>Exact stored values, timestamps and source skew</summary><pre id="frame-data"></pre></details>
+<details><summary>Native final still and episode provenance</summary><img id="still" alt="Native final front-camera still"><pre id="episode-provenance"></pre></details></article></section>
+<section id="trash" class="screen" hidden><h2>Trash and tombstones</h2><p>Trash is recoverable. Purge removes the session files permanently and retains the audit record.</p><div id="trash-list" class="cards"></div></section>
+</main><footer>Implemented, unmeasured · no hardware validation · read-only toward the arm</footer></body></html>
