@@ -311,10 +311,28 @@ requirements apply unchanged; the command-line path above remains the reference.
 Earlier notes about the lack of live preview or an automatic viewer describe
 that reference terminal path, not the console.
 The console cannot set task windows, start teleoperation or control the arm.
+Its setup workspace follows Prepare, Configure, Check connections, then Record.
+Use the next-step banner or Operator help for the procedure and specific recovery
+steps without leaving the page. Software availability, actual source samples and
+qualifying-data requirements are separate statuses. Creating a subscriber does
+not establish connectivity. The embedded source instructions do not substitute
+for a verified site-specific read-only startup procedure or run it for you.
 Closing its browser tab leaves capture running until Stop or the existing hard
 cap. Save or explicitly discard pending frames before quitting the process.
 Its disposable smoke stays separate and temporary; no console action turns it
 into qualifying D1 data. Continue with section 5 for reviewed physical evidence.
+
+On New session, Camera mapping names wrist and fixed-front roles explicitly.
+After completing section 1, the optional **Run read-only checks** button opens
+the selected sources in a disposable diagnostic context, checks their latest
+samples and the shared recorder preflight, then closes them without starting
+or saving an episode. Confirm the physical safety checklist before using it.
+It cannot establish leader hardware-sync connectivity without operator review,
+test motion, certify torque/e-stop behavior, or replace view-framing inspection.
+The readiness meter distinguishes incomplete connections from connected but
+unconfigured collection. Unset task windows or unverified limits cannot show
+green physical readiness. Results expire after 60 seconds and never bypass
+the real session's subsequent contract, recovery, publisher and quality checks.
 
 ## 5. Gate, review, and summarize retained data
 

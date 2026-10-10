@@ -22,17 +22,52 @@ complete [the D1 safety and wiring preflight](D1_OPERATOR_RUNBOOK.md#1-safety-wi
 retain its read-only state-source configuration, then launch:
 
 ```bash
-synria-teleop-console --workspace "$HOME/synria-console"
+scripts/linux_rtx/synria_teleop_console.sh --workspace "$HOME/synria-console"
 ```
 
 The [RTX launcher](../../scripts/linux_rtx/synria_teleop_console.sh) activates
-`RECORDING_VENV` (default `/srv/venvs/synria-d1-py312`) without starting ROS or
-any robot process. Copy the [desktop entry](../../scripts/linux_rtx/synria-teleop-console.desktop)
+`RECORDING_VENV` (default `/srv/venvs/synria-d1-py312`, then
+`$HOME/venvs/synria-d1-py312` if the former is absent). Physical mode sources
+`RECORDING_ROS_SETUP` (default `/opt/ros/jazzy/setup.bash`) to expose library paths;
+demo mode skips that setup. It never starts a ROS node or any robot process.
+A missing setup file produces a Not ready warning but still opens the interface
+so its dependency errors are visible. Copy the [desktop entry](../../scripts/linux_rtx/synria-teleop-console.desktop)
 to `~/.local/share/applications/`, adjusting its checkout, workspace and
-environment paths for this host; its terminal must retain the authorized ROS
-environment for physical recording. Neither launch configures a driver.
+environment paths for this host; preserve the authorized ROS domain and middleware
+settings. Neither launch configures a driver. Direct entry-point launches still
+require an already prepared recording/ROS environment.
 
 ## Use
+
+The setup workspace guides **Prepare → Configure → Check connections → Record**.
+The next-step banner names the current blocker and opens its procedure in place.
+Operator help includes the local runbook, protocol, decisions and safety records;
+it works without external network access. The state-source procedure distinguishes
+an unverified standalone candidate from the still-unrecorded site-specific
+read-only ros2_control startup procedure. Neither is executed by the page.
+
+![Guided setup rendered with synthetic test fixtures; no hardware.](../assets/synria-console-guided-setup.png)
+
+Four connection cards separate follower, action source, wrist and fixed-front
+status from software availability and qualifying evidence. A created subscription
+is not proof of incoming data. Stale or changed settings invalidate connection
+results. Errors offer short recovery steps for state timeout/domain mismatch,
+camera ownership, rate, freshness, competing publishers, disk space, contract
+mismatch, blocked recovery and failed saves. Technical details remain expandable.
+Background polling never dismisses an error or repeats a failed mutation.
+Retry save preserves pending frames; successful explicit retry clears its error.
+Keyboard capture controls are disabled inside dialogs, focused controls and
+browser shortcut combinations. No procedure can bypass a recorder guard.
+
+Readiness blockers include direct next steps: missing serial/power metadata
+jumps to the empty field and explains where to find each value; task timing opens
+the registry status; limits opens the read-only config. Source alignment is
+neutral **Not checked** until every required fresh sample exists. With all
+samples present, it reports the measured skew against the existing threshold.
+The Alicia-D Isaac ghost-arm soft cap and simulation self-collision geometry are
+not treated as physical-arm verification or as the recorder's collision gate.
+The current scalar joint/gripper candidates in config/synria_limits.yaml stay
+unverified until an operator verifies the physical arm and gripper.
 
 ![Synthetic demo session; no physical data or hardware run.](../assets/synria-teleop-console-demo.png)
 
@@ -45,6 +80,105 @@ Only disposable smoke is available before then. Its button runs the shared
 preflight, then automatically starts the existing 20-second temporary capture;
 this flow is fake-tested, not hardware-verified. Review remains available until
 closing its context, when temporary data is disposed. It never qualifies.
+
+The new-session form offers documented Synria presets: explicit 15/30 FPS
+choices, 224-pixel stored dimensions, one-frame lookahead, a 10-second first-state
+wait and 10/50/100-episode targets. Each has a custom-value option; existing
+validation remains authoritative. Follower-state actions remain the default
+for hardware-sync wiring; USB leader actions remain optional. Gripper and state
+source have no assumed selection. Choose actual camera IDs, identity and power
+state yourself. Presets are candidates or software defaults, not hardware
+measurements, verified limits or qualifying counts. The native final still and
+operator-owned task windows are unchanged. **Implemented, unmeasured.**
+
+Task-window registration is deliberately not an editable console control. From
+Prepare, use **Open task timing status**, or in Configure open **Task timing
+registration · read only**. That panel shows each registered window and the
+exact sequence: time the real task under the approved procedure, record the
+observation and chosen bounds in `DECISIONS.md`, then update
+`config/synria_tasks.json` through a reviewed repository change. The console
+does not accept timing values or let an operator bypass review; until the
+registry has a valid window, qualifying session creation remains blocked.
+
+Setup fills the host/account and available storage from this machine, restores
+recent operator-entered gripper/source/camera/scene fields for review, and
+suggests the runbook's 15 FPS starting candidate plus the existing image,
+lookahead and startup defaults. Use recommended recording values reapplies
+these candidates; it does not change a saved session or the CLI's required FPS.
+New edits made while setup loads are preserved. Safety confirmations are never
+restored or automatically checked; current power and manufacturer serial are
+not inferred from past sessions.
+
+USB connection identity lists stable `/dev/serial/by-id/` names without opening
+ports. A sole available entry is offered as an **unverified candidate**, not a
+proven follower association. Unknown/unverified remains an explicit selection
+when none is chosen; multiple connections are not assigned automatically.
+The optional hint is stored separately in session settings and its mirror,
+never copied into the manufacturer serial or used to open a port. Missing
+required fields are named individually. Unknown manufacturer identity remains
+a recording blocker; selecting a USB ID does not remove that requirement.
+The manufacturer-serial dropdown offers values saved in prior physical
+sessions and in the private workspace file `follower_serial_options.json`; a
+manual option is available for first use. These are explicit choices, not a
+live device probe. The ROS joint-state topic does not publish the manufacturer
+serial. Enter the value printed on the follower label once; it is then
+available in future session dropdowns.
+This file stays outside the repository and demo mode never reads these values.
+Missing manufacturer serial or starting-power text does not block the no-episode
+connection diagnostic. Its separate **recording metadata** check lists these
+missing facts, leaves them unknown and prevents green readiness. Creating a
+session or recording a disposable smoke episode still requires both fields.
+The session form also shows registration status for every task and a staged
+training curriculum. Cup pickup/placement, die pickup/placement, and a
+contained low-energy table release are planning targets, not selectable tasks
+until reviewed into the registry with their own protocol and timed window. The
+three fixed-scene roll skills remain the only registered skill set; board-token
+manipulation stays deferred until the roll skill is validated. Each future
+dataset is governed by its task-specific success rule, scene and episode window.
+The operator must still confirm actual power and all physical safety checks
+before any diagnostic source opens. Unattempted checks say **NOT CHECKED**, not
+that the device failed.
+
+**Pre-recording readiness** on New session offers a read-only check button and
+a text-labeled red/amber/green meter. First select the two cameras in the
+dedicated Camera mapping panel; Refresh camera IDs lists names without opening
+devices. Two video interfaces advertising the same USB identity are refused as
+a two-camera mapping. No camera roles are guessed.
+
+The separate software panel shows **Launching** while checking availability,
+then **Ready** or **Not ready**, with one row for each library/encoder and a short
+missing-dependency message. It checks automatically on page load and before
+connection preflight; Recheck software does not start sources or services.
+Library discovery is not a compatibility or hardware test. Each connection path
+(follower state, action source, wrist camera and front camera) also has its own
+status and failure reason. **Launching** on a source path means opening/checking
+read-only inputs, never launching a driver. Unattempted paths remain **Not checked**;
+technical details are collapsed beneath the short message. No software status
+overrides the recording metadata, timing, limits or physical safety checks.
+
+Before physical checks, explicitly confirm the runbook safety preflight,
+secured arm, emergency stop, unchanged-torque read-only source, leader sync
+connection and camera identities. The button temporarily opens subscriptions
+and cameras through the existing recorder builder using disposable purpose,
+then closes them and removes its empty temporary dataset. It does not start an
+episode, save a demonstration, start a driver or move either arm. It checks
+dependency availability, state callback rate, source freshness/header stamps,
+velocity requirements, command-topic publisher guards, frame size/brightness,
+distinct samples, timestamp alignment, configured limits, disk space and task
+configuration. Each result and operator confirmation is audited in the catalog.
+
+The meter says **Not checked**, **Checking connections**, **Connection checks
+incomplete**, **Connected · setup required**, or **Ready for session preflight**.
+Unverified limits or unset task timing prevent green physical readiness even
+when connections work. Results expire after 60 seconds; edited form settings
+or withdrawn confirmations invalidate green display. Demo results are always
+labeled synthetic. The button refuses to open a second pair of sources while
+a session owns them. Green is a connection snapshot, not motion authorization:
+the actual session contract, dataset lock/recovery and start guards still run
+again. A standalone leader without USB, physical cable integrity, torque,
+e-stop function and camera framing cannot be certified by software. Frozen
+video and full episode quality still require their existing recording gates.
+No live physical check was run during development. **Implemented, unmeasured.**
 
 Record shows both latest camera views, source age/resolution, follower state,
 preflight results, elapsed time and the hard cap. Space starts/stops; S/F label

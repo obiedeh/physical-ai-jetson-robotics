@@ -15,7 +15,14 @@ from test_physical_recorder import FakeClock, FakeFrameSource, FakeStateSource, 
 from test_task_registry import synthetic_registry
 
 from synria_lerobot import recorder
-from synria_lerobot.console.app import ConsoleService, WorkspaceLock, list_cameras, main
+from synria_lerobot.console.app import (
+    ConsoleService,
+    WorkspaceLock,
+    list_cameras,
+    list_serial_connections,
+    local_follower_serials,
+    main,
+)
 from synria_lerobot.physical_contract import PhysicalState
 
 
@@ -136,6 +143,95 @@ def test_camera_listing_only_lists_names_and_missing_directory(tmp_path: Path) -
     assert missing["cameras"] == [] and missing["message"]
     (tmp_path / "fake-camera").write_text("not a device", encoding="utf-8")
     assert list_cameras(tmp_path)["cameras"] == [str(tmp_path / "fake-camera")]
+
+
+def test_serial_inventory_reads_names_without_opening_ports(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Connection inventory is safe for disconnected hosts and never reads device contents."""
+    candidate = tmp_path / "usb-fake-adapter"
+    candidate.write_text("not a device", encoding="utf-8")
+    monkeypatch.setattr(Path, "open", lambda *a, **k: pytest.fail("device opened"))
+    assert list_serial_connections(tmp_path)["connections"] == [str(candidate)]
+    assert "not manufacturer" in list_serial_connections(tmp_path)["message"]
+    assert list_serial_connections(tmp_path / "missing")["connections"] == []
+
+
+def test_usb_hint_is_separate_from_manufacturer_identity(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A detected connection is retained as a hint and never fills a missing arm serial."""
+    candidate = "usb-fake-adapter"
+    monkeypatch.setattr("synria_lerobot.console.app.list_serial_connections", lambda: {
+        "connections": [candidate], "message": "unverified",
+    })
+    registry = synthetic_registry(tmp_path / "tasks.json", 1, 30)
+    payload = {**values(), "state_source": "ros2_control", "wrist_camera": "fake-wrist",
+               "front_camera": "fake-front", "power_state_start": "observed fake state",
+               "follower_usb_id": candidate}
+    with ConsoleFixture(tmp_path / "workspace", registry=registry) as service:
+        with pytest.raises(ValueError, match="follower_serial.*does not replace"):
+            service.create_session(payload)
+        session = service.create_session({**payload, "follower_serial": "fake-arm-serial"})
+        assert session["settings"]["follower_usb_id"] == candidate
+        assert session["follower_serial"] == "fake-arm-serial"
+        assert service.read(["setup-suggestions"], {})["known_follower_serials"] == [
+            "fake-arm-serial"
+        ]
+        assert service._args(session["settings"], session["repo_id"],
+                             Path(session["dataset_path"]), False).follower_topic == "/joint_states"
+        with pytest.raises(ValueError, match="unavailable"):
+            service._settings({**payload, "follower_serial": "fake-arm-serial",
+                               "follower_usb_id": "unknown-port"})
+
+
+def test_local_follower_serial_choices_are_private_and_validated(tmp_path: Path) -> None:
+    """Machine-local registered serials are selectable without probing a device or repo file."""
+    assert local_follower_serials(tmp_path) == []
+    choices = tmp_path / "follower_serial_options.json"
+    choices.write_text('[" ADF-fake ", "ADF-fake", "", 3]', encoding="utf-8")
+    assert local_follower_serials(tmp_path) == ["ADF-fake"]
+    choices.write_text("{invalid json", encoding="utf-8")
+    assert local_follower_serials(tmp_path) == []
+    choices.write_bytes(b"\xff")
+    assert local_follower_serials(tmp_path) == []
+    choices.unlink()
+    choices.symlink_to(tmp_path / "outside.json")
+    assert local_follower_serials(tmp_path) == []
+
+
+def test_demo_serial_inventory_does_not_inspect_host_devices(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Synthetic setup never discovers or preserves physical USB association hints."""
+    monkeypatch.setattr("synria_lerobot.console.app.list_serial_connections",
+                        lambda: pytest.fail("physical inventory in demo"))
+    with ConsoleFixture(tmp_path, demo=True) as service:
+        assert service.read(["serial-connections"], {})["connections"] == []
+        assert service.read(["setup-suggestions"], {})["known_follower_serials"] == []
+        result = service.create_session({**values(), "follower_usb_id": "not-a-real-device"})
+        assert "follower_usb_id" not in result["settings"]
+
+
+def test_setup_suggestions_restore_declarations_not_safety_facts(tmp_path: Path) -> None:
+    """Previous user inputs remain distinguishable from current host facts and recipe candidates."""
+    with ConsoleFixture(tmp_path) as service:
+        service.catalog.record_event(None, "readiness_completed", {"demo": False, "form_settings": {
+            "operator": "prior operator", "state_source": "ros2_control", "gripper_type": "50mm",
+            "follower_serial": "old serial", "power_state_start": "old power state", "fps": 30,
+        }})
+        service.catalog.record_event(None, "readiness_completed", {"demo": True, "form_settings": {
+            "operator": "synthetic operator",
+        }})
+        result = service.read(["setup-suggestions"], {})
+        assert result["previous_operator_entries"] == {
+            "operator": "prior operator", "state_source": "ros2_control", "gripper_type": "50mm",
+        }
+        assert result["recommended"]["fps"] == 15
+        assert result["host"] and result["account"] and result["free_disk_bytes"] > 0
+        assert "follower_serial" not in result["recommended"]
+        assert "power_state_start" not in result["recommended"]
+        assert service.controller is None
 
 
 def test_changed_workspace_lock_is_not_deleted(tmp_path: Path) -> None:

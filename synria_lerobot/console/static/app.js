@@ -7,6 +7,7 @@ history.replaceState(null, "", location.pathname);
 let state = {}, sessions = [], tasks = [], selected = null, frame = 0, playing = false;
 let rows = [], live = [], playGeneration = 0, frameGeneration = 0, lastCapture = "", lastCue = "", audioContext;
 const token = sessionStorage.getItem("console-token") || "";
+/** Send same-origin JSON requests through the existing authenticated API boundary. */
 async function api(path, payload) {
   const options = payload === undefined ? {} : {method:"POST", headers:{"Content-Type":"application/json", "X-Console-Token":token}, body:JSON.stringify(payload)};
   const response = await fetch(`/api/${path}`, options);
@@ -14,12 +15,19 @@ async function api(path, payload) {
   if (!response.ok) throw Error(result.error || "Request refused");
   return result;
 }
-function error(value) { $("notice").textContent = value ? String(value.message || value) : ""; }
-async function safe(operation) { try { error(""); return await operation(); } catch (reason) { error(reason); } }
-function screen(id) { document.querySelectorAll(".screen").forEach(node => {node.hidden = node.id !== id;}); }
+/** Show an operator-facing refusal without interpreting it as a successful check. */
+function error(value) { if(window.SynriaGuide){window.SynriaGuide.renderError(value);return;} $("notice").textContent = value ? String(value.message || value) : ""; }
+/** Surface asynchronous UI failures while leaving server-owned state intact. */
+async function safe(operation) { try { return await operation(); } catch (reason) { error(reason); } }
+/** Select a view without changing capture ownership or timing. */
+function screen(id) { document.querySelectorAll(".screen").forEach(node => {node.hidden = node.id !== id;}); document.querySelectorAll("[data-screen]").forEach(node=>{if(node.dataset.screen===id)node.setAttribute("aria-current","page");else node.removeAttribute("aria-current");}); }
+/** Build a labeled action control with shared refusal handling. */
 function button(label, action, kind = "") { const node = document.createElement("button"); node.textContent = label; node.className = kind; node.onclick = () => safe(action); return node; }
+/** Create text-only content so operator data cannot become executable markup. */
 function text(tag, value) { const node = document.createElement(tag); node.textContent = value; return node; }
+/** Keep synthetic session identity visible wherever a session is displayed. */
 function demoLabel(session) { return session.source_kind === "synthetic_demo" ? " · SYNTHETIC DEMO" : ""; }
+/** Emit an optional local audio cue without controlling the recorder clock. */
 function tone() {
   if (!$("audio").checked) return;
   audioContext ||= new AudioContext();
@@ -27,6 +35,7 @@ function tone() {
   oscillator.connect(gain); gain.connect(audioContext.destination); gain.gain.value = 0.06;
   oscillator.frequency.value = 660; oscillator.start(); oscillator.stop(audioContext.currentTime + 0.14);
 }
+/** Draw recorded state and action values without sending commands to hardware. */
 function trace(canvas, data, cursor = -1) {
   const ctx = canvas.getContext("2d"), w = canvas.width, h = canvas.height;
   ctx.clearRect(0,0,w,h); const colors = ["#74d7ca","#edbe70","#bfa0fa","#6ab9fa","#ff9b98","#b9d875","#f4a8d0"];
@@ -36,6 +45,7 @@ function trace(canvas, data, cursor = -1) {
   }
   ctx.setLineDash([]); if(cursor>=0){ctx.strokeStyle="#fff";const x=cursor/Math.max(1,data.length-1)*w;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
 }
+/** Rebuild the session catalog view without editing authoritative dataset facts. */
 async function refreshSessions() {
   sessions = await api(`sessions?search=${encodeURIComponent($("search").value)}`);
   $("session-list").replaceChildren(); $("trash-list").replaceChildren();
@@ -69,19 +79,25 @@ async function refreshSessions() {
   if(state.active_session?.id === "smoke"){const option=text("option","Disposable smoke · never qualifying");option.value="smoke";$("review-session").append(option);}
   if([...$("review-session").options].some(o=>o.value===oldSelection))$("review-session").value=oldSelection;
 }
+/** Require typed identity and a reason before requesting an audited deletion. */
 async function deleteSession(session, action) {
   const warning = session.evidence_warning || "If this session is cited in committed evidence, deletion needs a separate correction entry. The console never edits that evidence.";
   const confirmation=prompt(`${warning}\n${action === "purge" ? "PERMANENTLY PURGE" : "Move to trash"}: type the exact session name`,"");
   if(confirmation===null)return; const reason=prompt("Reason (required)","");if(reason===null)return;
   await api(`session/${session.id}/${action}`,{confirmation,reason}); await refreshSessions();
 }
+/** Serialize named form controls to the recorder configuration without changing units. */
 function formValues() {
   const data=Object.fromEntries(new FormData($("new-form")));
+  if (data.follower_serial === "__manual__") {
+    data.follower_serial = $("follower-serial-custom").value.trim();
+  }
   for(const key of ["fps","action_lookahead_steps","image_width","image_height","state_startup_timeout_s","target_episodes"])data[key]=Number(data[key]);
   data.state_has_velocity=$("new-form").elements.state_has_velocity.checked;
   data.guard_command_topic=data.guard_command_topic.split(",").map(s=>s.trim()).filter(Boolean);
   return data;
 }
+/** Display the immutable registry task and keep unset physical windows blocked. */
 function taskDescription() {
   const task=tasks.find(t=>t.task_id===$("task").value);if(!task)return;
   const unset=task.episode_window.min_episode_s===null;
@@ -89,6 +105,19 @@ function taskDescription() {
   $("create").disabled=unset&&!state.demo;
   if(state.demo)$("task-description").append(text("p","Synthetic demo uses a separately marked non-qualifying window, never this physical task window."));
 }
+/** Show every registry window and make unset qualification decisions visible before task selection. */
+function renderTaskWindows() {
+  const container = $("task-window-list");
+  container.replaceChildren();
+  for (const task of tasks) {
+    const window = task.episode_window;
+    const registered = window.min_episode_s !== null && window.max_episode_s !== null;
+    container.append(text("p", `${task.task_id}: ${registered
+      ? `${window.min_episode_s}–${window.max_episode_s} seconds · registered`
+      : "Not registered · qualifying recording unavailable"}`));
+  }
+}
+/** Render server-owned capture status without starting or advancing acquisition. */
 async function refreshState() {
   state=await api("state"); const c=state.capture, active=state.active_session;
   document.body.classList.toggle("demo",state.demo);$("mode").className=`badge ${state.demo?"demo":""}`;
@@ -112,12 +141,16 @@ async function refreshState() {
   for(const camera of ["wrist","front"]){const info=c.cameras?.[camera]||{};$(camera+"-health").textContent=JSON.stringify(info);$(camera+"-preview").closest("figure").classList.toggle("stale",Boolean(info.error)||(info.age_s??0)>0.2);if(active)$(camera+"-preview").src=`/media/preview/${camera}?v=${Date.now()}`;}
   const cue=recording?(elapsed>=max-2?"cap":elapsed>=min?"minimum":"start"):c.last_episode?`saved-${c.last_episode.episode_index}`:"";
   if(cue&&cue!==lastCue){tone();lastCue=cue;}lastCapture=c.state;
+  window.dispatchEvent(new Event("console-state"));
 }
+/** Request one existing recorder transition and refresh the resulting state. */
 async function command(name) {
   if(name==="start"&&Number($("countdown").value)>0)await api("record/countdown",{seconds:Number($("countdown").value)});
   else await api(`record/${name}`,{});
   await refreshState();if(["success","failure","retry"].includes(name))await refreshSessions();
+  if(!state.capture?.error&&!state.capture?.catalog_error)error("");
 }
+/** Display saved labels and gates without changing episode evidence. */
 async function loadEpisodes() {
   playing=false;selected=null;$("player").hidden=true;const id=$("review-session").value;if(!id)return;
   const episodes=await api(`episodes/${id}`);$("episodes").replaceChildren();
@@ -125,12 +158,14 @@ async function loadEpisodes() {
     const actions=text("td",ep.note||"");actions.append(button("Review",()=>selectEpisode(id,ep)));
     if(id!=="smoke"){actions.append(button(ep.excluded?"Restore":"Exclude…",()=>curate(id,ep)));actions.append(button("Note",async()=>{const note=prompt("Append episode note","");if(note!==null){await api(`episode/${id}/${ep.episode_index}/note`,{note});await loadEpisodes();}}));}if(sessions.find(session=>session.id===id)?.recovery_blocked)actions.querySelectorAll("button").forEach(node=>{if(node.textContent!=="Review")node.disabled=true;});tr.append(actions);$("episodes").append(tr);}
 }
+/** Request an audited exclusion or restoration without rewriting raw episodes. */
 async function curate(id, ep) {
   const session=sessions.find(s=>s.id===id), operator=prompt("Operator",session?.operator||"");if(!operator)return;
   let reason_code="capture_fault",note="";
   if(!ep.excluded){reason_code=prompt("Quality-valid demonstrations that failed the task stay in the dataset with their failure label.\nReason: capture_fault, scene_setup_error, operator_interruption, other","");if(!reason_code)return;note=prompt("Exclusion note (required for other)","");if(note===null)return;}
   await api(`episode/${id}/${ep.episode_index}/${ep.excluded?"restore":"exclude"}`,{operator,reason_code,note});await loadEpisodes();await refreshSessions();
 }
+/** Load one episode while rejecting late responses from earlier selections. */
 async function selectEpisode(id, ep) {
   const selection={id,ep};selected=selection;playing=false;frame=0;rows=[];const generation=++playGeneration;$("player").hidden=false;
   const reviewedSession=sessions.find(session=>session.id===id)||state.active_session;
@@ -144,6 +179,7 @@ async function selectEpisode(id, ep) {
   for(let i=0;i<count;i++){const row=await api(`frame/${id}/${ep.episode_index}/${i}`);if(generation!==playGeneration||selected!==selection)return;loaded.push({state:row["observation.state"],action:row.action});}
   if(generation!==playGeneration||selected!==selection)return;rows=loaded;trace($("review-trace"),rows,frame);
 }
+/** Display a matched camera pair and exact row only for the current frame request. */
 async function showFrame() {
   if(!selected)return;
   const selection=selected,index=frame,generation=++frameGeneration,{id,ep}=selection;
@@ -162,6 +198,7 @@ async function showFrame() {
   $("frame-data").textContent=JSON.stringify({...row,state_camera_skew_s:Math.max(...times.slice(0,3))-Math.min(...times.slice(0,3)),all_source_skew_s:Math.max(...times)-Math.min(...times),action_minus_state_s:times[3]-times[0],timing_note:"Derived next-state actions intentionally reference their lookahead target; all-source skew is not the contemporaneous camera gate."},null,2);
   trace($("review-trace"),rows,index);
 }
+/** Advance screen-only playback using the recorded rate and selected review speed. */
 async function advance() {if(!playing||!selected)return;if(frame>=Number($("scrub").max)){playing=false;$("play").textContent="Play";return;}frame++;await safe(showFrame);const session=sessions.find(s=>s.id===selected.id);setTimeout(advance,1000/((session?.settings?.fps||15)*Number($("speed").value)));}
 document.querySelectorAll("[data-screen]").forEach(node=>node.onclick=()=>safe(async()=>{screen(node.dataset.screen);if(node.dataset.screen==="review")await loadEpisodes();if(["sessions","trash"].includes(node.dataset.screen))await refreshSessions();}));
 document.querySelectorAll("[data-command]").forEach(node=>node.onclick=()=>safe(()=>command(node.dataset.command)));
@@ -175,6 +212,17 @@ $("review-latest").onclick=()=>safe(async()=>{await refreshSessions();$("review-
 $("task").onchange=taskDescription;$("search").oninput=()=>safe(refreshSessions);$("review-session").onchange=()=>safe(loadEpisodes);
 $("previous").onclick=()=>safe(async()=>{frame=Math.max(0,frame-1);await showFrame();});$("next").onclick=()=>safe(async()=>{frame=Math.min(Number($("scrub").max),frame+1);await showFrame();});
 $("scrub").oninput=()=>safe(async()=>{frame=Number($("scrub").value);await showFrame();});$("play").onclick=()=>{playing=!playing;$("play").textContent=playing?"Pause":"Play";if(playing)advance();};
-document.addEventListener("keydown",event=>{if(event.repeat||$("record").hidden||/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))return;let cmd;if(event.code==="Space")cmd=lastCapture==="recording"?"stop":"start";else if(lastCapture==="stopped"&&event.key.toLowerCase()==="s")cmd="success";else if(lastCapture==="stopped"&&event.key.toLowerCase()==="f")cmd="failure";if(cmd&&state.capture?.controls?.[cmd]){event.preventDefault();safe(()=>command(cmd));}});
-async function boot(){await refreshState();tasks=await api("tasks");for(const task of tasks){const option=text("option",task.task_id);option.value=task.task_id;$("task").append(option);}const cameras=await api("cameras");$("camera-note").textContent=cameras.message;for(const id of ["wrist-choice","front-choice"]){$(id).append(text("option",""));for(const camera of cameras.cameras){const option=text("option",camera);option.value=camera;$(id).append(option);}}$("mode-help").textContent=state.demo?"Synthetic demo only. No ROS, serial ports or camera devices are opened. These datasets are refused by physical summaries, training and evaluation.":"All runbook safety, wiring and preflight rules apply unchanged. This app never starts a driver or teleoperation.";$("source").disabled=state.demo;$("smoke").hidden=state.demo;taskDescription();await refreshSessions();if(state.active_session)screen("record");}
+/** Accept hands-busy shortcuts only on the recording canvas, never within dialogs or focused controls. */
+function recordingShortcut(event) {
+  if(event.repeat||event.isComposing||event.ctrlKey||event.metaKey||event.altKey||$("record").hidden||
+    document.querySelector("dialog[open]")||document.activeElement.closest("input,select,textarea,button,a,summary,[contenteditable=true]"))return;
+  let cmd;
+  if(event.code==="Space")cmd=lastCapture==="recording"?"stop":"start";
+  else if(lastCapture==="stopped"&&event.key.toLowerCase()==="s")cmd="success";
+  else if(lastCapture==="stopped"&&event.key.toLowerCase()==="f")cmd="failure";
+  if(cmd&&state.capture?.controls?.[cmd]){event.preventDefault();safe(()=>command(cmd));}
+}
+document.addEventListener("keydown",recordingShortcut);
+/** Load server state and form choices before announcing that setup suggestions may apply. */
+async function boot(){await refreshState();tasks=await api("tasks");for(const task of tasks){const option=text("option",task.task_id);option.value=task.task_id;$("task").append(option);}renderTaskWindows();const cameras=await api("cameras");$("camera-note").textContent=cameras.message;for(const id of ["wrist-choice","front-choice"]){$(id).append(text("option",""));for(const camera of cameras.cameras){const option=text("option",camera);option.value=camera;$(id).append(option);}}$("mode-help").textContent=state.demo?"Synthetic demo only. No ROS, serial ports or camera devices are opened. These datasets are refused by physical summaries, training and evaluation.":"All runbook safety, wiring and preflight rules apply unchanged. This app never starts a driver or teleoperation.";$("source").disabled=state.demo;$("smoke").hidden=state.demo;taskDescription();await refreshSessions();if(state.active_session)screen("record");window.synriaConsoleReady=true;window.dispatchEvent(new Event("console-ready"));}
 safe(boot);setInterval(()=>safe(refreshState),700);

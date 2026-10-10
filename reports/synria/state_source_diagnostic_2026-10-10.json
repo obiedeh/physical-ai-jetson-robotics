@@ -1,0 +1,42 @@
+{
+  "kind": "operator_authorized_follower_state_diagnostic",
+  "date_utc": "2026-10-10",
+  "repository_commit": "942908c6893027b3abba2f236ddcf7a005230d0b",
+  "redaction": {
+    "requested_by": "operator",
+    "reason": "Remove hardware identifiers and private diagnostic details from the current public tree.",
+    "removed_categories": [
+      "device identity and firmware/hardware version details",
+      "host identity, local workspace and device paths",
+      "external executable and checkout fingerprints",
+      "raw joint/gripper telemetry and exact timing/rate measurements",
+      "host-specific ROS settings"
+    ],
+    "history_notice": "This redaction is a new commit. Earlier commits retain the original content; history was not rewritten."
+  },
+  "scope": "Separately authorized follower-state diagnostic only; no cameras, episode recording, motion commands, calibration, torque commands or teleoperation changes requested.",
+  "source_kind": "standalone_driver",
+  "driver_configuration": {
+    "joint_commands_enabled": false,
+    "torque_off_on_start": false,
+    "joint_commands_dry_run": false,
+    "legacy_servo_commands": false,
+    "allow_leader_writes": false,
+    "command_calibration_and_demonstration_inputs": "isolated"
+  },
+  "checks": {
+    "recorder_first_sample": "passed",
+    "recorder_measure_rate_freshness": "passed",
+    "requested_rate_supported": true,
+    "guarded_command_publishers": "none observed"
+  },
+  "limitations": [
+    "Callback cadence is not independent proof of hardware sensor refresh; driver heartbeat timestamps cached state.",
+    "A joint reading was outside an unverified candidate limit. No limit was changed and no movement was requested to make a gate pass.",
+    "Torque preservation was configured, not independently measured.",
+    "No camera, teleoperation, controlled-stop, physical task or qualifying-dataset validation performed.",
+    "No D1-D5 stage advanced; README status labels and operator-verification fields unchanged.",
+    "Identifying provenance and raw measurements are redacted; this public record is not complete reproducibility evidence."
+  ],
+  "source_left_running_at_end_of_diagnostic": true
+}
