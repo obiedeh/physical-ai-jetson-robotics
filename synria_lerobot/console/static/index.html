@@ -64,6 +64,12 @@ not qualifying counts. Task windows remain operator decisions outside this form.
 <button id="create" class="primary" type="submit">Create session</button>
 <button id="smoke" type="button">Disposable 20-second smoke check</button></form>
 <article id="readiness-panel" aria-labelledby="readiness-title"><h3 id="readiness-title">Pre-recording readiness</h3>
+<div id="software-panel" data-level="launching" aria-label="Console software environment">
+<strong>Software environment · <span id="software-label" role="status">Launching</span></strong>
+<p id="software-message">Checking recording libraries only; hardware services are never started here.</p>
+<ul id="software-paths" aria-label="Individual software paths"></ul>
+<button id="check-software" type="button">Recheck software</button>
+</div>
 <p>Run read-only connection checks before opening a session. This temporarily opens the selected state subscriptions and cameras,
 uses a disposable dataset to exercise shared preflight, then closes everything. No movement, episode capture or saved demonstration.</p>
 <div class="readiness-heading"><strong id="readiness-label" role="status">Not checked</strong><span id="readiness-count"></span></div>

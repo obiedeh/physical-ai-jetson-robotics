@@ -256,7 +256,8 @@ class ConsoleService:
             )
             report.check("operator_safety", confirmed,
                          "Synthetic only" if self.demo else
-                         "All runbook safety and physical connection confirmations are required")
+                         ("Operator confirmed the runbook safety and physical connection checklist"
+                          if confirmed else "All physical safety confirmations are required"))
             if not confirmed:
                 raise ValueError("Confirm the physical safety checklist before opening sources")
             missing_metadata = [] if self.demo else [
@@ -305,11 +306,15 @@ class ConsoleService:
             with tempfile.TemporaryDirectory(prefix=".readiness-", dir=self.workspace) as temporary:
                 args = self._args(settings, "local/readiness", Path(temporary) / "dataset",
                                   not self.demo)
+                report.launching("source_startup", "Opening read-only sources; no driver launch")
                 with self.builder(args, synthetic_demo=self.demo, clock=self.clock,
                                   preflight=report.observe) as recorder:
+                    report.check("source_startup", True, "Shared source preflight completed")
                     inspect_samples(recorder, report, limits)
             report.check("cleanup", True, "Diagnostic sources closed; no episode started or saved")
         except Exception as error:
+            if report.checks.get("source_startup", {}).get("status") == "launching":
+                report.check("source_startup", False, str(error))
             report.check("diagnostic", False, str(error))
         finally:
             report.finish()
@@ -561,6 +566,25 @@ class ConsoleService:
 
     def read(self, route: list[str], query: dict[str, list[str]]) -> Any:
         """Expose catalog and exact playback facts without treating GET as a command."""
+        if route == ["software"]:
+            try:
+                dependencies = runtime_dependencies(demo=self.demo)
+            except (ImportError, ValueError, OSError) as error:
+                return {"status": "not_ready", "label": "Not ready", "dependencies": {},
+                        "message": f"Software availability check failed: {error}"}
+            ready = all(dependencies.values())
+            return {
+                "status": "ready" if ready else "not_ready",
+                "label": "Ready" if ready else "Not ready", "dependencies": dependencies,
+                "message": (
+                    "Recording libraries are discoverable. This does not verify hardware "
+                    "connections, library compatibility or recording readiness."
+                    if ready else "Missing: " + ", ".join(
+                        name for name, available in dependencies.items() if not available
+                    ) + ". Restart with the RTX console launcher in the recording environment. "
+                    "No driver, controller, bridge or teleoperation will be launched."
+                ),
+            }
         if route == ["state"]:
             return self.state()
         if route == ["readiness"]:
