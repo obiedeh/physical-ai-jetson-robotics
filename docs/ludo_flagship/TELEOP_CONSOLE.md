@@ -56,6 +56,36 @@ state yourself. Presets are candidates or software defaults, not hardware
 measurements, verified limits or qualifying counts. The native final still and
 operator-owned task windows are unchanged. **Implemented, unmeasured.**
 
+**Pre-recording readiness** on New session offers a read-only check button and
+a text-labeled red/amber/green meter. First select the two cameras in the
+dedicated Camera mapping panel; Refresh camera IDs lists names without opening
+devices. Two video interfaces advertising the same USB identity are refused as
+a two-camera mapping. No camera roles are guessed.
+
+Before physical checks, explicitly confirm the runbook safety preflight,
+secured arm, emergency stop, unchanged-torque read-only source, leader sync
+connection and camera identities. The button temporarily opens subscriptions
+and cameras through the existing recorder builder using disposable purpose,
+then closes them and removes its empty temporary dataset. It does not start an
+episode, save a demonstration, start a driver or move either arm. It checks
+dependency availability, state callback rate, source freshness/header stamps,
+velocity requirements, command-topic publisher guards, frame size/brightness,
+distinct samples, timestamp alignment, configured limits, disk space and task
+configuration. Each result and operator confirmation is audited in the catalog.
+
+The meter says **Not checked**, **Checking connections**, **Connection checks
+incomplete**, **Connected · setup required**, or **Ready for session preflight**.
+Unverified limits or unset task timing prevent green physical readiness even
+when connections work. Results expire after 60 seconds; edited form settings
+or withdrawn confirmations invalidate green display. Demo results are always
+labeled synthetic. The button refuses to open a second pair of sources while
+a session owns them. Green is a connection snapshot, not motion authorization:
+the actual session contract, dataset lock/recovery and start guards still run
+again. A standalone leader without USB, physical cable integrity, torque,
+e-stop function and camera framing cannot be certified by software. Frozen
+video and full episode quality still require their existing recording gates.
+No live physical check was run during development. **Implemented, unmeasured.**
+
 Record shows both latest camera views, source age/resolution, follower state,
 preflight results, elapsed time and the hard cap. Space starts/stops; S/F label
 a stopped episode. Optional countdown and audio cues support hands-busy use.

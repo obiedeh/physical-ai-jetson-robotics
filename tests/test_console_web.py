@@ -132,6 +132,9 @@ def test_packaged_page_and_latest_preview_are_inert(
     assert b"Synria Teleop Console" in request(endpoint, "/")[2]
     assert b"/form-presets.js" in request(endpoint, "/")[2]
     assert b"function addPresetSelect" in request(endpoint, "/form-presets.js")[2]
+    assert b"Pre-recording readiness" in request(endpoint, "/")[2]
+    assert b"async function runReadiness" in request(endpoint, "/readiness.js")[2]
+    assert request(endpoint, "/readiness.css")[0] == 200
     assert request(endpoint, "/media/preview/front")[2] == b"fake-latest-jpeg"
     assert endpoint[0].commands == []
 

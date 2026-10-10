@@ -41,6 +41,25 @@ class Clock:
         return self.now
 
 
+def test_demo_readiness_closes_real_empty_dataset_without_recording(tmp_path: Path) -> None:
+    """The shared upstream writer finalizes a disposable diagnostic without saved episodes."""
+    service = ConsoleService(tmp_path, demo=True, clock=Clock(), min_free_bytes=1)
+    try:
+        result = service.mutate(["readiness"], {"settings": {
+            "name": "Synthetic connection check", "task_id": "die_into_cup",
+            "gripper_type": "50mm", "fps": 15, "operator": "synthetic-test",
+            "scene": "synthetic only", "image_width": 32, "image_height": 24,
+        }, "confirmations": {}})
+        assert result["status"] == "ready", result
+        assert result["label"].startswith("SYNTHETIC DEMO")
+        assert result["checks"]["cleanup"]["passed"]
+        assert service.controller is None and service.catalog.sessions() == []
+        assert not list(tmp_path.glob(".readiness-*"))
+        assert service.read(["readiness"], {}) == result
+    finally:
+        service.close()
+
+
 class ObservedController(RecordingController):
     """Notify the test when the real owner worker consumes a fake-clock sample boundary."""
 

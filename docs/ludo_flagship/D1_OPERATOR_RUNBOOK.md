@@ -316,6 +316,18 @@ cap. Save or explicitly discard pending frames before quitting the process.
 Its disposable smoke stays separate and temporary; no console action turns it
 into qualifying D1 data. Continue with section 5 for reviewed physical evidence.
 
+On New session, Camera mapping names wrist and fixed-front roles explicitly.
+After completing section 1, the optional **Run read-only checks** button opens
+the selected sources in a disposable diagnostic context, checks their latest
+samples and the shared recorder preflight, then closes them without starting
+or saving an episode. Confirm the physical safety checklist before using it.
+It cannot establish leader hardware-sync connectivity without operator review,
+test motion, certify torque/e-stop behavior, or replace view-framing inspection.
+The readiness meter distinguishes incomplete connections from connected but
+unconfigured collection. Unset task windows or unverified limits cannot show
+green physical readiness. Results expire after 60 seconds and never bypass
+the real session's subsequent contract, recovery, publisher and quality checks.
+
 ## 5. Gate, review, and summarize retained data
 
 End the recorder and safely pause/end teleoperation by its established

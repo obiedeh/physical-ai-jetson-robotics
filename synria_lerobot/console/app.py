@@ -10,6 +10,7 @@ import shutil
 import signal
 import socket
 import subprocess
+import tempfile
 import threading
 import time
 import webbrowser
@@ -21,6 +22,13 @@ from typing import Any
 from synria_lerobot.console.catalog import Catalog
 from synria_lerobot.console.controller import RecordingController
 from synria_lerobot.console.playback import EpisodePlayback, confined_file, encode_rgb
+from synria_lerobot.console.readiness import (
+    CONFIRMATIONS,
+    ReadinessReport,
+    inspect_samples,
+    require_distinct_cameras,
+    runtime_dependencies,
+)
 from synria_lerobot.console.server import make_server
 from synria_lerobot.recorder import (
     PhysicalEpisodeRecorder,
@@ -127,6 +135,7 @@ class ConsoleService:
         self._run_id: int | None = None
         self._smoke_episodes: list[dict[str, Any]] = []
         self._preflight: dict[str, Any] = {}
+        self.readiness = ReadinessReport(clock, demo=demo)
         self._closed = False
         self.quit_requested = threading.Event()
 
@@ -186,6 +195,83 @@ class ConsoleService:
         return recording_config_from_args(
             self._args(settings, repo_id, dataset, smoke), synthetic_demo=self.demo,
         )
+
+    def check_readiness(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """Run an explicitly authorized disposable connection probe, never an episode.
+
+        This uses the exact recorder builder and its graph/rate checks. An unset
+        task window may be diagnosed under disposable purpose but never becomes
+        qualifying-ready. Live session ownership and recording remain untouched.
+        """
+        from synria_lerobot.quality_gates import load_limits
+
+        if self.controller is not None:
+            raise RuntimeError("Close the current sources before checking new-session connections")
+        if set(payload) != {"settings", "confirmations"} or not all(
+            isinstance(payload[name], dict) for name in payload
+        ):
+            raise ValueError("readiness requires settings and explicit operator confirmations")
+        report = self.readiness
+        report.begin()
+        report.form_settings = dict(payload["settings"])
+        try:
+            self.catalog.record_event(None, "readiness_started", {
+                "operator": payload["settings"].get("operator", ""),
+                "confirmations": payload["confirmations"], "demo": self.demo,
+            })
+            confirmations = payload["confirmations"]
+            confirmed = self.demo or (
+                set(confirmations) == set(CONFIRMATIONS)
+                and all(value is True for value in confirmations.values())
+            )
+            report.check("operator_safety", confirmed,
+                         "Synthetic only" if self.demo else
+                         "All runbook safety and physical connection confirmations are required")
+            if not confirmed:
+                raise ValueError("Confirm the physical safety checklist before opening sources")
+            settings = self._settings(payload["settings"], smoke=not self.demo)
+            report.check("form_configuration", True, "Shared recorder settings validated")
+            try:
+                self._config(settings, "local/readiness", self.workspace / "unused", False)
+                report.check("qualifying_configuration", True, "Task contract configured")
+            except (ValueError, RuntimeError) as error:
+                report.check("qualifying_configuration", False, str(error))
+            limits = load_limits(REPOSITORY / "config" / "synria_limits.yaml")
+            report.check("limits_verification", self.demo or limits.verified,
+                         "Synthetic only" if self.demo else
+                         ("Operator verification recorded" if limits.verified else
+                          "limits unverified by operator; qualifying collection is not ready"))
+            free = shutil.disk_usage(self.workspace).free
+            report.check("disk_space", free >= self.min_free_bytes,
+                         "Available recording workspace space", remaining=free,
+                         minimum=self.min_free_bytes)
+            if free < self.min_free_bytes:
+                raise ValueError("Free disk space is below the recording floor")
+            if not self.demo:
+                available = list_cameras()["cameras"]
+                if any(settings[key] not in available for key in ("wrist_camera", "front_camera")):
+                    raise ValueError("Select two available stable camera IDs; refresh mapping")
+                require_distinct_cameras(settings["wrist_camera"], settings["front_camera"])
+            report.check("camera_mapping", True, "Distinct identities selected; no auto-mapping")
+            dependencies = runtime_dependencies(demo=self.demo)
+            report.check("runtime_dependencies", all(dependencies.values()),
+                         "Recording environment dependency availability", details=dependencies)
+            if not all(dependencies.values()):
+                raise ValueError("Recording dependencies are missing; use the runbook environment "
+                                 "with robot-learning, vision, ffmpeg and ROS for physical sources")
+            with tempfile.TemporaryDirectory(prefix=".readiness-", dir=self.workspace) as temporary:
+                args = self._args(settings, "local/readiness", Path(temporary) / "dataset",
+                                  not self.demo)
+                with self.builder(args, synthetic_demo=self.demo, clock=self.clock,
+                                  preflight=report.observe) as recorder:
+                    inspect_samples(recorder, report, limits)
+            report.check("cleanup", True, "Diagnostic sources closed; no episode started or saved")
+        except Exception as error:
+            report.check("diagnostic", False, str(error))
+        finally:
+            report.finish()
+            self.catalog.record_event(None, "readiness_completed", report.snapshot())
+        return report.snapshot()
 
     def create_session(self, payload: dict[str, Any]) -> dict[str, Any]:
         """Validate the shared physical contract before committing a named session mirror."""
@@ -409,6 +495,8 @@ class ConsoleService:
         """Expose catalog and exact playback facts without treating GET as a command."""
         if route == ["state"]:
             return self.state()
+        if route == ["readiness"]:
+            return self.readiness.snapshot()
         if route == ["tasks"]:
             return [task.as_dict() for task in load_task_registry(self.registry).values()]
         if route == ["cameras"]:
@@ -466,6 +554,8 @@ class ConsoleService:
     def mutate(self, route: list[str], payload: dict[str, Any]) -> Any:
         """Apply authenticated operator requests while retaining all recorder and catalog guards."""
         with self._lock:
+            if route == ["readiness"]:
+                return self.check_readiness(payload)
             if route == ["sessions"]:
                 return self.create_session(payload)
             if route == ["reindex"]:
