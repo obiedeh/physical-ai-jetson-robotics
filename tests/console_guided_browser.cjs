@@ -93,9 +93,9 @@ async function run() {
     }
   });
   /** Send one bounded browser protocol request, keeping target commands scoped to this isolated page. */
-  function send(method,params={},target=sessionId){return new Promise((resolve,reject)=>{
+  function send(method,params={},target=sessionId,timeoutMs=15000){return new Promise((resolve,reject)=>{
     if(transportError){reject(transportError);return;}
-    const id=++sequence,timer=setTimeout(()=>{pending.delete(id);reject(Error(`Protocol timeout: ${method}\n${browserError}`));},15000);
+    const id=++sequence,timer=setTimeout(()=>{pending.delete(id);reject(Error(`Protocol timeout: ${method}\n${browserError}`));},timeoutMs);
     pending.set(id,{resolve,reject,timer});child.stdio[3].write(JSON.stringify({id,method,params,...(target?{sessionId:target}:{})})+"\0");
   });}
   /** Evaluate test interactions and propagate browser exceptions rather than treating them as success. */
@@ -103,7 +103,11 @@ async function run() {
   /** Wait on DOM mutations, not arbitrary sleeps, for an asynchronous UI condition to become true. */
   async function until(expression){return evaluate(`new Promise((resolve,reject)=>{const test=()=>(${expression});if(test())return resolve(true);const observer=new MutationObserver(()=>{if(test()){observer.disconnect();clearTimeout(timer);resolve(true);}});observer.observe(document,{subtree:true,childList:true,attributes:true,characterData:true});const timer=setTimeout(()=>{observer.disconnect();reject(Error('UI condition timed out: '+${JSON.stringify(expression)}));},10000);})`);}
   try {
-    const target=await send("Target.createTarget",{url:"about:blank"},null);
+    // Hosted browsers can initialize slowly; prove protocol readiness before creating a page.
+    const startupDeadline=Date.now()+45000;
+    await send("Browser.getVersion",{},null,45000);
+    const target=await send("Target.createTarget",{url:"about:blank"},null,
+      Math.max(1,startupDeadline-Date.now()));
     sessionId=(await send("Target.attachToTarget",{targetId:target.targetId,flatten:true},null)).sessionId;
     await send("Runtime.enable");await send("Page.enable");
     await send("Emulation.setDeviceMetricsOverride",{width:1360,height:1000,deviceScaleFactor:1,mobile:false});
