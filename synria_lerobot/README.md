@@ -16,7 +16,9 @@ synria_lerobot/
 ├── schema.py        Data model — JointState, EEPose, ActionFrame,
 │                    ObservationFrame, EpisodeStep, Episode, EpisodeMetadata
 ├── dataset.py       Synthetic episode generator and SynriaEpisodeDataset
-├── recorder.py      EpisodeRecorder (mock + hardware stub) and RecordingSession
+├── recorder.py      Shared read-only physical session builder and terminal recorder
+├── console/         Local recording, offline review and audited session catalog
+├── exclusions.py    Shared sibling-log curation replay for summaries and training
 ├── policy_eval.py   DeterministicArmPolicy (oracle baseline) and evaluation helpers
 └── README.md        this file
 ```
@@ -170,19 +172,13 @@ results = evaluate_policy_on_dataset(MyACTPolicy(), dataset)
 
 ---
 
-## Hardware path (Jetson AGX Thor)
+## Physical recording and console
 
-The `EpisodeRecorder(mock=False)` path is stubbed as
-`NotImplementedError("TODO(jetson): implement with ROS 2 + cv2")`.
-On the Jetson AGX Thor this will read:
-- joint states from the ROS 2 `/joint_states` topic
-- wrist-camera frames via `cv2.VideoCapture`
-- gripper width from the gripper driver topic
-
-Generated datasets and policy checkpoints are stored outside the repo:
-
-```text
-data/lerobot/
-```
-
-or on Hugging Face Hub for shared datasets and models.
+The separate `synria_physical_v1` contract and read-only multi-episode recorder
+are **implemented, unmeasured**; the schema examples above describe the legacy
+simulation helpers, not the physical contract. Follow the
+[D1 operator runbook](../docs/ludo_flagship/D1_OPERATOR_RUNBOOK.md) for authorized
+physical setup, or use the [console guide](../docs/ludo_flagship/TELEOP_CONSOLE.md)
+for synthetic demo, named recording sessions and offline review. Both surfaces
+use the same builder, transactions, contract and gates. Dataset roots and console
+workspaces remain outside git; there is no console upload or motion control.

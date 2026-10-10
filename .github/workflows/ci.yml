@@ -85,6 +85,7 @@ jobs:
           tests/test_checkpoint_eval_lerobot.py
           tests/test_synria_act_training_real.py
           tests/test_synria_roll_acceptance_real.py
+          tests/test_console_acceptance_real.py
 
   ros2-lint:
     name: ROS 2 description package build
