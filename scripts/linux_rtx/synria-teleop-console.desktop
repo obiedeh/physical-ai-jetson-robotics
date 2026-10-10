@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Synria Teleop Console
+Comment=Read-only recording and review; existing safety preflight still applies
+Exec=/bin/bash -lc "exec \"$HOME/github/physical-ai-jetson-robotics/scripts/linux_rtx/synria_teleop_console.sh\" --workspace \"$HOME/synria-console\""
+Terminal=true
+Categories=Science;Education;
+StartupNotify=false

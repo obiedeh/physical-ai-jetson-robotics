@@ -57,6 +57,10 @@ llm = [
 [project.scripts]
 physical-ai-lab = "physical_ai_lab.cli:app"
 synria-roll-skills = "synria_lerobot.sessions:roll_skills_main"
+synria-teleop-console = "synria_lerobot.console.app:main"
+
+[tool.setuptools.package-data]
+"synria_lerobot.console" = ["static/*.html", "static/*.css", "static/*.js"]
 
 [tool.setuptools.packages.find]
 include = ["physical_ai_lab*", "arm_control*", "edge_ai*", "slam*", "agents*", "synria_lerobot*", "isaac*", "ludo_engine*", "game_core*"]
