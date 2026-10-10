@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Synria Teleop Console</title><link rel="stylesheet" href="/app.css"><script src="/app.js" defer></script></head>
+<title>Synria Teleop Console</title><link rel="stylesheet" href="/app.css"><script src="/form-presets.js" defer></script><script src="/app.js" defer></script></head>
 <body><header><div><span class="eyebrow">READ-ONLY COLLECTION</span><h1>Synria Teleop Console</h1></div>
 <span id="mode" class="badge">Connecting</span><button id="quit">Quit console</button></header>
 <div id="notice" role="alert"></div><nav aria-label="Console screens">
@@ -11,28 +11,43 @@
 <input id="search" placeholder="Search by name" aria-label="Search sessions"><button id="reindex">Reindex from disk</button></div>
 <p>Datasets are authoritative. The local catalog is a rebuildable index and audit log.</p><div id="session-list" class="cards"></div></section>
 <section id="new" class="screen" hidden><h2>New recording session</h2>
-<p id="mode-help"></p><form id="new-form"><div class="form-grid">
+<p id="mode-help"></p>
+<p>Synria / Alicia-D setup: leader-to-follower hardware sync, C10 wrist camera and a fixed USB front camera.
+Presets come from the D1 runbook; they are not hardware measurements. Choose the installed gripper,
+running state source and actual camera IDs. Custom values retain all recorder checks.</p>
+<form id="new-form"><div class="form-grid">
 <label>Session name<input name="name" required maxlength="120"></label>
 <label>Task<select name="task_id" id="task" required></select></label>
-<label>Gripper<select name="gripper_type" required><option value="">Choose installed gripper</option><option>50mm</option><option>100mm</option></select></label>
-<label>State source<select name="state_source" id="source"><option value="">Choose verified source</option><option value="standalone_driver">Standalone driver</option><option value="ros2_control">ros2_control</option></select></label>
-<label>Follower topic<input name="follower_topic" value="/joint_states"></label>
-<label>Action source<select name="action_source"><option value="next_state">Next follower state</option><option value="leader">USB leader state (optional)</option></select></label>
-<label>USB leader topic<input name="leader_topic" value="/leader/joint_states"></label>
-<label>Lookahead steps<input name="action_lookahead_steps" type="number" min="0" value="1" required></label>
-<label>Requested FPS (required)<input name="fps" type="number" min="1" step="1" required></label>
-<label>Stored image width<input name="image_width" type="number" min="1" value="224" required></label>
-<label>Stored image height<input name="image_height" type="number" min="1" value="224" required></label>
-<label>Wrist camera<select name="wrist_camera" id="wrist-choice"></select></label>
+<label>Gripper<select name="gripper_type" required><option value="">Choose installed gripper</option><option value="50mm">50 mm · driver stroke 0.025 m</option><option value="100mm">100 mm · driver stroke 0.05 m</option></select></label>
+<label>State source<select name="state_source" id="source"><option value="">Choose verified running source</option><option value="standalone_driver">Standalone driver · writes disabled, torque unchanged</option><option value="ros2_control">ros2_control · verified read-only setup</option></select></label>
+<label>Follower topic<input name="follower_topic" value="/joint_states" list="follower-topics" data-presets aria-label="Follower topic"></label>
+<label>Action source<select name="action_source"><option value="next_state">Next follower state · hardware-sync default</option><option value="leader">Leader state · additional USB required</option></select></label>
+<label>USB leader topic (leader actions only)<input name="leader_topic" value="/leader/joint_states" list="leader-topics" data-presets aria-label="USB leader topic"></label>
+<label>Lookahead steps<input name="action_lookahead_steps" type="number" min="0" value="1" required list="lookahead-presets" data-presets aria-label="Lookahead steps"></label>
+<label>Requested FPS (choose explicitly)<input name="fps" type="number" min="1" step="1" required list="fps-presets" data-presets aria-label="Requested FPS"></label>
+<label>Stored image width<input name="image_width" type="number" min="1" value="224" required list="image-presets" data-presets aria-label="Stored image width"></label>
+<label>Stored image height<input name="image_height" type="number" min="1" value="224" required list="image-presets" data-presets aria-label="Stored image height"></label>
+<label>Wrist camera (C10)<select name="wrist_camera" id="wrist-choice"></select></label>
 <label>Overhead / front (fixed)<select name="front_camera" id="front-choice"></select></label>
-<label>Additional guarded topics<input name="guard_command_topic" placeholder="Comma-separated absolute topics"></label>
-<label>First state wait (seconds)<input name="state_startup_timeout_s" type="number" min="0.1" step="0.1" value="10" required></label>
-<label>Operator<input name="operator" required></label><label>Follower serial<input name="follower_serial"></label>
-<label>Leader serial<input name="leader_serial"></label><label>Starting power state<input name="power_state_start"></label>
-<label>Target episode count<input name="target_episodes" type="number" min="1" value="100" required></label>
+<label>Additional guarded topics<input name="guard_command_topic" placeholder="Comma-separated absolute topics"><small>/joint_commands and /policy_joint_targets are always guarded.</small></label>
+<label>First state wait (seconds)<input name="state_startup_timeout_s" type="number" min="0.1" step="0.1" value="10" required list="startup-presets" data-presets aria-label="First state wait"></label>
+<label>Operator<input name="operator" required></label><label>Follower serial<input name="follower_serial" placeholder="Actual follower label (ADF candidate)"></label>
+<label>Leader serial<input name="leader_serial" placeholder="From arm label; no USB needed for hardware sync"></label><label>Starting power state<input name="power_state_start" placeholder="Observed state, not an assumed preset"></label>
+<label>Target episode count<input name="target_episodes" type="number" min="1" value="100" required list="target-presets" data-presets aria-label="Target episode count"></label>
 <label class="check"><input name="state_has_velocity" type="checkbox">Require reported joint velocities</label>
 <label class="wide">Scene description<textarea name="scene" required rows="2"></textarea></label>
 <label class="wide">Session notes<textarea name="notes" rows="2"></textarea></label></div>
+<datalist id="follower-topics"><option value="/joint_states">Follower state · documented setup</option></datalist>
+<datalist id="leader-topics"><option value="/leader/joint_states">Optional read-only USB leader</option></datalist>
+<datalist id="lookahead-presets"><option value="1">1 frame · recorder default</option></datalist>
+<datalist id="fps-presets"><option value="15">15 FPS · runbook starting candidate</option><option value="30">30 FPS · vendor suggestion, rate preflight required</option></datalist>
+<datalist id="image-presets"><option value="224">224 pixels · dataset default</option></datalist>
+<datalist id="startup-presets"><option value="10">10 seconds · first-sample default only</option></datalist>
+<datalist id="target-presets"><option value="10">10 episodes · protocol shakedown target</option><option value="50">50 episodes · collection target</option><option value="100">100 episodes · D1 count target, not qualification</option></datalist>
+<p>Requested FPS must not exceed the measured incoming state rate. Stored images default to 224 × 224;
+the final front-camera still stays at native resolution. Gripper strokes are unverified interface candidates;
+zero is open. The 10-second startup wait does not relax steady-state freshness. Episode targets are goals,
+not qualifying counts. Task windows remain operator decisions outside this form.</p>
 <article id="task-description"></article><p id="camera-note"></p>
 <button id="create" class="primary" type="submit">Create session</button>
 <button id="smoke" type="button">Disposable 20-second smoke check</button></form></section>

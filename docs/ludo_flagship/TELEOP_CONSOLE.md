@@ -46,6 +46,16 @@ preflight, then automatically starts the existing 20-second temporary capture;
 this flow is fake-tested, not hardware-verified. Review remains available until
 closing its context, when temporary data is disposed. It never qualifies.
 
+The new-session form offers documented Synria presets: explicit 15/30 FPS
+choices, 224-pixel stored dimensions, one-frame lookahead, a 10-second first-state
+wait and 10/50/100-episode targets. Each has a custom-value option; existing
+validation remains authoritative. Follower-state actions remain the default
+for hardware-sync wiring; USB leader actions remain optional. Gripper and state
+source have no assumed selection. Choose actual camera IDs, identity and power
+state yourself. Presets are candidates or software defaults, not hardware
+measurements, verified limits or qualifying counts. The native final still and
+operator-owned task windows are unchanged. **Implemented, unmeasured.**
+
 Record shows both latest camera views, source age/resolution, follower state,
 preflight results, elapsed time and the hard cap. Space starts/stops; S/F label
 a stopped episode. Optional countdown and audio cues support hands-busy use.
