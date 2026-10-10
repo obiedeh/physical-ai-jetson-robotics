@@ -81,6 +81,7 @@ def test_unknown_hardware_and_task_windows_are_not_assumed(form: FormMarkup) -> 
     assert "min_episode_s" not in form.fields
     assert "max_episode_s" not in form.fields
     assert "checked" not in form.fields["state_has_velocity"]
+    assert form.options["follower_usb_id"] == [""]
 
 
 def test_preset_script_preserves_custom_inputs_and_form_payload() -> None:
@@ -91,5 +92,17 @@ def test_preset_script_preserves_custom_inputs_and_form_payload() -> None:
     subprocess.run(
         [executable, str(Path(__file__).with_name("console_form_presets.cjs")),
          str(STATIC / "form-presets.js"), str(STATIC / "app.js")],
+        check=True, timeout=15, capture_output=True, text=True,
+    )
+
+
+def test_setup_candidates_never_fill_unknown_physical_facts() -> None:
+    """Check automatic suggestions, explicit overrides and USB hints against browser fakes."""
+    executable = shutil.which("node")
+    if executable is None:
+        pytest.skip("optional JavaScript runtime is unavailable")
+    subprocess.run(
+        [executable, str(Path(__file__).with_name("console_setup_ui.cjs")),
+         str(STATIC / "serial-identity.js")],
         check=True, timeout=15, capture_output=True, text=True,
     )

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Synria Teleop Console</title><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/readiness.css"><script src="/form-presets.js" defer></script><script src="/app.js" defer></script><script src="/readiness.js" defer></script></head>
+<title>Synria Teleop Console</title><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/readiness.css"><script src="/form-presets.js" defer></script><script src="/app.js" defer></script><script src="/readiness.js" defer></script><script src="/serial-identity.js" defer></script></head>
 <body><header><div><span class="eyebrow">READ-ONLY COLLECTION</span><h1>Synria Teleop Console</h1></div>
 <span id="mode" class="badge">Connecting</span><button id="quit">Quit console</button></header>
 <div id="notice" role="alert"></div><nav aria-label="Console screens">
@@ -12,6 +12,9 @@
 <p>Datasets are authoritative. The local catalog is a rebuildable index and audit log.</p><div id="session-list" class="cards"></div></section>
 <section id="new" class="screen" hidden><h2>New recording session</h2>
 <p id="mode-help"></p>
+<article><h3>Suggested setup</h3><p id="setup-facts">Loading available host and connection information…</p>
+<p id="setup-guidance">Review suggested values before use. Physical safety confirmations are never filled automatically.</p>
+<button id="use-recommended" type="button">Use recommended recording values</button></article>
 <p>Synria / Alicia-D setup: leader-to-follower hardware sync, C10 wrist camera and a fixed USB front camera.
 Presets come from the D1 runbook; they are not hardware measurements. Choose the installed gripper,
 running state source and actual camera IDs. Custom values retain all recorder checks.</p>
@@ -34,7 +37,13 @@ running state source and actual camera IDs. Custom values retain all recorder ch
 <small>Lists stable IDs only; does not open cameras. Two video-index entries for the same USB identity are not two verified cameras.</small></fieldset>
 <label>Additional guarded topics<input name="guard_command_topic" placeholder="Comma-separated absolute topics"><small>/joint_commands and /policy_joint_targets are always guarded.</small></label>
 <label>First state wait (seconds)<input name="state_startup_timeout_s" type="number" min="0.1" step="0.1" value="10" required list="startup-presets" data-presets aria-label="First state wait"></label>
-<label>Operator<input name="operator" required></label><label>Follower serial<input name="follower_serial" placeholder="Actual follower label (ADF candidate)"></label>
+<label>Operator<input name="operator" required></label>
+<label>Follower manufacturer serial<input name="follower_serial" placeholder="Leave blank if unknown; not the USB ID"><small>Do not invent a serial or copy the adapter ID here.</small></label>
+<fieldset class="camera-mapping"><legend>USB connection identity · unverified arm association</legend>
+<label>Candidate follower USB connection<select name="follower_usb_id" id="follower-usb-choice"><option value="">Unknown / unverified · no connection selected</option></select></label>
+<p id="serial-note">Names only. Selecting a connection does not open the port, connect the recorder or verify the arm.</p>
+<button type="button" id="refresh-serial">Refresh USB connection IDs</button>
+<small>This optional connection hint is kept separately from the manufacturer serial. Verify which device belongs to the follower; the recorder still reads its configured ROS topic.</small></fieldset>
 <label>Leader serial<input name="leader_serial" placeholder="From arm label; no USB needed for hardware sync"></label><label>Starting power state<input name="power_state_start" placeholder="Observed state, not an assumed preset"></label>
 <label>Target episode count<input name="target_episodes" type="number" min="1" value="100" required list="target-presets" data-presets aria-label="Target episode count"></label>
 <label class="check"><input name="state_has_velocity" type="checkbox">Require reported joint velocities</label>

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import getpass
 import json
 import math
 import secrets
@@ -58,6 +59,16 @@ def list_cameras(directory: Path = Path("/dev/v4l/by-id")) -> dict[str, Any]:
     if not directory.is_dir():
         return {"cameras": [], "message": "No stable /dev/v4l/by-id camera entries are available."}
     return {"cameras": sorted(str(item) for item in directory.iterdir()), "message": ""}
+
+
+def list_serial_connections(directory: Path = Path("/dev/serial/by-id")) -> dict[str, Any]:
+    """List OS connection identities without opening ports or identifying a physical arm."""
+    devices = sorted(str(item) for item in directory.iterdir()) if directory.is_dir() else []
+    return {"connections": devices, "message": (
+        "USB connection IDs only; association with the follower is unverified. "
+        "These are not manufacturer arm serial numbers."
+        if devices else "No stable USB serial connection IDs are available on this host."
+    )}
 
 
 class WorkspaceLock:
@@ -147,6 +158,7 @@ class ConsoleService:
             "wrist_camera", "front_camera", "guard_command_topic", "state_has_velocity",
             "leader_topic", "state_startup_timeout_s", "operator", "follower_serial",
             "leader_serial", "scene", "power_state_start", "target_episodes", "notes",
+            "follower_usb_id",
         }
         if set(payload) - allowed:
             raise ValueError("unknown session settings; paths and task windows are server-owned")
@@ -154,8 +166,11 @@ class ConsoleService:
         if not self.demo:
             required += ["state_source", "wrist_camera", "front_camera", "follower_serial",
                          "power_state_start"]
-        if any(key not in payload or str(payload[key]).strip() == "" for key in required):
-            raise ValueError("session identity, task, gripper, rate and source fields are required")
+        missing = [key for key in required
+                   if key not in payload or str(payload[key]).strip() == ""]
+        if missing:
+            raise ValueError("Required fields are missing: " + ", ".join(missing)
+                             + ". A USB connection ID does not replace the manufacturer serial.")
         if type(payload.get("state_has_velocity", False)) is not bool:
             raise ValueError("velocity mode must be a boolean")
         defaults: dict[str, Any] = {
@@ -171,6 +186,13 @@ class ConsoleService:
         if self.demo:
             settings.update(state_source="synthetic_demo", wrist_camera="synthetic:wrist",
                             front_camera="synthetic:front")
+        elif payload.get("follower_usb_id"):
+            connection = payload["follower_usb_id"]
+            if not isinstance(connection, str) or connection not in list_serial_connections()[
+                "connections"
+            ]:
+                raise ValueError("Selected USB connection ID is unavailable; refresh the list")
+            settings["follower_usb_id"] = connection
         timeout = settings["state_startup_timeout_s"]
         if isinstance(timeout, bool) or not math.isfinite(timeout) or timeout <= 0:
             raise ValueError("state startup wait must be positive and finite")
@@ -491,17 +513,48 @@ class ConsoleService:
             raise FileNotFoundError("session was purged; only its tombstone remains")
         return session
 
+    def setup_suggestions(self) -> dict[str, Any]:
+        """Combine host facts, runbook candidates and prior declarations without probing devices."""
+        previous: dict[str, Any] = {}
+        reusable = {"operator", "gripper_type", "state_source", "wrist_camera", "front_camera",
+                    "scene", "follower_topic", "leader_topic", "action_source"}
+        for event in reversed(self.catalog.events()):
+            detail = event.get("detail", {})
+            if event["kind"] == "readiness_completed" and detail.get("demo") is self.demo:
+                previous = {key: value for key, value in detail.get("form_settings", {}).items()
+                            if key in reusable and value not in (None, "")}
+                break
+        return {
+            "host": socket.gethostname(), "account": getpass.getuser(),
+            "free_disk_bytes": shutil.disk_usage(self.workspace).free,
+            "previous_operator_entries": previous,
+            "recommended": {"fps": 15, "image_width": 224, "image_height": 224,
+                            "action_lookahead_steps": 1, "state_startup_timeout_s": 10,
+                            "target_episodes": 100, "action_source": "next_state",
+                            "follower_topic": "/joint_states",
+                            "leader_topic": "/leader/joint_states"},
+            "notice": "Recommended values are runbook candidates, not measurements. "
+                      "Previous operator entries need review for this session. "
+                      "Power, manufacturer serial and safety confirmations are never inferred.",
+        }
+
     def read(self, route: list[str], query: dict[str, list[str]]) -> Any:
         """Expose catalog and exact playback facts without treating GET as a command."""
         if route == ["state"]:
             return self.state()
         if route == ["readiness"]:
             return self.readiness.snapshot()
+        if route == ["setup-suggestions"]:
+            return self.setup_suggestions()
         if route == ["tasks"]:
             return [task.as_dict() for task in load_task_registry(self.registry).values()]
         if route == ["cameras"]:
             return list_cameras() if not self.demo else {
                 "cameras": ["synthetic:wrist", "synthetic:front"], "message": "Synthetic demo only",
+            }
+        if route == ["serial-connections"]:
+            return list_serial_connections() if not self.demo else {
+                "connections": [], "message": "Synthetic demo has no physical USB connection.",
             }
         if route == ["sessions"]:
             return self.catalog.sessions(
