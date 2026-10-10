@@ -28,6 +28,7 @@ from .checkpoint_eval import (
     strict_content_hash,
 )
 from .evaluation import append_policy_row
+from .exclusions import require_training_exclusions, require_unchanged_exclusions
 from .physical_contract import PhysicalDatasetContract
 
 TRAINING_VERSION = "synria_act_training_v1"
@@ -63,12 +64,14 @@ def _save_upstream_checkpoint(
 
 
 def _integer(value: Any, name: str, *, minimum: int = 1) -> int:
+    """Validate an explicit integer hyperparameter without accepting booleans."""
     if type(value) is not int or value < minimum:
         raise ValueError(f"{name} must be an integer >= {minimum}, not boolean")
     return value
 
 
 def _number(value: Any, name: str, *, allow_zero: bool = False) -> float:
+    """Reject nonfinite or incorrectly signed numerical training settings."""
     if (
         type(value) not in (int, float)
         or not math.isfinite(value)
@@ -79,16 +82,19 @@ def _number(value: Any, name: str, *, allow_zero: bool = False) -> float:
 
 
 def _json(value: Any) -> str:
+    """Render deterministic strict JSON for contract comparison and evidence."""
     return json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + "\n"
 
 
 def _write(path: Path, value: Any) -> None:
+    """Create a new evidence artifact without overwriting an earlier run."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("x", encoding="utf-8") as stream:
         stream.write(_json(value))
 
 
 def _path(value: Any, repository: Path) -> Path:
+    """Resolve an explicit artifact setting relative to its declared repository."""
     if not isinstance(value, str) or not value.strip():
         raise ValueError("explicit nonempty path required")
     path = Path(value)
@@ -96,6 +102,7 @@ def _path(value: Any, repository: Path) -> Path:
 
 
 def validate_config(config: dict[str, Any], contract: dict[str, Any]) -> dict[str, Any]:
+    """Validate physical eligibility, exact contract identity and explicit ACT cadence."""
     if config.get("version") != TRAINING_VERSION:
         raise ValueError("unsupported training configuration")
     if (
@@ -221,6 +228,7 @@ def training_stats(root: Path, episode_ids: tuple[int, ...], state_size: int) ->
 
 
 def _plain_stats(stats: dict[str, Any]) -> dict[str, Any]:
+    """Serialize training-only normalizers without optional tensor objects."""
     return {
         key: {metric: np.asarray(value).tolist() for metric, value in fields.items()}
         for key, fields in stats.items()
@@ -228,6 +236,7 @@ def _plain_stats(stats: dict[str, Any]) -> dict[str, Any]:
 
 
 def _policy_features(metadata: Any, state_size: int) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Construct model features only after dataset dimensions match the physical contract."""
     from lerobot.configs.types import FeatureType, PolicyFeature
 
     features = metadata.features
@@ -256,6 +265,7 @@ def _policy_features(metadata: Any, state_size: int) -> tuple[dict[str, Any], di
 
 
 def _evaluation_batches(loader: Any) -> Iterator[PredictionBatch]:
+    """Expose held-out observations and actions to the frozen checkpoint evaluator."""
     for batch in loader:
         yield PredictionBatch(
             {key: batch[key] for key in FEATURE_KEYS},
@@ -320,7 +330,10 @@ def train(
     ):
         raise ValueError("policy id already recorded")
     frozen = load_probes(probes, repository, config["probe_sha256"])
+    exclusions = require_training_exclusions(dataset_root, frozen["held_out_episodes"])
     metadata = read_episode_metadata(dataset_root)
+    if set(exclusions.entries) - set(metadata):
+        raise ValueError("exclusion log references episodes missing from the training dataset")
     training_ids = tuple(sorted(set(metadata) - set(frozen["held_out_episodes"])))
     evaluator = CheckpointEvaluator(
         probes, repository, config["probe_sha256"], dataset_root, training_ids
@@ -435,6 +448,7 @@ def train(
         "utc": datetime.now(timezone.utc).isoformat(),
         "dataset_path": str(dataset_root.resolve()),
         "dataset_content_sha256": evaluator.dataset_hash,
+        **exclusions.evidence(),
         "physical_contract": contract,
         "probe_sha256": evaluator.probe_hash,
         "probe_set": str(probes.resolve()),
@@ -477,6 +491,7 @@ def train(
     )
 
     def predict(observations: dict[str, Any]) -> np.ndarray:
+        """Predict held-out action chunks using the current unwrapped training model."""
         model = accelerator.unwrap_model(policy)
         model.eval()
         with torch.inference_mode():
@@ -510,6 +525,7 @@ def train(
             manifest["last_training_metrics"] = current
             if step % config["save_freq"] and step != steps:
                 continue
+            require_unchanged_exclusions(dataset_root, exclusions)
             checkpoint = output / "checkpoints" / f"step-{step:09d}"
             if checkpoint.exists():
                 raise FileExistsError("checkpoint output must not exist")
@@ -577,6 +593,7 @@ def train(
                     evaluation_error = evaluation_error or error
             if evaluation_error is not None:
                 raise evaluation_error
+        require_unchanged_exclusions(dataset_root, exclusions)
         manifest["status"] = "completed"
     except BaseException as error:
         failure = error
@@ -636,6 +653,7 @@ def train(
 
 
 def main() -> None:
+    """Run the explicit local ACT training recipe without robot or device access."""
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("dataset-root", "contract", "output", "config"):
         parser.add_argument("--" + name, type=Path, required=True)

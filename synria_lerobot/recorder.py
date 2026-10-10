@@ -24,8 +24,8 @@ import sys
 import tempfile
 import threading
 import time
-from collections.abc import Callable
-from contextlib import ExitStack
+from collections.abc import Callable, Iterator
+from contextlib import ExitStack, contextmanager
 from dataclasses import asdict, dataclass, field, replace
 from enum import Enum
 from pathlib import Path
@@ -58,6 +58,7 @@ from synria_lerobot.schema import (
     Episode,
 )
 from synria_lerobot.task_registry import (
+    SYNTHETIC_DEMO,
     TASK_IDS,
     TASK_METADATA_KEYS,
     TaskDefinition,
@@ -69,13 +70,18 @@ from synria_lerobot.task_registry import (
 class StateSource(Protocol):
     """Read the newest follower state without commanding either arm."""
 
-    def read(self) -> PhysicalState: ...
+    def read(self) -> PhysicalState:
+        """Return the latest state with its original arrival and header timestamps."""
+        ...
 
-    def close(self) -> None: ...
+    def close(self) -> None:
+        """Close owned resources while preserving unresolved recovery evidence."""
+        ...
 
 
 @dataclass(frozen=True)
 class ActionSample:
+    """Carry an absolute action and its original source-clock evidence."""
     values: tuple[float, ...]
     monotonic_timestamp_s: float
     ros_header_stamp_s: float | None = None
@@ -87,43 +93,61 @@ class ActionSource(Protocol):
 
     kind: ActionSourceKind
 
-    def read(self, follower_state: PhysicalState) -> ActionSample | None: ...
+    def read(self, follower_state: PhysicalState) -> ActionSample | None:
+        """Read the latest sample or defer action assignment to episode finalization."""
+        ...
 
-    def close(self) -> None: ...
+    def close(self) -> None:
+        """Close owned resources while preserving unresolved recovery evidence."""
+        ...
 
 
 class FrameSource(Protocol):
     """Read camera frames without opening devices during module import."""
 
-    def read(self) -> ImageFrame: ...
+    def read(self) -> ImageFrame:
+        """Return the latest camera sample with its source identity and capture timestamp."""
+        ...
 
-    def close(self) -> None: ...
+    def close(self) -> None:
+        """Close owned resources while preserving unresolved recovery evidence."""
+        ...
 
 
 class DatasetWriter(Protocol):
     """Persist one labeled episode and its final front-camera still."""
 
     @property
-    def next_episode_index(self) -> int: ...
+    def next_episode_index(self) -> int:
+        """Return the persistent episode index without advancing it."""
+        ...
 
     recovery_blocked: bool
 
-    def write_episode(self, episode: RecordedPhysicalEpisode) -> None: ...
+    def write_episode(self, episode: RecordedPhysicalEpisode) -> None:
+        """Append an episode atomically, preserving recoverable failures for retry."""
+        ...
 
-    def finalize(self) -> None: ...
+    def finalize(self) -> None:
+        """Close dataset resources without discarding unresolved recovery evidence."""
+        ...
 
     def save_final_still(
         self, episode_index: int, frame: ImageFrame
-    ) -> Path: ...
+    ) -> Path:
+        """Persist accepted native front pixels under their source timestamp."""
+        ...
 
 
 class RecorderState(str, Enum):
+    """Represent the legal pending-capture lifecycle states."""
     IDLE = "idle"
     RECORDING = "recording"
     STOPPED = "stopped"
 
 
 class OperatorLabel(str, Enum):
+    """Preserve operator observation without inferring object success."""
     SUCCESS = "success"
     FAILURE = "failure"
 
@@ -146,6 +170,7 @@ def _close_all(*callbacks: Callable[[], None]) -> None:
 
 @dataclass(frozen=True)
 class PhysicalRecorderConfig:
+    """Bind a dataset to immutable capture, task and source settings."""
     dataset_path: Path
     repo_id: str
     contract: PhysicalDatasetContract
@@ -157,6 +182,7 @@ class PhysicalRecorderConfig:
     state_source_provenance: StateSourceProvenance | None = None
 
     def __post_init__(self) -> None:
+        """Validate declared configuration before any recording operation."""
         action_timing_metadata(
             self.contract.action_source, self.contract.action_lookahead_steps, self.fps
         )
@@ -164,28 +190,35 @@ class PhysicalRecorderConfig:
             self.image_width, self.image_height
         )):
             raise ValueError("image width and height must be positive integers")
-        if recording_purpose(self.smoke) != self.contract.recording_purpose:
+        if recording_purpose(self.smoke, self.contract.recording_purpose) != (
+            self.contract.recording_purpose
+        ):
             raise ValueError("smoke flag differs from the dataset recording purpose")
         if not self.repo_id.strip():
             raise ValueError("repo_id is required")
 
     @property
     def min_episode_s(self) -> float:
+        """Return the minimum duration bound to the task and purpose."""
         return self.contract.min_episode_s
 
     @property
     def max_episode_s(self) -> float:
+        """Return the maximum duration bound to the task and purpose."""
         return self.contract.max_episode_s
 
     @property
     def hard_cap_s(self) -> float:
+        """Use the task maximum as the mandatory capture deadline."""
         return self.max_episode_s
 
     @property
     def task(self) -> str:
+        """Return the immutable instruction recorded with every dataset row."""
         return self.contract.task_text
 
     def require_outside_repository(self, repository_root: Path) -> None:
+        """Reject repository output roots before creating any dataset files."""
         root = repository_root.resolve()
         output = self.dataset_path.resolve()
         if output == root or root in output.parents:
@@ -194,6 +227,7 @@ class PhysicalRecorderConfig:
 
 @dataclass
 class RecordedPhysicalEpisode:
+    """Retain labeled observations and source evidence until transaction commit."""
     episode_index: int
     frames: list[PhysicalFrame]
     started_monotonic_s: float
@@ -209,28 +243,35 @@ class RecordedPhysicalEpisode:
     state_source_provenance: StateSourceProvenance | None = None
     final_front_still: ImageFrame | None = None
     task_definition: TaskDefinition = field(kw_only=True)
+    declared_recording_purpose: str | None = field(default=None, kw_only=True)
 
     def __post_init__(self) -> None:
+        """Validate declared configuration before any recording operation."""
         self.task_definition.recording_window(self.recording_purpose)
 
     @property
     def recording_purpose(self) -> str:
-        return recording_purpose(self.smoke)
+        """Resolve the declared purpose while preserving smoke validation."""
+        return recording_purpose(self.smoke, self.declared_recording_purpose)
 
     @property
     def min_episode_s(self) -> float:
+        """Return the minimum duration bound to the task and purpose."""
         return self.task_definition.recording_window(self.recording_purpose)["min_episode_s"]
 
     @property
     def max_episode_s(self) -> float:
+        """Return the maximum duration bound to the task and purpose."""
         return self.task_definition.recording_window(self.recording_purpose)["max_episode_s"]
 
     @property
     def duration_s(self) -> float:
+        """Return elapsed time between monotonic capture boundaries."""
         return self.ended_monotonic_s - self.started_monotonic_s
 
     @property
     def achieved_sample_rate_hz(self) -> float:
+        """Compute observed inter-sample rate rather than requested rate."""
         samples = [frame.sample_monotonic_timestamp_s for frame in self.frames]
         if len(samples) < 2 or any(value is None for value in samples):
             return 0.0
@@ -241,6 +282,7 @@ class RecordedPhysicalEpisode:
 
 @dataclass
 class PhysicalSessionResult:
+    """Report process outcomes without retaining historical image buffers."""
     saved_episode_count: int = 0
     discarded_episode_count: int = 0
     failed_save_count: int = 0
@@ -251,6 +293,7 @@ class PhysicalSessionResult:
 
 @dataclass(frozen=True)
 class _PendingFrame:
+    """Hold an unsaved observation until action lookahead can be resolved."""
     state: PhysicalState
     action: ActionSample | None
     wrist: ImageFrame
@@ -259,23 +302,29 @@ class _PendingFrame:
 
 
 class NextStateActionSource:
+    """Defer proxy actions until the complete follower episode is available."""
     kind = ActionSourceKind.NEXT_STATE
 
     def read(self, follower_state: PhysicalState) -> None:
+        """Read the latest sample or defer action assignment to episode finalization."""
         del follower_state
         return None
 
     def close(self) -> None:
+        """Close owned resources while preserving unresolved recovery evidence."""
         return None
 
 
 class LeaderActionSource:
+    """Read leader states without inserting any command path."""
     kind = ActionSourceKind.LEADER
 
     def __init__(self, leader_state_source: StateSource) -> None:
+        """Initialize owned resources and lifecycle state for safe recording."""
         self._source = leader_state_source
 
     def read(self, follower_state: PhysicalState) -> ActionSample:
+        """Read the latest sample or defer action assignment to episode finalization."""
         del follower_state
         leader = self._source.read()
         return ActionSample(
@@ -286,6 +335,7 @@ class LeaderActionSource:
         )
 
     def close(self) -> None:
+        """Close owned resources while preserving unresolved recovery evidence."""
         self._source.close()
 
 
@@ -296,6 +346,7 @@ class _LatestSource(Generic[_Sample]):
     """A bounded latest-only cache whose worker failure is never hidden."""
 
     def __init__(self, *, timeout_s: float) -> None:
+        """Initialize owned resources and lifecycle state for safe recording."""
         if not math.isfinite(timeout_s) or timeout_s <= 0:
             raise ValueError("source timeout must be positive and finite")
         self._timeout_s = timeout_s
@@ -309,13 +360,16 @@ class _LatestSource(Generic[_Sample]):
         self._received_count = 0
 
     def _store(self, sample: _Sample) -> None:
+        """Replace the latest sample and preserve callback-arrival evidence."""
         with self._lock:
             self._latest = sample
             self._received_count += 1
         self._ready.set()
 
     def _start_worker(self, target: Callable[[], None], name: str) -> None:
+        """Start an owned worker whose failures wake readers and remain visible."""
         def run() -> None:
+            """Surface background worker failures to blocked source readers."""
             try:
                 target()
             except BaseException as error:
@@ -327,6 +381,7 @@ class _LatestSource(Generic[_Sample]):
         self._thread.start()
 
     def _read_latest(self) -> _Sample:
+        """Read newest cached data or report closure, worker or startup failure."""
         if self._closed:
             raise RuntimeError("source is closed")
         self._ready.wait(self._timeout_s)
@@ -338,6 +393,7 @@ class _LatestSource(Generic[_Sample]):
             return self._latest
 
     def _join(self, timeout_s: float | None = None) -> None:
+        """Bound worker shutdown and retain resources when the worker cannot stop."""
         if self._thread is not None:
             self._thread.join(self._timeout_s if timeout_s is None else timeout_s)
             if self._thread.is_alive():
@@ -349,9 +405,15 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
 
     def __init__(
         self, topic: str, *, node_name: str, state_has_velocity: bool = False,
-        timeout_s: float = 1.0,
+        timeout_s: float = 1.0, first_sample_timeout_s: float = 10.0,
     ) -> None:
+        """Allow initial discovery without relaxing subsequent source timeouts."""
+        if (isinstance(first_sample_timeout_s, bool)
+                or not math.isfinite(first_sample_timeout_s) or first_sample_timeout_s <= 0):
+            raise ValueError("first sample timeout must be positive and finite")
         super().__init__(timeout_s=timeout_s)
+        self._first_sample_timeout_s = first_sample_timeout_s
+        self._topic = topic
         self._rate_window_start: float | None = None
         self._rate_window_count = 0
         self._rate_window_last = 0.0
@@ -379,6 +441,7 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
             )
 
             def on_state(message: Any) -> None:
+                """Cache the newest state with host arrival and ROS timestamps."""
                 arrived = time.monotonic()
                 ros_arrival = self._node.get_clock().now().nanoseconds / 1_000_000_000
                 values = dict(zip(message.name, message.position, strict=True))
@@ -405,6 +468,7 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
             self._executor.add_node(self._node)
 
             def spin() -> None:
+                """Run callbacks until owned shutdown and surface unexpected stops."""
                 try:
                     self._executor.spin()
                     if not self._stop.is_set():
@@ -417,6 +481,18 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
             startup.pop_all()
 
     def read(self) -> PhysicalState:
+        """Wait for discovery only before the first message, then use the normal cache."""
+        with self._lock:
+            awaiting_first = not self._received_count and self._error is None and not self._closed
+        if awaiting_first:
+            self._ready.wait(self._first_sample_timeout_s)
+            with self._lock:
+                if self._latest is None and self._error is None and not self._closed:
+                    raise RuntimeError(
+                        f"No state sample received on {self._topic} after waiting "
+                        f"{self._first_sample_timeout_s:g} s; check that the state source "
+                        "is running and that this terminal uses the same ROS domain."
+                    )
         return self._read_latest()
 
     def require_no_command_publishers(self, topics: tuple[str, ...]) -> None:
@@ -442,6 +518,7 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
                 raise RuntimeError("state source failed or closed during command graph check")
 
     def _store(self, sample: PhysicalState) -> None:
+        """Replace the latest sample and preserve callback-arrival evidence."""
         with self._lock:
             self._latest = sample
             self._received_count += 1
@@ -499,6 +576,7 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
                 self._rate_window_start = None
 
     def close(self) -> None:
+        """Close owned resources while preserving unresolved recovery evidence."""
         if self._closed:
             return
         self._stop.set()
@@ -526,6 +604,7 @@ class OpenCVFrameSource(_LatestSource[ImageFrame]):
     def __init__(
         self, device_path: str, *, width: int = 224, height: int = 224, timeout_s: float = 1.0
     ) -> None:
+        """Initialize owned resources and lifecycle state for safe recording."""
         super().__init__(timeout_s=timeout_s)
         if not device_path.startswith("/dev/v4l/by-id/"):
             raise ValueError("camera source must use a stable /dev/v4l/by-id path")
@@ -548,6 +627,7 @@ class OpenCVFrameSource(_LatestSource[ImageFrame]):
             raise
 
     def _grab(self) -> None:
+        """Convert and resize images before publishing one latest sample."""
         while not self._stop.is_set():
             ok, frame = self._capture.read()
             arrived = time.monotonic()
@@ -571,9 +651,11 @@ class OpenCVFrameSource(_LatestSource[ImageFrame]):
             ))
 
     def read(self) -> ImageFrame:
+        """Read the latest sample or defer action assignment to episode finalization."""
         return self._read_latest()
 
     def close(self) -> None:
+        """Close owned resources while preserving unresolved recovery evidence."""
         if not self._closed:
             self._stop.set()
             self._join()
@@ -585,6 +667,7 @@ class LeRobotDatasetWriter:
     """Lazy adapter for the external LeRobot dataset library."""
 
     def __init__(self, config: PhysicalRecorderConfig) -> None:
+        """Initialize owned resources and lifecycle state for safe recording."""
         try:
             from lerobot.datasets import DEFAULT_EPISODES_PATH  # type: ignore[import-not-found]
             from lerobot.datasets.lerobot_dataset import (  # type: ignore[import-not-found]
@@ -711,6 +794,7 @@ class LeRobotDatasetWriter:
 
     @property
     def next_episode_index(self) -> int:
+        """Return the persistent episode index without advancing it."""
         return self._next_episode_index
 
     def _validate_segments(self) -> None:
@@ -755,6 +839,7 @@ class LeRobotDatasetWriter:
             raise RecordingRecoveryError("dataset has missing or orphan recording segments")
 
     def _close_dataset(self) -> None:
+        """Flush metadata and media at a transaction-safe closed boundary."""
         if self._dataset_open:
             self._dataset.finalize()
             self._dataset_open = False
@@ -762,6 +847,7 @@ class LeRobotDatasetWriter:
     def write_episode(
         self, episode: RecordedPhysicalEpisode
     ) -> None:  # pragma: no cover - optional dependency
+        """Append an episode atomically, preserving recoverable failures for retry."""
         if self._finalized:
             raise RuntimeError("dataset writer is finalized")
         if self.recovery_blocked:
@@ -827,6 +913,7 @@ class LeRobotDatasetWriter:
     def _write_episode_data(
         self, episode: RecordedPhysicalEpisode, capture_provenance: dict[str, object]
     ) -> None:
+        """Write rows and matching sidecars inside the active transaction."""
         import numpy as np
 
         for frame in episode.frames:
@@ -888,6 +975,7 @@ class LeRobotDatasetWriter:
 
     @staticmethod
     def _native_final_still(episode: RecordedPhysicalEpisode) -> ImageFrame:
+        """Validate native pixels against the final accepted camera sample."""
         import numpy as np
 
         if not episode.frames:
@@ -918,6 +1006,7 @@ class LeRobotDatasetWriter:
         return still
 
     def _capture_provenance(self, episode: RecordedPhysicalEpisode) -> dict[str, object]:
+        """Bind source identity, image dimensions and timing across appends."""
         import numpy as np
 
         if not episode.frames:
@@ -988,6 +1077,7 @@ class LeRobotDatasetWriter:
         return capture
 
     def finalize(self) -> None:
+        """Close dataset resources without discarding unresolved recovery evidence."""
         if not self._finalized:
             self._close_dataset()
             self._transaction.close()
@@ -996,6 +1086,7 @@ class LeRobotDatasetWriter:
     def save_final_still(
         self, episode_index: int, frame: ImageFrame
     ) -> Path:  # pragma: no cover - optional dependency
+        """Persist accepted native front pixels under their source timestamp."""
         try:
             import cv2  # type: ignore[import-not-found]
         except ImportError as exc:
@@ -1028,6 +1119,7 @@ class PhysicalEpisodeRecorder:
         clock: Callable[[], float] = time.monotonic,
         command_publisher_guard: Callable[[tuple[str, ...]], None] | None = None,
     ) -> None:
+        """Initialize owned resources and lifecycle state for safe recording."""
         if action_source.kind is not config.contract.action_source:
             raise ValueError("action source does not match dataset contract")
         self.config = config
@@ -1054,7 +1146,31 @@ class PhysicalEpisodeRecorder:
         self._closed = False
         self._pending_label: OperatorLabel | None = None
 
+    @property
+    def pending_frame_count(self) -> int:
+        """Expose pending memory use without giving operator surfaces mutable frames."""
+        return len(self._pending)
+
+    @property
+    def next_episode_index(self) -> int:
+        """Return the persistent index reserved for the next successful dataset append."""
+        return self._next_episode_index
+
+    @property
+    def elapsed_s(self) -> float:
+        """Report capture duration, bounded by the same cap used for stop and save."""
+        if self.state is RecorderState.IDLE:
+            return 0.0
+        end = self.clock() if self.state is RecorderState.RECORDING else self._ended
+        return min(max(0.0, end - self._started), self.config.hard_cap_s)
+
+    @property
+    def pending_label(self) -> str | None:
+        """Expose a retained save label so a surface can offer retry without relabeling."""
+        return self._pending_label.value if self._pending_label is not None else None
+
     def start(self) -> None:
+        """Check recovery and command guards before beginning an idle capture."""
         if self.writer.recovery_blocked:
             raise RecordingRecoveryError("recovery is blocked; pending frames must be retained")
         if self.state is not RecorderState.IDLE:
@@ -1077,6 +1193,7 @@ class PhysicalEpisodeRecorder:
         self.state = RecorderState.RECORDING
 
     def capture_once(self) -> bool:
+        """Accept one observation unless the hard deadline has elapsed."""
         import numpy as np
 
         if self.state is not RecorderState.RECORDING:
@@ -1113,18 +1230,22 @@ class PhysicalEpisodeRecorder:
         return True
 
     def stop(self) -> None:
+        """Freeze capture boundaries without saving or labeling pending observations."""
         if self.state is not RecorderState.RECORDING:
             raise RuntimeError("no episode is recording")
         self._ended = min(self.clock(), self._started + self.config.hard_cap_s)
         self.state = RecorderState.STOPPED
 
     def mark_success(self) -> RecordedPhysicalEpisode:
+        """Save the stopped capture with its operator success label."""
         return self._finalize(OperatorLabel.SUCCESS)
 
     def mark_failure(self) -> RecordedPhysicalEpisode:
+        """Save the stopped capture with its operator failure label."""
         return self._finalize(OperatorLabel.FAILURE)
 
     def discard(self) -> None:
+        """Abandon pending memory only when recovery permits explicit discard."""
         if self.writer.recovery_blocked:
             raise RecordingRecoveryError("recovery is blocked; pending frames must be retained")
         self._pending = []
@@ -1133,11 +1254,13 @@ class PhysicalEpisodeRecorder:
         self.state = RecorderState.IDLE
 
     def retry(self) -> RecordedPhysicalEpisode:
+        """Retry unchanged labeled data after a recoverable write failure."""
         if self._pending_label is None:
             raise RuntimeError("no failed labeled episode is available to retry")
         return self._finalize(self._pending_label)
 
     def _finalize(self, label: OperatorLabel) -> RecordedPhysicalEpisode:
+        """Commit the pending episode before advancing its persistent index."""
         if self.state is not RecorderState.STOPPED:
             raise RuntimeError("stop the episode before applying an operator label")
         if not self._pending:
@@ -1159,6 +1282,7 @@ class PhysicalEpisodeRecorder:
             state_source_provenance=self.config.state_source_provenance,
             final_front_still=self._pending_final_front,
             task_definition=self.config.contract.task_definition,
+            declared_recording_purpose=self.config.contract.recording_purpose,
         )
         self.writer.write_episode(episode)
         self._next_episode_index += 1
@@ -1169,6 +1293,7 @@ class PhysicalEpisodeRecorder:
         return episode
 
     def _build_frames(self) -> list[PhysicalFrame]:
+        """Resolve lookahead or direct actions while preserving source timestamps."""
         frames: list[PhysicalFrame] = []
         for index, pending in enumerate(self._pending):
             action = pending.action
@@ -1200,6 +1325,7 @@ class PhysicalEpisodeRecorder:
         return frames
 
     def close(self) -> None:
+        """Close owned resources while preserving unresolved recovery evidence."""
         if not self._closed:
             self._closed = True
             _close_all(
@@ -1242,6 +1368,7 @@ class EpisodeRecorder:
     hardware_recorder: PhysicalEpisodeRecorder | None = None
 
     def __post_init__(self) -> None:
+        """Validate declared configuration before any recording operation."""
         if self.zone not in VALID_STAGING_ZONES:
             raise ValueError(f"Unknown zone={self.zone!r}. Valid: {VALID_STAGING_ZONES}")
         if self.game not in VALID_GAMES:
@@ -1345,6 +1472,7 @@ class RecordingSession:
     _recorded: list[Episode] = field(default_factory=list, repr=False)
 
     def __post_init__(self) -> None:
+        """Validate declared configuration before any recording operation."""
         if self.n_episodes < 1:
             raise ValueError(f"n_episodes={self.n_episodes} must be ≥ 1.")
         for z in self.zones:
@@ -1420,6 +1548,16 @@ def benchmark_recording_fps(n_frames: int = 60, fps: float = DEFAULT_FPS) -> dic
     }
 
 
+def capture_due(
+    recorder: PhysicalEpisodeRecorder, next_sample: float, *, now: float,
+) -> tuple[float, bool]:
+    """Apply the shared no-catch-up cadence and report an automatic hard-cap stop."""
+    if recorder.state is RecorderState.RECORDING and now >= next_sample:
+        capped = not recorder.capture_once()
+        return now + 1.0 / recorder.config.fps, capped
+    return next_sample, False
+
+
 def run_operator_loop(recorder: PhysicalEpisodeRecorder) -> PhysicalSessionResult:
     """Record many episodes while retaining only the currently pending frames."""
     import select
@@ -1433,10 +1571,9 @@ def run_operator_loop(recorder: PhysicalEpisodeRecorder) -> PhysicalSessionResul
             timeout_s = 0.1
             if recorder.state is RecorderState.RECORDING:
                 now = recorder.clock()
-                if now >= next_sample:
-                    if not recorder.capture_once():
-                        print("Hard cap reached; episode stopped.")
-                    next_sample = now + 1.0 / recorder.config.fps
+                next_sample, capped = capture_due(recorder, next_sample, now=now)
+                if capped:
+                    print("Hard cap reached; episode stopped.")
                 timeout_s = max(0.0, min(0.1, next_sample - now))
             readable, _, _ = select.select([sys.stdin], [], [], timeout_s)
             if not readable:
@@ -1497,6 +1634,7 @@ def run_operator_loop(recorder: PhysicalEpisodeRecorder) -> PhysicalSessionResul
 
 
 def _parse_physical_args() -> argparse.Namespace:
+    """Parse recording configuration, including the ROS discovery wait."""
     parser = argparse.ArgumentParser(description="Record physical Synria demonstrations")
     parser.add_argument("--task-id", choices=TASK_IDS, required=True)
     parser.add_argument(
@@ -1513,6 +1651,10 @@ def _parse_physical_args() -> argparse.Namespace:
     )
     parser.add_argument("--action-lookahead-steps", type=int, default=1)
     parser.add_argument("--follower-topic", default="/joint_states")
+    parser.add_argument(
+        "--state-startup-timeout-s", type=float, default=10.0,
+        help="Seconds to wait for the first state message only (default: 10).",
+    )
     parser.add_argument("--state-source", choices=STATE_SOURCE_KINDS, required=True)
     parser.add_argument("--guard-command-topic", action="append", default=[])
     parser.add_argument("--leader-topic", default="/leader/joint_states")
@@ -1526,9 +1668,21 @@ def _parse_physical_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def physical_main() -> int:  # pragma: no cover
-    args = _parse_physical_args()
-    purpose = recording_purpose(args.smoke)
+def recording_config_from_args(
+    args: argparse.Namespace, *, dataset_path: Path | None = None,
+    synthetic_demo: bool = False,
+) -> PhysicalRecorderConfig:
+    """Validate shared CLI and console settings without creating sources or files.
+
+    Synthetic purpose is selected by the launch process, never by a physical
+    recording form. An unset real task window remains a refusal. Smoke receives
+    its temporary path only when the owning builder enters its context.
+    """
+    if type(synthetic_demo) is not bool:
+        raise ValueError("synthetic_demo must be an explicit boolean")
+    if synthetic_demo and args.smoke:
+        raise ValueError("synthetic demo and disposable physical smoke are distinct purposes")
+    purpose = SYNTHETIC_DEMO if synthetic_demo else recording_purpose(args.smoke)
     task_definition = select_recording_task(args.task_registry, args.task_id, purpose=purpose)
     contract = PhysicalDatasetContract(
         gripper_type=args.gripper_type,
@@ -1539,69 +1693,143 @@ def physical_main() -> int:  # pragma: no cover
         task_definition=task_definition,
         recording_purpose=purpose,
     )
+    path = dataset_path if dataset_path is not None else args.dataset_path
+    if path is None:
+        if not args.smoke:
+            raise SystemExit("--dataset-path is required unless --smoke is used")
+        path = Path(tempfile.gettempdir()) / "synria-smoke-unopened" / "dataset"
+    provenance = None
+    if synthetic_demo:
+        if args.state_source not in (None, SYNTHETIC_DEMO):
+            raise ValueError("synthetic demo must not declare a physical state source")
+    else:
+        provenance = StateSourceProvenance(
+            args.state_source, args.follower_topic,
+            guarded_command_topics(tuple(args.guard_command_topic)),
+        )
+    return PhysicalRecorderConfig(
+        dataset_path=path, repo_id=args.repo_id, contract=contract, fps=args.fps,
+        image_width=args.image_width, image_height=args.image_height,
+        smoke=args.smoke, state_source_provenance=provenance,
+    )
+
+
+@contextmanager
+def build_recording_session(
+    args: argparse.Namespace, *, synthetic_demo: bool = False,
+    clock: Callable[[], float] | None = None,
+    preflight: Callable[[str, dict[str, Any]], None] | None = None,
+) -> Iterator[PhysicalEpisodeRecorder]:
+    """Own the single recording construction path and close partial startups safely.
+
+    Physical construction always measures callbacks, validates state fields and
+    queries the command graph before opening the writer or cameras. Explicit
+    demo construction can only generate a nonqualifying synthetic dataset.
+    """
+    @contextmanager
+    def checked(name: str, **details: Any) -> Iterator[None]:
+        """Report the actual construction check without changing its refusal semantics."""
+        try:
+            yield
+        except BaseException as error:
+            if preflight is not None:
+                try:
+                    preflight(name, {**details, "passed": False, "message": str(error)})
+                except Exception:
+                    pass  # Preserve the original preflight refusal and owned cleanup.
+            raise
+        else:
+            if preflight is not None:
+                try:
+                    preflight(name, {**details, "passed": True})
+                except Exception as error:
+                    print(f"Preflight observer failed: {error}", file=sys.stderr)
+
+    with checked("configuration", source_kind=SYNTHETIC_DEMO if synthetic_demo else "physical"):
+        config = recording_config_from_args(args, synthetic_demo=synthetic_demo)
+    contract = config.contract
     with ExitStack() as session_cleanup:
-        dataset_path: Path | None = args.dataset_path
         if args.smoke:
             temporary_path = session_cleanup.enter_context(
                 tempfile.TemporaryDirectory(prefix="synria-d1-smoke-")
             )
-            dataset_path = Path(temporary_path) / "dataset"
-        elif dataset_path is None:
-            raise SystemExit("--dataset-path is required unless --smoke is used")
-        assert dataset_path is not None
-        config = PhysicalRecorderConfig(
-            dataset_path=dataset_path,
-            repo_id=args.repo_id,
-            contract=contract,
-            fps=args.fps,
-            image_width=args.image_width,
-            image_height=args.image_height,
-            smoke=args.smoke,
-            state_source_provenance=StateSourceProvenance(
-                args.state_source, args.follower_topic,
-                guarded_command_topics(tuple(args.guard_command_topic)),
-            ),
-        )
+            config = replace(config, dataset_path=Path(temporary_path) / "dataset")
         config.require_outside_repository(Path(__file__).resolve().parents[1])
         with ExitStack() as startup_cleanup:
-            follower = RosJointStateSource(
-                args.follower_topic, node_name="synria_d1_follower_state",
-                state_has_velocity=contract.state_has_velocity,
-            )
+            source_clock = time.monotonic if clock is None else clock
+            follower: StateSource
+            if synthetic_demo:
+                from synria_lerobot.console.demo import SyntheticFrameSource, SyntheticStateSource
+
+                follower = SyntheticStateSource(config, clock=source_clock)
+            else:
+                with checked("state_source", topic=args.follower_topic):
+                    physical_follower = RosJointStateSource(
+                        args.follower_topic, node_name="synria_d1_follower_state",
+                        state_has_velocity=contract.state_has_velocity,
+                        first_sample_timeout_s=args.state_startup_timeout_s,
+                    )
+                    follower = physical_follower
             startup_cleanup.callback(_close_all, follower.close)
-            measurement = follower.measure_rate()
-            if config.fps > measurement.rate_hz:
-                raise ValueError(
-                    f"requested {config.fps:g} fps exceeds measured joint state rate "
-                    f"{measurement.rate_hz:.3f} Hz"
+            if not synthetic_demo:
+                # Constructor lookup stays late-bound for fake-source callers.
+                with checked("state_rate", requested_fps=config.fps):
+                    measurement = physical_follower.measure_rate()
+                    if config.fps > measurement.rate_hz:
+                        raise ValueError(
+                            f"requested {config.fps:g} fps exceeds measured joint state rate "
+                            f"{measurement.rate_hz:.3f} Hz"
+                        )
+                    if preflight is not None:
+                        preflight("state_rate_evidence", {"passed": True, **asdict(measurement)})
+                with checked("velocity", required=contract.state_has_velocity):
+                    contract.prepare_state(follower.read())
+                assert config.state_source_provenance is not None
+                topics = config.state_source_provenance.guarded_command_topics
+                with checked("command_publishers", topics=list(topics)):
+                    physical_follower.require_no_command_publishers(topics)
+                if preflight is not None:
+                    for topic in topics:
+                        preflight(f"command_topic:{topic}", {"passed": True, "topic": topic})
+                config = replace(config, state_rate_measurement=measurement)
+                print(
+                    f"Measured {measurement.rate_hz:.3f} joint states/s from "
+                    f"{measurement.message_count} callbacks over {measurement.duration_s:.3f} s."
                 )
-            contract.prepare_state(follower.read())
-            assert config.state_source_provenance is not None
-            follower.require_no_command_publishers(
-                config.state_source_provenance.guarded_command_topics
-            )
-            config = replace(config, state_rate_measurement=measurement)
-            print(
-                f"Measured {measurement.rate_hz:.3f} joint states/s from "
-                f"{measurement.message_count} callbacks over {measurement.duration_s:.3f} s."
-            )
-            writer = LeRobotDatasetWriter(config)
+            with checked("dataset_lock_and_recovery", dataset_path=str(config.dataset_path)):
+                writer = LeRobotDatasetWriter(config)
             startup_cleanup.callback(_close_all, writer.finalize)
             if contract.action_source is ActionSourceKind.LEADER:
-                leader_state = RosJointStateSource(
-                    args.leader_topic, node_name="synria_d1_leader_state", state_has_velocity=False,
-                )
+                leader_state: StateSource
+                if synthetic_demo:
+                    leader_state = SyntheticStateSource(config, clock=source_clock)
+                else:
+                    leader_state = RosJointStateSource(
+                        args.leader_topic, node_name="synria_d1_leader_state",
+                        state_has_velocity=False,
+                        first_sample_timeout_s=args.state_startup_timeout_s,
+                    )
                 startup_cleanup.callback(_close_all, leader_state.close)
                 action_source: ActionSource = LeaderActionSource(leader_state)
             else:
                 action_source = NextStateActionSource()
-            wrist = OpenCVFrameSource(
-                args.wrist_camera, width=config.image_width, height=config.image_height
-            )
+            wrist: FrameSource
+            if synthetic_demo:
+                wrist = SyntheticFrameSource("wrist", config, clock=source_clock)
+            else:
+                with checked("wrist_camera", source_id=args.wrist_camera):
+                    wrist = OpenCVFrameSource(
+                        args.wrist_camera, width=config.image_width, height=config.image_height
+                    )
             startup_cleanup.callback(_close_all, wrist.close)
-            front = OpenCVFrameSource(
-                args.front_camera, width=config.image_width, height=config.image_height
-            )
+            front: FrameSource
+            if synthetic_demo:
+                front = SyntheticFrameSource("front", config, clock=source_clock)
+            else:
+                with checked("front_camera", source_id=args.front_camera):
+                    front = OpenCVFrameSource(
+                        args.front_camera, width=config.image_width, height=config.image_height
+                    )
             startup_cleanup.callback(_close_all, front.close)
             recorder = PhysicalEpisodeRecorder(
                 config=config,
@@ -1610,9 +1838,25 @@ def physical_main() -> int:  # pragma: no cover
                 wrist_source=wrist,
                 front_source=front,
                 writer=writer,
+                clock=source_clock,
             )
             session_cleanup.callback(_close_all, recorder.close)
             startup_cleanup.pop_all()
+        yield recorder
+
+
+def physical_main() -> int:  # pragma: no cover
+    """Run the reference terminal surface using the shared read-only builder."""
+    args = _parse_physical_args()
+    dataset_path = args.dataset_path
+
+    def remember_dataset_path(name: str, result: dict[str, Any]) -> None:
+        """Retain the builder's actual root for output, including temporary smoke paths."""
+        nonlocal dataset_path
+        if name == "dataset_lock_and_recovery" and result.get("passed"):
+            dataset_path = Path(result["dataset_path"])
+
+    with build_recording_session(args, preflight=remember_dataset_path) as recorder:
         result = run_operator_loop(recorder)
         print(
             json.dumps(

@@ -44,6 +44,7 @@ What is real, in one table. Labels: **measured** (a committed artifact with devi
 | TensorRT versus PyTorch numerical parity | **planned**, never recorded | | | [`reports/NOT_CLAIMED.md`](reports/NOT_CLAIMED.md) |
 | Sustained thermal and safety validation | **planned**; existing runs are 60 s and 9.9 s | | | [`reports/NOT_CLAIMED.md`](reports/NOT_CLAIMED.md) |
 | Synria D1 task-bound recording, native final stills, gates and summaries | **implemented, unmeasured**; fake sources and released upstream 0.6.1 synthetic datasets, no hardware run | 2026-10-08 | none | [D1 protocol](docs/ludo_flagship/D1_DATASET_PROTOCOL.md), [task registry](config/synria_tasks.json), [writer tests](tests/test_lerobot_dataset_writer.py) |
+| Synria Teleop Console: recording, offline review and audited curation | **implemented, unmeasured**; fake and synthetic sources, no hardware run | 2026-10-10 | none | [Console guide](docs/ludo_flagship/TELEOP_CONSOLE.md) |
 | Ludo D1: physical Synria demonstrations | **planned**, 0/100 qualifying episodes | | | [`reports/ludo_flagship/data/D1_dataset_summary.json`](reports/ludo_flagship/data/D1_dataset_summary.json) |
 | Synria fixed-task ACT training and checkpoint diagnostics/playback | **implemented, unmeasured**; tiny CPU updates on synthetic data, no physical policy trained | 2026-10-08 | none | [training guide](docs/ludo_flagship/ACT_TRAINING_RUNBOOK.md), [probe guide](docs/ludo_flagship/CHECKPOINT_PROBE_RUNBOOK.md), [trainer](scripts/train_synria_act.py) |
 | Synria checkpoint HTTP serving and die-into-cup D2 evaluation | **implemented, unmeasured**; saved model/normalizers, localhost and fake-ROS trials only | 2026-10-08 | none | [server](scripts/serve_synria_policy.py), [D2 protocol](docs/ludo_flagship/D2_EVAL_PROTOCOL.md), [evaluation](synria_lerobot/evaluation.py) |
@@ -54,6 +55,13 @@ What is real, in one table. Labels: **measured** (a committed artifact with devi
 | Ludo D3: one successful physical Ludo turn | **planned** | | | [D3 runbook](docs/ludo_flagship/D3_OPERATOR_RUNBOOK.md) |
 | Ludo D4: three consecutive successful physical-roll turns | **planned** | | | [D4 runbook](docs/ludo_flagship/D4_OPERATOR_RUNBOOK.md) |
 | Ludo D5: one successful full physical game | **planned** | | | [D5 runbook](docs/ludo_flagship/D5_OPERATOR_RUNBOOK.md) |
+
+With the Python 3.12 `robot-learning` recording environment active, try the
+[console](docs/ludo_flagship/TELEOP_CONSOLE.md) without a robot:
+
+```bash
+synria-teleop-console --demo --workspace "$HOME/synria-console-demo"
+```
 
 ## Measured Results
 

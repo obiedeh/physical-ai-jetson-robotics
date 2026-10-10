@@ -301,6 +301,21 @@ state-source kind/topic or guarded command topics, selected task text/scene/wind
 operator, scene, or recording code/configuration requires a separate dataset/session.
 Incompatible or incomplete roots are refused, not overwritten.
 
+## Optional console surface for sections 2 to 4
+
+The [Synria Teleop Console](TELEOP_CONSOLE.md) provides named sessions, the same
+recorder preflight, latest-camera/state preview, operator labels, gates and
+offline episode review. It is **implemented, unmeasured** using fake and
+synthetic sources only. Section 1's safety, wiring and read-only state-source
+requirements apply unchanged; the command-line path above remains the reference.
+Earlier notes about the lack of live preview or an automatic viewer describe
+that reference terminal path, not the console.
+The console cannot set task windows, start teleoperation or control the arm.
+Closing its browser tab leaves capture running until Stop or the existing hard
+cap. Save or explicitly discard pending frames before quitting the process.
+Its disposable smoke stays separate and temporary; no console action turns it
+into qualifying D1 data. Continue with section 5 for reviewed physical evidence.
+
 ## 5. Gate, review, and summarize retained data
 
 End the recorder and safely pause/end teleoperation by its established
@@ -355,6 +370,22 @@ checked against their target frame, not treated as current-camera skew.
 Candidate [limits](../../config/synria_limits.yaml) require operator
 `verified_by` and `verified_on`. While empty, summaries say
 "limits unverified by operator" and count zero qualifying D1 episodes.
+
+## Troubleshooting
+
+The recorder waits up to 10 seconds for the first state message to allow ROS 2
+discovery. Set `--state-startup-timeout-s` to a positive, finite number of
+seconds if a different startup wait is needed; it applies to the follower and,
+when selected, the USB leader state source. A timeout names the topic and wait:
+check that the state source is running and that this terminal uses the same
+ROS domain. This grace period applies only before the first message; the
+one-second source timeout thereafter, rate measurement and steady-state
+freshness gates are unchanged.
+
+A camera preview application can keep a camera open even after its window is
+closed, causing the recorder to fail to open that camera. Check for a remaining
+preview process with `pgrep -a cheese` and stop it before recording. Closing the
+window alone is not sufficient.
 
 ## 6. Commit the evidence
 

@@ -14,6 +14,7 @@ TASK_IDS = ("die_into_cup", "roll_and_dump", "cup_return")
 EPISODE_WINDOW_KEYS = ("min_episode_s", "max_episode_s")
 QUALIFYING = "qualifying"
 DISPOSABLE_SMOKE = "disposable_smoke"
+SYNTHETIC_DEMO = "synthetic_demo"
 TASK_METADATA_KEYS = (
     "task_id",
     "task_text",
@@ -25,13 +26,19 @@ TASK_METADATA_KEYS = (
 )
 
 
-def recording_purpose(smoke: bool) -> str:
+def recording_purpose(smoke: bool, declared: str | None = None) -> str:
+    """Validate explicit nonphysical purpose without relabeling ordinary recordings."""
     if type(smoke) is not bool:
         raise ValueError("smoke must be an explicit boolean")
+    if declared == SYNTHETIC_DEMO and not smoke:
+        return SYNTHETIC_DEMO
+    if declared is not None and declared != (DISPOSABLE_SMOKE if smoke else QUALIFYING):
+        raise ValueError("smoke flag differs from the recorded purpose")
     return DISPOSABLE_SMOKE if smoke else QUALIFYING
 
 
 def episode_window_metadata(min_episode_s: Any, max_episode_s: Any) -> dict[str, float]:
+    """Validate positive ordered timing bounds before publishing task metadata."""
     if (
         any(
             type(value) not in (int, float) or not math.isfinite(value) or value <= 0
@@ -93,6 +100,7 @@ def validate_fixed_scene_schedule(trials: Any, task_id: str) -> None:
 
 @dataclass(frozen=True)
 class TaskDefinition:
+    """Freeze one skill instruction, scene and prospective operator timing window."""
     task_id: str
     task_text: str
     success_rule: str
@@ -101,6 +109,7 @@ class TaskDefinition:
     max_episode_s: float | None
 
     def __post_init__(self) -> None:
+        """Reject malformed identity, dimensions or timing at the data boundary."""
         if type(self.task_id) is not str or self.task_id not in TASK_IDS:
             raise ValueError("unknown fixed-scene task id")
         if any(
@@ -121,9 +130,11 @@ class TaskDefinition:
             self.require_configured()
 
     def require_configured(self) -> dict[str, float]:
+        """Refuse qualifying collection until the operator supplies task timing."""
         return episode_window_metadata(self.min_episode_s, self.max_episode_s)
 
     def as_dict(self) -> dict[str, Any]:
+        """Serialize canonical evidence fields for exact contract and resume comparison."""
         return {
             "task_id": self.task_id,
             "task_text": self.task_text,
@@ -139,19 +150,24 @@ class TaskDefinition:
 
     @property
     def sha256(self) -> str:
+        """Hash the canonical task snapshot so later registry changes cannot relabel data."""
         canonical = json.dumps(
             self.as_dict(), sort_keys=True, separators=(",", ":"), allow_nan=False
         )
         return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
     def recording_window(self, purpose: str) -> dict[str, float]:
+        """Resolve purpose-specific bounds without changing the stored task snapshot."""
         if purpose == QUALIFYING:
             return self.require_configured()
         if purpose == DISPOSABLE_SMOKE:
             return episode_window_metadata(20.0, 20.0)
-        raise ValueError("recording purpose must be qualifying or disposable_smoke")
+        if purpose == SYNTHETIC_DEMO:
+            return episode_window_metadata(1.0, 30.0)
+        raise ValueError("unknown recording purpose")
 
     def metadata(self, purpose: str = QUALIFYING) -> dict[str, Any]:
+        """Attach immutable task identity and explicit nonqualifying window overrides."""
         window = self.recording_window(purpose)
         return {
             "task_id": self.task_id,
@@ -163,12 +179,14 @@ class TaskDefinition:
             "episode_window_override": (
                 {**window, "reason": "disposable smoke; never qualifying"}
                 if purpose == DISPOSABLE_SMOKE
-                else None
+                else ({**window, "reason": "synthetic demo; never qualifying"}
+                      if purpose == SYNTHETIC_DEMO else None)
             ),
         }
 
     @classmethod
     def from_metadata(cls, payload: Any) -> TaskDefinition:
+        """Validate task snapshot, purpose and hash before trusting persisted evidence."""
         if type(payload) is not dict:
             raise ValueError("task identity metadata is required")
         task = cls.from_dict(payload.get("task_definition"))
@@ -184,12 +202,13 @@ class TaskDefinition:
         override = payload["episode_window_override"]
         if override is not None:
             episode_window_metadata(override.get("min_episode_s"), override.get("max_episode_s"))
-        if "smoke" in payload and recording_purpose(payload["smoke"]) != purpose:
+        if "smoke" in payload and recording_purpose(payload["smoke"], purpose) != purpose:
             raise ValueError("smoke flag differs from the recorded purpose")
         return task
 
     @classmethod
     def from_dict(cls, value: Any) -> TaskDefinition:
+        """Construct a validated object from explicitly serialized evidence."""
         keys = {
             "task_id",
             "task_text",
@@ -224,7 +243,9 @@ class TaskDefinition:
 
 
 def load_task_registry(path: Path) -> dict[str, TaskDefinition]:
+    """Read the complete fixed-scene registry while rejecting ambiguous duplicate fields."""
     def unique_fields(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        """Reject duplicate object fields instead of silently selecting one value."""
         result: dict[str, Any] = {}
         for name, value in pairs:
             if name in result:
@@ -251,6 +272,7 @@ def select_recording_task(
     *,
     purpose: str = QUALIFYING,
 ) -> TaskDefinition:
+    """Select and validate one task for its declared recording purpose."""
     tasks = load_task_registry(path)
     if type(task_id) is not str or task_id not in tasks:
         raise ValueError("unknown fixed-scene task id")

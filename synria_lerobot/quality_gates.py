@@ -12,6 +12,7 @@ from typing import Any
 
 import numpy as np
 
+from synria_lerobot.exclusions import read_exclusions
 from synria_lerobot.physical_contract import (
     ACTION_TIMING_KEYS,
     EPISODE_WINDOW_KEYS,
@@ -49,6 +50,7 @@ GATE_NAMES = (
 
 @dataclass(frozen=True)
 class ImageDiagnostic:
+    """Retain image presence and content diagnostics without storing frame pixels."""
     present: bool
     mean_intensity: float
     content_hash: str
@@ -56,6 +58,7 @@ class ImageDiagnostic:
 
 @dataclass(frozen=True)
 class FrameQualityRecord:
+    """Bind one frame's state, action, source timing and dual-camera diagnostics."""
     state: tuple[float, ...]
     action: tuple[float, ...]
     timestamps: dict[str, float]
@@ -65,6 +68,7 @@ class FrameQualityRecord:
 
 @dataclass(frozen=True)
 class EpisodeQualityRecord:
+    """Keep immutable per-episode evidence sufficient to repeat every quality gate."""
     episode_index: int
     fps: float
     duration_s: float
@@ -83,27 +87,34 @@ class EpisodeQualityRecord:
     state_rate_measurement: dict[str, Any] | None = None
     state_source_provenance: dict[str, Any] | None = None
     task_definition: TaskDefinition = field(kw_only=True)
+    declared_recording_purpose: str | None = field(default=None, kw_only=True)
 
     def __post_init__(self) -> None:
+        """Reject an unconfigured task window before accepting its episode evidence."""
         self.task_definition.recording_window(self.recording_purpose)
 
     @property
     def recording_purpose(self) -> str:
-        return recording_purpose(self.smoke)
+        """Preserve explicit synthetic identity while reading legacy physical records."""
+        return recording_purpose(self.smoke, self.declared_recording_purpose)
 
     @property
     def min_episode_s(self) -> float:
+        """Read the bound lower episode limit rather than guessing a collection window."""
         return self.task_definition.recording_window(self.recording_purpose)["min_episode_s"]
 
     @property
     def max_episode_s(self) -> float:
+        """Read the bound hard cap used to validate this episode's duration."""
         return self.task_definition.recording_window(self.recording_purpose)["max_episode_s"]
 
     def as_dict(self) -> dict[str, object]:
+        """Serialize frame diagnostics and their authoritative task-purpose metadata."""
         return {**asdict(self), **self.task_definition.metadata(self.recording_purpose)}
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> EpisodeQualityRecord:
+        """Validate saved task identity and reconstruct repeatable quality evidence."""
         if type(payload["episode_index"]) is not int or payload["episode_index"] < 0:
             raise ValueError("episode indices must be non-negative integers")
         return cls(
@@ -117,6 +128,7 @@ class EpisodeQualityRecord:
             gripper_type=str(payload["gripper_type"]),
             final_still=str(payload["final_still"]),
             smoke=payload["smoke"],
+            declared_recording_purpose=payload.get("recording_purpose"),
             achieved_sample_rate_hz=payload.get("achieved_sample_rate_hz"),
             action_lookahead_steps=payload.get("action_lookahead_steps", 1),
             effective_action_lookahead_steps=payload.get("effective_action_lookahead_steps"),
@@ -142,6 +154,7 @@ class EpisodeQualityRecord:
 
 @dataclass(frozen=True)
 class PhysicalLimits:
+    """Represent candidate joint and gripper limits alongside operator verification."""
     verified_by: str
     verified_on: str
     joint_names: tuple[str, ...]
@@ -150,11 +163,13 @@ class PhysicalLimits:
 
     @property
     def verified(self) -> bool:
+        """Require both operator and date before any episode can qualify."""
         return bool(self.verified_by.strip() and self.verified_on.strip())
 
 
 @dataclass(frozen=True)
 class GateConfig:
+    """Freeze episode-window and freshness thresholds used to assess capture quality."""
     min_episode_s: float
     max_episode_s: float
     frame_count_tolerance_fraction: float = 0.1
@@ -165,6 +180,7 @@ class GateConfig:
     black_mean_threshold: float = 1.0
 
     def __post_init__(self) -> None:
+        """Reject invalid durations or freshness tolerances instead of weakening gates."""
         episode_window_metadata(self.min_episode_s, self.max_episode_s)
         for value in (self.max_source_age_s, self.max_header_delay_s, self.max_header_future_s):
             if not math.isfinite(value) or value < 0:
@@ -173,18 +189,22 @@ class GateConfig:
 
 @dataclass(frozen=True)
 class GateReport:
+    """Expose independent gate decisions without conflating quality and task success."""
     episode_index: int
     gates: dict[str, bool]
 
     @property
     def passed(self) -> bool:
+        """Require every quality gate to pass for this episode."""
         return all(self.gates.values())
 
     @property
     def failed_gates(self) -> list[str]:
+        """Name failed checks so the operator can investigate the original capture."""
         return [name for name, passed in self.gates.items() if not passed]
 
     def as_dict(self) -> dict[str, object]:
+        """Produce a stable JSON-compatible report retaining each gate decision."""
         return {
             "episode_index": self.episode_index,
             "passed": self.passed,
@@ -214,12 +234,14 @@ def load_limits(path: Path) -> PhysicalLimits:
 
 
 def _bounds(values: list[Any]) -> tuple[float, float]:
+    """Read one explicit lower/upper pair without inventing missing limits."""
     if len(values) != 2:
         raise ValueError("limit bounds must contain exactly two values")
     return float(values[0]), float(values[1])
 
 
 def _image_diagnostic(data: Any) -> ImageDiagnostic:
+    """Hash exact stored pixels and summarize brightness for repeatable image gates."""
     if data is None:
         return ImageDiagnostic(False, 0.0, "")
     array = np.asarray(data)
@@ -236,6 +258,7 @@ def _image_diagnostic(data: Any) -> ImageDiagnostic:
 def episode_quality_record(
     episode: RecordedPhysicalEpisode, *, fps: float
 ) -> EpisodeQualityRecord:
+    """Derive gate inputs from saved capture data without altering its operator label."""
     return EpisodeQualityRecord(
         episode_index=episode.episode_index,
         task_definition=episode.task_definition,
@@ -247,6 +270,7 @@ def episode_quality_record(
         gripper_type=episode.gripper_type,
         final_still=str(episode.final_still_path or ""),
         smoke=episode.smoke,
+        declared_recording_purpose=episode.recording_purpose,
         achieved_sample_rate_hz=episode.achieved_sample_rate_hz,
         **action_timing_metadata(episode.action_source, episode.action_lookahead_steps, fps),
         state_rate_measurement=(
@@ -271,6 +295,7 @@ def episode_quality_record(
 
 
 def write_episode_records(records: list[EpisodeQualityRecord], path: Path) -> Path:
+    """Write complete quality records for deterministic offline assessment."""
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         "".join(json.dumps(record.as_dict(), sort_keys=True) + "\n" for record in records),
@@ -280,6 +305,7 @@ def write_episode_records(records: list[EpisodeQualityRecord], path: Path) -> Pa
 
 
 def load_episode_records(path: Path) -> list[EpisodeQualityRecord]:
+    """Load and validate committed per-episode quality sidecars."""
     return [
         EpisodeQualityRecord.from_dict(json.loads(line))
         for line in path.read_text(encoding="utf-8").splitlines()
@@ -292,6 +318,7 @@ def evaluate_episode(
     limits: PhysicalLimits,
     config: GateConfig,
 ) -> GateReport:
+    """Assess independent capture gates without changing task labels or thresholds."""
     if any(getattr(config, name) != getattr(episode, name) for name in EPISODE_WINDOW_KEYS):
         raise ValueError("gate episode window differs from recorded episode")
     frames = episode.frames
@@ -340,6 +367,7 @@ def evaluate_episode(
 
 
 def _timestamp_skew_ok(frame: FrameQualityRecord, action_source: str, config: GateConfig) -> bool:
+    """Compare only contemporaneous sources, excluding intentionally shifted actions."""
     names = ["state_monotonic_s", "wrist_monotonic_s", "front_monotonic_s"]
     if action_source == "leader":
         names.append("action_monotonic_s")
@@ -350,6 +378,7 @@ def _timestamp_skew_ok(frame: FrameQualityRecord, action_source: str, config: Ga
 
 
 def _sources_fresh(frame: FrameQualityRecord, action_source: str, config: GateConfig) -> bool:
+    """Check original arrival ages and same-clock header delays at sampling time."""
     timestamps = frame.timestamps
     sample = timestamps.get("sample_monotonic_s", math.nan)
     if not math.isfinite(sample):
@@ -374,6 +403,7 @@ def _sources_fresh(frame: FrameQualityRecord, action_source: str, config: GateCo
 
 
 def _episode_sources_fresh(episode: EpisodeQualityRecord, config: GateConfig) -> bool:
+    """Check ordered sampling and exact target timestamps for derived next-state actions."""
     if not episode.frames or episode.action_source not in {"leader", "next_state"}:
         return False
     try:
@@ -414,6 +444,7 @@ def _episode_sources_fresh(episode: EpisodeQualityRecord, config: GateConfig) ->
 def _vector_within_limits(
     values: tuple[float, ...], limits: PhysicalLimits, gripper_type: str
 ) -> bool:
+    """Check position and gripper bounds separately from dimensionality and NaN gates."""
     if len(values) < 7:
         return True
     if not all(math.isfinite(value) for value in values[:7]):
@@ -430,6 +461,7 @@ def _vector_within_limits(
 def _visual_sanity(
     frames: tuple[FrameQualityRecord, ...], black_threshold: float
 ) -> bool:
+    """Reject black, frozen or duplicated camera streams using recorded image diagnostics."""
     if len(frames) < 2:
         return False
     wrist = [frame.wrist for frame in frames]
@@ -448,6 +480,7 @@ def _visual_sanity(
 
 
 def hash_dataset(path: Path) -> str:
+    """Bind dataset-relative paths and file bytes without including sibling curation logs."""
     digest = hashlib.sha256()
     for file_path in sorted(item for item in path.rglob("*") if item.is_file()):
         digest.update(file_path.relative_to(path).as_posix().encode())
@@ -462,6 +495,7 @@ def _merge_capture_provenance(
     provenance: dict[str, object],
     episodes: list[EpisodeQualityRecord],
 ) -> dict[str, object]:
+    """Cross-check summary inputs against original camera and source capture facts."""
     path = dataset_path / "physical_capture_provenance.jsonl"
     if not path.is_file():
         if episodes and (dataset_path / "physical_contract.json").is_file():
@@ -555,6 +589,7 @@ def _merge_capture_provenance(
 
 
 def _validate_timing_evidence(payload: dict[str, Any]) -> None:
+    """Reject missing or inconsistent action lookahead metadata."""
     try:
         expected = action_timing_metadata(
             ActionSource(payload["action_source"]), payload["action_lookahead_steps"],
@@ -569,6 +604,7 @@ def _validate_timing_evidence(payload: dict[str, Any]) -> None:
 def _validate_summary_contract(
     dataset_path: Path, provenance: dict[str, Any], episodes: list[EpisodeQualityRecord]
 ) -> dict[str, Any]:
+    """Require supplied session identity to match recorded contract and episode facts."""
     expected: dict[str, Any] = {
         name: provenance[name] for name in ("action_source", "gripper_type", "contract_version")
     }
@@ -633,11 +669,24 @@ def write_session_artifacts(
     limits: PhysicalLimits,
     gate_config: GateConfig,
 ) -> dict[str, object]:
+    """Write a physical-only session summary with audited exclusions applied to counts."""
+    if provenance.get("recording_purpose") == "synthetic_demo" or any(
+        episode.recording_purpose == "synthetic_demo" for episode in episodes
+    ):
+        raise ValueError("synthetic demo datasets cannot produce D1 session summaries")
+    contract_path = dataset_path / "physical_contract.json"
+    if contract_path.is_file() and json.loads(contract_path.read_text(encoding="utf-8")).get(
+        "recording_purpose"
+    ) == "synthetic_demo":
+        raise ValueError("synthetic demo datasets cannot produce D1 session summaries")
     indices = [episode.episode_index for episode in episodes]
     if any(type(index) is not int or index < 0 for index in indices):
         raise ValueError("episode indices must be non-negative integers")
     if len(indices) != len(set(indices)):
         raise ValueError("duplicate episode indices in session records")
+    exclusions = read_exclusions(dataset_path)
+    if set(exclusions.entries) - set(indices):
+        raise ValueError("exclusion log references episodes missing from session evidence")
     required = {
         "follower_serial",
         "leader_serial",
@@ -699,17 +748,20 @@ def write_session_artifacts(
     )
 
     reports = [evaluate_episode(episode, limits, gate_config) for episode in episodes]
-    retained = [episode for episode in episodes if not episode.smoke]
+    retained = [episode for episode in episodes if not episode.smoke
+                and episode.episode_index not in exclusions.excluded_ids]
     labels = [episode.operator_label for episode in retained]
     successes = sum(label == OperatorLabel.SUCCESS.value for label in labels)
     quality_valid = sum(
-        report.passed and not episode.smoke
+        report.passed and not episode.smoke and episode.episode_index not in exclusions.excluded_ids
         for report, episode in zip(reports, episodes, strict=True)
     )
     summary: dict[str, object] = {
         "episode_count": len(retained),
         "recorded_episode_count": len(episodes),
-        "smoke_episode_count": len(episodes) - len(retained),
+        "smoke_episode_count": sum(episode.smoke for episode in episodes),
+        "excluded_episode_count": len(exclusions.excluded_ids),
+        **exclusions.evidence(),
         "episode_indices": [episode.episode_index for episode in retained],
         "achieved_sample_rates_hz": sample_rates,
         "state_rate_measurements": state_rate_measurements,
@@ -754,10 +806,13 @@ def write_aggregate_summary(
     timeline_path: Path,
     now_utc: str | None = None,
 ) -> dict[str, object]:
+    """Aggregate current physical summaries, refusing stale curation or demo evidence."""
     session_summaries = []
     seen_datasets: set[Path] = set()
     for path in sorted(data_root.glob("*/session_summary.json")):
         summary = json.loads(path.read_text(encoding="utf-8"))
+        if summary.get("recording_purpose") == "synthetic_demo":
+            raise ValueError("synthetic demo datasets cannot contribute to D1 aggregates")
         TaskDefinition.from_metadata(summary)
         if summary["recording_purpose"] == DISPOSABLE_SMOKE and (
             any(type(summary.get(key)) is not int or summary[key] != 0 for key in (
@@ -771,6 +826,16 @@ def write_aggregate_summary(
             )
         if "dataset_path" in summary:
             dataset = Path(summary["dataset_path"]).resolve()
+            exclusions = read_exclusions(dataset)
+            if exclusions.sha256 != summary.get("exclusion_log_sha256") or (
+                list(exclusions.excluded_ids) != summary.get("excluded_episode_ids", [])
+            ):
+                raise ValueError("session summary has stale exclusion evidence; regenerate it")
+            contract_file = dataset / "physical_contract.json"
+            if contract_file.is_file() and json.loads(
+                contract_file.read_text(encoding="utf-8")
+            ).get("recording_purpose") == "synthetic_demo":
+                raise ValueError("synthetic demo datasets cannot contribute to D1 aggregates")
             if dataset in seen_datasets:
                 raise ValueError("duplicate dataset in session summaries; refusing double counting")
             seen_datasets.add(dataset)
@@ -795,6 +860,9 @@ def write_aggregate_summary(
         "status": "planned" if qualifying_total < 100 else "measured",
         "quality_valid_episode_count": quality_valid_total,
         "qualifying_episode_count": qualifying_total,
+        "excluded_episode_count": sum(
+            int(summary.get("excluded_episode_count", 0)) for summary in session_summaries
+        ),
         "session_count": len(session_summaries),
         "action_sources": action_sources,
         "state_sources": [
