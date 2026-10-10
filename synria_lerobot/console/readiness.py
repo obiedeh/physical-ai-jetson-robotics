@@ -213,9 +213,40 @@ def inspect_samples(
                          stored_resolution=[config.image_width, config.image_height])
         except Exception as error:
             report.check(f"{name}_sample", False, str(error))
-    expected = 4 if config.contract.action_source.value == "leader" else 3
-    synchronized = len(times) == expected and max(times) - min(times) <= gates.max_timestamp_skew_s
-    report.check("source_alignment", synchronized,
-                 "Latest source timestamps must satisfy the existing skew gate")
+    required_checks = ["follower_sample", "wrist_sample", "front_sample"]
+    if config.contract.action_source.value == "leader":
+        required_checks.append("action_sample")
+    missing = [
+        name for name in required_checks
+        if report.checks.get(name, {}).get("passed") is not True
+    ]
+    if missing:
+        report.check(
+            "source_alignment", False,
+            "Not evaluated: first obtain fresh samples from all required sources; "
+            "then their timestamps are compared with the existing skew gate.",
+            status="not_checked", waiting_for=missing,
+            max_timestamp_skew_s=gates.max_timestamp_skew_s,
+        )
+    elif len(times) != len(required_checks):
+        report.check(
+            "source_alignment", False,
+            "Not evaluated: a required source timestamp is unavailable; rerun the "
+            "read-only check after all source samples are fresh.",
+            status="not_checked", expected_sources=len(required_checks),
+            received_timestamps=len(times),
+            max_timestamp_skew_s=gates.max_timestamp_skew_s,
+        )
+    else:
+        measured_skew = max(times) - min(times)
+        synchronized = measured_skew <= gates.max_timestamp_skew_s
+        report.check(
+            "source_alignment", synchronized,
+            f"Latest-source skew {measured_skew:.3f} s "
+            f"{'is within' if synchronized else 'exceeds'} the existing "
+            f"{gates.max_timestamp_skew_s:.3f} s gate.",
+            measured_skew_s=measured_skew,
+            max_timestamp_skew_s=gates.max_timestamp_skew_s,
+        )
     report.check("distinct_views", len(images) == 2 and not np.array_equal(*images),
                  "Wrist/front samples must differ; operator must still verify their roles")

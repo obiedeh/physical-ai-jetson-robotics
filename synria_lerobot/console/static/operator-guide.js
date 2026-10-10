@@ -34,7 +34,8 @@ const SynriaGuide = (() => {
       "Choose a supported explicit FPS in Configure; 15 and 30 are vendor candidates, not guarantees.",
       "For an existing dataset, changing FPS requires a separate dataset/session. Do not bypass the rate gate or increase a driver’s rate speculatively."], doc:"protocol"},
     freshness: {title:"Source timing is not acceptable", summary:"A source is stale, its ROS stamp disagrees with arrival time, or the views are misaligned.", steps:[
-      "Confirm source continuity, host/ROS clock configuration and camera load through the approved procedure.",
+      "Alignment is Not checked until fresh samples exist from follower state, the selected USB leader when used, and both cameras. Fix the specific upstream sample first; missing input is not a measured skew failure.",
+      "When all required samples exist, compare their host monotonic capture times against the existing skew threshold. The result includes measured skew and the threshold; correct stale sources, scheduling or camera capture before retrying.",
       "Do not increase freshness or skew thresholds to hide the failure. A first-message startup wait does not relax steady-state rules.",
       "Keep failed captures and their gate results. Retry the read-only check only after addressing the cause."], doc:"protocol"},
     publishers: {title:"Command path is not quiet", summary:"A publisher or graph-query failure prevents read-only recording.", steps:[
@@ -42,17 +43,18 @@ const SynriaGuide = (() => {
       "Follow the operator-approved procedure to resolve the source configuration. Do not kill publishers, disable the guard or reconfigure working teleoperation just to pass.",
       "Recording needs no policy bridge, arming message or command publisher. Retry only after the approved read-only arrangement is established."], doc:"runbook"},
     metadata: {title:"Complete recording identity and power", summary:"These facts are required for recording, but missing text does not prevent the no-episode diagnostic.", steps:[
-      "Enter the actual follower manufacturer serial from verified equipment records, packaging or vendor confirmation. Do not copy the USB adapter ID or invent an identity.",
-      "Enter the current observed starting power state; do not restore an assumption from a prior session.",
+      "In Configure → Required recording evidence, choose the follower manufacturer serial from the dropdown if it is already known, or choose manual entry and copy it exactly from the follower arm label or verified equipment record. The ROS state feed and USB adapter name are not the arm serial.",
+      "In the same section, enter Starting power state using the approved status display or current operator observation (for example, the observed powered and torque state). Do not toggle power or torque to fill the field; if uncertain, leave it unknown and stop before recording.",
       "If identity cannot be established, leave it unknown and stop before recording. Connection checks still require all physical safety confirmations."], doc:"safety"},
     timing: {title:"Register the real task window", summary:"This skill has no operator-timed qualifying episode window yet.", steps:[
       "Time the actual task under the approved physical procedure; do not infer duration from a software test.",
       "Prospectively record observations, chosen minimum/maximum, rationale, operator and date in DECISIONS.md. Update that task in config/synria_tasks.json through reviewed repository changes.",
       "The console cannot set or override this window. A disposable 20-second smoke is a separate, nonqualifying path and still requires identity, safety and shared preflight."], doc:"decisions"},
-    limits: {title:"Verify the physical limits", summary:"Qualifying evidence requires operator-verified joint and gripper limits.", steps:[
-      "Review config/synria_limits.yaml against the actual arm, installed gripper and accepted safety evidence.",
-      "Record verified_by and verified_on only after genuine verification. Do not fill them merely to make the indicator green.",
-      "Unverified limits remain visible and qualifying counts stay zero. This console neither edits limits nor authorizes motion."], doc:"limits"},
+    limits: {title:"Verify the physical limits", summary:"Candidate ranges are present, but the file is explicitly unverified, so qualifying collection stays blocked.", steps:[
+      "Open config/synria_limits.yaml below to inspect the six candidate arm-joint ranges and the gripper stroke ranges used by the recorder's quality gate.",
+      "The Alicia-D checkout documents a Joint5 soft cap for its Isaac ghost-arm path and self-collision margins/spheres for that simulation. Those are not, by themselves, verified physical-arm limits or a collision check used by this recorder; do not copy simulation collision geometry into the scalar joint-range file.",
+      "Compare the candidate values with approved evidence for this exact physical arm and installed gripper. Record the source and operator verification through a reviewed change; do not set verified_by or verified_on just to clear the status.",
+      "Until an operator-approved verification is recorded, qualifying counts remain zero. This console neither edits limits nor authorizes motion."], doc:"limits"},
     disk: {title:"Restore safe recording space", summary:"The workspace has insufficient available space or a filesystem operation failed.", steps:[
       "Do not discard pending frames just to retry. Keep the process alive while resolving a save failure.",
       "Check the external workspace’s capacity and permissions. Preserve datasets, sidecars, recording locks and journals.",
@@ -277,6 +279,26 @@ const SynriaGuide = (() => {
     }
     $("recording-blockers").replaceChildren(text("h3", "Before qualifying recording"));
     for (const key of requirements) $("recording-blockers").append(button(help[key].title, () => openHelp(key)));
+    if (requirements.includes("metadata")) {
+      const missing = ["follower_serial", "power_state_start"].filter(name => !String(settings[name] || "").trim());
+      $("recording-blockers").append(button("Go to the missing serial / power fields", () => {
+        go("configure");
+        const field = $("new-form").elements.namedItem(missing[0] || "follower_serial");
+        field?.focus();
+        field?.scrollIntoView({behavior:"smooth", block:"center"});
+      }, "primary"));
+      $("recording-blockers").append(button("Where to find these details", () => openHelp("metadata")));
+    }
+    if (requirements.includes("timing")) {
+      $("recording-blockers").append(button("Go to task timing status", () => {
+        go("configure");
+        const panel = $("task-window-registration");
+        panel?.scrollIntoView({behavior:"smooth", block:"center"});
+      }, "primary"));
+    }
+    if (requirements.includes("limits")) {
+      $("recording-blockers").append(button("Open candidate Synria limits file", () => documentHelp("limits")));
+    }
     if (!requirements.length) $("recording-blockers").append(text("p", state.demo ? "Synthetic demo never qualifies as physical evidence." : "Declared requirements supplied. Actual session preflight and operator safety review still apply."));
     $("collection-requirements").textContent = requirements.length ? requirements.map(key => help[key].summary).join(" ") : "Review the latest connection results, then create your session. The writer and source guards run again on open.";
     const requiredMissing = missingInputs(settings, state.demo).length > 0;

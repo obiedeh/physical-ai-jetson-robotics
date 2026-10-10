@@ -36,6 +36,8 @@ context.renderReadiness({...report, checks:{
   recording_metadata:{passed:false, message:"Required before recording: follower_serial"},
 }});
 assert.match(nodes.get("readiness-results").children[0].textContent, /^Not checked/);
+assert.equal(nodes.get("readiness-results").children[0].className, "not-checked",
+  "pending checks use the neutral status style rather than the failure style");
 assert.match(nodes.get("readiness-results").children[1].textContent, /^Not ready/);
 context.renderReadiness({...report, checks:{wrist_sample:{passed:false, status:"launching", message:"Checking frame"}}});
 assert.match(nodes.get("readiness-results").children[0].textContent, /^Launching/);

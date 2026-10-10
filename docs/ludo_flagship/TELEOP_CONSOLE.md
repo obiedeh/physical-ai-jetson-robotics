@@ -59,6 +59,16 @@ Retry save preserves pending frames; successful explicit retry clears its error.
 Keyboard capture controls are disabled inside dialogs, focused controls and
 browser shortcut combinations. No procedure can bypass a recorder guard.
 
+Readiness blockers include direct next steps: missing serial/power metadata
+jumps to the empty field and explains where to find each value; task timing opens
+the registry status; limits opens the read-only config. Source alignment is
+neutral **Not checked** until every required fresh sample exists. With all
+samples present, it reports the measured skew against the existing threshold.
+The Alicia-D Isaac ghost-arm soft cap and simulation self-collision geometry are
+not treated as physical-arm verification or as the recorder's collision gate.
+The current scalar joint/gripper candidates in config/synria_limits.yaml stay
+unverified until an operator verifies the physical arm and gripper.
+
 ![Synthetic demo session; no physical data or hardware run.](../assets/synria-teleop-console-demo.png)
 
 Home lists named sessions and saved success/failure, excluded and target counts.
@@ -80,6 +90,15 @@ source have no assumed selection. Choose actual camera IDs, identity and power
 state yourself. Presets are candidates or software defaults, not hardware
 measurements, verified limits or qualifying counts. The native final still and
 operator-owned task windows are unchanged. **Implemented, unmeasured.**
+
+Task-window registration is deliberately not an editable console control. From
+Prepare, use **Open task timing status**, or in Configure open **Task timing
+registration · read only**. That panel shows each registered window and the
+exact sequence: time the real task under the approved procedure, record the
+observation and chosen bounds in `DECISIONS.md`, then update
+`config/synria_tasks.json` through a reviewed repository change. The console
+does not accept timing values or let an operator bypass review; until the
+registry has a valid window, qualifying session creation remains blocked.
 
 Setup fills the host/account and available storage from this machine, restores
 recent operator-entered gripper/source/camera/scene fields for review, and

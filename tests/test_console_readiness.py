@@ -310,6 +310,52 @@ def test_latest_sample_faults_never_report_ready(
         session.close()
 
 
+@pytest.mark.parametrize(
+    ("mode", "expected_status", "message_fragment"),
+    [
+        ("aligned", "ready", "0.000 s is within the existing 0.050 s gate"),
+        ("missing_front", "not_checked", "first obtain fresh samples"),
+        ("skewed", "not_ready", "0.100 s exceeds the existing 0.050 s gate"),
+    ],
+)
+def test_source_alignment_distinguishes_pending_from_measured_skew(
+    tmp_path: Path, fake_connections: None, mode: str,
+    expected_status: str, message_fragment: str,
+) -> None:
+    """Readiness reports alignment only after all fresh required source timestamps exist."""
+    clock = FakeClock()
+    clock.now = 1.0
+    with ConsoleFixture(tmp_path / mode) as service:
+        settings = service._settings(request_values()["settings"], smoke=True)
+        args = service._args(settings, "local/fake", tmp_path / "dataset", True)
+        session = fake_recorder(args, clock)
+        if mode == "missing_front":
+            session.front_source = SimpleNamespace(
+                read=lambda: (_ for _ in ()).throw(RuntimeError("front camera unavailable")),
+                close=lambda: None,
+            )
+        elif mode == "skewed":
+            clock.now = 1.1
+            session.front_source = SimpleNamespace(
+                read=lambda: ImageFrame(
+                    np.full((24, 32, 3), 100, dtype=np.uint8), 1.1, (640, 480),
+                ),
+                close=lambda: None,
+            )
+        report = ReadinessReport(clock, demo=False)
+        report.begin()
+        inspect_samples(session, report, load_limits(app.REPOSITORY / "config/synria_limits.yaml"))
+        report.finish()
+        alignment = report.checks["source_alignment"]
+        assert alignment["status"] == expected_status
+        assert message_fragment in alignment["message"]
+        if mode == "missing_front":
+            assert alignment["waiting_for"] == ["front_sample"]
+        elif mode == "skewed":
+            assert alignment["measured_skew_s"] == pytest.approx(0.1)
+        session.close()
+
+
 @pytest.mark.parametrize("blocker", ["window", "limits"])
 def test_connected_sources_do_not_override_qualifying_requirements(
     tmp_path: Path, fake_connections: None, monkeypatch: pytest.MonkeyPatch, blocker: str,
