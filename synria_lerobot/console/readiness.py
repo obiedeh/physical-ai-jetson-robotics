@@ -53,7 +53,8 @@ class ReadinessReport:
         self.completed_s = None
         self.checked_utc = datetime.now(timezone.utc).isoformat()
         self.checks = {name: {"passed": False, "message": "Not run"} for name in (
-            "operator_safety", "form_configuration", "qualifying_configuration",
+            "operator_safety", "form_configuration", "recording_metadata",
+            "qualifying_configuration",
             "limits_verification", "disk_space", "camera_mapping", "runtime_dependencies",
             "follower_sample", "action_sample", "wrist_sample", "front_sample",
             "source_alignment", "distinct_views", "cleanup",

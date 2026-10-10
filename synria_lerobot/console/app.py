@@ -150,8 +150,15 @@ class ConsoleService:
         self._closed = False
         self.quit_requested = threading.Event()
 
-    def _settings(self, payload: dict[str, Any], *, smoke: bool = False) -> dict[str, Any]:
-        """Admit only supported form fields and validate them with the shared recorder config."""
+    def _settings(
+        self, payload: dict[str, Any], *, smoke: bool = False, diagnostic: bool = False,
+    ) -> dict[str, Any]:
+        """Validate shared settings; only no-episode diagnostics may omit recording metadata.
+
+        Diagnostic scope is selected internally, never accepted from form input.
+        Session creation and disposable episode recording still require identity
+        and starting power documentation as well as all source safety checks.
+        """
         allowed = {
             "name", "task_id", "gripper_type", "state_source", "follower_topic",
             "action_source", "action_lookahead_steps", "fps", "image_width", "image_height",
@@ -164,8 +171,9 @@ class ConsoleService:
             raise ValueError("unknown session settings; paths and task windows are server-owned")
         required = ["name", "task_id", "gripper_type", "fps", "operator", "scene"]
         if not self.demo:
-            required += ["state_source", "wrist_camera", "front_camera", "follower_serial",
-                         "power_state_start"]
+            required += ["state_source", "wrist_camera", "front_camera"]
+            if not diagnostic:
+                required += ["follower_serial", "power_state_start"]
         missing = [key for key in required
                    if key not in payload or str(payload[key]).strip() == ""]
         if missing:
@@ -251,7 +259,20 @@ class ConsoleService:
                          "All runbook safety and physical connection confirmations are required")
             if not confirmed:
                 raise ValueError("Confirm the physical safety checklist before opening sources")
-            settings = self._settings(payload["settings"], smoke=not self.demo)
+            missing_metadata = [] if self.demo else [
+                name for name in ("follower_serial", "power_state_start")
+                if not str(payload["settings"].get(name, "")).strip()
+            ]
+            report.check("recording_metadata", not missing_metadata,
+                         "Required before recording: " + ", ".join(missing_metadata)
+                         + ". Connection checks can continue; unknown values are not inferred."
+                         if missing_metadata else "Recording identity and power fields supplied")
+            try:
+                settings = self._settings(payload["settings"], smoke=not self.demo,
+                                          diagnostic=True)
+            except (ValueError, RuntimeError) as error:
+                report.check("form_configuration", False, str(error))
+                raise
             report.check("form_configuration", True, "Shared recorder settings validated")
             try:
                 self._config(settings, "local/readiness", self.workspace / "unused", False)

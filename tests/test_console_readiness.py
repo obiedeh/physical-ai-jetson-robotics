@@ -144,6 +144,81 @@ def test_setup_refusals_never_open_sources(
         assert not service.readiness.running
 
 
+@pytest.mark.parametrize("missing", [
+    ("follower_serial",), ("power_state_start",), ("follower_serial", "power_state_start"),
+])
+def test_missing_recording_metadata_does_not_block_connection_diagnostics(
+    tmp_path: Path, fake_connections: None, missing: tuple[str, ...],
+) -> None:
+    """Unknown recording facts stay explicit while fake connectivity is tested without capture."""
+    request = request_values()
+    for name in missing:
+        request["settings"][name] = ""
+    owned: list[PhysicalEpisodeRecorder] = []
+
+    @contextmanager
+    def builder(args: argparse.Namespace, **kwargs: Any) -> Iterator[PhysicalEpisodeRecorder]:
+        """Exercise real recorder sample checks with no source devices or saved episode."""
+        session = fake_recorder(args, FakeClock())
+        owned.append(session)
+        try:
+            yield session
+            assert session.pending_frame_count == 0
+            assert session.writer.episodes == []  # type: ignore[attr-defined]
+        finally:
+            session.close()
+
+    registry = synthetic_registry(tmp_path / "tasks.json", 1, 30)
+    with ConsoleFixture(tmp_path / "workspace", registry=registry, builder=builder) as service:
+        result = service.mutate(["readiness"], request)
+        assert len(owned) == 1
+        assert result["status"] == "attention"
+        assert result["checks"]["form_configuration"]["passed"]
+        assert result["checks"]["follower_sample"]["passed"]
+        assert result["checks"]["wrist_sample"]["passed"]
+        assert result["checks"]["front_sample"]["passed"]
+        assert result["checks"]["cleanup"]["passed"]
+        metadata = result["checks"]["recording_metadata"]
+        assert not metadata["passed"]
+        for name in missing:
+            assert name in metadata["message"]
+            assert result["form_settings"][name] == ""
+        for route in (["sessions"], ["smoke"]):
+            with pytest.raises(ValueError, match="Required fields are missing"):
+                service.mutate(route, request["settings"])
+        with pytest.raises(ValueError, match="unknown session settings"):
+            service.create_session({**request["settings"], "diagnostic": True})
+        assert service.catalog.sessions() == []
+        assert service.controller is None
+        assert len(owned) == 1
+
+
+def test_incomplete_recording_metadata_keeps_safety_confirmation_required(
+    tmp_path: Path, fake_connections: None,
+) -> None:
+    """Omitting power text cannot waive the actual operator power and safety confirmation."""
+    request = request_values()
+    request["settings"].update(follower_serial="", power_state_start="")
+    request["confirmations"]["procedure"] = False
+    with ConsoleFixture(tmp_path, builder=lambda *a, **k: pytest.fail("opened sources")) as service:
+        result = service.mutate(["readiness"], request)
+        assert result["status"] == "blocked"
+        assert "physical safety checklist" in result["checks"]["diagnostic"]["message"]
+
+
+def test_invalid_source_form_is_reported_as_configuration_not_connection_failure(
+    tmp_path: Path, fake_connections: None,
+) -> None:
+    """Name the blocking input and leave unattempted source checks explicitly not run."""
+    request = request_values()
+    request["settings"]["fps"] = ""
+    with ConsoleFixture(tmp_path, builder=lambda *a, **k: pytest.fail("opened sources")) as service:
+        result = service.mutate(["readiness"], request)
+        assert not result["checks"]["form_configuration"]["passed"]
+        assert "fps" in result["checks"]["form_configuration"]["message"]
+        assert result["checks"]["follower_sample"]["message"] == "Not run"
+
+
 def test_two_video_interfaces_are_not_two_cameras(tmp_path: Path) -> None:
     """A second index and a filesystem alias must not masquerade as another view."""
     with pytest.raises(ValueError, match="two distinct"):

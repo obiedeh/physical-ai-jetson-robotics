@@ -72,7 +72,14 @@ when none is chosen; multiple connections are not assigned automatically.
 The optional hint is stored separately in session settings and its mirror,
 never copied into the manufacturer serial or used to open a port. Missing
 required fields are named individually. Unknown manufacturer identity remains
-a safety/preflight blocker; selecting a USB ID does not remove that requirement.
+a recording blocker; selecting a USB ID does not remove that requirement.
+Missing manufacturer serial or starting-power text does not block the no-episode
+connection diagnostic. Its separate **recording metadata** check lists these
+missing facts, leaves them unknown and prevents green readiness. Creating a
+session or recording a disposable smoke episode still requires both fields.
+The operator must still confirm actual power and all physical safety checks
+before any diagnostic source opens. Unattempted checks say **NOT CHECKED**, not
+that the device failed.
 
 **Pre-recording readiness** on New session offers a read-only check button and
 a text-labeled red/amber/green meter. First select the two cameras in the

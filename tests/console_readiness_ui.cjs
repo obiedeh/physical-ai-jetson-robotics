@@ -11,12 +11,13 @@ const report = {status:"ready", label:"Ready for session preflight", percent:100
 const calls = [];
 const context = vm.createContext({
   readinessBusy:false, readinessReport:null, state:{demo:false},
-  document:{querySelectorAll() { return confirmations; }},
+  document:{querySelectorAll() { return confirmations; }, createElement() { return {}; }},
   formValues:() => settings,
   api:async (...args) => { calls.push(args); return report; },
   $:id => {
     if (!nodes.has(id)) nodes.set(id, {dataset:{}, style:{}, textContent:"",
-      setAttribute(key, value) { this[key] = value; }, replaceChildren() {},
+      children:[], append(node) { this.children.push(node); },
+      setAttribute(key, value) { this[key] = value; }, replaceChildren() { this.children = []; },
       reportValidity() { return true; },
     });
     return nodes.get(id);
@@ -28,6 +29,12 @@ vm.runInContext(source.slice(source.indexOf("function matchingReadinessSettings(
 context.renderReadiness(report);
 assert.equal(nodes.get("readiness-meter")["aria-valuenow"], "100");
 assert.equal(calls.length, 0, "rendering and reload must never open sources");
+context.renderReadiness({...report, checks:{
+  follower_sample:{passed:false, message:"Not run"},
+  recording_metadata:{passed:false, message:"Required before recording: follower_serial"},
+}});
+assert.match(nodes.get("readiness-results").children[0].textContent, /^NOT CHECKED/);
+assert.match(nodes.get("readiness-results").children[1].textContent, /^NEEDS ATTENTION/);
 settings = {gripper_type:"50mm", fps:15};
 context.renderReadiness(report);
 assert.equal(nodes.get("readiness-meter")["aria-valuenow"], "100", "key order is irrelevant");
