@@ -370,3 +370,76 @@ def test_blocked_recovery_does_not_hide_other_sessions(tmp_path: Path) -> None:
     assert not catalog.get_session(blocked["id"])["recovery_blocked"]
     assert len(catalog.episodes(blocked["id"])) == 2
     catalog.close()
+
+
+@pytest.mark.parametrize("fail", [False, True])
+def test_backup_closes_target_on_success_and_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    fail: bool,
+) -> None:
+    """Backup targets close before rotation even when copying raises, without relying on GC."""
+    catalog = Catalog(tmp_path / "workspace", backup=False)
+    original = catalog.connection
+
+    class Target:
+        """Expose explicit closure independently of transaction context-manager behavior."""
+
+        closed = False
+
+        def close(self) -> None:
+            """Record release of the backup target handle."""
+            self.closed = True
+
+    target = Target()
+
+    class Source:
+        """Replace only copying so target ownership can be tested without file handles."""
+
+        def backup(self, destination: Target) -> None:
+            """Verify the owned target and optionally simulate a copy failure."""
+            assert destination is target
+            if fail:
+                raise RuntimeError("synthetic backup failure")
+
+    monkeypatch.setattr(sqlite3, "connect", lambda *_args, **_kwargs: target)
+    monkeypatch.setattr(catalog, "connection", Source())
+    try:
+        if fail:
+            with pytest.raises(RuntimeError, match="backup failure"):
+                catalog.backup()
+        else:
+            catalog.backup()
+        assert target.closed
+    finally:
+        monkeypatch.setattr(catalog, "connection", original)
+        catalog.close()
+
+
+@pytest.mark.parametrize("failure_method", ["_migrate", "backup"])
+def test_failed_constructor_closes_its_database(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    failure_method: str,
+) -> None:
+    """Opening failures release the owned SQLite handle before the error reaches callers."""
+    connect = sqlite3.connect
+    connections = []
+
+    def tracked_connect(*args: object, **kwargs: object) -> sqlite3.Connection:
+        """Retain the real fixture connection for a post-failure closed-handle assertion."""
+        connection = connect(*args, **kwargs)
+        connections.append(connection)
+        return connection
+
+    def refuse(_catalog: Catalog) -> None:
+        """Inject a migration or initial-backup failure after connection creation."""
+        raise RuntimeError("synthetic initialization refusal")
+
+    monkeypatch.setattr(sqlite3, "connect", tracked_connect)
+    monkeypatch.setattr(Catalog, failure_method, refuse)
+    with pytest.raises(RuntimeError, match="initialization refusal"):
+        Catalog(tmp_path / "workspace")
+    assert len(connections) == 1
+    with pytest.raises(sqlite3.ProgrammingError, match="closed"):
+        connections[0].execute("SELECT 1")
