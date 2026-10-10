@@ -79,7 +79,10 @@ def test_operator_guidance_survives_failed_and_contradictory_inputs() -> None:
 def test_guided_browser_handles_faults_without_implicit_device_actions(tmp_path: Path) -> None:
     """Exercise real browser interactions against a loopback fake API with no hardware runtime."""
     node = shutil.which("node")
-    browser = shutil.which("chromium") or shutil.which("chromium-browser")
+    browser = (
+        shutil.which("google-chrome") or shutil.which("google-chrome-stable")
+        or shutil.which("chromium") or shutil.which("chromium-browser")
+    )
     if node is None or browser is None:
         pytest.skip("optional existing browser and JavaScript runtime unavailable")
     result = subprocess.run([
@@ -88,3 +91,19 @@ def test_guided_browser_handles_faults_without_implicit_device_actions(tmp_path:
         str(tmp_path / "synthetic-guided-console.png"),
     ], check=False, capture_output=True, text=True, timeout=90)
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_browser_startup_failure_is_reported_without_unhandled_pipe_error(tmp_path: Path) -> None:
+    """An executable rejecting browser flags must fail the harness with useful child diagnostics."""
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("optional JavaScript runtime unavailable")
+    result = subprocess.run([
+        node, str(Path(__file__).with_name("console_guided_browser.cjs")),
+        str(REPOSITORY / "synria_lerobot/console/static"), node,
+        str(tmp_path / "must-not-exist.png"),
+    ], check=False, capture_output=True, text=True, timeout=30)
+    assert result.returncode != 0
+    assert "Isolated browser transport failed" in result.stderr
+    assert "Unhandled 'error' event" not in result.stderr
+    assert not (tmp_path / "must-not-exist.png").exists()

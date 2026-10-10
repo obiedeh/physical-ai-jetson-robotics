@@ -73,8 +73,18 @@ async function run() {
   const profile=fs.mkdtempSync(path.join(os.tmpdir(),"synria-guide-test-"));
   const child=spawn(browser,["--headless","--disable-gpu","--disable-background-networking","--no-first-run",
     "--no-default-browser-check",`--user-data-dir=${profile}`,"--remote-debugging-pipe"],{stdio:["ignore","ignore","pipe","pipe","pipe"]});
-  let sequence=0, buffer="", sessionId, browserError="";const pending=new Map();
+  let sequence=0, buffer="", sessionId, browserError="", transportError=null, closing=false;
+  const pending=new Map();
   child.stderr.on("data",chunk=>{browserError=(browserError+chunk.toString()).slice(-8000);});
+  /** Fail outstanding protocol calls on process or pipe failure while retaining startup evidence. */
+  function transportFailed(error){
+    transportError=Error(`Isolated browser transport failed: ${error.message}\n${browserError}`);
+    for(const entry of pending.values()){clearTimeout(entry.timer);entry.reject(transportError);}
+    pending.clear();
+  }
+  child.on("error",transportFailed);
+  child.on("exit",(code,signal)=>{if(!closing)transportFailed(Error(`browser exited ${code ?? signal}`));});
+  for(const stream of [child.stderr,child.stdio[3],child.stdio[4]])stream.on("error",transportFailed);
   child.stdio[4].on("data",chunk=>{
     buffer+=chunk.toString();let boundary;
     while((boundary=buffer.indexOf("\0"))>=0){const message=JSON.parse(buffer.slice(0,boundary));buffer=buffer.slice(boundary+1);
@@ -84,6 +94,7 @@ async function run() {
   });
   /** Send one bounded browser protocol request, keeping target commands scoped to this isolated page. */
   function send(method,params={},target=sessionId){return new Promise((resolve,reject)=>{
+    if(transportError){reject(transportError);return;}
     const id=++sequence,timer=setTimeout(()=>{pending.delete(id);reject(Error(`Protocol timeout: ${method}\n${browserError}`));},15000);
     pending.set(id,{resolve,reject,timer});child.stdio[3].write(JSON.stringify({id,method,params,...(target?{sessionId:target}:{})})+"\0");
   });}
@@ -181,6 +192,7 @@ async function run() {
     assert.deepEqual(exceptions,[],"no uncaught browser errors");
     console.log("Guided browser: setup, help, state timeout, camera fault, recovery, stale settings, consent, keyboard, save retries, network, reload and mobile checks passed.");
   } finally {
+    closing=true;
     try{await send("Browser.close",{},null);}catch{}
     child.kill("SIGTERM");
     for(const entry of pending.values())clearTimeout(entry.timer);
