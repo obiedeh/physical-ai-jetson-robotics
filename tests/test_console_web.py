@@ -135,6 +135,9 @@ def test_packaged_page_and_latest_preview_are_inert(
     assert b"Pre-recording readiness" in request(endpoint, "/")[2]
     assert b"async function runReadiness" in request(endpoint, "/readiness.js")[2]
     assert request(endpoint, "/readiness.css")[0] == 200
+    assert b"async function refreshSerialConnections" in request(
+        endpoint, "/serial-identity.js",
+    )[2]
     assert request(endpoint, "/media/preview/front")[2] == b"fake-latest-jpeg"
     assert endpoint[0].commands == []
 

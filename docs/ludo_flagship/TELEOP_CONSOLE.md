@@ -56,6 +56,24 @@ state yourself. Presets are candidates or software defaults, not hardware
 measurements, verified limits or qualifying counts. The native final still and
 operator-owned task windows are unchanged. **Implemented, unmeasured.**
 
+Setup fills the host/account and available storage from this machine, restores
+recent operator-entered gripper/source/camera/scene fields for review, and
+suggests the runbook's 15 FPS starting candidate plus the existing image,
+lookahead and startup defaults. Use recommended recording values reapplies
+these candidates; it does not change a saved session or the CLI's required FPS.
+New edits made while setup loads are preserved. Safety confirmations are never
+restored or automatically checked; current power and manufacturer serial are
+not inferred from past sessions.
+
+USB connection identity lists stable `/dev/serial/by-id/` names without opening
+ports. A sole available entry is offered as an **unverified candidate**, not a
+proven follower association. Unknown/unverified remains an explicit selection
+when none is chosen; multiple connections are not assigned automatically.
+The optional hint is stored separately in session settings and its mirror,
+never copied into the manufacturer serial or used to open a port. Missing
+required fields are named individually. Unknown manufacturer identity remains
+a safety/preflight blocker; selecting a USB ID does not remove that requirement.
+
 **Pre-recording readiness** on New session offers a read-only check button and
 a text-labeled red/amber/green meter. First select the two cameras in the
 dedicated Camera mapping panel; Refresh camera IDs lists names without opening
