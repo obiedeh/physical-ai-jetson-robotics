@@ -39,6 +39,26 @@ require an already prepared recording/ROS environment.
 
 ## Use
 
+The setup workspace guides **Prepare → Configure → Check connections → Record**.
+The next-step banner names the current blocker and opens its procedure in place.
+Operator help includes the local runbook, protocol, decisions and safety records;
+it works without external network access. The state-source procedure distinguishes
+an unverified standalone candidate from the still-unrecorded site-specific
+read-only ros2_control startup procedure. Neither is executed by the page.
+
+![Guided setup rendered with synthetic test fixtures; no hardware.](../assets/synria-console-guided-setup.png)
+
+Four connection cards separate follower, action source, wrist and fixed-front
+status from software availability and qualifying evidence. A created subscription
+is not proof of incoming data. Stale or changed settings invalidate connection
+results. Errors offer short recovery steps for state timeout/domain mismatch,
+camera ownership, rate, freshness, competing publishers, disk space, contract
+mismatch, blocked recovery and failed saves. Technical details remain expandable.
+Background polling never dismisses an error or repeats a failed mutation.
+Retry save preserves pending frames; successful explicit retry clears its error.
+Keyboard capture controls are disabled inside dialogs, focused controls and
+browser shortcut combinations. No procedure can bypass a recorder guard.
+
 ![Synthetic demo session; no physical data or hardware run.](../assets/synria-teleop-console-demo.png)
 
 Home lists named sessions and saved success/failure, excluded and target counts.

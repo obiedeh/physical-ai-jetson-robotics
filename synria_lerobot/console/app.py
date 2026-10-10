@@ -6,11 +6,13 @@ import argparse
 import getpass
 import json
 import math
+import os
 import secrets
 import shutil
 import signal
 import socket
 import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -41,6 +43,14 @@ from synria_lerobot.task_registry import load_task_registry
 
 REPOSITORY = Path(__file__).resolve().parents[2]
 DEFAULT_REGISTRY = REPOSITORY / "config" / "synria_tasks.json"
+GUIDE_DOCUMENTS = {
+    "runbook": "docs/ludo_flagship/D1_OPERATOR_RUNBOOK.md",
+    "protocol": "docs/ludo_flagship/D1_DATASET_PROTOCOL.md",
+    "decisions": "docs/ludo_flagship/DECISIONS.md",
+    "safety": "reports/synria/phase0a_safety_recovery.md",
+    "first-motion": "reports/synria/first_safe_motion.md",
+    "limits": "config/synria_limits.yaml",
+}
 
 
 def _git_sha() -> str:
@@ -566,6 +576,21 @@ class ConsoleService:
 
     def read(self, route: list[str], query: dict[str, list[str]]) -> Any:
         """Expose catalog and exact playback facts without treating GET as a command."""
+        if route == ["operator-guide"]:
+            return {
+                "environment": {
+                    "python": sys.executable, "host": socket.gethostname(),
+                    "ros_domain": os.environ.get("ROS_DOMAIN_ID", "unset (default domain)"),
+                    "ros_distribution": os.environ.get("ROS_DISTRO", "not sourced"),
+                    "middleware": os.environ.get("RMW_IMPLEMENTATION", "distribution default"),
+                },
+                "documents": GUIDE_DOCUMENTS,
+                "limits_verified": self.demo or self._operator_limits_verified(),
+                "demo": self.demo,
+            }
+        if len(route) == 2 and route[0] == "help" and route[1] in GUIDE_DOCUMENTS:
+            path = GUIDE_DOCUMENTS[route[1]]
+            return {"path": path, "text": (REPOSITORY / path).read_text(encoding="utf-8")}
         if route == ["software"]:
             try:
                 dependencies = runtime_dependencies(demo=self.demo)
@@ -630,6 +655,12 @@ class ConsoleService:
                 Path(session["dataset_path"]), session["repo_id"], int(route[2]), int(route[3]),
             )[0]
         raise KeyError("unknown read-only API route")
+
+    def _operator_limits_verified(self) -> bool:
+        """Expose declared limits verification without changing the file or certifying hardware."""
+        from synria_lerobot.quality_gates import load_limits
+
+        return load_limits(REPOSITORY / "config" / "synria_limits.yaml").verified
 
     def media(self, route: list[str], query: dict[str, list[str]]) -> bytes:
         """Encode latest shared-source previews or decode server-selected episode artifacts."""

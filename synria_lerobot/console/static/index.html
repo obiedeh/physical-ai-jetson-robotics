@@ -1,28 +1,46 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Synria Teleop Console</title><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/readiness.css"><script src="/form-presets.js" defer></script><script src="/app.js" defer></script><script src="/readiness.js" defer></script><script src="/serial-identity.js" defer></script></head>
+<title>Synria Teleop Console</title><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/readiness.css"><link rel="stylesheet" href="/operator-guide.css"><script src="/form-presets.js" defer></script><script src="/app.js" defer></script><script src="/readiness.js" defer></script><script src="/serial-identity.js" defer></script><script src="/operator-guide.js" defer></script></head>
 <body><header><div><span class="eyebrow">READ-ONLY COLLECTION</span><h1>Synria Teleop Console</h1></div>
 <span id="mode" class="badge">Connecting</span><button id="quit">Quit console</button></header>
 <div id="notice" role="alert"></div><nav aria-label="Console screens">
-<button data-screen="sessions">Sessions</button><button data-screen="new">New session</button>
+<button data-screen="new">Setup workspace</button><button data-screen="sessions">Sessions</button>
 <button data-screen="record">Record</button><button data-screen="review">Review</button>
-<button data-screen="trash">Trash</button></nav>
+<button data-screen="trash">Trash</button><button id="open-help" type="button">Operator help</button></nav>
 <main><section id="sessions" class="screen"><div class="section-head"><h2>Demonstration sessions</h2>
 <input id="search" placeholder="Search by name" aria-label="Search sessions"><button id="reindex">Reindex from disk</button></div>
 <p>Datasets are authoritative. The local catalog is a rebuildable index and audit log.</p><div id="session-list" class="cards"></div></section>
-<section id="new" class="screen" hidden><h2>New recording session</h2>
+<section id="new" class="screen" hidden>
+<div class="setup-hero"><div><span class="eyebrow">GUIDED DEMONSTRATION COLLECTION</span><h2>Set up. Check. Record.</h2>
+<p>One step at a time. Know what is connected, what needs attention, and what to do next.</p></div><span class="badge">Read-only toward the arm</span></div>
+<div id="next-action" role="status"><div><span class="eyebrow">YOUR NEXT STEP</span><h3 id="next-action-title">Prepare your workspace</h3><p id="next-action-message">Start with the safety and connection procedure below.</p></div><button id="next-action-button" type="button" class="primary">Start setup</button></div>
+<nav id="setup-steps" aria-label="Recording setup steps">
+<button type="button" data-setup-step="prepare" aria-current="step"><b>1</b> Prepare</button>
+<button type="button" data-setup-step="configure"><b>2</b> Configure</button>
+<button type="button" data-setup-step="check"><b>3</b> Check connections</button>
+<button type="button" data-setup-step="collect"><b>4</b> Record</button></nav>
+<div id="setup-prepare" class="setup-page">
+<div class="guide-columns"><article><h3>Before you connect</h3><ol class="procedure-list">
+<li><strong>Make the rig safe.</strong> Secure the arm, clear the workspace and keep the e-stop within reach. Follow the approved power and controlled-stop procedure. Never remove torque from an unsupported arm.</li>
+<li><strong>Keep working teleoperation unchanged.</strong> The leader drives the follower through the sync cable. The PC reads follower state. Only one process may own the follower USB connection.</li>
+<li><strong>Use a verified read-only state source.</strong> Writes must be disabled and startup torque unchanged. The console does not start or reconfigure that source.</li>
+<li><strong>Assign the two camera roles.</strong> C10 on the wrist; fixed webcam overhead/front. Close preview apps. A listed USB device is not proof of a working stream.</li>
+</ol><button type="button" data-guide-help="source">State-source setup procedure</button> <button type="button" data-guide-doc="safety">Safety record</button></article>
+<article><h3>What this console does</h3><p>Prepare recording libraries → check read-only inputs → record and label → review both views.</p><p>It never moves the arm, starts a driver, changes torque, launches a bridge or arms a policy.</p><h3>Know the three outcomes</h3><p><strong>Connection check:</strong> temporary source check, no episode.</p><p><strong>Disposable smoke:</strong> one 20-second practice capture, never counted.</p><p><strong>Qualifying collection:</strong> operator-timed task, identity and verified limits required. The console cannot set or waive them.</p><button type="button" data-guide-doc="runbook">Read the full operator procedure</button></article></div>
+<article id="environment-context"><h3>This console’s environment</h3><p id="environment-facts">Loading local environment details…</p><p>Compare the ROS domain and middleware with the existing state-source terminal. Loading libraries does not start that source.</p></article>
+<button type="button" data-go-step="configure" class="primary">Continue to configuration →</button></div>
 <p id="mode-help"></p>
 <article><h3>Suggested setup</h3><p id="setup-facts">Loading available host and connection information…</p>
 <p id="setup-guidance">Review suggested values before use. Physical safety confirmations are never filled automatically.</p>
 <button id="use-recommended" type="button">Use recommended recording values</button></article>
-<p>Synria / Alicia-D setup: leader-to-follower hardware sync, C10 wrist camera and a fixed USB front camera.
+<p id="setup-intro">Synria / Alicia-D setup: leader-to-follower hardware sync, C10 wrist camera and a fixed USB front camera.
 Presets come from the D1 runbook; they are not hardware measurements. Choose the installed gripper,
 running state source and actual camera IDs. Custom values retain all recorder checks.</p>
-<form id="new-form"><div class="form-grid">
+<form id="new-form"><div id="setup-configure" class="setup-page" hidden><div class="form-grid">
 <label>Session name<input name="name" required maxlength="120"></label>
 <label>Task<select name="task_id" id="task" required></select></label>
 <label>Gripper<select name="gripper_type" required><option value="">Choose installed gripper</option><option value="50mm">50 mm · driver stroke 0.025 m</option><option value="100mm">100 mm · driver stroke 0.05 m</option></select></label>
-<label>State source<select name="state_source" id="source"><option value="">Choose verified running source</option><option value="standalone_driver">Standalone driver · writes disabled, torque unchanged</option><option value="ros2_control">ros2_control · verified read-only setup</option></select></label>
+<label>State source<select name="state_source" id="source"><option value="">Choose verified running source</option><option value="standalone_driver">Standalone driver · requires writes disabled, torque unchanged</option><option value="ros2_control">ros2_control · requires a verified read-only setup</option></select></label>
 <label>Follower topic<input name="follower_topic" value="/joint_states" list="follower-topics" data-presets aria-label="Follower topic"></label>
 <label>Action source<select name="action_source"><option value="next_state">Next follower state · hardware-sync default</option><option value="leader">Leader state · additional USB required</option></select></label>
 <label>USB leader topic (leader actions only)<input name="leader_topic" value="/leader/joint_states" list="leader-topics" data-presets aria-label="USB leader topic"></label>
@@ -61,9 +79,12 @@ the final front-camera still stays at native resolution. Gripper strokes are unv
 zero is open. The 10-second startup wait does not relax steady-state freshness. Episode targets are goals,
 not qualifying counts. Task windows remain operator decisions outside this form.</p>
 <article id="task-description"></article>
+<button type="button" data-go-step="check" class="primary">Continue to connection checks →</button></div>
+<div id="setup-collect" class="setup-page" hidden><article><h3>Choose your recording path</h3><p id="collection-requirements">Complete configuration and inspect the connection results first. Actual session preflight always runs again.</p><p>Smoke starts capture immediately after shared preflight. It is temporary and never qualifies. A named session is created first; opening it starts its sources, not an episode.</p></article>
 <button id="create" class="primary" type="submit">Create session</button>
-<button id="smoke" type="button">Disposable 20-second smoke check</button></form>
-<article id="readiness-panel" aria-labelledby="readiness-title"><h3 id="readiness-title">Pre-recording readiness</h3>
+<button id="smoke" type="button">Start disposable 20-second smoke…</button>
+<article><h3>Once your sources are open</h3><ol><li>Review both live views and follower state. Verify framing manually.</li><li>Start → demonstrate the selected skill → Stop within the task window.</li><li>Success or Failure labels and saves. A real task failure is retained.</li><li>If saving fails, keep the process open and Retry save. Discard only for an unusable capture, with a reason.</li><li>Review the episode frame by frame before scaling. Close sources only after resolving pending frames.</li></ol><button type="button" data-guide-help="save">Recording and recovery help</button></article></div></form>
+<article id="readiness-panel" class="setup-page" hidden aria-labelledby="readiness-title"><h3 id="readiness-title">Check connections</h3>
 <div id="software-panel" data-level="launching" aria-label="Console software environment">
 <strong>Software environment · <span id="software-label" role="status">Launching</span></strong>
 <p id="software-message">Checking recording libraries only; hardware services are never started here.</p>
@@ -82,8 +103,12 @@ uses a disposable dataset to exercise shared preflight, then closes everything. 
 <label class="check"><input type="checkbox" data-readiness-confirm="camera_roles">I identified two distinct cameras and mapped wrist/front roles; framing still needs live review.</label>
 <label class="check"><input type="checkbox" data-readiness-confirm="procedure">Runbook safety preflight accepted; power state and installed gripper checked.</label></div>
 <button id="check-readiness" type="button" class="primary">Run read-only checks</button>
+<p>Checks close their sources afterward. They do not start external robot services. Cameras are not opened until follower state and command guards pass.</p>
+<div id="connection-paths" class="connection-grid" aria-label="Individual connection paths"></div>
+<div id="recording-blockers" class="guide-blockers"></div>
 <p id="readiness-scope">No check has run. The leader without USB cannot be detected by software. A green result is a short-lived snapshot, not permission to move the arm.</p>
-<ul id="readiness-results"></ul></article></section>
+<details id="all-check-details"><summary>All checks and technical evidence</summary><ul id="readiness-results"></ul></details>
+<button type="button" data-go-step="collect">Review recording requirements →</button></article></section>
 <section id="record" class="screen" hidden><div class="section-head"><h2 id="record-title">No session open</h2><button id="close-session">Close sources</button></div>
 <p id="capture-header">Open a session to start.</p><div id="counters" class="metrics"></div>
 <div class="cameras"><figure><figcaption>Wrist <span id="wrist-health"></span></figcaption><img id="wrist-preview" alt="Latest wrist camera frame"></figure>
@@ -107,4 +132,5 @@ uses a disposable dataset to exercise shared preflight, then closes everything. 
 <details open><summary>Exact stored values, timestamps and source skew</summary><pre id="frame-data"></pre></details>
 <details><summary>Native final still and episode provenance</summary><img id="still" alt="Native final front-camera still"><pre id="episode-provenance"></pre></details></article></section>
 <section id="trash" class="screen" hidden><h2>Trash and tombstones</h2><p>Trash is recoverable. Purge removes the session files permanently and retains the audit record.</p><div id="trash-list" class="cards"></div></section>
-</main><footer>Implemented, unmeasured · no hardware validation · read-only toward the arm</footer></body></html>
+</main><dialog id="operator-help" aria-labelledby="help-title"><div class="section-head"><h2 id="help-title">Operator help</h2><button id="close-help" type="button" aria-label="Close operator help">Close</button></div><div id="help-content"></div></dialog>
+<footer>Implemented, unmeasured · no hardware validation · read-only toward the arm</footer></body></html>

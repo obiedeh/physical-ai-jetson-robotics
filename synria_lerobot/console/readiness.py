@@ -76,6 +76,11 @@ class ReadinessReport:
 
     def observe(self, name: str, result: dict[str, Any]) -> None:
         """Retain the shared builder's actual checks without guessing unrun successes."""
+        if name == "state_source" and result.get("passed") is True:
+            self.check("state_subscription", True,
+                       "Subscription created; receipt of follower data is checked separately",
+                       status="configured", details=copy.deepcopy(result))
+            return
         self.check(name, result.get("passed") is True,
                    result.get("message", "Shared recorder check passed"),
                    details=copy.deepcopy(result))
