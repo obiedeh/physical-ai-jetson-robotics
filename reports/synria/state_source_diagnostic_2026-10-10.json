@@ -1,0 +1,81 @@
+{
+  "kind": "operator_authorized_follower_state_diagnostic",
+  "observed_utc": "2026-10-10T16:34:07Z",
+  "host": "aimlstation",
+  "repository_commit": "942908c6893027b3abba2f236ddcf7a005230d0b",
+  "authorization": "Operator explicitly approved a supervised state-only hardware exception and confirmed arm secured/supported, clear workspace and emergency stop within reach. Operator subsequently stated the leader was turned off.",
+  "scope": "Follower state only. No cameras, episode recording, motion commands, calibration, torque commands or teleoperation changes requested.",
+  "source_kind": "standalone_driver",
+  "node_name": "synria_recording_state_source",
+  "ros_domain_id": 0,
+  "ros_distribution": "jazzy",
+  "topic": "/joint_states",
+  "serial_path": "/dev/serial/by-id/usb-1a86_USB_Single_Serial_5B14041336-if00",
+  "device_identity": {
+    "serial_reported_by_driver": "ADFX260420ZG0EL8",
+    "hardware_version_reported_by_driver": "1.0.0",
+    "firmware_version_reported_by_driver": "6.1.2",
+    "gripper_mapping": "Driver implementation uses configured 50mm mapping; installed gripper was not independently verified in this diagnostic."
+  },
+  "driver": {
+    "external_checkout": "/home/oedeh/github/Alicia-D-Isaac-Teleop",
+    "checkout_commit": "c5b4349844821d12bfff9047306d9501008d4057",
+    "executable_sha256": "e132d6a39b5d966c19d14b2e0c3d3011491598f7453abf42f5fc675464e8a97e",
+    "parameters": {
+      "joint_commands_enabled": false,
+      "torque_off_on_start": false,
+      "joint_commands_dry_run": false,
+      "legacy_servo_commands": false,
+      "allow_leader_writes": false
+    },
+    "remappings": {
+      "/joint_commands": "/synria_recording_disabled/joint_commands",
+      "/zero_calibrate": "/synria_recording_disabled/zero_calibrate",
+      "/demonstration": "/synria_recording_disabled/demonstration"
+    }
+  },
+  "state": {
+    "joint_positions_rad": [
+      -0.04601942363656919,
+      1.3192234775816516,
+      -0.6028544496390569,
+      0.05982525072754008,
+      -0.6611457195787112,
+      -0.08590292412159606
+    ],
+    "gripper_m": 0.00005000000000000005,
+    "monotonic_timestamp_s": 601221.907487988,
+    "ros_header_stamp_s": 1791650026.8899772,
+    "ros_arrival_stamp_s": 1791650026.896676,
+    "joint_velocities_rad_s": null
+  },
+  "measurement": {
+    "rate_hz": 48.998447510301745,
+    "message_count": 98,
+    "duration_s": 2.0000633689342067,
+    "started_monotonic_s": 601221.907724053,
+    "ended_monotonic_s": 601223.907787422,
+    "max_callback_gap_s": 0.02082699502352625
+  },
+  "checks": {
+    "recorder_first_sample": "passed",
+    "recorder_measure_rate_freshness": "passed",
+    "requested_fps": 15,
+    "rate_sufficient": true,
+    "command_publisher_counts": {
+      "/joint_commands": 0,
+      "/policy_joint_targets": 0,
+      "/synria_recording_disabled/joint_commands": 0,
+      "/synria_recording_disabled/zero_calibrate": 0,
+      "/synria_recording_disabled/demonstration": 0
+    }
+  },
+  "limitations": [
+    "ROS callback rate is not independent proof of hardware sensor refresh; driver heartbeat timestamps cached state.",
+    "Joint3 reading is below the unverified candidate minimum -0.593 rad. Do not change limits or move the arm to make a gate pass.",
+    "Torque preservation is configured and supported by inspected driver interface behavior, not independently measured.",
+    "No camera, teleoperation, controlled-stop, physical task or qualifying-dataset validation performed.",
+    "No D1-D5 stage advanced; README status labels and operator-verification fields unchanged."
+  ],
+  "source_left_running": true
+}
