@@ -47,6 +47,16 @@ function applyRecommendedSetup(force = false) {
 async function loadSetupSuggestions() {
   setupSuggestions = await api("setup-suggestions");
   await refreshSerialConnections();
+  const serialOptions = $("follower-serial-options");
+  serialOptions.replaceChildren();
+  for (const serial of setupSuggestions.known_follower_serials || []) {
+    serialOptions.append(text("option", serial));
+  }
+  if (!(setupSuggestions.known_follower_serials || []).length) {
+    $("follower-serial-help").textContent =
+      "No saved follower serials yet. Read it from the follower arm label once; " +
+      "it will be available as a suggestion in later sessions. Never use the USB adapter ID.";
+  }
   const prior = setupSuggestions.previous_operator_entries;
   $("setup-facts").textContent = `Host: ${setupSuggestions.host} · account: ${setupSuggestions.account} · free storage: ${(setupSuggestions.free_disk_bytes / 1e9).toFixed(1)} GB`;
   $("setup-guidance").textContent = setupSuggestions.notice + " Restored fields: " + (Object.keys(prior).join(", ") || "none") + ".";

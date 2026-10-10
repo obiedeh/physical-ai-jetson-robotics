@@ -84,6 +84,22 @@ def test_unknown_hardware_and_task_windows_are_not_assumed(form: FormMarkup) -> 
     assert form.options["follower_usb_id"] == [""]
 
 
+def test_training_curriculum_is_visible_without_enabling_unregistered_tasks(
+    form: FormMarkup,
+) -> None:
+    """Planning skills stay visible while the reviewed registry remains the recording authority."""
+    markup = (STATIC / "index.html").read_text(encoding="utf-8")
+    for skill in (
+        "Pick a cup", "Place a cup", "Pick a die", "Place a die", "die_into_cup",
+        "roll_and_dump", "cup_return", "Bounded table toss", "Board-play extensions",
+    ):
+        assert skill in markup
+    assert 'id="task-window-list"' in markup
+    assert "Physical training curriculum · staged, not all recordable yet" in markup
+    assert "min_episode_s" not in form.fields
+    assert "max_episode_s" not in form.fields
+
+
 def test_preset_script_preserves_custom_inputs_and_form_payload() -> None:
     """Exercise shipped dropdown behavior against deterministic DOM fakes with no device access."""
     executable = shutil.which("node")

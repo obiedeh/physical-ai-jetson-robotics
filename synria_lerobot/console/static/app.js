@@ -102,6 +102,18 @@ function taskDescription() {
   $("create").disabled=unset&&!state.demo;
   if(state.demo)$("task-description").append(text("p","Synthetic demo uses a separately marked non-qualifying window, never this physical task window."));
 }
+/** Show every registry window and make unset qualification decisions visible before task selection. */
+function renderTaskWindows() {
+  const container = $("task-window-list");
+  container.replaceChildren();
+  for (const task of tasks) {
+    const window = task.episode_window;
+    const registered = window.min_episode_s !== null && window.max_episode_s !== null;
+    container.append(text("p", `${task.task_id}: ${registered
+      ? `${window.min_episode_s}–${window.max_episode_s} seconds · registered`
+      : "Not registered · qualifying recording unavailable"}`));
+  }
+}
 /** Render server-owned capture status without starting or advancing acquisition. */
 async function refreshState() {
   state=await api("state"); const c=state.capture, active=state.active_session;
@@ -209,5 +221,5 @@ function recordingShortcut(event) {
 }
 document.addEventListener("keydown",recordingShortcut);
 /** Load server state and form choices before announcing that setup suggestions may apply. */
-async function boot(){await refreshState();tasks=await api("tasks");for(const task of tasks){const option=text("option",task.task_id);option.value=task.task_id;$("task").append(option);}const cameras=await api("cameras");$("camera-note").textContent=cameras.message;for(const id of ["wrist-choice","front-choice"]){$(id).append(text("option",""));for(const camera of cameras.cameras){const option=text("option",camera);option.value=camera;$(id).append(option);}}$("mode-help").textContent=state.demo?"Synthetic demo only. No ROS, serial ports or camera devices are opened. These datasets are refused by physical summaries, training and evaluation.":"All runbook safety, wiring and preflight rules apply unchanged. This app never starts a driver or teleoperation.";$("source").disabled=state.demo;$("smoke").hidden=state.demo;taskDescription();await refreshSessions();if(state.active_session)screen("record");window.synriaConsoleReady=true;window.dispatchEvent(new Event("console-ready"));}
+async function boot(){await refreshState();tasks=await api("tasks");for(const task of tasks){const option=text("option",task.task_id);option.value=task.task_id;$("task").append(option);}renderTaskWindows();const cameras=await api("cameras");$("camera-note").textContent=cameras.message;for(const id of ["wrist-choice","front-choice"]){$(id).append(text("option",""));for(const camera of cameras.cameras){const option=text("option",camera);option.value=camera;$(id).append(option);}}$("mode-help").textContent=state.demo?"Synthetic demo only. No ROS, serial ports or camera devices are opened. These datasets are refused by physical summaries, training and evaluation.":"All runbook safety, wiring and preflight rules apply unchanged. This app never starts a driver or teleoperation.";$("source").disabled=state.demo;$("smoke").hidden=state.demo;taskDescription();await refreshSessions();if(state.active_session)screen("record");window.synriaConsoleReady=true;window.dispatchEvent(new Event("console-ready"));}
 safe(boot);setInterval(()=>safe(refreshState),700);

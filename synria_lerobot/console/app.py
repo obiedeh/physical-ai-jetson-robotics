@@ -81,6 +81,22 @@ def list_serial_connections(directory: Path = Path("/dev/serial/by-id")) -> dict
     )}
 
 
+def local_follower_serials(workspace: Path) -> list[str]:
+    """Read private, operator-registered manufacturer serial choices outside the repository."""
+    path = workspace / "follower_serial_options.json"
+    if path.is_symlink() or not path.exists():
+        return []
+    try:
+        values = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return []
+    if not isinstance(values, list):
+        return []
+    return sorted({value.strip() for value in values
+                   if isinstance(value, str) and 0 < len(value.strip()) <= 128},
+                  key=str.casefold)
+
+
 class WorkspaceLock:
     """Hold an exclusive workspace marker and never silently remove another instance's lock."""
 
@@ -564,6 +580,12 @@ class ConsoleService:
             "host": socket.gethostname(), "account": getpass.getuser(),
             "free_disk_bytes": shutil.disk_usage(self.workspace).free,
             "previous_operator_entries": previous,
+            "known_follower_serials": (
+                [] if self.demo else sorted(
+                    set(self.catalog.known_follower_serials())
+                    | set(local_follower_serials(self.workspace)), key=str.casefold,
+                )
+            ),
             "recommended": {"fps": 15, "image_width": 224, "image_height": 224,
                             "action_lookahead_steps": 1, "state_startup_timeout_s": 10,
                             "target_episodes": 100, "action_source": "next_state",
@@ -571,7 +593,9 @@ class ConsoleService:
                             "leader_topic": "/leader/joint_states"},
             "notice": "Recommended values are runbook candidates, not measurements. "
                       "Previous operator entries need review for this session. "
-                      "Power, manufacturer serial and safety confirmations are never inferred.",
+                      "The ROS state topic does not expose the manufacturer serial; saved "
+                      "physical serials are offered for reuse, and first use requires reading "
+                      "the follower label. Power and safety confirmations are never inferred.",
         }
 
     def read(self, route: list[str], query: dict[str, list[str]]) -> Any:

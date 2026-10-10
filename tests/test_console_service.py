@@ -20,6 +20,7 @@ from synria_lerobot.console.app import (
     WorkspaceLock,
     list_cameras,
     list_serial_connections,
+    local_follower_serials,
     main,
 )
 from synria_lerobot.physical_contract import PhysicalState
@@ -174,11 +175,29 @@ def test_usb_hint_is_separate_from_manufacturer_identity(
         session = service.create_session({**payload, "follower_serial": "fake-arm-serial"})
         assert session["settings"]["follower_usb_id"] == candidate
         assert session["follower_serial"] == "fake-arm-serial"
+        assert service.read(["setup-suggestions"], {})["known_follower_serials"] == [
+            "fake-arm-serial"
+        ]
         assert service._args(session["settings"], session["repo_id"],
                              Path(session["dataset_path"]), False).follower_topic == "/joint_states"
         with pytest.raises(ValueError, match="unavailable"):
             service._settings({**payload, "follower_serial": "fake-arm-serial",
                                "follower_usb_id": "unknown-port"})
+
+
+def test_local_follower_serial_choices_are_private_and_validated(tmp_path: Path) -> None:
+    """Machine-local registered serials are selectable without probing a device or repo file."""
+    assert local_follower_serials(tmp_path) == []
+    choices = tmp_path / "follower_serial_options.json"
+    choices.write_text('[" ADF-fake ", "ADF-fake", "", 3]', encoding="utf-8")
+    assert local_follower_serials(tmp_path) == ["ADF-fake"]
+    choices.write_text("{invalid json", encoding="utf-8")
+    assert local_follower_serials(tmp_path) == []
+    choices.write_bytes(b"\xff")
+    assert local_follower_serials(tmp_path) == []
+    choices.unlink()
+    choices.symlink_to(tmp_path / "outside.json")
+    assert local_follower_serials(tmp_path) == []
 
 
 def test_demo_serial_inventory_does_not_inspect_host_devices(
@@ -189,6 +208,7 @@ def test_demo_serial_inventory_does_not_inspect_host_devices(
                         lambda: pytest.fail("physical inventory in demo"))
     with ConsoleFixture(tmp_path, demo=True) as service:
         assert service.read(["serial-connections"], {})["connections"] == []
+        assert service.read(["setup-suggestions"], {})["known_follower_serials"] == []
         result = service.create_session({**values(), "follower_usb_id": "not-a-real-device"})
         assert "follower_usb_id" not in result["settings"]
 
