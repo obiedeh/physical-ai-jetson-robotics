@@ -52,18 +52,26 @@ class ReadinessReport:
         self.running = True
         self.completed_s = None
         self.checked_utc = datetime.now(timezone.utc).isoformat()
-        self.checks = {name: {"passed": False, "message": "Not run"} for name in (
+        self.checks = {name: {"passed": False, "status": "not_checked", "message": "Not run"}
+                       for name in (
             "operator_safety", "form_configuration", "recording_metadata",
             "qualifying_configuration",
             "limits_verification", "disk_space", "camera_mapping", "runtime_dependencies",
-            "follower_sample", "action_sample", "wrist_sample", "front_sample",
+            "source_startup", "follower_sample", "action_sample", "wrist_sample", "front_sample",
             "source_alignment", "distinct_views", "cleanup",
         )}
 
     def check(self, name: str, passed: bool, message: str, **facts: Any) -> None:
         """Publish one immutable result so polling never iterates a changing dictionary."""
         self.checks = {**self.checks, name: {
-            "passed": passed, "message": message, **facts,
+            "passed": passed, "status": "ready" if passed else "not_ready",
+            "message": message, **facts,
+        }}
+
+    def launching(self, name: str, message: str) -> None:
+        """Identify only the path currently being checked, never an unstarted device service."""
+        self.checks = {**self.checks, name: {
+            "passed": False, "status": "launching", "message": message,
         }}
 
     def observe(self, name: str, result: dict[str, Any]) -> None:
@@ -74,6 +82,9 @@ class ReadinessReport:
 
     def finish(self) -> None:
         """Timestamp the completed snapshot only after owned resources have closed."""
+        for name, result in self.checks.items():
+            if result.get("status") == "launching":
+                self.check(name, False, "Check interrupted; see diagnostic error")
         self.running = False
         self.completed_s = self.clock()
 
@@ -154,6 +165,7 @@ def inspect_samples(
         ):
             raise ValueError("State/action is outside the configured joint or gripper limits")
 
+    report.launching("follower_sample", "Checking latest follower state")
     try:
         follower = config.contract.prepare_state(recorder.state_source.read())
         fresh(follower.monotonic_timestamp_s)
@@ -161,6 +173,7 @@ def inspect_samples(
         vector((*follower.joint_positions_rad, follower.gripper_m))
         times.append(follower.monotonic_timestamp_s)
         report.check("follower_sample", True, "Fresh follower state received; not a motion test")
+        report.launching("action_sample", "Checking configured action source")
         try:
             action = recorder.action_source.read(follower)
             if action is not None:
@@ -174,8 +187,10 @@ def inspect_samples(
             report.check("action_sample", False, str(error))
     except Exception as error:
         report.check("follower_sample", False, str(error))
-        report.check("action_sample", False, "Follower state unavailable; action check not run")
+        report.check("action_sample", False, "Follower state unavailable; action check not run",
+                     status="not_checked")
     for name, source in (("wrist", recorder.wrist_source), ("front", recorder.front_source)):
+        report.launching(f"{name}_sample", f"Checking latest {name} camera frame")
         try:
             frame = source.read()
             fresh(frame.monotonic_timestamp_s)

@@ -22,15 +22,20 @@ complete [the D1 safety and wiring preflight](D1_OPERATOR_RUNBOOK.md#1-safety-wi
 retain its read-only state-source configuration, then launch:
 
 ```bash
-synria-teleop-console --workspace "$HOME/synria-console"
+scripts/linux_rtx/synria_teleop_console.sh --workspace "$HOME/synria-console"
 ```
 
 The [RTX launcher](../../scripts/linux_rtx/synria_teleop_console.sh) activates
-`RECORDING_VENV` (default `/srv/venvs/synria-d1-py312`) without starting ROS or
-any robot process. Copy the [desktop entry](../../scripts/linux_rtx/synria-teleop-console.desktop)
+`RECORDING_VENV` (default `/srv/venvs/synria-d1-py312`, then
+`$HOME/venvs/synria-d1-py312` if the former is absent). Physical mode sources
+`RECORDING_ROS_SETUP` (default `/opt/ros/jazzy/setup.bash`) to expose library paths;
+demo mode skips that setup. It never starts a ROS node or any robot process.
+A missing setup file produces a Not ready warning but still opens the interface
+so its dependency errors are visible. Copy the [desktop entry](../../scripts/linux_rtx/synria-teleop-console.desktop)
 to `~/.local/share/applications/`, adjusting its checkout, workspace and
-environment paths for this host; its terminal must retain the authorized ROS
-environment for physical recording. Neither launch configures a driver.
+environment paths for this host; preserve the authorized ROS domain and middleware
+settings. Neither launch configures a driver. Direct entry-point launches still
+require an already prepared recording/ROS environment.
 
 ## Use
 
@@ -86,6 +91,17 @@ a text-labeled red/amber/green meter. First select the two cameras in the
 dedicated Camera mapping panel; Refresh camera IDs lists names without opening
 devices. Two video interfaces advertising the same USB identity are refused as
 a two-camera mapping. No camera roles are guessed.
+
+The separate software panel shows **Launching** while checking availability,
+then **Ready** or **Not ready**, with one row for each library/encoder and a short
+missing-dependency message. It checks automatically on page load and before
+connection preflight; Recheck software does not start sources or services.
+Library discovery is not a compatibility or hardware test. Each connection path
+(follower state, action source, wrist camera and front camera) also has its own
+status and failure reason. **Launching** on a source path means opening/checking
+read-only inputs, never launching a driver. Unattempted paths remain **Not checked**;
+technical details are collapsed beneath the short message. No software status
+overrides the recording metadata, timing, limits or physical safety checks.
 
 Before physical checks, explicitly confirm the runbook safety preflight,
 secured arm, emergency stop, unchanged-torque read-only source, leader sync

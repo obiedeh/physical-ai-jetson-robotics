@@ -46,6 +46,36 @@ def request_values() -> dict[str, Any]:
             "confirmations": dict.fromkeys(CONFIRMATIONS, True)}
 
 
+@pytest.mark.parametrize("available", [True, False])
+def test_software_paths_report_availability_without_opening_sources(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, available: bool,
+) -> None:
+    """Discovery distinguishes each missing library and never constructs source runtimes."""
+    monkeypatch.setattr(app, "runtime_dependencies", lambda **kwargs: {
+        "lerobot": True, "cv2": True, "rclpy": available, "sensor_msgs": available,
+        "ffmpeg": True,
+    })
+    with ConsoleFixture(tmp_path, builder=lambda *a, **k: pytest.fail("opened sources")) as service:
+        result = service.read(["software"], {})
+        assert result["status"] == ("ready" if available else "not_ready")
+        assert result["dependencies"]["cv2"]
+        assert result["dependencies"]["rclpy"] is available
+        if not available:
+            assert "rclpy, sensor_msgs" in result["message"]
+        assert service.catalog.events() == []
+
+
+def test_path_status_does_not_leave_interrupted_checks_launching() -> None:
+    """An interrupted path becomes not ready while untouched paths remain not checked."""
+    report = ReadinessReport(FakeClock(), demo=False)
+    report.begin()
+    report.launching("follower_sample", "Checking latest state")
+    assert report.snapshot()["checks"]["follower_sample"]["status"] == "launching"
+    report.finish()
+    assert report.snapshot()["checks"]["follower_sample"]["status"] == "not_ready"
+    assert report.snapshot()["checks"]["wrist_sample"]["status"] == "not_checked"
+
+
 @pytest.fixture
 def fake_connections(monkeypatch: pytest.MonkeyPatch) -> None:
     """Make inventory and verification evidence explicitly fake for every physical-mode test."""
