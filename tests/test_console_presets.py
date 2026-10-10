@@ -80,6 +80,7 @@ def test_unknown_hardware_and_task_windows_are_not_assumed(form: FormMarkup) -> 
         assert "required" in form.fields[name]
     assert "min_episode_s" not in form.fields
     assert "max_episode_s" not in form.fields
+    assert "required" not in form.fields["follower_serial"]
     assert "checked" not in form.fields["state_has_velocity"]
     assert form.options["follower_usb_id"] == [""]
 

@@ -47,11 +47,27 @@ function applyRecommendedSetup(force = false) {
 async function loadSetupSuggestions() {
   setupSuggestions = await api("setup-suggestions");
   await refreshSerialConnections();
-  const serialOptions = $("follower-serial-options");
+  const serialOptions = $("follower-serial-choice");
+  const previousSerial = serialOptions.value;
   serialOptions.replaceChildren();
+  const chooseSerial = text("option", "Choose the follower arm serial");
+  chooseSerial.value = "";
+  serialOptions.append(chooseSerial);
   for (const serial of setupSuggestions.known_follower_serials || []) {
-    serialOptions.append(text("option", serial));
+    const option = text("option", serial);
+    option.value = serial;
+    serialOptions.append(option);
   }
+  const manual = text("option", "Not listed — enter from the follower label");
+  manual.value = "__manual__";
+  serialOptions.append(manual);
+  serialOptions.value = (setupSuggestions.known_follower_serials || []).includes(previousSerial)
+    ? previousSerial : "";
+  $("follower-serial-custom").hidden = true;
+  serialOptions.onchange = () => {
+    const custom = serialOptions.value === "__manual__";
+    $("follower-serial-custom").hidden = !custom;
+  };
   if (!(setupSuggestions.known_follower_serials || []).length) {
     $("follower-serial-help").textContent =
       "No saved follower serials yet. Read it from the follower arm label once; " +

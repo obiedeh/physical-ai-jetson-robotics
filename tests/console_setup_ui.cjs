@@ -16,11 +16,14 @@ function field(name, values = null) {
   };
 }
 
-for (const name of ["fps", "operator", "name", "follower_serial", "power_state_start"]) field(name);
+for (const name of ["fps", "operator", "name", "power_state_start"]) field(name);
+field("follower_serial", [""]);
+field("follower_serial_custom");
 field("gripper_type", ["", "50mm", "100mm"]);
 field("wrist_camera", ["", "fake-wrist"]);
 const usb = field("follower_usb_id", [""]);
-const nodes = {"follower-usb-choice":usb, "serial-note":{}, "follower-serial-options":field("serial-options"),
+const nodes = {"follower-usb-choice":usb, "serial-note":{}, "follower-serial-choice":fields.follower_serial,
+  "follower-serial-custom":fields.follower_serial_custom,
   "follower-serial-help":{}, "setup-facts":{}, "setup-guidance":{},
   "new-form":{elements:{...fields, namedItem:name => fields[name]}},
 };
@@ -55,8 +58,13 @@ async function verifySetup() {
   assert.equal(fields.wrist_camera.value, "fake-wrist");
   assert.equal(usb.value, "fake-usb", "one ID is only a candidate, not a manufacturer serial");
   assert.equal(fields.follower_serial.value, "");
-  assert.deepEqual(nodes["follower-serial-options"].options.map(option => option.textContent),
-    ["ADF-previously-recorded"], "previous physical serials are selectable suggestions");
+  assert.deepEqual(fields.follower_serial.options.map(option => option.value),
+    ["", "ADF-previously-recorded", "__manual__"], "saved serials are dropdown choices");
+  assert.equal(fields.follower_serial.options[1].textContent, "ADF-previously-recorded",
+    "previous physical serials are selectable suggestions");
+  fields.follower_serial.value = "__manual__";
+  fields.follower_serial.onchange();
+  assert.equal(fields.follower_serial_custom.hidden, false, "manual fallback is an explicit option");
   assert.equal(fields.power_state_start.value, "");
   assert.match(fields.name.value, /^session-/);
   assert.deepEqual(calls, ["setup-suggestions", "serial-connections"]);
@@ -68,7 +76,9 @@ async function verifySetup() {
   connections = ["second-usb", "third-usb"];
   await context.refreshSerialConnections();
   assert.equal(usb.value, "", "disconnected or ambiguous devices are not reassigned");
-  assert.equal(fields.follower_serial.value, "");
+  assert.equal(fields.follower_serial.value, "__manual__",
+    "refreshing USB identities does not overwrite the chosen manufacturer-serial path");
+  assert.equal(fields.follower_serial_custom.hidden, false);
 }
 
 verifySetup().catch(error => { console.error(error); process.exitCode = 1; });

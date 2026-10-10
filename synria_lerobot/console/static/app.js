@@ -89,6 +89,9 @@ async function deleteSession(session, action) {
 /** Serialize named form controls to the recorder configuration without changing units. */
 function formValues() {
   const data=Object.fromEntries(new FormData($("new-form")));
+  if (data.follower_serial === "__manual__") {
+    data.follower_serial = $("follower-serial-custom").value.trim();
+  }
   for(const key of ["fps","action_lookahead_steps","image_width","image_height","state_startup_timeout_s","target_episodes"])data[key]=Number(data[key]);
   data.state_has_velocity=$("new-form").elements.state_has_velocity.checked;
   data.guard_command_topic=data.guard_command_topic.split(",").map(s=>s.trim()).filter(Boolean);
