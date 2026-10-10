@@ -73,8 +73,8 @@ async function run() {
   const profile=fs.mkdtempSync(path.join(os.tmpdir(),"synria-guide-test-"));
   const child=spawn(browser,["--headless","--disable-gpu","--disable-background-networking","--no-first-run",
     "--no-default-browser-check",`--user-data-dir=${profile}`,"--remote-debugging-pipe"],{stdio:["ignore","ignore","pipe","pipe","pipe"]});
-  let sequence=0, buffer="", sessionId;const pending=new Map();
-  child.stderr.resume();
+  let sequence=0, buffer="", sessionId, browserError="";const pending=new Map();
+  child.stderr.on("data",chunk=>{browserError=(browserError+chunk.toString()).slice(-8000);});
   child.stdio[4].on("data",chunk=>{
     buffer+=chunk.toString();let boundary;
     while((boundary=buffer.indexOf("\0"))>=0){const message=JSON.parse(buffer.slice(0,boundary));buffer=buffer.slice(boundary+1);
@@ -84,7 +84,7 @@ async function run() {
   });
   /** Send one bounded browser protocol request, keeping target commands scoped to this isolated page. */
   function send(method,params={},target=sessionId){return new Promise((resolve,reject)=>{
-    const id=++sequence,timer=setTimeout(()=>{pending.delete(id);reject(Error(`Protocol timeout: ${method}`));},15000);
+    const id=++sequence,timer=setTimeout(()=>{pending.delete(id);reject(Error(`Protocol timeout: ${method}\n${browserError}`));},15000);
     pending.set(id,{resolve,reject,timer});child.stdio[3].write(JSON.stringify({id,method,params,...(target?{sessionId:target}:{})})+"\0");
   });}
   /** Evaluate test interactions and propagate browser exceptions rather than treating them as success. */

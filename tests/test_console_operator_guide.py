@@ -82,8 +82,9 @@ def test_guided_browser_handles_faults_without_implicit_device_actions(tmp_path:
     browser = shutil.which("chromium") or shutil.which("chromium-browser")
     if node is None or browser is None:
         pytest.skip("optional existing browser and JavaScript runtime unavailable")
-    subprocess.run([
+    result = subprocess.run([
         node, str(Path(__file__).with_name("console_guided_browser.cjs")),
         str(REPOSITORY / "synria_lerobot/console/static"), browser,
         str(tmp_path / "synthetic-guided-console.png"),
-    ], check=True, capture_output=True, text=True, timeout=90)
+    ], check=False, capture_output=True, text=True, timeout=90)
+    assert result.returncode == 0, result.stdout + result.stderr
