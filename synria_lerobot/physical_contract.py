@@ -48,11 +48,13 @@ STATE_SOURCE_KINDS = ("standalone_driver", "ros2_control")
 
 
 def require_absolute_topic(topic: str) -> None:
+    """Reject relative or malformed graph names before checking command publishers."""
     if not isinstance(topic, str) or re.fullmatch(r"(?:/[A-Za-z_][A-Za-z_0-9]*)+", topic) is None:
         raise ValueError("topic must be an explicit absolute ROS topic name")
 
 
 def guarded_command_topics(additional: tuple[str, ...] = ()) -> tuple[str, ...]:
+    """Retain mandatory command topics while adding distinct operator declarations."""
     topics = tuple(dict.fromkeys((*DEFAULT_COMMAND_TOPICS, *additional)))
     for topic in topics:
         require_absolute_topic(topic)
@@ -69,6 +71,7 @@ class StateSourceProvenance:
     declaration: str = "operator-declared"
 
     def __post_init__(self) -> None:
+        """Reject malformed identity, dimensions or timing at the data boundary."""
         if self.state_source not in STATE_SOURCE_KINDS or self.declaration != "operator-declared":
             raise ValueError("state source requires an explicit operator declaration")
         require_absolute_topic(self.follower_topic)
@@ -80,6 +83,7 @@ class StateSourceProvenance:
         object.__setattr__(self, "guarded_command_topics", topics)
 
     def as_dict(self) -> dict[str, Any]:
+        """Serialize canonical evidence fields for exact contract and resume comparison."""
         return {
             "state_source": self.state_source, "follower_topic": self.follower_topic,
             "guarded_command_topics": list(self.guarded_command_topics),
@@ -88,6 +92,7 @@ class StateSourceProvenance:
 
     @classmethod
     def from_dict(cls, payload: Any) -> StateSourceProvenance:
+        """Construct a validated object from explicitly serialized evidence."""
         required = {"state_source", "follower_topic", "guarded_command_topics", "declaration"}
         if not isinstance(payload, dict) or set(payload) != required:
             raise ValueError("incomplete or invalid operator-declared state source evidence")
@@ -102,6 +107,7 @@ class ActionSource(str, Enum):
 
 
 class ActionTimingMetadata(TypedDict):
+    """Describe configured and effective lookahead without claiming measured latency."""
     action_lookahead_steps: int
     effective_action_lookahead_steps: int
     nominal_action_lookahead_s: float
@@ -120,6 +126,7 @@ class StateRateMeasurement:
     max_callback_gap_s: float
 
     def __post_init__(self) -> None:
+        """Require callback count, elapsed interval, rate and maximum gap to agree."""
         values = (self.rate_hz, self.duration_s, self.started_monotonic_s,
                   self.ended_monotonic_s, self.max_callback_gap_s)
         if not all(not isinstance(value, bool) and math.isfinite(value) for value in values):
@@ -154,6 +161,7 @@ def action_timing_metadata(
 
 
 def _require_finite(values: tuple[float, ...], label: str) -> None:
+    """Refuse nonfinite vector components before recording or mapping values."""
     if not all(math.isfinite(value) for value in values):
         raise ValueError(f"{label} must contain only finite values")
 
@@ -172,6 +180,7 @@ class PhysicalDatasetContract:
     recording_purpose: str = field(default="qualifying", kw_only=True)
 
     def __post_init__(self) -> None:
+        """Reject malformed identity, dimensions or timing at the data boundary."""
         if self.gripper_type not in GRIPPER_STROKE_M:
             raise ValueError("gripper_type must be '50mm' or '100mm'")
         if self.version != CONTRACT_VERSION:
@@ -185,22 +194,30 @@ class PhysicalDatasetContract:
 
     @property
     def min_episode_s(self) -> float:
+        """Read the effective task minimum for this dataset purpose."""
         return self.task_definition.recording_window(self.recording_purpose)["min_episode_s"]
 
     @property
     def max_episode_s(self) -> float:
+        """Read the effective task maximum for this dataset purpose."""
         return self.task_definition.recording_window(self.recording_purpose)["max_episode_s"]
 
     @property
     def task_text(self) -> str:
+        """Return the immutable instruction associated with every recorded frame."""
         return self.task_definition.task_text
 
     def require_qualifying(self) -> None:
+        """Refuse smoke and synthetic contracts at training and physical evaluation boundaries."""
         if self.recording_purpose != "qualifying":
-            raise ValueError("disposable smoke is not eligible for training or physical evaluation")
+            raise ValueError(
+                "disposable smoke or synthetic demo is not eligible for training "
+                "or physical evaluation"
+            )
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> PhysicalDatasetContract:
+        """Construct a validated object from explicitly serialized evidence."""
         task = TaskDefinition.from_metadata(payload)
         contract = cls(
             payload["gripper_type"], ActionSource(payload["action_source"]),
@@ -215,6 +232,7 @@ class PhysicalDatasetContract:
 
     @property
     def gripper_stroke_m(self) -> float:
+        """Return the declared hardware gripper stroke in driver units."""
         return GRIPPER_STROKE_M[self.gripper_type]
 
     def prepare_state(self, state: PhysicalState) -> PhysicalState:
@@ -228,6 +246,7 @@ class PhysicalDatasetContract:
         return state
 
     def as_dict(self, *, fps: float | None = None) -> dict[str, object]:
+        """Serialize canonical evidence fields for exact contract and resume comparison."""
         payload: dict[str, object] = {
             "contract_version": self.version,
             "gripper_type": self.gripper_type,
@@ -257,6 +276,7 @@ class PhysicalState:
     ros_arrival_stamp_s: float | None = None
 
     def __post_init__(self) -> None:
+        """Require six finite positions, one gripper value and consistent optional velocities."""
         if len(self.joint_positions_rad) != 6:
             raise ValueError("joint_positions_rad must contain six values")
         _require_finite(self.joint_positions_rad, "joint_positions_rad")
@@ -274,6 +294,7 @@ class PhysicalState:
             _require_finite(self.joint_velocities_rad_s, "joint_velocities_rad_s")
 
     def observation_vector(self) -> tuple[float, ...]:
+        """Serialize joint positions and gripper, followed only by declared velocities."""
         base = (*self.joint_positions_rad, self.gripper_m)
         if self.joint_velocities_rad_s is None:
             return base
@@ -291,6 +312,7 @@ class ImageFrame:
     native_data: Any | None = None
 
     def __post_init__(self) -> None:
+        """Reject malformed identity, dimensions or timing at the data boundary."""
         if not math.isfinite(self.monotonic_timestamp_s):
             raise ValueError("image monotonic timestamp must be finite")
         if self.native_resolution is not None and (
@@ -314,6 +336,7 @@ class PhysicalFrame:
     action_ros_arrival_stamp_s: float | None = None
 
     def __post_init__(self) -> None:
+        """Reject malformed identity, dimensions or timing at the data boundary."""
         if len(self.action) != 7:
             raise ValueError("action must contain six joint positions and one gripper value")
         _require_finite(self.action, "action")
@@ -321,6 +344,7 @@ class PhysicalFrame:
             raise ValueError("action monotonic timestamp must be finite")
 
     def timestamps(self) -> dict[str, float]:
+        """Preserve independent source and sampling clock values for freshness gates."""
         result = {
             "state_monotonic_s": self.state.monotonic_timestamp_s,
             "state_ros_header_s": self.state.ros_header_stamp_s,
