@@ -267,6 +267,16 @@ class Catalog:
                 and (include_trashed or row[2] not in {"trashed", "purged"})
             ]
 
+    def known_follower_serials(self) -> list[str]:
+        """Return previously recorded physical follower serials for local form reuse."""
+        with self._lock:
+            rows = self.connection.execute(
+                "SELECT DISTINCT follower_serial FROM sessions "
+                "WHERE source_kind='physical' AND status!='purged' "
+                "AND trim(follower_serial)!='' ORDER BY follower_serial COLLATE NOCASE"
+            ).fetchall()
+            return [str(row[0]) for row in rows]
+
     def _mirror(self, session: dict[str, Any]) -> None:
         """Atomically mirror session facts beside the dataset for catalog reconstruction."""
         directory = self._directory(session)

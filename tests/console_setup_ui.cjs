@@ -20,7 +20,8 @@ for (const name of ["fps", "operator", "name", "follower_serial", "power_state_s
 field("gripper_type", ["", "50mm", "100mm"]);
 field("wrist_camera", ["", "fake-wrist"]);
 const usb = field("follower_usb_id", [""]);
-const nodes = {"follower-usb-choice":usb, "serial-note":{}, "setup-facts":{}, "setup-guidance":{},
+const nodes = {"follower-usb-choice":usb, "serial-note":{}, "follower-serial-options":field("serial-options"),
+  "follower-serial-help":{}, "setup-facts":{}, "setup-guidance":{},
   "new-form":{elements:{...fields, namedItem:name => fields[name]}},
 };
 const preset = {options:options(["", "15", "30", "custom"]), value:"",
@@ -28,6 +29,7 @@ const preset = {options:options(["", "15", "30", "custom"]), value:"",
 };
 const suggestions = {host:"fake-host", account:"fake-account", free_disk_bytes:1e9,
   notice:"Review candidates", recommended:{fps:15},
+  known_follower_serials:["ADF-previously-recorded"],
   previous_operator_entries:{operator:"prior operator", gripper_type:"50mm", wrist_camera:"fake-wrist"},
 };
 let connections = ["fake-usb"];
@@ -53,6 +55,8 @@ async function verifySetup() {
   assert.equal(fields.wrist_camera.value, "fake-wrist");
   assert.equal(usb.value, "fake-usb", "one ID is only a candidate, not a manufacturer serial");
   assert.equal(fields.follower_serial.value, "");
+  assert.deepEqual(nodes["follower-serial-options"].options.map(option => option.textContent),
+    ["ADF-previously-recorded"], "previous physical serials are selectable suggestions");
   assert.equal(fields.power_state_start.value, "");
   assert.match(fields.name.value, /^session-/);
   assert.deepEqual(calls, ["setup-suggestions", "serial-connections"]);

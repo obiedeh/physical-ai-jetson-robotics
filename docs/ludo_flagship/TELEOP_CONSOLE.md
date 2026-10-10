@@ -98,10 +98,23 @@ The optional hint is stored separately in session settings and its mirror,
 never copied into the manufacturer serial or used to open a port. Missing
 required fields are named individually. Unknown manufacturer identity remains
 a recording blocker; selecting a USB ID does not remove that requirement.
+The manufacturer-serial field offers values saved in prior physical sessions
+and in the private workspace file `follower_serial_options.json`; these are
+suggestions for reuse, not a live device probe. The ROS joint-state topic does
+not publish the manufacturer serial. On first use, enter the value printed on
+the follower label once; it is then available in future session suggestions.
+This file stays outside the repository and demo mode never reads these values.
 Missing manufacturer serial or starting-power text does not block the no-episode
 connection diagnostic. Its separate **recording metadata** check lists these
 missing facts, leaves them unknown and prevents green readiness. Creating a
 session or recording a disposable smoke episode still requires both fields.
+The session form also shows registration status for every task and a staged
+training curriculum. Cup pickup/placement, die pickup/placement, and a
+contained low-energy table release are planning targets, not selectable tasks
+until reviewed into the registry with their own protocol and timed window. The
+three fixed-scene roll skills remain the only registered skill set; board-token
+manipulation stays deferred until the roll skill is validated. Each future
+dataset is governed by its task-specific success rule, scene and episode window.
 The operator must still confirm actual power and all physical safety checks
 before any diagnostic source opens. Unattempted checks say **NOT CHECKED**, not
 that the device failed.

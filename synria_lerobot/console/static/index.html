@@ -39,6 +39,22 @@ running state source and actual camera IDs. Custom values retain all recorder ch
 <form id="new-form"><div id="setup-configure" class="setup-page" hidden><div class="form-grid">
 <label>Session name<input name="name" required maxlength="120"></label>
 <label>Task<select name="task_id" id="task" required></select></label>
+<fieldset class="wide"><legend>Task timing registration · read only</legend><div id="task-window-list"></div>
+<small>Qualifying windows are not editable here. Time the real task, record each chosen window and rationale in DECISIONS.md, then register it through a reviewed change to config/synria_tasks.json. Unset windows continue to block qualifying sessions.</small></fieldset>
+<article class="wide" id="training-curriculum"><h3>Physical training curriculum · staged, not all recordable yet</h3>
+<p>Keep datasets single-task. The registry above is the authority for what can be recorded; these next skills are a planning guide, not extra task choices.</p>
+<h4>Object-control foundations</h4><ul>
+<li><strong>Pick a cup:</strong> approach the marked cup, grasp without tipping, lift clear, hold briefly, and present it for inspection. Pass only when the cup is securely held and upright.</li>
+<li><strong>Place a cup:</strong> transfer the grasped cup to a marked target, release, and retract. Pass only when it is upright within the target boundary and the gripper is clear.</li>
+<li><strong>Pick a die:</strong> grasp one die from the marked start zone without moving nearby objects; lift and hold for visual confirmation.</li>
+<li><strong>Place a die:</strong> transfer the held die to a marked square or tray, release, and retract. Pass only when the die is at rest inside the target boundary.</li></ul>
+<h4>Fixed-scene roll skills</h4><ul>
+<li><strong>die_into_cup:</strong> release the die inside the cup at its fixed mark.</li>
+<li><strong>roll_and_dump:</strong> contain and agitate the die in the cup, then dump it into the fixed landing tray; pass only when the die is at rest in the tray and the cup remains upright.</li>
+<li><strong>cup_return:</strong> return the cup upright to its marked home and retract.</li>
+<li><strong>Bounded table toss:</strong> a later, low-energy release into a contained landing tray—not an unrestricted throw. Require a reviewed safe release envelope and tray containment before enabling it.</li></ul>
+<h4>Board-play extensions · deferred</h4><p>After the roll skills are validated, plan token pickup, one-square placement, complete token moves, and capture/return-to-start as separate tasks. These need their own goal protocol and must not enter the current roll datasets.</p>
+<p>For each future task, preregister one observable success rule, task-specific minimum and maximum duration, fixed scene, allowed variation, camera evidence, failure labels, and recovery/discard criteria. Vary one scene factor at a time. Keep attempts with quality-valid task failures; exclude only capture or scene faults under the D1 protocol.</p></article>
 <label>Gripper<select name="gripper_type" required><option value="">Choose installed gripper</option><option value="50mm">50 mm · driver stroke 0.025 m</option><option value="100mm">100 mm · driver stroke 0.05 m</option></select></label>
 <label>State source<select name="state_source" id="source"><option value="">Choose verified running source</option><option value="standalone_driver">Standalone driver · requires writes disabled, torque unchanged</option><option value="ros2_control">ros2_control · requires a verified read-only setup</option></select></label>
 <label>Follower topic<input name="follower_topic" value="/joint_states" list="follower-topics" data-presets aria-label="Follower topic"></label>
@@ -56,7 +72,7 @@ running state source and actual camera IDs. Custom values retain all recorder ch
 <label>Additional guarded topics<input name="guard_command_topic" placeholder="Comma-separated absolute topics"><small>/joint_commands and /policy_joint_targets are always guarded.</small></label>
 <label>First state wait (seconds)<input name="state_startup_timeout_s" type="number" min="0.1" step="0.1" value="10" required list="startup-presets" data-presets aria-label="First state wait"></label>
 <label>Operator<input name="operator" required></label>
-<label>Follower manufacturer serial<input name="follower_serial" placeholder="Leave blank if unknown; not the USB ID"><small>Required before recording, not for connection checks. Do not invent a serial or copy the adapter ID here.</small></label>
+<label>Follower manufacturer serial<input name="follower_serial" list="follower-serial-options" placeholder="Select a saved serial or enter it once" autocomplete="off"><datalist id="follower-serial-options"></datalist><small id="follower-serial-help">Choose a previously recorded serial or enter the value printed on the follower arm label. The ROS state feed does not publish this identity. Never use the USB adapter ID here.</small></label>
 <fieldset class="camera-mapping"><legend>USB connection identity · unverified arm association</legend>
 <label>Candidate follower USB connection<select name="follower_usb_id" id="follower-usb-choice"><option value="">Unknown / unverified · no connection selected</option></select></label>
 <p id="serial-note">Names only. Selecting a connection does not open the port, connect the recorder or verify the arm.</p>
