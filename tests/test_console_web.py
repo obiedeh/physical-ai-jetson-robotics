@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import http.client
+import io
 import json
 import shutil
 import subprocess
@@ -14,6 +15,7 @@ from typing import Any
 import numpy as np
 import pytest
 
+from synria_lerobot.console.app import announce_url
 from synria_lerobot.console.playback import EpisodePlayback, confined_file
 from synria_lerobot.console.server import MAX_BODY, make_server
 
@@ -232,3 +234,29 @@ def test_review_pairs_and_selection_ignore_late_browser_responses() -> None:
          str(root / "synria_lerobot/console/static/app.js")],
         check=True, timeout=15, capture_output=True, text=True,
     )
+
+
+class _FlushCountingStream(io.StringIO):
+    """Record flushes so a test can prove the token line is pushed through a redirected log."""
+
+    def __init__(self) -> None:
+        """Start with no flushes observed."""
+        super().__init__()
+        self.flush_count = 0
+
+    def flush(self) -> None:
+        """Count each explicit flush before delegating to the in-memory buffer."""
+        self.flush_count += 1
+        super().flush()
+
+
+def test_announce_url_flushes_token_line_immediately() -> None:
+    """A background launch logging to a file must show the token URL before shutdown."""
+    stream = _FlushCountingStream()
+    announce_url("http://127.0.0.1:8765/#token=abc", demo=False, stream=stream)
+    assert stream.getvalue() == "Synria Teleop Console read-only: http://127.0.0.1:8765/#token=abc\n"
+    assert stream.flush_count >= 1
+    demo_stream = _FlushCountingStream()
+    announce_url("http://127.0.0.1:8765/#token=abc", demo=True, stream=demo_stream)
+    assert demo_stream.getvalue().startswith("Synria Teleop Console SYNTHETIC DEMO: ")
+    assert demo_stream.flush_count >= 1
