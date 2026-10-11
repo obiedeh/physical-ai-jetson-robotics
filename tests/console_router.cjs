@@ -35,23 +35,41 @@ for (const path of ["home", "sessions", "help", "new/task", "new/check", "new/st
 const homeContext = vm.createContext({window: {}, document: undefined, text: (tag, value) => ({tag, value})});
 vm.runInContext(fs.readFileSync(homePath, "utf8"), homeContext);
 const home = homeContext.window.SynriaHome;
-let rows = home.statusRows({active_session: null, free_disk_bytes: 5e10, min_free_bytes: 1e9}, null, null);
-assert.equal(rows[0].detail, "None open");
-assert.equal(rows[1].detail, "Not checked yet");
-assert.ok(rows.slice(2, 5).every(row => row.level === "neutral" && row.detail.startsWith("Not checked")), "no check means unknown, never failed");
-assert.equal(rows[5].level, "ready"); assert.match(rows[5].detail, /^50\.0 GB free$/);
+let rows = home.statusRows({active_session: null, free_disk_bytes: 5e10, min_free_bytes: 1e9}, {status: "ready"}, null);
+assert.equal(rows.map(r => r.name).join(), "Arm feed,Wrist camera,Overhead camera,Storage", "four tiles, software hidden when it is fine");
+assert.ok(rows.slice(0, 3).every(r => r.level === "neutral" && r.detail === "Not checked yet"), "no check means Not checked yet, never a fault");
+assert.equal(rows[3].level, "ready"); assert.match(rows[3].detail, /^50\.0 GB free$/);
 const checks = {follower_sample: {passed: true, status: "ready", message: "Fresh sample"},
   wrist_sample: {passed: false, status: "not_ready", message: "Camera device busy"},
   front_sample: {passed: false, status: "not_checked", message: "Not run"}};
 rows = home.statusRows({active_session: {name: "Morning"}, free_disk_bytes: 1e8, min_free_bytes: 1e9},
-  {status: "ready"}, {checked_utc: "2026-10-11T10:00:00Z", status: "blocked", checks});
-assert.equal(rows[0].detail, "Morning is open");
-assert.equal(rows[1].detail, "Recording libraries found");
-assert.equal(rows[2].level, "ready"); assert.match(rows[2].detail, /Fresh sample \(last setup check 2026-10-11 10:00 UTC\)/);
-assert.equal(rows[3].level, "attention"); assert.equal(rows[3].detail, "Camera device busy");
-assert.equal(rows[4].level, "neutral");
-assert.equal(rows[5].level, "attention"); assert.match(rows[5].detail, /below the recording floor/);
-rows = home.statusRows({active_session: null}, {status: "not_ready", message: "Missing rclpy"}, {checked_utc: "2026-10-11T10:00:00Z", status: "expired", checks});
-assert.equal(rows[1].level, "attention"); assert.equal(rows[1].detail, "Missing rclpy");
-assert.ok(rows[2].detail.startsWith("Not checked"), "an expired check is not shown as a fresh sample");
+  {status: "not_ready", message: "Missing rclpy"}, {checked_utc: "2026-10-11T10:00:00Z", status: "blocked", checks});
+assert.equal(rows[0].name, "Software"); assert.equal(rows[0].level, "attention"); assert.equal(rows[0].detail, "Missing rclpy");
+assert.equal(rows[1].level, "ready"); assert.equal(rows[1].detail, "OK");
+assert.equal(rows[2].level, "attention"); assert.equal(rows[2].detail, "Camera device busy");
+assert.equal(rows[3].level, "neutral");
+assert.equal(rows[4].level, "attention"); assert.match(rows[4].detail, /below the recording floor/);
+rows = home.statusRows({active_session: null}, {status: "ready"}, {checked_utc: "2026-10-11T10:00:00Z", status: "expired", checks});
+assert.equal(rows[0].detail, "Not checked yet", "an expired check is not shown as a fresh sample");
+
+// Cards: things to do, with Continue only when an unfinished session exists.
+homeContext.window.SynriaRouter = {routes: {wizard: step => `new/${step}`, sessions: () => "sessions", record: id => `session/${id}/record`}, href: path => "#/" + path};
+let cards = home.cards({active_session: null}, [], false);
+assert.equal(cards.map(c => c.title).join("|"), "New session|Practice run|Review recordings");
+assert.equal(cards.map(c => c.verb).join("|"), "Start a new session|Start a practice run|Open review");
+assert.equal(cards[2].kind, "disabled", "review is disabled until a take exists");
+assert.equal(cards[0].primary, true);
+cards = home.cards({active_session: null}, [], true);
+assert.equal(cards[1].kind, "disabled", "demo mode has no practice run");
+const paused = {id: "s1", name: "Morning", task_id: "die_into_cup", status: "closed", source_kind: "physical", target_episodes: 10, counts: {saved: 4}, updated_utc: new Date().toISOString()};
+cards = home.cards({active_session: null}, [paused], false);
+assert.equal(cards[1].title, "Continue recording"); assert.equal(cards[1].verb, "Continue");
+assert.match(cards[1].text, /^die into cup, 4 of 10 takes saved, last used just now\.$/);
+assert.equal(cards[1].open, false, "a paused session is reopened before recording");
+assert.equal(cards[2].kind, "link", "saved takes enable review");
+const done = {...paused, counts: {saved: 10}};
+cards = home.cards({active_session: null}, [done], false);
+assert.equal(cards[1].title, "Practice run", "a finished session is not offered to continue");
+cards = home.cards({active_session: {id: "s1"}}, [paused], false);
+assert.equal(cards[1].open, true);
 console.log("router and home status verified");

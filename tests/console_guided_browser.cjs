@@ -148,8 +148,17 @@ async function run() {
     assert.equal(await evaluate("document.querySelector('#flow-nav').hidden"),true);
     assert.equal(await evaluate("document.querySelectorAll('#global-nav a').length"),3,"three global destinations only");
     assert.equal(await evaluate("document.querySelector('#token-notice').hidden"),true,"a tab with the launch key shows no key notice");
-    assert.match(await textOf("#status-strip"),/Software.*Recording libraries found/s,"status strip reads in words");
-    assert.equal(await evaluate("document.activeElement.id"),"home-title","focus lands on the screen title");
+    assert.match(await textOf("#status-strip"),/^Arm feedNot checked yetWrist cameraNot checked yetOverhead cameraNot checked yetStorageOK · 100\.0 GB free$/,"status strip reads in neutral words, software hidden when fine");
+    assert.equal(await textOf("#status-note"),"Not checked yet. Checked automatically when you start a session.");
+    assert.equal(await evaluate("document.activeElement.id"),"home-title","focus lands on the Home heading");
+    assert.equal(await evaluate("document.querySelector('#home-title').tagName"),"H1");
+    assert.equal(await evaluate("[...document.querySelectorAll('#home-cards .home-card h3')].map(n=>n.textContent).join('|')"),"New session|Practice run|Review recordings");
+    assert.equal(await evaluate("document.querySelector('#home-cards .home-card:last-child').disabled"),true,"review is disabled until a take exists");
+    assert.equal(await evaluate("document.querySelector('#first-run-strip').hidden"),false,"first run shows the three-step strip");
+    await click("#dismiss-first-run");
+    assert.equal(await evaluate("document.querySelector('#first-run-strip').hidden"),true);
+    assert.equal(await evaluate("document.querySelector('#quit')"),null,"shut down lives on Help, not in the header");
+    assert.match(await textOf("footer"),/^This console only records\. It never moves the arm\.$/);
     // Refresh restores the same place for every route.
     for(const path of ["sessions","help","new/task","session/none/review","home"]){
       await evaluate(`SynriaRouter.go(${JSON.stringify(path)})`);

@@ -1,21 +1,19 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Synria Teleop Console</title><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/readiness.css"><link rel="stylesheet" href="/operator-guide.css"><link rel="stylesheet" href="/shell.css"><script src="/router.js" defer></script><script src="/form-presets.js" defer></script><script src="/record-banner.js" defer></script><script src="/app.js" defer></script><script src="/home.js" defer></script><script src="/wizard.js" defer></script><script src="/readiness.js" defer></script><script src="/serial-identity.js" defer></script><script src="/operator-guide.js" defer></script></head>
-<body><header><div><span class="eyebrow">READ-ONLY COLLECTION</span><h1>Synria Teleop Console</h1></div>
-<span id="mode" class="badge">Connecting</span><button id="quit" class="quiet">Quit console</button></header>
+<body><header><div><p class="site-name">Synria Teleop Console</p></div>
+<span id="mode" class="badge">Connecting</span></header>
 <div id="notice" role="alert"></div>
 <nav id="global-nav" aria-label="Console"><a href="#/home" data-route="home">Home</a><a href="#/sessions" data-route="sessions">Sessions</a><a href="#/help" data-route="help">Help</a></nav>
 <nav id="flow-nav" aria-label="Where you are" hidden><ol id="breadcrumb"></ol><button id="pause-session" type="button" hidden>Pause session</button><button id="finish-session" type="button" class="primary" hidden>Finish session</button><button id="exit-flow" type="button">Exit to Home</button></nav>
 <p id="route-announcer" class="visually-hidden" aria-live="polite"></p>
 <main>
-<section id="home" class="screen"><h2 id="home-title" class="screen-title" tabindex="-1">Home</h2>
+<section id="home" class="screen"><h1 id="home-title" class="screen-title" tabindex="-1">What would you like to do?</h1>
 <p class="purpose">Record demonstrations with the leader arm, then review the takes.</p>
 <div id="token-notice" class="token-notice" role="status" hidden><strong>This tab has no launch key.</strong><p>Open the link printed in the console terminal. It ends with #token= and a long code. Without it this tab can look but cannot start or save anything.</p></div>
-<div class="home-cards">
-<article class="card home-card primary-card"><h3 id="home-session-title">New session</h3><p id="home-session-text">Choose the task, check the cameras and arm feed, then record takes.</p><a id="home-session-link" class="button primary" href="#/new/task" data-route="new/task">New session</a></article>
-<article class="card home-card"><h3>Sessions</h3><p id="home-sessions-text">Earlier sessions and their takes.</p><a class="button" href="#/sessions" data-route="sessions">Sessions</a></article>
-<article class="card home-card"><h3>Help</h3><p>Safety, setup steps and what each word on screen means.</p><a class="button" href="#/help" data-route="help">Help</a></article></div>
-<section id="system-status" aria-labelledby="system-status-title"><h3 id="system-status-title">System status</h3><ul id="status-strip"></ul><p id="status-note">Status is the last known reading, not live monitoring. A new session runs its own setup check.</p></section></section>
+<div id="home-cards" class="home-cards"></div>
+<ol id="first-run-strip" class="first-run-strip" hidden><li><b>1</b> Choose what to record</li><li><b>2</b> Check cameras and arm</li><li><b>3</b> Record takes</li><li><button type="button" id="dismiss-first-run" class="text-button">Got it</button></li></ol>
+<section id="system-status" aria-labelledby="system-status-title"><div class="section-head"><h3 id="system-status-title">System status</h3><button type="button" id="home-check-now">Check now</button></div><ul id="status-strip"></ul><p id="status-note">Not checked yet. Checked automatically when you start a session.</p></section></section>
 <section id="sessions" class="screen" hidden><h2 id="sessions-title" class="screen-title" tabindex="-1">Sessions</h2>
 <p class="purpose">Open a session to record more takes, or review the takes it already has.</p>
 <div class="section-head"><input id="search" placeholder="Search by name" aria-label="Search sessions"><a class="button primary" href="#/new/task" data-route="new/task">New session</a></div>
@@ -52,6 +50,8 @@
 <h4>Board-play extensions · deferred</h4><p>After the roll skills are validated, plan token pickup, one-square placement, complete token moves, and capture/return-to-start as separate tasks. These need their own goal protocol and must not enter the current roll datasets.</p>
 <p>For each future task, preregister one observable success rule, task-specific minimum and maximum duration, fixed scene, allowed variation, camera evidence, failure labels, and recovery/discard criteria. Vary one scene factor at a time. Keep attempts with quality-valid task failures; exclude only capture or scene faults under the D1 protocol.</p></article></details>
 <h3>Repository references</h3><div class="actions"><button type="button" data-guide-doc="runbook">Operator runbook</button><button type="button" data-guide-doc="protocol">Dataset protocol</button><button type="button" data-guide-doc="decisions">Decisions record</button><button type="button" data-guide-doc="safety">Safety record</button><button type="button" data-guide-doc="limits">Joint limits file</button></div>
+<h3>Console status</h3><p>Implemented, unmeasured. No hardware validation. Read-only toward the arm: the console only listens to the arm feed and the cameras.</p>
+<h3>Shut down</h3><p>Shutting down stops the console server for everyone using it. Takes already saved stay on disk. Pause or finish the session first.</p><button type="button" id="shutdown-console" class="danger">Shut down console</button>
 <h3>Words on screen</h3><dl class="glossary"><dt>Take</dt><dd>One recorded attempt at the task, saved with a success or failure label.</dd><dt>Practice run</dt><dd>A 20 second recording that is thrown away afterwards and never counts.</dd><dt>Setup check</dt><dd>A read-only look at the cameras and arm feed before a session opens. It records nothing and never moves the arm.</dd><dt>Arm feed</dt><dd>The joint positions the console reads from the follower arm. The console only listens.</dd><dt>Quality check</dt><dd>One of nine automatic checks on a saved take, such as timing alignment or joint limits.</dd><dt>Counts toward the dataset</dt><dd>A take recorded in a named session with a registered task window, verified limits and full identity.</dd></dl></section>
 <section id="new" class="screen wizard" hidden><h2 id="new-title" class="screen-title" tabindex="-1">New session</h2>
 <ol id="wizard-steps" class="stepper" aria-label="Steps">
@@ -166,4 +166,4 @@ not qualifying counts. Task windows remain operator decisions outside this form.
 <details open><summary>Exact stored values, timestamps and source skew</summary><pre id="frame-data"></pre></details>
 <details><summary>Overhead photo and take provenance</summary><img id="still" alt="Overhead photo at the end of the take, native size"><pre id="episode-provenance"></pre></details></article></section>
 </main><dialog id="operator-help" aria-labelledby="help-title"><div class="section-head"><h2 id="help-title">Operator help</h2><button id="close-help" type="button" aria-label="Close operator help">Close</button></div><div id="help-content"></div></dialog>
-<footer>Implemented, unmeasured · no hardware validation · read-only toward the arm</footer></body></html>
+<footer>This console only records. It never moves the arm.</footer></body></html>

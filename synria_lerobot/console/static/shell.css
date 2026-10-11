@@ -116,3 +116,18 @@ fieldset.field small{color:var(--muted)}
 #summary .actions{display:flex;gap:12px;margin-top:16px}
 @media(prefers-reduced-motion:reduce){.record-banner[data-phase=recording]{animation:none}}
 @media(max-width:900px){.record-actions button.big{min-width:0;flex:1}.record-main{grid-template-columns:1fr}#reset-scene[hidden]{display:none!important}.options-row{margin-left:0}}
+/* Home: cards are the things to do; the whole card is the control. */
+.site-name{margin:5px 0;font-size:22px;font-weight:650;letter-spacing:-.3px;color:var(--text)}
+#home h1.screen-title{font-size:30px;letter-spacing:-.5px;margin:6px 0 4px}
+.home-card{display:flex;flex-direction:column;gap:8px;text-align:left;padding:20px;background:var(--panel);border:1px solid var(--edge);border-radius:10px;color:var(--text);text-decoration:none;font:inherit;cursor:pointer;min-height:44px}
+.home-card:hover{border-color:var(--accent)}.home-card:focus-visible{outline:3px solid #edbe70;outline-offset:3px}
+.home-card h3{margin:0;font-size:21px}.home-card p{margin:0;color:var(--muted);flex:1}
+.home-card .verb{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border:1px solid var(--edge);border-radius:7px;background:#253344;font-size:16px}
+.home-card.primary-card{border:2px solid var(--accent)}.home-card.primary-card .verb{background:var(--accent);color:#10221e;font-weight:650;border-color:var(--accent)}
+.home-card:disabled{cursor:not-allowed;opacity:.6}.home-card:disabled .verb{opacity:.6}
+.first-run-strip{display:flex;gap:18px;align-items:center;list-style:none;margin:0 0 20px;padding:12px 18px;background:#203c39;border:1px solid #496d62;border-radius:10px;color:#d2e3dd;font-size:16px}
+.first-run-strip b{display:inline-grid;place-items:center;min-width:28px;height:28px;border-radius:50%;background:var(--accent);color:#10251d;margin-right:8px}
+.first-run-strip li:last-child{margin-left:auto}.first-run-strip .text-button{background:none;border:none;color:var(--muted);text-decoration:underline;min-height:44px}
+#system-status .section-head{margin-bottom:8px}#system-status .section-head h3{margin:0}#home-check-now{min-height:40px}
+#status-strip li[data-level=neutral]{border-left-color:#4a5a6a}
+@media(max-width:900px){.first-run-strip{flex-wrap:wrap}}
