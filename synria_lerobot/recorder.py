@@ -62,6 +62,7 @@ from synria_lerobot.task_registry import (
     TASK_IDS,
     TASK_METADATA_KEYS,
     TaskDefinition,
+    library_snapshot_fields,
     recording_purpose,
     select_recording_task,
 )
@@ -1692,6 +1693,7 @@ def recording_config_from_args(
         task_id=task_definition.task_id,
         task_definition=task_definition,
         recording_purpose=purpose,
+        **library_snapshot_fields(args.task_registry),
     )
     path = dataset_path if dataset_path is not None else args.dataset_path
     if path is None:

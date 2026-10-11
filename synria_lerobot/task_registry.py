@@ -5,12 +5,19 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 REGISTRY_VERSION = "synria_fixed_scene_tasks_v1"
+LIBRARY_SNAPSHOT_VERSION = "synria_task_library_snapshot_v1"
 TASK_IDS = ("die_into_cup", "roll_and_dump", "cup_return")
+TASK_SOURCES = ("registry", "library")
+LIBRARY_TASK_ID = re.compile(r"^lib_[a-z0-9]+(?:_[a-z0-9]+)*$")
+LIBRARY_SNAPSHOT_KEYS = (
+    "version", "task_source", "goal_id", "goal_title", "library_version", "chain_position", "task",
+)
 EPISODE_WINDOW_KEYS = ("min_episode_s", "max_episode_s")
 QUALIFYING = "qualifying"
 DISPOSABLE_SMOKE = "disposable_smoke"
@@ -24,6 +31,11 @@ TASK_METADATA_KEYS = (
     "recording_purpose",
     "episode_window_override",
 )
+
+
+def is_library_task_id(task_id: Any) -> bool:
+    """Whether an id names a task from the operator's task library, not the published registry."""
+    return type(task_id) is str and bool(LIBRARY_TASK_ID.match(task_id))
 
 
 def recording_purpose(smoke: bool, declared: str | None = None) -> str:
@@ -110,7 +122,9 @@ class TaskDefinition:
 
     def __post_init__(self) -> None:
         """Reject malformed identity, dimensions or timing at the data boundary."""
-        if type(self.task_id) is not str or self.task_id not in TASK_IDS:
+        if type(self.task_id) is not str or (
+            self.task_id not in TASK_IDS and not is_library_task_id(self.task_id)
+        ):
             raise ValueError("unknown fixed-scene task id")
         if any(
             type(value) is not str or not value.strip()
@@ -266,6 +280,43 @@ def load_task_registry(path: Path) -> dict[str, TaskDefinition]:
     return {task.task_id: task for task in tasks}
 
 
+def library_snapshot_fields(path: Path) -> dict[str, Any]:
+    """Read the library identity of a snapshot file; empty for the published registry.
+
+    A library snapshot binds one task version to its goal and chain position so a
+    dataset recorded against it can be stitched into the full multi-step task later.
+    """
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if type(payload) is not dict or payload.get("version") != LIBRARY_SNAPSHOT_VERSION:
+        return {}
+    if set(payload) != set(LIBRARY_SNAPSHOT_KEYS) or payload["task_source"] != "library":
+        raise ValueError("task library snapshot has missing or unknown fields")
+    if type(payload["goal_id"]) is not str or not is_library_task_id(payload["goal_id"]):
+        raise ValueError("task library snapshot needs a goal id")
+    if type(payload["goal_title"]) is not str or not payload["goal_title"].strip():
+        raise ValueError("task library snapshot needs a goal title")
+    for name in ("library_version", "chain_position"):
+        if type(payload[name]) is not int or payload[name] < 1:
+            raise ValueError(f"task library snapshot {name} must be a positive whole number")
+    return {
+        "task_source": "library", "goal_id": payload["goal_id"],
+        "goal_title": payload["goal_title"], "library_version": payload["library_version"],
+        "chain_position": payload["chain_position"],
+    }
+
+
+def load_task_source(path: Path) -> dict[str, TaskDefinition]:
+    """Load either the published registry or a one-task library snapshot by its version."""
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if type(payload) is dict and payload.get("version") == LIBRARY_SNAPSHOT_VERSION:
+        library_snapshot_fields(path)
+        task = TaskDefinition.from_dict(payload["task"])
+        if not is_library_task_id(task.task_id):
+            raise ValueError("a library snapshot must carry a library task id")
+        return {task.task_id: task}
+    return load_task_registry(path)
+
+
 def select_recording_task(
     path: Path,
     task_id: str,
@@ -273,7 +324,7 @@ def select_recording_task(
     purpose: str = QUALIFYING,
 ) -> TaskDefinition:
     """Select and validate one task for its declared recording purpose."""
-    tasks = load_task_registry(path)
+    tasks = load_task_source(path)
     if type(task_id) is not str or task_id not in tasks:
         raise ValueError("unknown fixed-scene task id")
     selected = tasks[task_id]
