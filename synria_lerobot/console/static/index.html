@@ -33,7 +33,8 @@
 <p id="mode-help"></p>
 <article><h3>Suggested setup</h3><p id="setup-facts">Loading available host and connection information…</p>
 <p id="setup-guidance">Review suggested values before use. Physical safety confirmations are never filled automatically.</p>
-<button id="use-recommended" type="button">Use recommended recording values</button></article>
+<label>Recommended values<select id="use-recommended" aria-label="Apply recommended recording values"><option value="">Choose an action</option><option value="apply">Apply follower-only recommended candidates</option><option value="keep">Keep current values</option></select></label>
+<small>The preset fills only known candidates: next-state actions, /joint_states, 15 FPS, 224 × 224 images, one-step lookahead, a 10-second first-sample wait and a 100-episode target. Confirm 15 FPS is no higher than the measured state rate. Gripper, running state source, camera roles, serial, power state, task timing and limit verification are never guessed.</small></article>
 <p id="setup-intro">Synria / Alicia-D setup: leader-to-follower hardware sync, C10 wrist camera and a fixed USB front camera.
 Presets come from the D1 runbook; they are not hardware measurements. Choose the installed gripper,
 running state source and actual camera IDs. Custom values retain all recorder checks.</p>
