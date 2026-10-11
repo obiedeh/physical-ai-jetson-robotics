@@ -52,8 +52,24 @@ and refresh keep the place; on load the page opens the recording screen if a
 session is open, otherwise Home. Each screen change moves focus to the screen
 title and announces it through a live region. Navigating never opens a source,
 creates a session or issues a recorder command.
-The setup flow still guides **Prepare → Configure → Check connections → Record**
-until the three-step wizard replaces it.
+New session is a linear wizard of three steps: **Choose task**, **Check setup**,
+**Start**. A fixed footer on every step holds Back at the left and one primary
+button at the right; the primary stays disabled until the step is complete and the
+footer says why in plain words ("Choose a task to continue", "Tick the five bench
+checks to continue"). The stepper is an indicator: completed steps show a tick and
+can be revisited, later steps cannot be clicked, and a later step's address is
+clamped back to the first incomplete step. Back never loses input: the draft is
+kept in browser storage (never the safety confirmations) and survives refresh.
+Check setup shows a Saved setup summary with the one thing to fix, the full form
+behind Change setup, and the five bench checks; the read-only setup check starts
+by itself when the fifth check is ticked, and again after Run the setup check
+again. Start summarises task, take length, target and setup, then Start session
+creates the session, opens its cameras and arm feed and lands on the recording
+screen. If the last check is older than a minute it is rerun in place first,
+with a visible "Checking cameras and arm feed" state; a failing item is shown in
+place with its fix and the operator is never sent back a step. Do a practice run
+instead is the secondary action on the same step. Nothing navigates by itself
+except after the primary button.
 Help is a page of procedures, repository references and a glossary; the same
 procedures open in place from any error. It works without external network access. The state-source procedure distinguishes
 an unverified standalone candidate from the still-unrecorded site-specific
@@ -104,9 +120,9 @@ state yourself. Presets are candidates or software defaults, not hardware
 measurements, verified limits or qualifying counts. The native final still and
 operator-owned task windows are unchanged. **Implemented, unmeasured.**
 
-Task-window registration is deliberately not an editable console control. From
-Prepare, use **Open task timing status**, or in Configure open **Task timing
-registration · read only**. That panel shows each registered window and the
+Task-window registration is deliberately not an editable console control. On
+Choose task, open **Task timing controls are not in this console** to see
+**Task timing registration · read only**. That panel shows each registered window and the
 exact sequence: time the real task under the approved procedure, record the
 observation and chosen bounds in `DECISIONS.md`, then update
 `config/synria_tasks.json` through a reviewed repository change. The console

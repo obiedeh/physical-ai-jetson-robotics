@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Synria Teleop Console</title><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/readiness.css"><link rel="stylesheet" href="/operator-guide.css"><link rel="stylesheet" href="/shell.css"><script src="/router.js" defer></script><script src="/form-presets.js" defer></script><script src="/record-banner.js" defer></script><script src="/app.js" defer></script><script src="/home.js" defer></script><script src="/readiness.js" defer></script><script src="/serial-identity.js" defer></script><script src="/operator-guide.js" defer></script></head>
+<title>Synria Teleop Console</title><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/readiness.css"><link rel="stylesheet" href="/operator-guide.css"><link rel="stylesheet" href="/shell.css"><script src="/router.js" defer></script><script src="/form-presets.js" defer></script><script src="/record-banner.js" defer></script><script src="/app.js" defer></script><script src="/home.js" defer></script><script src="/wizard.js" defer></script><script src="/readiness.js" defer></script><script src="/serial-identity.js" defer></script><script src="/operator-guide.js" defer></script></head>
 <body><header><div><span class="eyebrow">READ-ONLY COLLECTION</span><h1>Synria Teleop Console</h1></div>
 <span id="mode" class="badge">Connecting</span><button id="quit" class="quiet">Quit console</button></header>
 <div id="notice" role="alert"></div>
@@ -25,40 +25,28 @@
 <h3>Trash</h3><p>Trash is recoverable. Purge removes the session files permanently and retains the audit record.</p><div id="trash-list" class="cards"></div></details></section>
 <section id="help" class="screen" hidden><h2 id="help-page-title" class="screen-title" tabindex="-1">Help</h2>
 <p class="purpose">Short procedures for each situation, the repository references, and what the words on screen mean.</p>
+<h3>Before you connect</h3><ol class="procedure-list">
+<li><strong>Make the rig safe.</strong> Secure the arm, clear the workspace and keep the e-stop within reach. Follow the approved power and controlled-stop procedure. Never remove torque from an unsupported arm.</li>
+<li><strong>Keep working teleoperation unchanged.</strong> The leader drives the follower through the sync cable. The PC reads follower state. Only one process may own the follower USB connection.</li>
+<li><strong>Use a verified read-only arm feed.</strong> Writes must be disabled and startup torque unchanged. The console does not start or reconfigure that source.</li>
+<li><strong>Assign the two camera roles.</strong> C10 on the wrist; fixed webcam overhead/front. Close preview apps. A listed USB device is not proof of a working stream.</li></ol>
+<p>The console never moves the arm, starts a driver, changes torque, launches a bridge or arms a policy.</p>
+<article id="environment-context"><h3>This console’s environment</h3><p id="environment-facts">Loading local environment details…</p><p>Compare the ROS domain and middleware with the existing arm feed terminal. Loading libraries does not start that source.</p></article>
 <h3>Procedures</h3><div id="help-topics" class="cards"></div>
 <h3>Repository references</h3><div class="actions"><button type="button" data-guide-doc="runbook">Operator runbook</button><button type="button" data-guide-doc="protocol">Dataset protocol</button><button type="button" data-guide-doc="decisions">Decisions record</button><button type="button" data-guide-doc="safety">Safety record</button><button type="button" data-guide-doc="limits">Joint limits file</button></div>
 <h3>Words on screen</h3><dl class="glossary"><dt>Take</dt><dd>One recorded attempt at the task, saved with a success or failure label.</dd><dt>Practice run</dt><dd>A 20 second recording that is thrown away afterwards and never counts.</dd><dt>Setup check</dt><dd>A read-only look at the cameras and arm feed before a session opens. It records nothing and never moves the arm.</dd><dt>Arm feed</dt><dd>The joint positions the console reads from the follower arm. The console only listens.</dd><dt>Quality check</dt><dd>One of nine automatic checks on a saved take, such as timing alignment or joint limits.</dd><dt>Counts toward the dataset</dt><dd>A take recorded in a named session with a registered task window, verified limits and full identity.</dd></dl></section>
-<section id="new" class="screen" hidden>
-<div class="setup-hero"><div><span class="eyebrow">GUIDED DEMONSTRATION COLLECTION</span><h2 id="new-title" class="screen-title" tabindex="-1">Set up. Check. Record.</h2>
-<p>One step at a time. Know what is connected, what needs attention, and what to do next.</p></div><span class="badge">Read-only toward the arm</span></div>
-<div id="next-action" role="status"><div><span class="eyebrow">YOUR NEXT STEP</span><h3 id="next-action-title">Prepare your workspace</h3><p id="next-action-message">Start with the safety and connection procedure below.</p></div><button id="next-action-button" type="button" class="primary">Start setup</button></div>
-<nav id="setup-steps" aria-label="Recording setup steps">
-<button type="button" data-setup-step="prepare" aria-current="step"><b>1</b> Prepare</button>
-<button type="button" data-setup-step="configure"><b>2</b> Configure</button>
-<button type="button" data-setup-step="check"><b>3</b> Check connections</button>
-<button type="button" data-setup-step="collect"><b>4</b> Record</button></nav>
-<div id="setup-prepare" class="setup-page">
-<div class="guide-columns"><article><h3>Before you connect</h3><ol class="procedure-list">
-<li><strong>Make the rig safe.</strong> Secure the arm, clear the workspace and keep the e-stop within reach. Follow the approved power and controlled-stop procedure. Never remove torque from an unsupported arm.</li>
-<li><strong>Keep working teleoperation unchanged.</strong> The leader drives the follower through the sync cable. The PC reads follower state. Only one process may own the follower USB connection.</li>
-<li><strong>Use a verified read-only state source.</strong> Writes must be disabled and startup torque unchanged. The console does not start or reconfigure that source.</li>
-<li><strong>Assign the two camera roles.</strong> C10 on the wrist; fixed webcam overhead/front. Close preview apps. A listed USB device is not proof of a working stream.</li>
-</ol><button type="button" data-guide-help="source">State-source setup procedure</button> <button type="button" data-guide-doc="safety">Safety record</button></article>
-<article><h3>What this console does</h3><p>Prepare recording libraries → check read-only inputs → record and label → review both views.</p><p>It never moves the arm, starts a driver, changes torque, launches a bridge or arms a policy.</p><h3>Know the three outcomes</h3><p><strong>Connection check:</strong> temporary source check, no episode.</p><p><strong>Disposable smoke:</strong> one 20-second practice capture, never counted.</p><p><strong>Qualifying collection:</strong> operator-timed task, identity and verified limits required. The console cannot set or waive them.</p><button type="button" data-guide-doc="runbook">Read the full operator procedure</button></article></div>
-<article id="environment-context"><h3>This console’s environment</h3><p id="environment-facts">Loading local environment details…</p><p>Compare the ROS domain and middleware with the existing state-source terminal. Loading libraries does not start that source.</p></article>
-<article id="task-timing-entry"><h3>Task timing controls are not in this console</h3><p>Qualifying recording stays blocked until each real task has an operator-timed minimum and maximum registered in the repository. You can check which tasks are registered and open the exact procedure from the next setup step.</p><div class="actions"><button type="button" data-go-step="configure" class="primary">Open task timing status</button><button type="button" data-guide-help="timing">How to time and register a task</button></div></article>
-<button type="button" data-go-step="configure" class="primary">Continue to configuration →</button></div>
+<section id="new" class="screen wizard" hidden><h2 id="new-title" class="screen-title" tabindex="-1">New session</h2>
+<ol id="wizard-steps" class="stepper" aria-label="Steps">
+<li data-step="task" data-state="current"><button type="button" data-wizard-step="task" aria-current="step"><b>1</b><span>Choose task</span></button></li>
+<li data-step="check" data-state="upcoming"><button type="button" data-wizard-step="check" disabled><b>2</b><span>Check setup</span></button></li>
+<li data-step="start" data-state="upcoming"><button type="button" data-wizard-step="start" disabled><b>3</b><span>Start</span></button></li></ol>
 <p id="mode-help"></p>
-<article><h3>Suggested setup</h3><p id="setup-facts">Loading available host and connection information…</p>
-<p id="setup-guidance">Review suggested values before use. Physical safety confirmations are never filled automatically.</p>
-<label>Recommended values<select id="use-recommended" aria-label="Apply recommended recording values"><option value="">Choose an action</option><option value="apply">Apply follower-only recommended candidates</option><option value="keep">Keep current values</option></select></label>
-<small>The preset fills only known candidates: next-state actions, /joint_states, 15 FPS, 224 × 224 images, one-step lookahead, a 10-second first-sample wait and a 100-episode target. Confirm 15 FPS is no higher than the measured state rate. Gripper, running state source, camera roles, serial, power state, task timing and limit verification are never guessed.</small></article>
-<p id="setup-intro">Synria / Alicia-D setup: leader-to-follower hardware sync, C10 wrist camera and a fixed USB front camera.
-Presets come from the D1 runbook; they are not hardware measurements. Choose the installed gripper,
-running state source and actual camera IDs. Custom values retain all recorder checks.</p>
-<form id="new-form"><div id="setup-configure" class="setup-page" hidden><div class="form-grid">
-<label>Session name<input name="name" required maxlength="120"></label>
-<label>Task<select name="task_id" id="task" required></select></label>
+<form id="new-form">
+<div id="step-task" class="wizard-page"><h3 id="step-task-title" class="step-title" tabindex="-1">Choose task</h3><p class="purpose">Every take in this session is labelled with this task.</p>
+<div id="task-cards" class="cards task-cards" role="radiogroup" aria-label="Task"></div>
+<select name="task_id" id="task" required class="visually-hidden" aria-hidden="true" tabindex="-1"></select>
+<article id="task-description"></article>
+<details id="task-timing-entry"><summary>Task timing controls are not in this console</summary><p>Qualifying recording stays blocked until each real task has an operator-timed minimum and maximum registered in the repository.</p>
 <fieldset class="wide" id="task-window-registration"><legend>Task timing registration · read only</legend><div id="task-window-list"></div>
 <ol><li>Choose a skill and time the real task using the approved physical procedure.</li><li>Record the observed timing, chosen minimum and maximum, rationale, operator and date in <code>docs/ludo_flagship/DECISIONS.md</code>.</li><li>Register the reviewed window in <code>config/synria_tasks.json</code>. The console does not edit this registry.</li><li>Reopen the console and confirm the task shows “registered”; unset windows continue to block qualifying sessions.</li></ol>
 <small>There are no timing inputs here by design. Do not use suggested presets, synthetic runs or the disposable smoke duration as a real task window.</small><br><button type="button" data-guide-help="timing">Open the full timing procedure</button></fieldset>
@@ -75,7 +63,18 @@ running state source and actual camera IDs. Custom values retain all recorder ch
 <li><strong>cup_return:</strong> return the cup upright to its marked home and retract.</li>
 <li><strong>Bounded table toss:</strong> a later, low-energy release into a contained landing tray—not an unrestricted throw. Require a reviewed safe release envelope and tray containment before enabling it.</li></ul>
 <h4>Board-play extensions · deferred</h4><p>After the roll skills are validated, plan token pickup, one-square placement, complete token moves, and capture/return-to-start as separate tasks. These need their own goal protocol and must not enter the current roll datasets.</p>
-<p>For each future task, preregister one observable success rule, task-specific minimum and maximum duration, fixed scene, allowed variation, camera evidence, failure labels, and recovery/discard criteria. Vary one scene factor at a time. Keep attempts with quality-valid task failures; exclude only capture or scene faults under the D1 protocol.</p></article>
+<p>For each future task, preregister one observable success rule, task-specific minimum and maximum duration, fixed scene, allowed variation, camera evidence, failure labels, and recovery/discard criteria. Vary one scene factor at a time. Keep attempts with quality-valid task failures; exclude only capture or scene faults under the D1 protocol.</p></article></details></div>
+<div id="step-check" class="wizard-page" hidden><h3 id="step-check-title" class="step-title" tabindex="-1">Check setup</h3><p class="purpose">The console looks at the cameras and the arm feed, records nothing and never moves the arm.</p>
+<article id="saved-setup"><h3>Saved setup</h3><dl id="setup-summary" class="summary-list"></dl><p id="setup-missing" class="route-note" hidden></p><button type="button" id="change-setup" aria-expanded="false" aria-controls="setup-configure">Change setup</button></article>
+<div id="setup-configure" hidden><article><h3>Suggested setup</h3><p id="setup-facts">Loading available host and connection information…</p>
+<p id="setup-guidance">Review suggested values before use. Physical safety confirmations are never filled automatically.</p>
+<label>Recommended values<select id="use-recommended" aria-label="Apply recommended recording values"><option value="">Choose an action</option><option value="apply">Apply follower-only recommended candidates</option><option value="keep">Keep current values</option></select></label>
+<small>The preset fills only known candidates: next-state actions, /joint_states, 15 FPS, 224 × 224 images, one-step lookahead, a 10-second first-sample wait and a 100-episode target. Confirm 15 FPS is no higher than the measured state rate. Gripper, running state source, camera roles, serial, power state, task timing and limit verification are never guessed.</small></article>
+<p id="setup-intro">Synria / Alicia-D setup: leader-to-follower hardware sync, C10 wrist camera and a fixed USB front camera.
+Presets come from the D1 runbook; they are not hardware measurements. Choose the installed gripper,
+running state source and actual camera IDs. Custom values retain all recorder checks.</p>
+<div class="form-grid">
+<label>Session name<input name="name" required maxlength="120"></label>
 <label>Gripper<select name="gripper_type" required><option value="">Choose installed gripper</option><option value="50mm">50 mm · driver stroke 0.025 m</option><option value="100mm">100 mm · driver stroke 0.05 m</option></select></label>
 <label>State source<select name="state_source" id="source"><option value="">Choose verified running source</option><option value="standalone_driver">Standalone driver · requires writes disabled, torque unchanged</option><option value="ros2_control">ros2_control · requires a verified read-only setup</option></select></label>
 <label>Follower topic<input name="follower_topic" value="/joint_states" list="follower-topics" data-presets aria-label="Follower topic"></label>
@@ -111,17 +110,13 @@ running state source and actual camera IDs. Custom values retain all recorder ch
 <datalist id="image-presets"><option value="224">224 pixels · dataset default</option></datalist>
 <datalist id="startup-presets"><option value="10">10 seconds · first-sample default only</option></datalist>
 <datalist id="target-presets"><option value="10">10 episodes · protocol shakedown target</option><option value="50">50 episodes · collection target</option><option value="100">100 episodes · D1 count target, not qualification</option></datalist>
+
 <p>Requested FPS must not exceed the measured incoming state rate. Stored images default to 224 × 224;
 the final front-camera still stays at native resolution. Gripper strokes are unverified interface candidates;
 zero is open. The 10-second startup wait does not relax steady-state freshness. Episode targets are goals,
 not qualifying counts. Task windows remain operator decisions outside this form.</p>
-<article id="task-description"></article>
-<button type="button" data-go-step="check" class="primary">Continue to connection checks →</button></div>
-<div id="setup-collect" class="setup-page" hidden><article><h3>Choose your recording path</h3><p id="collection-requirements">Complete configuration and inspect the connection results first. Actual session preflight always runs again.</p><p>Smoke starts capture immediately after shared preflight. It is temporary and never qualifies. A named session is created first; opening it starts its sources, not an episode.</p></article>
-<button id="create" class="primary" type="submit">Create session</button>
-<button id="smoke" type="button">Start disposable 20-second smoke…</button>
-<article><h3>Once your sources are open</h3><ol><li>Review both live views and follower state. Verify framing manually.</li><li>Start → demonstrate the selected skill → Stop within the task window.</li><li>Success or Failure labels and saves. A real task failure is retained.</li><li>If saving fails, keep the process open and Retry save. Discard only for an unusable capture, with a reason.</li><li>Review the episode frame by frame before scaling. Close sources only after resolving pending frames.</li></ol><button type="button" data-guide-help="save">Recording and recovery help</button></article></div></form>
-<article id="readiness-panel" class="setup-page" hidden aria-labelledby="readiness-title"><h3 id="readiness-title">Check connections</h3>
+<button type="button" id="done-setup">Done, back to the check</button></div>
+<article id="readiness-panel" aria-labelledby="readiness-title"><h3 id="readiness-title">Cameras and arm feed</h3>
 <div id="software-panel" data-level="launching" aria-label="Console software environment">
 <strong>Software environment · <span id="software-label" role="status">Launching</span></strong>
 <p id="software-message">Checking recording libraries only; hardware services are never started here.</p>
@@ -139,13 +134,20 @@ uses a disposable dataset to exercise shared preflight, then closes everything. 
 <label class="check"><input type="checkbox" data-readiness-confirm="leader_link">I verified the leader/follower sync cable and existing teleoperation procedure; this button does not test motion.</label>
 <label class="check"><input type="checkbox" data-readiness-confirm="camera_roles">I identified two distinct cameras and mapped wrist/front roles; framing still needs live review.</label>
 <label class="check"><input type="checkbox" data-readiness-confirm="procedure">Runbook safety preflight accepted; power state and installed gripper checked.</label></div>
-<button id="check-readiness" type="button" class="primary">Run read-only checks</button>
 <p>Checks close their sources afterward. They do not start external robot services. Cameras are not opened until follower state and command guards pass.</p>
 <div id="connection-paths" class="connection-grid" aria-label="Individual connection paths"></div>
 <div id="recording-blockers" class="guide-blockers"></div>
 <p id="readiness-scope">No check has run. The leader without USB cannot be detected by software. A green result is a short-lived snapshot, not permission to move the arm.</p>
 <details id="all-check-details"><summary>All checks and technical evidence</summary><ul id="readiness-results"></ul></details>
-<button type="button" data-go-step="collect">Review recording requirements →</button></article></section>
+<button id="check-readiness" type="button">Run the setup check again</button></article></div>
+<div id="step-start" class="wizard-page" hidden><h3 id="step-start-title" class="step-title" tabindex="-1">Start</h3><p class="purpose">Starting opens the cameras and arm feed for this session. Recording a take is a separate press on the next screen.</p>
+<dl id="start-summary" class="summary-list"></dl>
+<div id="start-check" class="start-check" hidden><strong id="start-check-title"></strong><p id="start-check-message"></p></div>
+<p id="collection-requirements"></p>
+<button id="create" type="submit" class="visually-hidden" tabindex="-1" aria-hidden="true">Start session</button>
+<button id="smoke" type="button">Do a practice run instead</button>
+<p class="small-print">A practice run opens the same cameras and arm feed, records one 20 second take and throws it away afterwards. It never counts.</p></div></form>
+<div id="wizard-footer" class="wizard-footer"><button type="button" id="wizard-back">Back</button><p id="wizard-reason" role="status"></p><button type="button" id="wizard-primary" class="primary">Continue</button></div></section>
 <section id="record" class="screen" hidden><div class="section-head"><h2 id="record-title" class="screen-title" tabindex="-1">No session open</h2><button id="close-session">Close sources</button></div>
 <p id="record-route-note" class="route-note" hidden></p>
 <div id="record-banner" class="record-banner" role="status" aria-live="polite" data-phase="no-session"><div class="banner-main"><span class="eyebrow" id="record-phase">NO SESSION</span><p id="record-message">Open a named session, or run a disposable smoke, to begin.</p></div><div id="record-countdown" class="record-countdown" hidden><b id="record-countdown-value">0</b><small>s left</small></div><button id="record-banner-action" type="button" class="primary" hidden></button></div>
