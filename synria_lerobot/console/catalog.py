@@ -95,10 +95,40 @@ class Catalog:
     def _migrate(self) -> None:
         """Create version one without guessing how to downgrade a newer database."""
         version = self.connection.execute("PRAGMA user_version").fetchone()[0]
-        if version > 1:
+        if version > 2:
             raise ValueError("console catalog schema is newer than this application")
-        if version == 1:
-            return
+        if version < 1:
+            self._create_version_one()
+        if version < 2:
+            self._upgrade_to_version_two()
+
+    def _upgrade_to_version_two(self) -> None:
+        """Add the operator's task library and the session binding to it; old rows stay valid."""
+        present = {row[1] for row in self.connection.execute("PRAGMA table_info(sessions)")}
+        for name, kind in (
+            ("task_source", "TEXT NOT NULL DEFAULT 'registry'"), ("task_snapshot_path", "TEXT"),
+            ("goal_id", "TEXT"), ("library_version", "INTEGER"), ("chain_position", "INTEGER"),
+        ):
+            if name not in present:
+                self.connection.execute(f"ALTER TABLE sessions ADD COLUMN {name} {kind}")
+        self.connection.executescript("""
+            CREATE TABLE IF NOT EXISTS goals (
+                id TEXT PRIMARY KEY, title TEXT NOT NULL, sentence TEXT NOT NULL,
+                rationale TEXT NOT NULL DEFAULT '', planner_source TEXT NOT NULL,
+                created_utc TEXT NOT NULL, updated_utc TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS library_tasks (
+                task_id TEXT NOT NULL, version INTEGER NOT NULL,
+                goal TEXT NOT NULL REFERENCES goals(id), chain_position INTEGER NOT NULL,
+                frozen INTEGER NOT NULL DEFAULT 0, payload_json TEXT NOT NULL,
+                created_utc TEXT NOT NULL, PRIMARY KEY(task_id, version)
+            );
+            PRAGMA user_version=2;
+        """)
+        self.connection.commit()
+
+    def _create_version_one(self) -> None:
+        """Create the original schema."""
         self.connection.executescript("""
             CREATE TABLE sessions (
                 id TEXT PRIMARY KEY, name TEXT NOT NULL UNIQUE, slug TEXT NOT NULL UNIQUE,
@@ -139,6 +169,169 @@ class Catalog:
             PRAGMA user_version=1;
         """)
         self.connection.commit()
+
+    # Task library: goals broken into sub-tasks, each an immutable version once takes exist.
+
+    def goals(self) -> list[dict[str, Any]]:
+        """Every goal with the latest version of each of its sub-tasks, in chain order."""
+        with self._lock:
+            rows = [self._decode(row) for row in self.connection.execute(
+                "SELECT * FROM goals ORDER BY created_utc"
+            )]
+            return [{**row, "tasks": self._latest_tasks(row["id"])} for row in rows]
+
+    def _latest_tasks(self, goal_id: str) -> list[dict[str, Any]]:
+        """Latest version of each sub-task of a goal, with its payload opened."""
+        rows = self.connection.execute(
+            "SELECT * FROM library_tasks WHERE goal=? AND version=("
+            "SELECT MAX(version) FROM library_tasks AS latest "
+            "WHERE latest.task_id=library_tasks.task_id) ORDER BY chain_position", (goal_id,),
+        ).fetchall()
+        return [self._library_row(row) for row in rows]
+
+    def _library_row(self, row: sqlite3.Row) -> dict[str, Any]:
+        """Open one library task row into the shape screens and snapshots use."""
+        value = self._decode(row)
+        payload = value.pop("payload")
+        value.pop("payload_json", None)
+        value["frozen"] = bool(value["frozen"])
+        return {**payload, **value}
+
+    def library_task(self, task_id: str, version: int | None = None) -> dict[str, Any]:
+        """One sub-task version, or its latest version."""
+        with self._lock:
+            if version is None:
+                row = self.connection.execute(
+                    "SELECT * FROM library_tasks WHERE task_id=? ORDER BY version DESC LIMIT 1",
+                    (task_id,),
+                ).fetchone()
+            else:
+                row = self.connection.execute(
+                    "SELECT * FROM library_tasks WHERE task_id=? AND version=?", (task_id, version),
+                ).fetchone()
+            if row is None:
+                raise KeyError("unknown library task")
+            return self._library_row(row)
+
+    def save_goal(self, goal: dict[str, Any], sub_tasks: list[dict[str, Any]],
+                  *, planner_source: str) -> dict[str, Any]:
+        """Save a goal and its sub-tasks; a frozen version is never edited, a new one is written.
+
+        Each sub-task payload carries the card fields (name, instruction, states, success
+        rule, scene, kind, chain facts, suggested takes) and the take window, which is null
+        until the operator confirms timing. The caller validates the shape first.
+        """
+        with self._lock:
+            goal_id = str(goal["id"])
+            now = utc_now()
+            with self.connection:
+                existing = self.connection.execute(
+                    "SELECT id FROM goals WHERE id=?", (goal_id,)
+                ).fetchone()
+                if existing is None:
+                    self.connection.execute(
+                        "INSERT INTO goals(id,title,sentence,rationale,planner_source,created_utc,"
+                        "updated_utc) VALUES (?,?,?,?,?,?,?)",
+                        (goal_id, goal["title"], goal["sentence"], goal.get("rationale", ""),
+                         planner_source, now, now),
+                    )
+                else:
+                    self.connection.execute(
+                        "UPDATE goals SET title=?,sentence=?,rationale=?,planner_source=?,"
+                        "updated_utc=? WHERE id=?",
+                        (goal["title"], goal["sentence"], goal.get("rationale", ""),
+                         planner_source, now, goal_id),
+                    )
+                saved = []
+                for position, payload in enumerate(sub_tasks, start=1):
+                    task_id = str(payload["task_id"])
+                    body = {key: value for key, value in payload.items()
+                            if key not in {"task_id", "version", "frozen", "goal", "chain_position",
+                                           "created_utc"}}
+                    latest = self.connection.execute(
+                        "SELECT * FROM library_tasks WHERE task_id=? ORDER BY version DESC LIMIT 1",
+                        (task_id,),
+                    ).fetchone()
+                    if latest is not None and json.loads(latest["payload_json"]) == body and (
+                        latest["chain_position"] == position
+                    ):
+                        version = latest["version"]
+                    elif latest is not None and not latest["frozen"]:
+                        version = latest["version"]
+                        self.connection.execute(
+                            "UPDATE library_tasks SET payload_json=?,chain_position=? "
+                            "WHERE task_id=? AND version=?",
+                            (_json(body), position, task_id, version),
+                        )
+                        self._event(None, "library_task_edited",
+                                    {"task_id": task_id, "version": version})
+                    else:
+                        version = 1 if latest is None else latest["version"] + 1
+                        self.connection.execute(
+                            "INSERT INTO library_tasks(task_id,version,goal,chain_position,frozen,"
+                            "payload_json,created_utc) VALUES (?,?,?,?,0,?,?)",
+                            (task_id, version, goal_id, position, _json(body), now),
+                        )
+                        self._event(None, "library_task_version_created",
+                                    {"task_id": task_id, "version": version,
+                                     "goal": goal_id, "chain_position": position})
+                    saved.append((task_id, version))
+                self._event(None, "goal_saved", {"goal": goal_id, "planner_source": planner_source,
+                                                 "tasks": [f"{t}@{v}" for t, v in saved]})
+            return self.goal(goal_id)
+
+    def goal(self, goal_id: str) -> dict[str, Any]:
+        """One goal with the latest version of each sub-task."""
+        with self._lock:
+            row = self.connection.execute("SELECT * FROM goals WHERE id=?", (goal_id,)).fetchone()
+            if row is None:
+                raise KeyError("unknown goal")
+            return {**self._decode(row), "tasks": self._latest_tasks(goal_id)}
+
+    def freeze_library_task(self, task_id: str, version: int) -> dict[str, Any]:
+        """Freeze a version once a session binds to it; later edits create the next version."""
+        with self._lock, self.connection:
+            cursor = self.connection.execute(
+                "UPDATE library_tasks SET frozen=1 WHERE task_id=? AND version=? AND frozen=0",
+                (task_id, version),
+            )
+            if cursor.rowcount:
+                self._event(None, "library_task_frozen", {"task_id": task_id, "version": version})
+            return self.library_task(task_id, version)
+
+    def set_library_window(self, task_id: str, min_episode_s: float, max_episode_s: float,
+                           *, runs: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+        """Store an operator-confirmed take window; a frozen version gets a new version."""
+        from synria_lerobot.task_registry import episode_window_metadata
+
+        window = episode_window_metadata(min_episode_s, max_episode_s)
+        with self._lock:
+            latest = self.library_task(task_id)
+            payload = {key: value for key, value in latest.items()
+                       if key not in {"task_id", "version", "frozen", "goal", "chain_position",
+                                      "created_utc"}}
+            payload["episode_window"] = window
+            payload["timing_runs"] = list(runs or [])
+            goal_id = latest["goal"]
+            now = utc_now()
+            with self.connection:
+                if latest["frozen"]:
+                    version = latest["version"] + 1
+                    self.connection.execute(
+                        "INSERT INTO library_tasks(task_id,version,goal,chain_position,frozen,"
+                        "payload_json,created_utc) VALUES (?,?,?,?,0,?,?)",
+                        (task_id, version, goal_id, latest["chain_position"], _json(payload), now),
+                    )
+                else:
+                    version = latest["version"]
+                    self.connection.execute(
+                        "UPDATE library_tasks SET payload_json=? WHERE task_id=? AND version=?",
+                        (_json(payload), task_id, version),
+                    )
+                self._event(None, "library_task_timed",
+                            {"task_id": task_id, "version": version, **window,
+                             "runs": len(payload["timing_runs"])})
+            return self.library_task(task_id, version)
 
     def close(self) -> None:
         """Flush catalog work without modifying recorder-owned files or locks."""
@@ -340,6 +533,13 @@ class Catalog:
                     "host",
                 )
             }
+            row["task_source"] = str(values.get("task_source", "registry"))
+            if row["task_source"] not in {"registry", "library"}:
+                raise ValueError("task source must be registry or library")
+            row["task_snapshot_path"] = values.get("task_snapshot_path")
+            row["goal_id"] = values.get("goal_id")
+            row["library_version"] = values.get("library_version")
+            row["chain_position"] = values.get("chain_position")
             target = values.get("target_episodes", 0)
             if type(target) is not int or target < 0:
                 raise ValueError("target episodes must be a non-negative integer")

@@ -61,7 +61,7 @@ def test_catalog_schema_backup_and_immutable_events(tmp_path: Path) -> None:
     catalog = Catalog(workspace)
     session = create(catalog)
     assert not Path(session["dataset_path"]).exists()
-    assert catalog.connection.execute("PRAGMA user_version").fetchone()[0] == 1
+    assert catalog.connection.execute("PRAGMA user_version").fetchone()[0] == 2
     assert catalog.connection.execute("PRAGMA foreign_keys").fetchone()[0] == 1
     assert catalog.connection.execute("PRAGMA journal_mode").fetchone()[0] == "wal"
     for statement in ("UPDATE events SET kind='changed'", "DELETE FROM events"):
