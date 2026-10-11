@@ -20,7 +20,7 @@ import webbrowser
 from collections.abc import Callable
 from contextlib import AbstractContextManager
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO
 
 from synria_lerobot.console.catalog import Catalog
 from synria_lerobot.console.controller import RecordingController
@@ -791,6 +791,17 @@ class ConsoleService:
             raise cleanup_error
 
 
+def announce_url(url: str, *, demo: bool, stream: TextIO | None = None) -> None:
+    """Print the launch URL and flush it so a redirected log shows the token immediately.
+
+    A background launch with stdout sent to a file otherwise keeps the only copy of
+    the per-launch token in a block buffer until the process exits.
+    """
+    output = sys.stdout if stream is None else stream
+    print(f"Synria Teleop Console {'SYNTHETIC DEMO' if demo else 'read-only'}: {url}",
+          file=output, flush=True)
+
+
 def main(argv: list[str] | None = None) -> int:
     """Launch the packaged console, opening the browser with its secret only in the URL fragment."""
     parser = argparse.ArgumentParser(description="Read-only Synria Teleop Console")
@@ -811,7 +822,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.host not in {"127.0.0.1", "localhost"}:
         if not args.allow_remote:
             parser.error("non-loopback bind requires --allow-remote")
-        print("WARNING: remote HTTP exposes private recordings; use a trusted isolated network.")
+        print("WARNING: remote HTTP exposes private recordings; use a trusted isolated network.",
+              flush=True)
     service = ConsoleService(args.workspace, demo=args.demo, min_free_bytes=args.min_free_bytes)
     if args.reindex:
         try:
@@ -840,7 +852,7 @@ def main(argv: list[str] | None = None) -> int:
         for sig in (signal.SIGINT, signal.SIGTERM):
             previous[sig] = signal.signal(sig, request_shutdown)
         url = f"http://{args.host}:{server.server_address[1]}/#token={token}"
-        print(f"Synria Teleop Console {'SYNTHETIC DEMO' if args.demo else 'read-only'}: {url}")
+        announce_url(url, demo=args.demo)
         if not args.no_browser:
             webbrowser.open(url)
         while not service.quit_requested.is_set():
