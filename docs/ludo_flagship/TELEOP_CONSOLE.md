@@ -180,9 +180,19 @@ e-stop function and camera framing cannot be certified by software. Frozen
 video and full episode quality still require their existing recording gates.
 No live physical check was run during development. **Implemented, unmeasured.**
 
-Record shows both latest camera views, source age/resolution, follower state,
-preflight results, elapsed time and the hard cap. Space starts/stops; S/F label
-a stopped episode. Optional countdown and audio cues support hands-busy use.
+Record shows one plain-language banner that always states the current phase and
+the single next action: ready, recording with a large seconds-left countdown,
+stopped with the save choice, saving, saved with the quality checks worded
+(for example "8 of 9 passed, failed: joint limits"), or practice run finished
+with a Close sources button. A hard-cap stop is named in the banner. Buttons
+say what they do (Start recording, Stop, Save as success, Save as failure,
+Retry save, Discard), the available ones are large and high contrast, and
+disabled ones carry a tooltip saying why. Counters read as words with the
+target or practice note. Camera captions show age and native size; the full
+source record sits behind a Source details toggle. Both latest camera views,
+follower state and preflight results remain visible. Space starts/stops; S/F
+label a stopped episode, which is what saves it. Optional countdown and audio
+cues support hands-busy use. No recorder transition, guard or shortcut changed.
 Retry keeps failed-save frames; Discard needs confirmation and a reason. Tab
 closure does not stop capture; the server enforces the cap. Page Quit refuses
 pending frames. Process signals close sources and audit any lost pending frames.

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Synria Teleop Console</title><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/readiness.css"><link rel="stylesheet" href="/operator-guide.css"><script src="/form-presets.js" defer></script><script src="/app.js" defer></script><script src="/readiness.js" defer></script><script src="/serial-identity.js" defer></script><script src="/operator-guide.js" defer></script></head>
+<title>Synria Teleop Console</title><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/readiness.css"><link rel="stylesheet" href="/operator-guide.css"><script src="/form-presets.js" defer></script><script src="/record-banner.js" defer></script><script src="/app.js" defer></script><script src="/readiness.js" defer></script><script src="/serial-identity.js" defer></script><script src="/operator-guide.js" defer></script></head>
 <body><header><div><span class="eyebrow">READ-ONLY COLLECTION</span><h1>Synria Teleop Console</h1></div>
 <span id="mode" class="badge">Connecting</span><button id="quit">Quit console</button></header>
 <div id="notice" role="alert"></div><nav aria-label="Console screens">
@@ -129,18 +129,19 @@ uses a disposable dataset to exercise shared preflight, then closes everything. 
 <details id="all-check-details"><summary>All checks and technical evidence</summary><ul id="readiness-results"></ul></details>
 <button type="button" data-go-step="collect">Review recording requirements →</button></article></section>
 <section id="record" class="screen" hidden><div class="section-head"><h2 id="record-title">No session open</h2><button id="close-session">Close sources</button></div>
-<p id="capture-header">Open a session to start.</p><div id="counters" class="metrics"></div>
-<div class="cameras"><figure><figcaption>Wrist <span id="wrist-health"></span></figcaption><img id="wrist-preview" alt="Latest wrist camera frame"></figure>
-<figure><figcaption>Overhead / front (fixed) <span id="front-health"></span></figcaption><img id="front-preview" alt="Latest fixed camera frame"></figure></div>
-<div class="controls"><button data-command="start" class="primary">Start · Space</button><button data-command="stop">Stop · Space</button>
-<button data-command="success" class="success">Success · S</button><button data-command="failure">Failure · F</button>
+<div id="record-banner" class="record-banner" role="status" aria-live="polite" data-phase="no-session"><div class="banner-main"><span class="eyebrow" id="record-phase">NO SESSION</span><p id="record-message">Open a named session, or run a disposable smoke, to begin.</p></div><div id="record-countdown" class="record-countdown" hidden><b id="record-countdown-value">0</b><small>s left</small></div><button id="record-banner-action" type="button" class="primary" hidden></button></div>
+<p id="counters" class="counters"></p><p id="capture-header" class="capture-detail"></p>
+<div class="cameras"><figure><figcaption>Wrist <span id="wrist-health" class="source-brief"></span></figcaption><img id="wrist-preview" alt="Latest wrist camera frame"><details class="source-details"><summary>Source details</summary><pre id="wrist-source"></pre></details></figure>
+<figure><figcaption>Overhead / front (fixed) <span id="front-health" class="source-brief"></span></figcaption><img id="front-preview" alt="Latest fixed camera frame"><details class="source-details"><summary>Source details</summary><pre id="front-source"></pre></details></figure></div>
+<div class="controls" id="record-controls"><button data-command="start" class="primary">Start recording · Space</button><button data-command="stop" class="primary">Stop · Space</button>
+<button data-command="success" class="success">Save as success · S</button><button data-command="failure" class="success">Save as failure · F</button>
 <button data-command="retry">Retry save</button><button id="discard" class="danger">Discard…</button>
 <label>Start countdown <input id="countdown" type="number" min="0" max="30" value="0"></label>
 <button data-command="cancel_countdown">Cancel countdown</button><label class="check"><input id="audio" type="checkbox">Audio cues</label></div>
-<p>Save task failures with the failure label. Discard is only for a capture or setup fault. Pending frames exist only in memory.</p>
+<p>Save as success or Save as failure is what saves the episode. Save real task failures with the failure label. Discard is only for a capture or setup fault. Pending frames exist only in memory.</p>
 <div class="split"><article><h3>Follower state · read only</h3><div id="joint-values"></div><canvas id="live-trace" width="650" height="160"></canvas></article>
 <article><h3>Preflight · cannot be bypassed</h3><pre id="preflight"></pre></article></div>
-<article id="last-save"><h3>Last saved episode</h3><pre id="save-result"></pre><button id="review-latest">Review episode</button></article></section>
+<article id="last-save"><h3>Last saved episode</h3><p id="save-result"></p><details><summary>Technical details</summary><pre id="save-details"></pre></details><button id="review-latest">Review episode</button></article></section>
 <section id="review" class="screen" hidden><div class="section-head"><h2>Frame-exact review</h2><select id="review-session" aria-label="Session to review"></select></div>
 <p>Playback reviews recorded data on screen. It never moves the robot.</p><div class="table-scroll"><table><thead><tr><th>Episode</th><th>Label</th><th>Seconds</th><th>Frames</th><th>Rate</th><th>Gates</th><th>Excluded</th><th>Note / actions</th></tr></thead><tbody id="episodes"></tbody></table></div>
 <article id="player" hidden><h3 id="player-title"></h3><div class="cameras"><figure><figcaption>Wrist</figcaption><img id="play-wrist" alt="Recorded wrist frame"></figure><figure><figcaption>Overhead / front (fixed)</figcaption><img id="play-front" alt="Recorded front frame"></figure></div>

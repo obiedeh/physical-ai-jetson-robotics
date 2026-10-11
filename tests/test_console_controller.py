@@ -90,6 +90,24 @@ def test_hard_cap_runs_without_any_browser_or_command(tmp_path: Path) -> None:
     assert state["state"] == "stopped" and state["elapsed_s"] == 30
     assert state["pending_frame_count"] == 1
     assert ("episode stopped", {"reason": "hard cap", "episode_index": 0}) in events
+    assert state["stop_reason"] == "hard cap"
+    controller.shutdown("test finished", force=True)
+
+
+def test_stop_reason_names_operator_stop_and_clears_on_start(tmp_path: Path) -> None:
+    """The snapshot says why capture stopped so the page can word it, without new transitions."""
+    controller, clock, _, _ = setup_controller(tmp_path)
+    assert controller.snapshot()["stop_reason"] is None
+    controller.command("start")
+    controller.tick()
+    clock.now = 1
+    controller.tick()
+    controller.command("stop")
+    stopped = controller.snapshot()
+    assert stopped["stop_reason"] == "operator" and stopped["smoke_complete"] is False
+    controller.command("discard", reason="test")
+    controller.command("start")
+    assert controller.snapshot()["stop_reason"] is None
     controller.shutdown("test finished", force=True)
 
 

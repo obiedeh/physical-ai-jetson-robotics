@@ -6,6 +6,7 @@ if (fragment.has("token")) sessionStorage.setItem("console-token", fragment.get(
 history.replaceState(null, "", location.pathname);
 let state = {}, sessions = [], tasks = [], selected = null, frame = 0, playing = false;
 let rows = [], live = [], playGeneration = 0, frameGeneration = 0, lastCapture = "", lastCue = "", audioContext;
+let recordView = {reasons:{}, counters:"", lastSave:""};
 const token = sessionStorage.getItem("console-token") || "";
 /** Send same-origin JSON requests through the existing authenticated API boundary. */
 async function api(path, payload) {
@@ -118,27 +119,41 @@ function renderTaskWindows() {
   }
 }
 /** Render server-owned capture status without starting or advancing acquisition. */
+/** Show one plain-language state banner with the single next action; never a recorder change. */
+function renderRecordBanner(c, active) {
+  recordView=window.SynriaRecord.describe(c, active);
+  $("record-phase").textContent=recordView.phase.toUpperCase();$("record-message").textContent=recordView.message;
+  $("record-banner").dataset.phase=recordView.phase.toLowerCase().replace(/[^a-z]+/g,"-");
+  $("record-countdown").hidden=recordView.countdownS===null;
+  if(recordView.countdownS!==null)$("record-countdown-value").textContent=recordView.countdownS.toFixed(0);
+  const action=$("record-banner-action");action.hidden=!recordView.action;
+  if(recordView.action){action.textContent=recordView.action.label;action.dataset.action=recordView.action.command;}
+}
 async function refreshState() {
   state=await api("state"); const c=state.capture, active=state.active_session;
   document.body.classList.toggle("demo",state.demo);$("mode").className=`badge ${state.demo?"demo":""}`;
   $("mode").textContent=state.demo?"SYNTHETIC DEMO · NO ROBOT":"READ ONLY · PHYSICAL SOURCES";
   $("record-title").textContent=active?active.name+demoLabel(active):"No session open";
   const min=c.min_episode_s??0,max=c.max_episode_s??0,elapsed=c.elapsed_s||0;
-  $("capture-header").textContent=active?`Episode ${c.episode_index??"–"} · ${c.state} · ${elapsed.toFixed(1)} s / ${min}–${max} s · cap in ${Math.max(0,max-elapsed).toFixed(1)} s · ${c.pending_frame_count||0} frames${c.countdown_s !== null && c.countdown_s !== undefined ? ` · starts in ${c.countdown_s.toFixed(1)} s` : ""}`:"Open a named session, or run a disposable smoke check.";
+  $("capture-header").textContent=active?`Episode ${c.episode_index??"–"} · ${c.state} · ${elapsed.toFixed(1)} s of ${min}–${max} s · ${c.pending_frame_count||0} frames`:"";
+  renderRecordBanner(c, active);
   $("preflight").textContent=JSON.stringify({...state.preflight,free_disk_bytes:state.free_disk_bytes,required_free_bytes:state.min_free_bytes},null,2);
   if(c.catalog_error||c.error)error(c.catalog_error||c.error);
   const recording=c.state==="recording", stopped=c.state==="stopped", idle=c.state==="idle";
+  const reasons=recordView.reasons;
   document.querySelectorAll("[data-command]").forEach(node=>{
     const cmd=node.dataset.command;
     node.disabled=!active||(cmd === "cancel_countdown" ? c.countdown_s === null || c.countdown_s === undefined : !c.controls?.[cmd]);
+    node.classList.toggle("available",!node.disabled);node.title=node.disabled?(reasons[cmd]||"Not available now"):"";
   });
   $("discard").disabled=!active||!c.controls?.discard;
+  $("discard").classList.toggle("available",!$("discard").disabled);$("discard").title=$("discard").disabled?(reasons.discard||"Not available now"):"";
   $("close-session").disabled=!active;$("last-save").hidden=!c.last_episode;
-  $("save-result").textContent=JSON.stringify(c.last_episode||{},null,2);
-  $("counters").textContent=JSON.stringify(active?.counts||c.counters||{})+(active?` · target ${active.target_episodes||"smoke only"}`:"");
+  $("save-result").textContent=recordView.lastSave;$("save-details").textContent=JSON.stringify(c.last_episode||{},null,2);
+  $("counters").textContent=recordView.counters;
   const follower=c.follower||c.state_source||{}, values=follower.values||follower.positions||c.joint_state;
   if(Array.isArray(values)){live.push({state:values.slice(0,7)});live=live.slice(-100);$("joint-values").textContent=values.slice(0,7).map((v,i)=>`${i===6?"Gripper":"J"+(i+1)}: ${v.toFixed(4)}`).join("  ")+` · incoming ${follower.rate_hz??"synthetic"} Hz · age ${(follower.age_s||0).toFixed(3)} s${follower.stale?" · STALE":""}`;trace($("live-trace"),live);}else if(follower.error){$("joint-values").textContent=follower.error;}
-  for(const camera of ["wrist","front"]){const info=c.cameras?.[camera]||{};$(camera+"-health").textContent=JSON.stringify(info);$(camera+"-preview").closest("figure").classList.toggle("stale",Boolean(info.error)||(info.age_s??0)>0.2);if(active)$(camera+"-preview").src=`/media/preview/${camera}?v=${Date.now()}`;}
+  for(const camera of ["wrist","front"]){const info=c.cameras?.[camera]||{};$(camera+"-health").textContent=window.SynriaRecord.cameraBrief(info);$(camera+"-source").textContent=JSON.stringify(info,null,2);$(camera+"-preview").closest("figure").classList.toggle("stale",Boolean(info.error)||(info.age_s??0)>0.2);if(active)$(camera+"-preview").src=`/media/preview/${camera}?v=${Date.now()}`;}
   const cue=recording?(elapsed>=max-2?"cap":elapsed>=min?"minimum":"start"):c.last_episode?`saved-${c.last_episode.episode_index}`:"";
   if(cue&&cue!==lastCue){tone();lastCue=cue;}lastCapture=c.state;
   window.dispatchEvent(new Event("console-state"));
@@ -206,6 +221,7 @@ $("new-form").onsubmit=event=>{event.preventDefault();safe(async()=>{await api("
 $("smoke").onclick=()=>safe(async()=>{if(!$("new-form").reportValidity())return;await api("smoke",formValues());screen("record");await refreshState();await refreshSessions();});
 $("discard").onclick=()=>safe(async()=>{if(!confirm("Discard all pending unsaved frames? This cannot be undone."))return;const reason=prompt("Capture/setup fault reason (required)","");if(reason){await api("record/discard",{reason});await refreshState();}});
 $("close-session").onclick=()=>safe(async()=>{await api(`session/${state.active_session.id}/close`,{});await refreshState();await refreshSessions();});
+$("record-banner-action").onclick=()=>{if($("record-banner-action").dataset.action==="close")$("close-session").click();};
 $("quit").onclick=()=>safe(async()=>{if(confirm("Close sources and quit the console? Pending captures must be resolved first.")){await api("shutdown",{});error("Console closed. You may close this tab.");}});
 $("reindex").onclick=()=>safe(async()=>{const result=await api("reindex",{});await refreshSessions();error(`Reindex corrections: ${JSON.stringify(result)}`);});
 $("review-latest").onclick=()=>safe(async()=>{await refreshSessions();$("review-session").value=state.active_session.id;screen("review");await loadEpisodes();const ep=state.capture.last_episode;if(ep)await selectEpisode(state.active_session.id,ep);});

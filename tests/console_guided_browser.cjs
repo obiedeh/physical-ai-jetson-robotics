@@ -184,6 +184,9 @@ async function run() {
     state.capture={state:"stopped",pending_frame_count:2,controls:{success:true,failure:true,discard:true}};
     await evaluate("(async()=>{await refreshState();screen('record');SynriaGuide.openHelp('save');})()");
     assert.equal(await evaluate("lastCapture"),"stopped");
+    assert.match(await evaluate("document.querySelector('#record-message').textContent"),/Save it: Save as success \(S\) or Save as failure \(F\)/,"stopped banner names the save action");
+    assert.equal(await evaluate("document.querySelector('[data-command=success]').classList.contains('available')"),true,"available save button is emphasised");
+    assert.match(await evaluate("document.querySelector('[data-command=start]').title"),/Save or discard the stopped episode first/,"disabled start explains why");
     assert.equal(await evaluate("state.capture.controls.success"),true);
     const protectedCount=calls.length;
     await evaluate("document.dispatchEvent(new KeyboardEvent('keydown',{code:'Space',key:' '}));document.dispatchEvent(new KeyboardEvent('keydown',{key:'s'}))");
@@ -199,6 +202,7 @@ async function run() {
     allowSave=true;
     await evaluate("document.querySelector('[data-command=retry]').click()");
     await until("document.querySelector('#notice').textContent==='' && state.capture.pending_frame_count===0");
+    assert.match(await evaluate("document.querySelector('#record-message').textContent"),/^Saved episode 0 as failure\. Quality checks: not evaluated\. Ready\. Press Start recording \(Space\) to record\.$/,"saved banner words the result and the next action");
     assert.equal(calls.filter(call=>call.route==='record/retry').length,2,"only two deliberate save retries occur");
     state.active_session=null;state.capture={state:"closed"};
     const mutations=calls.length;offline=true;
