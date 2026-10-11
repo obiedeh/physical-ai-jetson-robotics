@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from synria_lerobot.quality_gates import GateConfig, PhysicalLimits
+from synria_lerobot.quality_gates import GateConfig, PhysicalLimits, source_timestamp_skew
 from synria_lerobot.recorder import PhysicalEpisodeRecorder
 
 CONFIRMATIONS = {
@@ -145,7 +145,7 @@ def inspect_samples(
 
     config = recorder.config
     gates = GateConfig(config.min_episode_s, config.max_episode_s)
-    times: list[float] = []
+    timestamps: dict[str, float] = {}
     images: list[Any] = []
 
     def fresh(timestamp: float) -> None:
@@ -176,7 +176,7 @@ def inspect_samples(
         fresh(follower.monotonic_timestamp_s)
         header(follower.ros_header_stamp_s, follower.ros_arrival_stamp_s)
         vector((*follower.joint_positions_rad, follower.gripper_m))
-        times.append(follower.monotonic_timestamp_s)
+        timestamps["state_monotonic_s"] = follower.monotonic_timestamp_s
         report.check("follower_sample", True, "Fresh follower state received; not a motion test")
         report.launching("action_sample", "Checking configured action source")
         try:
@@ -185,7 +185,7 @@ def inspect_samples(
                 fresh(action.monotonic_timestamp_s)
                 header(action.ros_header_stamp_s, action.ros_arrival_stamp_s)
                 vector(action.values)
-                times.append(action.monotonic_timestamp_s)
+                timestamps["action_monotonic_s"] = action.monotonic_timestamp_s
             report.check("action_sample", True, "USB leader sample received" if action else
                          "Actions derive from follower state; leader cable is operator-confirmed")
         except Exception as error:
@@ -207,7 +207,7 @@ def inspect_samples(
             if float(pixels.mean()) <= gates.black_mean_threshold:
                 raise ValueError("Camera sample is black; check cover, lighting and exposure")
             images.append(pixels)
-            times.append(frame.monotonic_timestamp_s)
+            timestamps[f"{name}_monotonic_s"] = frame.monotonic_timestamp_s
             report.check(f"{name}_sample", True, "Fresh RGB frame received; framing needs review",
                          native_resolution=frame.native_resolution,
                          stored_resolution=[config.image_width, config.image_height])
@@ -228,25 +228,32 @@ def inspect_samples(
             status="not_checked", waiting_for=missing,
             max_timestamp_skew_s=gates.max_timestamp_skew_s,
         )
-    elif len(times) != len(required_checks):
-        report.check(
-            "source_alignment", False,
-            "Not evaluated: a required source timestamp is unavailable; rerun the "
-            "read-only check after all source samples are fresh.",
-            status="not_checked", expected_sources=len(required_checks),
-            received_timestamps=len(times),
-            max_timestamp_skew_s=gates.max_timestamp_skew_s,
-        )
     else:
-        measured_skew = max(times) - min(times)
-        synchronized = measured_skew <= gates.max_timestamp_skew_s
-        report.check(
-            "source_alignment", synchronized,
-            f"Latest-source skew {measured_skew:.3f} s "
-            f"{'is within' if synchronized else 'exceeds'} the existing "
-            f"{gates.max_timestamp_skew_s:.3f} s gate.",
-            measured_skew_s=measured_skew,
-            max_timestamp_skew_s=gates.max_timestamp_skew_s,
-        )
+        aligned_sources = ["state_monotonic_s", "wrist_monotonic_s", "front_monotonic_s"]
+        if config.contract.action_source.value == "leader":
+            aligned_sources.append("action_monotonic_s")
+        if not all(name in timestamps for name in aligned_sources):
+            report.check(
+                "source_alignment", False,
+                "Not evaluated: a required source timestamp is unavailable; rerun the "
+                "read-only check after all source samples are fresh.",
+                status="not_checked", expected_sources=len(required_checks),
+                received_timestamps=len(timestamps),
+                max_timestamp_skew_s=gates.max_timestamp_skew_s,
+            )
+        else:
+            synchronized, measured_skew = source_timestamp_skew(
+                timestamps, config.contract.action_source.value, gates,
+            )
+            report.check(
+                "source_alignment", synchronized,
+                f"Latest-source skew {measured_skew:.3f} s "
+                f"{'is within' if synchronized else 'exceeds'} the existing "
+                f"{gates.max_timestamp_skew_s:.3f} s gate.",
+                measured_skew_s=measured_skew,
+                max_timestamp_skew_s=gates.max_timestamp_skew_s,
+                source_timestamps_s=timestamps,
+            )
     report.check("distinct_views", len(images) == 2 and not np.array_equal(*images),
                  "Wrist/front samples must differ; operator must still verify their roles")
+

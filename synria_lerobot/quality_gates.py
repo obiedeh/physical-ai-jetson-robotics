@@ -368,13 +368,32 @@ def evaluate_episode(
 
 def _timestamp_skew_ok(frame: FrameQualityRecord, action_source: str, config: GateConfig) -> bool:
     """Compare only contemporaneous sources, excluding intentionally shifted actions."""
+    passed, _ = source_timestamp_skew(frame.timestamps, action_source, config)
+    return passed
+
+
+def source_timestamp_skew(
+    timestamps: dict[str, float], action_source: str, config: GateConfig,
+) -> tuple[bool, float | None]:
+    """Apply the episode's exact skew gate to the latest contemporaneous source stamps.
+
+    Next-state actions intentionally refer to a future follower sample and are not
+    contemporaneous; USB leader actions are. Returning the measured span lets
+    readiness diagnostics explain the same gate used for recorded episodes.
+    """
     names = ["state_monotonic_s", "wrist_monotonic_s", "front_monotonic_s"]
     if action_source == "leader":
         names.append("action_monotonic_s")
-    values = [frame.timestamps.get(name, math.nan) for name in names]
-    return all(math.isfinite(value) for value in values) and (
-        max(values) - min(values) <= config.max_timestamp_skew_s
+    values = [timestamps.get(name, math.nan) for name in names]
+    if not all(math.isfinite(value) for value in values):
+        return False, None
+    skew = max(values) - min(values)
+    # Decimal source timestamps are represented as binary floats; tolerate only
+    # machine-scale representation error at the exact configured boundary.
+    within_gate = skew <= config.max_timestamp_skew_s or math.isclose(
+        skew, config.max_timestamp_skew_s, rel_tol=1e-12, abs_tol=1e-12,
     )
+    return within_gate, skew
 
 
 def _sources_fresh(frame: FrameQualityRecord, action_source: str, config: GateConfig) -> bool:
