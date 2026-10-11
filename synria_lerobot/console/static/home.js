@@ -128,7 +128,7 @@
     window.SynriaRouter.go(window.SynriaRouter.routes.wizard("check"));
   }
 
-  window.SynriaHome = {statusRows, cards, continuable, renderHome};
+  window.SynriaHome = {statusRows, cards, continuable, renderHome, ago};
   if (typeof window !== "undefined" && typeof document !== "undefined") {
     for (const name of ["console-state", "console-readiness", "console-sessions", "console-route"]) window.addEventListener(name, renderHome);
     window.addEventListener("console-ready", () => {

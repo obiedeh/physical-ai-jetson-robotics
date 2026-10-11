@@ -35,7 +35,7 @@ def test_global_nav_has_three_destinations_and_flows_have_one_exit() -> None:
 def test_every_screen_has_a_focusable_title_and_route_labels_are_unique() -> None:
     """Each screen carries a heading focus lands on, and no label points at two places."""
     markup = (STATIC / "index.html").read_text(encoding="utf-8")
-    for screen in ("home", "sessions", "help", "new", "record", "review"):
+    for screen in ("home", "intro", "sessions", "help", "new", "record", "review", "summary"):
         pattern = rf'<section id="{screen}" class="screen[^"]*"[^>]*>(.*?)</section>'
         section = re.search(pattern, markup, re.S)
         assert section is not None, screen

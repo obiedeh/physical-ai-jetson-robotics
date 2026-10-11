@@ -58,6 +58,7 @@ const server = http.createServer(async (req, res) => {
     else if(route==="record/retry") {
       if(!allowSave){state.capture.error="save failed: disk full; pending frames retained";res.writeHead(409,{"Content-Type":"application/json"});res.end(JSON.stringify({error:state.capture.error}));return;}
       state.capture={state:"idle",pending_frame_count:0,controls:{start:true},last_episode:{episode_index:0,operator_label:"failure"}};
+      if(sessionList[0])sessionList[0].counts={saved:1,success:0,failure:1,excluded:0};
       value=state;
     }
     else {res.writeHead(409,{"Content-Type":"application/json"});res.end(JSON.stringify({error:"Unexpected mutation in fake browser test"}));return;}
@@ -142,6 +143,13 @@ async function run() {
     const url=`http://127.0.0.1:${server.address().port}/#token=synthetic-test-token`;
     await send("Page.navigate",{url});
     await until("window.synriaConsoleReady && document.querySelector('#environment-facts').textContent.includes('synthetic-test') && document.querySelector('[name=gripper_type]').value==='50mm'");
+    assert.equal(await evaluate("location.hash"),"#/intro","the very first visit shows the intro once");
+    assert.equal(await evaluate("document.activeElement.id"),"intro-title");
+    assert.match(await textOf("#intro"),/Choose what to record.*Check cameras and arm.*Record takes/s);
+    await click("#intro-continue");
+    await until("location.hash==='#/home'");
+    await send("Page.reload");
+    await until("window.synriaConsoleReady && location.hash==='#/home'","after the intro is dismissed the page opens on Home");
     assert.equal(await evaluate("location.hash"),"#/home","no open session lands on Home with the token removed from the address");
     assert.equal(await evaluate("document.querySelector('#home').hidden"),false);
     assert.equal(await evaluate("document.querySelector('#global-nav').hidden"),false);
@@ -389,7 +397,7 @@ async function run() {
     assert.equal(await evaluate("document.querySelector('#record-route-note').hidden"),false,"a closed session says so instead of pretending to record");
     await evaluate("SynriaRouter.go('sessions')");
     await until("!document.querySelector('#sessions').hidden");
-    assert.match(await textOf("#session-list"),/Review takes/);
+    assert.match(await textOf("#session-list"),/die into cup · Paused · 1 of 100 takes saved.*Review takes/s,"session cards read in words");
     assert.equal(await evaluate("document.querySelector('#sessions-more').open"),false,"trash and reindex sit behind More");
     await evaluate("SynriaRouter.go('new/task')");
     await until("!document.querySelector('#new').hidden");

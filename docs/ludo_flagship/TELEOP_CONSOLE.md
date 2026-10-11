@@ -53,8 +53,14 @@ something is missing and a Check now button that runs the same read-only
 setup check (in physical mode it opens Check setup, where the bench checks
 are). A notice appears when the tab has no launch key. Shut down console lives
 on the Help page with a confirmation that says what it does and that saved
-takes are safe. Sessions lists sessions with Open session and Review takes;
-Reindex and Trash sit under **More**. Inside a flow (new session, recording,
+takes are safe. On the very first visit, before any session exists, a one-time intro names
+the three steps and the bench points and continues to Home. Sessions lists
+each session in words (task, Open now / Paused / Finished / Not started, takes
+saved against the target, labels, size, last used) with Open session or
+Continue recording, Review takes, Rename and Delete; Reindex and Trash sit
+under **More**. Help holds the bench points, every procedure, the repository
+references, the keyboard shortcuts, the console status label, Shut down and
+the glossary. Inside a flow (new session, recording,
 review, summary) the global nav is replaced by a breadcrumb and one Exit
 control, or Pause session and Finish session while a session is open.
 Every place has a hash address (`#/home`, `#/sessions`, `#/help`, `#/new/task`,
