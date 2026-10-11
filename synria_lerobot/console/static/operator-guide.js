@@ -8,10 +8,10 @@ const SynriaGuide = (() => {
       "The source must publish the selected follower topic with arm writes disabled and startup torque unchanged. Selecting ros2_control in this form does not launch it or verify those properties.",
       "For ros2_control, use only the operator-verified read-only configuration. No verified startup command is recorded here. Do not use the write-enabled D2 policy launch as a recording shortcut.",
       "Compare this console’s displayed ROS domain and middleware with the source terminal. The topic and domain must agree. A timeout alone cannot distinguish an absent publisher from discovery or configuration problems.",
-      "After the approved source is running, return to Check connections and explicitly run the read-only check. If the setup is not verified, stop here and complete the safety record; do not guess flags or force readiness."], doc:"runbook"},
+      "After the approved source is running, return to Check setup and run the setup check again. If the setup is not verified, stop here and complete the safety record; do not guess flags or force readiness."], doc:"runbook"},
     timeout: {title:"No follower state received", summary:"A subscription was created, but no message arrived before the startup wait ended.", steps:[
       "Confirm the existing approved state source is actually running. This console never starts it, and a USB entry is not proof of a publisher.",
-      "Check the configured follower topic. Compare ROS domain and middleware with the environment shown under Prepare.",
+      "Check the configured follower topic. Compare ROS domain and middleware with the environment shown on the Help page.",
       "Use the state-source procedure in Operator help. Do not start another process on an already owned port or change working teleoperation.",
       "Retry the connection check after resolving the cause. A longer first-sample wait only accommodates discovery; it cannot create missing data or relax steady-state freshness.",
       "Cameras have not failed merely because they remain Not checked: the shared preflight deliberately checks state and command publishers before opening them."], doc:"runbook"},
@@ -26,12 +26,12 @@ const SynriaGuide = (() => {
       "Confirm the selected video interface supports capture. The list is name-only; it cannot establish that index0 or index1 is usable on this device.",
       "Inspect covers, lighting and framing. Correct the cause rather than relaxing freshness, image-size or visual gates, then rerun the explicit connection check."], doc:"runbook"},
     mapping: {title:"Choose two distinct camera identities", summary:"Wrist and fixed-front must refer to different physical cameras.", steps:[
-      "Refresh camera IDs in Configure, then identify the C10 wrist camera and fixed front webcam.",
+      "Refresh camera IDs under Change setup, then identify the C10 wrist camera and fixed front webcam.",
       "Do not assign index0 and index1 of the same USB identity to different roles.",
       "Listing a device does not open or verify it. The connection check and later live framing review are still required."], doc:"runbook"},
     rate: {title:"Requested rate exceeds available state", summary:"Recording cannot sample faster than the measured incoming state stream.", steps:[
       "Read the measured rate in technical evidence. The requested, incoming and achieved sample rates are different facts.",
-      "Choose a supported explicit FPS in Configure; 15 and 30 are vendor candidates, not guarantees.",
+      "Choose a supported explicit FPS under Change setup; 15 and 30 are vendor candidates, not guarantees.",
       "For an existing dataset, changing FPS requires a separate dataset/session. Do not bypass the rate gate or increase a driver’s rate speculatively."], doc:"protocol"},
     freshness: {title:"Source timing is not acceptable", summary:"A source is stale, its ROS stamp disagrees with arrival time, or the views are misaligned.", steps:[
       "Alignment is Not checked until fresh samples exist from follower state, the selected USB leader when used, and both cameras. Fix the specific upstream sample first; missing input is not a measured skew failure.",
@@ -43,7 +43,7 @@ const SynriaGuide = (() => {
       "Follow the operator-approved procedure to resolve the source configuration. Do not kill publishers, disable the guard or reconfigure working teleoperation just to pass.",
       "Recording needs no policy bridge, arming message or command publisher. Retry only after the approved read-only arrangement is established."], doc:"runbook"},
     metadata: {title:"Complete recording identity and power", summary:"These facts are required for recording, but missing text does not prevent the no-episode diagnostic.", steps:[
-      "In Configure → Required recording evidence, choose the follower manufacturer serial from the dropdown if it is already known, or choose manual entry and copy it exactly from the follower arm label or verified equipment record. The ROS state feed and USB adapter name are not the arm serial.",
+      "Under Change setup → Required recording evidence, choose the follower manufacturer serial from the dropdown if it is already known, or choose manual entry and copy it exactly from the follower arm label or verified equipment record. The ROS state feed and USB adapter name are not the arm serial.",
       "In the same section, enter Starting power state using the approved status display or current operator observation (for example, the observed powered and torque state). Do not toggle power or torque to fill the field; if uncertain, leave it unknown and stop before recording.",
       "If identity cannot be established, leave it unknown and stop before recording. Connection checks still require all physical safety confirmations."], doc:"safety"},
     timing: {title:"Register the real task window", summary:"This skill has no operator-timed qualifying episode window yet.", steps:[
@@ -145,42 +145,29 @@ const SynriaGuide = (() => {
       (name === "fps" && (!Number.isInteger(Number(settings[name])) || Number(settings[name]) <= 0)));
   }
 
-  /** Choose the next visible action, keeping software, connectivity and qualifying evidence separate. */
-  function nextStep({settings, demo, report, softwareReady, current, active, confirmed}) {
-    if (active) return {step:"record", title:"Continue the open session", message:"Resolve pending frames before closing sources or changing setup."};
-    if (!softwareReady) return {step:"prepare", title:"Check the recording environment", message:"Resolve missing libraries before opening physical sources.", help:"software"};
-    const missing = missingInputs(settings, demo);
-    if (missing.length) return {step:"configure", title:"Complete your connection setup", message:`Still needed: ${missing.map(name => name.replaceAll("_", " ")).join(", ")}.`, field:missing[0]};
-    if (!confirmed) return {step:"check", title:"Confirm the physical safety checklist", message:"These checks need operator confirmation; software cannot verify torque, e-stop behavior or the sync cable."};
-    if (!current || !report?.checked_utc) return {step:"check", title:"Run a fresh connection check", message:"A changed or expired snapshot is not current evidence. This check records no episode."};
-    const failed = connectionPaths(report).find(path => path.status === "not_ready");
-    if (failed) return {step:"check", title:failed.help.title, message:failed.message, help:failed.help.key};
-    if (report.status === "checking") return {step:"check", title:"Connection checks in progress", message:"Wait for source cleanup. No robot service is being launched."};
-    const technical = Object.entries(report.checks || {}).find(([name, check]) => check.passed === false &&
-      check.status !== "not_checked" && check.message !== "Not run" &&
-      !["recording_metadata", "qualifying_configuration", "limits_verification"].includes(name));
-    if (technical) {const problem = issueFor(...[technical[0], technical[1].message]); return {step:"check", title:problem.title, message:technical[1].message, help:problem.key};}
-    return {step:"collect", title:"Review recording requirements", message:"Connectivity is separate from identity, operator timing and verified limits. Actual session preflight runs again."};
+  /** A failed check that belongs to no input path, such as disk space or dataset recovery. */
+  function otherFailure(report, current = true) {
+    if (!current) return null;
+    const pathKeys = new Set(["follower_sample", "state_rate", "state_source", "action_sample", "wrist_sample", "wrist_camera", "front_sample", "front_camera"]);
+    const skip = new Set(["recording_metadata", "qualifying_configuration", "limits_verification", "operator_safety", "diagnostic"]);
+    const found = Object.entries(report?.checks || {}).find(([name, check]) => check.passed === false &&
+      check.status !== "not_checked" && check.status !== "launching" && check.message !== "Not run" && !pathKeys.has(name) && !skip.has(name));
+    if (!found) return null;
+    return {name:found[0], message:found[1].message, help:issueFor(found[0], found[1].message)};
   }
 
-  let metadata = null, selectedStep = "prepare", initialized = false, lastError = "", lastUpdate = "";
-  const steps = {prepare:"setup-prepare", configure:"setup-configure", check:"readiness-panel", collect:"setup-collect"};
-
-  /** Navigate the guided view without creating sessions, opening sources or issuing commands. */
-  function go(step) {
-    if (step === "record") {screen("record"); return;}
-    if (window.SynriaRouter.current()?.name !== "new") screen("new");
-    selectedStep = step in steps ? step : "prepare";
-    for (const [name, id] of Object.entries(steps)) $(id).hidden = name !== selectedStep;
-    $("mode-help").hidden = selectedStep !== "prepare";
-    $("setup-intro").hidden = selectedStep !== "configure";
-    $("setup-facts").closest("article").hidden = selectedStep !== "configure";
-    document.querySelectorAll("[data-setup-step]").forEach(node => {
-      if (node.dataset.setupStep === selectedStep) node.setAttribute("aria-current", "step");
-      else node.removeAttribute("aria-current");
-    });
-    update();
+  /** Qualifying requirements still missing for these settings: metadata, timing, limits. */
+  function requirements(settings) {
+    const needed = [];
+    if (state.demo) return needed;
+    if (!String(settings.follower_serial || "").trim() || !String(settings.power_state_start || "").trim()) needed.push("metadata");
+    const task = tasks.find(item => item.task_id === settings.task_id);
+    if (!task || task.episode_window.min_episode_s === null) needed.push("timing");
+    if (!metadata?.limits_verified) needed.push("limits");
+    return needed;
   }
+
+  let metadata = null, initialized = false, lastError = "", lastUpdate = "";
 
   /** Read only the allowlisted committed document selected by a help topic. */
   async function documentHelp(id) {
@@ -240,7 +227,7 @@ const SynriaGuide = (() => {
   function groupFields() {
     const grid = $("new-form").querySelector(".form-grid");
     const groups = [
-      ["Session and task", ["name", "task_id", "operator", "gripper_type", "scene"]],
+      ["Session and operator", ["name", "operator", "gripper_type", "scene"]],
       ["State and action inputs", ["state_source", "follower_topic", "action_source", "leader_topic"]],
       ["Recording settings", ["fps", "image_width", "image_height", "action_lookahead_steps", "state_startup_timeout_s", "guard_command_topic", "state_has_velocity"]],
       ["Required recording evidence", ["follower_serial", "leader_serial", "power_state_start", "target_episodes", "notes"]],
@@ -250,7 +237,7 @@ const SynriaGuide = (() => {
       group.dataset.order = String(index);
       group.append(text("legend", title));
       const inner = document.createElement("div"); inner.className = "form-grid"; group.append(inner);
-      for (const name of fields) inner.append($("new-form").elements.namedItem(name).closest("label"));
+      for (const name of fields) { const label = $("new-form").elements.namedItem(name)?.closest("label"); if (label) inner.append(label); }
       grid.append(group);
     }
     grid.classList.add("grouped-fields");
@@ -264,80 +251,63 @@ const SynriaGuide = (() => {
     const current = Boolean(report?.checked_utc && report.status !== "expired" &&
       matchingReadinessSettings(report.form_settings, settings));
     const confirmed = state.demo || [...document.querySelectorAll("[data-readiness-confirm]")].every(node => node.checked);
-    const softwareReady = $("software-panel").dataset.level === "ready";
-    const signature = JSON.stringify([settings, report, current, confirmed, softwareReady, state.active_session?.id, state.demo, metadata, selectedStep]);
+    const signature = JSON.stringify([settings, report, current, confirmed, state.active_session?.id, state.demo, metadata]);
     if(signature === lastUpdate)return;
     lastUpdate = signature;
-    const next = nextStep({settings, demo:state.demo, report, softwareReady, current:current && confirmed, active:state.active_session, confirmed});
-    $("next-action-title").textContent = next.title;
-    $("next-action-message").textContent = next.message;
-    $("next-action-button").textContent = next.help ? "Show recovery steps" : (next.step === "record" ? "Open recording" : "Continue →");
-    $("next-action-button").onclick = () => {
-      if (next.help) {go(next.step); openHelp(next.help, next.message);}
-      else {go(next.step); if (next.field) $("new-form").elements.namedItem(next.field)?.closest("label")?.querySelector("input:not([type=hidden]),select,textarea")?.focus();}
-    };
     $("connection-paths").replaceChildren();
     for (const path of connectionPaths(report, current && confirmed)) {
       const card = document.createElement("article"); card.dataset.level = path.status;
       card.append(text("span", {ready:"Ready", not_ready:"Not ready", launching:"Launching", not_checked:"Not checked"}[path.status]), text("h3", path.title), text("p", path.message));
-      card.append(button("Help and next steps", () => openHelp(path.help.key, path.message)));
+      if (path.status === "not_ready") card.append(button("How to fix this", () => openHelp(path.help.key, path.message)));
       $("connection-paths").append(card);
     }
-    const requirements = [];
-    if (!state.demo) {
-      if (!String(settings.follower_serial || "").trim() || !String(settings.power_state_start || "").trim()) requirements.push("metadata");
-      const task = tasks.find(item => item.task_id === settings.task_id);
-      if (!task || task.episode_window.min_episode_s === null) requirements.push("timing");
-      if (!metadata?.limits_verified) requirements.push("limits");
+    const other = otherFailure(report, current && confirmed);
+    if (other) {
+      const card = document.createElement("article"); card.dataset.level = "not_ready";
+      card.append(text("span", "Not ready"), text("h3", other.help.title), text("p", other.message));
+      card.append(button("How to fix this", () => openHelp(other.help.key, other.message)));
+      $("connection-paths").append(card);
     }
-    $("recording-blockers").replaceChildren(text("h3", "Before qualifying recording"));
-    for (const key of requirements) $("recording-blockers").append(button(help[key].title, () => openHelp(key)));
-    if (requirements.includes("metadata")) {
+    const needed = requirements(settings);
+    $("recording-blockers").replaceChildren(text("h3", "Before a session that counts toward the dataset"));
+    for (const key of needed) $("recording-blockers").append(button(help[key].title, () => openHelp(key)));
+    if (needed.includes("metadata")) {
       const missing = ["follower_serial", "power_state_start"].filter(name => !String(settings[name] || "").trim());
-      $("recording-blockers").append(button("Go to the missing serial / power fields", () => {
-        go("configure");
+      $("recording-blockers").append(button("Fill in the serial and power fields", () => {
+        $("setup-configure").hidden = false; $("change-setup").setAttribute("aria-expanded", "true");
         const field = $("new-form").elements.namedItem(missing[0] || "follower_serial");
         field?.focus();
         field?.scrollIntoView({behavior:"smooth", block:"center"});
       }, "primary"));
       $("recording-blockers").append(button("Where to find these details", () => openHelp("metadata")));
     }
-    if (requirements.includes("timing")) {
-      $("recording-blockers").append(button("Go to task timing status", () => {
-        go("configure");
-        const panel = $("task-window-registration");
-        panel?.scrollIntoView({behavior:"smooth", block:"center"});
+    if (needed.includes("timing")) {
+      $("recording-blockers").append(button("See task timing status", () => {
+        window.SynriaRouter.go(window.SynriaRouter.routes.wizard("task"));
+        $("task-timing-entry").open = true;
+        $("task-window-registration")?.scrollIntoView({behavior:"smooth", block:"center"});
       }, "primary"));
     }
-    if (requirements.includes("limits")) {
-      $("recording-blockers").append(button("Open candidate Synria limits file", () => documentHelp("limits")));
+    if (needed.includes("limits")) {
+      $("recording-blockers").append(button("Open the joint limits file", () => documentHelp("limits")));
     }
-    if (!requirements.length) $("recording-blockers").append(text("p", state.demo ? "Synthetic demo never qualifies as physical evidence." : "Declared requirements supplied. Actual session preflight and operator safety review still apply."));
-    $("collection-requirements").textContent = requirements.length ? requirements.map(key => help[key].summary).join(" ") : "Review the latest connection results, then create your session. The writer and source guards run again on open.";
-    const requiredMissing = missingInputs(settings, state.demo).length > 0;
-    $("create").disabled = requiredMissing || (!state.demo && requirements.length > 0);
-    $("smoke").disabled = requiredMissing || (!state.demo && requirements.includes("metadata")) || Boolean(state.active_session);
-    $("create").title = $("create").disabled ? "Complete the listed configuration, identity, timing and verified-limits requirements." : "Create a named session; opening it performs shared source preflight.";
-    $("smoke").title = $("smoke").disabled ? "Complete connection fields, manufacturer identity and observed power first." : "Starts one temporary capture after shared preflight; never counted.";
+    if (!needed.length) $("recording-blockers").append(text("p", state.demo ? "Synthetic demo never qualifies as physical evidence." : "Declared requirements supplied. Actual session preflight and operator safety review still apply."));
   }
 
   /** Initialize guided navigation after the existing recorder surface and presets are ready. */
   async function initialize() {
     if (initialized) return;
     initialized = true; groupFields();
-    document.querySelectorAll("[data-setup-step]").forEach(node => node.onclick = () => go(node.dataset.setupStep));
-    document.querySelectorAll("[data-go-step]").forEach(node => node.onclick = () => go(node.dataset.goStep));
     document.querySelectorAll("[data-guide-help]").forEach(node => node.onclick = () => openHelp(node.dataset.guideHelp));
     document.querySelectorAll("[data-guide-doc]").forEach(node => node.onclick = () => safe(() => documentHelp(node.dataset.guideDoc)));
     $("close-help").onclick = () => $("operator-help").close();
     renderHelpPage();
-    $("new-form").addEventListener("invalid", () => go("configure"), true);
     $("new-form").addEventListener("input", update);
     $("new-form").addEventListener("change", update);
     $("readiness-confirmations").addEventListener("change", update);
     const smokeAction = $("smoke").onclick;
     $("smoke").onclick = event => {if (confirm("Start one disposable 20-second capture after preflight? Verify physical safety and framing first. It never counts and is deleted when its sources close.")) smokeAction(event);};
-    selectedStep = "prepare"; for (const [name, id] of Object.entries(steps)) $(id).hidden = name !== selectedStep;
+    SynriaWizard.initialize();
     try {
       metadata = await api("operator-guide");
       const env = metadata.environment;
@@ -346,7 +316,7 @@ const SynriaGuide = (() => {
     update();
   }
 
-  return {issueFor, connectionPaths, missingInputs, nextStep, openHelp, documentHelp, renderError, renderHelpPage, update, initialize, go};
+  return {issueFor, connectionPaths, otherFailure, missingInputs, requirements, openHelp, documentHelp, renderError, renderHelpPage, update, initialize};
 })();
 globalThis.SynriaGuide = SynriaGuide;
 if (typeof document !== "undefined") {

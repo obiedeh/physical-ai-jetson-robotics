@@ -120,7 +120,6 @@ function taskDescription() {
   const task=tasks.find(t=>t.task_id===$("task").value);if(!task)return;
   const unset=task.episode_window.min_episode_s===null;
   $("task-description").replaceChildren(text("h3",task.task_text),text("p",`Success: ${task.success_rule}`),text("p",task.scene_requirements.join(" · ")),text("p",unset?"Real task window is unset. Qualifying recording is refused until the operator times this task and records the prospective window in DECISIONS.md. Only disposable physical smoke is available.":`Episode window: ${task.episode_window.min_episode_s}–${task.episode_window.max_episode_s} seconds.`));
-  $("create").disabled=unset&&!state.demo;
   if(state.demo)$("task-description").append(text("p","Synthetic demo uses a separately marked non-qualifying window, never this physical task window."));
 }
 /** Show every registry window and make unset qualification decisions visible before task selection. */
@@ -285,11 +284,16 @@ function render(next) {
   renderFlowNav();
   const titles = {home:"Home", sessions:"Sessions", help:"Help", intro:"Welcome", new:"New session", record:"Recording", review:"Review takes"};
   if (!previous || previous.path !== next.path) arrive(sections[next.name], titles[next.name]);
+  if (next.name === "new" && window.SynriaWizard && tasks.length) {
+    const allowed = window.SynriaWizard.STEPS.indexOf(window.SynriaWizard.furthestAllowed());
+    const wanted = window.SynriaWizard.STEPS.indexOf(next.step);
+    if (wanted > allowed) { window.SynriaRouter.go(routes().wizard(window.SynriaWizard.STEPS[allowed]), {replace:true}); return; }
+    window.SynriaWizard.show(next.step);
+  }
   window.dispatchEvent(new Event("console-route"));
 }
 $("exit-flow").onclick = () => window.SynriaRouter.go(routes().home());
 document.querySelectorAll("[data-command]").forEach(node=>node.onclick=()=>safe(()=>command(node.dataset.command)));
-$("new-form").onsubmit=event=>{event.preventDefault();safe(async()=>{const session=await api("sessions",formValues());await refreshSessions();window.SynriaRouter.go(routes().sessions());if(session?.id)error("");});};
 $("smoke").onclick=()=>safe(async()=>{if(!$("new-form").reportValidity())return;await api("smoke",formValues());await refreshState();window.SynriaRouter.go(routes().record("smoke"));await refreshSessions();});
 $("discard").onclick=()=>safe(async()=>{if(!confirm("Discard all pending unsaved frames? This cannot be undone."))return;const reason=prompt("Capture/setup fault reason (required)","");if(reason){await api("record/discard",{reason});await refreshState();}});
 $("close-session").onclick=()=>safe(async()=>{await api(`session/${state.active_session.id}/close`,{});await refreshState();await refreshSessions();});
@@ -312,7 +316,7 @@ function recordingShortcut(event) {
 }
 document.addEventListener("keydown",recordingShortcut);
 /** Load server state and form choices, then show the place the hash names or the natural start. */
-async function boot(){await refreshState();tasks=await api("tasks");for(const task of tasks){const option=text("option",task.task_id);option.value=task.task_id;$("task").append(option);}renderTaskWindows();const cameras=await api("cameras");$("camera-note").textContent=cameras.message;for(const id of ["wrist-choice","front-choice"]){$(id).append(text("option",""));for(const camera of cameras.cameras){const option=text("option",camera);option.value=camera;$(id).append(option);}}$("mode-help").textContent=state.demo?"Synthetic demo only. No ROS, serial ports or camera devices are opened. These datasets are refused by physical summaries, training and evaluation.":"All runbook safety, wiring and preflight rules apply unchanged. This app never starts a driver or teleoperation.";$("source").disabled=state.demo;$("smoke").hidden=state.demo;taskDescription();await refreshSessions();
+async function boot(){await refreshState();tasks=await api("tasks");{const none=text("option","Choose a task");none.value="";$("task").append(none);}for(const task of tasks){const option=text("option",task.task_id);option.value=task.task_id;$("task").append(option);}renderTaskWindows();const cameras=await api("cameras");$("camera-note").textContent=cameras.message;for(const id of ["wrist-choice","front-choice"]){$(id).append(text("option",""));for(const camera of cameras.cameras){const option=text("option",camera);option.value=camera;$(id).append(option);}}$("mode-help").textContent=state.demo?"Synthetic demo only. No ROS, serial ports or camera devices are opened. These datasets are refused by physical summaries, training and evaluation.":"All runbook safety, wiring and preflight rules apply unchanged. This app never starts a driver or teleoperation.";$("source").disabled=state.demo;$("smoke").hidden=state.demo;taskDescription();await refreshSessions();
   const start=state.active_session?routes().record(state.active_session.id):routes().home();
   window.SynriaRouter.start(render,start);
   window.synriaConsoleReady=true;window.dispatchEvent(new Event("console-ready"));}

@@ -46,15 +46,14 @@ checks.front_sample = {passed:false, status:"launching", message:"Checking frame
 assert.equal(guide.connectionPaths({checks})[3].status, "launching");
 const settings = {name:"test", task_id:"die_into_cup", gripper_type:"50mm", fps:15,
   operator:"test", scene:"test", state_source:"ros2_control", wrist_camera:"fake:wrist", front_camera:"fake:front"};
-const base = {settings, demo:false, report:{checks, checked_utc:"test", status:"blocked"}, softwareReady:true, current:true, confirmed:true};
-assert.equal(guide.nextStep(base).help, "timeout");
-assert.equal(guide.nextStep({...base, current:false}).help, undefined);
-assert.equal(guide.nextStep({...base, softwareReady:false}).help, "software");
-assert.equal(guide.nextStep({...base, active:{id:"pending"}}).step, "record");
-assert.equal(guide.nextStep({...base, settings:{...settings, fps:0}}).step, "configure");
-assert.equal(guide.nextStep({...base, settings:{...settings, fps:15.5}}).step, "configure");
-assert.equal(guide.nextStep({...base, confirmed:false}).step, "check");
-assert.equal(guide.nextStep({...base, report:{checks:{}, status:"checking", checked_utc:"test"}}).title, "Connection checks in progress");
+assert.equal(JSON.stringify(guide.missingInputs({...settings, fps:0}, false)), JSON.stringify(["fps"]), "a zero rate is a missing input");
+assert.equal(JSON.stringify(guide.missingInputs({...settings, fps:15.5}, false)), JSON.stringify(["fps"]), "a fractional rate is a missing input");
+assert.equal(JSON.stringify(guide.missingInputs(settings, false)), JSON.stringify([]));
+assert.equal(JSON.stringify(guide.missingInputs({name:"t", task_id:"x", gripper_type:"50mm", fps:15, operator:"o", scene:"s"}, true)), JSON.stringify([]), "demo needs no source or cameras");
+const blocked = {checks:{...checks, dataset_lock_and_recovery:{passed:false, status:"not_ready", message:"journal blocked"}}, checked_utc:"test", status:"blocked"};
+assert.equal(guide.otherFailure(blocked).help.key, "recovery", "a failure outside the four paths still gets a card and a fix");
+assert.equal(guide.otherFailure(blocked, false), null, "a stale report has no current failure");
+assert.equal(guide.otherFailure({checks:{recording_metadata:{passed:false, status:"not_ready", message:"missing"}}, checked_utc:"test"}), null, "qualifying requirements are not technical failures");
 assert.ok(guide.issueFor("", "Failed to fetch").steps.join(" ").includes("Do not assume the recorder stopped"));
 assert.ok(guide.issueFor("", "journal blocked").steps.join(" ").includes("Do not remove the lock"));
 assert.equal(settings.follower_serial, undefined, "guidance never manufactures recording identity");

@@ -3,11 +3,12 @@ const assert = require("node:assert/strict"), fs = require("node:fs"), http = re
 const os = require("node:os"), path = require("node:path"), {spawn} = require("node:child_process");
 const [staticRoot, browser, screenshot] = process.argv.slice(2);
 const calls = [], exceptions = [];
-let offline = false, scenario = "timeout", allowSave = false;
+let offline = false, scenario = "timeout", allowSave = false, expireReports = false;
 let report = {status:"unchecked", label:"Not checked", percent:0, checks:{}, form_settings:{}, checked_utc:null,
   passed_count:0, check_count:0, demo:false, scope:"Synthetic test backend · no hardware", expires_after_s:60};
 const state = {demo:false, active_session:null, capture:{state:"closed"}, preflight:{}, free_disk_bytes:1e11, min_free_bytes:1e9};
 const task = {task_id:"die_into_cup", task_text:"Synthetic fixture: put die into cup", success_rule:"Operator and still", scene_requirements:["Fixed synthetic scene"], episode_window:{min_episode_s:null, max_episode_s:null}};
+const sessionList = [];
 
 /** Return a realistic refusal snapshot from fake state without constructing any runtime. */
 function diagnostic(settings) {
@@ -24,7 +25,12 @@ function diagnostic(settings) {
     checks.wrist_sample = check(false,"Camera device busy; cannot open selected wrist camera");
   }
   if (scenario === "recovery") checks.dataset_lock_and_recovery = check(false,"Recovery blocked: journal requires review");
-  return {status:"blocked", label:"Connection checks incomplete", percent:25, checks,
+  if (scenario === "pass") {
+    for (const name of ["follower_sample","action_sample","wrist_sample","front_sample"]) checks[name] = check(true,"Fresh synthetic sample");
+    checks.state_rate = check(true,"25 Hz measured");
+  }
+  const status = scenario === "pass" ? "attention" : "blocked";
+  return {status, label:status === "attention" ? "Connected · setup required" : "Connection checks incomplete", percent:status === "attention" ? 70 : 25, checks,
     form_settings:settings, checked_utc:new Date().toISOString(), passed_count:3, check_count:Object.keys(checks).length,
     demo:false, scope:"Synthetic test backend · no hardware", expires_after_s:60};
 }
@@ -45,6 +51,9 @@ const server = http.createServer(async (req, res) => {
     let body="";for await (const part of req) body+=part;
     const payload=JSON.parse(body);calls.push({route,payload});
     if(route==="readiness"){report=diagnostic(payload.settings);value=report;}
+    else if(route==="sessions"){const session={id:"s1",name:payload.name,task_id:payload.task_id,status:"active",target_episodes:payload.target_episodes,operator:payload.operator,settings:payload,source_kind:"physical",updated_utc:"2026-10-11T00:00:00Z",counts:{saved:0,success:0,failure:0,excluded:0}};sessionList.push(session);value=session;}
+    else if(route==="session/s1/open"){state.active_session=sessionList[0];state.capture={state:"idle",episode_index:0,pending_frame_count:0,min_episode_s:8,max_episode_s:25,remaining_s:25,countdown_s:null,controls:{start:true},counters:{saved:0,success:0,failure:0,discarded:0},recording_purpose:"qualifying"};value=state;}
+    else if(route==="session/s1/close"){state.active_session=null;state.capture={state:"closed"};value=state;}
     else if(route==="record/retry") {
       if(!allowSave){state.capture.error="save failed: disk full; pending frames retained";res.writeHead(409,{"Content-Type":"application/json"});res.end(JSON.stringify({error:state.capture.error}));return;}
       state.capture={state:"idle",pending_frame_count:0,controls:{start:true},last_episode:{episode_index:0,operator_label:"failure"}};
@@ -52,10 +61,10 @@ const server = http.createServer(async (req, res) => {
     }
     else {res.writeHead(409,{"Content-Type":"application/json"});res.end(JSON.stringify({error:"Unexpected mutation in fake browser test"}));return;}
   } else if(route==="state")value=state;
-  else if(route==="sessions")value=[];
+  else if(route.startsWith("sessions"))value=sessionList;
   else if(route.startsWith("episodes/"))value=[];
   else if(route==="tasks")value=[task];
-  else if(route==="readiness")value=report;
+  else if(route==="readiness")value=expireReports&&report.checked_utc?{...report,status:"expired",label:"Check expired · run again",percent:0}:report;
   else if(route==="cameras")value={cameras:["fake-wrist-video-index0","fake-front-video-index0"],message:"Synthetic identifiers"};
   else if(route==="serial-connections")value={connections:[],message:"No physical connections in test"};
   else if(route==="software")value={status:"ready",label:"Ready",dependencies:{lerobot:true,cv2:true,rclpy:true,sensor_msgs:true,ffmpeg:true},message:"Fake dependency discovery"};
@@ -102,8 +111,14 @@ async function run() {
   });}
   /** Evaluate test interactions and propagate browser exceptions rather than treating them as success. */
   async function evaluate(expression){const result=await send("Runtime.evaluate",{expression,returnByValue:true,awaitPromise:true});if(result.exceptionDetails)throw Error(JSON.stringify(result.exceptionDetails));return result.result.value;}
-  /** Wait on DOM mutations, not arbitrary sleeps, for an asynchronous UI condition to become true. */
+  /** Wait on DOM mutations and hash changes, not arbitrary sleeps, for an asynchronous UI condition to become true. */
   async function until(expression,description=expression){return evaluate(`new Promise((resolve,reject)=>{const test=()=>(${expression});if(test())return resolve(true);const observer=new MutationObserver(()=>{if(test()){observer.disconnect();clearTimeout(timer);resolve(true);}});observer.observe(document,{subtree:true,childList:true,attributes:true,characterData:true});window.addEventListener('hashchange',()=>{if(test()){observer.disconnect();clearTimeout(timer);resolve(true);}});const timer=setTimeout(()=>{observer.disconnect();reject(Error('UI condition timed out: '+${JSON.stringify(description)}));},10000);})`);}
+  const click=selector=>evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`);
+  const textOf=selector=>evaluate(`document.querySelector(${JSON.stringify(selector)}).textContent`);
+  const reason=()=>textOf("#wizard-reason");
+  let presses=0;
+  /** Press the wizard's primary button and count it toward the Home-to-recording budget. */
+  async function pressPrimary(){assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),false,`primary must be enabled: ${await reason()}`);presses++;await click("#wizard-primary");}
   try {
     // Hosted browsers can initialize slowly; prove protocol readiness before creating a page.
     const startupDeadline=Date.now()+45000;
@@ -122,9 +137,9 @@ async function run() {
     assert.equal(await evaluate("document.querySelector('#flow-nav').hidden"),true);
     assert.equal(await evaluate("document.querySelectorAll('#global-nav a').length"),3,"three global destinations only");
     assert.equal(await evaluate("document.querySelector('#token-notice').hidden"),true,"a tab with the launch key shows no key notice");
-    assert.match(await evaluate("document.querySelector('#status-strip').textContent"),/Session.*None open.*Software.*Recording libraries found/s,"status strip reads in words");
+    assert.match(await textOf("#status-strip"),/Software.*Recording libraries found/s,"status strip reads in words");
     assert.equal(await evaluate("document.activeElement.id"),"home-title","focus lands on the screen title");
-    // Refresh restores the same place for every route that exists so far.
+    // Refresh restores the same place for every route.
     for(const path of ["sessions","help","new/task","session/none/review","home"]){
       await evaluate(`SynriaRouter.go(${JSON.stringify(path)})`);
       await until(`location.hash==='#/${path}'`);
@@ -133,12 +148,17 @@ async function run() {
       assert.equal(await evaluate("location.hash"),`#/${path}`,`refresh keeps ${path}`);
       assert.equal(await evaluate("document.querySelector('.screen:not([hidden])').id"),{sessions:"sessions",help:"help","new/task":"new","session/none/review":"review",home:"home"}[path],`refresh shows ${path}`);
     }
+    await evaluate("SynriaRouter.go('new/start')");
+    await until("location.hash==='#/new/task'","a later step cannot be reached by address before its earlier steps are complete");
+    await evaluate("SynriaRouter.go('home')");await until("location.hash==='#/home'");
     assert.equal(calls.length,0,"navigation and refresh never post anything");
     // Inside a flow the global nav is replaced by a breadcrumb and one exit.
-    await evaluate("document.querySelector('#home-session-link').click()");
+    presses++;await click("#home-session-link");
     await until("location.hash==='#/new/task' && document.querySelector('#global-nav').hidden && !document.querySelector('#flow-nav').hidden");
-    assert.equal(await evaluate("document.querySelector('#breadcrumb').textContent"),"HomeNew session");
-    await evaluate("document.querySelector('#exit-flow').click()");
+    assert.equal(await textOf("#breadcrumb"),"HomeNew session");
+    assert.equal(await evaluate("document.activeElement.id"),"step-task-title","focus moves to the step heading");
+    assert.equal(await textOf("#route-announcer"),"Step 1 of 3: Choose task");
+    await click("#exit-flow");
     await until("location.hash==='#/home' && !document.querySelector('#global-nav').hidden");
     await evaluate("history.back()");
     await until("location.hash==='#/new/task' && !document.querySelector('#new').hidden","browser Back returns to the flow");
@@ -146,81 +166,146 @@ async function run() {
     const labels=await evaluate("JSON.stringify([...document.querySelectorAll('[data-route]')].map(n=>[n.textContent.trim(),n.dataset.route]))");
     const targets=new Map();for(const [label,target] of JSON.parse(labels)){targets.set(label,(targets.get(label)||new Set()).add(target));}
     for(const [label,set] of targets)assert.equal(set.size,1,`label ${label} points at one place`);
-    assert.equal(await evaluate("document.querySelector('#setup-prepare').hidden"),false);
-    assert.equal(calls.length,0,"page load and software check cannot start sources");
-    await evaluate("document.querySelector('[data-guide-help=source]').click()");
-    assert.match(await evaluate("document.querySelector('#help-content').textContent"),/No verified startup command/);
-    assert.match(await evaluate("document.querySelector('#help-content').textContent"),/joint_commands_enabled:=false/);
-    assert.match(await evaluate("document.querySelector('#help-content pre').textContent"),/--ros-args \\\n/);
-    await evaluate("document.querySelector('#close-help').click();document.querySelector('[data-guide-help=timing]').click()");
-    assert.match(await evaluate("document.querySelector('#help-content').textContent"),/config\/synria_tasks.json/);
-    assert.match(await evaluate("document.querySelector('#help-content').textContent"),/cannot set or override/);
-    await evaluate("document.querySelector('#close-help').click();document.querySelector('#task-timing-entry [data-go-step=configure]').click()");
-    assert.equal(await evaluate("document.querySelector('#setup-configure').hidden"),false);
-    assert.match(await evaluate("document.querySelector('#task-window-registration').textContent"),/There are no timing inputs here by design/);
-    assert.match(await evaluate("document.querySelector('#task-window-registration').textContent"),/docs\/ludo_flagship\/DECISIONS.md/);
     assert.equal(await evaluate("new Set([...document.querySelectorAll('[id]')].map(n=>n.id)).size===document.querySelectorAll('[id]').length"),true,"no duplicate controls");
-    await evaluate("const fpsPreset=document.querySelector('[data-preset-for=fps]');fpsPreset.value='custom';fpsPreset.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('[name=fps]').value='0';document.querySelector('[data-setup-step=check]').click();document.querySelector('#check-readiness').click()");
+    // Step 1: the primary waits for a task and says so.
+    assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),true);
+    assert.equal(await reason(),"Choose a task to continue");
+    assert.equal(await evaluate("document.querySelector('[data-wizard-step=check]').disabled"),true,"later steps cannot be clicked");
+    await evaluate("SynriaGuide.openHelp('source')");
+    assert.match(await textOf("#help-content"),/No verified startup command/);
+    assert.match(await textOf("#help-content"),/joint_commands_enabled:=false/);
+    assert.match(await evaluate("document.querySelector('#help-content pre').textContent"),/--ros-args \\\n/);
+    await click("#close-help");await click("[data-guide-help=timing]");
+    assert.match(await textOf("#help-content"),/config\/synria_tasks.json/);
+    assert.match(await textOf("#help-content"),/cannot set or override/);
+    await click("#close-help");
+    assert.match(await textOf("#task-window-registration"),/There are no timing inputs here by design/);
+    await click("[data-task-id=die_into_cup]");
+    assert.equal(await evaluate("document.querySelector('[name=task_id]').value"),"die_into_cup");
+    assert.match(await textOf("[data-task-id=die_into_cup]"),/Not timed yet/);
+    await pressPrimary();
+    await until("location.hash==='#/new/check'");
+    assert.equal(await textOf("#route-announcer"),"Step 2 of 3: Check setup");
+    assert.equal(await evaluate("document.activeElement.id"),"step-check-title");
+    assert.match(await textOf("#setup-summary"),/Gripper50mm/,"saved setup is summarised");
+    assert.equal(await evaluate("document.querySelector('#setup-configure').hidden"),true,"the long form sits behind Change setup");
+    assert.match(await reason(),/^Tick the five bench checks/);
+    assert.equal(calls.length,0,"entering Check setup without bench checks cannot open sources");
+    // An invalid hidden field names itself and opens the form.
+    await evaluate("const fpsPreset=document.querySelector('[data-preset-for=fps]');fpsPreset.value='custom';fpsPreset.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('[name=fps]').value='0';document.querySelector('[name=fps]').dispatchEvent(new Event('input',{bubbles:true}))");
+    assert.match(await reason(),/^Fill in fps under Change setup/);
+    await click("#check-readiness");
     assert.equal(calls.length,0,"invalid native form constraints cannot open sources");
-    assert.equal(await evaluate("document.querySelector('#setup-configure').hidden"),false,"invalid hidden form field opens its configuration step");
+    assert.equal(await evaluate("document.querySelector('#setup-configure').hidden"),false,"invalid hidden form field opens its setup fields");
     await evaluate("document.querySelector('[data-preset-for=fps]').value='15';document.querySelector('[data-preset-for=fps]').dispatchEvent(new Event('change',{bubbles:true}))");
     if(process.env.SYNRIA_GUIDE_EXTRA_SHOTS)fs.writeFileSync(screenshot.replace(/\.png$/,"-configuration.png"),Buffer.from((await send("Page.captureScreenshot",{format:"png"})).data,"base64"));
-    await evaluate("document.querySelector('[name=scene]').value='<script>throw Error(99)</script>';document.querySelector('[name=scene]').dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('[data-setup-step=check]').click()");
-    await evaluate("document.querySelector('#check-readiness').click()");
+    await evaluate("document.querySelector('[name=scene]').value='<script>throw Error(99)</script>';document.querySelector('[name=scene]').dispatchEvent(new Event('input',{bubbles:true}))");
+    await click("#done-setup");
+    assert.equal(await evaluate("document.querySelector('#setup-configure').hidden"),true);
+    await click("#check-readiness");
     await until("document.querySelector('#notice').textContent.includes('physical safety confirmations')");
     assert.equal(calls.length,0,"missing physical confirmations cannot issue a diagnostic");
-    await evaluate("document.querySelectorAll('[data-readiness-confirm]').forEach(n=>{n.checked=true;n.dispatchEvent(new Event('change',{bubbles:true}));});document.querySelector('#check-readiness').click()");
-    await until("document.querySelector('#next-action-title').textContent==='No follower state received'");
-    assert.equal(await evaluate("document.querySelector('#notice').textContent"),"","a deliberate valid retry supersedes the resolved consent error");
+    // The fifth bench tick starts the read-only check by itself.
+    await evaluate("document.querySelectorAll('[data-readiness-confirm]').forEach(n=>{n.checked=true;n.dispatchEvent(new Event('change',{bubbles:true}));})");
+    await until("document.querySelector('#wizard-reason').textContent.startsWith('Follower state: No state sample')");
+    assert.equal(await textOf("#notice"),"","a deliberate valid attempt supersedes the resolved consent error");
     assert.equal(calls.length,1);assert.equal(calls[0].payload.settings.follower_serial,"");
-    assert.match(await evaluate("document.querySelector('#connection-paths').textContent"),/Not ready.*Follower state/s);
-    assert.match(await evaluate("document.querySelector('#connection-paths').textContent"),/Not checked.*Wrist camera/s);
+    assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),true,"a failing check keeps the primary disabled");
+    assert.equal(await evaluate("location.hash"),"#/new/check","a failing check never changes the step");
+    assert.match(await textOf("#connection-paths"),/Not ready.*Follower state/s);
+    assert.match(await textOf("#connection-paths"),/Not checked.*Wrist camera/s);
     assert.ok(!await evaluate("document.querySelector('#all-check-details').textContent.includes('Ready · state source')"));
-    assert.match(await evaluate("document.querySelector('#recording-blockers').textContent"),/Go to the missing serial \/ power fields/);
-    assert.match(await evaluate("document.querySelector('#recording-blockers').textContent"),/Go to task timing status/);
-    assert.match(await evaluate("document.querySelector('#recording-blockers').textContent"),/Open candidate Synria limits file/);
-    await evaluate("[...document.querySelectorAll('#recording-blockers button')].find(n=>n.textContent.includes('Go to the missing')).click()");
-    assert.equal(await evaluate("document.activeElement.name"),"follower_serial","metadata shortcut opens Configure and focuses the first missing field");
+    assert.match(await textOf("#recording-blockers"),/Fill in the serial and power fields/);
+    assert.match(await textOf("#recording-blockers"),/See task timing status/);
+    assert.match(await textOf("#recording-blockers"),/Open the joint limits file/);
+    await evaluate("[...document.querySelectorAll('#recording-blockers button')].find(n=>n.textContent.includes('Fill in the serial')).click()");
+    assert.equal(await evaluate("document.activeElement.name"),"follower_serial","metadata shortcut opens the setup fields and focuses the first missing field");
     await evaluate("[...document.querySelectorAll('#recording-blockers button')].find(n=>n.textContent.includes('Where to find')).click()");
-    assert.match(await evaluate("document.querySelector('#help-content').textContent"),/follower arm label/);
-    assert.match(await evaluate("document.querySelector('#help-content').textContent"),/torque state/);
-    await evaluate("document.querySelector('#close-help').click();[...document.querySelectorAll('#recording-blockers button')].find(n=>n.textContent.includes('Open candidate Synria limits')).click()");
+    assert.match(await textOf("#help-content"),/follower arm label/);
+    assert.match(await textOf("#help-content"),/torque state/);
+    await evaluate("document.querySelector('#close-help').click();[...document.querySelectorAll('#recording-blockers button')].find(n=>n.textContent.includes('Open the joint limits')).click()");
     await until("document.querySelector('#help-title').textContent==='config/synria_limits.yaml'");
-    assert.match(await evaluate("document.querySelector('#help-title').textContent"),/config\/synria_limits.yaml/);
-    assert.match(await evaluate("document.querySelector('#help-content').textContent"),/verified_by and verified_on are empty/);
-    await evaluate("document.querySelector('#close-help').click();document.querySelector('[data-setup-step=check]').click()");
-    await evaluate("[...document.querySelectorAll('#recording-blockers button')].find(n=>n.textContent==='Go to task timing status').click()");
-    assert.equal(await evaluate("document.querySelector('#setup-configure').hidden"),false);
-    assert.match(await evaluate("document.querySelector('#task-window-registration').textContent"),/Register the reviewed window in config\/synria_tasks.json/);
-    await evaluate("document.querySelector('[data-setup-step=check]').click()");
+    assert.match(await textOf("#help-content"),/verified_by and verified_on are empty/);
+    await click("#close-help");
+    await evaluate("[...document.querySelectorAll('#recording-blockers button')].find(n=>n.textContent==='See task timing status').click()");
+    await until("location.hash==='#/new/task'");
+    assert.equal(await evaluate("document.querySelector('#task-timing-entry').open"),true);
+    assert.equal(await evaluate("document.querySelector('[data-wizard-step=check]').disabled"),false,"a completed step can be revisited");
+    await click("[data-wizard-step=check]");
+    await until("location.hash==='#/new/check'");
+    assert.equal(await evaluate("document.querySelector('[name=scene]').value"),"<script>throw Error(99)</script>","Back and forward keep inputs");
     if(process.env.SYNRIA_GUIDE_EXTRA_SHOTS)fs.writeFileSync(screenshot.replace(/\.png$/,"-failure.png"),Buffer.from((await send("Page.captureScreenshot",{format:"png"})).data,"base64"));
-    await evaluate("document.querySelector('#next-action-button').click()");
-    assert.match(await evaluate("document.querySelector('#help-content').textContent"),/ROS domain/);
-    await evaluate("document.querySelector('#close-help').click()");
-    scenario="camera";await evaluate("document.querySelector('#check-readiness').click()");
+    await evaluate("[...document.querySelectorAll('#connection-paths button')].find(n=>n.textContent==='How to fix this').click()");
+    assert.match(await textOf("#help-content"),/ROS domain/);
+    await click("#close-help");
+    scenario="camera";await click("#check-readiness");
     await until("document.querySelector('#connection-paths').textContent.includes('Camera device busy')");
-    assert.match(await evaluate("document.querySelector('#next-action-title').textContent"),/camera/);
-    await evaluate("document.querySelector('#next-action-button').click()");
-    assert.match(await evaluate("document.querySelector('#help-content').textContent"),/pgrep -a cheese/);
+    await until("document.querySelector('#wizard-reason').textContent.startsWith('Wrist camera: Camera device busy')");
+    await evaluate("[...document.querySelectorAll('#connection-paths button')].find(n=>n.textContent==='How to fix this').click()");
+    assert.match(await textOf("#help-content"),/pgrep -a cheese/);
     await evaluate("document.querySelector('#close-help').click();document.querySelector('[name=fps]').value='30';document.querySelector('[name=fps]').dispatchEvent(new Event('change',{bubbles:true}));");
     assert.equal(await evaluate("[...document.querySelectorAll('#connection-paths article')].every(n=>n.dataset.level==='not_checked')"),true,"changed settings invalidate every old path");
-    scenario="recovery";await evaluate("document.querySelector('#check-readiness').click()");
-    await until("document.querySelector('#next-action-title').textContent==='Preserve the dataset for recovery'");
-    await evaluate("document.querySelector('#next-action-button').click()");
-    assert.match(await evaluate("document.querySelector('#help-content').textContent"),/Do not remove the lock/);
-    await evaluate("document.querySelector('#close-help').click();document.querySelector('[data-setup-step=collect]').click()");
-    assert.equal(await evaluate("document.querySelector('#create').disabled"),true,"unset real task timing blocks creation");
-    assert.equal(await evaluate("document.querySelector('#smoke').disabled"),true,"missing identity cannot start smoke");
-    state.active_session={id:"pending",name:"Synthetic pending session"};
+    assert.equal(await reason(),"The setup check has not run for these values yet");
+    scenario="recovery";await click("#check-readiness");
+    await until("document.querySelector('#connection-paths').textContent.includes('journal requires review')");
+    await until("document.querySelector('#wizard-reason').textContent.startsWith('Preserve the dataset for recovery')");
+    await evaluate("[...document.querySelectorAll('#connection-paths button')].find(n=>n.textContent==='How to fix this').click()");
+    assert.match(await textOf("#help-content"),/Do not remove the lock/);
+    await click("#close-help");
+    assert.equal(await evaluate("document.querySelector('#smoke').disabled"),true,"missing identity cannot start a practice run");
+    // Expiry never moves the operator: the failed check stays on this step, with the same reason.
+    expireReports=true;
+    await until("document.querySelector('#readiness-label').textContent.includes('expired')");
+    assert.equal(await evaluate("location.hash"),"#/new/check");
+    assert.match(await reason(),/^Preserve the dataset for recovery/);
+    expireReports=false;
+    // Back returns exactly one step with inputs intact.
+    await evaluate("document.querySelector('[name=notes]').value='keep me';document.querySelector('[name=notes]').dispatchEvent(new Event('input',{bubbles:true}))");
+    await click("#wizard-back");await until("location.hash==='#/new/task'");
+    await pressPrimary();await until("location.hash==='#/new/check'");presses--;
+    assert.equal(await evaluate("document.querySelector('[name=notes]').value"),"keep me");
+    // A passing check completes the step; the Start step reruns a stale check in place.
+    scenario="pass";await click("#check-readiness");
+    await until("!document.querySelector('#wizard-primary').disabled","a passing check enables Continue");
+    const checksSoFar=calls.filter(call=>call.route==="readiness").length;
+    await pressPrimary();await until("location.hash==='#/new/start'");
+    assert.equal(await textOf("#route-announcer"),"Step 3 of 3: Start");
+    assert.match(await textOf("#start-summary"),/Taskdie into cup.*Not timed yet/s);
+    assert.match(await reason(),/needs follower serial and starting power state, task timing registered in the repository, operator-verified joint limits/);
+    assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),true,"a session that counts needs its evidence");
+    await evaluate("document.querySelector('#change-setup').click();document.querySelector('[name=follower_serial]').value='__manual__';document.querySelector('#follower-serial-custom').value='ARM-TEST';document.querySelector('[name=power_state_start]').value='powered, torque on';document.querySelector('[name=power_state_start]').dispatchEvent(new Event('input',{bubbles:true}))");
+    assert.match(await reason(),/needs task timing registered in the repository, operator-verified joint limits/);
+    task.episode_window={min_episode_s:8,max_episode_s:25};
+    await evaluate("document.querySelector('#smoke').disabled");
+    assert.equal(await evaluate("document.querySelector('#smoke').disabled"),false,"identity supplied lets a practice run start");
+    // Pretend the registry and limits were completed so Start session can be exercised end to end.
+    await evaluate("tasks[0].episode_window={min_episode_s:8,max_episode_s:25};SynriaWizard.refresh()");
+    await evaluate("document.querySelector('[name=notes]').value='limits ok';document.querySelector('[name=notes]').dispatchEvent(new Event('input',{bubbles:true}))");
+    const stillBlocked=await reason();assert.match(stillBlocked,/operator-verified joint limits/);
+    await evaluate("(async()=>{const original=SynriaGuide.requirements;})()");
+    state.demo=true;await until("document.body.classList.contains('demo')");
+    await evaluate("SynriaWizard.refresh()");
+    assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),false,"synthetic demo needs no physical evidence");
+    expireReports=true;await until("document.querySelector('#readiness-label').textContent.includes('expired')");
+    assert.equal(await evaluate("location.hash"),"#/new/start","expiry on Start never sends the operator back");
+    await pressPrimary();
+    await until("!document.querySelector('#start-check').hidden || location.hash.startsWith('#/session/')");
+    expireReports=false;
+    await until("location.hash==='#/session/s1/record'","Start session opens the session and lands on recording");
+    assert.equal(calls.filter(call=>call.route==="readiness").length,checksSoFar+1,"a stale check is rerun exactly once before starting");
+    assert.deepEqual(calls.slice(-2).map(call=>call.route),["sessions","session/s1/open"]);
+    assert.ok(presses<=4,`Home to recording took ${presses} presses`);
+    await until("document.querySelector('#breadcrumb').textContent.includes('Recording take 1 of 100')");
+    assert.equal(await evaluate("localStorage.getItem('synria-wizard-draft')"),null,"a started session clears the draft");
+    state.demo=false;
+    // Recording keyboard guards and save retries, unchanged from the earlier screen.
     state.capture={state:"stopped",pending_frame_count:2,controls:{success:true,failure:true,discard:true}};
-    await evaluate("(async()=>{await refreshState();SynriaRouter.go(SynriaRouter.routes.record('pending'));})()");
-    await until("!document.querySelector('#record').hidden && document.querySelector('#breadcrumb').textContent.includes('Synthetic pending session')");
+    await evaluate("refreshState()");
     await evaluate("SynriaGuide.openHelp('save')");
     assert.equal(await evaluate("lastCapture"),"stopped");
-    assert.match(await evaluate("document.querySelector('#record-message').textContent"),/Save it: Save as success \(S\) or Save as failure \(F\)/,"stopped banner names the save action");
+    assert.match(await textOf("#record-message"),/Save it: Save as success \(S\) or Save as failure \(F\)/,"stopped banner names the save action");
     assert.equal(await evaluate("document.querySelector('[data-command=success]').classList.contains('available')"),true,"available save button is emphasised");
     assert.match(await evaluate("document.querySelector('[data-command=start]').title"),/Save or discard the stopped episode first/,"disabled start explains why");
-    assert.equal(await evaluate("state.capture.controls.success"),true);
     const protectedCount=calls.length;
     await evaluate("document.dispatchEvent(new KeyboardEvent('keydown',{code:'Space',key:' '}));document.dispatchEvent(new KeyboardEvent('keydown',{key:'s'}))");
     assert.equal(calls.length,protectedCount,"help-dialog keyboard use cannot label or start a recording");
@@ -229,38 +314,39 @@ async function run() {
     state.capture.error="Previous save failed; pending frames retained";
     state.capture.controls.retry=true;
     await evaluate("refreshState()");
-    await evaluate("document.querySelector('[data-command=retry]').click()");
+    await click("[data-command=retry]");
     await until("document.querySelector('#notice').textContent.includes('disk full')");
     assert.equal(state.capture.pending_frame_count,2,"failed save retains pending state");
     allowSave=true;
-    await evaluate("document.querySelector('[data-command=retry]').click()");
+    await click("[data-command=retry]");
     await until("document.querySelector('#notice').textContent==='' && state.capture.pending_frame_count===0");
-    assert.match(await evaluate("document.querySelector('#record-message').textContent"),/^Saved episode 0 as failure\. Quality checks: not evaluated\. Ready\. Press Start recording \(Space\) to record\.$/,"saved banner words the result and the next action");
+    assert.match(await textOf("#record-message"),/^Saved episode 0 as failure\. Quality checks: not evaluated\. Ready\. Press Start recording \(Space\) to record\.$/,"saved banner words the result and the next action");
     assert.equal(calls.filter(call=>call.route==='record/retry').length,2,"only two deliberate save retries occur");
     state.active_session=null;state.capture={state:"closed"};
     const mutations=calls.length;offline=true;
     await evaluate("refreshState().catch(error)");
-    assert.match(await evaluate("document.querySelector('#notice').textContent"),/Reconnect without losing/);
+    assert.match(await textOf("#notice"),/Reconnect without losing/);
     offline=false;await evaluate("refreshState()");
-    assert.match(await evaluate("document.querySelector('#notice').textContent"),/Network connection lost/,"polling cannot erase an actionable error");
+    assert.match(await textOf("#notice"),/Network connection lost/,"polling cannot erase an actionable error");
     assert.equal(calls.length,mutations,"reconnection never retries a mutation");
     await send("Page.reload");
     await until("window.synriaConsoleReady && document.querySelector('#environment-facts').textContent.includes('synthetic-test')");
     assert.equal(calls.length,mutations,"reload never restarts a diagnostic");
-    assert.equal(await evaluate("location.hash"),"#/session/pending/record","refresh keeps the recording address");
+    assert.equal(await evaluate("location.hash"),"#/session/s1/record","refresh keeps the recording address");
     assert.equal(await evaluate("document.querySelector('#record-route-note').hidden"),false,"a closed session says so instead of pretending to record");
     await evaluate("SynriaRouter.go('sessions')");
     await until("!document.querySelector('#sessions').hidden");
-    assert.match(await evaluate("document.querySelector('#session-list').textContent"),/No sessions yet/);
+    assert.match(await textOf("#session-list"),/Review takes/);
     assert.equal(await evaluate("document.querySelector('#sessions-more').open"),false,"trash and reindex sit behind More");
-    await evaluate("document.querySelector('[data-setup-step=check]').click()");
+    await evaluate("SynriaRouter.go('new/task')");
+    await until("!document.querySelector('#new').hidden");
     await send("Emulation.setDeviceMetricsOverride",{width:390,height:844,deviceScaleFactor:1,mobile:true});
     assert.equal(await evaluate("document.documentElement.scrollWidth<=window.innerWidth+2"),true,"mobile layout must not overflow");
     await send("Emulation.setDeviceMetricsOverride",{width:1360,height:1000,deviceScaleFactor:1,mobile:false});
-    await evaluate("document.querySelector('#mode').textContent='SYNTHETIC UI TEST · NO HARDWARE';document.body.classList.add('demo');document.querySelector('[data-setup-step=prepare]').click()");
+    await evaluate("document.querySelector('#mode').textContent='SYNTHETIC UI TEST · NO HARDWARE';document.body.classList.add('demo')");
     fs.writeFileSync(screenshot,Buffer.from((await send("Page.captureScreenshot",{format:"png"})).data,"base64"));
     assert.deepEqual(exceptions,[],"no uncaught browser errors");
-    console.log("Guided browser: routes, refresh, breadcrumb, labels, setup, help, state timeout, camera fault, recovery, stale settings, consent, keyboard, save retries, network, reload and mobile checks passed.");
+    console.log("Guided browser: routes, refresh, breadcrumb, labels, wizard steps, footer reasons, bench checks, state timeout, camera fault, recovery, stale settings, expiry, Back keeps inputs, start reruns a stale check, keyboard, save retries, network, reload and mobile checks passed.");
   } finally {
     closing=true;
     try{await send("Browser.close",{},null);}catch{}
@@ -270,4 +356,4 @@ async function run() {
     fs.rmSync(profile,{recursive:true,force:true});
   }
 }
-run().catch(error=>{console.error(error);server.closeAllConnections();server.close();process.exitCode=1;});
+run().catch(error=>{console.error(error);if(exceptions.length)console.error("Browser exceptions:",JSON.stringify(exceptions.map(e=>e.exception?.description||e.text),null,1));server.closeAllConnections();server.close();process.exitCode=1;});

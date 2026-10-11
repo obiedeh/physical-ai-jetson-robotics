@@ -36,7 +36,7 @@ def test_every_screen_has_a_focusable_title_and_route_labels_are_unique() -> Non
     """Each screen carries a heading focus lands on, and no label points at two places."""
     markup = (STATIC / "index.html").read_text(encoding="utf-8")
     for screen in ("home", "sessions", "help", "new", "record", "review"):
-        pattern = rf'<section id="{screen}" class="screen"[^>]*>(.*?)</section>'
+        pattern = rf'<section id="{screen}" class="screen[^"]*"[^>]*>(.*?)</section>'
         section = re.search(pattern, markup, re.S)
         assert section is not None, screen
         assert 'class="screen-title" tabindex="-1"' in section.group(1), screen
