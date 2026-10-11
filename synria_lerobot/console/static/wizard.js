@@ -65,7 +65,9 @@ const SynriaWizard = (() => {
   /** The chosen registry task, if any. */
   function chosenTask() { return tasks.find(task => task.task_id === $("task").value) || null; }
   /** Sentence-case task title from its identifier. */
-  function taskTitle(task) { const words = task.task_id.replaceAll("_", " "); return words.charAt(0).toUpperCase() + words.slice(1); }
+  function taskTitle(task) { if (task.display_name) return task.display_name; const words = task.task_id.replaceAll("_", " "); return words.charAt(0).toUpperCase() + words.slice(1); }
+  /** Library tasks sit under their goal; built-in tasks come first. */
+  function isLibrary(task) { return task.task_source === "library"; }
   /** Plain words for operator-facing task text. */
   function plain(value) { return String(value).replace(/front-camera still/g, "overhead photo").replace(/the operator/g, "you"); }
   function timed(task) { return task.episode_window.min_episode_s !== null; }
@@ -109,17 +111,30 @@ const SynriaWizard = (() => {
   /** Render one selectable card per registry task; selection only sets the form field. */
   function renderTaskCards() {
     const container = $("task-cards"); container.replaceChildren();
+    let group = null;
     for (const task of tasks) {
+      const heading = task.group || (isLibrary(task) ? task.goal_title : "Built-in tasks");
+      if (heading !== group) { group = heading; const label = text("h4", heading); label.className = "task-group"; container.append(label); }
       const card = document.createElement("button"); card.type = "button"; card.className = "card task-card";
       card.setAttribute("role", "radio"); card.dataset.taskId = task.task_id;
       card.setAttribute("aria-checked", String($("task").value === task.task_id));
-      card.append(text("h3", taskTitle(task)), text("p", plain(task.task_text)));
+      card.append(text("h3", isLibrary(task) ? `${task.chain_position} ${task.name || taskTitle(task)}` : taskTitle(task)), text("p", plain(task.task_text)));
       const chip = text("span", timed(task) ? windowWords(task) : "Practice only until timed"); chip.className = "chip " + (timed(task) ? "chip-ok" : "chip-warn");
       card.append(chip);
+      if (isLibrary(task)) { const mark = text("span", "Library task, not in the published registry"); mark.className = "chip library-chip"; card.append(mark); }
       card.onclick = () => { $("task").value = task.task_id; $("task").dispatchEvent(new Event("change", {bubbles:true})); };
       container.append(card);
     }
     if (!tasks.length) container.append(text("p", "No tasks are registered."));
+    const entry = document.createElement("a"); entry.className = "card task-card teach-entry"; entry.href = window.SynriaRouter.href(window.SynriaRouter.routes.teach()); entry.dataset.route = window.SynriaRouter.routes.teach();
+    entry.append(text("h3", "Teach something new"), text("p", "Type a sentence and get steps you can train one at a time."));
+    container.append(entry);
+  }
+
+  /** After tasks change on the server: rebuild the select and the cards. */
+  function reloadTasks() {
+    if (typeof fillTaskOptions === "function") fillTaskOptions();
+    renderTaskCards(); renderTaskDescription(); refresh();
   }
 
   /** Scene bullets and one plain status for the chosen task. */
@@ -130,6 +145,10 @@ const SynriaWizard = (() => {
     const list = document.createElement("ul");
     for (const item of task.scene_requirements) list.append(text("li", plain(item)));
     box.append(list, text("p", `Success: ${plain(task.success_rule)}`));
+    if (isLibrary(task)) {
+      box.append(text("p", `Library task from the goal "${task.goal_title}", step ${task.chain_position}, version ${task.library_version}. Takes record the step, its version and its place in the chain so they can be stitched together later.`));
+      if (task.start_state) box.append(text("p", `Starts: ${task.start_state} Ends: ${task.end_state}`));
+    }
     const status = text("p", timed(task) ? `Take length ${windowWords(task)}. Takes recorded in this session count toward the dataset.`
       : "Take length not set yet. You can do practice runs now. To record takes that count, time this task first.");
     status.className = "task-status"; box.append(status);
@@ -439,7 +458,7 @@ const SynriaWizard = (() => {
     window.addEventListener("console-sessions", () => { if (autoName && chosenTask()) { suggestName(); if (!$("new").hidden) refresh(); } });
   }
 
-  return {STEPS, show, refresh, completion, remaining, initialize, furthestAllowed, current: () => step, checkIsCurrent, sceneText, tileRows, prefill, countingStatus,
+  return {STEPS, show, refresh, completion, remaining, initialize, furthestAllowed, current: () => step, checkIsCurrent, sceneText, tileRows, prefill, countingStatus, reloadTasks,
     flags: () => ({checking, starting, armed})};
 })();
 globalThis.SynriaWizard = SynriaWizard;

@@ -9,6 +9,10 @@ let report = {status:"unchecked", label:"Not checked", percent:0, checks:{}, for
 const state = {demo:false, active_session:null, capture:{state:"closed"}, preflight:{}, free_disk_bytes:1e11, min_free_bytes:1e9};
 const task = {task_id:"die_into_cup", task_text:"Synthetic fixture: put die into cup", success_rule:"Operator and still", scene_requirements:["Fixed synthetic scene"], episode_window:{min_episode_s:null, max_episode_s:null}};
 const sessionList = [];
+const libraryTasks = [];
+/** A fixed breakdown the fake planner returns for any sentence. */
+function fakeBreakdown(sentence){const step=(name,start,end,kind)=>({name,instruction:`Do ${name.toLowerCase()} and return to ready.`,start_state:start,end_state:end,success_rule:`${name} is done.`,scene_before_take:["Gripper empty, arm at ready."],kind,objects_grasped:["die"],holds_at_start:false,holds_at_end:false,camera_can_confirm:true,suggested_takes:5,optional:false,primitives:["pick"]});
+  return {schema_version:"synria_task_breakdown_v1",goal:{title:"Roll a die",sentence,rationale:"Two steps so the cycle can repeat."},sub_tasks:[step("Die into cup","Die in start zone, gripper empty, arm at ready","Die in cup, gripper empty, arm at ready","skill"),step("Die back to start","Die in cup, gripper empty, arm at ready","Die in start zone, gripper empty, arm at ready","reset")]};}
 
 /** Return a realistic refusal snapshot from fake state without constructing any runtime. */
 function diagnostic(settings) {
@@ -55,6 +59,8 @@ const server = http.createServer(async (req, res) => {
     else if(route==="sessions"){const session={id:"s1",name:payload.name,task_id:payload.task_id,status:"active",target_episodes:payload.target_episodes,operator:payload.operator,settings:payload,source_kind:"physical",updated_utc:"2026-10-11T00:00:00Z",counts:{saved:0,success:0,failure:0,excluded:0}};sessionList.push(session);value=session;}
     else if(route==="session/s1/open"){state.active_session=sessionList[0];state.capture={state:"idle",episode_index:0,pending_frame_count:0,min_episode_s:8,max_episode_s:25,remaining_s:25,countdown_s:null,controls:{start:true},counters:{saved:0,success:0,failure:0,discarded:0},recording_purpose:"qualifying"};value=state;}
     else if(route==="session/s1/close"){state.active_session=null;state.capture={state:"closed"};if(sessionList[0])sessionList[0].status="closed";value=state;}
+    else if(route==="library/plan"){value={source:"built-in planner",breakdown:fakeBreakdown(payload.sentence),questions:[],recipe:"roll_a_die",fallback_reason:"",notes:[],warnings:[],proposed:{goal_id:"lib_roll_a_die",task_ids:["lib_roll_a_die_1","lib_roll_a_die_2"]}};}
+    else if(route==="library/save"){libraryTasks.length=0;payload.breakdown.sub_tasks.forEach((step,i)=>libraryTasks.push({task_id:`lib_roll_a_die_${i+1}`,task_text:step.instruction,success_rule:step.success_rule,scene_requirements:step.scene_before_take,declared_fixed_scene:true,requires_unobserved_goal:false,episode_window:{min_episode_s:null,max_episode_s:null},task_source:"library",group:"Roll a die",display_name:`Roll a die: ${i+1} ${step.name}`,goal_id:"lib_roll_a_die",goal_title:"Roll a die",library_version:1,chain_position:i+1,kind:step.kind,frozen:false,name:step.name,start_state:step.start_state,end_state:step.end_state,suggested_takes:step.suggested_takes}));value={goal:{id:"lib_roll_a_die",title:payload.breakdown.goal.title,tasks:libraryTasks.map(t=>({task_id:t.task_id,version:1}))},warnings:[]};}
     else if(route==="session/s1/finish"){state.active_session=null;state.capture={state:"closed"};if(sessionList[0])sessionList[0].status="finished";value=state;}
     else if(route==="record/retry") {
       if(!allowSave){state.capture.error="save failed: disk full; pending frames retained";res.writeHead(409,{"Content-Type":"application/json"});res.end(JSON.stringify({error:state.capture.error}));return;}
@@ -66,7 +72,8 @@ const server = http.createServer(async (req, res) => {
   } else if(route==="state")value=state;
   else if(route.startsWith("sessions"))value=sessionList;
   else if(route.startsWith("episodes/"))value=[];
-  else if(route==="tasks")value=[task];
+  else if(route==="tasks")value=[{...task,task_source:"registry",group:"Built-in tasks",display_name:"Die into cup"},...libraryTasks];
+  else if(route==="library")value={goals:[],rules:["Every sub-task starts and ends with the gripper empty and the arm at the ready pose.","One object grasped per sub-task."],planner:{external_configured:false,source:"built-in planner"}};
   else if(route==="readiness")value=expireReports&&report.checked_utc?{...report,status:"expired",label:"Check expired · run again",percent:0}:report;
   else if(route==="cameras")value={cameras:["fake-wrist-video-index0","fake-front-video-index0"],message:"Synthetic identifiers"};
   else if(route==="serial-connections")value={connections:[],message:"No physical connections in test"};
@@ -222,6 +229,37 @@ async function run() {
     assert.match(await textOf("#help-content"),/cannot set or override/);
     await click("#close-help");
     assert.match(await textOf("#help"),/There are no timing inputs here by design/,"timing registration lives on the Help page");
+    // Teach something new: one sentence in, editable cards out, Save tasks as the only primary.
+    await click("#task-cards .teach-entry");
+    await until("location.hash==='#/teach' && !document.querySelector('#teach').hidden");
+    assert.equal(await textOf("#breadcrumb"),"HomeTeach something new");
+    assert.equal(await evaluate("document.querySelector('#teach-save').disabled"),true,"nothing to save before a breakdown");
+    assert.match(await textOf("#teach-rules"),/gripper empty/);
+    await evaluate("document.querySelector('#teach-sentence').value='train to roll a dice'");
+    await click("#teach-break");
+    await until("document.querySelectorAll('#teach-steps [data-step]').length===2","the planner's steps appear as cards");
+    assert.equal(calls.at(-1).route,"library/plan");assert.equal(calls.at(-1).payload.sentence,"train to roll a dice");
+    assert.equal(await textOf("#teach-source"),"Suggested by the built-in planner.");
+    assert.equal(await evaluate("document.querySelector('#teach-goal-title').value"),"Roll a die");
+    assert.match(await textOf("#teach-steps"),/Step 1 of 2.*Step 2 of 2/s);
+    await evaluate("document.querySelector('#teach-steps [data-step=\"0\"] [data-field=name]').value='Die into the cup'");
+    await evaluate("[...document.querySelectorAll('#teach-steps [data-step=\"0\"] button')].find(n=>n.textContent==='Move down').click()");
+    assert.equal(await evaluate("document.querySelector('#teach-steps [data-step=\"1\"] [data-field=name]').value"),"Die into the cup","edits survive a move");
+    await evaluate("[...document.querySelectorAll('#teach-steps [data-step=\"1\"] button')].find(n=>n.textContent==='Move up').click()");
+    const savesBefore=calls.length;
+    await click("#teach-save");
+    await until("location.hash==='#/new/task'","Save tasks returns to Choose task");
+    assert.equal(calls[savesBefore].route,"library/save");
+    assert.equal(calls[savesBefore].payload.breakdown.sub_tasks[0].name,"Die into the cup","the edited card is what is saved");
+    assert.equal(calls[savesBefore].payload.planner_source,"built-in planner");
+    await until("document.querySelector('[data-task-id=lib_roll_a_die_1]')!==null","saved tasks appear as cards under their goal");
+    assert.match(await textOf("#task-cards"),/Built-in tasks.*Die into cup.*Roll a die.*1 Die into the cup.*Library task, not in the published registry.*2 Die back to start/s);
+    assert.equal(await evaluate("[...document.querySelectorAll('#task optgroup')].map(g=>g.label).join('|')"),"Built-in tasks|Roll a die","the dropdown is grouped by goal with built-in tasks first");
+    assert.equal(await evaluate("document.querySelector('[name=task_id]').value"),"lib_roll_a_die_1","the first saved task is selected");
+    assert.match(await textOf("#notice"),/2 tasks saved under Roll a die/);
+    await click("[data-task-id=die_into_cup]");
+    assert.equal(await evaluate("document.querySelector('[name=task_id]').value"),"die_into_cup");
+    const teachPosts=calls.length;
     await pressPrimary();
     await until("location.hash==='#/new/check'");
     assert.equal(await textOf("#route-announcer"),"Step 2 of 2: Check setup");
@@ -235,12 +273,12 @@ async function run() {
     assert.equal(await textOf("#check-readiness"),"Check now","before any run the button says Check now");
     assert.equal(await evaluate("document.querySelector('#bench-panel').hidden"),false,"physical mode shows the bench checks");
     assert.equal(await evaluate("[...document.querySelectorAll('#source-tiles .tile')].map(n=>n.dataset.state).join()"),"unchecked,unchecked,unchecked,ok","tiles say Not checked yet, storage is OK");
-    assert.equal(calls.length,0,"entering Check setup without bench checks cannot open sources");
+    assert.equal(calls.length,teachPosts,"entering Check setup without bench checks cannot open sources");
     // An invalid hidden field names itself and opens the form.
     await evaluate("const fpsPreset=document.querySelector('[data-preset-for=fps]');fpsPreset.value='custom';fpsPreset.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('[name=fps]').value='0';document.querySelector('[name=fps]').dispatchEvent(new Event('input',{bubbles:true}))");
     assert.match(await reason(),/choose the rate/);
     await click("#check-readiness");
-    assert.equal(calls.length,0,"invalid native form constraints cannot open sources");
+    assert.equal(calls.length,teachPosts,"invalid native form constraints cannot open sources");
     assert.equal(await evaluate("document.querySelector('#setup-configure').hidden"),false,"invalid hidden form field opens its setup fields");
     await evaluate("document.querySelector('[data-preset-for=fps]').value='15';document.querySelector('[data-preset-for=fps]').dispatchEvent(new Event('change',{bubbles:true}))");
     if(process.env.SYNRIA_GUIDE_EXTRA_SHOTS)fs.writeFileSync(screenshot.replace(/\.png$/,"-configuration.png"),Buffer.from((await send("Page.captureScreenshot",{format:"png"})).data,"base64"));
@@ -250,16 +288,16 @@ async function run() {
     assert.equal(await evaluate("SynriaWizard.sceneText()"),"Fixed synthetic scene. Today: <script>throw Error(99)</script>","scene is the task scene plus today's note");
     await click("#check-readiness");
     await until("document.querySelector('#notice').textContent.includes('physical safety confirmations')");
-    assert.equal(calls.length,0,"missing physical confirmations cannot issue a diagnostic");
+    assert.equal(calls.length,teachPosts,"missing physical confirmations cannot issue a diagnostic");
     // The fifth bench tick starts the read-only check by itself.
     await evaluate("document.querySelectorAll('[data-readiness-confirm]').forEach(n=>{n.checked=true;n.dispatchEvent(new Event('change',{bubbles:true}));})");
     await until("document.querySelector('#wizard-reason').textContent.includes('fix the arm feed')");
     assert.equal(await reason(),"3 things left: choose the follower serial, confirm the power state, fix the arm feed");
     assert.equal(await textOf("#check-readiness"),"Check again");
     assert.equal(await textOf("#notice"),"","a deliberate valid attempt supersedes the resolved consent error");
-    assert.equal(calls.length,1);assert.equal(calls[0].payload.settings.follower_serial,"");
-    assert.equal(calls[0].payload.settings.scene,"Fixed synthetic scene. Today: <script>throw Error(99)</script>");
-    assert.equal("power_choice" in calls[0].payload.settings,false,"page-only controls never reach the server");
+    assert.equal(calls.length,teachPosts+1);assert.equal(calls[teachPosts].payload.settings.follower_serial,"");
+    assert.equal(calls[teachPosts].payload.settings.scene,"Fixed synthetic scene. Today: <script>throw Error(99)</script>");
+    assert.equal("power_choice" in calls[teachPosts].payload.settings,false,"page-only controls never reach the server");
     assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),true,"a failing check keeps the primary disabled");
     assert.equal(await evaluate("location.hash"),"#/new/check","a failing check never changes the step");
     assert.match(await textOf("#source-tiles"),/Problem.*Arm feed.*What is wrong.*No state sample received.*Likely cause.*What to do/s,"a problem tile explains itself");

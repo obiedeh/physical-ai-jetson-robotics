@@ -30,12 +30,15 @@ def test_global_nav_has_three_destinations_and_flows_have_one_exit() -> None:
     assert 'id="trash-list"' in markup
     assert '<script src="/router.js" defer></script>' in markup
     assert '<script src="/home.js" defer></script>' in markup
+    assert '<script src="/teach.js" defer></script>' in markup
+    assert 'id="teach-sentence"' in markup and 'id="teach-save"' in markup
 
 
 def test_every_screen_has_a_focusable_title_and_route_labels_are_unique() -> None:
     """Each screen carries a heading focus lands on, and no label points at two places."""
     markup = (STATIC / "index.html").read_text(encoding="utf-8")
-    for screen in ("home", "intro", "sessions", "help", "new", "record", "review", "summary"):
+    for screen in ("home", "intro", "teach", "sessions", "help", "new", "record", "review",
+                   "summary"):
         pattern = rf'<section id="{screen}" class="screen[^"]*"[^>]*>(.*?)</section>'
         section = re.search(pattern, markup, re.S)
         assert section is not None, screen

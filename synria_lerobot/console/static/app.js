@@ -265,12 +265,13 @@ function sessionName(id) { const found = sessions.find(s => s.id === id) || (sta
 /** Show the global nav outside a flow and the breadcrumb with one exit inside a flow. */
 function renderFlowNav() {
   if (!route) return;
-  const inFlow = ["new", "record", "review", "summary"].includes(route.name);
+  const inFlow = ["new", "record", "review", "summary", "teach"].includes(route.name);
   $("global-nav").hidden = inFlow; $("flow-nav").hidden = !inFlow;
   document.querySelectorAll("#global-nav a").forEach(node => { if (node.dataset.route === route.name) node.setAttribute("aria-current", "page"); else node.removeAttribute("aria-current"); });
   if (!inFlow) return;
   const crumbs = [["Home", routes().home()]];
   if (route.name === "new") crumbs.push(["New session", null]);
+  else if (route.name === "teach") crumbs.push(["Teach something new", null]);
   else {
     const c = state.capture || {};
     crumbs.push([sessionName(route.sessionId), null]);
@@ -296,7 +297,7 @@ function arrive(sectionId, announcement) {
 /** Render one route: pick the section, set the nav mode and load what that screen shows. */
 function render(next) {
   const previous = route; route = next;
-  const sections = {home:"home", sessions:"sessions", help:"help", intro:"intro", new:"new", record:"record", review:"review", summary:"summary"};
+  const sections = {home:"home", sessions:"sessions", help:"help", intro:"intro", teach:"teach", new:"new", record:"record", review:"review", summary:"summary"};
   showSection(sections[next.name]);
   $("record-route-note").hidden = true;
   if (next.name === "record" && state.active_session && state.active_session.id !== next.sessionId) {
@@ -314,7 +315,7 @@ function render(next) {
   if (next.name === "sessions") safe(refreshSessions);
   if (next.name === "summary") safe(() => renderSummary(next.sessionId));
   renderFlowNav();
-  const titles = {home:"Home", sessions:"Sessions", help:"Help", intro:"Welcome", new:"New session", record:"Recording", review:"Review takes", summary:"Session finished"};
+  const titles = {home:"Home", sessions:"Sessions", help:"Help", intro:"Welcome", teach:"Teach something new", new:"New session", record:"Recording", review:"Review takes", summary:"Session finished"};
   if (!previous || previous.path !== next.path) arrive(sections[next.name], titles[next.name]);
   if (next.name === "new" && window.SynriaWizard && tasks.length) {
     const allowed = window.SynriaWizard.STEPS.indexOf(window.SynriaWizard.furthestAllowed());
@@ -351,10 +352,10 @@ async function renderSummary(id) {
   $("summary-lead").textContent = `${session.name}${demoLabel(session)}`;
   const list = $("summary-list"); list.replaceChildren();
   const rows = [["Task", window.SynriaRecord.taskTitle(session.task_id)], ["Takes saved", `${counts.saved ?? 0} of a target of ${session.target_episodes}`], ["Success", String(counts.success ?? 0)], ["Failure", String(counts.failure ?? 0)], ["Excluded", String(counts.excluded ?? 0)],
-    ["Task source", "Built-in task list"], ["Counts toward the dataset", task && task.episode_window.min_episode_s !== null && session.source_kind !== "synthetic_demo" ? "Yes, if every quality check passed" : session.source_kind === "synthetic_demo" ? "No, demo data" : "No, the task is not timed yet"],
+    ["Task source", session.task_source === "library" ? `Task library: ${task?.goal_title || session.goal_id}, step ${session.chain_position}, version ${session.library_version}` : "Built-in task list"], ["Counts toward the dataset", task && task.episode_window.min_episode_s !== null && session.source_kind !== "synthetic_demo" ? "Yes, if every quality check passed" : session.source_kind === "synthetic_demo" ? "No, demo data" : "No, the task is not timed yet"],
     ["Last used", session.updated_utc ? window.SynriaHome.ago(session.updated_utc) : "unknown"]];
   for (const [label, value] of rows) list.append(text("dt", label), text("dd", value));
-  $("summary-technical").textContent = `Task definition: config/synria_tasks.json (${session.task_id}). Data saved under: ${session.dataset_path || "workspace"}. Catalog id: ${session.id}.`;
+  $("summary-technical").textContent = `Task definition: ${session.task_source === "library" ? session.task_snapshot_path : "config/synria_tasks.json"} (${session.task_id}). Data saved under: ${session.dataset_path || "workspace"}. Catalog id: ${session.id}.`;
   const actions = $("summary-actions"); actions.replaceChildren();
   actions.append(button("Record another session of this task", () => { window.SynriaWizard.prefill(session.task_id, session.target_episodes); window.SynriaRouter.go(routes().wizard("check")); }, "primary"), routeLink("Review takes", routes().review(id)));
 }
@@ -394,9 +395,12 @@ document.addEventListener("keydown",recordingShortcut);
 function introSeen() { try { return localStorage.getItem("synria-intro-seen") === "1"; } catch (reason) { return false; } }
 $("intro-continue").onclick=()=>{try{localStorage.setItem("synria-intro-seen","1");}catch(reason){/* storage blocked */}window.SynriaRouter.go(routes().home(),{replace:true});};
 /** Load server state and form choices, then show the place the hash names or the natural start. */
-async function boot(){for(const [role,name] of Object.entries(window.SynriaRecord.NAMES)){document.querySelectorAll(`[data-camera-name=${role}]`).forEach(node=>{node.textContent=name;});}await refreshState();tasks=await api("tasks");{const none=text("option","Choose a task");none.value="";$("task").append(none);}for(const task of tasks){const option=text("option",task.task_id);option.value=task.task_id;$("task").append(option);}renderTaskWindows();const cameras=await api("cameras");$("camera-note").textContent=cameras.message;for(const id of ["wrist-choice","front-choice"]){$(id).append(text("option",""));for(const camera of cameras.cameras){const option=text("option",camera);option.value=camera;$(id).append(option);}}$("source").disabled=state.demo;$("smoke").hidden=state.demo;taskDescription();await refreshSessions();
+/** Rebuild the task select with built-in tasks first and library tasks grouped under their goal. */
+function fillTaskOptions(){const select=$("task"),previous=select.value;select.replaceChildren();const none=text("option","Choose a task");none.value="";select.append(none);let group=null,holder=select;for(const task of tasks){const heading=task.group||(task.task_source==="library"?task.goal_title:"Built-in tasks");if(heading!==group){group=heading;holder=document.createElement("optgroup");holder.label=heading;select.append(holder);}const option=text("option",task.display_name||task.task_id);option.value=task.task_id;holder.append(option);}select.value=tasks.some(t=>t.task_id===previous)?previous:"";}
+async function boot(){for(const [role,name] of Object.entries(window.SynriaRecord.NAMES)){document.querySelectorAll(`[data-camera-name=${role}]`).forEach(node=>{node.textContent=name;});}await refreshState();tasks=await api("tasks");fillTaskOptions();renderTaskWindows();const cameras=await api("cameras");$("camera-note").textContent=cameras.message;for(const id of ["wrist-choice","front-choice"]){$(id).append(text("option",""));for(const camera of cameras.cameras){const option=text("option",camera);option.value=camera;$(id).append(option);}}$("source").disabled=state.demo;$("smoke").hidden=state.demo;taskDescription();await refreshSessions();
   const firstRun=!sessions.some(s=>!["trashed","purged"].includes(s.status))&&!introSeen();
   const start=state.active_session?routes().record(state.active_session.id):firstRun?routes().intro():routes().home();
   window.SynriaRouter.start(render,start);
+  if(window.SynriaTeach)safe(window.SynriaTeach.initialize);
   window.synriaConsoleReady=true;window.dispatchEvent(new Event("console-ready"));}
 safe(boot);setInterval(()=>safe(refreshState),700);

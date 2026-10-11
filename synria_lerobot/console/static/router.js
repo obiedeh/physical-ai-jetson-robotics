@@ -7,6 +7,7 @@
 (function () {
   const PATTERNS = [
     ["home", /^home$/], ["sessions", /^sessions$/], ["help", /^help$/], ["intro", /^intro$/],
+    ["teach", /^teach$/],
     ["new", /^new(?:\/(task|check|start))?$/],
     ["record", /^session\/([^/]+)\/record$/],
     ["review", /^session\/([^/]+)\/review(?:\/(\d+))?$/],
@@ -37,6 +38,7 @@
   /** Address helpers so screens never assemble session routes by hand. */
   const routes = {
     home: () => "home", sessions: () => "sessions", help: () => "help", intro: () => "intro",
+    teach: () => "teach",
     wizard: step => `new/${step || "task"}`,
     record: sessionId => `session/${encodeURIComponent(sessionId)}/record`,
     summary: sessionId => `session/${encodeURIComponent(sessionId)}/summary`,
