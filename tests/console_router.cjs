@@ -42,15 +42,16 @@ assert.equal(rows[3].level, "ready"); assert.match(rows[3].detail, /^50\.0 GB fr
 const checks = {follower_sample: {passed: true, status: "ready", message: "Fresh sample"},
   wrist_sample: {passed: false, status: "not_ready", message: "Camera device busy"},
   front_sample: {passed: false, status: "not_checked", message: "Not run"}};
+const fresh = new Date(Date.now() - 2 * 60 * 1000).toISOString();
 rows = home.statusRows({active_session: {name: "Morning"}, free_disk_bytes: 1e8, min_free_bytes: 1e9},
-  {status: "not_ready", message: "Missing rclpy"}, {checked_utc: "2026-10-11T10:00:00Z", status: "blocked", checks});
+  {status: "not_ready", message: "Missing rclpy"}, {checked_utc: fresh, status: "expired", checks});
 assert.equal(rows[0].name, "Software"); assert.equal(rows[0].level, "attention"); assert.equal(rows[0].detail, "Missing rclpy");
-assert.equal(rows[1].level, "ready"); assert.equal(rows[1].detail, "OK");
-assert.equal(rows[2].level, "attention"); assert.equal(rows[2].detail, "Camera device busy");
+assert.equal(rows[1].level, "ready"); assert.equal(rows[1].detail, "OK, 2 minutes ago", "a recent result keeps its verdict and age even after the server's 60 s expiry");
+assert.equal(rows[2].level, "attention"); assert.equal(rows[2].detail, "Camera device busy, 2 minutes ago");
 assert.equal(rows[3].level, "neutral");
 assert.equal(rows[4].level, "attention"); assert.match(rows[4].detail, /below the recording floor/);
-rows = home.statusRows({active_session: null}, {status: "ready"}, {checked_utc: "2026-10-11T10:00:00Z", status: "expired", checks});
-assert.equal(rows[0].detail, "Not checked yet", "an expired check is not shown as a fresh sample");
+rows = home.statusRows({active_session: null}, {status: "ready"}, {checked_utc: "2026-10-11T10:00:00Z", status: "ready", checks});
+assert.equal(rows[0].detail, "Not checked recently", "a result older than ten minutes is not shown as current");
 
 // Cards: things to do, with Continue only when an unfinished session exists.
 homeContext.window.SynriaRouter = {routes: {wizard: step => `new/${step}`, sessions: () => "sessions", record: id => `session/${id}/record`}, href: path => "#/" + path};
@@ -58,17 +59,20 @@ let cards = home.cards({active_session: null}, [], false);
 assert.equal(cards.map(c => c.title).join("|"), "New session|Practice run|Review recordings");
 assert.equal(cards.map(c => c.verb).join("|"), "Start a new session|Start a practice run|Open review");
 assert.equal(cards[2].kind, "disabled", "review is disabled until a take exists");
-assert.equal(cards[0].primary, true);
+assert.equal(cards[0].primary, true, "with nothing to continue, New session is the highlighted card");
 cards = home.cards({active_session: null}, [], true);
 assert.equal(cards[1].kind, "disabled", "demo mode has no practice run");
 const paused = {id: "s1", name: "Morning", task_id: "die_into_cup", status: "closed", source_kind: "physical", target_episodes: 10, counts: {saved: 4}, updated_utc: new Date().toISOString()};
 cards = home.cards({active_session: null}, [paused], false);
 assert.equal(cards[1].title, "Continue recording"); assert.equal(cards[1].verb, "Continue");
+assert.equal(cards[1].primary, true, "Continue is the highlighted card when a session can be continued"); assert.equal(cards[0].primary, false);
 assert.match(cards[1].text, /^die into cup, 4 of 10 takes saved, last used just now\.$/);
 assert.equal(cards[1].open, false, "a paused session is reopened before recording");
 assert.equal(cards[2].kind, "link", "saved takes enable review");
 const done = {...paused, counts: {saved: 10}};
 cards = home.cards({active_session: null}, [done], false);
+assert.equal(cards[1].title, "Practice run", "a session at its target is not offered to continue");
+cards = home.cards({active_session: null}, [{...paused, status: "finished"}], false);
 assert.equal(cards[1].title, "Practice run", "a finished session is not offered to continue");
 cards = home.cards({active_session: {id: "s1"}}, [paused], false);
 assert.equal(cards[1].open, true);

@@ -13,6 +13,10 @@
     visual_sanity: "image brightness",
   };
   const GATE_COUNT = Object.keys(GATE_WORDS).length;
+  /** The one place the two camera roles are named for people. */
+  const NAMES = {wrist: "Wrist camera", front: "Overhead camera"};
+  /** Sentence-case title for a task identifier such as die_into_cup. */
+  function taskTitle(taskId) { const words = String(taskId || "").replaceAll("_", " "); return words.charAt(0).toUpperCase() + words.slice(1); }
   const LABELS = {
     start: "Start recording (Space)", stop: "Stop (Space)", cancel_countdown: "Cancel countdown",
     success: "Yes, save as success (S)", failure: "No, save as failure (F)", retry: "Retry save",
@@ -21,12 +25,14 @@
 
   /** Say how many quality checks passed and name the failed ones in plain words. */
   function gateSummary(episode, demo = false) {
-    if (!episode || typeof episode.gate_passed !== "boolean") return "Quality checks not run";
-    const failed = (episode.failed_gates || []).map(name => GATE_WORDS[name] || name);
-    const passed = GATE_COUNT - failed.length;
+    const verdict = episode ? episode.gate_passed : undefined;
+    const known = verdict === true || verdict === false || verdict === 0 || verdict === 1;
+    if (!known) return "Quality checks not run yet";
+    const failed = (episode.failed_gates || episode.failed_gates_json || []).map(name => GATE_WORDS[name] || name);
     const suffix = demo ? " (demo data)" : "";
-    if (!failed.length) return `Quality checks passed${suffix}`;
-    return `Quality checks: ${passed} of ${GATE_COUNT} passed, failed: ${failed.join(", ")}${suffix}`;
+    if (verdict === true || verdict === 1) return `Quality checks passed${suffix}`;
+    if (!failed.length) return `Quality check failed${suffix}`;
+    return `Quality check${failed.length === 1 ? "" : "s"} failed: ${failed.join(", ")}${suffix}`;
   }
 
   /** Takes count from 1 on screen; the stored index stays zero-based. */
@@ -39,11 +45,13 @@
 
   /** Worded counters: saved, labels, discards and the target or practice note. */
   function counters(capture, active) {
-    const c = capture.counters || active.counts || {};
-    const target = capture.recording_purpose === "disposable_smoke"
-      ? "Practice run, not counted" : `Target ${active.target_episodes ?? "unset"}`;
+    // Session totals come from the catalog; the capture run only knows its own discards.
+    const practice = capture.recording_purpose === "disposable_smoke";
+    const c = (!practice && active.counts) || capture.counters || {};
+    const discarded = capture.counters?.discarded || 0;
+    const target = practice ? "Practice run, not counted" : `Target ${active.target_episodes ?? "unset"}`;
     return `Saved ${c.saved || 0} (${c.success || 0} success, ${c.failure || 0} failure)`
-      + ` · Discarded ${c.discarded || 0} · ${target}`;
+      + (discarded ? ` · Thrown away ${discarded}` : "") + ` · ${target}`;
   }
 
   /** Build the phase, message, countdown, actions that apply and tooltip reasons for the rest. */
@@ -136,5 +144,5 @@
     return age + size;
   }
 
-  window.SynriaRecord = {GATE_WORDS, GATE_COUNT, LABELS, gateSummary, savedSentence, takeNumber, counters, describe, cameraBrief};
+  window.SynriaRecord = {GATE_WORDS, GATE_COUNT, LABELS, NAMES, taskTitle, gateSummary, savedSentence, takeNumber, counters, describe, cameraBrief};
 })();

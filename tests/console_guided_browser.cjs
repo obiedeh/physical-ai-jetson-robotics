@@ -54,7 +54,8 @@ const server = http.createServer(async (req, res) => {
     if(route==="readiness"){report=diagnostic(payload.settings);value=report;}
     else if(route==="sessions"){const session={id:"s1",name:payload.name,task_id:payload.task_id,status:"active",target_episodes:payload.target_episodes,operator:payload.operator,settings:payload,source_kind:"physical",updated_utc:"2026-10-11T00:00:00Z",counts:{saved:0,success:0,failure:0,excluded:0}};sessionList.push(session);value=session;}
     else if(route==="session/s1/open"){state.active_session=sessionList[0];state.capture={state:"idle",episode_index:0,pending_frame_count:0,min_episode_s:8,max_episode_s:25,remaining_s:25,countdown_s:null,controls:{start:true},counters:{saved:0,success:0,failure:0,discarded:0},recording_purpose:"qualifying"};value=state;}
-    else if(route==="session/s1/close"){state.active_session=null;state.capture={state:"closed"};value=state;}
+    else if(route==="session/s1/close"){state.active_session=null;state.capture={state:"closed"};if(sessionList[0])sessionList[0].status="closed";value=state;}
+    else if(route==="session/s1/finish"){state.active_session=null;state.capture={state:"closed"};if(sessionList[0])sessionList[0].status="finished";value=state;}
     else if(route==="record/retry") {
       if(!allowSave){state.capture.error="save failed: disk full; pending frames retained";res.writeHead(409,{"Content-Type":"application/json"});res.end(JSON.stringify({error:state.capture.error}));return;}
       state.capture={state:"idle",pending_frame_count:0,controls:{start:true},last_episode:{episode_index:0,operator_label:"failure"}};
@@ -198,7 +199,7 @@ async function run() {
     // Step 1: the primary waits for a task and says so.
     assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),true);
     assert.equal(await reason(),"1 thing left: choose a task");
-    assert.equal(await textOf("#wizard-back"),"Back","the footer left button is always Back");
+    assert.equal(await textOf("#wizard-back"),"Cancel","on the first step the footer left button cancels to Home");
     assert.equal(await evaluate("document.querySelectorAll('#new button').length===[...document.querySelectorAll('#new button')].length && [...document.querySelectorAll('#new button')].filter(n=>n.textContent.trim()==='Exit to Home').length"),0,"only the top-right Exit says Exit");
     assert.equal(await evaluate("document.querySelector('[data-wizard-step=check]').disabled"),true,"later steps cannot be clicked");
     await evaluate("SynriaGuide.openHelp('source')");
@@ -214,7 +215,7 @@ async function run() {
     assert.ok(!(await textOf("#task-description")).includes("DECISIONS.md"),"no internal text in the task panel");
     assert.equal(await evaluate("document.querySelector('#task-session-fields').hidden"),false,"name and target appear under the chosen task");
     assert.match(await evaluate("document.querySelector('[name=name]').value"),/^Die into cup, \d{1,2} [A-Z][a-z]{2}, 1$/,"session name in words");
-    assert.equal(await evaluate("document.querySelector('[name=target_episodes]').value"),"100");
+    assert.equal(await evaluate("document.querySelector('[name=target_episodes]').value"),"10","with no earlier session the target is the quick trial");
     assert.match(await evaluate("[...document.querySelector('[data-preset-for=target_episodes]').options].map(o=>o.textContent).join('|')"),/10 takes \(quick trial\)\|50 takes\|100 takes\|Other/,"target choices in plain words");
     await evaluate("[...document.querySelectorAll('#task-description button')].find(n=>n.textContent==='How to time this task').click()");
     assert.match(await textOf("#help-content"),/config\/synria_tasks.json/);
@@ -228,9 +229,9 @@ async function run() {
     assert.equal(await evaluate("document.querySelector('#setup-configure').hidden"),true,"remembered values sit behind Change setup");
     assert.equal(await evaluate("document.querySelector('#setup-inline [name=follower_serial]')!==null && document.querySelector('#setup-inline [name=power_choice]')!==null"),true,"serial and power state are inline");
     assert.equal(await evaluate("document.activeElement.name"),"follower_serial","focus lands on the first missing inline field");
-    assert.equal(await reason(),"5 things left: choose the follower serial, confirm the power state, tick the bench checks, time this task first (practice runs are available now), record operator-verified joint limits");
-    assert.equal(await textOf("#wizard-primary"),"Start session","step 2 holds the start");
-    assert.equal(await evaluate("document.querySelector('#smoke').hidden"),false,"the practice run sits beside Start session");
+    assert.equal(await reason(),"3 things left: choose the follower serial, confirm the power state, tick the bench checks");
+    assert.equal(await textOf("#wizard-primary"),"Start practice run","an untimed task leads to the practice run, and the button says so");
+    assert.equal(await evaluate("document.querySelector('#smoke').hidden"),true,"no second practice button when the primary is the practice run");
     assert.equal(await textOf("#check-readiness"),"Check now","before any run the button says Check now");
     assert.equal(await evaluate("document.querySelector('#bench-panel').hidden"),false,"physical mode shows the bench checks");
     assert.equal(await evaluate("[...document.querySelectorAll('#source-tiles .tile')].map(n=>n.dataset.state).join()"),"unchecked,unchecked,unchecked,ok","tiles say Not checked yet, storage is OK");
@@ -253,7 +254,7 @@ async function run() {
     // The fifth bench tick starts the read-only check by itself.
     await evaluate("document.querySelectorAll('[data-readiness-confirm]').forEach(n=>{n.checked=true;n.dispatchEvent(new Event('change',{bubbles:true}));})");
     await until("document.querySelector('#wizard-reason').textContent.includes('fix the arm feed')");
-    assert.equal(await reason(),"5 things left: choose the follower serial, confirm the power state, fix the arm feed, time this task first (practice runs are available now), record operator-verified joint limits");
+    assert.equal(await reason(),"3 things left: choose the follower serial, confirm the power state, fix the arm feed");
     assert.equal(await textOf("#check-readiness"),"Check again");
     assert.equal(await textOf("#notice"),"","a deliberate valid attempt supersedes the resolved consent error");
     assert.equal(calls.length,1);assert.equal(calls[0].payload.settings.follower_serial,"");
@@ -261,7 +262,7 @@ async function run() {
     assert.equal("power_choice" in calls[0].payload.settings,false,"page-only controls never reach the server");
     assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),true,"a failing check keeps the primary disabled");
     assert.equal(await evaluate("location.hash"),"#/new/check","a failing check never changes the step");
-    assert.match(await textOf("#source-tiles"),/Problem.*Arm feed.*What is wrong.*No state sample received.*Likely cause.*How to fix/s,"a problem tile explains itself");
+    assert.match(await textOf("#source-tiles"),/Problem.*Arm feed.*What is wrong.*No state sample received.*Likely cause.*What to do/s,"a problem tile explains itself");
     assert.match(await textOf("#source-tiles"),/Not checked yet.*Wrist camera/s);
     assert.match(await textOf("#sources-line"),/Last check just now/);
     assert.ok(!await evaluate("document.querySelector('#all-check-details').textContent.includes('Ready · state source')"));
@@ -290,7 +291,7 @@ async function run() {
     await evaluate("[...document.querySelectorAll('#source-tiles button')].find(n=>n.textContent==='All the steps').click()");
     assert.match(await textOf("#help-content"),/Do not remove the lock/);
     await click("#close-help");
-    assert.equal(await evaluate("document.querySelector('#smoke').disabled"),true,"missing identity cannot start a practice run");
+    assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),true,"missing identity cannot start a practice run");
     // Expiry never moves the operator: the failed check stays on this step, with the same reason.
     expireReports=true;
     await until("document.querySelector('#readiness-label').textContent.includes('expired')");
@@ -311,18 +312,20 @@ async function run() {
     assert.equal(await evaluate("formValues().follower_serial"),"ARM-TEST");
     scenario="pass";
     await until("!document.querySelector('#wizard-reason').textContent.includes('preserve the dataset') && !SynriaWizard.flags().checking && !readinessBusy && SynriaWizard.tileRows().every(t=>t.state==='ok')","the check reruns by itself and passes");
-    assert.equal(await reason(),"2 things left: time this task first (practice runs are available now), record operator-verified joint limits");
+    assert.equal(await reason(),"This task is not timed yet. A practice run records one 20 second take and throws it away.");
     assert.match(await textOf("#source-tiles"),/OK.*Arm feed.*Receiving 25 readings per second/s,"arm feed states its rate in words");
-    assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),true,"a session that counts needs its evidence");
-    assert.equal(await evaluate("document.querySelector('#smoke').disabled"),false,"identity supplied lets a practice run start");
+    assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),false,"identity supplied lets the practice run start");
+    assert.equal(await textOf("#wizard-primary"),"Start practice run");
     const checksSoFar=calls.filter(call=>call.route==="readiness").length;
     task.episode_window={min_episode_s:8,max_episode_s:25};
     await evaluate("tasks[0].episode_window={min_episode_s:8,max_episode_s:25};SynriaWizard.refresh()");
-    assert.equal(await reason(),"1 thing left: record operator-verified joint limits");
+    assert.equal(await reason(),"Takes will not count toward the dataset until the joint limits are verified.");
+    assert.equal(await textOf("#wizard-primary"),"Start practice run");
     state.demo=true;await until("document.body.classList.contains('demo')");
     await evaluate("SynriaWizard.refresh()");
     assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),false,"synthetic demo needs no physical evidence");
-    assert.equal(await reason(),"Everything is in place.");
+    assert.equal(await textOf("#wizard-primary"),"Start session");
+    assert.equal(await reason(),"Demo takes never count toward the dataset.");
     assert.equal(await textOf("#mode-help"),"Demo mode: fake cameras and arm. Nothing recorded here is real.");
     expireReports=true;await until("document.querySelector('#readiness-label').textContent.includes('expired')");
     assert.equal(await evaluate("location.hash"),"#/new/check","expiry never sends the operator back");
@@ -333,7 +336,9 @@ async function run() {
     assert.deepEqual(calls.slice(-2).map(call=>call.route),["sessions","session/s1/open"]);
     assert.match(calls.at(-2).payload.name,/^Die into cup, \d{1,2} [A-Z][a-z]{2}, 1$/);
     assert.ok(presses<=4,`Home to recording took ${presses} presses`);
-    await until("document.querySelector('#breadcrumb').textContent.includes('Take 1 of 100')");
+    await until("document.querySelector('#record-title').textContent==='Take 1 of 10'","the heading counts takes; the breadcrumb names the session");
+    assert.equal(await textOf("#breadcrumb"),`Home${calls.at(-2).payload.name}`);
+    assert.equal(await evaluate("document.querySelector('#finish-session').classList.contains('primary')"),false,"Finish is neutral; the primary is Start recording");
     assert.equal(await evaluate("localStorage.getItem('synria-wizard-draft')"),null,"a started session clears the draft");
     state.demo=false;
     // Recording keyboard guards and save retries, unchanged from the earlier screen.
@@ -364,7 +369,7 @@ async function run() {
     allowSave=true;
     await click("[data-command=retry]");
     await until("document.querySelector('#notice').textContent==='' && state.capture.pending_frame_count===0");
-    await until("document.querySelector('#record-message').textContent==='Take 1 saved as failure. Quality checks not run'","the saved message counts takes from 1");
+    await until("document.querySelector('#record-message').textContent==='Take 1 saved as failure. Quality checks not run yet'","the saved message counts takes from 1");
     assert.equal(await evaluate("[...document.querySelectorAll('#record-controls button')].filter(n=>!n.hidden).map(n=>n.textContent).join('|')"),"Start recording (Space)");
     await until("document.querySelector('#record-message').textContent==='Set the scene, then press Start recording.'","after two seconds the banner returns to Ready");
     assert.equal(await evaluate("document.querySelector('#reset-scene').hidden"),false,"the scene reset list shows between takes");
@@ -377,9 +382,15 @@ async function run() {
     assert.equal(await evaluate("document.querySelector('#record').hidden"),false);
     const finishAt=calls.length;
     await click("#finish-session");
-    await until("location.hash==='#/session/s1/summary'","Finish closes the sources and shows the summary");
-    assert.equal(calls[finishAt].route,"session/s1/close");
-    assert.match(await textOf("#summary-list"),/Takes saved.*of a target of 100/s);
+    await until("!document.querySelector('#finish-confirm').hidden","finishing below target asks once, inline");
+    assert.match(await textOf("#finish-confirm-text"),/^Finish with 1 of 10 takes\? You can reopen it later\.$/);
+    await click("#finish-no");
+    assert.equal(await evaluate("document.querySelector('#finish-confirm').hidden"),true);
+    await click("#finish-session");await until("!document.querySelector('#finish-confirm').hidden");await click("#finish-yes");
+    await until("location.hash==='#/session/s1/summary'","Finish marks the session finished and shows the summary");
+    assert.equal(calls[finishAt].route,"session/s1/finish");
+    assert.match(await textOf("#summary-list"),/TaskDie into cup.*Takes saved1 of a target of 10/s);
+    assert.equal(await evaluate("[...document.querySelectorAll('#summary-actions button, #summary-actions a')].map(n=>n.textContent).join('|')"),"Record another session of this task|Review takes","one primary and one secondary on the summary");
     await evaluate("SynriaRouter.go('session/s1/record')");
     await until("!document.querySelector('#record').hidden");
     assert.equal(calls.filter(call=>call.route==='record/retry').length,2,"only two deliberate save retries occur");
@@ -397,7 +408,7 @@ async function run() {
     assert.equal(await evaluate("document.querySelector('#record-route-note').hidden"),false,"a closed session says so instead of pretending to record");
     await evaluate("SynriaRouter.go('sessions')");
     await until("!document.querySelector('#sessions').hidden");
-    assert.match(await textOf("#session-list"),/die into cup · Paused · 1 of 100 takes saved.*Review takes/s,"session cards read in words");
+    assert.match(await textOf("#session-list"),/Die into cup · Finished · 1 of 10 takes saved.*Reopen to add takes.*Review takes/s,"a finished session reads Finished and can be reopened");
     assert.equal(await evaluate("document.querySelector('#sessions-more').open"),false,"trash and reindex sit behind More");
     await evaluate("SynriaRouter.go('new/task')");
     await until("!document.querySelector('#new').hidden");

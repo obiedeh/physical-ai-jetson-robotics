@@ -56,7 +56,7 @@ def form() -> FormMarkup:
     ("image_height", ["224"], "224"),
     ("action_lookahead_steps", ["1"], "1"),
     ("state_startup_timeout_s", ["10"], "10"),
-    ("target_episodes", ["10", "50", "100"], "100"),
+    ("target_episodes", ["10", "50", "100"], "10"),
     ("follower_topic", ["/joint_states"], "/joint_states"),
     ("leader_topic", ["/leader/joint_states"], "/leader/joint_states"),
 ])

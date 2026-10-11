@@ -97,11 +97,16 @@ full check list sit under a collapsed Technical details), and in physical mode
 I have checked the bench with five plain-words checks. The read-only setup
 check starts by itself when the step is entered with the required values and
 bench checks in place, and again after a setting changes; running it is never
-left to the operator. The primary on this step is **Start session**: it reruns
-a check older than a minute in place (tiles show Checking, then the result),
-creates the session, opens its cameras and arm feed and lands on the recording
-screen. A failing check stays on the step with its fix; the operator is never
-sent back. **Do a practice run instead** sits beside it in physical mode. The
+left to the operator. The primary on this step says what will happen:
+**Start session** when takes will count toward the dataset, or **Start
+practice run** when the task is not timed yet or the joint limits are not
+verified, with one line saying why; the demo says its takes never count. Start
+session reruns a check older than a minute in place (tiles show Checking, then
+the result), creates the session, opens its cameras and arm feed and lands on
+the recording screen. A failing check stays on the step with its fix; the
+operator is never sent back. **Do a practice run instead** sits beside Start
+session in physical mode. On the first step the footer's left button is Cancel
+and goes Home; the target defaults to 10 takes, or the last session's target. The
 scene text sent to the recorder is the task's scene requirements plus an
 optional note on what is different today. Nothing navigates by itself except
 after the primary button.
@@ -244,14 +249,19 @@ e-stop function and camera framing cannot be certified by software. Frozen
 video and full episode quality still require their existing recording gates.
 No live physical check was run during development. **Implemented, unmeasured.**
 
-Recording is a mode. The breadcrumb reads Home, the session name, and "Take N
-of M" (takes count from 1 on screen; stored indices stay zero-based). While a
-session is open the nav holds **Pause session** and **Finish session** instead of
-Exit: Pause releases the cameras and arm feed, keeps every saved take and says
-the session can be continued from Home or Sessions; Finish does the same and
-shows the session summary (takes saved against the target, success, failure,
-excluded, task source, whether takes count toward the dataset, Review takes,
-Home). Both refuse while a stopped take is unsaved. The banner keeps a fixed
+Recording is a mode. The breadcrumb reads Home and the session name; the
+heading reads "Take N of M" (takes count from 1 wherever a person reads them;
+stored indices stay zero-based). While a session is open the nav holds **Pause
+session** and **Finish session** instead of Exit, both hidden during a countdown
+or a take: Pause releases the cameras and arm feed, keeps every saved take and
+shows a neutral confirmation on Home that clears on the next navigation; the
+session reads Paused in the list. Finish marks the session Finished (a status,
+not a lock: Reopen to add takes reverses it), asks once inline when below
+target, and shows the session summary (task, takes saved against the target,
+success, failure, excluded, task source, whether takes count toward the
+dataset, last used in words; Record another session of this task as the one
+primary, Review takes beside it, file paths under Technical details). Both
+refuse while a stopped take is unsaved. Counters always show session totals. The banner keeps a fixed
 height and states one phase in words: Ready ("Set the scene, then press Start
 recording"), Get ready with the countdown, Recording with the seconds left and
 a red pulsing border, Did it work? with a short note that a real task failure
@@ -262,9 +272,9 @@ only the actions that apply: one large Start recording (Space); one large Stop
 (Space); Yes, save as success (S) and No, save as failure (F) in different
 colours with a small Throw away, bad capture; Retry save only after a failed
 save; Cancel countdown only during a countdown; Finish practice run. After a
-save the banner reads "Take N saved as success. Quality checks passed" (or the
-failed checks named, or "Quality checks not run") for two seconds, then
-returns to Ready. Quality checks also run on demo data and say so. The counters
+save the banner reads "Take N saved as success. Quality checks passed" (or
+"Quality check failed: joint limits", or "Quality checks not run yet" until the
+result is known) for two seconds, then returns to Ready. Quality checks also run on demo data and say so. The counters
 read in words with the target or practice note; Review last take opens the
 frame-exact review as an overlay and returns to the same recording state. A
 small Options row holds the countdown before recording (default 3 s) and sound
@@ -283,6 +293,13 @@ Review locks both cameras to the same stored row, with frame stepping, scrub,
 speed, state/action traces, timestamps/skew, provenance and native final still.
 Server-side decoding and a bounded JPEG cache avoid browser video-codec needs.
 Playback only displays data. Close the capture run before curation or reindex.
+
+The synthetic demo's cameras tick at 30 frames per second and its arm feed at
+50 readings per second, like the real devices, independent of the recording
+rate; ticking at the 15 Hz recording rate made back-to-back reads straddle a
+66.7 ms boundary often enough that the unchanged 0.050 s alignment gate failed
+at random. A test runs the setup check twice from several clock phases and
+requires the same verdict.
 
 ## Storage and curation
 

@@ -30,9 +30,12 @@ assert.equal(view.target, 10);
 assert.equal(view.betweenTakes, true, "the scene reset list shows between takes");
 assert.equal(commands(view), "start", "ready shows one large Start recording");
 assert.equal(labels(view), "Start recording (Space)");
-assert.equal(view.counters, "Saved 1 (1 success, 0 failure) · Discarded 1 · Target 10");
+assert.equal(view.counters, "Saved 1 (1 success, 0 failure) · Thrown away 1 · Target 10");
 assert.equal(view.countdownS, null);
 assert.equal(view.reasons.success, "Nothing stopped to save");
+
+view = record.describe({...base, counters: {saved: 1, success: 1, failure: 0, discarded: 0}}, {...active, counts: {saved: 4, success: 3, failure: 1}});
+assert.equal(view.counters, "Saved 4 (3 success, 1 failure) · Target 10", "session totals show after a continue, not the run's own count");
 
 view = record.describe({...base, countdown_s: 3.2, controls: {cancel_countdown: true}}, active);
 assert.equal(view.phase, "countdown");
@@ -87,24 +90,28 @@ assert.equal(commands(view), "");
 const saved = {episode_index: 1, operator_label: "success", gate_passed: false, failed_gates: ["state_action_limits"]};
 view = record.describe({...base, episode_index: 2, last_episode: saved}, active, {showSaved: true});
 assert.equal(view.phase, "saved");
-assert.equal(view.message, "Take 2 saved as success. Quality checks: 8 of 9 passed, failed: joint limits");
+assert.equal(view.message, "Take 2 saved as success. Quality check failed: joint limits");
 assert.equal(commands(view), "start", "a saved take goes straight back to Start recording");
 view = record.describe({...base, episode_index: 2, last_episode: saved}, active, {showSaved: false});
 assert.equal(view.phase, "ready", "after the saved message the banner returns to Ready");
-assert.equal(view.lastSave, "Take 2 saved as success. Quality checks: 8 of 9 passed, failed: joint limits");
+assert.equal(view.lastSave, "Take 2 saved as success. Quality check failed: joint limits");
 assert.equal(record.gateSummary({gate_passed: true, failed_gates: []}), "Quality checks passed");
 assert.equal(record.gateSummary({gate_passed: true, failed_gates: []}, true), "Quality checks passed (demo data)");
 assert.equal(record.gateSummary({gate_passed: false, failed_gates: ["timestamp_skew", "state_action_limits"]}),
-  "Quality checks: 7 of 9 passed, failed: timestamp alignment, joint limits");
-assert.equal(record.gateSummary({operator_label: "success"}), "Quality checks not run");
-assert.equal(record.savedSentence({episode_index: 0, operator_label: "failure"}), "Take 1 saved as failure. Quality checks not run");
+  "Quality checks failed: timestamp alignment, joint limits");
+assert.equal(record.gateSummary({gate_passed: 1, failed_gates_json: []}), "Quality checks passed", "a stored 1 is a pass");
+assert.equal(record.gateSummary({gate_passed: 0, failed_gates_json: ["visual_sanity"]}), "Quality check failed: image brightness", "a stored 0 is a fail");
+assert.equal(record.gateSummary({operator_label: "success"}), "Quality checks not run yet");
+assert.equal(record.savedSentence({episode_index: 0, operator_label: "failure"}), "Take 1 saved as failure. Quality checks not run yet");
+assert.equal(record.taskTitle("die_into_cup"), "Die into cup");
+assert.equal(record.NAMES.front, "Overhead camera");
 
 view = record.describe({...base, recording_purpose: "disposable_smoke", smoke_complete: true, last_episode: saved,
   counters: {saved: 1, success: 1, failure: 0, discarded: 0}, controls: {}}, active);
 assert.equal(view.phase, "practice-finished");
 assert.equal(view.message, "The take is not kept. Finish to run another or to start a real session.");
 assert.equal(labels(view), "Finish practice run");
-assert.equal(view.counters, "Saved 1 (1 success, 0 failure) · Discarded 0 · Practice run, not counted");
+assert.equal(view.counters, "Saved 1 (1 success, 0 failure) · Practice run, not counted");
 assert.equal(view.reasons.start, "Practice run finished");
 
 view = record.describe({...base, recovery_blocked: true, controls: {}}, active);
