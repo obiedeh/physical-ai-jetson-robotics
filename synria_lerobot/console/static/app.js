@@ -26,6 +26,12 @@ async function api(path, payload) {
 function error(value) { if(window.SynriaGuide){window.SynriaGuide.renderError(value);return;} $("notice").textContent = value ? String(value.message || value) : ""; }
 /** Show a neutral confirmation that belongs to one route and clears when the operator moves on. */
 function info(title, message, routePath) { if(window.SynriaGuide) window.SynriaGuide.renderError(message, {route: routePath, title}); }
+/** The name a person chose for a task, never its id: "Die into cup (Roll a die, step 1)". */
+function taskLabel(taskId, {short = false} = {}) {
+  const task = (typeof tasks === "undefined" ? [] : tasks).find(item => item.task_id === taskId);
+  if (task && task.task_source === "library") return short ? task.name : `${task.name} (${task.goal_title}, ${task.optional ? "optional" : `step ${task.chain_position}`})`;
+  return window.SynriaRecord.taskTitle(taskId);
+}
 /** Takes saved in a session, from the catalog list or the open session. */
 function savedCount(id) { const found = sessions.find(s => s.id === id) || (state.active_session?.id === id ? state.active_session : null); return found?.counts?.saved ?? 0; }
 /** Surface asynchronous UI failures while leaving server-owned state intact. */
@@ -79,7 +85,7 @@ async function refreshSessions() {
     const saved = counts.saved ?? counts.episode_count ?? 0, target = session.target_episodes ?? "?";
     const standing = open ? "Open now" : ["trashed", "purged"].includes(session.status) ? "In the trash" : session.status === "finished" ? "Finished" : saved ? "Paused" : "Not started";
     card.append(text("h3", session.name + demoLabel(session)));
-    card.append(text("p", `${window.SynriaRecord.taskTitle(session.task_id)} · ${standing} · ${saved} of ${target} takes saved`));
+    card.append(text("p", `${taskLabel(session.task_id)} · ${standing} · ${saved} of ${target} takes saved`));
     card.append(text("p", `${counts.success ?? counts.success_count ?? 0} success, ${counts.failure ?? counts.failure_count ?? 0} failure, ${counts.excluded ?? counts.excluded_count ?? 0} excluded · ${((session.disk_size_bytes || session.size_bytes || 0)/1e6).toFixed(1)} MB`));
     card.append(text("p", session.updated_utc ? `Last used ${window.SynriaHome ? window.SynriaHome.ago(session.updated_utc) : session.updated_utc}` : ""));
     if(session.recovery_blocked)card.append(text("p",`RECOVERY BLOCKED: ${session.recovery_error}. Preserve the recording lock and journal; resolve through operator review before further writes.`));
@@ -164,6 +170,8 @@ function renderRecordBanner(c, active) {
   if (wanted.has("close")) { action.textContent = wanted.get("close"); action.dataset.action = "close"; }
   $("camera-views").classList.toggle("recording", recordView.recording);
   $("record-title").textContent = active ? (recordView.target !== null ? `Take ${recordView.take} of ${recordView.target}` : `Take ${recordView.take}`) : "No session open";
+  const move = active ? tasks.find(item => item.task_id === active.task_id) : null;
+  $("record-move").hidden = !move; if (move) $("record-move").textContent = `The move: ${move.task_text}`;
   const busy = recordView.recording || recordView.phase === "countdown";
   document.querySelector(".options-row").hidden = busy;
   renderResetScene(active, recordView.betweenTakes);
@@ -354,7 +362,7 @@ async function renderSummary(id) {
   const task = tasks.find(item => item.task_id === session.task_id);
   $("summary-lead").textContent = `${session.name}${demoLabel(session)}`;
   const list = $("summary-list"); list.replaceChildren();
-  const rows = [["Task", window.SynriaRecord.taskTitle(session.task_id)], ["Takes saved", `${counts.saved ?? 0} of a target of ${session.target_episodes}`], ["Success", String(counts.success ?? 0)], ["Failure", String(counts.failure ?? 0)], ["Excluded", String(counts.excluded ?? 0)],
+  const rows = [["Task", taskLabel(session.task_id)], ["Takes saved", `${counts.saved ?? 0} of a target of ${session.target_episodes}`], ["Success", String(counts.success ?? 0)], ["Failure", String(counts.failure ?? 0)], ["Excluded", String(counts.excluded ?? 0)],
     ["Task source", session.task_source === "library" ? `Task library: ${task?.goal_title || session.goal_id}, step ${session.chain_position}, version ${session.library_version}` : "Built-in task list"], ["Counts toward the dataset", task && task.episode_window.min_episode_s !== null && session.source_kind !== "synthetic_demo" ? "Yes, if every quality check passed" : session.source_kind === "synthetic_demo" ? "No, demo data" : "No, the task is not timed yet"],
     ["Last used", session.updated_utc ? window.SynriaHome.ago(session.updated_utc) : "unknown"]];
   for (const [label, value] of rows) list.append(text("dt", label), text("dd", value));

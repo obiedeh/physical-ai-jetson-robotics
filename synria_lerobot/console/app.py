@@ -656,7 +656,9 @@ class ConsoleService:
                 definition = library_task_definition(task)
                 choices.append({
                     **definition.as_dict(), "task_source": "library", "group": goal["title"],
-                    "display_name": f"{goal['title']}: {task['chain_position']} {task['name']}",
+                    "display_name": (f"Optional: {task['name']}" if task.get("optional")
+                                     else f"{task['chain_position']}. {task['name']}"),
+                    "optional": bool(task.get("optional", False)),
                     "goal_id": goal["id"], "goal_title": goal["title"],
                     "library_version": task["version"], "chain_position": task["chain_position"],
                     "kind": task.get("kind"), "frozen": task["frozen"],

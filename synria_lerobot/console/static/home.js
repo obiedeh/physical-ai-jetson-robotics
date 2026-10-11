@@ -51,23 +51,31 @@
     return rows;
   }
 
-  /** The session worth continuing: the open one, else the most recent unfinished one. */
+  /** The session worth continuing: the open one, else the most recent paused one. */
   function continuable(current, list) {
     if (current.active_session && current.active_session.id !== "smoke") return current.active_session;
     const usable = list.filter(s => !["trashed", "purged", "finished"].includes(s.status) && s.source_kind !== undefined);
     return usable.find(s => (s.counts?.saved ?? 0) < (s.target_episodes ?? Infinity)) || null;
+  }
+  /** Is the session to continue also the most recently used one? Then it is the highlight. */
+  function latestIsPaused(current, list, session) {
+    if (!session) return false;
+    if (current.active_session?.id === session.id) return true;
+    const latest = list.find(s => !["trashed", "purged"].includes(s.status));
+    return Boolean(latest && latest.id === session.id);
   }
 
   /** Build the three cards: new session, continue or practice run, review. */
   function cards(current, list, demo) {
     const r = window.SynriaRouter.routes;
     const session = continuable(current, list);
-    const out = [{kind:"link", title:"New session", text:"Choose the task, check the cameras and arm feed, then record takes.", verb:"Start a new session", route:r.wizard("task"), primary:!session}];
+    const highlight = latestIsPaused(current, list, session);
+    const out = [{kind:"link", title:"New session", text:"Choose the task, check the cameras and arm feed, then record takes.", verb:"Start a new session", route:r.wizard("task"), primary:!highlight}];
     if (session) {
       const saved = session.counts?.saved ?? 0, target = session.target_episodes ?? "?";
       const when = session.updated_utc ? `, last used ${ago(session.updated_utc)}` : "";
-      const title = window.SynriaRecord ? window.SynriaRecord.taskTitle(session.task_id) : String(session.task_id).replaceAll("_", " ");
-      out.push({kind:"continue", title:"Continue recording", text:`${title}, ${saved} of ${target} takes saved${when}.`, verb:"Continue", sessionId:session.id, open:current.active_session?.id === session.id, primary:true});
+      const title = typeof taskLabel === "function" ? taskLabel(session.task_id) : (window.SynriaRecord ? window.SynriaRecord.taskTitle(session.task_id) : String(session.task_id).replaceAll("_", " "));
+      out.push({kind:"continue", title:"Continue recording", text:`${title}, ${saved} of ${target} takes saved${when}.`, verb:"Continue", sessionId:session.id, open:current.active_session?.id === session.id, primary:highlight});
     } else if (demo) {
       out.push({kind:"disabled", title:"Practice run", text:"Not available in demo mode.", verb:"Start a practice run"});
     } else {
@@ -134,7 +142,7 @@
     window.SynriaRouter.go(window.SynriaRouter.routes.wizard("check"));
   }
 
-  window.SynriaHome = {statusRows, cards, continuable, renderHome, ago};
+  window.SynriaHome = {statusRows, cards, continuable, latestIsPaused, renderHome, ago};
   if (typeof window !== "undefined" && typeof document !== "undefined") {
     for (const name of ["console-state", "console-readiness", "console-sessions", "console-route"]) window.addEventListener(name, renderHome);
     window.addEventListener("console-ready", () => {
