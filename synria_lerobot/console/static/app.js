@@ -27,10 +27,9 @@ function error(value) { if(window.SynriaGuide){window.SynriaGuide.renderError(va
 /** Show a neutral confirmation that belongs to one route and clears when the operator moves on. */
 function info(title, message, routePath) { if(window.SynriaGuide) window.SynriaGuide.renderError(message, {route: routePath, title}); }
 /** The name a person chose for a task, never its id: "Die into cup (Roll a die, step 1)". */
-function taskLabel(taskId, {short = false} = {}) {
+function taskLabel(taskId, options = {goal: true}) {
   const task = (typeof tasks === "undefined" ? [] : tasks).find(item => item.task_id === taskId);
-  if (task && task.task_source === "library") return short ? task.name : `${task.name} (${task.goal_title}, ${task.optional ? "optional" : `step ${task.chain_position}`})`;
-  return window.SynriaRecord.taskTitle(taskId);
+  return task ? window.SynriaRecord.taskLabel(task, options) : window.SynriaRecord.taskTitle(taskId);
 }
 /** Takes saved in a session, from the catalog list or the open session. */
 function savedCount(id) { const found = sessions.find(s => s.id === id) || (state.active_session?.id === id ? state.active_session : null); return found?.counts?.saved ?? 0; }
@@ -363,7 +362,7 @@ async function renderSummary(id) {
   $("summary-lead").textContent = `${session.name}${demoLabel(session)}`;
   const list = $("summary-list"); list.replaceChildren();
   const rows = [["Task", taskLabel(session.task_id)], ["Takes saved", `${counts.saved ?? 0} of a target of ${session.target_episodes}`], ["Success", String(counts.success ?? 0)], ["Failure", String(counts.failure ?? 0)], ["Excluded", String(counts.excluded ?? 0)],
-    ["Task source", session.task_source === "library" ? `Task library: ${task?.goal_title || session.goal_id}, step ${session.chain_position}, version ${session.library_version}` : "Built-in task list"], ["Counts toward the dataset", task && task.episode_window.min_episode_s !== null && session.source_kind !== "synthetic_demo" ? "Yes, if every quality check passed" : session.source_kind === "synthetic_demo" ? "No, demo data" : "No, the task is not timed yet"],
+    ["Task source", session.task_source === "library" ? `Task library: ${task?.goal_title || session.goal_id}, ${task ? window.SynriaRecord.taskLabel(task, {where: true}) : `step ${session.chain_position}`}, version ${session.library_version}` : "Built-in task list"], ["Counts toward the dataset", task && task.episode_window.min_episode_s !== null && session.source_kind !== "synthetic_demo" ? "Yes, if every quality check passed" : session.source_kind === "synthetic_demo" ? "No, demo data" : "No, the task is not timed yet"],
     ["Last used", session.updated_utc ? window.SynriaHome.ago(session.updated_utc) : "unknown"]];
   for (const [label, value] of rows) list.append(text("dt", label), text("dd", value));
   $("summary-technical").textContent = `Task definition: ${session.task_source === "library" ? session.task_snapshot_path : "config/synria_tasks.json"} (${session.task_id}). Data saved under: ${session.dataset_path || "workspace"}. Catalog id: ${session.id}.`;

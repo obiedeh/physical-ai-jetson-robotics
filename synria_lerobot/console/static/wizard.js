@@ -66,7 +66,7 @@ const SynriaWizard = (() => {
   /** The chosen registry task, if any. */
   function chosenTask() { return tasks.find(task => task.task_id === $("task").value) || null; }
   /** Sentence-case task title from its identifier. */
-  function taskTitle(task) { if (task.display_name) return task.display_name; const words = task.task_id.replaceAll("_", " "); return words.charAt(0).toUpperCase() + words.slice(1); }
+  function taskTitle(task) { return window.SynriaRecord.taskLabel(task); }
   /** Library tasks sit under their goal; built-in tasks come first. */
   function isLibrary(task) { return task.task_source === "library"; }
   /** Plain words for operator-facing task text. */
@@ -119,7 +119,7 @@ const SynriaWizard = (() => {
       const card = document.createElement("button"); card.type = "button"; card.className = "card task-card";
       card.setAttribute("role", "radio"); card.dataset.taskId = task.task_id;
       card.setAttribute("aria-checked", String($("task").value === task.task_id));
-      card.append(text("h3", isLibrary(task) ? (task.optional ? `Optional: ${task.name}` : `${task.chain_position}. ${task.name || taskTitle(task)}`) : taskTitle(task)), text("p", plain(task.task_text)));
+      card.append(text("h3", taskTitle(task)), text("p", plain(task.task_text)));
       const chip = text("span", timed(task) ? windowWords(task) : "Practice only until timed"); chip.className = "chip " + (timed(task) ? "chip-ok" : "chip-warn");
       card.append(chip);
       if (isLibrary(task)) { const mark = text("span", "Your task. Takes are saved but do not count toward dataset milestones."); mark.className = "chip library-chip"; card.append(mark); }
@@ -147,7 +147,7 @@ const SynriaWizard = (() => {
     for (const item of task.scene_requirements) list.append(text("li", plain(item)));
     box.append(list, text("p", `Success: ${plain(task.success_rule)}`));
     if (isLibrary(task)) {
-      box.append(text("p", `Library task from the goal "${task.goal_title}", step ${task.chain_position}, version ${task.library_version}. Takes record the step, its version and its place in the chain so they can be stitched together later.`));
+      box.append(text("p", `Your task from the goal "${task.goal_title}", ${window.SynriaRecord.taskLabel(task, {where: true})}, version ${task.library_version}. Takes record the step, its version and its place in the chain so they can be stitched together later.`));
       if (task.start_state) box.append(text("p", `Starts: ${task.start_state} Ends: ${task.end_state}`));
       const timeIt = button("Time it", () => openTiming(task));
       if (state.demo) { timeIt.disabled = true; timeIt.title = "Time it listens to the real arm; it is not available in demo mode."; }
@@ -177,7 +177,7 @@ const SynriaWizard = (() => {
   /** Open the dialog for one library task and poll its progress while open. */
   function openTiming(task) {
     timingTask = task;
-    $("time-title").textContent = `Time: ${task.chain_position} ${task.name || taskTitle(task)}`;
+    $("time-title").textContent = `Time: ${taskTitle(task)}`;
     delete $("time-min").dataset.touched;
     $("time-dialog").showModal();
     const poll = async () => { if (!$("time-dialog").open || !timingTask) return; renderTiming(await api(`library/${timingTask.task_id}/time`)); };
@@ -229,7 +229,7 @@ const SynriaWizard = (() => {
     const values = formValues();
     const parts = [];
     const chosen = chosenTask();
-    if (chosen) parts.push(isLibrary(chosen) ? chosen.name : taskTitle(chosen));
+    if (chosen) parts.push(taskTitle(chosen));
     if (values.gripper_type) parts.push(`${values.gripper_type.replace("mm", " mm")} gripper`);
     if (!state.demo && values.state_source) parts.push(values.state_source === "ros2_control" ? "ros2_control arm feed" : "standalone driver arm feed");
     if (state.demo) parts.push("demo arm feed and cameras");
