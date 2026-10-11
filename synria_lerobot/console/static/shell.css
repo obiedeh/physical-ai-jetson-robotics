@@ -159,3 +159,12 @@ fieldset.field small{color:var(--muted)}
 #time-dialog{width:min(640px,calc(100vw - 32px));background:var(--panel);color:var(--text);border:1px solid #5e7888;border-radius:14px;padding:22px}#time-dialog::backdrop{background:#040910cc}
 .time-runs{list-style:none;padding:0;margin:8px 0;display:grid;gap:6px}.time-runs li{padding:8px 12px;background:#101b25;border-radius:6px}
 .time-proposal{margin:12px 0}#time-dialog .actions{display:flex;gap:10px;margin-top:12px}
+/* Teach: summary first, edit on demand, a fixed footer like the wizard. */
+.teach-examples{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}.teach-examples button{min-height:36px;font-size:14px;border-radius:18px}
+.teach-chain{font-size:17px;color:var(--text);margin:10px 0 4px}
+.teach-card[data-mode=view] h3{margin:0;font-size:19px}.teach-card[data-mode=view] p{margin:0;color:var(--muted)}
+.teach-head small{color:var(--muted)}.teach-head button{margin-left:auto}
+.teach-form{display:flex;flex-direction:column;gap:10px}.teach-warning{margin-top:6px}
+#teach-footer #teach-cancel{min-width:140px;min-height:52px}#teach-footer #teach-save{min-width:220px;min-height:52px;font-size:18px;margin-left:auto}#teach-footer #teach-reason{flex:1;margin:0;color:#ffe9bd;text-align:center}
+.banner-second{margin:4px 0 0!important;font-size:16px!important;color:var(--muted)!important}
+#flow-nav{min-height:76px;flex-wrap:nowrap}

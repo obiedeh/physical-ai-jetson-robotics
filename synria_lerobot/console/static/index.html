@@ -21,16 +21,18 @@
 <li><b>3</b><span><strong>Record takes.</strong> Start, do the move, stop, then say whether it worked. Real failures are kept as failures.</span></li></ol>
 <article class="card"><h3>At the bench</h3><ul><li>Secure the arm, clear the bench and keep the emergency stop within reach.</li><li>Start the arm feed the way you always do, with writes disabled. The console never starts it.</li><li>Put the wrist camera on the wrist and the overhead camera looking down at the scene. Close other camera apps.</li></ul></article>
 <div class="actions"><button type="button" id="intro-continue" class="primary">Continue to Home</button><a class="button" href="#/help" data-route="help">Help</a></div></section>
-<section id="teach" class="screen" hidden><h2 id="teach-title" class="screen-title" tabindex="-1">Teach something new</h2>
+<section id="teach" class="screen wizard" hidden><h2 id="teach-title" class="screen-title" tabindex="-1">Teach something new</h2>
 <p class="purpose">Type what you want to teach the arm. The planner breaks it into steps you can train one at a time and chain later. Nothing is saved until you press Save tasks.</p>
 <div class="teach-ask"><label>What do you want to teach the arm?<input id="teach-sentence" maxlength="400" placeholder="for example: train to roll a dice"></label><button type="button" id="teach-break" class="primary">Break it down</button></div>
+<div id="teach-examples" class="teach-examples" aria-label="Examples"></div>
 <p id="teach-notes" class="small-print"></p>
 <div id="teach-questions" class="teach-questions" hidden></div>
 <details class="teach-rules"><summary>Rules the planner follows</summary><ol id="teach-rules"></ol></details>
 <div id="teach-result" hidden><label>Goal<input id="teach-goal-title" maxlength="80"></label><p id="teach-source" class="small-print"></p><p id="teach-rationale" class="teach-rationale"></p>
+<p id="teach-chain" class="teach-chain"></p><p id="teach-chain-optional" class="teach-chain small-print" hidden></p>
 <div id="teach-warnings" class="route-note" hidden></div>
-<div id="teach-steps" class="teach-steps"></div></div>
-<div class="actions"><button type="button" id="teach-add" hidden>Add a step</button><button type="button" id="teach-save" class="primary" disabled>Save tasks</button></div></section>
+<div id="teach-steps" class="teach-steps"></div><button type="button" id="teach-add" hidden>Add a step</button></div>
+<div id="teach-footer" class="wizard-footer"><button type="button" id="teach-cancel">Cancel</button><p id="teach-reason" role="status"></p><button type="button" id="teach-save" class="primary" hidden>Save tasks</button></div></section>
 <section id="sessions" class="screen" hidden><h2 id="sessions-title" class="screen-title" tabindex="-1">Sessions</h2>
 <p class="purpose">Open a session to record more takes, or review the takes it already has.</p>
 <div class="section-head"><input id="search" placeholder="Search by name" aria-label="Search sessions"><a class="button primary" href="#/new/task" data-route="new/task">New session</a></div>
@@ -161,7 +163,7 @@ not counts toward the dataset. Take windows remain operator decisions outside th
 <div id="wizard-footer" class="wizard-footer"><button type="button" id="wizard-back">Back</button><p id="wizard-reason" role="status"></p><button id="smoke" type="button" hidden>Do a practice run instead</button><button type="button" id="wizard-primary" class="primary">Continue</button></div></section>
 <section id="record" class="screen" hidden><div class="section-head"><h2 id="record-title" class="screen-title" tabindex="-1">No session open</h2></div>
 <p id="record-route-note" class="route-note" hidden></p>
-<div id="record-banner" class="record-banner" role="status" aria-live="polite" data-phase="no-session"><div class="banner-main"><span class="eyebrow" id="record-phase">NO SESSION</span><p id="record-message">Open a session from Home or Sessions to record.</p></div><div id="record-countdown" class="record-countdown" hidden><b id="record-countdown-value">0</b><small id="record-countdown-unit">s left</small></div></div>
+<div id="record-banner" class="record-banner" role="status" aria-live="polite" data-phase="no-session"><div class="banner-main"><span class="eyebrow" id="record-phase">NO SESSION</span><p id="record-message">Open a session from Home or Sessions to record.</p><p id="record-saved" class="banner-second" hidden></p></div><div id="record-countdown" class="record-countdown" hidden><b id="record-countdown-value">0</b><small id="record-countdown-unit">s left</small></div></div>
 <div class="record-actions" id="record-controls"><button data-command="start" class="primary big" hidden>Start recording (Space)</button><button data-command="cancel_countdown" class="primary big" hidden>Cancel countdown</button><button data-command="stop" class="stop big" hidden>Stop (Space)</button>
 <button data-command="success" class="success big" hidden>Yes, save as success (S)</button><button data-command="failure" class="failure big" hidden>No, save as failure (F)</button>
 <button data-command="retry" class="primary big" hidden>Retry save</button><button id="record-banner-action" type="button" class="primary big" hidden></button><button id="discard" class="text-button" hidden>Throw away, bad capture</button></div>

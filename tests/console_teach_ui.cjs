@@ -43,3 +43,14 @@ assert.equal(teach.sourceLine({source: "built-in planner"}), "Suggested by the b
 assert.equal(teach.sourceLine({source: "external task planner command"}), "Suggested by the external task planner command.");
 assert.match(teach.sourceLine({source: "built-in planner", fallback_reason: "timed out"}), /^Suggested by the built-in planner because the external task planner command failed: timed out$/);
 console.log("teach screen edits verified");
+
+// Chain numbering and the strip: required steps count, optional ones are labelled.
+const recovery = {...teach.blankStep("Stand the cup up"), kind: "recovery", optional: true, instruction: "Stand it up."};
+assert.equal(JSON.stringify(teach.chainLabels([a, b, recovery])), JSON.stringify(["1", "2", "Optional"]));
+const strip = teach.chainStrip([a, b, recovery]);
+assert.equal(strip.chain, "1 Die into cup, then 2 Die back to start (reset)");
+assert.equal(strip.optional, "Stand the cup up (recovery)");
+assert.equal(JSON.stringify(teach.blockers([a, {...b, name: " "}, {...recovery, instruction: ""}])), JSON.stringify(["step 2 needs a name", "step 3 needs an instruction"]));
+assert.equal(teach.blockers([a, b]).length, 0);
+assert.equal(JSON.stringify(teach.EXAMPLES), JSON.stringify(["roll a die", "put the die in the cup", "move the cup to the tray"]));
+console.log("teach chain labels verified");

@@ -224,3 +224,12 @@ def test_missing_command_falls_back(tmp_path: Path) -> None:
     with pytest.raises(PlannerError, match="could not be run"):
         planner.plan("roll a die")
     assert plan_goal("roll a die", external=planner).breakdown is not None
+
+
+@pytest.mark.parametrize("example", [
+    "roll a die", "put the die in the cup", "move the cup to the tray",
+])
+def test_the_screen_examples_are_sentences_the_builtin_planner_handles(example: str) -> None:
+    """Every example chip on the Teach screen must produce a breakdown, not questions."""
+    result = builtin_plan(example)
+    assert result.breakdown is not None and result.questions == ()

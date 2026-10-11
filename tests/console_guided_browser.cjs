@@ -60,7 +60,7 @@ const server = http.createServer(async (req, res) => {
     else if(route==="sessions"){const session={id:"s1",name:payload.name,task_id:payload.task_id,status:"active",target_episodes:payload.target_episodes,operator:payload.operator,settings:payload,source_kind:"physical",updated_utc:"2026-10-11T00:00:00Z",counts:{saved:0,success:0,failure:0,excluded:0}};sessionList.push(session);value=session;}
     else if(route==="session/s1/open"){state.active_session=sessionList[0];state.capture={state:"idle",episode_index:0,pending_frame_count:0,min_episode_s:8,max_episode_s:25,remaining_s:25,countdown_s:null,controls:{start:true},counters:{saved:0,success:0,failure:0,discarded:0},recording_purpose:"qualifying"};value=state;}
     else if(route==="session/s1/close"){state.active_session=null;state.capture={state:"closed"};if(sessionList[0])sessionList[0].status="closed";value=state;}
-    else if(route==="library/plan"){value={source:"built-in planner",breakdown:fakeBreakdown(payload.sentence),questions:[],recipe:"roll_a_die",fallback_reason:"",notes:[],warnings:[],proposed:{goal_id:"lib_roll_a_die",task_ids:["lib_roll_a_die_1","lib_roll_a_die_2"]}};}
+    else if(route==="library/plan"){value=payload.sentence==="do the thing"&&!Object.keys(payload.answers||{}).length?{source:"built-in planner",breakdown:null,questions:[{key:"object",prompt:"Which object does the arm pick up?",example:"die"},{key:"container",prompt:"Which container does it go into, if any?",example:"cup"},{key:"destination",prompt:"Which marked destination does it go to, if there is no container?",example:"tray"}],recipe:"",fallback_reason:"",notes:[]}:{source:"built-in planner",breakdown:fakeBreakdown(payload.sentence),questions:[],recipe:"roll_a_die",fallback_reason:"",notes:[],warnings:[{step:2,code:"no_reset",message:"Step 2 is a reset step, check that it puts the scene back."}],proposed:{goal_id:"lib_roll_a_die",task_ids:["lib_roll_a_die_1","lib_roll_a_die_2"]}};}
     else if(route==="library/save"){libraryTasks.length=0;payload.breakdown.sub_tasks.forEach((step,i)=>libraryTasks.push({task_id:`lib_roll_a_die_${i+1}`,task_text:step.instruction,success_rule:step.success_rule,scene_requirements:step.scene_before_take,declared_fixed_scene:true,requires_unobserved_goal:false,episode_window:{min_episode_s:null,max_episode_s:null},task_source:"library",group:"Roll a die",display_name:`Roll a die: ${i+1} ${step.name}`,goal_id:"lib_roll_a_die",goal_title:"Roll a die",library_version:1,chain_position:i+1,kind:step.kind,frozen:false,name:step.name,start_state:step.start_state,end_state:step.end_state,suggested_takes:step.suggested_takes}));value={goal:{id:"lib_roll_a_die",title:payload.breakdown.goal.title,tasks:libraryTasks.map(t=>({task_id:t.task_id,version:1}))},warnings:[]};}
     else if(route.endsWith("/time/start")){timing.running=true;timing.polls=0;timing.runs=[];timing.proposed_window=null;timing.phase="learning rest";value=timing;}
     else if(route.endsWith("/time/stop")){timing.running=false;value=timing;}
@@ -238,22 +238,50 @@ async function run() {
     await click("#task-cards .teach-entry");
     await until("location.hash==='#/teach' && !document.querySelector('#teach').hidden");
     assert.equal(await textOf("#breadcrumb"),"HomeTeach something new");
-    assert.equal(await evaluate("document.querySelector('#teach-save').disabled"),true,"nothing to save before a breakdown");
+    assert.equal(await evaluate("document.querySelector('#teach-save').hidden"),true,"Save tasks is not shown before a breakdown");
+    assert.equal(await evaluate("document.querySelector('#teach-break').classList.contains('primary')"),true,"Break it down is the primary until a breakdown exists");
+    assert.equal(await evaluate("[...document.querySelectorAll('#teach-examples button')].map(n=>n.textContent).join('|')"),"roll a die|put the die in the cup|move the cup to the tray","example chips the built-in planner handles");
     assert.match(await textOf("#teach-rules"),/gripper empty/);
+    await evaluate("document.querySelector('#teach-sentence').value='do the thing'");
+    await click("#teach-break");
+    await until("!document.querySelector('#teach-questions').hidden");
+    assert.match(await textOf("#teach-notes"),/^The planner could not work out the object and where it goes from that sentence\. The built-in planner understands/);
+    assert.equal(await evaluate("[...document.querySelectorAll('#teach-questions button')].filter(n=>n.classList.contains('primary')).map(n=>n.textContent).join('|')"),"Break it down with these answers","in the fallback the only primary is the answered breakdown");
+    assert.equal(await evaluate("document.querySelector('#teach-break').classList.contains('primary')"),false);
+    await evaluate("[...document.querySelectorAll('#teach-questions button')].find(n=>n.textContent==='Add steps by hand').click()");
+    await until("document.querySelectorAll('#teach-steps [data-step]').length===1 && document.querySelector('#teach-steps [data-step]').dataset.mode==='edit'","one blank card opens in Edit");
+    assert.match(await textOf("#teach-reason"),/^1 thing left: step 1 needs an instruction$/);
+    assert.equal(await evaluate("document.querySelector('#teach-save').disabled"),true,"an empty instruction blocks saving");
+    await evaluate("[...document.querySelectorAll('#teach-examples button')].find(n=>n.textContent==='roll a die').click()");
+    assert.equal(await evaluate("document.querySelector('#teach-sentence').value"),"roll a die");
     await evaluate("document.querySelector('#teach-sentence').value='train to roll a dice'");
     await click("#teach-break");
-    await until("document.querySelectorAll('#teach-steps [data-step]').length===2","the planner's steps appear as cards");
+    await until("document.querySelectorAll('#teach-steps [data-step]').length===2 && document.querySelector('#teach-steps [data-step]').dataset.mode==='view'","the planner's steps appear as compact cards");
     assert.equal(calls.at(-1).route,"library/plan");assert.equal(calls.at(-1).payload.sentence,"train to roll a dice");
     assert.equal(await textOf("#teach-source"),"Suggested by the built-in planner.");
     assert.equal(await evaluate("document.querySelector('#teach-goal-title').value"),"Roll a die");
-    assert.match(await textOf("#teach-steps"),/Step 1 of 2.*Step 2 of 2/s);
+    assert.equal(await textOf("#teach-chain"),"1 Die into cup, then 2 Die back to start (reset)");
+    assert.match(await textOf("#teach-steps"),/Step 1.*Die into cup.*Starts with: .*Ends with: .*Step 2.*Die back to start/s);
+    assert.equal(await evaluate("document.querySelector('#teach-steps [data-field=name]')"),null,"no form fields until Edit");
+    assert.match(await textOf("#teach-steps [data-step=\"1\"]"),/Step 2 is a reset step, check that it puts the scene back/,"a warning sits on the card it concerns");
+    assert.equal(await evaluate("document.querySelector('#teach-save').hidden"),false);
+    assert.equal(await evaluate("document.querySelector('#teach-save').disabled"),false,"warnings do not block saving");
+    assert.equal(await textOf("#teach-break"),"Break it down again");
+    assert.equal(await evaluate("document.querySelector('#teach-break').classList.contains('primary')"),false,"one primary: Save tasks");
+    await evaluate("[...document.querySelectorAll('#teach-steps [data-step=\"0\"] button')].find(n=>n.textContent==='Edit').click()");
+    await until("document.querySelector('#teach-steps [data-step=\"0\"]').dataset.mode==='edit'");
     await evaluate("document.querySelector('#teach-steps [data-step=\"0\"] [data-field=name]').value='Die into the cup'");
     await evaluate("[...document.querySelectorAll('#teach-steps [data-step=\"0\"] button')].find(n=>n.textContent==='Move down').click()");
+    await until("document.querySelector('#teach-steps [data-step=\"1\"]').dataset.mode==='edit'","the moved card stays in Edit");
     assert.equal(await evaluate("document.querySelector('#teach-steps [data-step=\"1\"] [data-field=name]').value"),"Die into the cup","edits survive a move");
     await evaluate("[...document.querySelectorAll('#teach-steps [data-step=\"1\"] button')].find(n=>n.textContent==='Move up').click()");
+    await until("document.querySelector('#teach-steps [data-step=\"0\"]').dataset.mode==='edit'");
+    await evaluate("[...document.querySelectorAll('#teach-steps [data-step=\"0\"] button')].find(n=>n.textContent==='Done').click()");
+    await until("document.querySelector('#teach-steps [data-step=\"0\"]').dataset.mode==='view'");
+    assert.equal(await textOf("#teach-chain"),"1 Die into the cup, then 2 Die back to start (reset)");
     const savesBefore=calls.length;
     await click("#teach-save");
-    await until("location.hash==='#/new/task'","Save tasks returns to Choose task");
+    await until("location.hash==='#/new/task'","Save tasks goes forward to Choose task");
     assert.equal(calls[savesBefore].route,"library/save");
     assert.equal(calls[savesBefore].payload.breakdown.sub_tasks[0].name,"Die into the cup","the edited card is what is saved");
     assert.equal(calls[savesBefore].payload.planner_source,"built-in planner");
@@ -261,7 +289,7 @@ async function run() {
     assert.match(await textOf("#task-cards"),/Built-in tasks.*Die into cup.*Roll a die.*1 Die into the cup.*Library task, not in the published registry.*2 Die back to start/s);
     assert.equal(await evaluate("[...document.querySelectorAll('#task optgroup')].map(g=>g.label).join('|')"),"Built-in tasks|Roll a die","the dropdown is grouped by goal with built-in tasks first");
     assert.equal(await evaluate("document.querySelector('[name=task_id]').value"),"lib_roll_a_die_1","the first saved task is selected");
-    assert.match(await textOf("#notice"),/2 tasks saved under Roll a die/);
+    assert.match(await textOf("#notice"),/2 tasks saved under Roll a die\./);
     // Time it: listen to the arm feed, three moves, a proposed window, one confirmation.
     assert.match(await textOf("#task-description"),/Library task from the goal "Roll a die", step 1, version 1/);
     await evaluate("[...document.querySelectorAll('#task-description button')].find(n=>n.textContent==='Time it').click()");
@@ -292,6 +320,12 @@ async function run() {
     assert.equal(await textOf("#wizard-primary"),"Start practice run","an untimed task leads to the practice run, and the button says so");
     assert.equal(await evaluate("document.querySelector('#smoke').hidden"),true,"no second practice button when the primary is the practice run");
     assert.equal(await textOf("#check-readiness"),"Check now","before any run the button says Check now");
+    await evaluate("document.querySelector('#scene-note').value='left-handed today';document.querySelector('#scene-note').dispatchEvent(new Event('input',{bubbles:true}))");
+    await send("Page.reload");
+    await until("window.synriaConsoleReady && location.hash==='#/new/check' && !document.querySelector('#step-check').hidden","a refresh on Check setup stays on Check setup");
+    assert.equal(await evaluate("document.querySelector('[name=task_id]').value"),"die_into_cup","the chosen task survives a refresh");
+    assert.equal(await evaluate("document.querySelector('#scene-note').value"),"left-handed today","the scene note survives a refresh");
+    assert.match(await evaluate("document.querySelector('[name=name]').value"),/^Die into cup, \d{1,2} [A-Z][a-z]{2}, 1$/);
     assert.equal(await evaluate("document.querySelector('#bench-panel').hidden"),false,"physical mode shows the bench checks");
     assert.equal(await evaluate("[...document.querySelectorAll('#source-tiles .tile')].map(n=>n.dataset.state).join()"),"unchecked,unchecked,unchecked,ok","tiles say Not checked yet, storage is OK");
     assert.equal(calls.length,teachPosts,"entering Check setup without bench checks cannot open sources");
@@ -398,7 +432,7 @@ async function run() {
     await until("document.querySelector('#record-title').textContent==='Take 1 of 10'","the heading counts takes; the breadcrumb names the session");
     assert.equal(await textOf("#breadcrumb"),`Home${calls.at(-2).payload.name}`);
     assert.equal(await evaluate("document.querySelector('#finish-session').classList.contains('primary')"),false,"Finish is neutral; the primary is Start recording");
-    assert.equal(await evaluate("localStorage.getItem('synria-wizard-draft')"),null,"a started session clears the draft");
+    assert.equal(await evaluate("sessionStorage.getItem('synria-wizard-draft')"),null,"a started session clears the per-tab draft");
     state.demo=false;
     // Recording keyboard guards and save retries, unchanged from the earlier screen.
     state.capture={state:"stopped",pending_frame_count:2,controls:{success:true,failure:true,discard:true}};
@@ -431,6 +465,8 @@ async function run() {
     await until("document.querySelector('#record-message').textContent==='Take 1 saved as failure. Quality checks not run yet'","the saved message counts takes from 1");
     assert.equal(await evaluate("[...document.querySelectorAll('#record-controls button')].filter(n=>!n.hidden).map(n=>n.textContent).join('|')"),"Start recording (Space)");
     await until("document.querySelector('#record-message').textContent==='Set the scene, then press Start recording.'","after two seconds the banner returns to Ready");
+    assert.equal(await evaluate("document.querySelector('#record-saved').hidden"),false,"the last result stays under Ready");
+    assert.equal(await textOf("#record-saved"),"Take 1 saved as failure. Quality checks not run yet");
     assert.equal(await evaluate("document.querySelector('#reset-scene').hidden"),false,"the scene reset list shows between takes");
     assert.match(await textOf("#reset-scene-list"),/Fixed synthetic scene/);
     await click("#review-latest");
@@ -443,6 +479,7 @@ async function run() {
     await click("#finish-session");
     await until("!document.querySelector('#finish-confirm').hidden","finishing below target asks once, inline");
     assert.match(await textOf("#finish-confirm-text"),/^Finish with 1 of 10 takes\? You can reopen it later\.$/);
+    assert.equal(await evaluate("document.querySelector('#pause-session').hidden && document.querySelector('#finish-session').hidden"),true,"only Finish and Keep recording while the confirm shows");
     await click("#finish-no");
     assert.equal(await evaluate("document.querySelector('#finish-confirm').hidden"),true);
     await click("#finish-session");await until("!document.querySelector('#finish-confirm').hidden");await click("#finish-yes");
