@@ -2,17 +2,23 @@
 /** The new-session wizard: three linear steps, one fixed footer, nothing automatic but the check.
  *
  * Choose task, Check setup, Start. The primary button is disabled until the step is complete
- * and the footer says why in plain words. Back never loses input: the draft lives in local
+ * and the footer lists what is left, in order. Back never loses input: the draft lives in local
  * storage and survives refresh. The only automatic action is the read-only setup check, which
- * runs on entering Check setup once the operator has confirmed the bench checks. Expiry of a
- * check never changes the step; Start reruns it in place instead.
+ * runs on entering Check setup once the bench checks are confirmed (at once in the synthetic
+ * demo). Expiry of a check never changes the step; Start reruns it in place instead.
  */
 const SynriaWizard = (() => {
-  const STEPS = ["task", "check", "start"];
-  const TITLES = {task:"Choose task", check:"Check setup", start:"Start"};
+  const STEPS = ["task", "check"];
+  const TITLES = {task:"Choose task", check:"Check setup"};
   const DRAFT_KEY = "synria-wizard-draft";
   const CHECK_MAX_AGE_S = 60;
-  let step = "task", checking = false, starting = false, armed = false, lastReason = "";
+  const FIELD_WORDS = {name:"name the session", gripper_type:"choose the gripper size", scene:"describe the scene",
+    state_source:"choose the arm feed", wrist_camera:"choose the wrist camera", front_camera:"choose the overhead camera",
+    operator:"enter your name", fps:"choose the rate", follower_serial:"choose the follower serial",
+    power_state_start:"confirm the power state", task_id:"choose a task"};
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const STANDARD_POWER = "Arm powered and following the leader";
+  let step = "task", checking = false, starting = false, armed = false, lastReason = "", autoName = true, lastTiles = "";
 
   /** Storage wrappers: a blocked store must never break the flow, only forget the draft. */
   function readDraft() { try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || "null") || {}; } catch (reason) { return {}; } }
@@ -23,13 +29,16 @@ const SynriaWizard = (() => {
   function saveDraft() {
     const values = {};
     for (const field of $("new-form").elements) {
-      if (!field.name || (field.type === "hidden" && !field.hasAttribute("data-presets"))) continue;
+      if (!field.name || field.name === "power_choice") continue;
+      if (field.type === "hidden" && !field.hasAttribute("data-presets") && field.name !== "power_state_start") continue;
+      if (field.type === "radio") { if (field.checked) values[field.name] = field.value; continue; }
       const value = field.type === "checkbox" ? field.checked : field.value;
       if (value === "") continue; // blanks are not choices; suggestions may still fill them
       values[field.name] = value;
     }
     if (values.follower_serial === "__manual__") values.follower_serial_custom = $("follower-serial-custom").value;
-    writeDraft({values, step});
+    values.scene_note = $("scene-note").value;
+    writeDraft({values, step, autoName});
   }
 
   /** Put saved values back without touching confirmations or inventing identity. */
@@ -37,7 +46,9 @@ const SynriaWizard = (() => {
     const draft = readDraft();
     for (const [name, value] of Object.entries(draft.values || {})) {
       const field = $("new-form").elements.namedItem(name);
-      if (!field || (field.type === "hidden" && !field.hasAttribute("data-presets"))) continue;
+      if (!field) continue;
+      if (field instanceof RadioNodeList) { field.value = String(value); if (typeof editedSetupFields !== "undefined") editedSetupFields.add(name); continue; }
+      if (field.type === "hidden" && !field.hasAttribute("data-presets") && name !== "power_state_start") continue;
       if (field.tagName === "SELECT" && ![...field.options].some(option => option.value === String(value))) continue;
       if (field.type === "checkbox") field.checked = Boolean(value); else field.value = String(value);
       if (typeof editedSetupFields !== "undefined") editedSetupFields.add(name);
@@ -45,16 +56,54 @@ const SynriaWizard = (() => {
       if (preset) { preset.value = [...preset.options].some(option => option.value === String(value)) ? String(value) : "custom"; preset.dispatchEvent(new Event("change", {bubbles:true})); }
     }
     if (draft.values?.follower_serial === "__manual__") { $("follower-serial-custom").value = draft.values.follower_serial_custom || ""; $("follower-serial-custom").hidden = false; }
+    $("scene-note").value = draft.values?.scene_note || "";
+    showPower(draft.values?.power_state_start || "");
+    autoName = draft.autoName !== false;
     return draft;
   }
 
   /** The chosen registry task, if any. */
   function chosenTask() { return tasks.find(task => task.task_id === $("task").value) || null; }
+  /** Sentence-case task title from its identifier. */
+  function taskTitle(task) { const words = task.task_id.replaceAll("_", " "); return words.charAt(0).toUpperCase() + words.slice(1); }
+  /** Plain words for operator-facing task text. */
+  function plain(value) { return String(value).replace(/front-camera still/g, "overhead photo").replace(/the operator/g, "you"); }
+  function timed(task) { return task.episode_window.min_episode_s !== null; }
+  function windowWords(task) { const w = task.episode_window; return timed(task) ? `${w.min_episode_s} to ${w.max_episode_s} s per take` : "Not set yet"; }
 
-  /** Describe a task window for operators: timed, or not timed yet. */
-  function windowWords(task) {
-    const w = task.episode_window;
-    return w.min_episode_s === null ? "Not timed yet" : `${w.min_episode_s} to ${w.max_episode_s} s per take`;
+  /** Scene text sent to the recorder: the task's scene plus anything different today. */
+  function sceneText() {
+    const task = chosenTask();
+    const base = task ? task.scene_requirements.join(". ") : "";
+    const note = $("scene-note").value.trim();
+    return base + (note ? `${base ? ". " : ""}Today: ${note}` : "");
+  }
+  /** Keep the hidden scene field in step with what is shown. */
+  function syncScene() { $("new-form").elements.scene.value = sceneText(); }
+
+  /** Show a stored power state through the two-choice control. */
+  function showPower(value) {
+    const radios = $("new-form").elements.power_choice;
+    if (value === STANDARD_POWER) { radios.value = STANDARD_POWER; $("power-other").hidden = true; }
+    else if (value) { radios.value = "other"; $("power-other").hidden = false; $("power-other").value = value; }
+    $("new-form").elements.power_state_start.value = value;
+  }
+  /** Read the two-choice control into the hidden field the recorder receives. */
+  function readPower() {
+    const choice = $("new-form").elements.power_choice.value;
+    $("power-other").hidden = choice !== "other";
+    $("new-form").elements.power_state_start.value = choice === "other" ? $("power-other").value.trim() : choice;
+  }
+
+  /** A session name in words: task, day, and the count of sessions for that task today. */
+  function suggestName() {
+    const task = chosenTask(); if (!task) return;
+    const field = $("new-form").elements.name;
+    if (!autoName && field.value && !/^session-\d{4}/.test(field.value)) return;
+    const now = new Date(), prefix = `${taskTitle(task)}, ${now.getDate()} ${MONTHS[now.getMonth()]}, `;
+    const count = (typeof sessions === "undefined" ? [] : sessions).filter(s => s.task_id === task.task_id && String(s.name).startsWith(prefix)).length + 1;
+    field.value = `${prefix}${count}`;
+    if (typeof editedSetupFields !== "undefined") editedSetupFields.add("name");
   }
 
   /** Render one selectable card per registry task; selection only sets the form field. */
@@ -64,43 +113,76 @@ const SynriaWizard = (() => {
       const card = document.createElement("button"); card.type = "button"; card.className = "card task-card";
       card.setAttribute("role", "radio"); card.dataset.taskId = task.task_id;
       card.setAttribute("aria-checked", String($("task").value === task.task_id));
-      card.append(text("h3", task.task_id.replaceAll("_", " ")), text("p", task.task_text), text("p", `Success: ${task.success_rule}`));
-      const timing = text("span", windowWords(task)); timing.className = "chip " + (task.episode_window.min_episode_s === null ? "chip-warn" : "chip-ok");
-      card.append(timing);
-      card.onclick = () => { $("task").value = task.task_id; $("task").dispatchEvent(new Event("change", {bubbles:true})); renderTaskCards(); saveDraft(); refresh(); };
+      card.append(text("h3", taskTitle(task)), text("p", plain(task.task_text)));
+      const chip = text("span", timed(task) ? windowWords(task) : "Practice only until timed"); chip.className = "chip " + (timed(task) ? "chip-ok" : "chip-warn");
+      card.append(chip);
+      card.onclick = () => { $("task").value = task.task_id; $("task").dispatchEvent(new Event("change", {bubbles:true})); };
       container.append(card);
     }
     if (!tasks.length) container.append(text("p", "No tasks are registered."));
   }
 
-  /** Words for the saved setup summary; missing required values are called out as the one thing to fix. */
-  function renderSetupSummary() {
-    const values = formValues();
-    const rowsOut = [["Session name", values.name], ["Operator", values.operator], ["Gripper", values.gripper_type],
-      ["Arm feed", state.demo ? "Synthetic demo" : values.state_source], ["Wrist camera", values.wrist_camera], ["Front camera", values.front_camera],
-      ["Rate and image", `${values.fps || "?"} FPS · ${values.image_width}×${values.image_height}`], ["Follower serial", values.follower_serial], ["Starting power state", values.power_state_start], ["Scene", values.scene]];
-    const fieldFor = {"Session name":"name", Operator:"operator", Gripper:"gripper_type", "Arm feed":"state_source", "Wrist camera":"wrist_camera", "Front camera":"front_camera", Scene:"scene"};
-    const missing = window.SynriaGuide.missingInputs(values, state.demo);
-    const list = $("setup-summary"); list.replaceChildren();
-    for (const [label, value] of rowsOut) {
-      const blank = value === undefined || value === null || String(value).trim() === "";
-      const dt = text("dt", label), dd = text("dd", blank ? "not set" : String(value));
-      if (blank) dd.className = missing.includes(fieldFor[label]) ? "missing" : "optional";
-      list.append(dt, dd);
-    }
-    $("setup-missing").hidden = !missing.length;
-    const names = missing.map(name => name.replaceAll("_", " ")).join(", ");
-    if (missing.length) $("setup-missing").textContent = `${missing.length === 1 ? "One thing to fix" : "Still needed"}: ${names}. Press Change setup to fill it in.`;
+  /** Scene bullets and one plain status for the chosen task. */
+  function renderTaskDescription() {
+    const task = chosenTask(), box = $("task-description"); box.replaceChildren();
+    if (!task) return;
+    box.append(text("h3", "Scene before each take"));
+    const list = document.createElement("ul");
+    for (const item of task.scene_requirements) list.append(text("li", plain(item)));
+    box.append(list, text("p", `Success: ${plain(task.success_rule)}`));
+    const status = text("p", timed(task) ? `Take length ${windowWords(task)}. Takes recorded in this session count toward the dataset.`
+      : "Take length not set yet. You can do practice runs now. To record takes that count, time this task first.");
+    status.className = "task-status"; box.append(status);
+    if (!timed(task)) box.append(button("How to time this task", () => window.SynriaGuide.openHelp("timing")));
   }
 
-  /** Summarise what Start will do with the values the operator can see. */
-  function renderStartSummary() {
-    const values = formValues(), task = chosenTask();
-    const list = $("start-summary"); list.replaceChildren();
-    const rowsOut = [["Task", task ? task.task_id.replaceAll("_", " ") : "none"], ["Take length", task ? windowWords(task) : "unknown"],
-      ["Target", `${values.target_episodes} takes`], ["Setup", `${values.gripper_type || "?"} gripper · ${values.fps} FPS · wrist ${values.wrist_camera || "?"} · front ${values.front_camera || "?"}`],
-      ["Session name", values.name]];
-    for (const [label, value] of rowsOut) list.append(text("dt", label), text("dd", String(value)));
+  /** After a task is chosen: scene prefill, suggested name, cards and footer. */
+  function onTaskChosen() { renderTaskCards(); renderTaskDescription(); syncScene(); suggestName(); $("task-session-fields").hidden = !chosenTask(); }
+
+  /** Required fields still blank, in wizard order; serial and power count for leaving step 2. */
+  function missingFields(values) {
+    const missing = window.SynriaGuide.missingInputs(values, state.demo).filter(name => name !== "task_id");
+    if (!state.demo) for (const name of ["follower_serial", "power_state_start"]) if (!String(values[name] || "").trim()) missing.push(name);
+    const order = ["name", "operator", "gripper_type", "state_source", "wrist_camera", "front_camera", "fps", "scene", "follower_serial", "power_state_start"];
+    return order.filter(name => missing.includes(name));
+  }
+
+  /** A camera's stable ID without the usb- prefix and video suffix, for a summary line. */
+  function shortCamera(id) { return String(id).replace(/^usb-/, "").replace(/-video-index\d+$/, "").slice(0, 40); }
+  /** Relative time in words for a UTC timestamp. */
+  function ago(iso) {
+    const seconds = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000));
+    if (!Number.isFinite(seconds)) return "earlier";
+    if (seconds < 45) return "just now";
+    const minutes = Math.round(seconds / 60);
+    if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+    return `at ${new Date(iso).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"})}`;
+  }
+
+  /** The container that holds one named field, for moving it inline. */
+  function containerFor(name) { const field = $("new-form").elements.namedItem(name); const node = field instanceof RadioNodeList ? field[0] : field; return node ? (node.closest("fieldset.field") || node.closest("label")) : null; }
+
+  /** Show missing required values inline in Your setup; remembered values stay behind Change setup. */
+  function renderYourSetup() {
+    const values = formValues();
+    const parts = [];
+    if (values.gripper_type) parts.push(`${values.gripper_type.replace("mm", " mm")} gripper`);
+    if (!state.demo && values.state_source) parts.push(values.state_source === "ros2_control" ? "ros2_control arm feed" : "standalone driver arm feed");
+    if (state.demo) parts.push("demo arm feed and cameras");
+    else if (values.wrist_camera && values.front_camera) parts.push(`wrist ${shortCamera(values.wrist_camera)}, overhead ${shortCamera(values.front_camera)}`);
+    if (values.fps) parts.push(`${values.fps} FPS`);
+    if (values.operator) parts.push(`you: ${values.operator}`);
+    $("setup-line").textContent = parts.length ? parts.join(", ") + "." : "Nothing remembered yet.";
+    const inline = $("setup-inline");
+    const wanted = missingFields(values).filter(name => !["scene", "name"].includes(name));
+    if (!state.demo) for (const name of ["follower_serial", "power_state_start"]) if (!wanted.includes(name)) wanted.push(name);
+    for (const name of wanted) {
+      const box = containerFor(name);
+      if (box && box.parentElement !== inline) { inline.append(box); box.hidden = false; }
+    }
+    const note = $("scene-note").closest("label");
+    if (chosenTask() && note && note.parentElement !== inline) inline.append(note);
+    inline.hidden = !inline.children.length;
   }
 
   /** Is the last setup check current for these settings and younger than the expiry? */
@@ -111,98 +193,155 @@ const SynriaWizard = (() => {
     const age = (Date.now() - Date.parse(report.checked_utc)) / 1000;
     return Number.isFinite(age) ? age < CHECK_MAX_AGE_S : true;
   }
-
+  /** Does the last report describe these exact settings, whatever its age? */
+  function reportMatches() { const report = typeof readinessReport === "undefined" ? null : readinessReport; return Boolean(report?.checked_utc && matchingReadinessSettings(report.form_settings, formValues())); }
   /** All bench checks ticked, or none required in the synthetic demo. */
   function confirmed() { return state.demo || [...document.querySelectorAll("[data-readiness-confirm]")].every(node => node.checked); }
+  /** Is a check running right now, by either the page or the server? */
+  function checkRunning() { return checking || readinessBusy || (typeof readinessReport !== "undefined" && readinessReport?.status === "checking"); }
 
-  /** The first failing camera or arm feed path, in words. */
-  function failingPath() {
+  /** The tiles: arm feed, wrist camera, overhead camera, storage, each with a state and words. */
+  function tileRows() {
     const report = typeof readinessReport === "undefined" ? null : readinessReport;
-    const paths = window.SynriaGuide.connectionPaths(report, true);
-    return paths.find(path => path.status === "not_ready") || null;
+    const matches = reportMatches(), running = checkRunning();
+    const checks = matches ? report.checks : {};
+    const paths = window.SynriaGuide.connectionPaths(matches ? report : null, matches);
+    const leader = formValues().action_source === "leader";
+    const rate = checks.state_rate_evidence?.details?.rate_hz;
+    const tiles = [];
+    const fromPath = (id, name, okText) => {
+      const path = paths.find(item => item.id === id);
+      if (running && (!path || ["launching", "not_checked"].includes(path.status))) return {name, state:"checking", text:"Checking"};
+      if (!matches || !path || path.status === "not_checked") return {name, state:"unchecked", text:"Not checked yet"};
+      if (path.status === "not_ready") return {name, state:"problem", text:path.message, help:path.help};
+      return {name, state:"ok", text:okText(path)};
+    };
+    const arm = fromPath("follower", "Arm feed", () => state.demo ? "Synthetic arm feed, fresh sample" : typeof rate === "number" ? `Receiving ${Math.round(rate)} readings per second` : "Receiving readings");
+    if (!leader && arm.state === "ok") { const action = paths.find(item => item.id === "action"); if (action?.status === "not_ready") Object.assign(arm, {state:"problem", text:action.message, help:action.help}); }
+    tiles.push(arm);
+    if (leader) tiles.push(fromPath("action", "Leader arm", () => "Receiving leader readings"));
+    for (const [id, name] of [["wrist", "Wrist camera"], ["front", "Overhead camera"]]) {
+      const tile = fromPath(id, name, () => { const size = checks[`${id}_sample`]?.native_resolution; return `Fresh frame${Array.isArray(size) ? `, ${size.join("×")}` : ""}`; });
+      if (matches && (report.thumbnails || []).includes(id)) tile.image = `/media/readiness/${id}?v=${encodeURIComponent(report.checked_utc)}`;
+      tiles.push(tile);
+    }
+    if (typeof state.free_disk_bytes === "number") {
+      const free = state.free_disk_bytes, floor = state.min_free_bytes || 0;
+      tiles.push(free >= floor ? {name:"Storage", state:"ok", text:`${(free / 1e9).toFixed(1)} GB free`}
+        : {name:"Storage", state:"problem", text:`${(free / 1e9).toFixed(1)} GB free, below the recording floor`, help:window.SynriaGuide.issueFor("disk_space", "insufficient disk space")});
+    }
+    const other = matches ? window.SynriaGuide.otherFailure(report, true) : null;
+    if (other) tiles.push({name:other.help.title, state:"problem", text:other.message, help:other.help, action:other.help.title.charAt(0).toLowerCase() + other.help.title.slice(1)});
+    for (const tile of tiles) tile.action = tile.action || `fix the ${tile.name.toLowerCase()}`;
+    return tiles;
   }
 
-  /** Decide whether a step is complete and, if not, say why in one plain sentence. */
-  function completion(name) {
-    const values = formValues();
-    if (name === "task") return chosenTask() ? {ok:true} : {ok:false, reason:"Choose a task to continue"};
-    const missing = window.SynriaGuide.missingInputs(values, state.demo);
-    if (missing.length) return {ok:false, reason:`Fill in ${missing.map(m => m.replaceAll("_", " ")).join(", ")} under Change setup to continue`};
-    if (name === "check") {
-      if (!confirmed()) return {ok:false, reason:"Tick the five bench checks to continue. The setup check starts when all five are ticked"};
-      if (checking || readinessBusy) return {ok:false, reason:"Checking cameras and arm feed…"};
-      const report = typeof readinessReport === "undefined" ? null : readinessReport;
-      if (!report?.checked_utc || !matchingReadinessSettings(report.form_settings, values)) return {ok:false, reason:"The setup check has not run for these values yet"};
-      if (report.status === "checking") return {ok:false, reason:"Checking cameras and arm feed…"};
-      // Judge the recorded checks themselves: an expired snapshot keeps its verdict and is rerun at Start.
-      const failing = failingPath();
-      if (failing) return {ok:false, reason:`${failing.title}: ${failing.message}`};
-      const other = window.SynriaGuide.otherFailure(report, true);
-      if (other) return {ok:false, reason:`${other.help.title}: ${other.message}`};
-      const paths = window.SynriaGuide.connectionPaths(report, true);
-      if (!paths.every(path => path.status === "ready")) return {ok:false, reason:"A check did not finish. See the item above and its fix"};
-      return {ok:true};
-    }
-    if (name === "start") {
-      if (starting) return {ok:false, reason:"Checking cameras and arm feed…"};
-      const requirements = window.SynriaGuide.requirements(values);
-      if (requirements.length) {
-        const words = {metadata:"follower serial and starting power state", timing:"task timing registered in the repository", limits:"operator-verified joint limits"};
-        return {ok:false, reason:`A session that counts toward the dataset needs ${requirements.map(key => words[key]).join(", ")}. ${state.demo ? "" : "You can do a practice run instead."}`.trim()};
+  const STATE_WORDS = {checking:"Checking", ok:"OK", problem:"Problem", unchecked:"Not checked yet"};
+
+  /** Paint the tiles only when something changed, so thumbnails do not flicker. */
+  function renderTiles() {
+    const tiles = tileRows();
+    const signature = JSON.stringify(tiles.map(tile => [tile.name, tile.state, tile.text, tile.image || ""]));
+    if (signature !== lastTiles) {
+      lastTiles = signature;
+      const container = $("source-tiles"); container.replaceChildren();
+      for (const tile of tiles) {
+        const card = document.createElement("article"); card.className = "tile"; card.dataset.state = tile.state;
+        card.append(text("span", STATE_WORDS[tile.state]), text("h4", tile.name));
+        if (tile.image) { const image = document.createElement("img"); image.src = tile.image; image.alt = `${tile.name} sample from the last check`; card.append(image); }
+        if (tile.state === "problem" && tile.help) {
+          const list = document.createElement("dl");
+          list.append(text("dt", "What is wrong"), text("dd", tile.text), text("dt", "Likely cause"), text("dd", tile.help.summary), text("dt", "How to fix"), text("dd", tile.help.steps[0]));
+          card.append(list, button("All the steps", () => window.SynriaGuide.openHelp(tile.help.key, tile.text)));
+        } else card.append(text("p", tile.text));
+        container.append(card);
       }
-      return {ok:true};
     }
-    return {ok:false, reason:""};
+    const report = typeof readinessReport === "undefined" ? null : readinessReport;
+    $("sources-line").textContent = checkRunning() ? "Checking cameras and arm feed…" : reportMatches() ? `Last check ${ago(report.checked_utc)}.` : "Starts by itself once your setup is complete.";
+    $("check-readiness").textContent = report?.checked_utc ? "Check again" : "Check now";
+    $("check-readiness").disabled = checkRunning() || Boolean(state.active_session);
+  }
+
+  /** What is left on the current step, in order, as short verb phrases. */
+  function remaining(name) {
+    const values = formValues(), items = [];
+    if (name === "task") { if (!chosenTask()) items.push("choose a task"); return items; }
+    if (name === "check") {
+      for (const field of missingFields(values)) items.push(FIELD_WORDS[field]);
+      if (!confirmed()) items.push("tick the bench checks");
+      if (reportMatches() && !checkRunning()) {
+        const tiles = tileRows();
+        for (const tile of tiles) if (tile.state === "problem") items.push(tile.action);
+        if (!items.length && tiles.some(tile => tile.state !== "ok")) items.push("wait for the check");
+      } else if (!items.length) items.push("wait for the check"); // it starts by itself once the rest is done
+      if (starting) return ["wait for the check"];
+      if (!String(values.name || "").trim()) items.push("name the session");
+      const words = {timing:"time this task first (practice runs are available now)", limits:"record operator-verified joint limits"};
+      for (const key of window.SynriaGuide.requirements(values)) if (words[key]) items.push(words[key]);
+      return items;
+    }
+    return [];
+  }
+
+  /** Decide whether a step is complete and, if not, say what is left in one plain sentence. */
+  function completion(name) {
+    const items = remaining(name);
+    if (!items.length) return {ok:true};
+    return {ok:false, reason:`${items.length === 1 ? "1 thing left" : `${items.length} things left`}: ${items.join(", ")}`, items};
   }
 
   /** Which steps are reachable: a later step needs every earlier step complete. */
   function furthestAllowed() {
     let allowed = "task";
-    for (const name of STEPS) { if (!completion(name === "task" ? "task" : STEPS[STEPS.indexOf(name) - 1]).ok && name !== "task") break; allowed = name; }
+    for (const name of STEPS.slice(1)) { if (!completion(STEPS[STEPS.indexOf(name) - 1]).ok) break; allowed = name; }
     return allowed;
   }
 
-  /** Paint the stepper, the footer and the step-specific summaries from current state. */
+  /** Paint the stepper, the footer and the step-specific blocks from current state. */
   function refresh() {
-    if (!tasks.length) return;
+    if (!tasks.length || !armed) return;
     const allowedIndex = STEPS.indexOf(furthestAllowed());
     for (const li of document.querySelectorAll("#wizard-steps li")) {
-      const name = li.dataset.step, index = STEPS.indexOf(name), button = li.querySelector("button");
+      const name = li.dataset.step, index = STEPS.indexOf(name), control = li.querySelector("button");
       const done = index < STEPS.indexOf(step) && completion(name).ok;
       li.dataset.state = name === step ? "current" : done ? "complete" : "upcoming";
-      button.disabled = index > allowedIndex || name === step;
-      if (name === step) button.setAttribute("aria-current", "step"); else button.removeAttribute("aria-current");
-      button.querySelector("b").textContent = done ? "✓" : String(index + 1);
+      control.disabled = index > allowedIndex || name === step;
+      if (name === step) control.setAttribute("aria-current", "step"); else control.removeAttribute("aria-current");
+      control.querySelector("b").textContent = done ? "✓" : String(index + 1);
     }
-    if (step === "check") renderSetupSummary();
-    if (step === "start") renderStartSummary();
+    if (step === "check") { renderYourSetup(); renderTiles(); }
     const result = completion(step);
     $("wizard-primary").disabled = !result.ok;
-    $("wizard-primary").textContent = step === "start" ? "Start session" : "Continue";
-    $("wizard-back").textContent = step === "task" ? "Exit to Home" : "Back";
-    const reason = result.ok ? (step === "start" ? "Everything is in place." : "") : result.reason;
+    $("wizard-primary").textContent = step === "check" ? "Start session" : "Continue";
+    const reason = result.ok ? (step === "check" ? "Everything is in place." : "") : result.reason;
     if (reason !== lastReason) { $("wizard-reason").textContent = reason; lastReason = reason; }
-    $("smoke").disabled = state.demo || Boolean(state.active_session) || starting || window.SynriaGuide.missingInputs(formValues(), state.demo).length > 0 || window.SynriaGuide.requirements(formValues()).includes("metadata");
-    $("smoke").title = $("smoke").disabled ? "A practice run needs the setup values, the follower serial and the starting power state." : "Opens the cameras and arm feed, records one 20 second take and throws it away.";
-    $("collection-requirements").textContent = step === "start" && !result.ok && !starting ? "" : "";
+    $("smoke").hidden = state.demo || step !== "check";
+    $("smoke").disabled = state.demo || Boolean(state.active_session) || starting || missingFields(formValues()).length > 0 || !confirmed();
+    $("smoke").title = $("smoke").disabled ? "A practice run needs the setup values, the follower serial and the power state." : "Opens the cameras and arm feed, records one 20 second take and throws it away.";
   }
 
   /** Show one step: pages, focus, scroll and the live announcement. Never navigates by itself. */
   function show(name) {
     step = STEPS.includes(name) ? name : "task";
-    for (const page of ["task", "check", "start"]) $(`step-${page}`).hidden = page !== step;
+    for (const page of STEPS) $(`step-${page}`).hidden = page !== step;
+    $("bench-panel").hidden = Boolean(state.demo);
     refresh();
     // The router calls show() once per arrival, so every arrival gets focus and an announcement.
     window.scrollTo({top:0, behavior:"auto"});
     $(`step-${step}-title`).focus({preventScroll:true});
-    $("route-announcer").textContent = `Step ${STEPS.indexOf(step) + 1} of 3: ${TITLES[step]}`;
+    $("route-announcer").textContent = `Step ${STEPS.indexOf(step) + 1} of 2: ${TITLES[step]}`;
+    if (step === "check") {
+      const first = [...$("setup-inline").querySelectorAll("input:not([type=hidden]), select, textarea")].find(node => !node.hidden && node.id !== "scene-note" && !node.value && !(node.type === "radio" && $("new-form").elements[node.name].value));
+      if (first) first.focus({preventScroll:true});
+    }
     saveDraft();
     if (step === "check") maybeRunCheck();
   }
 
   /** Run the read-only setup check once per entry when the bench checks are confirmed. */
   async function maybeRunCheck() {
-    if (step !== "check" || checking || readinessBusy || !confirmed() || checkIsCurrent()) return;
+    if (step !== "check" || checkRunning() || !confirmed() || checkIsCurrent()) return;
     if (window.SynriaGuide.missingInputs(formValues(), state.demo).length) return;
     checking = true; refresh();
     try { await runReadiness(); } finally { checking = false; refresh(); }
@@ -211,21 +350,13 @@ const SynriaWizard = (() => {
   /** Create the session and open its cameras and arm feed; rerun a stale check in place first. */
   async function startSession() {
     starting = true; refresh();
-    $("start-check").hidden = true;
     try {
       if (!checkIsCurrent()) {
-        $("start-check").hidden = false; $("start-check").dataset.level = "checking";
-        $("start-check-title").textContent = "Checking cameras and arm feed"; $("start-check-message").textContent = "The last check is older than a minute, so it runs again before the session opens.";
-        await runReadiness();
-        const failing = failingPath();
-        const report = typeof readinessReport === "undefined" ? null : readinessReport;
-        if (failing || !report?.checked_utc || report.status === "blocked") {
-          $("start-check").dataset.level = "not_ready";
-          $("start-check-title").textContent = failing ? failing.title : "The setup check did not pass";
-          $("start-check-message").textContent = failing ? `${failing.message} Fix this, then press Start session again.` : "See the check details under Check setup, fix the cause, then press Start session again.";
-          return;
-        }
-        $("start-check").hidden = true;
+        // Older than a minute: run it again right here; the tiles show Checking, then the result.
+        checking = true; refresh();
+        try { await runReadiness(); } finally { checking = false; }
+        const tiles = tileRows();
+        if (tiles.some(tile => tile.state !== "ok")) { starting = false; refresh(); return; }
       }
       const session = await api("sessions", formValues());
       await api(`session/${session.id}/open`, {});
@@ -239,13 +370,13 @@ const SynriaWizard = (() => {
   /** Wire the footer, stepper, draft and change-setup disclosure after the page is ready. */
   function initialize() {
     if (armed) return;
+    armed = true;
     renderTaskCards();
     const draft = restoreDraft();
-    if (draft.values?.task_id) { $("task").value = draft.values.task_id; $("task").dispatchEvent(new Event("change", {bubbles:true})); renderTaskCards(); }
+    if (draft.values?.task_id) { $("task").value = draft.values.task_id; onTaskChosen(); }
     $("wizard-primary").onclick = () => safe(async () => {
       if (!completion(step).ok) return;
       if (step === "task") window.SynriaRouter.go(window.SynriaRouter.routes.wizard("check"));
-      else if (step === "check") window.SynriaRouter.go(window.SynriaRouter.routes.wizard("start"));
       else await startSession();
     });
     $("wizard-back").onclick = () => {
@@ -255,17 +386,28 @@ const SynriaWizard = (() => {
     document.querySelectorAll("[data-wizard-step]").forEach(node => { node.onclick = () => window.SynriaRouter.go(window.SynriaRouter.routes.wizard(node.dataset.wizardStep)); });
     const toggleSetup = open => { $("setup-configure").hidden = !open; $("change-setup").setAttribute("aria-expanded", String(open)); $("change-setup").textContent = open ? "Hide setup fields" : "Change setup"; };
     $("change-setup").onclick = () => toggleSetup($("setup-configure").hidden);
-    $("done-setup").onclick = () => { toggleSetup(false); renderSetupSummary(); refresh(); $("step-check-title").focus(); };
+    $("done-setup").onclick = () => { toggleSetup(false); refresh(); $("step-check-title").focus(); };
     $("new-form").addEventListener("invalid", () => toggleSetup(true), true);
-    $("new-form").addEventListener("input", () => { saveDraft(); refresh(); });
-    $("new-form").addEventListener("change", () => { saveDraft(); refresh(); });
+    let editTimer = null;
+    const onEdit = event => {
+      if (event.target.name === "power_choice" || event.target.id === "power-other") readPower();
+      if (event.target.id === "scene-note") syncScene();
+      if (event.target.name === "name" && event.isTrusted) autoName = false;
+      if (event.target.name === "task_id") onTaskChosen();
+      saveDraft(); refresh();
+      // Once the last missing value is in, the check starts by itself after typing settles.
+      clearTimeout(editTimer); editTimer = setTimeout(() => safe(maybeRunCheck), 1200);
+    };
+    $("new-form").addEventListener("input", onEdit);
+    $("new-form").addEventListener("change", onEdit);
     $("readiness-confirmations").addEventListener("change", () => { refresh(); safe(maybeRunCheck); });
-    $("new-form").onsubmit = event => { event.preventDefault(); safe(async () => { if (completion("start").ok) await startSession(); }); };
+    $("new-form").onsubmit = event => { event.preventDefault(); safe(async () => { if (step === "check" && completion("check").ok) await startSession(); }); };
     window.addEventListener("console-readiness", refresh);
     window.addEventListener("console-state", () => { if (!$("new").hidden) refresh(); });
-    armed = true;
+    window.addEventListener("console-sessions", () => { if (autoName && chosenTask()) { suggestName(); if (!$("new").hidden) refresh(); } });
   }
 
-  return {STEPS, show, refresh, completion, initialize, furthestAllowed, current: () => step, checkIsCurrent};
+  return {STEPS, show, refresh, completion, remaining, initialize, furthestAllowed, current: () => step, checkIsCurrent, sceneText, tileRows,
+    flags: () => ({checking, starting, armed})};
 })();
 globalThis.SynriaWizard = SynriaWizard;

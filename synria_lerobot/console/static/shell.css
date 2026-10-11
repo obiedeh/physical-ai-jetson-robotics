@@ -44,7 +44,7 @@ a.button:hover{border-color:var(--accent)}a.button.primary{background:var(--acce
 .step-title{font-size:24px;margin:6px 0 4px;outline:none}.step-title:focus-visible{outline:3px solid #edbe70;outline-offset:4px}
 .task-cards{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
 .task-card{text-align:left;display:flex;flex-direction:column;gap:6px;align-items:flex-start;padding:18px;font:inherit;color:var(--text);min-height:44px}
-.task-card h3{margin:0;font-size:19px;text-transform:capitalize}.task-card p{margin:0}
+.task-card h3{margin:0;font-size:19px}.task-card p{margin:0}
 .task-card[aria-checked=true]{border:2px solid var(--accent);background:#1f3a35}
 .chip{display:inline-block;padding:4px 10px;border-radius:14px;font-size:13px;border:1px solid var(--edge);color:var(--muted)}
 .chip-ok{border-color:#7fc992;color:#b3e6b8}.chip-warn{border-color:#edbe70;color:#ffe9bd}
@@ -61,3 +61,26 @@ a.button:hover{border-color:var(--accent)}a.button.primary{background:var(--acce
 #task-timing-entry{margin-top:24px}#task-timing-entry summary{min-height:44px;display:flex;align-items:center;font-size:17px}
 @media(max-width:900px){.stepper{grid-template-columns:1fr}.wizard-footer{padding:12px 16px}.wizard-footer #wizard-reason{display:none}.wizard-footer #wizard-primary{min-width:0;flex:1}}
 #task-description:empty{display:none}#task-description{margin-top:16px}.summary-list dd.optional{color:var(--muted)}
+/* Check setup: your setup inline, tiles for cameras and arm feed, bench checks in plain words. */
+.mode-line{background:#352c18;border:1px solid #edbe70;border-radius:8px;padding:8px 14px;color:#ffe9bd;margin:0 0 16px}
+#your-setup,#sources-panel,#bench-panel{margin-bottom:16px}#your-setup h3,#sources-panel h3,#bench-panel h3{margin-top:0}
+#setup-line{color:var(--text)}
+.inline-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:12px 0}
+.inline-fields label,.inline-fields fieldset.field{margin:0}
+fieldset.field{border:1px solid var(--edge);border-radius:8px;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+fieldset.field legend{color:var(--muted);font-size:14px;padding:0 6px}
+.choice{flex-direction:row;align-items:center;gap:10px;color:var(--text);font-size:16px;min-height:44px}.choice input{width:22px;height:22px;margin:0}
+fieldset.field small{color:var(--muted)}
+#sources-panel .section-head h3{margin-right:auto}#sources-line{margin:4px 0 12px;font-size:14px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.tile{display:flex;flex-direction:column;gap:6px;padding:14px;border-left:5px solid #728394}
+.tile>span{font-size:12px;letter-spacing:.5px;font-weight:700;text-transform:uppercase;color:var(--muted)}.tile h4{margin:0;font-size:17px}.tile p{margin:0}
+.tile img{width:100%;height:120px;object-fit:cover;border-radius:6px;background:#0a0f14}
+.tile[data-state=ok]{border-left-color:#8fe0ce}.tile[data-state=ok]>span{color:#8fe0ce}
+.tile[data-state=problem]{border-left-color:#ff9b98;background:#3a2326}.tile[data-state=problem]>span{color:#ff9b98}
+.tile[data-state=checking]{border-left-color:#edbe70}.tile[data-state=checking]>span{color:#edbe70}
+.tile dl{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:4px 10px;font-size:14px}.tile dt{color:var(--muted)}.tile dd{margin:0}
+#technical-details{margin:14px 0 0}#technical-details summary{min-height:44px;display:flex;align-items:center}
+#bench-panel .check{min-height:44px;font-size:16px;color:var(--text)}#bench-panel .check input{width:22px;height:22px}
+.task-status{color:var(--text);font-weight:600}#task-description ul{margin:6px 0 10px;padding-left:22px}#task-description li{margin:4px 0}
+.start-fields{grid-template-columns:repeat(2,minmax(0,1fr));margin:14px 0}

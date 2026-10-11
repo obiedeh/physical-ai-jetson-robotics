@@ -11,7 +11,7 @@ function addPresetSelect(input) {
   select.dataset.presetFor = input.name;
   const choices = [["", "Choose a value"],
     ...Array.from(options.options, option => [option.value, option.label || option.textContent]),
-    ["custom", "Custom value…"]];
+    ["custom", "Other"]];
   for (const [value, label] of choices) {
     const option = document.createElement("option");
     option.value = value;

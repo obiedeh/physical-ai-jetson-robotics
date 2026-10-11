@@ -52,24 +52,40 @@ and refresh keep the place; on load the page opens the recording screen if a
 session is open, otherwise Home. Each screen change moves focus to the screen
 title and announces it through a live region. Navigating never opens a source,
 creates a session or issues a recorder command.
-New session is a linear wizard of three steps: **Choose task**, **Check setup**,
-**Start**. A fixed footer on every step holds Back at the left and one primary
-button at the right; the primary stays disabled until the step is complete and the
-footer says why in plain words ("Choose a task to continue", "Tick the five bench
-checks to continue"). The stepper is an indicator: completed steps show a tick and
-can be revisited, later steps cannot be clicked, and a later step's address is
-clamped back to the first incomplete step. Back never loses input: the draft is
+New session is a linear wizard of two steps: **Choose task** and **Check setup**.
+A fixed footer on every step holds Back at the left and one primary button at
+the right; the primary stays disabled until the step is complete and the footer
+lists what is left, in order ("2 things left: choose the gripper size, tick the
+bench checks"). The stepper is an indicator: a completed step shows a tick and
+can be revisited, the later step cannot be clicked, and its address is clamped
+back while the first step is incomplete. Back never loses input: the draft is
 kept in browser storage (never the safety confirmations) and survives refresh.
-Check setup shows a Saved setup summary with the one thing to fix, the full form
-behind Change setup, and the five bench checks; the read-only setup check starts
-by itself when the fifth check is ticked, and again after Run the setup check
-again. Start summarises task, take length, target and setup, then Start session
+Choose task shows one card per registry task in sentence case with a chip
+("Practice only until timed" or the take length); choosing one shows the scene
+before each take as bullets, the success rule, one plain status, and the session
+name (suggested in words: task, day, count) with the target number of takes
+(10 takes (quick trial), 50 takes, 100 takes, Other).
+Check setup has three blocks: Your setup (one summary line naming gripper, arm
+feed, cameras and rate; any missing required value as an inline field with
+focus on the first; the gripper size as two radio buttons; the starting power
+state as a two-way choice; the follower serial as the remembered dropdown; the
+full form behind Change setup), Cameras and arm feed (four tiles: Arm feed with
+its readings per second, Wrist camera and Overhead camera with a thumbnail of
+the sample the check read, and Storage; each Checking, OK, Problem or Not
+checked yet; a Problem tile says what is wrong, the likely cause and how to fix
+it; one Check now / Check again button; the software environment, meter and the
+full check list sit under a collapsed Technical details), and in physical mode
+I have checked the bench with five plain-words checks. The read-only setup
+check starts by itself when the step is entered with the required values and
+bench checks in place, and again after a setting changes; running it is never
+left to the operator. The primary on this step is **Start session**: it reruns
+a check older than a minute in place (tiles show Checking, then the result),
 creates the session, opens its cameras and arm feed and lands on the recording
-screen. If the last check is older than a minute it is rerun in place first,
-with a visible "Checking cameras and arm feed" state; a failing item is shown in
-place with its fix and the operator is never sent back a step. Do a practice run
-instead is the secondary action on the same step. Nothing navigates by itself
-except after the primary button.
+screen. A failing check stays on the step with its fix; the operator is never
+sent back. **Do a practice run instead** sits beside it in physical mode. The
+scene text sent to the recorder is the task's scene requirements plus an
+optional note on what is different today. Nothing navigates by itself except
+after the primary button.
 Help is a page of procedures, repository references and a glossary; the same
 procedures open in place from any error. It works without external network access. The state-source procedure distinguishes
 an unverified standalone candidate from the still-unrecorded site-specific

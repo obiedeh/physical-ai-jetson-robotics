@@ -137,6 +137,11 @@ def test_shared_probe_never_starts_or_saves_and_expires(
         result = service.mutate(["readiness"], request_values())
         assert result["status"] == "ready" and result["percent"] == 100
         assert result["checks"]["cleanup"]["passed"]
+        assert result["thumbnails"] == ["front", "wrist"]
+        for camera in ("wrist", "front"):
+            assert service.media(["readiness", camera], {})[:2] == b"\xff\xd8"
+        with pytest.raises(KeyError):
+            service.media(["readiness", "other"], {})
         assert owned[0].state_source.closed  # type: ignore[attr-defined]
         assert service.controller is None
         assert service.catalog.sessions() == []

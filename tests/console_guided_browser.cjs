@@ -28,6 +28,7 @@ function diagnostic(settings) {
   if (scenario === "pass") {
     for (const name of ["follower_sample","action_sample","wrist_sample","front_sample"]) checks[name] = check(true,"Fresh synthetic sample");
     checks.state_rate = check(true,"25 Hz measured");
+    checks.state_rate_evidence = {...check(true,"Shared recorder check passed"),details:{passed:true,rate_hz:25.04,message_count:50,duration_s:2}};
   }
   const status = scenario === "pass" ? "attention" : "blocked";
   return {status, label:status === "attention" ? "Connected · setup required" : "Connection checks incomplete", percent:status === "attention" ? 70 : 25, checks,
@@ -112,7 +113,17 @@ async function run() {
   /** Evaluate test interactions and propagate browser exceptions rather than treating them as success. */
   async function evaluate(expression){const result=await send("Runtime.evaluate",{expression,returnByValue:true,awaitPromise:true});if(result.exceptionDetails)throw Error(JSON.stringify(result.exceptionDetails));return result.result.value;}
   /** Wait on DOM mutations and hash changes, not arbitrary sleeps, for an asynchronous UI condition to become true. */
-  async function until(expression,description=expression){return evaluate(`new Promise((resolve,reject)=>{const test=()=>(${expression});if(test())return resolve(true);const observer=new MutationObserver(()=>{if(test()){observer.disconnect();clearTimeout(timer);resolve(true);}});observer.observe(document,{subtree:true,childList:true,attributes:true,characterData:true});window.addEventListener('hashchange',()=>{if(test()){observer.disconnect();clearTimeout(timer);resolve(true);}});const timer=setTimeout(()=>{observer.disconnect();reject(Error('UI condition timed out: '+${JSON.stringify(description)}));},10000);})`);}
+  /** Poll a page condition from here, so navigation, reload and loading pages cannot strand the wait. */
+  async function until(expression,description=expression){
+    const deadline=Date.now()+10000;
+    while(Date.now()<deadline){
+      let value=false;
+      try{value=await evaluate(`(()=>{try{return Boolean(${expression});}catch(e){return false;}})()`);}catch(e){value=false;}
+      if(value)return true;
+      await new Promise(resolve=>setTimeout(resolve,120));
+    }
+    throw Error('UI condition timed out: '+description);
+  }
   const click=selector=>evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`);
   const textOf=selector=>evaluate(`document.querySelector(${JSON.stringify(selector)}).textContent`);
   const reason=()=>textOf("#wizard-reason");
@@ -157,7 +168,7 @@ async function run() {
     await until("location.hash==='#/new/task' && document.querySelector('#global-nav').hidden && !document.querySelector('#flow-nav').hidden");
     assert.equal(await textOf("#breadcrumb"),"HomeNew session");
     assert.equal(await evaluate("document.activeElement.id"),"step-task-title","focus moves to the step heading");
-    assert.equal(await textOf("#route-announcer"),"Step 1 of 3: Choose task");
+    assert.equal(await textOf("#route-announcer"),"Step 1 of 2: Choose task");
     await click("#exit-flow");
     await until("location.hash==='#/home' && !document.querySelector('#global-nav').hidden");
     await evaluate("history.back()");
@@ -169,87 +180,97 @@ async function run() {
     assert.equal(await evaluate("new Set([...document.querySelectorAll('[id]')].map(n=>n.id)).size===document.querySelectorAll('[id]').length"),true,"no duplicate controls");
     // Step 1: the primary waits for a task and says so.
     assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),true);
-    assert.equal(await reason(),"Choose a task to continue");
+    assert.equal(await reason(),"1 thing left: choose a task");
+    assert.equal(await textOf("#wizard-back"),"Back","the footer left button is always Back");
+    assert.equal(await evaluate("document.querySelectorAll('#new button').length===[...document.querySelectorAll('#new button')].length && [...document.querySelectorAll('#new button')].filter(n=>n.textContent.trim()==='Exit to Home').length"),0,"only the top-right Exit says Exit");
     assert.equal(await evaluate("document.querySelector('[data-wizard-step=check]').disabled"),true,"later steps cannot be clicked");
     await evaluate("SynriaGuide.openHelp('source')");
     assert.match(await textOf("#help-content"),/No verified startup command/);
     assert.match(await textOf("#help-content"),/joint_commands_enabled:=false/);
     assert.match(await evaluate("document.querySelector('#help-content pre').textContent"),/--ros-args \\\n/);
-    await click("#close-help");await click("[data-guide-help=timing]");
+    await click("#close-help");
+    assert.match(await textOf("[data-task-id=die_into_cup]"),/^Die into cup/,"sentence case title");
+    assert.match(await textOf("[data-task-id=die_into_cup]"),/Practice only until timed/);
+    await click("[data-task-id=die_into_cup]");
+    assert.equal(await evaluate("document.querySelector('[name=task_id]').value"),"die_into_cup");
+    assert.match(await textOf("#task-description"),/Scene before each take.*Fixed synthetic scene.*Take length not set yet\. You can do practice runs now\. To record takes that count, time this task first\./s);
+    assert.ok(!(await textOf("#task-description")).includes("DECISIONS.md"),"no internal text in the task panel");
+    assert.equal(await evaluate("document.querySelector('#task-session-fields').hidden"),false,"name and target appear under the chosen task");
+    assert.match(await evaluate("document.querySelector('[name=name]').value"),/^Die into cup, \d{1,2} [A-Z][a-z]{2}, 1$/,"session name in words");
+    assert.equal(await evaluate("document.querySelector('[name=target_episodes]').value"),"100");
+    assert.match(await evaluate("[...document.querySelector('[data-preset-for=target_episodes]').options].map(o=>o.textContent).join('|')"),/10 takes \(quick trial\)\|50 takes\|100 takes\|Other/,"target choices in plain words");
+    await evaluate("[...document.querySelectorAll('#task-description button')].find(n=>n.textContent==='How to time this task').click()");
     assert.match(await textOf("#help-content"),/config\/synria_tasks.json/);
     assert.match(await textOf("#help-content"),/cannot set or override/);
     await click("#close-help");
-    assert.match(await textOf("#task-window-registration"),/There are no timing inputs here by design/);
-    await click("[data-task-id=die_into_cup]");
-    assert.equal(await evaluate("document.querySelector('[name=task_id]').value"),"die_into_cup");
-    assert.match(await textOf("[data-task-id=die_into_cup]"),/Not timed yet/);
+    assert.match(await textOf("#help"),/There are no timing inputs here by design/,"timing registration lives on the Help page");
     await pressPrimary();
     await until("location.hash==='#/new/check'");
-    assert.equal(await textOf("#route-announcer"),"Step 2 of 3: Check setup");
-    assert.equal(await evaluate("document.activeElement.id"),"step-check-title");
-    assert.match(await textOf("#setup-summary"),/Gripper50mm/,"saved setup is summarised");
-    assert.equal(await evaluate("document.querySelector('#setup-configure').hidden"),true,"the long form sits behind Change setup");
-    assert.match(await reason(),/^Tick the five bench checks/);
+    assert.equal(await textOf("#route-announcer"),"Step 2 of 2: Check setup");
+    assert.match(await textOf("#setup-line"),/50 mm gripper, ros2_control arm feed, wrist fake-wrist, overhead fake-front, 15 FPS, you: test\./,"remembered setup is one line");
+    assert.equal(await evaluate("document.querySelector('#setup-configure').hidden"),true,"remembered values sit behind Change setup");
+    assert.equal(await evaluate("document.querySelector('#setup-inline [name=follower_serial]')!==null && document.querySelector('#setup-inline [name=power_choice]')!==null"),true,"serial and power state are inline");
+    assert.equal(await evaluate("document.activeElement.name"),"follower_serial","focus lands on the first missing inline field");
+    assert.equal(await reason(),"5 things left: choose the follower serial, confirm the power state, tick the bench checks, time this task first (practice runs are available now), record operator-verified joint limits");
+    assert.equal(await textOf("#wizard-primary"),"Start session","step 2 holds the start");
+    assert.equal(await evaluate("document.querySelector('#smoke').hidden"),false,"the practice run sits beside Start session");
+    assert.equal(await textOf("#check-readiness"),"Check now","before any run the button says Check now");
+    assert.equal(await evaluate("document.querySelector('#bench-panel').hidden"),false,"physical mode shows the bench checks");
+    assert.equal(await evaluate("[...document.querySelectorAll('#source-tiles .tile')].map(n=>n.dataset.state).join()"),"unchecked,unchecked,unchecked,ok","tiles say Not checked yet, storage is OK");
     assert.equal(calls.length,0,"entering Check setup without bench checks cannot open sources");
     // An invalid hidden field names itself and opens the form.
     await evaluate("const fpsPreset=document.querySelector('[data-preset-for=fps]');fpsPreset.value='custom';fpsPreset.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('[name=fps]').value='0';document.querySelector('[name=fps]').dispatchEvent(new Event('input',{bubbles:true}))");
-    assert.match(await reason(),/^Fill in fps under Change setup/);
+    assert.match(await reason(),/choose the rate/);
     await click("#check-readiness");
     assert.equal(calls.length,0,"invalid native form constraints cannot open sources");
     assert.equal(await evaluate("document.querySelector('#setup-configure').hidden"),false,"invalid hidden form field opens its setup fields");
     await evaluate("document.querySelector('[data-preset-for=fps]').value='15';document.querySelector('[data-preset-for=fps]').dispatchEvent(new Event('change',{bubbles:true}))");
     if(process.env.SYNRIA_GUIDE_EXTRA_SHOTS)fs.writeFileSync(screenshot.replace(/\.png$/,"-configuration.png"),Buffer.from((await send("Page.captureScreenshot",{format:"png"})).data,"base64"));
-    await evaluate("document.querySelector('[name=scene]').value='<script>throw Error(99)</script>';document.querySelector('[name=scene]').dispatchEvent(new Event('input',{bubbles:true}))");
     await click("#done-setup");
     assert.equal(await evaluate("document.querySelector('#setup-configure').hidden"),true);
+    await evaluate("document.querySelector('#scene-note').value='<script>throw Error(99)</script>';document.querySelector('#scene-note').dispatchEvent(new Event('input',{bubbles:true}))");
+    assert.equal(await evaluate("SynriaWizard.sceneText()"),"Fixed synthetic scene. Today: <script>throw Error(99)</script>","scene is the task scene plus today's note");
     await click("#check-readiness");
     await until("document.querySelector('#notice').textContent.includes('physical safety confirmations')");
     assert.equal(calls.length,0,"missing physical confirmations cannot issue a diagnostic");
     // The fifth bench tick starts the read-only check by itself.
     await evaluate("document.querySelectorAll('[data-readiness-confirm]').forEach(n=>{n.checked=true;n.dispatchEvent(new Event('change',{bubbles:true}));})");
-    await until("document.querySelector('#wizard-reason').textContent.startsWith('Follower state: No state sample')");
+    await until("document.querySelector('#wizard-reason').textContent.includes('fix the arm feed')");
+    assert.equal(await reason(),"5 things left: choose the follower serial, confirm the power state, fix the arm feed, time this task first (practice runs are available now), record operator-verified joint limits");
+    assert.equal(await textOf("#check-readiness"),"Check again");
     assert.equal(await textOf("#notice"),"","a deliberate valid attempt supersedes the resolved consent error");
     assert.equal(calls.length,1);assert.equal(calls[0].payload.settings.follower_serial,"");
+    assert.equal(calls[0].payload.settings.scene,"Fixed synthetic scene. Today: <script>throw Error(99)</script>");
+    assert.equal("power_choice" in calls[0].payload.settings,false,"page-only controls never reach the server");
     assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),true,"a failing check keeps the primary disabled");
     assert.equal(await evaluate("location.hash"),"#/new/check","a failing check never changes the step");
-    assert.match(await textOf("#connection-paths"),/Not ready.*Follower state/s);
-    assert.match(await textOf("#connection-paths"),/Not checked.*Wrist camera/s);
+    assert.match(await textOf("#source-tiles"),/Problem.*Arm feed.*What is wrong.*No state sample received.*Likely cause.*How to fix/s,"a problem tile explains itself");
+    assert.match(await textOf("#source-tiles"),/Not checked yet.*Wrist camera/s);
+    assert.match(await textOf("#sources-line"),/Last check just now/);
     assert.ok(!await evaluate("document.querySelector('#all-check-details').textContent.includes('Ready · state source')"));
-    assert.match(await textOf("#recording-blockers"),/Fill in the serial and power fields/);
-    assert.match(await textOf("#recording-blockers"),/See task timing status/);
-    assert.match(await textOf("#recording-blockers"),/Open the joint limits file/);
-    await evaluate("[...document.querySelectorAll('#recording-blockers button')].find(n=>n.textContent.includes('Fill in the serial')).click()");
-    assert.equal(await evaluate("document.activeElement.name"),"follower_serial","metadata shortcut opens the setup fields and focuses the first missing field");
-    await evaluate("[...document.querySelectorAll('#recording-blockers button')].find(n=>n.textContent.includes('Where to find')).click()");
-    assert.match(await textOf("#help-content"),/follower arm label/);
-    assert.match(await textOf("#help-content"),/torque state/);
-    await evaluate("document.querySelector('#close-help').click();[...document.querySelectorAll('#recording-blockers button')].find(n=>n.textContent.includes('Open the joint limits')).click()");
-    await until("document.querySelector('#help-title').textContent==='config/synria_limits.yaml'");
-    assert.match(await textOf("#help-content"),/verified_by and verified_on are empty/);
-    await click("#close-help");
-    await evaluate("[...document.querySelectorAll('#recording-blockers button')].find(n=>n.textContent==='See task timing status').click()");
-    await until("location.hash==='#/new/task'");
-    assert.equal(await evaluate("document.querySelector('#task-timing-entry').open"),true);
-    assert.equal(await evaluate("document.querySelector('[data-wizard-step=check]').disabled"),false,"a completed step can be revisited");
-    await click("[data-wizard-step=check]");
-    await until("location.hash==='#/new/check'");
-    assert.equal(await evaluate("document.querySelector('[name=scene]').value"),"<script>throw Error(99)</script>","Back and forward keep inputs");
-    if(process.env.SYNRIA_GUIDE_EXTRA_SHOTS)fs.writeFileSync(screenshot.replace(/\.png$/,"-failure.png"),Buffer.from((await send("Page.captureScreenshot",{format:"png"})).data,"base64"));
-    await evaluate("[...document.querySelectorAll('#connection-paths button')].find(n=>n.textContent==='How to fix this').click()");
+    assert.equal(await evaluate("document.querySelector('#technical-details').open"),false,"technical detail is collapsed");
+    await evaluate("[...document.querySelectorAll('#source-tiles button')].find(n=>n.textContent==='All the steps').click()");
     assert.match(await textOf("#help-content"),/ROS domain/);
     await click("#close-help");
+    assert.equal(await evaluate("document.querySelector('[data-wizard-step=task]').disabled"),false,"a completed step can be revisited");
+    await click("[data-wizard-step=task]");
+    await until("location.hash==='#/new/task'");
+    await click("[data-wizard-step=check]");
+    await until("location.hash==='#/new/check'");
+    assert.equal(await evaluate("document.querySelector('#scene-note').value"),"<script>throw Error(99)</script>","Back and forward keep inputs");
+    if(process.env.SYNRIA_GUIDE_EXTRA_SHOTS)fs.writeFileSync(screenshot.replace(/\.png$/,"-failure.png"),Buffer.from((await send("Page.captureScreenshot",{format:"png"})).data,"base64"));
     scenario="camera";await click("#check-readiness");
-    await until("document.querySelector('#connection-paths').textContent.includes('Camera device busy')");
-    await until("document.querySelector('#wizard-reason').textContent.startsWith('Wrist camera: Camera device busy')");
-    await evaluate("[...document.querySelectorAll('#connection-paths button')].find(n=>n.textContent==='How to fix this').click()");
+    await until("document.querySelector('#wizard-reason').textContent.includes('fix the wrist camera')");
+    assert.match(await textOf("#source-tiles"),/Problem.*Wrist camera.*Camera device busy/s);
+    await evaluate("[...document.querySelectorAll('#source-tiles button')].find(n=>n.textContent==='All the steps').click()");
     assert.match(await textOf("#help-content"),/pgrep -a cheese/);
     await evaluate("document.querySelector('#close-help').click();document.querySelector('[name=fps]').value='30';document.querySelector('[name=fps]').dispatchEvent(new Event('change',{bubbles:true}));");
-    assert.equal(await evaluate("[...document.querySelectorAll('#connection-paths article')].every(n=>n.dataset.level==='not_checked')"),true,"changed settings invalidate every old path");
-    assert.equal(await reason(),"The setup check has not run for these values yet");
-    scenario="recovery";await click("#check-readiness");
-    await until("document.querySelector('#connection-paths').textContent.includes('journal requires review')");
-    await until("document.querySelector('#wizard-reason').textContent.startsWith('Preserve the dataset for recovery')");
-    await evaluate("[...document.querySelectorAll('#connection-paths button')].find(n=>n.textContent==='How to fix this').click()");
+    assert.equal(await evaluate("[...document.querySelectorAll('#source-tiles .tile')].slice(0,3).every(n=>n.dataset.state==='unchecked')"),true,"changed settings make every tile Not checked yet");
+    assert.ok(!(await reason()).includes("run the check"),"running the check is never left to the operator");
+    scenario="recovery";
+    await until("document.querySelector('#wizard-reason').textContent.includes('preserve the dataset for recovery')","after a setting changes the check runs again by itself");
+    assert.match(await textOf("#source-tiles"),/journal requires review/);
+    await evaluate("[...document.querySelectorAll('#source-tiles button')].find(n=>n.textContent==='All the steps').click()");
     assert.match(await textOf("#help-content"),/Do not remove the lock/);
     await click("#close-help");
     assert.equal(await evaluate("document.querySelector('#smoke').disabled"),true,"missing identity cannot start a practice run");
@@ -257,45 +278,45 @@ async function run() {
     expireReports=true;
     await until("document.querySelector('#readiness-label').textContent.includes('expired')");
     assert.equal(await evaluate("location.hash"),"#/new/check");
-    assert.match(await reason(),/^Preserve the dataset for recovery/);
+    assert.match(await reason(),/preserve the dataset for recovery/);
     expireReports=false;
     // Back returns exactly one step with inputs intact.
     await evaluate("document.querySelector('[name=notes]').value='keep me';document.querySelector('[name=notes]').dispatchEvent(new Event('input',{bubbles:true}))");
     await click("#wizard-back");await until("location.hash==='#/new/task'");
     await pressPrimary();await until("location.hash==='#/new/check'");presses--;
     assert.equal(await evaluate("document.querySelector('[name=notes]').value"),"keep me");
-    // A passing check completes the step; the Start step reruns a stale check in place.
-    scenario="pass";await click("#check-readiness");
-    await until("!document.querySelector('#wizard-primary').disabled","a passing check enables Continue");
-    const checksSoFar=calls.filter(call=>call.route==="readiness").length;
-    await pressPrimary();await until("location.hash==='#/new/start'");
-    assert.equal(await textOf("#route-announcer"),"Step 3 of 3: Start");
-    assert.match(await textOf("#start-summary"),/Taskdie into cup.*Not timed yet/s);
-    assert.match(await reason(),/needs follower serial and starting power state, task timing registered in the repository, operator-verified joint limits/);
+    // Re-entering the step with an expired check reruns it by itself; wait for that run to finish.
+    await until("!SynriaWizard.flags().checking && !readinessBusy && !document.querySelector('#check-readiness').disabled","the automatic rerun has finished");
+    // Serial and power are one tap each, inline; filling them reruns the check by itself.
+    await evaluate("const serial=document.querySelector('#setup-inline [name=follower_serial]');serial.value='__manual__';serial.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('#follower-serial-custom').value='ARM-TEST';document.querySelector('#follower-serial-custom').dispatchEvent(new Event('input',{bubbles:true}))");
+    await evaluate("document.querySelector('#setup-inline [name=power_choice][value=\"Arm powered and following the leader\"]').click()");
+    assert.equal(await evaluate("formValues().power_state_start"),"Arm powered and following the leader");
+    assert.equal(await evaluate("formValues().follower_serial"),"ARM-TEST");
+    scenario="pass";
+    await until("!document.querySelector('#wizard-reason').textContent.includes('preserve the dataset') && !SynriaWizard.flags().checking && !readinessBusy && SynriaWizard.tileRows().every(t=>t.state==='ok')","the check reruns by itself and passes");
+    assert.equal(await reason(),"2 things left: time this task first (practice runs are available now), record operator-verified joint limits");
+    assert.match(await textOf("#source-tiles"),/OK.*Arm feed.*Receiving 25 readings per second/s,"arm feed states its rate in words");
     assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),true,"a session that counts needs its evidence");
-    await evaluate("document.querySelector('#change-setup').click();document.querySelector('[name=follower_serial]').value='__manual__';document.querySelector('#follower-serial-custom').value='ARM-TEST';document.querySelector('[name=power_state_start]').value='powered, torque on';document.querySelector('[name=power_state_start]').dispatchEvent(new Event('input',{bubbles:true}))");
-    assert.match(await reason(),/needs task timing registered in the repository, operator-verified joint limits/);
-    task.episode_window={min_episode_s:8,max_episode_s:25};
-    await evaluate("document.querySelector('#smoke').disabled");
     assert.equal(await evaluate("document.querySelector('#smoke').disabled"),false,"identity supplied lets a practice run start");
-    // Pretend the registry and limits were completed so Start session can be exercised end to end.
+    const checksSoFar=calls.filter(call=>call.route==="readiness").length;
+    task.episode_window={min_episode_s:8,max_episode_s:25};
     await evaluate("tasks[0].episode_window={min_episode_s:8,max_episode_s:25};SynriaWizard.refresh()");
-    await evaluate("document.querySelector('[name=notes]').value='limits ok';document.querySelector('[name=notes]').dispatchEvent(new Event('input',{bubbles:true}))");
-    const stillBlocked=await reason();assert.match(stillBlocked,/operator-verified joint limits/);
-    await evaluate("(async()=>{const original=SynriaGuide.requirements;})()");
+    assert.equal(await reason(),"1 thing left: record operator-verified joint limits");
     state.demo=true;await until("document.body.classList.contains('demo')");
     await evaluate("SynriaWizard.refresh()");
     assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),false,"synthetic demo needs no physical evidence");
+    assert.equal(await reason(),"Everything is in place.");
+    assert.equal(await textOf("#mode-help"),"Demo mode: fake cameras and arm. Nothing recorded here is real.");
     expireReports=true;await until("document.querySelector('#readiness-label').textContent.includes('expired')");
-    assert.equal(await evaluate("location.hash"),"#/new/start","expiry on Start never sends the operator back");
+    assert.equal(await evaluate("location.hash"),"#/new/check","expiry never sends the operator back");
     await pressPrimary();
-    await until("!document.querySelector('#start-check').hidden || location.hash.startsWith('#/session/')");
     expireReports=false;
-    await until("location.hash==='#/session/s1/record'","Start session opens the session and lands on recording");
+    await until("location.hash==='#/session/s1/record'","Start session reruns the stale check in place, opens the session and lands on recording");
     assert.equal(calls.filter(call=>call.route==="readiness").length,checksSoFar+1,"a stale check is rerun exactly once before starting");
     assert.deepEqual(calls.slice(-2).map(call=>call.route),["sessions","session/s1/open"]);
+    assert.match(calls.at(-2).payload.name,/^Die into cup, \d{1,2} [A-Z][a-z]{2}, 1$/);
     assert.ok(presses<=4,`Home to recording took ${presses} presses`);
-    await until("document.querySelector('#breadcrumb').textContent.includes('Recording take 1 of 100')");
+    await until("document.querySelector('#breadcrumb').textContent.includes('take 1 of 100')");
     assert.equal(await evaluate("localStorage.getItem('synria-wizard-draft')"),null,"a started session clears the draft");
     state.demo=false;
     // Recording keyboard guards and save retries, unchanged from the earlier screen.
@@ -346,7 +367,7 @@ async function run() {
     await evaluate("document.querySelector('#mode').textContent='SYNTHETIC UI TEST · NO HARDWARE';document.body.classList.add('demo')");
     fs.writeFileSync(screenshot,Buffer.from((await send("Page.captureScreenshot",{format:"png"})).data,"base64"));
     assert.deepEqual(exceptions,[],"no uncaught browser errors");
-    console.log("Guided browser: routes, refresh, breadcrumb, labels, wizard steps, footer reasons, bench checks, state timeout, camera fault, recovery, stale settings, expiry, Back keeps inputs, start reruns a stale check, keyboard, save retries, network, reload and mobile checks passed.");
+    console.log("Guided browser: routes, refresh, breadcrumb, labels, wizard steps, inline fields, tiles, footer reasons, bench checks, state timeout, camera fault, recovery, stale settings, expiry, Back keeps inputs, start reruns a stale check, keyboard, save retries, network, reload and mobile checks passed.");
   } finally {
     closing=true;
     try{await send("Browser.close",{},null);}catch{}
