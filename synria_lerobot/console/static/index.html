@@ -33,20 +33,7 @@
 <p>The console never moves the arm, starts a driver, changes torque, launches a bridge or arms a policy.</p>
 <article id="environment-context"><h3>This console’s environment</h3><p id="environment-facts">Loading local environment details…</p><p>Compare the ROS domain and middleware with the existing arm feed terminal. Loading libraries does not start that source.</p></article>
 <h3>Procedures</h3><div id="help-topics" class="cards"></div>
-<h3>Repository references</h3><div class="actions"><button type="button" data-guide-doc="runbook">Operator runbook</button><button type="button" data-guide-doc="protocol">Dataset protocol</button><button type="button" data-guide-doc="decisions">Decisions record</button><button type="button" data-guide-doc="safety">Safety record</button><button type="button" data-guide-doc="limits">Joint limits file</button></div>
-<h3>Words on screen</h3><dl class="glossary"><dt>Take</dt><dd>One recorded attempt at the task, saved with a success or failure label.</dd><dt>Practice run</dt><dd>A 20 second recording that is thrown away afterwards and never counts.</dd><dt>Setup check</dt><dd>A read-only look at the cameras and arm feed before a session opens. It records nothing and never moves the arm.</dd><dt>Arm feed</dt><dd>The joint positions the console reads from the follower arm. The console only listens.</dd><dt>Quality check</dt><dd>One of nine automatic checks on a saved take, such as timing alignment or joint limits.</dd><dt>Counts toward the dataset</dt><dd>A take recorded in a named session with a registered task window, verified limits and full identity.</dd></dl></section>
-<section id="new" class="screen wizard" hidden><h2 id="new-title" class="screen-title" tabindex="-1">New session</h2>
-<ol id="wizard-steps" class="stepper" aria-label="Steps">
-<li data-step="task" data-state="current"><button type="button" data-wizard-step="task" aria-current="step"><b>1</b><span>Choose task</span></button></li>
-<li data-step="check" data-state="upcoming"><button type="button" data-wizard-step="check" disabled><b>2</b><span>Check setup</span></button></li>
-<li data-step="start" data-state="upcoming"><button type="button" data-wizard-step="start" disabled><b>3</b><span>Start</span></button></li></ol>
-<p id="mode-help"></p>
-<form id="new-form">
-<div id="step-task" class="wizard-page"><h3 id="step-task-title" class="step-title" tabindex="-1">Choose task</h3><p class="purpose">Every take in this session is labelled with this task.</p>
-<div id="task-cards" class="cards task-cards" role="radiogroup" aria-label="Task"></div>
-<select name="task_id" id="task" required class="visually-hidden" aria-hidden="true" tabindex="-1"></select>
-<article id="task-description"></article>
-<details id="task-timing-entry"><summary>Task timing controls are not in this console</summary><p>Qualifying recording stays blocked until each real task has an operator-timed minimum and maximum registered in the repository.</p>
+<details id="task-timing-entry"><summary>Task timing controls are not in this console</summary><p>Takes count toward the dataset only when the task has a timed window registered in the repository. You can do practice runs before that.</p>
 <fieldset class="wide" id="task-window-registration"><legend>Task timing registration · read only</legend><div id="task-window-list"></div>
 <ol><li>Choose a skill and time the real task using the approved physical procedure.</li><li>Record the observed timing, chosen minimum and maximum, rationale, operator and date in <code>docs/ludo_flagship/DECISIONS.md</code>.</li><li>Register the reviewed window in <code>config/synria_tasks.json</code>. The console does not edit this registry.</li><li>Reopen the console and confirm the task shows “registered”; unset windows continue to block qualifying sessions.</li></ol>
 <small>There are no timing inputs here by design. Do not use suggested presets, synthetic runs or the disposable smoke duration as a real task window.</small><br><button type="button" data-guide-help="timing">Open the full timing procedure</button></fieldset>
@@ -63,45 +50,58 @@
 <li><strong>cup_return:</strong> return the cup upright to its marked home and retract.</li>
 <li><strong>Bounded table toss:</strong> a later, low-energy release into a contained landing tray—not an unrestricted throw. Require a reviewed safe release envelope and tray containment before enabling it.</li></ul>
 <h4>Board-play extensions · deferred</h4><p>After the roll skills are validated, plan token pickup, one-square placement, complete token moves, and capture/return-to-start as separate tasks. These need their own goal protocol and must not enter the current roll datasets.</p>
-<p>For each future task, preregister one observable success rule, task-specific minimum and maximum duration, fixed scene, allowed variation, camera evidence, failure labels, and recovery/discard criteria. Vary one scene factor at a time. Keep attempts with quality-valid task failures; exclude only capture or scene faults under the D1 protocol.</p></article></details></div>
-<div id="step-check" class="wizard-page" hidden><h3 id="step-check-title" class="step-title" tabindex="-1">Check setup</h3><p class="purpose">The console looks at the cameras and the arm feed, records nothing and never moves the arm.</p>
-<article id="saved-setup"><h3>Saved setup</h3><dl id="setup-summary" class="summary-list"></dl><p id="setup-missing" class="route-note" hidden></p><button type="button" id="change-setup" aria-expanded="false" aria-controls="setup-configure">Change setup</button></article>
+<p>For each future task, preregister one observable success rule, task-specific minimum and maximum duration, fixed scene, allowed variation, camera evidence, failure labels, and recovery/discard criteria. Vary one scene factor at a time. Keep attempts with quality-valid task failures; exclude only capture or scene faults under the D1 protocol.</p></article></details>
+<h3>Repository references</h3><div class="actions"><button type="button" data-guide-doc="runbook">Operator runbook</button><button type="button" data-guide-doc="protocol">Dataset protocol</button><button type="button" data-guide-doc="decisions">Decisions record</button><button type="button" data-guide-doc="safety">Safety record</button><button type="button" data-guide-doc="limits">Joint limits file</button></div>
+<h3>Words on screen</h3><dl class="glossary"><dt>Take</dt><dd>One recorded attempt at the task, saved with a success or failure label.</dd><dt>Practice run</dt><dd>A 20 second recording that is thrown away afterwards and never counts.</dd><dt>Setup check</dt><dd>A read-only look at the cameras and arm feed before a session opens. It records nothing and never moves the arm.</dd><dt>Arm feed</dt><dd>The joint positions the console reads from the follower arm. The console only listens.</dd><dt>Quality check</dt><dd>One of nine automatic checks on a saved take, such as timing alignment or joint limits.</dd><dt>Counts toward the dataset</dt><dd>A take recorded in a named session with a registered task window, verified limits and full identity.</dd></dl></section>
+<section id="new" class="screen wizard" hidden><h2 id="new-title" class="screen-title" tabindex="-1">New session</h2>
+<ol id="wizard-steps" class="stepper" aria-label="Steps">
+<li data-step="task" data-state="current"><button type="button" data-wizard-step="task" aria-current="step"><b>1</b><span>Choose task</span></button></li>
+<li data-step="check" data-state="upcoming"><button type="button" data-wizard-step="check" disabled><b>2</b><span>Check setup</span></button></li></ol>
+<p id="mode-help" class="mode-line"></p>
+<form id="new-form">
+<div id="step-task" class="wizard-page"><h3 id="step-task-title" class="step-title" tabindex="-1">Choose task</h3><p class="purpose">Every take in this session is labelled with this task.</p>
+<div id="task-cards" class="cards task-cards" role="radiogroup" aria-label="Task"></div>
+<select name="task_id" id="task" required class="visually-hidden" aria-hidden="true" tabindex="-1"></select>
+<article id="task-description"></article>
+<div id="task-session-fields" class="form-grid start-fields" hidden><label>Session name<input name="name" required maxlength="120"></label>
+<label>Target number of takes<input name="target_episodes" type="number" min="1" value="100" required list="target-presets" data-presets aria-label="Target number of takes"></label></div></div>
+<div id="step-check" class="wizard-page" hidden><h3 id="step-check-title" class="step-title" tabindex="-1">Check setup</h3><p class="purpose">The console looks at the cameras and the arm feed. It records nothing and never moves the arm.</p>
+<article id="your-setup"><h3>Your setup</h3><p id="setup-line"></p>
+<div id="setup-inline" class="inline-fields"></div>
+<button type="button" id="change-setup" aria-expanded="false" aria-controls="setup-configure">Change setup</button>
 <div id="setup-configure" hidden><article><h3>Suggested setup</h3><p id="setup-facts">Loading available host and connection information…</p>
 <p id="setup-guidance">Review suggested values before use. Physical safety confirmations are never filled automatically.</p>
 <label>Recommended values<select id="use-recommended" aria-label="Apply recommended recording values"><option value="">Choose an action</option><option value="apply">Apply follower-only recommended candidates</option><option value="keep">Keep current values</option></select></label>
 <small>The preset fills only known candidates: next-state actions, /joint_states, 15 FPS, 224 × 224 images, one-step lookahead, a 10-second first-sample wait and a 100-episode target. Confirm 15 FPS is no higher than the measured state rate. Gripper, running state source, camera roles, serial, power state, task timing and limit verification are never guessed.</small></article>
-<p id="setup-intro">Synria / Alicia-D setup: leader-to-follower hardware sync, C10 wrist camera and a fixed USB front camera.
-Presets come from the D1 runbook; they are not hardware measurements. Choose the installed gripper,
-running state source and actual camera IDs. Custom values retain all recorder checks.</p>
 <div class="form-grid">
-<label>Session name<input name="name" required maxlength="120"></label>
-<label>Gripper<select name="gripper_type" required><option value="">Choose installed gripper</option><option value="50mm">50 mm · driver stroke 0.025 m</option><option value="100mm">100 mm · driver stroke 0.05 m</option></select></label>
-<label>State source<select name="state_source" id="source"><option value="">Choose verified running source</option><option value="standalone_driver">Standalone driver · requires writes disabled, torque unchanged</option><option value="ros2_control">ros2_control · requires a verified read-only setup</option></select></label>
+<fieldset class="field choice-group" data-field="gripper_type"><legend>Gripper size</legend><label class="choice"><input type="radio" name="gripper_type" value="50mm" required>50 mm</label><label class="choice"><input type="radio" name="gripper_type" value="100mm" required>100 mm</label><small>Driver stroke 0.025 m for 50 mm, 0.05 m for 100 mm.</small></fieldset>
+<label>Arm feed<select name="state_source" id="source"><option value="">Choose the running arm feed</option><option value="standalone_driver">Standalone driver, writes disabled, torque unchanged</option><option value="ros2_control">ros2_control, verified read-only setup</option></select></label>
 <label>Follower topic<input name="follower_topic" value="/joint_states" list="follower-topics" data-presets aria-label="Follower topic"></label>
-<label>Action source<select name="action_source"><option value="next_state">Next follower state · hardware-sync default</option><option value="leader">Leader state · additional USB required</option></select></label>
+<label>Action source<select name="action_source"><option value="next_state">Next follower state, hardware-sync default</option><option value="leader">Leader state, additional USB required</option></select></label>
 <label>USB leader topic (leader actions only)<input name="leader_topic" value="/leader/joint_states" list="leader-topics" data-presets aria-label="USB leader topic"></label>
 <label>Lookahead steps<input name="action_lookahead_steps" type="number" min="0" value="1" required list="lookahead-presets" data-presets aria-label="Lookahead steps"></label>
-<label>Requested FPS (choose explicitly)<input name="fps" type="number" min="1" step="1" required list="fps-presets" data-presets aria-label="Requested FPS"></label>
+<label>Requested FPS<input name="fps" type="number" min="1" step="1" required list="fps-presets" data-presets aria-label="Requested FPS"></label>
 <label>Stored image width<input name="image_width" type="number" min="1" value="224" required list="image-presets" data-presets aria-label="Stored image width"></label>
 <label>Stored image height<input name="image_height" type="number" min="1" value="224" required list="image-presets" data-presets aria-label="Stored image height"></label>
-<fieldset class="camera-mapping"><legend>Camera mapping · choose two distinct cameras</legend>
-<div class="split"><label>Wrist camera (C10)<select name="wrist_camera" id="wrist-choice"></select><small>Stored as observation.images.wrist</small></label>
-<label>Overhead / front (fixed)<select name="front_camera" id="front-choice"></select><small>Stored as observation.images.front · native final still</small></label></div>
+<fieldset class="camera-mapping"><legend>Cameras, two different devices</legend>
+<div class="split"><label>Wrist camera<select name="wrist_camera" id="wrist-choice"></select><small>Stored as observation.images.wrist</small></label>
+<label>Overhead camera<select name="front_camera" id="front-choice"></select><small>Stored as observation.images.front, and the overhead photo at the end of each take</small></label></div>
 <p id="camera-note"></p><button id="refresh-cameras" type="button">Refresh camera IDs</button>
-<small>Lists stable IDs only; does not open cameras. Two video-index entries for the same USB identity are not two verified cameras.</small></fieldset>
+<small>Lists stable IDs only; does not open cameras. Two video-index entries for the same USB identity are not two cameras.</small></fieldset>
 <label>Additional guarded topics<input name="guard_command_topic" placeholder="Comma-separated absolute topics"><small>/joint_commands and /policy_joint_targets are always guarded.</small></label>
 <label>First state wait (seconds)<input name="state_startup_timeout_s" type="number" min="0.1" step="0.1" value="10" required list="startup-presets" data-presets aria-label="First state wait"></label>
-<label>Operator<input name="operator" required></label>
-<label>Follower manufacturer serial<select name="follower_serial" id="follower-serial-choice"><option value="">Choose the follower arm serial</option></select><input id="follower-serial-custom" placeholder="Enter exactly as printed on the follower label" autocomplete="off" hidden><small id="follower-serial-help">Required before recording, not for connection checks. The ROS state feed does not publish this identity. Never use the USB adapter ID here.</small></label>
-<fieldset class="camera-mapping"><legend>USB connection identity · unverified arm association</legend>
-<label>Candidate follower USB connection<select name="follower_usb_id" id="follower-usb-choice"><option value="">Unknown / unverified · no connection selected</option></select></label>
+<label>Your name<input name="operator" required></label>
+<label>Follower serial<select name="follower_serial" id="follower-serial-choice"><option value="">Choose the follower arm serial</option></select><input id="follower-serial-custom" placeholder="Enter exactly as printed on the follower label" autocomplete="off" hidden><small id="follower-serial-help">From the label on the follower arm. The arm feed does not publish it. Never use the USB adapter ID here.</small></label>
+<fieldset class="camera-mapping"><legend>USB connection identity, unverified arm association</legend>
+<label>Candidate follower USB connection<select name="follower_usb_id" id="follower-usb-choice"><option value="">Unknown / unverified, no connection selected</option></select></label>
 <p id="serial-note">Names only. Selecting a connection does not open the port, connect the recorder or verify the arm.</p>
 <button type="button" id="refresh-serial">Refresh USB connection IDs</button>
-<small>This optional connection hint is kept separately from the manufacturer serial. Verify which device belongs to the follower; the recorder still reads its configured ROS topic.</small></fieldset>
-<label>Leader serial<input name="leader_serial" placeholder="From arm label; no USB needed for hardware sync"></label><label>Starting power state<input name="power_state_start" placeholder="Observed state, not an assumed preset"><small>Required before recording. Connection checks still require the physical power/safety confirmation below.</small></label>
-<label>Target episode count<input name="target_episodes" type="number" min="1" value="100" required list="target-presets" data-presets aria-label="Target episode count"></label>
+<small>This optional connection hint is kept separately from the manufacturer serial. The recorder still reads its configured topic.</small></fieldset>
+<label>Leader serial<input name="leader_serial" placeholder="From arm label; no USB needed for hardware sync"></label>
+<fieldset class="field choice-group" data-field="power_state_start"><legend>Starting power state</legend><label class="choice"><input type="radio" name="power_choice" value="Arm powered and following the leader">Arm powered and following the leader</label><label class="choice"><input type="radio" name="power_choice" value="other">Something else</label><input id="power-other" placeholder="Describe what you observe" aria-label="Describe the starting power state" hidden><input name="power_state_start" type="hidden"><small>What you observe now, not an assumed preset.</small></fieldset>
 <label class="check"><input name="state_has_velocity" type="checkbox">Require reported joint velocities</label>
-<label class="wide">Scene description<textarea name="scene" required rows="2"></textarea></label>
+<label class="wide" hidden>Scene before each take<textarea name="scene" required rows="2"></textarea></label>
+<label class="wide">Anything different about the scene today? (optional)<textarea id="scene-note" rows="2"></textarea></label>
 <label class="wide">Session notes<textarea name="notes" rows="2"></textarea></label></div>
 <datalist id="follower-topics"><option value="/joint_states">Follower state · documented setup</option></datalist>
 <datalist id="leader-topics"><option value="/leader/joint_states">Optional read-only USB leader</option></datalist>
@@ -109,51 +109,43 @@ running state source and actual camera IDs. Custom values retain all recorder ch
 <datalist id="fps-presets"><option value="15">15 FPS · runbook starting candidate</option><option value="30">30 FPS · vendor suggestion, rate preflight required</option></datalist>
 <datalist id="image-presets"><option value="224">224 pixels · dataset default</option></datalist>
 <datalist id="startup-presets"><option value="10">10 seconds · first-sample default only</option></datalist>
-<datalist id="target-presets"><option value="10">10 episodes · protocol shakedown target</option><option value="50">50 episodes · collection target</option><option value="100">100 episodes · D1 count target, not qualification</option></datalist>
+<datalist id="target-presets"><option value="10">10 takes (quick trial)</option><option value="50">50 takes</option><option value="100">100 takes</option></datalist>
+
 
 <p>Requested FPS must not exceed the measured incoming state rate. Stored images default to 224 × 224;
 the final front-camera still stays at native resolution. Gripper strokes are unverified interface candidates;
 zero is open. The 10-second startup wait does not relax steady-state freshness. Episode targets are goals,
 not qualifying counts. Task windows remain operator decisions outside this form.</p>
-<button type="button" id="done-setup">Done, back to the check</button></div>
-<article id="readiness-panel" aria-labelledby="readiness-title"><h3 id="readiness-title">Cameras and arm feed</h3>
+<button type="button" id="done-setup">Done, back to the check</button></div></article>
+<article id="sources-panel"><div class="section-head"><h3>Cameras and arm feed</h3><button id="check-readiness" type="button">Check now</button></div>
+<p id="sources-line">Checked by itself when you reach this step.</p>
+<div id="source-tiles" class="tiles" aria-live="polite"></div>
+<details id="technical-details"><summary>Technical details</summary>
 <div id="software-panel" data-level="launching" aria-label="Console software environment">
 <strong>Software environment · <span id="software-label" role="status">Launching</span></strong>
 <p id="software-message">Checking recording libraries only; hardware services are never started here.</p>
 <ul id="software-paths" aria-label="Individual software paths"></ul>
 <button id="check-software" type="button">Recheck software</button>
 </div>
-<p>Run read-only connection checks before opening a session. This temporarily opens the selected state subscriptions and cameras,
-uses a disposable dataset to exercise shared preflight, then closes everything. No movement, episode capture or saved demonstration.</p>
 <div class="readiness-heading"><strong id="readiness-label" role="status">Not checked</strong><span id="readiness-count"></span></div>
 <div id="readiness-meter" class="readiness-meter" role="progressbar" aria-label="Pre-recording readiness" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-level="unchecked"><div id="readiness-fill"></div></div>
 <div class="readiness-scale" aria-hidden="true"><span>Unchecked / blocked</span><span>Connected · setup required</span><span>Ready for session preflight</span></div>
-<div id="readiness-confirmations"><p>Confirm the physical checks software cannot verify:</p>
-<label class="check"><input type="checkbox" data-readiness-confirm="secured">Arm secured, workspace clear, emergency stop within reach.</label>
-<label class="check"><input type="checkbox" data-readiness-confirm="read_only">Existing state source has writes disabled and leaves torque unchanged at startup.</label>
-<label class="check"><input type="checkbox" data-readiness-confirm="leader_link">I verified the leader/follower sync cable and existing teleoperation procedure; this button does not test motion.</label>
-<label class="check"><input type="checkbox" data-readiness-confirm="camera_roles">I identified two distinct cameras and mapped wrist/front roles; framing still needs live review.</label>
-<label class="check"><input type="checkbox" data-readiness-confirm="procedure">Runbook safety preflight accepted; power state and installed gripper checked.</label></div>
-<p>Checks close their sources afterward. They do not start external robot services. Cameras are not opened until follower state and command guards pass.</p>
-<div id="connection-paths" class="connection-grid" aria-label="Individual connection paths"></div>
-<div id="recording-blockers" class="guide-blockers"></div>
 <p id="readiness-scope">No check has run. The leader without USB cannot be detected by software. A green result is a short-lived snapshot, not permission to move the arm.</p>
-<details id="all-check-details"><summary>All checks and technical evidence</summary><ul id="readiness-results"></ul></details>
-<button id="check-readiness" type="button">Run the setup check again</button></article></div>
-<div id="step-start" class="wizard-page" hidden><h3 id="step-start-title" class="step-title" tabindex="-1">Start</h3><p class="purpose">Starting opens the cameras and arm feed for this session. Recording a take is a separate press on the next screen.</p>
-<dl id="start-summary" class="summary-list"></dl>
-<div id="start-check" class="start-check" hidden><strong id="start-check-title"></strong><p id="start-check-message"></p></div>
-<p id="collection-requirements"></p>
-<button id="create" type="submit" class="visually-hidden" tabindex="-1" aria-hidden="true">Start session</button>
-<button id="smoke" type="button">Do a practice run instead</button>
-<p class="small-print">A practice run opens the same cameras and arm feed, records one 20 second take and throws it away afterwards. It never counts.</p></div></form>
-<div id="wizard-footer" class="wizard-footer"><button type="button" id="wizard-back">Back</button><p id="wizard-reason" role="status"></p><button type="button" id="wizard-primary" class="primary">Continue</button></div></section>
+<details id="all-check-details"><summary>All checks and technical evidence</summary><ul id="readiness-results"></ul></details></details></article>
+<article id="bench-panel"><h3>I have checked the bench</h3><div id="readiness-confirmations">
+<label class="check"><input type="checkbox" data-readiness-confirm="secured">The arm is secured, the bench is clear and the emergency stop is within reach.</label>
+<label class="check"><input type="checkbox" data-readiness-confirm="read_only">The arm feed I started has writes disabled and leaves torque unchanged.</label>
+<label class="check"><input type="checkbox" data-readiness-confirm="leader_link">The leader and follower sync cable is connected and teleoperation works as before.</label>
+<label class="check"><input type="checkbox" data-readiness-confirm="camera_roles">The wrist camera is on the wrist and the overhead camera looks down at the scene.</label>
+<label class="check"><input type="checkbox" data-readiness-confirm="procedure">I followed the safety checklist, and the power state and gripper size above are what I see.</label></div></article></div>
+<button id="create" type="submit" class="visually-hidden" tabindex="-1" aria-hidden="true">Start session</button></form>
+<div id="wizard-footer" class="wizard-footer"><button type="button" id="wizard-back">Back</button><p id="wizard-reason" role="status"></p><button id="smoke" type="button" hidden>Do a practice run instead</button><button type="button" id="wizard-primary" class="primary">Continue</button></div></section>
 <section id="record" class="screen" hidden><div class="section-head"><h2 id="record-title" class="screen-title" tabindex="-1">No session open</h2><button id="close-session">Close sources</button></div>
 <p id="record-route-note" class="route-note" hidden></p>
 <div id="record-banner" class="record-banner" role="status" aria-live="polite" data-phase="no-session"><div class="banner-main"><span class="eyebrow" id="record-phase">NO SESSION</span><p id="record-message">Open a named session, or run a disposable smoke, to begin.</p></div><div id="record-countdown" class="record-countdown" hidden><b id="record-countdown-value">0</b><small>s left</small></div><button id="record-banner-action" type="button" class="primary" hidden></button></div>
 <p id="counters" class="counters"></p><p id="capture-header" class="capture-detail"></p>
 <div class="cameras"><figure><figcaption>Wrist <span id="wrist-health" class="source-brief"></span></figcaption><img id="wrist-preview" alt="Latest wrist camera frame"><details class="source-details"><summary>Source details</summary><pre id="wrist-source"></pre></details></figure>
-<figure><figcaption>Overhead / front (fixed) <span id="front-health" class="source-brief"></span></figcaption><img id="front-preview" alt="Latest fixed camera frame"><details class="source-details"><summary>Source details</summary><pre id="front-source"></pre></details></figure></div>
+<figure><figcaption>Overhead camera <span id="front-health" class="source-brief"></span></figcaption><img id="front-preview" alt="Latest fixed camera frame"><details class="source-details"><summary>Source details</summary><pre id="front-source"></pre></details></figure></div>
 <div class="controls" id="record-controls"><button data-command="start" class="primary">Start recording · Space</button><button data-command="stop" class="primary">Stop · Space</button>
 <button data-command="success" class="success">Save as success · S</button><button data-command="failure" class="success">Save as failure · F</button>
 <button data-command="retry">Retry save</button><button id="discard" class="danger">Discard…</button>
@@ -165,12 +157,12 @@ uses a disposable dataset to exercise shared preflight, then closes everything. 
 <article id="last-save"><h3>Last saved episode</h3><p id="save-result"></p><details><summary>Technical details</summary><pre id="save-details"></pre></details><button id="review-latest">Review latest take</button></article></section>
 <section id="review" class="screen" hidden><div class="section-head"><h2 id="review-title" class="screen-title" tabindex="-1">Review takes</h2></div>
 <p id="review-session-name" class="purpose">Playback reviews recorded data on screen. It never moves the robot.</p><div class="table-scroll"><table><thead><tr><th>Take</th><th>Label</th><th>Seconds</th><th>Frames</th><th>Rate</th><th>Quality checks</th><th>Excluded</th><th>Note / actions</th></tr></thead><tbody id="episodes"></tbody></table></div>
-<article id="player" hidden><h3 id="player-title"></h3><div class="cameras"><figure><figcaption>Wrist</figcaption><img id="play-wrist" alt="Recorded wrist frame"></figure><figure><figcaption>Overhead / front (fixed)</figcaption><img id="play-front" alt="Recorded front frame"></figure></div>
+<article id="player" hidden><h3 id="player-title"></h3><div class="cameras"><figure><figcaption>Wrist</figcaption><img id="play-wrist" alt="Recorded wrist frame"></figure><figure><figcaption>Overhead camera</figcaption><img id="play-front" alt="Recorded front frame"></figure></div>
 <div class="controls"><button id="previous">← Frame</button><button id="play">Play</button><button id="next">Frame →</button>
 <label>Speed<select id="speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label><span id="frame-label"></span></div>
 <input id="scrub" type="range" min="0" max="0" value="0" aria-label="Frame index">
 <canvas id="review-trace" width="1000" height="200"></canvas><p>Solid: state · dashed: action · vertical cursor: selected frame</p>
 <details open><summary>Exact stored values, timestamps and source skew</summary><pre id="frame-data"></pre></details>
-<details><summary>Native final still and episode provenance</summary><img id="still" alt="Native final front-camera still"><pre id="episode-provenance"></pre></details></article></section>
+<details><summary>Overhead photo and take provenance</summary><img id="still" alt="Overhead photo at the end of the take, native size"><pre id="episode-provenance"></pre></details></article></section>
 </main><dialog id="operator-help" aria-labelledby="help-title"><div class="section-head"><h2 id="help-title">Operator help</h2><button id="close-help" type="button" aria-label="Close operator help">Close</button></div><div id="help-content"></div></dialog>
 <footer>Implemented, unmeasured · no hardware validation · read-only toward the arm</footer></body></html>

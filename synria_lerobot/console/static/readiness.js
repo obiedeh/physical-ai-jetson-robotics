@@ -68,7 +68,7 @@ function renderReadiness(report) {
   $("readiness-fill").style.width = `${percent}%`;
   $("readiness-scope").textContent = `${report.scope} ${report.checked_utc ? `Checked ${report.checked_utc}. Expires after ${report.expires_after_s} seconds.` : ""}${changed ? " These results describe previous form settings; run again after changes." : ""}`;
   $("readiness-results").replaceChildren();
-  const pathNames = {follower_sample:"Follower state", action_sample:"Action source", wrist_sample:"Wrist camera", front_sample:"Overhead / front camera", source_startup:"Read-only source startup"};
+  const pathNames = {follower_sample:"Arm feed", action_sample:"Leader arm", wrist_sample:"Wrist camera", front_sample:"Overhead camera", source_startup:"Read-only source startup"};
   for (const [name, check] of Object.entries(report.checks)) {
     const node = document.createElement("li");
     const level = check.status || (check.message === "Not run" ? "not_checked" : (check.passed ? "ready" : "not_ready"));

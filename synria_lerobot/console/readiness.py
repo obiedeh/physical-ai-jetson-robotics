@@ -52,11 +52,14 @@ class ReadinessReport:
         self.checks: dict[str, dict[str, Any]] = {}
         self.checked_utc: str | None = None
         self.form_settings: dict[str, Any] = {}
+        # Latest camera sample per role from the last check, for a thumbnail on the setup screen.
+        self.thumbnails: dict[str, Any] = {}
 
     def begin(self) -> None:
         """Invalidate previous evidence before a fresh explicit diagnostic request."""
         self.running = True
         self.completed_s = None
+        self.thumbnails = {}
         self.checked_utc = datetime.now(timezone.utc).isoformat()
         self.checks = {name: {"passed": False, "status": "not_checked", "message": "Not run"}
                        for name in (
@@ -126,6 +129,7 @@ class ReadinessReport:
             "status": status, "label": label, "percent": percent, "checks": checks,
             "passed_count": passed, "check_count": len(checks), "checked_utc": self.checked_utc,
             "expires_after_s": 60, "demo": self.demo,
+            "thumbnails": sorted(self.thumbnails),
             "form_settings": copy.deepcopy(self.form_settings),
             "scope": "Read-only snapshot, not motion authorization. Sources close after checks. "
                      "Actual session contract, lock/recovery and every episode guard run again. "
@@ -220,6 +224,7 @@ def inspect_samples(
                 config.image_height, config.image_width, 3,
             ):
                 raise ValueError("Camera must provide uint8 RGB at the configured stored size")
+            report.thumbnails[name] = pixels.copy()
             if float(pixels.mean()) <= gates.black_mean_threshold:
                 raise ValueError("Camera sample is black; check cover, lighting and exposure")
             images.append(pixels)

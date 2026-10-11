@@ -687,13 +687,16 @@ class ConsoleService:
         return load_limits(REPOSITORY / "config" / "synria_limits.yaml").verified
 
     def media(self, route: list[str], query: dict[str, list[str]]) -> bytes:
-        """Encode latest shared-source previews or decode server-selected episode artifacts."""
+        """Encode live previews, the last setup-check samples, or stored episode artifacts."""
         if len(route) == 2 and route[0] == "preview" and route[1] in {"wrist", "front"}:
             controller = self.controller
             if controller is None:
                 raise RuntimeError("no session is open")
             frame = controller.preview_frame(route[1])
             return encode_rgb(frame.data)
+        if len(route) == 2 and route[0] == "readiness" and route[1] in {"wrist", "front"}:
+            # The sample the last setup check already read; no camera is opened here.
+            return encode_rgb(self.readiness.thumbnails[route[1]])
         if len(route) == 3 and route[0] == "still":
             session = self._session(route[1])
             return self.playback.final_still(Path(session["dataset_path"]), int(route[2]))

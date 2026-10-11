@@ -20,6 +20,7 @@ class FormMarkup(HTMLParser):
         super().__init__()
         self.fields: dict[str, dict[str, str | None]] = {}
         self.options: dict[str, list[str | None]] = {}
+        self.radios: dict[str, list[str | None]] = {}
         self.group = ""
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
@@ -27,6 +28,8 @@ class FormMarkup(HTMLParser):
         values = dict(attrs)
         if tag in {"input", "select"} and values.get("name"):
             self.fields[str(values["name"])] = values
+            if values.get("type") == "radio":
+                self.radios.setdefault(str(values["name"]), []).append(values.get("value"))
         if tag in {"select", "datalist"}:
             self.group = str(values.get("name") or values["id"])
             self.options[self.group] = []
@@ -69,7 +72,8 @@ def test_presets_preserve_documented_values_and_defaults(
 
 def test_unknown_hardware_and_task_windows_are_not_assumed(form: FormMarkup) -> None:
     """Installed gripper, declared source, identities and physical timing remain operator facts."""
-    assert form.options["gripper_type"] == ["", "50mm", "100mm"]
+    assert form.radios["gripper_type"] == ["50mm", "100mm"]
+    assert "checked" not in form.fields["gripper_type"]
     assert form.options["state_source"] == ["", "standalone_driver", "ros2_control"]
     assert form.options["action_source"] == ["next_state", "leader"]
     for name in ("wrist_camera", "front_camera"):

@@ -27,6 +27,13 @@ $("refresh-serial").onclick = () => safe(refreshSerialConnections);
 function suggestSetupValue(name, value, force = false) {
   const field = $("new-form").elements.namedItem(name);
   if (!field || (!force && editedSetupFields.has(name))) return;
+  if (typeof RadioNodeList !== "undefined" && field instanceof RadioNodeList) {
+    // A radio group: choose the matching button and let the page react to the change.
+    field.value = String(value);
+    const chosen = [...field].find(node => node.checked);
+    if (chosen) chosen.dispatchEvent(new Event("change", {bubbles:true}));
+    return;
+  }
   if (field.tagName === "SELECT" && ![...field.options].some(option => option.value === String(value))) return;
   const preset = document.querySelector(`[data-preset-for="${name}"]`);
   if (preset) {
@@ -82,7 +89,7 @@ async function loadSetupSuggestions() {
   const usb = $("follower-usb-choice");
   if (usb.options.length === 2) suggestSetupValue("follower_usb_id", usb.options[1].value);
   if (!$("new-form").elements.operator.value) suggestSetupValue("operator", setupSuggestions.account);
-  if (!$("new-form").elements.name.value) suggestSetupValue("name", `session-${new Date().toISOString().replace(/[:.]/g, "-")}`);
+  if (!$("new-form").elements.name.value && !(typeof window !== "undefined" && window.SynriaWizard)) suggestSetupValue("name", `session-${new Date().toISOString().replace(/[:.]/g, "-")}`);
 }
 
 $("new-form").addEventListener("input", event => {

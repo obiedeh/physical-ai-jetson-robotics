@@ -114,10 +114,10 @@ const SynriaGuide = (() => {
   function connectionPaths(report, current = true) {
     const checks = report?.checks || {};
     const definitions = [
-      ["follower", "Follower state", ["follower_sample", "state_rate", "state_source"]],
-      ["action", "Action source", ["action_sample"]],
+      ["follower", "Arm feed", ["follower_sample", "state_rate", "state_source"]],
+      ["action", "Leader arm", ["action_sample"]],
       ["wrist", "Wrist camera", ["wrist_sample", "wrist_camera"]],
-      ["front", "Overhead / front", ["front_sample", "front_camera"]],
+      ["front", "Overhead camera", ["front_sample", "front_camera"]],
     ];
     return definitions.map(([id, title, keys]) => {
       const sample = checks[keys[0]];
@@ -227,71 +227,26 @@ const SynriaGuide = (() => {
   function groupFields() {
     const grid = $("new-form").querySelector(".form-grid");
     const groups = [
-      ["Session and operator", ["name", "operator", "gripper_type", "scene"]],
+      ["Operator and gripper", ["operator", "gripper_type", "scene"]],
       ["State and action inputs", ["state_source", "follower_topic", "action_source", "leader_topic"]],
       ["Recording settings", ["fps", "image_width", "image_height", "action_lookahead_steps", "state_startup_timeout_s", "guard_command_topic", "state_has_velocity"]],
-      ["Required recording evidence", ["follower_serial", "leader_serial", "power_state_start", "target_episodes", "notes"]],
+      ["Required recording evidence", ["follower_serial", "leader_serial", "power_state_start", "notes"]],
     ];
     for (const [index, [title, fields]] of groups.entries()) {
       const group = document.createElement("fieldset"); group.className = "setup-fields";
       group.dataset.order = String(index);
       group.append(text("legend", title));
       const inner = document.createElement("div"); inner.className = "form-grid"; group.append(inner);
-      for (const name of fields) { const label = $("new-form").elements.namedItem(name)?.closest("label"); if (label) inner.append(label); }
+      for (const name of fields) { const field = $("new-form").elements.namedItem(name); const node = field instanceof RadioNodeList ? field[0] : field; const box = node ? (node.closest("fieldset.field") || node.closest("label")) : null; if (box) inner.append(box); }
       grid.append(group);
     }
     grid.classList.add("grouped-fields");
   }
 
-  /** Render concise path cards and separate qualification blockers from technical diagnostics. */
+  /** Refresh the wizard when readiness or form state changes; tiles and blockers live there. */
   function update() {
     if (!initialized) return;
-    const report = typeof readinessReport === "undefined" ? null : readinessReport;
-    const settings = formValues();
-    const current = Boolean(report?.checked_utc && report.status !== "expired" &&
-      matchingReadinessSettings(report.form_settings, settings));
-    const confirmed = state.demo || [...document.querySelectorAll("[data-readiness-confirm]")].every(node => node.checked);
-    const signature = JSON.stringify([settings, report, current, confirmed, state.active_session?.id, state.demo, metadata]);
-    if(signature === lastUpdate)return;
-    lastUpdate = signature;
-    $("connection-paths").replaceChildren();
-    for (const path of connectionPaths(report, current && confirmed)) {
-      const card = document.createElement("article"); card.dataset.level = path.status;
-      card.append(text("span", {ready:"Ready", not_ready:"Not ready", launching:"Launching", not_checked:"Not checked"}[path.status]), text("h3", path.title), text("p", path.message));
-      if (path.status === "not_ready") card.append(button("How to fix this", () => openHelp(path.help.key, path.message)));
-      $("connection-paths").append(card);
-    }
-    const other = otherFailure(report, current && confirmed);
-    if (other) {
-      const card = document.createElement("article"); card.dataset.level = "not_ready";
-      card.append(text("span", "Not ready"), text("h3", other.help.title), text("p", other.message));
-      card.append(button("How to fix this", () => openHelp(other.help.key, other.message)));
-      $("connection-paths").append(card);
-    }
-    const needed = requirements(settings);
-    $("recording-blockers").replaceChildren(text("h3", "Before a session that counts toward the dataset"));
-    for (const key of needed) $("recording-blockers").append(button(help[key].title, () => openHelp(key)));
-    if (needed.includes("metadata")) {
-      const missing = ["follower_serial", "power_state_start"].filter(name => !String(settings[name] || "").trim());
-      $("recording-blockers").append(button("Fill in the serial and power fields", () => {
-        $("setup-configure").hidden = false; $("change-setup").setAttribute("aria-expanded", "true");
-        const field = $("new-form").elements.namedItem(missing[0] || "follower_serial");
-        field?.focus();
-        field?.scrollIntoView({behavior:"smooth", block:"center"});
-      }, "primary"));
-      $("recording-blockers").append(button("Where to find these details", () => openHelp("metadata")));
-    }
-    if (needed.includes("timing")) {
-      $("recording-blockers").append(button("See task timing status", () => {
-        window.SynriaRouter.go(window.SynriaRouter.routes.wizard("task"));
-        $("task-timing-entry").open = true;
-        $("task-window-registration")?.scrollIntoView({behavior:"smooth", block:"center"});
-      }, "primary"));
-    }
-    if (needed.includes("limits")) {
-      $("recording-blockers").append(button("Open the joint limits file", () => documentHelp("limits")));
-    }
-    if (!needed.length) $("recording-blockers").append(text("p", state.demo ? "Synthetic demo never qualifies as physical evidence." : "Declared requirements supplied. Actual session preflight and operator safety review still apply."));
+    if (globalThis.SynriaWizard) SynriaWizard.refresh();
   }
 
   /** Initialize guided navigation after the existing recorder surface and presets are ready. */
