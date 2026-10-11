@@ -301,6 +301,53 @@ rate; ticking at the 15 Hz recording rate made back-to-back reads straddle a
 at random. A test runs the setup check twice from several clock phases and
 requires the same verdict.
 
+## Teach a new task from a sentence
+
+Choose task ends with a **Teach something new** card. On that screen the
+operator types what to teach the arm ("train to roll a dice") and presses
+**Break it down**. The planner answers with a goal and an ordered chain of
+sub-tasks, each an editable card: short name, the instruction sentence that
+becomes the take label, start state, end state the overhead camera can confirm,
+success rule, scene before each take, kind (skill, reset or recovery), objects
+grasped, suggested takes, and "not timed yet". Cards can be edited, moved,
+split, merged or deleted; a chain check warns when a step's end is not the next
+step's start, when a step grasps two objects, starts or ends holding something,
+has no reset step, or has a goal the camera cannot see. A short note explains
+why the boundaries are where they are. Nothing is saved until **Save tasks**,
+the only primary on the screen. The line under the goal says whether the
+built-in planner or the external task planner command made the suggestion.
+
+The planner is a pure Python package with one validated schema and two backends
+behind one interface. The built-in planner works offline from a primitive
+vocabulary (pick, place, drop into, pour out, shake, push, open, close, return
+to ready) and a small recipe set, including the seed breakdown for rolling a
+die (die into cup; roll and set the cup down; die back to start; optional
+recovery: stand the cup up); when it cannot parse a sentence it asks which
+object, which container and which destination. The external command is
+configured only through the `SYNRIA_TASK_PLANNER_COMMAND` environment variable
+read at launch, never from the browser: the console passes the goal sentence,
+the rules and the schema on stdin as JSON with no shell, waits a bounded time,
+validates the JSON reply and falls back to the built-in planner on any failure,
+saying so. The eight breakdown rules are shown under "Rules the planner
+follows" and passed to the command verbatim.
+
+Saved tasks live in a task library in the console workspace database, outside
+the repository, as immutable versions: a version that a session has bound to is
+frozen and an edit creates the next version; an edit before any take replaces
+the version. The task dropdown and cards group library tasks under their goal
+("Roll a die: 1 Die into cup") after the built-in tasks, with a chip "Library
+task, not in the published registry". A session on a library task records
+against a one-task snapshot file written once per version under
+`library-snapshots/`, and its dataset contract keeps the exact task snapshot
+and hash as today plus the task source, goal id, goal title, version and chain
+position, so takes can be stitched into the full task later. Every quality gate
+runs on these takes and the session summary names the source, but library
+takes never count toward the published milestones; the published registry in
+`config/synria_tasks.json` stays the source for evidence claims. A goal can be
+exported as a registry shaped JSON fragment for a reviewed commit. An untimed
+library task, like an untimed registry task, allows practice runs only; its
+take window is stored with the task version once the operator confirms it.
+
 ## Storage and curation
 
 The workspace must be outside git. It contains `console.sqlite3`, five rotating

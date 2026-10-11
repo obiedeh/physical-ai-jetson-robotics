@@ -141,3 +141,17 @@ fieldset.field small{color:var(--muted)}
 #review-overlay #review .section-head{display:none}
 #summary details{margin-top:18px}#summary-technical{overflow-wrap:anywhere}
 .home-card.secondary-card{border-color:var(--edge)}
+/* Teach something new: one sentence in, editable step cards out, one primary. */
+.teach-ask{display:flex;gap:12px;align-items:flex-end;margin:12px 0}.teach-ask label{flex:1}.teach-ask input{min-height:48px;font-size:17px}
+.teach-questions{display:grid;gap:12px;margin:12px 0}
+.teach-rules{margin:12px 0}.teach-rules ol{padding-left:22px}.teach-rules li{margin:4px 0;color:var(--text)}
+.teach-rationale{color:var(--text);max-width:900px}
+.teach-steps{display:grid;gap:14px;margin:14px 0}
+.teach-card{display:flex;flex-direction:column;gap:10px}.teach-card label{color:var(--muted)}.teach-card input,.teach-card textarea,.teach-card select{min-height:40px}
+.teach-head{display:flex;align-items:center;gap:14px}.teach-head>span{font-weight:650;color:var(--accent);margin-right:auto}
+.teach-row{display:grid;grid-template-columns:2fr 1fr 2fr;gap:12px;align-items:end}
+.check.small{font-size:14px}
+.library-chip{border-color:#bfa0fa;color:#d9c8ff}
+.task-group{grid-column:1/-1;margin:10px 0 0;font-size:14px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+.task-card.teach-entry{border-style:dashed;justify-content:center;align-items:center;text-align:center}
+@media(max-width:900px){.teach-row{grid-template-columns:1fr}.teach-ask{flex-direction:column;align-items:stretch}}
