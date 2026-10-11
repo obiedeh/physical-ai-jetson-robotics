@@ -351,7 +351,7 @@ function openReviewOverlay() {
 $("review-latest").onclick=openReviewOverlay;
 $("close-review-overlay").onclick=()=>{playing=false;$("review-overlay").close();document.querySelector("main").append($("review"));$("review").hidden=true;};
 $("review-overlay").addEventListener("close",()=>{playing=false;if($("review-overlay").contains($("review"))){document.querySelector("main").append($("review"));$("review").hidden=true;}});
-$("quit").onclick=()=>safe(async()=>{if(confirm("Close sources and quit the console? Pending captures must be resolved first.")){await api("shutdown",{});error("Console closed. You may close this tab.");}});
+$("shutdown-console").onclick=()=>safe(async()=>{if(confirm("Shut down the console? This stops the server for everyone using it. Takes already saved stay on disk. A stopped unsaved take must be saved or thrown away first.")){await api("shutdown",{});error("Console closed. You may close this tab.");}});
 $("reindex").onclick=()=>safe(async()=>{const result=await api("reindex",{});await refreshSessions();error(`Reindex corrections: ${JSON.stringify(result)}`);});
 $("task").onchange=taskDescription;$("search").oninput=()=>safe(refreshSessions);
 $("previous").onclick=()=>safe(async()=>{frame=Math.max(0,frame-1);await showFrame();});$("next").onclick=()=>safe(async()=>{frame=Math.min(Number($("scrub").max),frame+1);await showFrame();});

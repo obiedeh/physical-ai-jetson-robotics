@@ -40,18 +40,31 @@ require an already prepared recording/ROS environment.
 ## Use
 
 The page has one navigation model. Outside a flow the global nav offers three
-places only: **Home**, **Sessions** and **Help**. Home shows the one next move
-(New session, or Continue recording when a session is open), a status strip in
-words for the session, software, arm feed, both cameras and storage, and a notice
-when the tab has no launch key. Sessions lists sessions with Open session and
-Review takes; Reindex and Trash sit under **More**. Inside a flow (new session,
-recording, review) the global nav is replaced by a breadcrumb and one Exit control.
+places only: **Home**, **Sessions** and **Help**. Home asks "What would you like
+to do?" and shows three cards that are things to do, each a single control:
+New session (Start a new session), Continue recording with the task, takes
+saved and last use when an unfinished session exists (otherwise Practice run),
+and Review recordings (disabled with "No takes recorded yet" until a take
+exists). Under the cards a dismissible first-run strip names the three steps
+until the first session exists, and a System status strip shows Arm feed,
+Wrist camera, Overhead camera and Storage in neutral words ("Not checked yet"
+before any check, "Last check: 2 minutes ago" after), with Software only when
+something is missing and a Check now button that runs the same read-only
+setup check (in physical mode it opens Check setup, where the bench checks
+are). A notice appears when the tab has no launch key. Shut down console lives
+on the Help page with a confirmation that says what it does and that saved
+takes are safe. Sessions lists sessions with Open session and Review takes;
+Reindex and Trash sit under **More**. Inside a flow (new session, recording,
+review, summary) the global nav is replaced by a breadcrumb and one Exit
+control, or Pause session and Finish session while a session is open.
 Every place has a hash address (`#/home`, `#/sessions`, `#/help`, `#/new/task`,
-`#/session/<id>/record`, `#/session/<id>/review/<take>`) so browser Back, Forward
-and refresh keep the place; on load the page opens the recording screen if a
-session is open, otherwise Home. Each screen change moves focus to the screen
-title and announces it through a live region. Navigating never opens a source,
-creates a session or issues a recorder command.
+`#/new/check`, `#/session/<id>/record`, `#/session/<id>/review/<take>`,
+`#/session/<id>/summary`) so browser Back, Forward and refresh keep the place;
+on load the page opens the recording screen if a session is open, otherwise
+Home. Each screen change moves focus to the screen title and announces it
+through a live region. Navigating never opens a source, creates a session or
+issues a recorder command. The footer carries one reassurance: this console
+only records and never moves the arm.
 New session is a linear wizard of two steps: **Choose task** and **Check setup**.
 A fixed footer on every step holds Back at the left and one primary button at
 the right; the primary stays disabled until the step is complete and the footer
