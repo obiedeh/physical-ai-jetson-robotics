@@ -231,7 +231,13 @@ const SynriaWizard = (() => {
         : {name:"Storage", state:"problem", text:`${(free / 1e9).toFixed(1)} GB free, below the recording floor`, help:window.SynriaGuide.issueFor("disk_space", "insufficient disk space")});
     }
     const other = matches ? window.SynriaGuide.otherFailure(report, true) : null;
-    if (other) tiles.push({name:other.help.title, state:"problem", text:other.message, help:other.help, action:other.help.title.charAt(0).toLowerCase() + other.help.title.slice(1)});
+    if (other && other.name === "source_alignment") {
+      const check = checks.source_alignment || {}, skew = check.measured_skew_s, limit = check.max_timestamp_skew_s;
+      const text = typeof skew === "number" && typeof limit === "number"
+        ? `The newest camera frames and arm reading were ${skew.toFixed(3)} s apart. The limit is ${limit.toFixed(3)} s.`
+        : "The newest camera frames and arm reading were taken too far apart.";
+      tiles.push({name:"Cameras and arm feed are out of step", state:"problem", text, help:other.help, fix:"Press Check again. If it repeats, open the steps.", action:"check again, the cameras and arm feed were out of step"});
+    } else if (other) tiles.push({name:other.help.title, state:"problem", text:other.message, help:other.help, action:other.help.title.charAt(0).toLowerCase() + other.help.title.slice(1)});
     for (const tile of tiles) tile.action = tile.action || `fix the ${tile.name.toLowerCase()}`;
     return tiles;
   }
@@ -251,7 +257,7 @@ const SynriaWizard = (() => {
         if (tile.image) { const image = document.createElement("img"); image.src = tile.image; image.alt = `${tile.name} sample from the last check`; card.append(image); }
         if (tile.state === "problem" && tile.help) {
           const list = document.createElement("dl");
-          list.append(text("dt", "What is wrong"), text("dd", tile.text), text("dt", "Likely cause"), text("dd", tile.help.summary), text("dt", "How to fix"), text("dd", tile.help.steps[0]));
+          list.append(text("dt", "What is wrong"), text("dd", tile.text), text("dt", "Likely cause"), text("dd", tile.help.summary), text("dt", "What to do"), text("dd", tile.fix || tile.help.steps[0]));
           card.append(list, button("All the steps", () => window.SynriaGuide.openHelp(tile.help.key, tile.text)));
         } else card.append(text("p", tile.text));
         container.append(card);
@@ -277,11 +283,28 @@ const SynriaWizard = (() => {
       } else if (!items.length) items.push("wait for the check"); // it starts by itself once the rest is done
       if (starting) return ["wait for the check"];
       if (!String(values.name || "").trim()) items.push("name the session");
-      const words = {timing:"time this task first (practice runs are available now)", limits:"record operator-verified joint limits"};
-      for (const key of window.SynriaGuide.requirements(values)) if (words[key]) items.push(words[key]);
+      // An untimed task or unverified limits lead to the practice run instead of blocking.
       return items;
     }
     return [];
+  }
+
+  /** Will takes from this session count toward the dataset, and if not, why not? */
+  function countingStatus() {
+    const task = chosenTask(), values = formValues();
+    if (state.demo) return {counts:false, why:"Demo takes never count toward the dataset.", practiceRun:false};
+    if (task && !timed(task)) return {counts:false, why:"This task is not timed yet. A practice run records one 20 second take and throws it away.", practiceRun:true};
+    const needed = window.SynriaGuide.requirements(values).filter(key => key !== "metadata");
+    if (needed.includes("limits")) return {counts:false, why:"Takes will not count toward the dataset until the joint limits are verified.", practiceRun:true};
+    return {counts:true, why:"", practiceRun:false};
+  }
+  /** The primary button names what will happen: a counting session, or the practice run. */
+  function primaryLabel() { const status = countingStatus(); return status.practiceRun ? "Start practice run" : "Start session"; }
+  /** Prefill the wizard for another session of a task, keeping the remembered setup. */
+  function prefill(taskId, target) {
+    $("task").value = taskId; onTaskChosen();
+    if (target) { const field = $("new-form").elements.target_episodes; field.value = String(target); const preset = document.querySelector("[data-preset-for=target_episodes]"); if (preset) { preset.value = [...preset.options].some(o => o.value === String(target)) ? String(target) : "custom"; preset.dispatchEvent(new Event("change", {bubbles:true})); } }
+    saveDraft();
   }
 
   /** Decide whether a step is complete and, if not, say what is left in one plain sentence. */
@@ -313,10 +336,12 @@ const SynriaWizard = (() => {
     if (step === "check") { renderYourSetup(); renderTiles(); }
     const result = completion(step);
     $("wizard-primary").disabled = !result.ok;
-    $("wizard-primary").textContent = step === "check" ? "Start session" : "Continue";
-    const reason = result.ok ? (step === "check" ? "Everything is in place." : "") : result.reason;
+    $("wizard-back").textContent = step === "task" ? "Cancel" : "Back";
+    $("wizard-primary").textContent = step === "check" ? primaryLabel() : "Continue";
+    const counting = step === "check" ? countingStatus() : {counts:true, why:"", practiceRun:false};
+    const reason = result.ok ? (step === "check" ? (counting.why || "Everything is in place.") : "") : result.reason;
     if (reason !== lastReason) { $("wizard-reason").textContent = reason; lastReason = reason; }
-    $("smoke").hidden = state.demo || step !== "check";
+    $("smoke").hidden = state.demo || step !== "check" || counting.practiceRun;
     $("smoke").disabled = state.demo || Boolean(state.active_session) || starting || missingFields(formValues()).length > 0 || !confirmed();
     $("smoke").title = $("smoke").disabled ? "A practice run needs the setup values, the follower serial and the power state." : "Opens the cameras and arm feed, records one 20 second take and throws it away.";
   }
@@ -372,11 +397,18 @@ const SynriaWizard = (() => {
     if (armed) return;
     armed = true;
     renderTaskCards();
+    // The quick trial is the default; an earlier session's target is remembered, a draft wins.
+    const last = (typeof sessions === "undefined" ? [] : sessions).find(item => !["trashed", "purged"].includes(item.status));
+    if (last?.target_episodes) {
+      const field = $("new-form").elements.target_episodes; field.value = String(last.target_episodes);
+      const preset = document.querySelector("[data-preset-for=target_episodes]"); if (preset) { preset.value = [...preset.options].some(o => o.value === String(last.target_episodes)) ? String(last.target_episodes) : "custom"; preset.dispatchEvent(new Event("change", {bubbles:true})); }
+    }
     const draft = restoreDraft();
     if (draft.values?.task_id) { $("task").value = draft.values.task_id; onTaskChosen(); }
     $("wizard-primary").onclick = () => safe(async () => {
       if (!completion(step).ok) return;
       if (step === "task") window.SynriaRouter.go(window.SynriaRouter.routes.wizard("check"));
+      else if (countingStatus().practiceRun) $("smoke").click();
       else await startSession();
     });
     $("wizard-back").onclick = () => {
@@ -407,7 +439,7 @@ const SynriaWizard = (() => {
     window.addEventListener("console-sessions", () => { if (autoName && chosenTask()) { suggestName(); if (!$("new").hidden) refresh(); } });
   }
 
-  return {STEPS, show, refresh, completion, remaining, initialize, furthestAllowed, current: () => step, checkIsCurrent, sceneText, tileRows,
+  return {STEPS, show, refresh, completion, remaining, initialize, furthestAllowed, current: () => step, checkIsCurrent, sceneText, tileRows, prefill, countingStatus,
     flags: () => ({checking, starting, armed})};
 })();
 globalThis.SynriaWizard = SynriaWizard;

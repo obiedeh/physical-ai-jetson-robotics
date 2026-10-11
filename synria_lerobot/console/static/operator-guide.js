@@ -3,7 +3,7 @@
 const SynriaGuide = (() => {
   const help = {
     source: {title:"Prepare the arm feed", summary:"The console listens; it does not start the driver or control the arm.", steps:[
-      "Secure the arm, clear the workspace and verify the approved power and controlled-stop procedure. Never release torque on an unsupported arm.",
+      "Secure the arm, clear the bench and verify the approved power and controlled-stop procedure. Never release torque on an unsupported arm.",
       "Keep the existing leader–follower hardware-sync teleoperation unchanged. Reuse its verified read-only arm feed; never start a second owner of the follower USB connection.",
       "The source must publish the selected follower topic with arm writes disabled and startup torque unchanged. Choosing ros2_control under Change setup does not launch it or verify those properties.",
       "For ros2_control, use only the operator-verified read-only configuration. No verified startup command is recorded here. Do not use the write-enabled D2 policy launch as a recording shortcut.",
@@ -33,11 +33,11 @@ const SynriaGuide = (() => {
       "Read the measured rate in technical evidence. The requested, incoming and achieved sample rates are different facts.",
       "Choose a supported explicit FPS under Change setup; 15 and 30 are vendor candidates, not guarantees.",
       "For an existing dataset, changing FPS requires a separate dataset/session. Do not bypass the rate gate or increase a driver’s rate speculatively."], doc:"protocol"},
-    freshness: {title:"Source timing is not acceptable", summary:"A source is stale, its ROS stamp disagrees with arrival time, or the views are misaligned.", steps:[
-      "Alignment is Not checked until fresh samples exist from follower state, the selected USB leader when used, and both cameras. Fix the specific upstream sample first; missing input is not a measured skew failure.",
-      "When all required samples exist, compare their host monotonic capture times against the existing skew threshold. The result includes measured skew and the threshold; correct stale sources, scheduling or camera capture before retrying.",
-      "Do not increase freshness or skew thresholds to hide the failure. A first-message startup wait does not relax steady-state rules.",
-      "Keep failed captures and their gate results. Retry the read-only check only after addressing the cause."], doc:"protocol"},
+    freshness: {title:"Cameras and arm feed are out of step", summary:"The newest camera frames and the newest arm reading were taken too far apart, or a source is stale.", steps:[
+      "Press Check again. One out-of-step read can be a startup effect; a repeat is a real problem.",
+      "If it repeats, look for a camera that is slow or busy (another app, a dim room forcing a long exposure) or an arm feed that has stopped updating, and fix that cause.",
+      "Do not raise the alignment or freshness limits to hide the failure. A longer startup wait does not relax the steady-state rule.",
+      "Technical detail: alignment is judged on fresh samples from the arm feed, both cameras and the USB leader when used; while any of them is missing the result reads Not checked rather than failed."], doc:"protocol"},
     publishers: {title:"Command path is not quiet", summary:"A publisher or graph-query failure prevents read-only recording.", steps:[
       "Inspect the exact guarded topic and error in technical evidence. A publisher blocks recording even if it is not currently sending.",
       "Follow the operator-approved procedure to resolve the source configuration. Do not kill publishers, disable the guard or reconfigure working teleoperation just to pass.",
@@ -209,14 +209,16 @@ const SynriaGuide = (() => {
   }
 
   /** Keep actionable errors visible across successful polling; dismissal changes only the view. */
-  function renderError(value) {
+  let noticeRoute = null;
+  function renderError(value, options = {}) {
     const message = String(value?.message || value || "");
-    if (message === lastError) return;
+    if (message === lastError && !options.route) return;
     lastError = message;
-    if (!message) {$("notice").replaceChildren(); return;}
-    const informational = /^(Console closed\.|Reindex corrections:)/.test(message);
+    noticeRoute = options.route || null;
+    if (!message) {$("notice").replaceChildren(); delete $("notice").dataset.level; return;}
+    const informational = Boolean(options.route) || /^(Console closed\.|Reindex corrections:)/.test(message);
     $("notice").dataset.level = informational ? "info" : "error";
-    if(informational){$("notice").replaceChildren(text("strong", message.startsWith("Console") ? "Console closed" : "Catalog refreshed"), text("p",message),button("Dismiss message",()=>renderError("")));return;}
+    if(informational){const title = options.title || (message.startsWith("Console") ? "Console closed" : message.startsWith("Reindex") ? "Catalog refreshed" : "Done");$("notice").replaceChildren(text("strong", title), text("p",message),button("Dismiss message",()=>renderError("")));return;}
     const issue = issueFor("", message);
     $("notice").replaceChildren(text("strong", issue.title), text("p", message),
       button("What to do", () => openHelp(issue.key, message)),
@@ -271,12 +273,18 @@ const SynriaGuide = (() => {
     update();
   }
 
-  return {issueFor, connectionPaths, otherFailure, missingInputs, requirements, openHelp, documentHelp, renderError, renderHelpPage, update, initialize};
+  /** A neutral confirmation shown on one route and cleared on the next navigation. */
+  function clearNoticeOnLeave() {
+    if ($("notice").dataset.level === "info" && noticeRoute && window.SynriaRouter.current()?.path !== noticeRoute) renderError("");
+  }
+
+  return {issueFor, connectionPaths, otherFailure, missingInputs, requirements, openHelp, clearNoticeOnLeave, documentHelp, renderError, renderHelpPage, update, initialize};
 })();
 globalThis.SynriaGuide = SynriaGuide;
 if (typeof document !== "undefined") {
   window.addEventListener("console-ready", () => safe(SynriaGuide.initialize), {once:true});
   window.addEventListener("console-state", SynriaGuide.update);
   window.addEventListener("console-readiness", SynriaGuide.update);
+  window.addEventListener("console-route", SynriaGuide.clearNoticeOnLeave);
   if (window.synriaConsoleReady) safe(SynriaGuide.initialize);
 }

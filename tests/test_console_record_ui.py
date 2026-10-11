@@ -32,7 +32,10 @@ def test_record_screen_markup_names_actions_and_hides_raw_source_json() -> None:
     assert '<script src="/record-banner.js" defer></script>' in markup
     assert 'id="countdown" type="number" min="0" max="30" value="3"' in markup
     assert 'id="audio" type="checkbox" checked' in markup
-    assert "Wrist camera <span" in markup and "Overhead camera <span" in markup
+    assert 'data-camera-name="wrist">Wrist camera<' in markup
+    assert 'data-camera-name="front">Overhead camera<' in markup
+    assert 'id="finish-confirm"' in markup and 'id="finish-session"' in markup
+    assert '<th>Result</th><th>Length (s)</th>' in markup
     assert 'id="record-technical"' in markup and 'id="reset-scene"' in markup
     for command in ("start", "stop", "success", "failure", "retry", "cancel_countdown"):
         assert f'data-command="{command}"' in markup

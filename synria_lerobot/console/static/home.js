@@ -29,14 +29,17 @@
         software.status === "launching" ? "Checking" : (software.message || "Something is missing")));
     }
     const checks = report?.checks || {};
-    const stale = !report?.checked_utc || report.status === "expired";
+    const ageS = report?.checked_utc ? (Date.now() - Date.parse(report.checked_utc)) / 1000 : Infinity;
+    const recent = Number.isFinite(ageS) && ageS < 10 * 60;
     const describe = (name, keys) => {
       const sample = checks[keys[0]];
-      if (stale || !sample || sample.status === "not_checked" || sample.message === "Not run") return row("neutral", name, "Not checked yet");
+      if (!report?.checked_utc) return row("neutral", name, "Not checked yet");
+      if (!recent) return row("neutral", name, "Not checked recently");
+      if (!sample || sample.status === "not_checked" || sample.message === "Not run") return row("neutral", name, "Not checked yet");
       const failed = keys.find(key => checks[key]?.passed === false && !["not_checked", "launching"].includes(checks[key]?.status));
-      if (failed) return row("attention", name, checks[failed].message);
+      if (failed) return row("attention", name, `${checks[failed].message}, ${ago(report.checked_utc)}`);
       if (report.status === "checking" || sample.status === "launching") return row("checking", name, "Checking");
-      return row(sample.passed ? "ready" : "neutral", name, sample.passed ? "OK" : sample.message);
+      return row(sample.passed ? "ready" : "neutral", name, sample.passed ? `OK, ${ago(report.checked_utc)}` : sample.message);
     };
     rows.push(describe("Arm feed", ["follower_sample", "state_rate"]));
     rows.push(describe("Wrist camera", ["wrist_sample", "wrist_camera"]));
@@ -51,19 +54,20 @@
   /** The session worth continuing: the open one, else the most recent unfinished one. */
   function continuable(current, list) {
     if (current.active_session && current.active_session.id !== "smoke") return current.active_session;
-    const usable = list.filter(s => !["trashed", "purged"].includes(s.status) && s.source_kind !== undefined);
+    const usable = list.filter(s => !["trashed", "purged", "finished"].includes(s.status) && s.source_kind !== undefined);
     return usable.find(s => (s.counts?.saved ?? 0) < (s.target_episodes ?? Infinity)) || null;
   }
 
   /** Build the three cards: new session, continue or practice run, review. */
   function cards(current, list, demo) {
     const r = window.SynriaRouter.routes;
-    const out = [{kind:"link", title:"New session", text:"Choose the task, check the cameras and arm feed, then record takes.", verb:"Start a new session", route:r.wizard("task"), primary:true}];
     const session = continuable(current, list);
+    const out = [{kind:"link", title:"New session", text:"Choose the task, check the cameras and arm feed, then record takes.", verb:"Start a new session", route:r.wizard("task"), primary:!session}];
     if (session) {
       const saved = session.counts?.saved ?? 0, target = session.target_episodes ?? "?";
       const when = session.updated_utc ? `, last used ${ago(session.updated_utc)}` : "";
-      out.push({kind:"continue", title:"Continue recording", text:`${String(session.task_id).replaceAll("_", " ")}, ${saved} of ${target} takes saved${when}.`, verb:"Continue", sessionId:session.id, open:current.active_session?.id === session.id});
+      const title = window.SynriaRecord ? window.SynriaRecord.taskTitle(session.task_id) : String(session.task_id).replaceAll("_", " ");
+      out.push({kind:"continue", title:"Continue recording", text:`${title}, ${saved} of ${target} takes saved${when}.`, verb:"Continue", sessionId:session.id, open:current.active_session?.id === session.id, primary:true});
     } else if (demo) {
       out.push({kind:"disabled", title:"Practice run", text:"Not available in demo mode.", verb:"Start a practice run"});
     } else {
@@ -94,7 +98,8 @@
         strip.append(li);
       }
     }
-    document.getElementById("status-note").textContent = report?.checked_utc && report.status !== "expired" ? `Last check: ${ago(report.checked_utc)}.` : "Not checked yet. Checked automatically when you start a session.";
+    const ageS = report?.checked_utc ? (Date.now() - Date.parse(report.checked_utc)) / 1000 : Infinity;
+    document.getElementById("status-note").textContent = ageS < 10 * 60 ? `Last check: ${ago(report.checked_utc)}.` : report?.checked_utc ? `Last check ${ago(report.checked_utc)}. Checked again when you start a session.` : "Not checked yet. Checked automatically when you start a session.";
     const container = document.getElementById("home-cards");
     const wanted = cards(state, list, state.demo);
     const cardSignature = JSON.stringify(wanted);
@@ -104,7 +109,7 @@
         let node;
         if (card.kind === "link") { node = document.createElement("a"); node.href = window.SynriaRouter.href(card.route); node.dataset.route = card.route; }
         else { node = document.createElement("button"); node.type = "button"; if (card.kind === "disabled") { node.disabled = true; node.title = card.text; } }
-        node.className = "home-card" + (card.primary ? " primary-card" : "");
+        node.className = "home-card" + (card.primary ? " primary-card" : " secondary-card");
         node.append(text("h3", card.title), text("p", card.text), text("span", card.verb));
         node.lastChild.className = "verb";
         if (card.kind === "continue") node.onclick = () => safe(async () => {

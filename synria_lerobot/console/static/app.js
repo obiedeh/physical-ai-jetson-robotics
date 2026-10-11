@@ -24,6 +24,10 @@ async function api(path, payload) {
 }
 /** Show an operator-facing refusal without interpreting it as a successful check. */
 function error(value) { if(window.SynriaGuide){window.SynriaGuide.renderError(value);return;} $("notice").textContent = value ? String(value.message || value) : ""; }
+/** Show a neutral confirmation that belongs to one route and clears when the operator moves on. */
+function info(title, message, routePath) { if(window.SynriaGuide) window.SynriaGuide.renderError(message, {route: routePath, title}); }
+/** Takes saved in a session, from the catalog list or the open session. */
+function savedCount(id) { const found = sessions.find(s => s.id === id) || (state.active_session?.id === id ? state.active_session : null); return found?.counts?.saved ?? 0; }
 /** Surface asynchronous UI failures while leaving server-owned state intact. */
 async function safe(operation) { try { return await operation(); } catch (reason) { error(reason); } }
 /** Route helpers shared by every screen so no screen assembles a session address by hand. */
@@ -73,9 +77,9 @@ async function refreshSessions() {
     const open = state.active_session?.id === session.id;
     const counts = session.counts || session;
     const saved = counts.saved ?? counts.episode_count ?? 0, target = session.target_episodes ?? "?";
-    const standing = open ? "Open now" : ["trashed", "purged"].includes(session.status) ? "In the trash" : saved >= (session.target_episodes ?? Infinity) ? "Finished" : saved ? "Paused" : "Not started";
+    const standing = open ? "Open now" : ["trashed", "purged"].includes(session.status) ? "In the trash" : session.status === "finished" ? "Finished" : saved ? "Paused" : "Not started";
     card.append(text("h3", session.name + demoLabel(session)));
-    card.append(text("p", `${String(session.task_id).replaceAll("_", " ")} · ${standing} · ${saved} of ${target} takes saved`));
+    card.append(text("p", `${window.SynriaRecord.taskTitle(session.task_id)} · ${standing} · ${saved} of ${target} takes saved`));
     card.append(text("p", `${counts.success ?? counts.success_count ?? 0} success, ${counts.failure ?? counts.failure_count ?? 0} failure, ${counts.excluded ?? counts.excluded_count ?? 0} excluded · ${((session.disk_size_bytes || session.size_bytes || 0)/1e6).toFixed(1)} MB`));
     card.append(text("p", session.updated_utc ? `Last used ${window.SynriaHome ? window.SynriaHome.ago(session.updated_utc) : session.updated_utc}` : ""));
     if(session.recovery_blocked)card.append(text("p",`RECOVERY BLOCKED: ${session.recovery_error}. Preserve the recording lock and journal; resolve through operator review before further writes.`));
@@ -88,6 +92,7 @@ async function refreshSessions() {
       card.append(actions); $("trash-list").append(card);
     } else {
       if (open) actions.append(routeLink("Continue recording", r.record(session.id), "primary"));
+      else if (session.status === "finished") actions.append(button("Reopen to add takes",async()=>{await api(`session/${session.id}/open`,{});await refreshState();window.SynriaRouter.go(r.record(session.id));}));
       else actions.append(button("Open session",async()=>{await api(`session/${session.id}/open`,{});await refreshState();window.SynriaRouter.go(r.record(session.id));},"primary"));
       actions.append(routeLink("Review takes", r.review(session.id)));
       actions.append(button("Rename",async()=>{const name=prompt("New session name",session.name);if(name){await api(`session/${session.id}/rename`,{name});await refreshSessions();}}));
@@ -156,7 +161,9 @@ function renderRecordBanner(c, active) {
   const action = $("record-banner-action"); action.hidden = !wanted.has("close");
   if (wanted.has("close")) { action.textContent = wanted.get("close"); action.dataset.action = "close"; }
   $("camera-views").classList.toggle("recording", recordView.recording);
-  $("record-take").textContent = active && recordView.target !== null ? `Take ${recordView.take} of ${recordView.target}` : "";
+  $("record-title").textContent = active ? (recordView.target !== null ? `Take ${recordView.take} of ${recordView.target}` : `Take ${recordView.take}`) : "No session open";
+  const busy = recordView.recording || recordView.phase === "countdown";
+  document.querySelector(".options-row").hidden = busy;
   renderResetScene(active, recordView.betweenTakes);
 }
 /** Between takes, list the task's scene bullets beside the cameras. */
@@ -174,13 +181,12 @@ async function refreshState() {
   document.body.classList.toggle("demo",state.demo);$("mode").className=`badge ${state.demo?"demo":""}`;
   $("mode").textContent=state.demo?"SYNTHETIC DEMO · NO ROBOT":"READ ONLY · PHYSICAL SOURCES";
   $("mode-help").textContent=state.demo?"Demo mode: fake cameras and arm. Nothing recorded here is real.":"";$("mode-help").hidden=!state.demo;
-  $("record-title").textContent=active?active.name+demoLabel(active):"No session open";
   const min=c.min_episode_s??0,max=c.max_episode_s??0,elapsed=c.elapsed_s||0;
   renderRecordBanner(c, active);
   $("preflight").textContent=JSON.stringify({...state.preflight,free_disk_bytes:state.free_disk_bytes,required_free_bytes:state.min_free_bytes},null,2);
   if(c.catalog_error||c.error)error(c.catalog_error||c.error);
   const recording=c.state==="recording";
-  $("last-save").hidden=!c.last_episode;$("review-latest").hidden=!c.last_episode||!active;
+  $("last-save").hidden=!c.last_episode;$("review-latest").hidden=!active||!(savedCount(active.id)||c.last_episode)||recordView.recording||recordView.phase==="countdown";
   $("save-result").textContent=recordView.lastSave;$("save-details").textContent=JSON.stringify(c.last_episode||{},null,2);
   $("counters").textContent=recordView.counters;
   const follower=c.follower||c.state_source||{}, values=follower.values||follower.positions||c.joint_state;
@@ -200,12 +206,17 @@ async function command(name) {
 }
 /** Display saved labels and gates without changing episode evidence. */
 async function loadEpisodes() {
-  playing=false;selected=null;$("player").hidden=true;const id=reviewSessionId;if(!id)return;
+  playing=false;selected=null;$("player").hidden=true;const id=reviewSessionId;if(!id)return [];
   const episodes=await api(`episodes/${id}`);$("episodes").replaceChildren();
-  for(const ep of episodes){const tr=text("tr","");for(const value of [ep.episode_index,ep.operator_label,ep.duration_s,ep.frame_count,ep.achieved_sample_rate_hz,ep.gate_passed?"pass":JSON.stringify(ep.failed_gates||ep.failed_gates_json),ep.excluded?"yes":"no"]){tr.append(text("td",typeof value==="number"?String(Math.round(value*100)/100):String(value??"unknown")));}
-    const actions=text("td",ep.note||"");actions.append(button(`Play take ${ep.episode_index}`,()=>selectEpisode(id,ep)));
-    if(id!=="smoke"){actions.append(button(ep.excluded?"Restore":"Exclude…",()=>curate(id,ep)));actions.append(button("Note",async()=>{const note=prompt("Append episode note","");if(note!==null){await api(`episode/${id}/${ep.episode_index}/note`,{note});await loadEpisodes();}}));}if(sessions.find(session=>session.id===id)?.recovery_blocked)actions.querySelectorAll("button").forEach(node=>{if(!node.textContent.startsWith("Play take"))node.disabled=true;});tr.append(actions);$("episodes").append(tr);}
+  const R=window.SynriaRecord;
+  for(const ep of episodes){const tr=text("tr","");
+    for(const value of [`Take ${R.takeNumber(ep.episode_index)}`,ep.operator_label,typeof ep.duration_s==="number"?(Math.round(ep.duration_s*10)/10).toFixed(1):"unknown",R.gateSummary(ep,state.demo).replace(/^Quality checks? /,""),ep.excluded?"Yes":"No"]){tr.append(text("td",String(value)));}
+    const actions=text("td",ep.note||"");const detail=document.createElement("details");detail.append(text("summary","Details"),text("p",`${ep.frame_count??"?"} frames at ${typeof ep.achieved_sample_rate_hz==="number"?(Math.round(ep.achieved_sample_rate_hz*100)/100):"?"} per second`));actions.append(detail);
+    actions.append(button("Play",()=>selectEpisode(id,ep)));
+    if(id!=="smoke"){actions.append(button(ep.excluded?"Restore to dataset":"Exclude from dataset…",()=>curate(id,ep)));actions.append(button("Add note",async()=>{const note=prompt("Add a note to this take","");if(note!==null){await api(`episode/${id}/${ep.episode_index}/note`,{note});await loadEpisodes();}}));}
+    if(sessions.find(session=>session.id===id)?.recovery_blocked)actions.querySelectorAll("button").forEach(node=>{if(node.textContent!=="Play")node.disabled=true;});tr.append(actions);$("episodes").append(tr);}
   if(!episodes.length)$("episodes").append(text("tr","")).append(text("td","No takes saved yet."));
+  return episodes;
 }
 /** Request an audited exclusion or restoration without rewriting raw episodes. */
 async function curate(id, ep) {
@@ -218,7 +229,7 @@ async function curate(id, ep) {
 async function selectEpisode(id, ep) {
   const selection={id,ep};selected=selection;playing=false;frame=0;rows=[];const generation=++playGeneration;$("player").hidden=false;
   const reviewedSession=sessions.find(session=>session.id===id)||state.active_session;
-  $("player-title").textContent=`Take ${ep.episode_index} · ${ep.operator_label}${reviewedSession?demoLabel(reviewedSession):""}`;
+  $("player-title").textContent=`Take ${(Number(ep.episode_index)||0)+1} · ${ep.operator_label}${reviewedSession?demoLabel(reviewedSession):""}`;
   $("still").src=`/media/still/${id}/${ep.episode_index}`;
   const provenance=await api(`provenance/${id}/${ep.episode_index}`);
   if(generation!==playGeneration||selected!==selection)return;
@@ -263,12 +274,13 @@ function renderFlowNav() {
   else {
     const c = state.capture || {};
     crumbs.push([sessionName(route.sessionId), null]);
-    if (route.name === "record") crumbs.push([state.active_session?.id === route.sessionId ? `Take ${(c.episode_index ?? 0) + 1} of ${state.active_session.target_episodes ?? "?"}` : "Recording", null]);
-    else if (route.name === "summary") crumbs.push(["Session finished", null]);
-    else crumbs.push(["Review takes", null]);
+    if (route.name === "summary") crumbs.push(["Session finished", null]);
+    else if (route.name === "review") crumbs.push(["Review takes", null]);
   }
   const open = route.name === "record" && state.active_session?.id === route.sessionId;
-  $("pause-session").hidden = !open; $("finish-session").hidden = !open; $("exit-flow").hidden = open;
+  const busy = open && (recordView.recording || recordView.phase === "countdown");
+  $("pause-session").hidden = !open || busy; $("finish-session").hidden = !open || busy; $("exit-flow").hidden = open;
+  if (!open || busy) $("finish-confirm").hidden = true;
   const list = $("breadcrumb");
   const signature = JSON.stringify(crumbs); if (list.dataset.signature === signature) return; list.dataset.signature = signature;
   list.replaceChildren();
@@ -324,31 +336,40 @@ async function closeOpenSession() {
   await api(`session/${id}/close`, {}); await refreshState(); await refreshSessions();
   return id;
 }
-$("pause-session").onclick=()=>safe(async()=>{const id=await closeOpenSession();window.SynriaRouter.go(routes().home());if(id!=="smoke")error("Session paused. The cameras are released and every saved take is kept. Continue it from Home when you are ready.");});
-$("finish-session").onclick=()=>safe(async()=>{const id=await closeOpenSession();window.SynriaRouter.go(id==="smoke"?routes().home():routes().summary(id));});
+$("pause-session").onclick=()=>safe(async()=>{const saved=savedCount(state.active_session.id);const id=await closeOpenSession();window.SynriaRouter.go(routes().home());if(id!=="smoke")info("Session paused",`Your ${saved} take${saved===1?" is":"s are"} saved. The cameras are released. Continue from Home when you are ready.`,routes().home());});
+/** Finish: mark the session finished (reversible by Open) and show its summary. */
+async function finishSession(){const c=state.capture||{};if(c.state==="stopped"||c.state==="recording")throw Error("Save or throw away the stopped take first. Then pause or finish the session.");const id=state.active_session.id;if(id==="smoke"){await closeOpenSession();window.SynriaRouter.go(routes().home());return;}await api(`session/${id}/finish`,{});await refreshState();await refreshSessions();window.SynriaRouter.go(routes().summary(id));}
+$("finish-session").onclick=()=>safe(async()=>{const active=state.active_session;if(!active)return;const saved=savedCount(active.id),target=active.target_episodes??0;if(active.id!=="smoke"&&saved<target){$("finish-confirm-text").textContent=`Finish with ${saved} of ${target} takes? You can reopen it later.`;$("finish-confirm").hidden=false;$("finish-yes").focus();return;}await finishSession();});
+$("finish-yes").onclick=()=>safe(async()=>{$("finish-confirm").hidden=true;await finishSession();});
+$("finish-no").onclick=()=>{$("finish-confirm").hidden=true;$("finish-session").focus();};
 $("record-banner-action").onclick=()=>safe(async()=>{if($("record-banner-action").dataset.action==="close"){await closeOpenSession();window.SynriaRouter.go(routes().home());}});
 /** Session summary after Finish: counts in words, where the takes are, and what to do next. */
 async function renderSummary(id) {
   const session = sessions.find(s => s.id === id) || await api(`session/${id}`);
   const counts = session.counts || {};
   const task = tasks.find(item => item.task_id === session.task_id);
-  $("summary-lead").textContent = `${session.name}${demoLabel(session)}. ${task ? task.task_id.replaceAll("_", " ").replace(/^./, ch => ch.toUpperCase()) : session.task_id}.`;
+  $("summary-lead").textContent = `${session.name}${demoLabel(session)}`;
   const list = $("summary-list"); list.replaceChildren();
-  const rows = [["Takes saved", `${counts.saved ?? 0} of a target of ${session.target_episodes}`], ["Success", String(counts.success ?? 0)], ["Failure", String(counts.failure ?? 0)], ["Excluded", String(counts.excluded ?? 0)],
-    ["Task source", "Published registry (config/synria_tasks.json)"], ["Counts toward the dataset", task && task.episode_window.min_episode_s !== null && session.source_kind !== "synthetic_demo" ? "Yes, if every quality check passed" : session.source_kind === "synthetic_demo" ? "No, demo data" : "No, the task is not timed yet"],
-    ["Last used", session.updated_utc || "unknown"]];
+  const rows = [["Task", window.SynriaRecord.taskTitle(session.task_id)], ["Takes saved", `${counts.saved ?? 0} of a target of ${session.target_episodes}`], ["Success", String(counts.success ?? 0)], ["Failure", String(counts.failure ?? 0)], ["Excluded", String(counts.excluded ?? 0)],
+    ["Task source", "Built-in task list"], ["Counts toward the dataset", task && task.episode_window.min_episode_s !== null && session.source_kind !== "synthetic_demo" ? "Yes, if every quality check passed" : session.source_kind === "synthetic_demo" ? "No, demo data" : "No, the task is not timed yet"],
+    ["Last used", session.updated_utc ? window.SynriaHome.ago(session.updated_utc) : "unknown"]];
   for (const [label, value] of rows) list.append(text("dt", label), text("dd", value));
+  $("summary-technical").textContent = `Task definition: config/synria_tasks.json (${session.task_id}). Data saved under: ${session.dataset_path || "workspace"}. Catalog id: ${session.id}.`;
   const actions = $("summary-actions"); actions.replaceChildren();
-  actions.append(routeLink("Review takes", routes().review(id), "primary"), routeLink("Home", routes().home()));
+  actions.append(button("Record another session of this task", () => { window.SynriaWizard.prefill(session.task_id, session.target_episodes); window.SynriaRouter.go(routes().wizard("check")); }, "primary"), routeLink("Review takes", routes().review(id)));
 }
 /** Open the review of the last take as an overlay and return to the same recording state on close. */
 function openReviewOverlay() {
-  const ep = state.capture.last_episode; if (!ep || !state.active_session) return;
+  if (!state.active_session) return;
   reviewSessionId = state.active_session.id;
   $("review-overlay-body").append($("review")); $("review").hidden = false;
-  $("review-session-name").textContent = `${sessionName(reviewSessionId)}. Playback shows recorded data on screen. It never moves the robot.`;
+  $("review-session-name").textContent = "Playback shows recorded data on screen. It never moves the robot.";
   $("review-overlay").showModal();
-  safe(async () => { await loadEpisodes(); await selectEpisode(reviewSessionId, ep); });
+  safe(async () => {
+    const episodes = await loadEpisodes();
+    const latest = episodes[episodes.length - 1];
+    if (latest) await selectEpisode(reviewSessionId, latest);
+  });
 }
 $("review-latest").onclick=openReviewOverlay;
 $("close-review-overlay").onclick=()=>{playing=false;$("review-overlay").close();document.querySelector("main").append($("review"));$("review").hidden=true;};
@@ -373,7 +394,7 @@ document.addEventListener("keydown",recordingShortcut);
 function introSeen() { try { return localStorage.getItem("synria-intro-seen") === "1"; } catch (reason) { return false; } }
 $("intro-continue").onclick=()=>{try{localStorage.setItem("synria-intro-seen","1");}catch(reason){/* storage blocked */}window.SynriaRouter.go(routes().home(),{replace:true});};
 /** Load server state and form choices, then show the place the hash names or the natural start. */
-async function boot(){await refreshState();tasks=await api("tasks");{const none=text("option","Choose a task");none.value="";$("task").append(none);}for(const task of tasks){const option=text("option",task.task_id);option.value=task.task_id;$("task").append(option);}renderTaskWindows();const cameras=await api("cameras");$("camera-note").textContent=cameras.message;for(const id of ["wrist-choice","front-choice"]){$(id).append(text("option",""));for(const camera of cameras.cameras){const option=text("option",camera);option.value=camera;$(id).append(option);}}$("source").disabled=state.demo;$("smoke").hidden=state.demo;taskDescription();await refreshSessions();
+async function boot(){for(const [role,name] of Object.entries(window.SynriaRecord.NAMES)){document.querySelectorAll(`[data-camera-name=${role}]`).forEach(node=>{node.textContent=name;});}await refreshState();tasks=await api("tasks");{const none=text("option","Choose a task");none.value="";$("task").append(none);}for(const task of tasks){const option=text("option",task.task_id);option.value=task.task_id;$("task").append(option);}renderTaskWindows();const cameras=await api("cameras");$("camera-note").textContent=cameras.message;for(const id of ["wrist-choice","front-choice"]){$(id).append(text("option",""));for(const camera of cameras.cameras){const option=text("option",camera);option.value=camera;$(id).append(option);}}$("source").disabled=state.demo;$("smoke").hidden=state.demo;taskDescription();await refreshSessions();
   const firstRun=!sessions.some(s=>!["trashed","purged"].includes(s.status))&&!introSeen();
   const start=state.active_session?routes().record(state.active_session.id):firstRun?routes().intro():routes().home();
   window.SynriaRouter.start(render,start);
