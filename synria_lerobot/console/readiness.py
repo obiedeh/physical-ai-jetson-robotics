@@ -16,7 +16,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from synria_lerobot.quality_gates import GateConfig, PhysicalLimits, source_timestamp_skew
+from synria_lerobot.quality_gates import (
+    GateConfig,
+    PhysicalLimits,
+    source_timestamp_skew,
+    within_recording_limits,
+)
 from synria_lerobot.recorder import PhysicalEpisodeRecorder
 
 CONFIRMATIONS = {
@@ -171,13 +176,15 @@ def inspect_samples(
             raise ValueError("ROS header and arrival stamps fail the source-freshness gate")
 
     def vector(values: tuple[float, ...]) -> None:
-        """Check six joint positions and the configured gripper against the existing limits."""
-        bounds = (*limits.joint_limits_rad, limits.gripper_limits_m[config.contract.gripper_type])
-        if len(values) != 7 or any(
-            not math.isfinite(value) or not low <= value <= high
-            for value, (low, high) in zip(values, bounds, strict=True)
+        """Check six joints and the gripper with the shared recording-limit helper.
+
+        The recording tolerance applies to the joints only; commands never use it.
+        """
+        if len(values) != 7 or not within_recording_limits(
+            values, limits, config.contract.gripper_type,
         ):
-            raise ValueError("State/action is outside the configured joint or gripper limits")
+            raise ValueError("State/action is outside the operator joint or gripper limits "
+                             "(recording tolerance applied to joints only)")
 
     report.launching("follower_sample", "Checking latest follower state")
     try:

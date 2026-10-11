@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import asdict, replace
 from pathlib import Path
 
@@ -30,6 +31,7 @@ from synria_lerobot.quality_gates import (
     episode_quality_record,
     evaluate_episode,
     load_limits,
+    within_recording_limits,
     write_aggregate_summary,
     write_episode_records,
     write_session_artifacts,
@@ -442,7 +444,8 @@ def test_aggregate_keeps_distinct_task_windows_per_dataset(tmp_path: Path) -> No
 
 
 def test_fake_source_end_to_end_for_both_action_sources(tmp_path: Path) -> None:
-    limits = load_limits(LIMITS_PATH)
+    # An explicitly unverified fixture: the repository file carries the operator's signature.
+    limits = replace(load_limits(LIMITS_PATH), verified_by="", verified_on="")
     data_root = tmp_path / "reports" / "data"
     for source in (ActionSourceKind.LEADER, ActionSourceKind.NEXT_STATE):
         dataset = tmp_path / "datasets" / source.value
@@ -805,3 +808,88 @@ def test_summary_validates_native_still_evidence_and_marks_legacy_unknown(
     }]
     assert summary["final_still_captures"] == expected
     assert json.loads((session / "provenance.json").read_text())["final_still_captures"] == expected
+
+
+OPERATOR_LIMITS_DEG = {
+    "Joint1": (-155, 144), "Joint2": (-87, 96), "Joint3": (-34, 135),
+    "Joint4": (-112, 88), "Joint5": (-69, 65), "Joint6": (-171, 176),
+}
+
+
+def _episode_with_joint3(angle_deg: float, gripper_m: float = 0.01) -> EpisodeQualityRecord:
+    """Place every frame's state and action at one Joint3 angle, inside limits elsewhere."""
+    episode = _baseline_episode()
+    vector = (0.1, 0.2, math.radians(angle_deg), 0.4, 0.5, 0.6, gripper_m)
+    return replace(episode, frames=tuple(
+        replace(frame, state=vector, action=vector) for frame in episode.frames
+    ))
+
+
+def test_operator_limits_file_is_signed_with_exact_degree_conversions() -> None:
+    """The committed file holds the operator's whole-degree boundaries converted exactly."""
+    limits = load_limits(LIMITS_PATH)
+    assert limits.verified and limits.verified_by == "Obinna Edeh"
+    assert limits.verified_on == "2026-10-10"
+    assert limits.joint_names == tuple(OPERATOR_LIMITS_DEG)
+    for (lower, upper), name in zip(limits.joint_limits_rad, OPERATOR_LIMITS_DEG, strict=True):
+        assert (lower, upper) == (
+            math.radians(OPERATOR_LIMITS_DEG[name][0]), math.radians(OPERATOR_LIMITS_DEG[name][1]),
+        )
+    assert limits.gripper_limits_m == {"50mm": (0.0, 0.025), "100mm": (0.0, 0.05)}
+    assert limits.recording_tolerance_deg == 1.0
+
+
+@pytest.mark.parametrize(
+    ("joint3_deg", "gripper_m", "expected_ok"),
+    [
+        (-34.37, 0.01, True),   # resting reading inside the 1 degree recording tolerance
+        (-34.0, 0.01, True),    # exact boundary
+        (-35.5, 0.01, False),   # beyond the tolerance
+        (-34.37, 0.0251, False),  # gripper gets no tolerance
+    ],
+)
+def test_recording_gate_applies_tolerance_to_joints_only(
+    joint3_deg: float, gripper_m: float, expected_ok: bool,
+) -> None:
+    """The state_action_limits gate allows the joint tolerance but keeps the gripper exact."""
+    report = evaluate_episode(
+        _episode_with_joint3(joint3_deg, gripper_m), load_limits(LIMITS_PATH), GateConfig(20, 30),
+    )
+    assert report.gates["state_action_limits"] is expected_ok
+
+
+def test_recording_tolerance_is_shared_by_bounds_helper_and_absent_from_exact_limits() -> None:
+    """Recording bounds widen only the six joints; the exact fields stay untouched."""
+    limits = load_limits(LIMITS_PATH)
+    bounds = limits.recording_bounds("50mm")
+    tolerance = math.radians(1.0)
+    for (lower, upper), (exact_lower, exact_upper) in zip(
+        bounds[:6], limits.joint_limits_rad, strict=True,
+    ):
+        assert lower == pytest.approx(exact_lower - tolerance)
+        assert upper == pytest.approx(exact_upper + tolerance)
+    assert bounds[6] == limits.gripper_limits_m["50mm"]
+    assert within_recording_limits((0.0,) * 6 + (0.03,), limits, "50mm") is False
+    assert within_recording_limits((0.0,) * 7, limits, "unknown") is False
+
+
+def test_recording_tolerance_loading_rules(tmp_path: Path) -> None:
+    """A missing tolerance is zero; negative, non-finite or non-numeric values are refused."""
+    payload = json.loads(LIMITS_PATH.read_text(encoding="utf-8"))
+    del payload["recording_tolerance_deg"]
+    path = tmp_path / "limits.json"
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    loaded = load_limits(path)
+    assert loaded.recording_tolerance_deg == 0.0
+    assert loaded.recording_bounds("50mm")[:6] == loaded.joint_limits_rad
+    assert evaluate_episode(
+        _episode_with_joint3(-34.37), loaded, GateConfig(20, 30),
+    ).gates["state_action_limits"] is False
+    for bad in (-1.0, "1.0", True):
+        path.write_text(json.dumps({**payload, "recording_tolerance_deg": bad}), encoding="utf-8")
+        with pytest.raises(ValueError):
+            load_limits(path)
+    with pytest.raises(ValueError):
+        replace(loaded, recording_tolerance_deg=float("nan"))
+    with pytest.raises(ValueError):
+        replace(loaded, recording_tolerance_deg=-0.5)

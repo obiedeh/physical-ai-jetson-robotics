@@ -1172,3 +1172,30 @@ def test_three_roll_skills_use_one_fake_ros_publisher_and_native_stills(
     stills = [event for event in result["source_preflight"]["events"] if "front_still" in event]
     assert len(stills) == 4 and all(event["resolution"] == [640, 480] for event in stills)
     assert "node" in setup.ros.closed and not setup.answers
+
+
+def test_command_path_keeps_exact_limits_without_recording_tolerance(setup: Any) -> None:
+    """Clamping and state validation on the command path ignore the recording tolerance."""
+    import math
+
+    limits_path = Path(setup.config["limits"])
+    content = json.loads(limits_path.read_text())
+    content["recording_tolerance_deg"] = 1.0
+    limits_path.write_text(json.dumps(content))
+    exact_upper = content["joint_limits_rad"]["Joint5"][1]
+    # 1.12 rad sits inside every joint's exact range and 0.0145 rad below Joint5's upper bound.
+    setup.sources.position = 1.12
+    io = ready(setup)
+    assert io.limits.recording_tolerance_deg == 1.0
+    io.offer((100.0,) * 7)
+    published = setup.ros.published[0].position
+    # Clamped to the exact bound, not bound plus tolerance.
+    assert published[4] == pytest.approx(exact_upper)
+    assert published[0] == pytest.approx(1.12 + 0.03)  # other joints are delta-limited only
+    # A state 0.5 degrees past the exact bound is inside the recording tolerance but is
+    # still refused by the command path.
+    setup.sources.position = exact_upper + math.radians(0.5)
+    with pytest.raises(RuntimeError, match="outside configured limits"):
+        io.offer((1.0,) * 7)
+    io.close()
+    assert len(setup.ros.published) == 1

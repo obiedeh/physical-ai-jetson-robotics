@@ -500,6 +500,34 @@ def test_source_fault_during_alignment_window_is_not_ready(
         session.close()
 
 
+@pytest.mark.parametrize(("joint3_deg", "expected"), [(-34.37, True), (-35.5, False)])
+def test_follower_sample_uses_recording_tolerance_on_joints(
+    tmp_path: Path, fake_connections: None, joint3_deg: float, expected: bool,
+) -> None:
+    """The readiness probe judges the follower sample with the episode gate's tolerance."""
+    import math
+
+    clock = FakeClock()
+    with ConsoleFixture(tmp_path / "workspace") as service:
+        settings = service._settings(request_values()["settings"], smoke=True)
+        args = service._args(settings, "local/fake", tmp_path / "dataset", True)
+        session = fake_recorder(args, clock)
+        state = PhysicalState(
+            (0.0, 0.0, math.radians(joint3_deg), 0.0, 0.0, 0.0), 0.01, clock(), clock(),
+            ros_arrival_stamp_s=clock(),
+        )
+        session.state_source = FakeStateSource([state] * 256)
+        report = ReadinessReport(clock, demo=False)
+        report.begin()
+        inspect_samples(session, report, load_limits(app.REPOSITORY / "config/synria_limits.yaml"),
+                        sleep=lambda seconds: None)
+        report.finish()
+        assert report.checks["follower_sample"]["passed"] is expected
+        if not expected:
+            assert "operator joint or gripper limits" in report.checks["follower_sample"]["message"]
+        session.close()
+
+
 def test_readiness_uses_episode_skew_gate_and_action_source_semantics() -> None:
     """The readiness snapshot shares the exact episode threshold and contemporaneous inputs."""
     gate = GateConfig(1.0, 2.0)
@@ -537,7 +565,10 @@ def test_connected_sources_do_not_override_qualifying_requirements(
     options: dict[str, Any] = {}
     if blocker == "limits":
         options["registry"] = synthetic_registry(tmp_path / "tasks.json", 1, 30)
-        monkeypatch.setattr("synria_lerobot.quality_gates.load_limits", load_limits)
+        # The repository file carries the operator's signature; blank it for this blocker.
+        monkeypatch.setattr("synria_lerobot.quality_gates.load_limits", lambda path: replace(
+            load_limits(path), verified_by="", verified_on="",
+        ))
     with ConsoleFixture(tmp_path / "workspace", builder=builder, **options) as service:
         result = service.mutate(["readiness"], request_values())
         assert result["status"] == "attention"
