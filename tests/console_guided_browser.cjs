@@ -53,6 +53,7 @@ const server = http.createServer(async (req, res) => {
     else {res.writeHead(409,{"Content-Type":"application/json"});res.end(JSON.stringify({error:"Unexpected mutation in fake browser test"}));return;}
   } else if(route==="state")value=state;
   else if(route==="sessions")value=[];
+  else if(route.startsWith("episodes/"))value=[];
   else if(route==="tasks")value=[task];
   else if(route==="readiness")value=report;
   else if(route==="cameras")value={cameras:["fake-wrist-video-index0","fake-front-video-index0"],message:"Synthetic identifiers"};
@@ -102,7 +103,7 @@ async function run() {
   /** Evaluate test interactions and propagate browser exceptions rather than treating them as success. */
   async function evaluate(expression){const result=await send("Runtime.evaluate",{expression,returnByValue:true,awaitPromise:true});if(result.exceptionDetails)throw Error(JSON.stringify(result.exceptionDetails));return result.result.value;}
   /** Wait on DOM mutations, not arbitrary sleeps, for an asynchronous UI condition to become true. */
-  async function until(expression){return evaluate(`new Promise((resolve,reject)=>{const test=()=>(${expression});if(test())return resolve(true);const observer=new MutationObserver(()=>{if(test()){observer.disconnect();clearTimeout(timer);resolve(true);}});observer.observe(document,{subtree:true,childList:true,attributes:true,characterData:true});const timer=setTimeout(()=>{observer.disconnect();reject(Error('UI condition timed out: '+${JSON.stringify(expression)}));},10000);})`);}
+  async function until(expression,description=expression){return evaluate(`new Promise((resolve,reject)=>{const test=()=>(${expression});if(test())return resolve(true);const observer=new MutationObserver(()=>{if(test()){observer.disconnect();clearTimeout(timer);resolve(true);}});observer.observe(document,{subtree:true,childList:true,attributes:true,characterData:true});window.addEventListener('hashchange',()=>{if(test()){observer.disconnect();clearTimeout(timer);resolve(true);}});const timer=setTimeout(()=>{observer.disconnect();reject(Error('UI condition timed out: '+${JSON.stringify(description)}));},10000);})`);}
   try {
     // Hosted browsers can initialize slowly; prove protocol readiness before creating a page.
     const startupDeadline=Date.now()+45000;
@@ -115,6 +116,36 @@ async function run() {
     const url=`http://127.0.0.1:${server.address().port}/#token=synthetic-test-token`;
     await send("Page.navigate",{url});
     await until("window.synriaConsoleReady && document.querySelector('#environment-facts').textContent.includes('synthetic-test') && document.querySelector('[name=gripper_type]').value==='50mm'");
+    assert.equal(await evaluate("location.hash"),"#/home","no open session lands on Home with the token removed from the address");
+    assert.equal(await evaluate("document.querySelector('#home').hidden"),false);
+    assert.equal(await evaluate("document.querySelector('#global-nav').hidden"),false);
+    assert.equal(await evaluate("document.querySelector('#flow-nav').hidden"),true);
+    assert.equal(await evaluate("document.querySelectorAll('#global-nav a').length"),3,"three global destinations only");
+    assert.equal(await evaluate("document.querySelector('#token-notice').hidden"),true,"a tab with the launch key shows no key notice");
+    assert.match(await evaluate("document.querySelector('#status-strip').textContent"),/Session.*None open.*Software.*Recording libraries found/s,"status strip reads in words");
+    assert.equal(await evaluate("document.activeElement.id"),"home-title","focus lands on the screen title");
+    // Refresh restores the same place for every route that exists so far.
+    for(const path of ["sessions","help","new/task","session/none/review","home"]){
+      await evaluate(`SynriaRouter.go(${JSON.stringify(path)})`);
+      await until(`location.hash==='#/${path}'`);
+      await send("Page.reload");
+      await until("window.synriaConsoleReady");
+      assert.equal(await evaluate("location.hash"),`#/${path}`,`refresh keeps ${path}`);
+      assert.equal(await evaluate("document.querySelector('.screen:not([hidden])').id"),{sessions:"sessions",help:"help","new/task":"new","session/none/review":"review",home:"home"}[path],`refresh shows ${path}`);
+    }
+    assert.equal(calls.length,0,"navigation and refresh never post anything");
+    // Inside a flow the global nav is replaced by a breadcrumb and one exit.
+    await evaluate("document.querySelector('#home-session-link').click()");
+    await until("location.hash==='#/new/task' && document.querySelector('#global-nav').hidden && !document.querySelector('#flow-nav').hidden");
+    assert.equal(await evaluate("document.querySelector('#breadcrumb').textContent"),"HomeNew session");
+    await evaluate("document.querySelector('#exit-flow').click()");
+    await until("location.hash==='#/home' && !document.querySelector('#global-nav').hidden");
+    await evaluate("history.back()");
+    await until("location.hash==='#/new/task' && !document.querySelector('#new').hidden","browser Back returns to the flow");
+    // No two controls with the same label lead to different places.
+    const labels=await evaluate("JSON.stringify([...document.querySelectorAll('[data-route]')].map(n=>[n.textContent.trim(),n.dataset.route]))");
+    const targets=new Map();for(const [label,target] of JSON.parse(labels)){targets.set(label,(targets.get(label)||new Set()).add(target));}
+    for(const [label,set] of targets)assert.equal(set.size,1,`label ${label} points at one place`);
     assert.equal(await evaluate("document.querySelector('#setup-prepare').hidden"),false);
     assert.equal(calls.length,0,"page load and software check cannot start sources");
     await evaluate("document.querySelector('[data-guide-help=source]').click()");
@@ -182,7 +213,9 @@ async function run() {
     assert.equal(await evaluate("document.querySelector('#smoke').disabled"),true,"missing identity cannot start smoke");
     state.active_session={id:"pending",name:"Synthetic pending session"};
     state.capture={state:"stopped",pending_frame_count:2,controls:{success:true,failure:true,discard:true}};
-    await evaluate("(async()=>{await refreshState();screen('record');SynriaGuide.openHelp('save');})()");
+    await evaluate("(async()=>{await refreshState();SynriaRouter.go(SynriaRouter.routes.record('pending'));})()");
+    await until("!document.querySelector('#record').hidden && document.querySelector('#breadcrumb').textContent.includes('Synthetic pending session')");
+    await evaluate("SynriaGuide.openHelp('save')");
     assert.equal(await evaluate("lastCapture"),"stopped");
     assert.match(await evaluate("document.querySelector('#record-message').textContent"),/Save it: Save as success \(S\) or Save as failure \(F\)/,"stopped banner names the save action");
     assert.equal(await evaluate("document.querySelector('[data-command=success]').classList.contains('available')"),true,"available save button is emphasised");
@@ -214,6 +247,12 @@ async function run() {
     await send("Page.reload");
     await until("window.synriaConsoleReady && document.querySelector('#environment-facts').textContent.includes('synthetic-test')");
     assert.equal(calls.length,mutations,"reload never restarts a diagnostic");
+    assert.equal(await evaluate("location.hash"),"#/session/pending/record","refresh keeps the recording address");
+    assert.equal(await evaluate("document.querySelector('#record-route-note').hidden"),false,"a closed session says so instead of pretending to record");
+    await evaluate("SynriaRouter.go('sessions')");
+    await until("!document.querySelector('#sessions').hidden");
+    assert.match(await evaluate("document.querySelector('#session-list').textContent"),/No sessions yet/);
+    assert.equal(await evaluate("document.querySelector('#sessions-more').open"),false,"trash and reindex sit behind More");
     await evaluate("document.querySelector('[data-setup-step=check]').click()");
     await send("Emulation.setDeviceMetricsOverride",{width:390,height:844,deviceScaleFactor:1,mobile:true});
     assert.equal(await evaluate("document.documentElement.scrollWidth<=window.innerWidth+2"),true,"mobile layout must not overflow");
@@ -221,7 +260,7 @@ async function run() {
     await evaluate("document.querySelector('#mode').textContent='SYNTHETIC UI TEST · NO HARDWARE';document.body.classList.add('demo');document.querySelector('[data-setup-step=prepare]').click()");
     fs.writeFileSync(screenshot,Buffer.from((await send("Page.captureScreenshot",{format:"png"})).data,"base64"));
     assert.deepEqual(exceptions,[],"no uncaught browser errors");
-    console.log("Guided browser: setup, help, state timeout, camera fault, recovery, stale settings, consent, keyboard, save retries, network, reload and mobile checks passed.");
+    console.log("Guided browser: routes, refresh, breadcrumb, labels, setup, help, state timeout, camera fault, recovery, stale settings, consent, keyboard, save retries, network, reload and mobile checks passed.");
   } finally {
     closing=true;
     try{await send("Browser.close",{},null);}catch{}

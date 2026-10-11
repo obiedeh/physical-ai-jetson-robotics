@@ -39,10 +39,23 @@ require an already prepared recording/ROS environment.
 
 ## Use
 
-The setup workspace guides **Prepare → Configure → Check connections → Record**.
-The next-step banner names the current blocker and opens its procedure in place.
-Operator help includes the local runbook, protocol, decisions and safety records;
-it works without external network access. The state-source procedure distinguishes
+The page has one navigation model. Outside a flow the global nav offers three
+places only: **Home**, **Sessions** and **Help**. Home shows the one next move
+(New session, or Continue recording when a session is open), a status strip in
+words for the session, software, arm feed, both cameras and storage, and a notice
+when the tab has no launch key. Sessions lists sessions with Open session and
+Review takes; Reindex and Trash sit under **More**. Inside a flow (new session,
+recording, review) the global nav is replaced by a breadcrumb and one Exit control.
+Every place has a hash address (`#/home`, `#/sessions`, `#/help`, `#/new/task`,
+`#/session/<id>/record`, `#/session/<id>/review/<take>`) so browser Back, Forward
+and refresh keep the place; on load the page opens the recording screen if a
+session is open, otherwise Home. Each screen change moves focus to the screen
+title and announces it through a live region. Navigating never opens a source,
+creates a session or issues a recorder command.
+The setup flow still guides **Prepare → Configure → Check connections → Record**
+until the three-step wizard replaces it.
+Help is a page of procedures, repository references and a glossary; the same
+procedures open in place from any error. It works without external network access. The state-source procedure distinguishes
 an unverified standalone candidate from the still-unrecorded site-specific
 read-only ros2_control startup procedure. Neither is executed by the page.
 

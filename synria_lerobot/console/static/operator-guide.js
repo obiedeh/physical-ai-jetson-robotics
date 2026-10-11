@@ -169,7 +169,8 @@ const SynriaGuide = (() => {
   /** Navigate the guided view without creating sessions, opening sources or issuing commands. */
   function go(step) {
     if (step === "record") {screen("record"); return;}
-    screen("new"); selectedStep = step in steps ? step : "prepare";
+    if (window.SynriaRouter.current()?.name !== "new") screen("new");
+    selectedStep = step in steps ? step : "prepare";
     for (const [name, id] of Object.entries(steps)) $(id).hidden = name !== selectedStep;
     $("mode-help").hidden = selectedStep !== "prepare";
     $("setup-intro").hidden = selectedStep !== "configure";
@@ -206,6 +207,18 @@ const SynriaGuide = (() => {
       content.append(candidate);
     }
     if (!$("operator-help").open) $("operator-help").showModal();
+  }
+
+  /** Fill the Help page with one card per procedure; cards open the same dialog as in-context help. */
+  function renderHelpPage() {
+    const container = $("help-topics");
+    if (!container) return;
+    container.replaceChildren();
+    for (const [key, item] of Object.entries(help)) {
+      const card = document.createElement("article"); card.className = "card";
+      card.append(text("h3", item.title), text("p", item.summary), button("Show steps", () => openHelp(key)));
+      container.append(card);
+    }
   }
 
   /** Keep actionable errors visible across successful polling; dismissal changes only the view. */
@@ -316,17 +329,15 @@ const SynriaGuide = (() => {
     document.querySelectorAll("[data-go-step]").forEach(node => node.onclick = () => go(node.dataset.goStep));
     document.querySelectorAll("[data-guide-help]").forEach(node => node.onclick = () => openHelp(node.dataset.guideHelp));
     document.querySelectorAll("[data-guide-doc]").forEach(node => node.onclick = () => safe(() => documentHelp(node.dataset.guideDoc)));
-    $("open-help").onclick = () => openHelp("source");
     $("close-help").onclick = () => $("operator-help").close();
+    renderHelpPage();
     $("new-form").addEventListener("invalid", () => go("configure"), true);
     $("new-form").addEventListener("input", update);
     $("new-form").addEventListener("change", update);
     $("readiness-confirmations").addEventListener("change", update);
     const smokeAction = $("smoke").onclick;
     $("smoke").onclick = event => {if (confirm("Start one disposable 20-second capture after preflight? Verify physical safety and framing first. It never counts and is deleted when its sources close.")) smokeAction(event);};
-    if (state.active_session) screen("record");
-    else if (!sessions.length) go("prepare");
-    else {selectedStep = "prepare"; for (const [name, id] of Object.entries(steps)) $(id).hidden = name !== selectedStep;}
+    selectedStep = "prepare"; for (const [name, id] of Object.entries(steps)) $(id).hidden = name !== selectedStep;
     try {
       metadata = await api("operator-guide");
       const env = metadata.environment;
@@ -335,7 +346,7 @@ const SynriaGuide = (() => {
     update();
   }
 
-  return {issueFor, connectionPaths, missingInputs, nextStep, openHelp, documentHelp, renderError, update, initialize, go};
+  return {issueFor, connectionPaths, missingInputs, nextStep, openHelp, documentHelp, renderError, renderHelpPage, update, initialize, go};
 })();
 globalThis.SynriaGuide = SynriaGuide;
 if (typeof document !== "undefined") {

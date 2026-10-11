@@ -25,12 +25,14 @@ async function checkSoftware() {
     ["lerobot", "cv2", "rclpy", "sensor_msgs", "ffmpeg"]).map(name => [name, false])), true);
   try {
     const result = await api("software");
+    if (typeof window !== "undefined") window.SynriaSoftware = result;
     $("software-panel").dataset.level = result.status;
     $("software-label").textContent = result.label;
     $("software-message").textContent = result.message;
     softwarePaths(result.dependencies);
     return result.status === "ready";
   } catch (reason) {
+    if (typeof window !== "undefined") window.SynriaSoftware = {status:"not_ready", message:`Software check failed: ${reason.message || reason}`};
     $("software-panel").dataset.level = "not_ready";
     $("software-label").textContent = "Not ready";
     $("software-message").textContent = `Software check failed: ${reason.message || reason}`;
