@@ -1,17 +1,35 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Synria Teleop Console</title><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/readiness.css"><link rel="stylesheet" href="/operator-guide.css"><script src="/form-presets.js" defer></script><script src="/record-banner.js" defer></script><script src="/app.js" defer></script><script src="/readiness.js" defer></script><script src="/serial-identity.js" defer></script><script src="/operator-guide.js" defer></script></head>
+<title>Synria Teleop Console</title><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/readiness.css"><link rel="stylesheet" href="/operator-guide.css"><link rel="stylesheet" href="/shell.css"><script src="/router.js" defer></script><script src="/form-presets.js" defer></script><script src="/record-banner.js" defer></script><script src="/app.js" defer></script><script src="/home.js" defer></script><script src="/readiness.js" defer></script><script src="/serial-identity.js" defer></script><script src="/operator-guide.js" defer></script></head>
 <body><header><div><span class="eyebrow">READ-ONLY COLLECTION</span><h1>Synria Teleop Console</h1></div>
-<span id="mode" class="badge">Connecting</span><button id="quit">Quit console</button></header>
-<div id="notice" role="alert"></div><nav aria-label="Console screens">
-<button data-screen="new">Setup workspace</button><button data-screen="sessions">Sessions</button>
-<button data-screen="record">Record</button><button data-screen="review">Review</button>
-<button data-screen="trash">Trash</button><button id="open-help" type="button">Operator help</button></nav>
-<main><section id="sessions" class="screen"><div class="section-head"><h2>Demonstration sessions</h2>
-<input id="search" placeholder="Search by name" aria-label="Search sessions"><button id="reindex">Reindex from disk</button></div>
-<p>Datasets are authoritative. The local catalog is a rebuildable index and audit log.</p><div id="session-list" class="cards"></div></section>
+<span id="mode" class="badge">Connecting</span><button id="quit" class="quiet">Quit console</button></header>
+<div id="notice" role="alert"></div>
+<nav id="global-nav" aria-label="Console"><a href="#/home" data-route="home">Home</a><a href="#/sessions" data-route="sessions">Sessions</a><a href="#/help" data-route="help">Help</a></nav>
+<nav id="flow-nav" aria-label="Where you are" hidden><ol id="breadcrumb"></ol><button id="exit-flow" type="button">Exit to Home</button></nav>
+<p id="route-announcer" class="visually-hidden" aria-live="polite"></p>
+<main>
+<section id="home" class="screen"><h2 id="home-title" class="screen-title" tabindex="-1">Home</h2>
+<p class="purpose">Record demonstrations with the leader arm, then review the takes.</p>
+<div id="token-notice" class="token-notice" role="status" hidden><strong>This tab has no launch key.</strong><p>Open the link printed in the console terminal. It ends with #token= and a long code. Without it this tab can look but cannot start or save anything.</p></div>
+<div class="home-cards">
+<article class="card home-card primary-card"><h3 id="home-session-title">New session</h3><p id="home-session-text">Choose the task, check the cameras and arm feed, then record takes.</p><a id="home-session-link" class="button primary" href="#/new/task" data-route="new/task">New session</a></article>
+<article class="card home-card"><h3>Sessions</h3><p id="home-sessions-text">Earlier sessions and their takes.</p><a class="button" href="#/sessions" data-route="sessions">Sessions</a></article>
+<article class="card home-card"><h3>Help</h3><p>Safety, setup steps and what each word on screen means.</p><a class="button" href="#/help" data-route="help">Help</a></article></div>
+<section id="system-status" aria-labelledby="system-status-title"><h3 id="system-status-title">System status</h3><ul id="status-strip"></ul><p id="status-note">Status is the last known reading, not live monitoring. A new session runs its own setup check.</p></section></section>
+<section id="sessions" class="screen" hidden><h2 id="sessions-title" class="screen-title" tabindex="-1">Sessions</h2>
+<p class="purpose">Open a session to record more takes, or review the takes it already has.</p>
+<div class="section-head"><input id="search" placeholder="Search by name" aria-label="Search sessions"><a class="button primary" href="#/new/task" data-route="new/task">New session</a></div>
+<div id="session-list" class="cards"></div>
+<details id="sessions-more"><summary>More</summary>
+<p>Datasets on disk are authoritative. The local catalog is a rebuildable index and audit log.</p><button id="reindex">Reindex from disk</button>
+<h3>Trash</h3><p>Trash is recoverable. Purge removes the session files permanently and retains the audit record.</p><div id="trash-list" class="cards"></div></details></section>
+<section id="help" class="screen" hidden><h2 id="help-page-title" class="screen-title" tabindex="-1">Help</h2>
+<p class="purpose">Short procedures for each situation, the repository references, and what the words on screen mean.</p>
+<h3>Procedures</h3><div id="help-topics" class="cards"></div>
+<h3>Repository references</h3><div class="actions"><button type="button" data-guide-doc="runbook">Operator runbook</button><button type="button" data-guide-doc="protocol">Dataset protocol</button><button type="button" data-guide-doc="decisions">Decisions record</button><button type="button" data-guide-doc="safety">Safety record</button><button type="button" data-guide-doc="limits">Joint limits file</button></div>
+<h3>Words on screen</h3><dl class="glossary"><dt>Take</dt><dd>One recorded attempt at the task, saved with a success or failure label.</dd><dt>Practice run</dt><dd>A 20 second recording that is thrown away afterwards and never counts.</dd><dt>Setup check</dt><dd>A read-only look at the cameras and arm feed before a session opens. It records nothing and never moves the arm.</dd><dt>Arm feed</dt><dd>The joint positions the console reads from the follower arm. The console only listens.</dd><dt>Quality check</dt><dd>One of nine automatic checks on a saved take, such as timing alignment or joint limits.</dd><dt>Counts toward the dataset</dt><dd>A take recorded in a named session with a registered task window, verified limits and full identity.</dd></dl></section>
 <section id="new" class="screen" hidden>
-<div class="setup-hero"><div><span class="eyebrow">GUIDED DEMONSTRATION COLLECTION</span><h2>Set up. Check. Record.</h2>
+<div class="setup-hero"><div><span class="eyebrow">GUIDED DEMONSTRATION COLLECTION</span><h2 id="new-title" class="screen-title" tabindex="-1">Set up. Check. Record.</h2>
 <p>One step at a time. Know what is connected, what needs attention, and what to do next.</p></div><span class="badge">Read-only toward the arm</span></div>
 <div id="next-action" role="status"><div><span class="eyebrow">YOUR NEXT STEP</span><h3 id="next-action-title">Prepare your workspace</h3><p id="next-action-message">Start with the safety and connection procedure below.</p></div><button id="next-action-button" type="button" class="primary">Start setup</button></div>
 <nav id="setup-steps" aria-label="Recording setup steps">
@@ -128,7 +146,8 @@ uses a disposable dataset to exercise shared preflight, then closes everything. 
 <p id="readiness-scope">No check has run. The leader without USB cannot be detected by software. A green result is a short-lived snapshot, not permission to move the arm.</p>
 <details id="all-check-details"><summary>All checks and technical evidence</summary><ul id="readiness-results"></ul></details>
 <button type="button" data-go-step="collect">Review recording requirements →</button></article></section>
-<section id="record" class="screen" hidden><div class="section-head"><h2 id="record-title">No session open</h2><button id="close-session">Close sources</button></div>
+<section id="record" class="screen" hidden><div class="section-head"><h2 id="record-title" class="screen-title" tabindex="-1">No session open</h2><button id="close-session">Close sources</button></div>
+<p id="record-route-note" class="route-note" hidden></p>
 <div id="record-banner" class="record-banner" role="status" aria-live="polite" data-phase="no-session"><div class="banner-main"><span class="eyebrow" id="record-phase">NO SESSION</span><p id="record-message">Open a named session, or run a disposable smoke, to begin.</p></div><div id="record-countdown" class="record-countdown" hidden><b id="record-countdown-value">0</b><small>s left</small></div><button id="record-banner-action" type="button" class="primary" hidden></button></div>
 <p id="counters" class="counters"></p><p id="capture-header" class="capture-detail"></p>
 <div class="cameras"><figure><figcaption>Wrist <span id="wrist-health" class="source-brief"></span></figcaption><img id="wrist-preview" alt="Latest wrist camera frame"><details class="source-details"><summary>Source details</summary><pre id="wrist-source"></pre></details></figure>
@@ -141,9 +160,9 @@ uses a disposable dataset to exercise shared preflight, then closes everything. 
 <p>Save as success or Save as failure is what saves the episode. Save real task failures with the failure label. Discard is only for a capture or setup fault. Pending frames exist only in memory.</p>
 <div class="split"><article><h3>Follower state · read only</h3><div id="joint-values"></div><canvas id="live-trace" width="650" height="160"></canvas></article>
 <article><h3>Preflight · cannot be bypassed</h3><pre id="preflight"></pre></article></div>
-<article id="last-save"><h3>Last saved episode</h3><p id="save-result"></p><details><summary>Technical details</summary><pre id="save-details"></pre></details><button id="review-latest">Review episode</button></article></section>
-<section id="review" class="screen" hidden><div class="section-head"><h2>Frame-exact review</h2><select id="review-session" aria-label="Session to review"></select></div>
-<p>Playback reviews recorded data on screen. It never moves the robot.</p><div class="table-scroll"><table><thead><tr><th>Episode</th><th>Label</th><th>Seconds</th><th>Frames</th><th>Rate</th><th>Gates</th><th>Excluded</th><th>Note / actions</th></tr></thead><tbody id="episodes"></tbody></table></div>
+<article id="last-save"><h3>Last saved episode</h3><p id="save-result"></p><details><summary>Technical details</summary><pre id="save-details"></pre></details><button id="review-latest">Review latest take</button></article></section>
+<section id="review" class="screen" hidden><div class="section-head"><h2 id="review-title" class="screen-title" tabindex="-1">Review takes</h2></div>
+<p id="review-session-name" class="purpose">Playback reviews recorded data on screen. It never moves the robot.</p><div class="table-scroll"><table><thead><tr><th>Take</th><th>Label</th><th>Seconds</th><th>Frames</th><th>Rate</th><th>Quality checks</th><th>Excluded</th><th>Note / actions</th></tr></thead><tbody id="episodes"></tbody></table></div>
 <article id="player" hidden><h3 id="player-title"></h3><div class="cameras"><figure><figcaption>Wrist</figcaption><img id="play-wrist" alt="Recorded wrist frame"></figure><figure><figcaption>Overhead / front (fixed)</figcaption><img id="play-front" alt="Recorded front frame"></figure></div>
 <div class="controls"><button id="previous">← Frame</button><button id="play">Play</button><button id="next">Frame →</button>
 <label>Speed<select id="speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label><span id="frame-label"></span></div>
@@ -151,6 +170,5 @@ uses a disposable dataset to exercise shared preflight, then closes everything. 
 <canvas id="review-trace" width="1000" height="200"></canvas><p>Solid: state · dashed: action · vertical cursor: selected frame</p>
 <details open><summary>Exact stored values, timestamps and source skew</summary><pre id="frame-data"></pre></details>
 <details><summary>Native final still and episode provenance</summary><img id="still" alt="Native final front-camera still"><pre id="episode-provenance"></pre></details></article></section>
-<section id="trash" class="screen" hidden><h2>Trash and tombstones</h2><p>Trash is recoverable. Purge removes the session files permanently and retains the audit record.</p><div id="trash-list" class="cards"></div></section>
 </main><dialog id="operator-help" aria-labelledby="help-title"><div class="section-head"><h2 id="help-title">Operator help</h2><button id="close-help" type="button" aria-label="Close operator help">Close</button></div><div id="help-content"></div></dialog>
 <footer>Implemented, unmeasured · no hardware validation · read-only toward the arm</footer></body></html>
