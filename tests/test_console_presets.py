@@ -85,6 +85,15 @@ def test_unknown_hardware_and_task_windows_are_not_assumed(form: FormMarkup) -> 
     assert form.options["follower_usb_id"] == [""]
 
 
+def test_recommended_values_have_an_explicit_apply_dropdown() -> None:
+    """Operators can apply known candidates from a labeled select without guessing settings."""
+    markup = (STATIC / "index.html").read_text(encoding="utf-8")
+    assert '<select id="use-recommended"' in markup
+    assert "Apply follower-only recommended candidates" in markup
+    assert "Keep current values" in markup
+    assert "Gripper, running state source, camera roles, serial, power state, task timing" in markup
+
+
 def test_training_curriculum_is_visible_without_enabling_unregistered_tasks(
     form: FormMarkup,
 ) -> None:

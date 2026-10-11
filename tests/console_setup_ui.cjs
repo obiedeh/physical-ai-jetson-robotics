@@ -30,6 +30,7 @@ const nodes = {"follower-usb-choice":usb, "serial-note":{}, "follower-serial-cho
 const preset = {options:options(["", "15", "30", "custom"]), value:"",
   dispatchEvent() { fields.fps.value = this.value; edited.add("fps"); },
 };
+const recommendedSelect = {addEventListener(name, callback) { this[name] = callback; }};
 const suggestions = {host:"fake-host", account:"fake-account", free_disk_bytes:1e9,
   notice:"Review candidates", recommended:{fps:15},
   known_follower_serials:["ADF-previously-recorded"],
@@ -39,7 +40,8 @@ let connections = ["fake-usb"];
 const calls = [];
 const context = vm.createContext({
   setupSuggestions:null, editedSetupFields:edited,
-  $:id => nodes[id], text:(tag, textContent) => ({tag, textContent}),
+  $:id => id === "use-recommended" ? recommendedSelect : nodes[id],
+  text:(tag, textContent) => ({tag, textContent}),
   Event:class {}, document:{querySelector:selector => selector.includes('"fps"') ? preset : null},
   api:async path => { calls.push(path); return path === "setup-suggestions" ? suggestions :
     {connections, message:"USB identity is unverified"}; },
@@ -73,6 +75,13 @@ async function verifySetup() {
   assert.equal(fields.fps.value, "30", "automatic loading preserves edits");
   context.applyRecommendedSetup(true);
   assert.equal(fields.fps.value, "15", "explicit recommendation action may replace an edit");
+  fields.fps.value = "30";
+  vm.runInContext(source.slice(source.indexOf('$("use-recommended")'),
+    source.indexOf('window.addEventListener("console-ready"')), context);
+  recommendedSelect.change({currentTarget:{value:"keep"}});
+  assert.equal(fields.fps.value, "30", "keep option never changes the current configuration");
+  recommendedSelect.change({currentTarget:{value:"apply"}});
+  assert.equal(fields.fps.value, "15", "dropdown applies the explicit recommendation");
   connections = ["second-usb", "third-usb"];
   await context.refreshSerialConnections();
   assert.equal(usb.value, "", "disconnected or ambiguous devices are not reassigned");

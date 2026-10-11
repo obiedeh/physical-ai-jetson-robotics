@@ -93,6 +93,10 @@ $("new-form").addEventListener("change", event => {
   const name = event.target.name || event.target.dataset.presetFor;
   if (name) editedSetupFields.add(name);
 });
-$("use-recommended").onclick = () => safe(async () => { applyRecommendedSetup(true); });
+$("use-recommended").addEventListener("change", event => {
+  if (event.currentTarget.value === "apply") {
+    applyRecommendedSetup(true);
+  }
+});
 window.addEventListener("console-ready", () => safe(loadSetupSuggestions), {once:true});
 if (window.synriaConsoleReady) safe(loadSetupSuggestions);
