@@ -291,10 +291,10 @@ async function run() {
     assert.equal(await evaluate("document.querySelector('[name=task_id]').value"),"lib_roll_a_die_1","the first saved task is selected");
     assert.match(await textOf("#notice"),/2 tasks saved under Roll a die\./);
     // Time it: listen to the arm feed, three moves, a proposed window, one confirmation.
-    assert.match(await textOf("#task-description"),/Library task from the goal "Roll a die", step 1, version 1/);
+    assert.match(await textOf("#task-description"),/Your task from the goal "Roll a die", step 1, version 1/);
     await evaluate("[...document.querySelectorAll('#task-description button')].find(n=>n.textContent==='Time it').click()");
     await until("document.querySelector('#time-dialog').open");
-    assert.equal(await textOf("#time-title"),"Time: 1 Die into the cup");
+    assert.equal(await textOf("#time-title"),"Time: 1. Die into the cup");
     assert.equal(await evaluate("document.querySelector('[name=task_id]').value"),"lib_roll_a_die_1");
     await click("#time-start");
     await until("document.querySelectorAll('#time-runs li').length===3 && !document.querySelector('#time-confirm').hidden","three timed moves and a proposed window");

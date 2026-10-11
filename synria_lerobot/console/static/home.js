@@ -74,7 +74,7 @@
     if (session) {
       const saved = session.counts?.saved ?? 0, target = session.target_episodes ?? "?";
       const when = session.updated_utc ? `, last used ${ago(session.updated_utc)}` : "";
-      const title = typeof taskLabel === "function" ? taskLabel(session.task_id) : (window.SynriaRecord ? window.SynriaRecord.taskTitle(session.task_id) : String(session.task_id).replaceAll("_", " "));
+      const title = typeof taskLabel === "function" ? taskLabel(session.task_id) : String(session.task_id).replaceAll("_", " ");
       out.push({kind:"continue", title:"Continue recording", text:`${title}, ${saved} of ${target} takes saved${when}.`, verb:"Continue", sessionId:session.id, open:current.active_session?.id === session.id, primary:highlight});
     } else if (demo) {
       out.push({kind:"disabled", title:"Practice run", text:"Not available in demo mode.", verb:"Start a practice run"});

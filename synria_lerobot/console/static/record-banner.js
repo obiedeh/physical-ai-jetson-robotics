@@ -17,6 +17,20 @@
   const NAMES = {wrist: "Wrist camera", front: "Overhead camera"};
   /** Sentence-case title for a task identifier such as die_into_cup. */
   function taskTitle(taskId) { const words = String(taskId || "").replaceAll("_", " "); return words.charAt(0).toUpperCase() + words.slice(1); }
+  /** The one place a task is named for people.
+   *
+   * A taught task carries the server's display name, already numbered once ("1. Die into cup")
+   * or marked optional ("Optional: Stand the cup up"); a built-in task is titled from its id.
+   * With goal set, a taught task also names its goal; with where set, its place in the chain.
+   */
+  function taskLabel(task, options = {}) {
+    if (!task) return "unknown task";
+    const taught = task.task_source === "library";
+    const base = taught && task.display_name ? task.display_name : taskTitle(task.task_id);
+    if (!taught) return base;
+    if (options.where) return task.optional ? "optional step" : `step ${task.chain_position}`;
+    return options.goal && task.goal_title ? `${base} (${task.goal_title})` : base;
+  }
   const LABELS = {
     start: "Start recording (Space)", stop: "Stop (Space)", cancel_countdown: "Cancel countdown",
     success: "Yes, save as success (S)", failure: "No, save as failure (F)", retry: "Retry save",
@@ -144,5 +158,5 @@
     return age + size;
   }
 
-  window.SynriaRecord = {GATE_WORDS, GATE_COUNT, LABELS, NAMES, taskTitle, gateSummary, savedSentence, takeNumber, counters, describe, cameraBrief};
+  window.SynriaRecord = {GATE_WORDS, GATE_COUNT, LABELS, NAMES, taskTitle, taskLabel, gateSummary, savedSentence, takeNumber, counters, describe, cameraBrief};
 })();

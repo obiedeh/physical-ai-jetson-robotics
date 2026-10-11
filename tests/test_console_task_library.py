@@ -276,3 +276,32 @@ def test_time_it_listens_read_only_and_stores_the_confirmed_window(tmp_path: Pat
     with ConsoleFixture(tmp_path / "demo", demo=True) as demo:
         with pytest.raises(ValueError, match="not available in demo mode"):
             demo.mutate(["library", "lib_roll_a_die_1", "time", "start"], {})
+
+
+def test_every_label_reads_cleanly_from_the_real_task_payload(tmp_path: Path) -> None:
+    """Hand the page's label helper the service's own task list for a saved goal, not a fake."""
+    import shutil
+    import subprocess
+
+    executable = shutil.which("node")
+    if executable is None:
+        pytest.skip("optional JavaScript runtime is unavailable")
+    with ConsoleFixture(tmp_path, demo=True) as service:
+        planned = service.mutate(["library", "plan"], {"sentence": "train to roll a dice"})
+        service.mutate(["library", "save"], {"breakdown": planned["breakdown"],
+                                             "planner_source": planned["source"]})
+        payload = service.read(["tasks"], {})
+    taught = [task for task in payload if task["task_source"] == "library"]
+    assert [task["display_name"] for task in taught] == [
+        "1. Die into cup", "2. Roll and set the cup down", "3. Die back to start",
+        "Optional: Stand the cup up"]
+    assert all(task["name"] for task in taught), "the short name travels with the payload"
+    payload_path = tmp_path / "tasks.json"
+    payload_path.write_text(json.dumps(payload), encoding="utf-8")
+    static = REPOSITORY / "synria_lerobot" / "console" / "static"
+    result = subprocess.run(
+        [executable, str(Path(__file__).with_name("console_task_labels.cjs")),
+         str(static / "record-banner.js"), str(payload_path)],
+        check=True, capture_output=True, text=True, timeout=15,
+    )
+    assert "task labels verified" in result.stdout
