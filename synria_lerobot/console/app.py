@@ -39,7 +39,24 @@ from synria_lerobot.recorder import (
     build_recording_session,
     recording_config_from_args,
 )
-from synria_lerobot.task_registry import load_task_registry
+from synria_lerobot.task_planner import (
+    ENVIRONMENT_VARIABLE,
+    EXTERNAL_SOURCE,
+    ExternalPlanner,
+    chain_check,
+    describe_rules,
+    plan_goal,
+    slug,
+    validate_breakdown,
+)
+from synria_lerobot.task_registry import (
+    LIBRARY_SNAPSHOT_VERSION,
+    TaskDefinition,
+    is_library_task_id,
+    library_snapshot_fields,
+    load_task_registry,
+    load_task_source,
+)
 
 REPOSITORY = Path(__file__).resolve().parents[2]
 DEFAULT_REGISTRY = REPOSITORY / "config" / "synria_tasks.json"
@@ -51,6 +68,15 @@ GUIDE_DOCUMENTS = {
     "first-motion": "reports/synria/first_safe_motion.md",
     "limits": "config/synria_limits.yaml",
 }
+
+
+def library_task_definition(task: dict[str, Any]) -> TaskDefinition:
+    """Build the exact task snapshot the recorder binds from a library task row."""
+    window = task.get("episode_window") or {"min_episode_s": None, "max_episode_s": None}
+    return TaskDefinition(
+        task["task_id"], task["instruction"], task["success_rule"],
+        tuple(task["scene_before_take"]), window.get("min_episode_s"), window.get("max_episode_s"),
+    )
 
 
 def _git_sha() -> str:
@@ -129,6 +155,7 @@ class ConsoleService:
         ),
         controller_factory: Callable[..., RecordingController] = RecordingController,
         playback: EpisodePlayback | None = None, clock: Callable[[], float] = time.monotonic,
+        planner: ExternalPlanner | None = None,
     ) -> None:
         """Inject fake builders or clocks while retaining the production construction path."""
         resolved = workspace.resolve()
@@ -151,6 +178,7 @@ class ConsoleService:
         self.controller_factory = controller_factory
         self.clock = clock
         self.playback = playback or EpisodePlayback()
+        self.planner = planner
         self._lock = threading.RLock()
         self._workspace_lock = WorkspaceLock(resolved)
         catalog = None
@@ -235,13 +263,39 @@ class ConsoleService:
         self._config(settings, "local/console-validation", self.workspace / "validation", smoke)
         return settings
 
+    def _task_source(self, task_id: Any, version: int | None = None) -> Path:
+        """The file the recorder reads a task from: the registry, or a library snapshot.
+
+        A snapshot is written once per task version under the workspace and never edited,
+        so a dataset keeps pointing at the exact version it was recorded against.
+        """
+        if not is_library_task_id(task_id):
+            return self.registry
+        task = self.catalog.library_task(task_id, version)
+        goal = self.catalog.goal(task["goal"])
+        path = self.workspace / "library-snapshots" / f"{task_id}-v{task['version']}.json"
+        if not path.is_file():
+            path.parent.mkdir(parents=True, exist_ok=True)
+            payload = {
+                "version": LIBRARY_SNAPSHOT_VERSION, "task_source": "library",
+                "goal_id": goal["id"], "goal_title": goal["title"],
+                "library_version": task["version"], "chain_position": task["chain_position"],
+                "task": library_task_definition(task).as_dict(),
+            }
+            temporary = path.with_suffix(".tmp")
+            temporary.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n",
+                                 encoding="utf-8")
+            temporary.replace(path)
+        return path
+
     def _args(
         self, settings: dict[str, Any], repo_id: str, dataset: Path, smoke: bool,
+        task_source: Path | None = None,
     ) -> argparse.Namespace:
         """Restore one canonical CLI-compatible namespace from immutable session settings."""
         return argparse.Namespace(
-            **settings, task_registry=self.registry, repo_id=repo_id, dataset_path=dataset,
-            smoke=smoke,
+            **settings, task_registry=task_source or self._task_source(settings.get("task_id")),
+            repo_id=repo_id, dataset_path=dataset, smoke=smoke,
         )
 
     def _config(
@@ -350,7 +404,8 @@ class ConsoleService:
     def create_session(self, payload: dict[str, Any]) -> dict[str, Any]:
         """Validate the shared physical contract before committing a named session mirror."""
         settings = self._settings(payload)
-        task = load_task_registry(self.registry)[settings["task_id"]]
+        source = self._task_source(settings["task_id"])
+        task = load_task_source(source)[settings["task_id"]]
         values = {key: payload.get(key, "") for key in (
             "name", "operator", "scene", "follower_serial", "leader_serial",
             "power_state_start", "notes",
@@ -363,6 +418,13 @@ class ConsoleService:
             git_sha=_git_sha(), host=socket.gethostname(),
             repo_id="local/synria-console-" + secrets.token_hex(8),
         )
+        binding = library_snapshot_fields(source)
+        if binding:
+            values.update(task_source="library", task_snapshot_path=str(source),
+                          goal_id=binding["goal_id"], library_version=binding["library_version"],
+                          chain_position=binding["chain_position"])
+            # A version with a session bound to it is frozen; edits create the next version.
+            self.catalog.freeze_library_task(task.task_id, binding["library_version"])
         return self.catalog.create_session(values)
 
     def _audit(self, kind: str, detail: dict[str, Any]) -> None:
@@ -413,9 +475,11 @@ class ConsoleService:
                 raise RuntimeError("restore this session before opening it")
             if (session["source_kind"] == "synthetic_demo") != self.demo:
                 raise ValueError("session source kind differs from this launch mode")
-            task = load_task_registry(self.registry)[session["task_id"]]
+            source = (Path(session["task_snapshot_path"]) if session.get("task_snapshot_path")
+                      else self.registry)
+            task = load_task_source(source)[session["task_id"]]
             if task.sha256 != session["task_definition_sha256"]:
-                raise ValueError("stored task definition differs from the current registry")
+                raise ValueError("stored task definition differs from its task source")
             self.catalog.reconcile(session_id)
             refreshed = self.catalog.get_session(session_id)
             if refreshed.get("recovery_blocked"):
@@ -425,7 +489,10 @@ class ConsoleService:
     def _open(self, session: dict[str, Any], *, smoke: bool) -> dict[str, Any]:
         """Own source lifetime and preserve every actual preflight result, including refusals."""
         settings = session["settings"]
-        args = self._args(settings, session["repo_id"], Path(session["dataset_path"]), smoke)
+        source = (Path(session["task_snapshot_path"]) if session.get("task_snapshot_path")
+                  else None)
+        args = self._args(settings, session["repo_id"], Path(session["dataset_path"]), smoke,
+                          task_source=source)
         check_names = (
             "configuration", "state_source", "state_rate", "state_rate_evidence", "velocity",
             "command_publishers", "dataset_lock_and_recovery", "wrist_camera", "front_camera",
@@ -565,6 +632,90 @@ class ConsoleService:
             raise FileNotFoundError("session was purged; only its tombstone remains")
         return session
 
+    def task_choices(self) -> list[dict[str, Any]]:
+        """Published tasks first, then library tasks grouped under their goal, for the dropdown."""
+        choices = [{**task.as_dict(), "task_source": "registry", "group": "Built-in tasks",
+                    "display_name": task.task_id.replace("_", " ").capitalize()}
+                   for task in load_task_registry(self.registry).values()]
+        for goal in self.catalog.goals():
+            for task in goal["tasks"]:
+                definition = library_task_definition(task)
+                choices.append({
+                    **definition.as_dict(), "task_source": "library", "group": goal["title"],
+                    "display_name": f"{goal['title']}: {task['chain_position']} {task['name']}",
+                    "goal_id": goal["id"], "goal_title": goal["title"],
+                    "library_version": task["version"], "chain_position": task["chain_position"],
+                    "kind": task.get("kind"), "frozen": task["frozen"],
+                    "start_state": task.get("start_state"), "end_state": task.get("end_state"),
+                    "suggested_takes": task.get("suggested_takes"),
+                })
+        return choices
+
+    def plan_goal(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """Break a sentence down with the configured planner; nothing is saved here."""
+        sentence = payload.get("sentence")
+        if type(sentence) is not str or len(sentence) > 400:
+            raise ValueError("type one sentence of up to 400 characters")
+        answers = payload.get("answers", {})
+        if type(answers) is not dict or any(
+            type(key) is not str or type(value) is not str for key, value in answers.items()
+        ):
+            raise ValueError("answers must map question keys to short text")
+        result = plan_goal(sentence, external=self.planner, answers=answers)
+        response = result.as_dict()
+        if result.breakdown is not None:
+            response["warnings"] = [w.as_dict() for w in chain_check(result.breakdown)]
+            response["proposed"] = self._proposed_ids(result.breakdown.goal.title,
+                                                      len(result.breakdown.sub_tasks))
+        return response
+
+    def _proposed_ids(self, title: str, count: int) -> dict[str, Any]:
+        """Stable ids for a goal and its sub-tasks, derived from the goal title."""
+        goal_id = f"lib_{slug(title)}"
+        return {"goal_id": goal_id,
+                "task_ids": [f"{goal_id}_{position}" for position in range(1, count + 1)]}
+
+    def save_goal(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """Validate an edited breakdown and store it as library task versions."""
+        if set(payload) != {"breakdown", "planner_source"}:
+            raise ValueError("saving needs the breakdown and the planner source")
+        breakdown = validate_breakdown(payload["breakdown"])
+        source = payload["planner_source"]
+        if source not in {"built-in planner", EXTERNAL_SOURCE, "operator"}:
+            raise ValueError("unknown planner source")
+        proposed = self._proposed_ids(breakdown.goal.title, len(breakdown.sub_tasks))
+        goal = {"id": proposed["goal_id"], "title": breakdown.goal.title,
+                "sentence": breakdown.goal.sentence, "rationale": breakdown.goal.rationale}
+        sub_tasks = []
+        for task_id, step in zip(proposed["task_ids"], breakdown.sub_tasks, strict=True):
+            sub_tasks.append({"task_id": task_id, **step.as_dict(),
+                              "episode_window": {"min_episode_s": None, "max_episode_s": None}})
+        warnings = [w.as_dict() for w in chain_check(breakdown)]
+        saved = self.catalog.save_goal(goal, sub_tasks, planner_source=source)
+        return {"goal": saved, "warnings": warnings}
+
+    def time_library_task(self, task_id: str, payload: dict[str, Any]) -> dict[str, Any]:
+        """Store an operator-confirmed take window with the timing runs that proposed it."""
+        if not is_library_task_id(task_id):
+            raise ValueError("only library tasks are timed here; registry timing is reviewed")
+        runs = payload.get("runs", [])
+        if type(runs) is not list or len(runs) > 20:
+            raise ValueError("timing runs must be a short list")
+        return self.catalog.set_library_window(
+            task_id, payload.get("min_episode_s"), payload.get("max_episode_s"), runs=runs,
+        )
+
+    def export_goal(self, goal_id: str) -> dict[str, Any]:
+        """A registry-shaped JSON fragment of a goal's tasks for a reviewed commit."""
+        goal = self.catalog.goal(goal_id)
+        return {
+            "note": "Library tasks exported for review. The published registry in "
+                    "config/synria_tasks.json stays the source for evidence claims until a "
+                    "reviewed commit adds these.",
+            "goal": {"id": goal["id"], "title": goal["title"], "sentence": goal["sentence"]},
+            "tasks": [library_task_definition(task).as_dict() for task in goal["tasks"]],
+        }
+
     def setup_suggestions(self) -> dict[str, Any]:
         """Combine host facts, runbook candidates and prior declarations without probing devices."""
         previous: dict[str, Any] = {}
@@ -641,7 +792,15 @@ class ConsoleService:
         if route == ["setup-suggestions"]:
             return self.setup_suggestions()
         if route == ["tasks"]:
-            return [task.as_dict() for task in load_task_registry(self.registry).values()]
+            return self.task_choices()
+        if route == ["library"]:
+            return {
+                "goals": self.catalog.goals(), "rules": describe_rules(),
+                "planner": {"external_configured": self.planner is not None,
+                            "source": EXTERNAL_SOURCE if self.planner else "built-in planner"},
+            }
+        if len(route) == 2 and route[0] == "library-export":
+            return self.export_goal(route[1])
         if route == ["cameras"]:
             return list_cameras() if not self.demo else {
                 "cameras": ["synthetic:wrist", "synthetic:front"], "message": "Synthetic demo only",
@@ -712,6 +871,12 @@ class ConsoleService:
         with self._lock:
             if route == ["readiness"]:
                 return self.check_readiness(payload)
+            if route == ["library", "plan"]:
+                return self.plan_goal(payload)
+            if route == ["library", "save"]:
+                return self.save_goal(payload)
+            if len(route) == 3 and route[0] == "library" and route[2] == "window":
+                return self.time_library_task(route[1], payload)
             if route == ["sessions"]:
                 return self.create_session(payload)
             if route == ["reindex"]:
@@ -835,7 +1000,12 @@ def main(argv: list[str] | None = None) -> int:
             parser.error("non-loopback bind requires --allow-remote")
         print("WARNING: remote HTTP exposes private recordings; use a trusted isolated network.",
               flush=True)
-    service = ConsoleService(args.workspace, demo=args.demo, min_free_bytes=args.min_free_bytes)
+    planner = ExternalPlanner.from_environment(os.environ.get(ENVIRONMENT_VARIABLE))
+    service = ConsoleService(args.workspace, demo=args.demo, min_free_bytes=args.min_free_bytes,
+                             planner=planner)
+    if planner is not None:
+        print("External task planner command is configured; the built-in planner answers "
+              "when it fails.", flush=True)
     if args.reindex:
         try:
             print(json.dumps(service.catalog.reconcile(), indent=2))
