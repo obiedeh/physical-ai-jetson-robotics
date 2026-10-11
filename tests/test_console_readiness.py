@@ -636,3 +636,61 @@ def test_cleanup_failure_cannot_leave_green_readiness(
         assert result["status"] == "attention"
         assert result["checks"]["diagnostic"]["message"] == "source cleanup failed"
         assert result["checks"]["cleanup"]["message"] == "Not run"
+
+
+class SteppingClock:
+    """A clock that moves a little on every read, so back-to-back reads straddle device ticks."""
+
+    def __init__(self, start: float, step_s: float) -> None:
+        """Start at an arbitrary phase and advance by ``step_s`` each time it is read."""
+        self.now = start
+        self.step_s = step_s
+
+    def __call__(self) -> float:
+        """Return the current time, then move on so the next read lands later."""
+        value = self.now
+        self.now += self.step_s
+        return value
+
+    def sleep(self, seconds: float) -> None:
+        """Advance without a real wait."""
+        self.now += seconds
+
+
+@pytest.mark.parametrize("start", [0.0, 0.0301, 0.0499, 0.0666, 0.1234, 0.9999])
+@pytest.mark.parametrize("step_s", [0.001, 0.004])
+def test_synthetic_alignment_verdict_is_stable_across_phases(
+    tmp_path: Path, start: float, step_s: float,
+) -> None:
+    """An on-entry check and a manual rerun must agree: reads straddling a device tick stay aligned.
+
+    The synthetic cameras tick at 30 Hz and the arm feed at 50 Hz, independent of the
+    15 Hz recording rate, so the worst straddle stays under the unchanged 0.050 s gate.
+    """
+    from synria_lerobot import recorder as recorder_module
+    from synria_lerobot.task_registry import SYNTHETIC_DEMO
+
+    args = argparse.Namespace(
+        task_id="die_into_cup", task_registry=synthetic_registry(tmp_path / "tasks.json", 1, 30),
+        dataset_path=tmp_path / "dataset", repo_id="local/readiness-test", gripper_type="50mm",
+        action_source="next_state", state_has_velocity=False, smoke=False, fps=15,
+        image_width=32, image_height=24, action_lookahead_steps=1,
+        follower_topic="/joint_states", leader_topic="/leader/joint_states",
+        state_startup_timeout_s=10.0, state_source=SYNTHETIC_DEMO,
+        guard_command_topic=[], wrist_camera="synthetic:wrist", front_camera="synthetic:front",
+    )
+    clock = SteppingClock(start, step_s)
+    limits = load_limits(app.REPOSITORY / "config/synria_limits.yaml")
+    verdicts = []
+    for _ in range(2):
+        report = ReadinessReport(clock, demo=True)
+        report.begin()
+        with recorder_module.build_recording_session(
+            args, synthetic_demo=True, clock=clock,
+        ) as session:
+            inspect_samples(session, report, limits, sleep=clock.sleep)
+        alignment = report.checks["source_alignment"]
+        assert alignment["passed"] is True, alignment["message"]
+        assert alignment["measured_skew_s"] <= 1 / 30 + 4 * step_s
+        verdicts.append(alignment["passed"])
+    assert verdicts == [True, True], "the first run and the rerun must give the same verdict"

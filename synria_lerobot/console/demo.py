@@ -2,6 +2,11 @@
 
 Preview reads do not advance the trajectory. The frame number and synthetic
 timestamp are rendered into each image, making recorded synchronization visible.
+
+Synthetic devices tick at fixed device rates, like the real arm feed and cameras,
+not at the recording rate. Ticking at a 15 Hz recording rate made consecutive
+reads straddle a 66.7 ms boundary often enough that the shared 50 ms alignment
+gate failed at random on an otherwise healthy demo.
 """
 
 from __future__ import annotations
@@ -17,6 +22,12 @@ from synria_lerobot.task_registry import SYNTHETIC_DEMO
 
 if TYPE_CHECKING:
     from synria_lerobot.recorder import PhysicalRecorderConfig
+
+
+SYNTHETIC_STATE_HZ = 50.0
+"""Joint readings per second from the synthetic arm feed, matching the real driver."""
+SYNTHETIC_CAMERA_HZ = 30.0
+"""Frames per second from each synthetic camera, matching the real USB cameras."""
 
 
 class SyntheticStateSource:
@@ -37,7 +48,7 @@ class SyntheticStateSource:
         if self.closed:
             raise RuntimeError("synthetic state source is closed")
         now = self.clock()
-        sampled = math.floor(now * self.config.fps) / self.config.fps
+        sampled = math.floor(now * SYNTHETIC_STATE_HZ) / SYNTHETIC_STATE_HZ
         phase = sampled % 20.0
         positions = tuple(0.1 * math.sin(phase + joint) for joint in range(6))
         velocities = tuple(0.1 * math.cos(phase + joint) for joint in range(6))
@@ -80,7 +91,7 @@ class SyntheticFrameSource:
         if self.closed:
             raise RuntimeError("synthetic camera source is closed")
         now = self.clock()
-        index = math.floor(now * self.config.fps)
+        index = math.floor(now * SYNTHETIC_CAMERA_HZ)
         with self._lock:
             if index == self._index and self._frame is not None:
                 return self._frame
@@ -99,14 +110,14 @@ class SyntheticFrameSource:
             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2,
         )
         cv2.putText(
-            native, f"frame {index}  time {index / self.config.fps:.3f}s", (15, 85),
+            native, f"frame {index}  time {index / SYNTHETIC_CAMERA_HZ:.3f}s", (15, 85),
             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2,
         )
         stored = cv2.resize(native, (self.config.image_width, self.config.image_height))
         native.setflags(write=False)
         stored.setflags(write=False)
         frame = ImageFrame(
-            stored, index / self.config.fps, source_id=f"synthetic-demo:{self.name}",
+            stored, index / SYNTHETIC_CAMERA_HZ, source_id=f"synthetic-demo:{self.name}",
             native_resolution=(width, height), native_data=native,
         )
         with self._lock:
