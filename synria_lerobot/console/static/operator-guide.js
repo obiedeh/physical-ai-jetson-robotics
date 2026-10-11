@@ -2,19 +2,19 @@
 /** Guide operators through existing recorder paths without adding device or command capabilities. */
 const SynriaGuide = (() => {
   const help = {
-    source: {title:"Prepare the follower state source", summary:"The console listens; it does not start the driver or control the arm.", steps:[
+    source: {title:"Prepare the arm feed", summary:"The console listens; it does not start the driver or control the arm.", steps:[
       "Secure the arm, clear the workspace and verify the approved power and controlled-stop procedure. Never release torque on an unsupported arm.",
-      "Keep the existing leader–follower hardware-sync teleoperation unchanged. Reuse its verified read-only state source; never start a second owner of the follower USB connection.",
-      "The source must publish the selected follower topic with arm writes disabled and startup torque unchanged. Selecting ros2_control in this form does not launch it or verify those properties.",
+      "Keep the existing leader–follower hardware-sync teleoperation unchanged. Reuse its verified read-only arm feed; never start a second owner of the follower USB connection.",
+      "The source must publish the selected follower topic with arm writes disabled and startup torque unchanged. Choosing ros2_control under Change setup does not launch it or verify those properties.",
       "For ros2_control, use only the operator-verified read-only configuration. No verified startup command is recorded here. Do not use the write-enabled D2 policy launch as a recording shortcut.",
       "Compare this console’s displayed ROS domain and middleware with the source terminal. The topic and domain must agree. A timeout alone cannot distinguish an absent publisher from discovery or configuration problems.",
       "After the approved source is running, return to Check setup and run the setup check again. If the setup is not verified, stop here and complete the safety record; do not guess flags or force readiness."], doc:"runbook"},
-    timeout: {title:"No follower state received", summary:"A subscription was created, but no message arrived before the startup wait ended.", steps:[
-      "Confirm the existing approved state source is actually running. This console never starts it, and a USB entry is not proof of a publisher.",
+    timeout: {title:"No arm feed received", summary:"The console subscribed, but no reading arrived before the startup wait ended.", steps:[
+      "Confirm the arm feed you started is actually running. This console never starts it, and a USB entry is not proof of a publisher.",
       "Check the configured follower topic. Compare ROS domain and middleware with the environment shown on the Help page.",
       "Use the state-source procedure in Operator help. Do not start another process on an already owned port or change working teleoperation.",
       "Retry the connection check after resolving the cause. A longer first-sample wait only accommodates discovery; it cannot create missing data or relax steady-state freshness.",
-      "Cameras have not failed merely because they remain Not checked: the shared preflight deliberately checks state and command publishers before opening them."], doc:"runbook"},
+      "Cameras have not failed merely because they remain Not checked: the setup check deliberately checks the arm feed and command publishers before opening them."], doc:"runbook"},
     software: {title:"Prepare recording software", summary:"A required library or encoder is not visible to this console process.", steps:[
       "Save or explicitly discard pending frames before closing the console. Do not terminate an active capture to repair the environment.",
       "Use the RTX console launcher in the existing Python 3.12 recording environment. It activates that environment and loads ROS library paths in physical mode, without starting robot services.",
@@ -42,39 +42,39 @@ const SynriaGuide = (() => {
       "Inspect the exact guarded topic and error in technical evidence. A publisher blocks recording even if it is not currently sending.",
       "Follow the operator-approved procedure to resolve the source configuration. Do not kill publishers, disable the guard or reconfigure working teleoperation just to pass.",
       "Recording needs no policy bridge, arming message or command publisher. Retry only after the approved read-only arrangement is established."], doc:"runbook"},
-    metadata: {title:"Complete recording identity and power", summary:"These facts are required for recording, but missing text does not prevent the no-episode diagnostic.", steps:[
+    metadata: {title:"Complete recording identity and power", summary:"These facts are required for recording; the setup check, which records nothing, can still run without them.", steps:[
       "Under Change setup → Required recording evidence, choose the follower manufacturer serial from the dropdown if it is already known, or choose manual entry and copy it exactly from the follower arm label or verified equipment record. The ROS state feed and USB adapter name are not the arm serial.",
       "In the same section, enter Starting power state using the approved status display or current operator observation (for example, the observed powered and torque state). Do not toggle power or torque to fill the field; if uncertain, leave it unknown and stop before recording.",
       "If identity cannot be established, leave it unknown and stop before recording. Connection checks still require all physical safety confirmations."], doc:"safety"},
-    timing: {title:"Register the real task window", summary:"This skill has no operator-timed qualifying episode window yet.", steps:[
+    timing: {title:"Register the real task window", summary:"This task has no timed take window yet, so its takes cannot count toward the dataset.", steps:[
       "Time the actual task under the approved physical procedure; do not infer duration from a software test.",
       "Prospectively record observations, chosen minimum/maximum, rationale, operator and date in DECISIONS.md. Update that task in config/synria_tasks.json through reviewed repository changes.",
-      "The console cannot set or override this window. A disposable 20-second smoke is a separate, nonqualifying path and still requires identity, safety and shared preflight."], doc:"decisions"},
-    limits: {title:"Verify the physical limits", summary:"Candidate ranges are present, but the file is explicitly unverified, so qualifying collection stays blocked.", steps:[
+      "The console cannot set or override this window. A 20 second practice run is separate, never counts, and still needs identity, safety and the setup check."], doc:"decisions"},
+    limits: {title:"Verify the physical limits", summary:"Candidate ranges are present, but the file is explicitly unverified, so takes cannot count toward the dataset.", steps:[
       "Open config/synria_limits.yaml below to inspect the six candidate arm-joint ranges and the gripper stroke ranges used by the recorder's quality gate.",
       "The Alicia-D checkout documents a Joint5 soft cap for its Isaac ghost-arm path and self-collision margins/spheres for that simulation. Those are not, by themselves, verified physical-arm limits or a collision check used by this recorder; do not copy simulation collision geometry into the scalar joint-range file.",
       "Compare the candidate values with approved evidence for this exact physical arm and installed gripper. Record the source and operator verification through a reviewed change; do not set verified_by or verified_on just to clear the status.",
-      "Until an operator-approved verification is recorded, qualifying counts remain zero. This console neither edits limits nor authorizes motion."], doc:"limits"},
+      "Until an operator-approved verification is recorded, no take counts toward the dataset. This console neither edits limits nor authorizes motion."], doc:"limits"},
     disk: {title:"Restore safe recording space", summary:"The workspace has insufficient available space or a filesystem operation failed.", steps:[
       "Do not discard pending frames just to retry. Keep the process alive while resolving a save failure.",
       "Check the external workspace’s capacity and permissions. Preserve datasets, sidecars, recording locks and journals.",
-      "After freeing space through reviewed file management, retry saving the same pending episode or rerun preflight. Do not lower the disk floor to conceal the problem."], doc:"runbook"},
+      "After freeing space through reviewed file management, retry saving the same take or run the setup check again. Do not lower the disk floor to conceal the problem."], doc:"runbook"},
     recovery: {title:"Preserve the dataset for recovery", summary:"The writer detected a lock, journal or recovery inconsistency.", steps:[
       "Stop new collection and keep the exact error. Do not remove the lock or journal, rename sidecars or overwrite the dataset.",
       "Confirm whether another recorder owns the dataset. Never open a second writer or force a deletion.",
       "Use operator-reviewed transaction recovery. Review remains read-only where available; writes and deletion stay blocked until the cause is resolved."], doc:"runbook"},
-    save: {title:"Keep pending frames and retry safely", summary:"A stopped capture is not durable until its save completes.", steps:[
+    save: {title:"Keep the frames and retry safely", summary:"A stopped take is not safe on disk until its save completes.", steps:[
       "Keep the console process running. Closing a browser tab does not stop capture, but terminating the process loses pending frames.",
-      "Inspect the save error and resolve storage or source issues. Use Retry save to retain the same frames and label.",
-      "If recovery is blocked, preserve locks and journals and stop writes. Discard is only for an unusable capture and requires a reason; retain genuine task failures with Failure.",
-      "After a save, review both views, state/action traces, gates and native final still before scaling collection."], doc:"runbook"},
+      "Inspect the save error and resolve storage or camera issues. Use Retry save to keep the same frames and label.",
+      "If recovery is blocked, preserve locks and journals and stop writes. Throw away is only for an unusable capture and needs a reason; keep genuine task failures as failures.",
+      "After a save, review both views, the traces, the quality checks and the overhead photo before scaling up."], doc:"runbook"},
     contract: {title:"Keep dataset settings consistent", summary:"The existing dataset does not match the proposed session contract or capture provenance.", steps:[
       "Resume with the exact original task, image/camera settings, FPS, action source, lookahead, gripper and velocity contract.",
       "If the physical setup or contract intentionally changed, create a separate dataset/session. Do not edit saved sidecars to force a match.",
       "Preserve the original dataset and evidence. Reindex rebuilds the catalog; it cannot repair or override a contract mismatch."], doc:"protocol"},
-    network: {title:"Reconnect without losing a capture", summary:"The browser cannot confirm the server’s current state.", steps:[
-      "Do not assume the recorder stopped. Capture lives in the server and may continue until its hard cap.",
-      "Reconnect to the same console and inspect restored state before repeating any recording action. Do not launch another instance or kill the process while frames may be pending.",
+    network: {title:"Reconnect without losing a take", summary:"The browser cannot confirm the server’s current state.", steps:[
+      "Do not assume the recorder stopped. The take lives in the server and may continue until its time limit.",
+      "Reconnect to the same console and look at the restored state before repeating any recording action. Do not launch another instance or kill the process while frames may be pending.",
       "If the process was restarted intentionally, open its newest launch URL. Save/discard decisions remain explicit; no request is retried automatically."], doc:"runbook"},
     auth: {title:"Reopen this console’s launch URL", summary:"The page does not have the current per-launch authorization token.", steps:[
       "Open the URL printed by the running console, including its token fragment. A restart changes that token.",
@@ -82,7 +82,7 @@ const SynriaGuide = (() => {
       "Reopening a view does not stop or restart capture. Inspect the restored session before taking action."], doc:"runbook"},
     general: {title:"Resolve the reported check", summary:"The operation was refused; no successful result should be assumed.", steps:[
       "Read the exact error and expand technical evidence. Correct the indicated field or prerequisite before retrying.",
-      "Do not bypass safety checks, edit dataset evidence or restart a process with pending frames.",
+      "Do not bypass safety checks, edit dataset evidence or restart a process with an unsaved take.",
       "Use the full operator procedure below for the required order. If the error concerns unverified hardware behavior, stop physical setup until it is documented."], doc:"runbook"},
   };
 
@@ -261,7 +261,7 @@ const SynriaGuide = (() => {
     $("new-form").addEventListener("change", update);
     $("readiness-confirmations").addEventListener("change", update);
     const smokeAction = $("smoke").onclick;
-    $("smoke").onclick = event => {if (confirm("Start one disposable 20-second capture after preflight? Verify physical safety and framing first. It never counts and is deleted when its sources close.")) smokeAction(event);};
+    $("smoke").onclick = event => {if (confirm("Start a 20 second practice run? It opens the cameras and arm feed, records one take and throws it away afterwards. Check safety and framing first.")) smokeAction(event);};
     SynriaWizard.initialize();
     try {
       metadata = await api("operator-guide");
