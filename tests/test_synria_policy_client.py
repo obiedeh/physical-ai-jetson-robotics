@@ -69,7 +69,9 @@ def test_absolute_and_delta_clamps_and_latency(tmp_path: Path) -> None:
     assert d.action == (0.03,) * 6 + (0.011,)
     near = replace(observation(), state=PhysicalState((2.50, 0, 0, 0, 0, 0), 0.0245, 10, 100))
     d = c.step(near)
-    assert d.action is not None and d.action[0] == 2.51 and d.action[6] == 0.025
+    # Clamped to the exact operator bound for Joint1, 144 degrees, not a rounded copy.
+    assert d.action is not None and d.action[0] == c.bounds[0][1] and d.action[6] == 0.025
+    assert d.action[0] == pytest.approx(2.5132741228718345)
     c.write_latencies(tmp_path / "latency.jsonl")
     assert json.loads((tmp_path / "latency.jsonl").read_text().splitlines()[0])["inference_s"] == 0
     assert d.request_encode_s is None and d.response_decode_s is None
@@ -160,8 +162,9 @@ def test_motion_requires_explicit_flag_and_both_verified_configs(
     assert not parser.parse_args([]).enable_motion
     assert parser.parse_args(["--enable-motion"]).enable_motion
     c = client(FakePolicy((0,) * 7))
-    if limits_verified:
-        c.limits = replace(c.limits, verified_by="operator", verified_on="date")
+    # The repository file is operator-signed, so set both states explicitly.
+    c.limits = replace(c.limits, verified_by="operator" if limits_verified else "",
+                       verified_on="date" if limits_verified else "")
     if policy_verified:
         c.config = replace(c.config, verified_by="operator", verified_on="date")
     created = []
@@ -351,3 +354,12 @@ def test_each_policy_transport_receives_its_explicit_timeout() -> None:
         c.config = replace(c.config, response_timeout_s=timeout)
         assert not c.step(observation()).hold
     assert observed_timeouts == [0.05, 0.35]
+
+
+def test_policy_client_bounds_are_exact_limits_not_recording_bounds() -> None:
+    """The policy clamp uses the exact operator boundaries despite a recording tolerance."""
+    limits = load_limits(Path("config/synria_limits.yaml"))
+    assert limits.recording_tolerance_deg > 0
+    c = client(FakePolicy((0,) * 7))
+    assert c.bounds[:6] == limits.joint_limits_rad
+    assert c.bounds != limits.recording_bounds("50mm")

@@ -154,17 +154,50 @@ class EpisodeQualityRecord:
 
 @dataclass(frozen=True)
 class PhysicalLimits:
-    """Represent candidate joint and gripper limits alongside operator verification."""
+    """Represent operator joint and gripper boundaries plus a recording-only tolerance.
+
+    ``joint_limits_rad`` and ``gripper_limits_m`` are the exact operator boundaries and
+    are the only bounds the command path may use. ``recording_tolerance_deg`` widens
+    the six joint bounds for recorded-state quality checks only, because the
+    boundaries were set in whole degrees and a resting joint can read a fraction of
+    a degree beyond them. It never applies to the gripper or to a commanded position.
+    """
     verified_by: str
     verified_on: str
     joint_names: tuple[str, ...]
     joint_limits_rad: tuple[tuple[float, float], ...]
     gripper_limits_m: dict[str, tuple[float, float]]
+    recording_tolerance_deg: float = 0.0
+
+    def __post_init__(self) -> None:
+        """Reject a tolerance that is not a finite, non-negative number of degrees."""
+        tolerance = self.recording_tolerance_deg
+        if (isinstance(tolerance, bool) or not isinstance(tolerance, (int, float))
+                or not math.isfinite(tolerance) or tolerance < 0):
+            raise ValueError("recording_tolerance_deg must be a finite, non-negative number")
 
     @property
     def verified(self) -> bool:
         """Require both operator and date before any episode can qualify."""
         return bool(self.verified_by.strip() and self.verified_on.strip())
+
+    @property
+    def recording_tolerance_rad(self) -> float:
+        """Express the recording-only joint tolerance in radians."""
+        return math.radians(self.recording_tolerance_deg)
+
+    def recording_bounds(self, gripper_type: str) -> tuple[tuple[float, float], ...]:
+        """Return the seven recorded-state bounds: joints widened by the tolerance, gripper exact.
+
+        Command clamping and command validation must keep using ``joint_limits_rad``
+        and ``gripper_limits_m`` directly; this method exists only for quality checks
+        on recorded or observed state.
+        """
+        tolerance = self.recording_tolerance_rad
+        return (
+            *((lower - tolerance, upper + tolerance) for lower, upper in self.joint_limits_rad),
+            self.gripper_limits_m[gripper_type],
+        )
 
 
 @dataclass(frozen=True)
@@ -219,6 +252,9 @@ def load_limits(path: Path) -> PhysicalLimits:
     if any(not isinstance(payload.get(name, ""), str) for name in ("verified_by", "verified_on")):
         raise ValueError("limits verification fields must be strings")
     names = tuple(str(name) for name in payload["joint_names"])
+    tolerance = payload.get("recording_tolerance_deg", 0.0)
+    if isinstance(tolerance, bool) or not isinstance(tolerance, (int, float)):
+        raise ValueError("recording_tolerance_deg must be a number of degrees")
     return PhysicalLimits(
         verified_by=payload.get("verified_by", ""),
         verified_on=payload.get("verified_on", ""),
@@ -230,6 +266,7 @@ def load_limits(path: Path) -> PhysicalLimits:
             str(name): _bounds(bounds)
             for name, bounds in payload["gripper_limits_m"].items()
         },
+        recording_tolerance_deg=float(tolerance),
     )
 
 
@@ -460,6 +497,25 @@ def _episode_sources_fresh(episode: EpisodeQualityRecord, config: GateConfig) ->
     return True
 
 
+def within_recording_limits(
+    values: tuple[float, ...], limits: PhysicalLimits, gripper_type: str
+) -> bool:
+    """Check seven recorded or observed values against the recording bounds.
+
+    This is the one shared place the recording tolerance is applied: six joints are
+    allowed ``recording_tolerance_deg`` beyond the operator bounds, the gripper is
+    not. Command clamping and validation must not call this helper.
+    """
+    if len(values) < 7 or gripper_type not in limits.gripper_limits_m:
+        return False
+    return all(
+        math.isfinite(value) and lower <= value <= upper
+        for value, (lower, upper) in zip(
+            values[:7], limits.recording_bounds(gripper_type), strict=True
+        )
+    )
+
+
 def _vector_within_limits(
     values: tuple[float, ...], limits: PhysicalLimits, gripper_type: str
 ) -> bool:
@@ -468,13 +524,7 @@ def _vector_within_limits(
         return True
     if not all(math.isfinite(value) for value in values[:7]):
         return True
-    if gripper_type not in limits.gripper_limits_m:
-        return False
-    bounded = zip(values[:6], limits.joint_limits_rad, strict=True)
-    if not all(lower <= value <= upper for value, (lower, upper) in bounded):
-        return False
-    lower, upper = limits.gripper_limits_m[gripper_type]
-    return lower <= values[6] <= upper
+    return within_recording_limits(values[:7], limits, gripper_type)
 
 
 def _visual_sanity(
@@ -799,6 +849,7 @@ def write_session_artifacts(
         **{name: provenance[name] for name in ACTION_TIMING_KEYS},
         **{name: provenance[name] for name in TASK_METADATA_KEYS},
         "limits_status": "verified" if limits.verified else UNVERIFIED_LIMITS_LINE,
+        "limits_recording_tolerance_deg": limits.recording_tolerance_deg,
         "object_success_limitation": OBJECT_SUCCESS_LIMITATION,
     }
     (session_dir / "session_summary.json").write_text(
