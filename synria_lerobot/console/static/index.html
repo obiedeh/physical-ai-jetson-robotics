@@ -5,7 +5,7 @@
 <span id="mode" class="badge">Connecting</span><button id="quit" class="quiet">Quit console</button></header>
 <div id="notice" role="alert"></div>
 <nav id="global-nav" aria-label="Console"><a href="#/home" data-route="home">Home</a><a href="#/sessions" data-route="sessions">Sessions</a><a href="#/help" data-route="help">Help</a></nav>
-<nav id="flow-nav" aria-label="Where you are" hidden><ol id="breadcrumb"></ol><button id="exit-flow" type="button">Exit to Home</button></nav>
+<nav id="flow-nav" aria-label="Where you are" hidden><ol id="breadcrumb"></ol><button id="pause-session" type="button" hidden>Pause session</button><button id="finish-session" type="button" class="primary" hidden>Finish session</button><button id="exit-flow" type="button">Exit to Home</button></nav>
 <p id="route-announcer" class="visually-hidden" aria-live="polite"></p>
 <main>
 <section id="home" class="screen"><h2 id="home-title" class="screen-title" tabindex="-1">Home</h2>
@@ -140,21 +140,22 @@ not qualifying counts. Task windows remain operator decisions outside this form.
 <label class="check"><input type="checkbox" data-readiness-confirm="procedure">I followed the safety checklist, and the power state and gripper size above are what I see.</label></div></article></div>
 <button id="create" type="submit" class="visually-hidden" tabindex="-1" aria-hidden="true">Start session</button></form>
 <div id="wizard-footer" class="wizard-footer"><button type="button" id="wizard-back">Back</button><p id="wizard-reason" role="status"></p><button id="smoke" type="button" hidden>Do a practice run instead</button><button type="button" id="wizard-primary" class="primary">Continue</button></div></section>
-<section id="record" class="screen" hidden><div class="section-head"><h2 id="record-title" class="screen-title" tabindex="-1">No session open</h2><button id="close-session">Close sources</button></div>
+<section id="record" class="screen" hidden><div class="section-head"><h2 id="record-title" class="screen-title" tabindex="-1">No session open</h2><span id="record-take" class="take-count"></span></div>
 <p id="record-route-note" class="route-note" hidden></p>
-<div id="record-banner" class="record-banner" role="status" aria-live="polite" data-phase="no-session"><div class="banner-main"><span class="eyebrow" id="record-phase">NO SESSION</span><p id="record-message">Open a named session, or run a disposable smoke, to begin.</p></div><div id="record-countdown" class="record-countdown" hidden><b id="record-countdown-value">0</b><small>s left</small></div><button id="record-banner-action" type="button" class="primary" hidden></button></div>
-<p id="counters" class="counters"></p><p id="capture-header" class="capture-detail"></p>
-<div class="cameras"><figure><figcaption>Wrist <span id="wrist-health" class="source-brief"></span></figcaption><img id="wrist-preview" alt="Latest wrist camera frame"><details class="source-details"><summary>Source details</summary><pre id="wrist-source"></pre></details></figure>
-<figure><figcaption>Overhead camera <span id="front-health" class="source-brief"></span></figcaption><img id="front-preview" alt="Latest fixed camera frame"><details class="source-details"><summary>Source details</summary><pre id="front-source"></pre></details></figure></div>
-<div class="controls" id="record-controls"><button data-command="start" class="primary">Start recording · Space</button><button data-command="stop" class="primary">Stop · Space</button>
-<button data-command="success" class="success">Save as success · S</button><button data-command="failure" class="success">Save as failure · F</button>
-<button data-command="retry">Retry save</button><button id="discard" class="danger">Discard…</button>
-<label>Start countdown <input id="countdown" type="number" min="0" max="30" value="0"></label>
-<button data-command="cancel_countdown">Cancel countdown</button><label class="check"><input id="audio" type="checkbox">Audio cues</label></div>
-<p>Save as success or Save as failure is what saves the episode. Save real task failures with the failure label. Discard is only for a capture or setup fault. Pending frames exist only in memory.</p>
-<div class="split"><article><h3>Follower state · read only</h3><div id="joint-values"></div><canvas id="live-trace" width="650" height="160"></canvas></article>
-<article><h3>Preflight · cannot be bypassed</h3><pre id="preflight"></pre></article></div>
-<article id="last-save"><h3>Last saved episode</h3><p id="save-result"></p><details><summary>Technical details</summary><pre id="save-details"></pre></details><button id="review-latest">Review latest take</button></article></section>
+<div id="record-banner" class="record-banner" role="status" aria-live="polite" data-phase="no-session"><div class="banner-main"><span class="eyebrow" id="record-phase">NO SESSION</span><p id="record-message">Open a session from Home or Sessions to record.</p></div><div id="record-countdown" class="record-countdown" hidden><b id="record-countdown-value">0</b><small id="record-countdown-unit">s left</small></div></div>
+<div class="record-actions" id="record-controls"><button data-command="start" class="primary big" hidden>Start recording (Space)</button><button data-command="cancel_countdown" class="primary big" hidden>Cancel countdown</button><button data-command="stop" class="stop big" hidden>Stop (Space)</button>
+<button data-command="success" class="success big" hidden>Yes, save as success (S)</button><button data-command="failure" class="failure big" hidden>No, save as failure (F)</button>
+<button data-command="retry" class="primary big" hidden>Retry save</button><button id="record-banner-action" type="button" class="primary big" hidden></button><button id="discard" class="text-button" hidden>Throw away, bad capture</button></div>
+<div class="record-strip"><p id="counters" class="counters"></p><button id="review-latest" hidden>Review last take</button>
+<div class="options-row"><label>Countdown before recording <input id="countdown" type="number" min="0" max="30" value="3"> s</label><label class="check"><input id="audio" type="checkbox" checked>Sound cues</label></div></div>
+<div class="record-main"><div class="cameras" id="camera-views"><figure><figcaption>Wrist camera <span class="live-badge" data-live="wrist">Live</span><span id="wrist-health" class="camera-warning" hidden></span></figcaption><img id="wrist-preview" alt="Latest wrist camera frame"><details class="source-details"><summary>Source details</summary><p id="wrist-brief" class="source-brief"></p><pre id="wrist-source"></pre></details></figure>
+<figure><figcaption>Overhead camera <span class="live-badge" data-live="front">Live</span><span id="front-health" class="camera-warning" hidden></span></figcaption><img id="front-preview" alt="Latest overhead camera frame"><details class="source-details"><summary>Source details</summary><p id="front-brief" class="source-brief"></p><pre id="front-source"></pre></details></figure></div>
+<aside id="reset-scene" class="card" hidden><h3>Reset the scene</h3><ul id="reset-scene-list"></ul></aside></div>
+<details id="record-technical"><summary>Technical details</summary><div class="split"><article><h3>Follower state, read only</h3><div id="joint-values"></div><canvas id="live-trace" width="650" height="160"></canvas></article>
+<article><h3>Preflight, cannot be bypassed</h3><pre id="preflight"></pre></article></div>
+<article id="last-save"><h3>Last saved take</h3><p id="save-result"></p><pre id="save-details"></pre></article></details></section>
+<section id="summary" class="screen" hidden><h2 id="summary-title" class="screen-title" tabindex="-1">Session finished</h2><p id="summary-lead" class="purpose"></p><dl id="summary-list" class="summary-list"></dl><div class="actions" id="summary-actions"></div></section>
+<dialog id="review-overlay" aria-labelledby="review-overlay-title"><div class="section-head"><h2 id="review-overlay-title">Review last take</h2><button id="close-review-overlay" type="button">Back to recording</button></div><div id="review-overlay-body"></div></dialog>
 <section id="review" class="screen" hidden><div class="section-head"><h2 id="review-title" class="screen-title" tabindex="-1">Review takes</h2></div>
 <p id="review-session-name" class="purpose">Playback reviews recorded data on screen. It never moves the robot.</p><div class="table-scroll"><table><thead><tr><th>Take</th><th>Label</th><th>Seconds</th><th>Frames</th><th>Rate</th><th>Quality checks</th><th>Excluded</th><th>Note / actions</th></tr></thead><tbody id="episodes"></tbody></table></div>
 <article id="player" hidden><h3 id="player-title"></h3><div class="cameras"><figure><figcaption>Wrist</figcaption><img id="play-wrist" alt="Recorded wrist frame"></figure><figure><figcaption>Overhead camera</figcaption><img id="play-front" alt="Recorded front frame"></figure></div>

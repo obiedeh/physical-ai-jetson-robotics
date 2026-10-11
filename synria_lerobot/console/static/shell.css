@@ -84,3 +84,35 @@ fieldset.field small{color:var(--muted)}
 #bench-panel .check{min-height:44px;font-size:16px;color:var(--text)}#bench-panel .check input{width:22px;height:22px}
 .task-status{color:var(--text);font-weight:600}#task-description ul{margin:6px 0 10px;padding-left:22px}#task-description li{margin:4px 0}
 .start-fields{grid-template-columns:repeat(2,minmax(0,1fr));margin:14px 0}
+/* Record mode: a banner and an action area that never change height, so buttons stay put. */
+.take-count{margin-left:auto;font-size:18px;color:var(--accent);font-weight:650}
+#record .record-banner{min-height:132px;margin:12px 0 10px}
+#record .record-banner p{font-size:22px}
+.record-banner[data-phase=ready],.record-banner[data-phase=saved]{border-color:#7fc992}
+.record-banner[data-phase=countdown]{border-color:#edbe70;background:#352c18}
+.record-banner[data-phase=recording]{border-color:#ff5a55;background:#3a1f22;animation:record-pulse 1.2s ease-in-out infinite}
+.record-banner[data-phase=did-it-work]{border-color:#edbe70;background:#352c18}
+.record-banner[data-phase=save-failed],.record-banner[data-phase=blocked]{border-color:var(--danger);background:#582b2a}
+.record-banner[data-phase=paused],.record-banner[data-phase=no-session]{border-color:var(--edge)}
+@keyframes record-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,90,85,.0)}50%{box-shadow:0 0 0 6px rgba(255,90,85,.35)}}
+.record-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-height:96px;margin:0 0 6px}
+.record-actions button.big{min-height:72px;min-width:280px;font-size:22px;font-weight:650;border-width:2px}
+.record-actions .primary.big{background:var(--accent);color:#10221e;border-color:var(--accent)}
+.record-actions .stop.big{background:#b3302c;color:#fff;border-color:#ff5a55}
+.record-actions .success.big{background:#2f6b3f;color:#fff;border-color:#7fc992}
+.record-actions .failure.big{background:#6b4a16;color:#fff;border-color:#edbe70}
+.record-actions .text-button{background:none;border:none;color:var(--muted);text-decoration:underline;min-height:44px;padding:0 10px}
+.record-actions .text-button:hover{color:var(--text)}
+.record-strip{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:0 0 12px}.record-strip .counters{margin:0}
+.options-row{margin-left:auto;display:flex;gap:16px;align-items:center;font-size:14px;color:var(--muted)}.options-row label{flex-direction:row;align-items:center;gap:8px}.options-row input[type=number]{width:64px;min-height:36px}
+.record-main{display:grid;grid-template-columns:3fr 1fr;gap:16px}#reset-scene[hidden]{display:block!important;visibility:hidden}
+#camera-views{margin:0}#camera-views figure{border-width:3px;transition:border-color .2s}#camera-views.recording figure{border-color:#ff5a55}
+#camera-views figure.stale{border-color:var(--danger)}
+#camera-views figcaption span.live-badge{display:inline-block;width:auto;margin-left:8px;padding:2px 8px;border-radius:10px;font-size:12px;background:#2f6b3f;color:#fff;letter-spacing:.5px}
+#camera-views figcaption span.camera-warning{display:inline-block;width:auto;margin-left:8px;padding:2px 8px;border-radius:10px;font-size:12px;background:#582b2a;color:#ffded9;font-weight:650}
+#reset-scene h3{margin-top:0}#reset-scene ul{padding-left:20px;margin:0}#reset-scene li{margin:6px 0;color:var(--text)}
+#record-technical{margin-top:18px}#record-technical summary{min-height:44px;display:flex;align-items:center}
+#review-overlay{width:min(1200px,calc(100vw - 32px));max-height:92vh;overflow:auto;background:var(--bg);color:var(--text);border:1px solid #5e7888;border-radius:14px;padding:22px}#review-overlay::backdrop{background:#040910cc}
+#summary .actions{display:flex;gap:12px;margin-top:16px}
+@media(prefers-reduced-motion:reduce){.record-banner[data-phase=recording]{animation:none}}
+@media(max-width:900px){.record-actions button.big{min-width:0;flex:1}.record-main{grid-template-columns:1fr}#reset-scene[hidden]{display:none!important}.options-row{margin-left:0}}
