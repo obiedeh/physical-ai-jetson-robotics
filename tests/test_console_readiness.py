@@ -28,7 +28,7 @@ from synria_lerobot.console.readiness import (
     runtime_dependencies,
 )
 from synria_lerobot.physical_contract import ImageFrame, PhysicalState
-from synria_lerobot.quality_gates import load_limits
+from synria_lerobot.quality_gates import GateConfig, load_limits, source_timestamp_skew
 from synria_lerobot.recorder import (
     NextStateActionSource,
     PhysicalEpisodeRecorder,
@@ -353,7 +353,32 @@ def test_source_alignment_distinguishes_pending_from_measured_skew(
             assert alignment["waiting_for"] == ["front_sample"]
         elif mode == "skewed":
             assert alignment["measured_skew_s"] == pytest.approx(0.1)
+            assert alignment["source_timestamps_s"] == {
+                "state_monotonic_s": 1.0,
+                "wrist_monotonic_s": 1.1,
+                "front_monotonic_s": 1.1,
+            }
         session.close()
+
+
+def test_readiness_uses_episode_skew_gate_and_action_source_semantics() -> None:
+    """The readiness snapshot shares the exact episode threshold and contemporaneous inputs."""
+    gate = GateConfig(1.0, 2.0)
+    samples = {
+        "state_monotonic_s": 10.0,
+        "wrist_monotonic_s": 9.95,
+        "front_monotonic_s": 10.0,
+        # Next-state action is deliberately shifted, and must not enter source alignment.
+        "action_monotonic_s": 11.0,
+    }
+    passed, skew = source_timestamp_skew(samples, "next_state", gate)
+    assert passed
+    assert skew == pytest.approx(0.05)
+    # Leader actions are contemporaneous inputs and must satisfy the same bound.
+    samples["action_monotonic_s"] = 9.94
+    passed, skew = source_timestamp_skew(samples, "leader", gate)
+    assert not passed
+    assert skew == pytest.approx(0.06)
 
 
 @pytest.mark.parametrize("blocker", ["window", "limits"])
