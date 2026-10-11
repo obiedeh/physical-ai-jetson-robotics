@@ -417,9 +417,9 @@ class Catalog:
             if current["status"] in {"trashed", "purged"}:
                 raise ValueError("restore a trashed session before editing")
             status = changes.get("status", current["status"])
-            if status not in {"active", "closed"}:
+            if status not in {"active", "closed", "finished"}:
                 raise ValueError("use audited trash or restore for lifecycle changes")
-            if status == "closed":
+            if status in {"closed", "finished"}:
                 self._require_idle(current)
             if "name" in changes and (
                 not str(changes["name"]).strip() or len(changes["name"]) > 160
@@ -431,7 +431,7 @@ class Catalog:
                 raise ValueError("target episodes must be a non-negative integer")
             changes["updated_utc"] = utc_now()
             if "status" in changes:
-                changes["closed_utc"] = utc_now() if status == "closed" else None
+                changes["closed_utc"] = utc_now() if status in {"closed", "finished"} else None
             with self.connection:
                 self.connection.execute(
                     f"UPDATE sessions SET {','.join(key + '=?' for key in changes)} WHERE id=?",
@@ -443,6 +443,8 @@ class Catalog:
                     else (
                         "session_closed"
                         if status == "closed"
+                        else "session_finished"
+                        if status == "finished"
                         else "session_opened"
                         if "status" in changes
                         else "session_updated"
@@ -788,7 +790,7 @@ class Catalog:
         with self._lock:
             session = self.get_session(session_id)
             self._require_idle(session)
-            if session["status"] not in {"active", "closed"}:
+            if session["status"] not in {"active", "closed", "finished"}:
                 raise ValueError("only an existing session can be trashed")
             if confirmation != session["name"] or not reason.strip():
                 raise ValueError("type the exact session name and provide a deletion reason")

@@ -361,3 +361,23 @@ def test_failed_browser_launch_releases_workspace_and_server(
     with pytest.raises(OSError, match="browser failure"):
         main(["--workspace", str(tmp_path / "workspace"), "--port", "0"])
     assert not (tmp_path / "workspace" / ".console.lock").exists()
+
+
+def test_finish_marks_a_session_finished_and_open_reverses_it(tmp_path: Path) -> None:
+    """Finish is a status the operator can read; it is not a lock and never deletes anything."""
+    with ConsoleFixture(tmp_path, demo=True) as service:
+        session = service.create_session(values())
+        service.mutate(["session", session["id"], "open"], {})
+        assert service.state()["active_session"]["id"] == session["id"]
+        service.mutate(["session", session["id"], "finish"], {})
+        stored = service.catalog.get_session(session["id"])
+        assert stored["status"] == "finished" and stored["closed_utc"]
+        assert service.controller is None
+        kinds = [row["kind"] for row in service.catalog.events()]
+        assert "session_finished" in kinds
+        service.mutate(["session", session["id"], "open"], {})
+        assert service.catalog.get_session(session["id"])["status"] == "active"
+        service.mutate(["session", session["id"], "close"], {})
+        assert service.catalog.get_session(session["id"])["status"] == "closed"
+        with pytest.raises(ValueError, match="practice run"):
+            service.mutate(["session", "smoke", "finish"], {})
