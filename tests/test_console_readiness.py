@@ -98,8 +98,10 @@ def fake_recorder(args: argparse.Namespace, clock: FakeClock) -> PhysicalEpisode
             np.full((24, 32, 3), color, dtype=np.uint8), clock(), (640, 480),
         ), close=lambda: None,
     ) for color in (50, 100)]
+    # Readiness re-reads every source for its steady-state window, so serve the same
+    # construction-time state repeatedly instead of a single sample.
     return PhysicalEpisodeRecorder(
-        config=config, state_source=FakeStateSource([state]),
+        config=config, state_source=FakeStateSource([state] * 256),
         action_source=NextStateActionSource(), wrist_source=sources[0], front_source=sources[1],
         writer=FakeWriter(args.dataset_path), clock=clock, command_publisher_guard=lambda _: None,
     )
@@ -358,6 +360,143 @@ def test_source_alignment_distinguishes_pending_from_measured_skew(
                 "wrist_monotonic_s": 1.1,
                 "front_monotonic_s": 1.1,
             }
+        session.close()
+
+
+def advancing_sleep(clock: FakeClock) -> Any:
+    """Advance the fake clock instead of waiting, and count the calls made."""
+    calls: list[float] = []
+
+    def sleep(seconds: float) -> None:
+        """Move fake time forward by the requested wait."""
+        calls.append(seconds)
+        clock.now += seconds
+
+    return sleep, calls
+
+
+def live_state_source(clock: FakeClock) -> Any:
+    """Serve a follower state stamped at read time, like a streaming subscriber cache."""
+    return SimpleNamespace(
+        read=lambda: PhysicalState((0.0,) * 6, 0.01, clock(), clock(), ros_arrival_stamp_s=clock()),
+        close=lambda: None,
+    )
+
+
+def test_camera_warm_up_delay_is_not_reported_as_measured_skew(
+    tmp_path: Path, fake_connections: None,
+) -> None:
+    """A first frame arriving long after the follower read must not fail steady alignment."""
+    clock = FakeClock()
+    clock.now = 100.0
+    with ConsoleFixture(tmp_path / "workspace") as service:
+        settings = service._settings(request_values()["settings"], smoke=True)
+        args = service._args(settings, "local/fake", tmp_path / "dataset", True)
+        session = fake_recorder(args, clock)
+        session.state_source = live_state_source(clock)
+        reads = {"front": 0}
+
+        def cold_front() -> ImageFrame:
+            """Block for a 0.6 s warm-up on the first read only, then stream fresh frames."""
+            reads["front"] += 1
+            if reads["front"] == 1:
+                clock.now += 0.6
+            return ImageFrame(np.full((24, 32, 3), 100, dtype=np.uint8), clock(), (640, 480))
+
+        session.front_source = SimpleNamespace(read=cold_front, close=lambda: None)
+        sleep, calls = advancing_sleep(clock)
+        report = ReadinessReport(clock, demo=False)
+        report.begin()
+        inspect_samples(session, report, load_limits(app.REPOSITORY / "config/synria_limits.yaml"),
+                        sleep=sleep)
+        report.finish()
+        alignment = report.checks["source_alignment"]
+        assert alignment["status"] == "ready"
+        assert alignment["measured_skew_s"] == pytest.approx(0.0)
+        assert "0.600" not in alignment["message"]
+        first = alignment["first_sample_timestamps_s"]
+        assert first["front_monotonic_s"] - first["state_monotonic_s"] == pytest.approx(0.6)
+        assert alignment["sample_count"] == round(settings["fps"])
+        assert calls[0] == pytest.approx(0.5)
+        assert len(calls) == alignment["sample_count"]
+        session.close()
+
+
+def test_steady_lag_still_fails_alignment(tmp_path: Path, fake_connections: None) -> None:
+    """A source that stays 0.1 s behind the others fails every read in the window."""
+    clock = FakeClock()
+    clock.now = 100.0
+    with ConsoleFixture(tmp_path / "workspace") as service:
+        settings = service._settings(request_values()["settings"], smoke=True)
+        args = service._args(settings, "local/fake", tmp_path / "dataset", True)
+        session = fake_recorder(args, clock)
+        session.state_source = live_state_source(clock)
+        session.front_source = SimpleNamespace(
+            read=lambda: ImageFrame(
+                np.full((24, 32, 3), 100, dtype=np.uint8), clock() - 0.1, (640, 480),
+            ),
+            close=lambda: None,
+        )
+        sleep, _ = advancing_sleep(clock)
+        report = ReadinessReport(clock, demo=False)
+        report.begin()
+        inspect_samples(session, report, load_limits(app.REPOSITORY / "config/synria_limits.yaml"),
+                        sleep=sleep)
+        report.finish()
+        alignment = report.checks["source_alignment"]
+        assert alignment["status"] == "not_ready"
+        assert alignment["measured_skew_s"] == pytest.approx(0.1)
+        assert "worst 0.100 s exceeds the existing 0.050 s gate" in alignment["message"]
+        assert report.snapshot()["status"] != "ready"
+        session.close()
+
+
+def test_missing_source_skips_alignment_window(tmp_path: Path, fake_connections: None) -> None:
+    """Without a required first sample, alignment stays Not checked and no window is sampled."""
+    clock = FakeClock()
+    with ConsoleFixture(tmp_path / "workspace") as service:
+        settings = service._settings(request_values()["settings"], smoke=True)
+        args = service._args(settings, "local/fake", tmp_path / "dataset", True)
+        session = fake_recorder(args, clock)
+        session.wrist_source = SimpleNamespace(
+            read=lambda: (_ for _ in ()).throw(RuntimeError("wrist camera unavailable")),
+            close=lambda: None,
+        )
+        sleep, calls = advancing_sleep(clock)
+        report = ReadinessReport(clock, demo=False)
+        report.begin()
+        inspect_samples(session, report, load_limits(app.REPOSITORY / "config/synria_limits.yaml"),
+                        sleep=sleep)
+        report.finish()
+        alignment = report.checks["source_alignment"]
+        assert alignment["status"] == "not_checked"
+        assert alignment["waiting_for"] == ["wrist_sample"]
+        assert "measured_skew_s" not in alignment
+        assert calls == []
+        session.close()
+
+
+def test_source_fault_during_alignment_window_is_not_ready(
+    tmp_path: Path, fake_connections: None,
+) -> None:
+    """A source that goes stale after its first sample cannot leave alignment green."""
+    clock = FakeClock()
+    clock.now = 100.0
+    with ConsoleFixture(tmp_path / "workspace") as service:
+        settings = service._settings(request_values()["settings"], smoke=True)
+        args = service._args(settings, "local/fake", tmp_path / "dataset", True)
+        session = fake_recorder(args, clock)
+        sleep, _ = advancing_sleep(clock)
+        report = ReadinessReport(clock, demo=False)
+        report.begin()
+        inspect_samples(session, report, load_limits(app.REPOSITORY / "config/synria_limits.yaml"),
+                        sleep=sleep)
+        report.finish()
+        alignment = report.checks["source_alignment"]
+        assert alignment["status"] == "not_ready"
+        assert "could not be measured" in alignment["message"]
+        assert "state sample age" in alignment["message"]
+        assert "measured_skew_s" not in alignment
         session.close()
 
 

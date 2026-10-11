@@ -10,6 +10,7 @@ import copy
 import importlib.util
 import math
 import shutil
+import time
 from collections.abc import Callable
 from datetime import datetime, timezone
 from pathlib import Path
@@ -138,9 +139,17 @@ def require_distinct_cameras(wrist: str, front: str) -> None:
 
 
 def inspect_samples(
-    recorder: PhysicalEpisodeRecorder, report: ReadinessReport, limits: PhysicalLimits,
+    recorder: PhysicalEpisodeRecorder, report: ReadinessReport, limits: PhysicalLimits, *,
+    sleep: Callable[[float], None] = time.sleep, settle_s: float = 0.5, window_s: float = 1.0,
 ) -> None:
-    """Inspect latest source values only; never start, capture, label or save an episode."""
+    """Inspect latest source values only; never start, capture, label or save an episode.
+
+    First samples prove each source delivers data. Alignment is then judged only on
+    steady-state reads taken after ``settle_s``, back to back the way an episode frame
+    is captured, for ``window_s`` at the configured rate; the worst skew in that window
+    is compared with the unchanged episode gate. A cold-start comparison is never
+    reported as measured skew.
+    """
     import numpy as np
 
     config = recorder.config
@@ -242,18 +251,81 @@ def inspect_samples(
                 max_timestamp_skew_s=gates.max_timestamp_skew_s,
             )
         else:
-            synchronized, measured_skew = source_timestamp_skew(
-                timestamps, config.contract.action_source.value, gates,
-            )
-            report.check(
-                "source_alignment", synchronized,
-                f"Latest-source skew {measured_skew:.3f} s "
-                f"{'is within' if synchronized else 'exceeds'} the existing "
-                f"{gates.max_timestamp_skew_s:.3f} s gate.",
-                measured_skew_s=measured_skew,
-                max_timestamp_skew_s=gates.max_timestamp_skew_s,
-                source_timestamps_s=timestamps,
+            _measure_steady_alignment(
+                recorder, report, gates, first_sample_timestamps=timestamps,
+                sleep=sleep, settle_s=settle_s, window_s=window_s,
             )
     report.check("distinct_views", len(images) == 2 and not np.array_equal(*images),
                  "Wrist/front samples must differ; operator must still verify their roles")
 
+
+def _measure_steady_alignment(
+    recorder: PhysicalEpisodeRecorder, report: ReadinessReport, gates: GateConfig, *,
+    first_sample_timestamps: dict[str, float], sleep: Callable[[float], None],
+    settle_s: float, window_s: float,
+) -> None:
+    """Judge alignment on settled back-to-back reads, as the per-frame episode gate will.
+
+    The first samples may include a camera's first frame that arrived long after the
+    follower was read; that span is retained for audit but never reported as skew.
+    """
+    config = recorder.config
+    action_source = config.contract.action_source.value
+    sample_count = max(1, round(window_s * config.fps))
+    period_s = 1.0 / config.fps
+    worst_skew: float | None = None
+    worst_stamps: dict[str, float] = {}
+    worst_age = 0.0
+    try:
+        sleep(settle_s)
+        for index in range(sample_count):
+            if index:
+                sleep(period_s)
+            follower = config.contract.prepare_state(recorder.state_source.read())
+            action = recorder.action_source.read(follower)
+            wrist = recorder.wrist_source.read()
+            front = recorder.front_source.read()
+            sampled = recorder.clock()
+            stamps = {
+                "state_monotonic_s": follower.monotonic_timestamp_s,
+                "wrist_monotonic_s": wrist.monotonic_timestamp_s,
+                "front_monotonic_s": front.monotonic_timestamp_s,
+            }
+            if action is not None:
+                stamps["action_monotonic_s"] = action.monotonic_timestamp_s
+            for name, stamp in stamps.items():
+                if name == "action_monotonic_s" and action_source != "leader":
+                    continue
+                age = sampled - stamp
+                if not math.isfinite(age) or not 0 <= age <= gates.max_source_age_s:
+                    raise ValueError(
+                        f"{name.split('_', 1)[0]} sample age {age:.3f} s exceeds freshness "
+                        "requirements during the alignment window"
+                    )
+                worst_age = max(worst_age, age)
+            _, skew = source_timestamp_skew(stamps, action_source, gates)
+            if skew is None:
+                raise ValueError("a required source timestamp is unavailable")
+            if worst_skew is None or skew > worst_skew:
+                worst_skew, worst_stamps = skew, stamps
+    except Exception as error:
+        report.check(
+            "source_alignment", False,
+            f"Steady-state alignment could not be measured: {error}",
+            max_timestamp_skew_s=gates.max_timestamp_skew_s,
+            first_sample_timestamps_s=first_sample_timestamps,
+            settle_s=settle_s, window_s=window_s,
+        )
+        return
+    assert worst_skew is not None
+    synchronized, _ = source_timestamp_skew(worst_stamps, action_source, gates)
+    report.check(
+        "source_alignment", synchronized,
+        f"Steady-state skew over {sample_count} back-to-back reads in {window_s:.1f} s: "
+        f"worst {worst_skew:.3f} s {'is within' if synchronized else 'exceeds'} the existing "
+        f"{gates.max_timestamp_skew_s:.3f} s gate.",
+        measured_skew_s=worst_skew, max_timestamp_skew_s=gates.max_timestamp_skew_s,
+        source_timestamps_s=worst_stamps, worst_source_age_s=worst_age,
+        sample_count=sample_count, settle_s=settle_s, window_s=window_s,
+        first_sample_timestamps_s=first_sample_timestamps,
+    )
