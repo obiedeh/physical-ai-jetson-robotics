@@ -39,9 +39,9 @@
 <article id="environment-context"><h3>This console’s environment</h3><p id="environment-facts">Loading local environment details…</p><p>Compare the ROS domain and middleware with the existing arm feed terminal. Loading libraries does not start that source.</p></article>
 <h3>Procedures</h3><div id="help-topics" class="cards"></div>
 <details id="task-timing-entry"><summary>Task timing controls are not in this console</summary><p>Takes count toward the dataset only when the task has a timed window registered in the repository. You can do practice runs before that.</p>
-<fieldset class="wide" id="task-window-registration"><legend>Task timing registration · read only</legend><div id="task-window-list"></div>
+<fieldset class="wide" id="task-window-registration"><legend>Take timing registration, read only</legend><div id="task-window-list"></div>
 <ol><li>Choose a skill and time the real task using the approved physical procedure.</li><li>Record the observed timing, chosen minimum and maximum, rationale, operator and date in <code>docs/ludo_flagship/DECISIONS.md</code>.</li><li>Register the reviewed window in <code>config/synria_tasks.json</code>. The console does not edit this registry.</li><li>Reopen the console and confirm the task shows “registered”; unset windows continue to block qualifying sessions.</li></ol>
-<small>There are no timing inputs here by design. Do not use suggested presets, synthetic runs or the disposable smoke duration as a real task window.</small><br><button type="button" data-guide-help="timing">Open the full timing procedure</button></fieldset>
+<small>There are no timing inputs here by design. Do not use suggested presets, synthetic runs or the practice run length as a real take window.</small><br><button type="button" data-guide-help="timing">Open the full timing procedure</button></fieldset>
 <article class="wide" id="training-curriculum"><h3>Physical training curriculum · staged, not all recordable yet</h3>
 <p>Keep datasets single-task. The registry above is the authority for what can be recorded; these next skills are a planning guide, not extra task choices.</p>
 <h4>Object-control foundations</h4><ul>
@@ -80,7 +80,7 @@
 <div id="setup-configure" hidden><article><h3>Suggested setup</h3><p id="setup-facts">Loading available host and connection information…</p>
 <p id="setup-guidance">Review suggested values before use. Physical safety confirmations are never filled automatically.</p>
 <label>Recommended values<select id="use-recommended" aria-label="Apply recommended recording values"><option value="">Choose an action</option><option value="apply">Apply follower-only recommended candidates</option><option value="keep">Keep current values</option></select></label>
-<small>The preset fills only known candidates: next-state actions, /joint_states, 15 FPS, 224 × 224 images, one-step lookahead, a 10-second first-sample wait and a 100-episode target. Confirm 15 FPS is no higher than the measured state rate. Gripper, running state source, camera roles, serial, power state, task timing and limit verification are never guessed.</small></article>
+<small>The preset fills only known candidates: next-state actions, /joint_states, 15 FPS, 224 × 224 images, one-step lookahead, a 10-second first-sample wait and a 100-take target. Confirm 15 FPS is no higher than the measured state rate. Gripper, running state source, camera roles, serial, power state, task timing and limit verification are never guessed.</small></article>
 <div class="form-grid">
 <fieldset class="field choice-group" data-field="gripper_type"><legend>Gripper size</legend><label class="choice"><input type="radio" name="gripper_type" value="50mm" required>50 mm</label><label class="choice"><input type="radio" name="gripper_type" value="100mm" required>100 mm</label><small>Driver stroke 0.025 m for 50 mm, 0.05 m for 100 mm.</small></fieldset>
 <label>Arm feed<select name="state_source" id="source"><option value="">Choose the running arm feed</option><option value="standalone_driver">Standalone driver, writes disabled, torque unchanged</option><option value="ros2_control">ros2_control, verified read-only setup</option></select></label>
@@ -114,7 +114,7 @@
 <datalist id="follower-topics"><option value="/joint_states">Follower state · documented setup</option></datalist>
 <datalist id="leader-topics"><option value="/leader/joint_states">Optional read-only USB leader</option></datalist>
 <datalist id="lookahead-presets"><option value="1">1 frame · recorder default</option></datalist>
-<datalist id="fps-presets"><option value="15">15 FPS · runbook starting candidate</option><option value="30">30 FPS · vendor suggestion, rate preflight required</option></datalist>
+<datalist id="fps-presets"><option value="15">15 FPS · runbook starting candidate</option><option value="30">30 FPS · vendor suggestion, the setup check must confirm the rate</option></datalist>
 <datalist id="image-presets"><option value="224">224 pixels · dataset default</option></datalist>
 <datalist id="startup-presets"><option value="10">10 seconds · first-sample default only</option></datalist>
 <datalist id="target-presets"><option value="10">10 takes (quick trial)</option><option value="50">50 takes</option><option value="100">100 takes</option></datalist>
@@ -122,8 +122,8 @@
 
 <p>Requested FPS must not exceed the measured incoming state rate. Stored images default to 224 × 224;
 the final front-camera still stays at native resolution. Gripper strokes are unverified interface candidates;
-zero is open. The 10-second startup wait does not relax steady-state freshness. Episode targets are goals,
-not qualifying counts. Task windows remain operator decisions outside this form.</p>
+zero is open. The 10-second startup wait does not relax steady-state freshness. Take targets are goals,
+not counts toward the dataset. Take windows remain operator decisions outside this form.</p>
 <button type="button" id="done-setup">Done, back to the check</button></div></article>
 <article id="sources-panel"><div class="section-head"><h3>Cameras and arm feed</h3><button id="check-readiness" type="button">Check now</button></div>
 <p id="sources-line">Checked by itself when you reach this step.</p>
@@ -137,7 +137,7 @@ not qualifying counts. Task windows remain operator decisions outside this form.
 </div>
 <div class="readiness-heading"><strong id="readiness-label" role="status">Not checked</strong><span id="readiness-count"></span></div>
 <div id="readiness-meter" class="readiness-meter" role="progressbar" aria-label="Pre-recording readiness" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-level="unchecked"><div id="readiness-fill"></div></div>
-<div class="readiness-scale" aria-hidden="true"><span>Unchecked / blocked</span><span>Connected · setup required</span><span>Ready for session preflight</span></div>
+<div class="readiness-scale" aria-hidden="true"><span>Unchecked / blocked</span><span>Connected · setup required</span><span>Ready for a session</span></div>
 <p id="readiness-scope">No check has run. The leader without USB cannot be detected by software. A green result is a short-lived snapshot, not permission to move the arm.</p>
 <details id="all-check-details"><summary>All checks and technical evidence</summary><ul id="readiness-results"></ul></details></details></article>
 <article id="bench-panel"><h3>I have checked the bench</h3><div id="readiness-confirmations">
@@ -160,7 +160,7 @@ not qualifying counts. Task windows remain operator decisions outside this form.
 <figure><figcaption>Overhead camera <span class="live-badge" data-live="front">Live</span><span id="front-health" class="camera-warning" hidden></span></figcaption><img id="front-preview" alt="Latest overhead camera frame"><details class="source-details"><summary>Source details</summary><p id="front-brief" class="source-brief"></p><pre id="front-source"></pre></details></figure></div>
 <aside id="reset-scene" class="card" hidden><h3>Reset the scene</h3><ul id="reset-scene-list"></ul></aside></div>
 <details id="record-technical"><summary>Technical details</summary><div class="split"><article><h3>Follower state, read only</h3><div id="joint-values"></div><canvas id="live-trace" width="650" height="160"></canvas></article>
-<article><h3>Preflight, cannot be bypassed</h3><pre id="preflight"></pre></article></div>
+<article><h3>Session setup check, cannot be bypassed</h3><pre id="preflight"></pre></article></div>
 <article id="last-save"><h3>Last saved take</h3><p id="save-result"></p><pre id="save-details"></pre></article></details></section>
 <section id="summary" class="screen" hidden><h2 id="summary-title" class="screen-title" tabindex="-1">Session finished</h2><p id="summary-lead" class="purpose"></p><dl id="summary-list" class="summary-list"></dl><div class="actions" id="summary-actions"></div></section>
 <dialog id="review-overlay" aria-labelledby="review-overlay-title"><div class="section-head"><h2 id="review-overlay-title">Review last take</h2><button id="close-review-overlay" type="button">Back to recording</button></div><div id="review-overlay-body"></div></dialog>

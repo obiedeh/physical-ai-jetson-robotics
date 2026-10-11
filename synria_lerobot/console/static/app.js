@@ -129,8 +129,8 @@ function renderTaskWindows() {
     const window = task.episode_window;
     const registered = window.min_episode_s !== null && window.max_episode_s !== null;
     container.append(text("p", `${task.task_id}: ${registered
-      ? `${window.min_episode_s}–${window.max_episode_s} seconds · registered`
-      : "Not registered · qualifying recording unavailable"}`));
+      ? `${window.min_episode_s} to ${window.max_episode_s} seconds · timed`
+      : "Not timed · practice runs only"}`));
   }
 }
 let savedShownFor = null, savedUntil = 0;
@@ -315,7 +315,7 @@ function render(next) {
 $("exit-flow").onclick = () => window.SynriaRouter.go(routes().home());
 document.querySelectorAll("[data-command]").forEach(node=>node.onclick=()=>safe(()=>command(node.dataset.command)));
 $("smoke").onclick=()=>safe(async()=>{if(!$("new-form").reportValidity())return;await api("smoke",formValues());await refreshState();window.SynriaRouter.go(routes().record("smoke"));await refreshSessions();});
-$("discard").onclick=()=>safe(async()=>{if(!confirm("Discard all pending unsaved frames? This cannot be undone."))return;const reason=prompt("Capture/setup fault reason (required)","");if(reason){await api("record/discard",{reason});await refreshState();}});
+$("discard").onclick=()=>safe(async()=>{if(!confirm("Throw this take away? It cannot be recovered."))return;const reason=prompt("What went wrong with the capture? (required)","");if(reason){await api("record/discard",{reason});await refreshState();}});
 /** Release the cameras and arm feed; refuse while a stopped take is still unsaved. */
 async function closeOpenSession() {
   const c = state.capture || {};
