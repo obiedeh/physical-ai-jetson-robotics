@@ -10,6 +10,7 @@ const state = {demo:false, active_session:null, capture:{state:"closed"}, prefli
 const task = {task_id:"die_into_cup", task_text:"Synthetic fixture: put die into cup", success_rule:"Operator and still", scene_requirements:["Fixed synthetic scene"], episode_window:{min_episode_s:null, max_episode_s:null}};
 const sessionList = [];
 const libraryTasks = [];
+const timing = {running:false,polls:0,runs:[],proposed_window:null,phase:"not started"};
 /** A fixed breakdown the fake planner returns for any sentence. */
 function fakeBreakdown(sentence){const step=(name,start,end,kind)=>({name,instruction:`Do ${name.toLowerCase()} and return to ready.`,start_state:start,end_state:end,success_rule:`${name} is done.`,scene_before_take:["Gripper empty, arm at ready."],kind,objects_grasped:["die"],holds_at_start:false,holds_at_end:false,camera_can_confirm:true,suggested_takes:5,optional:false,primitives:["pick"]});
   return {schema_version:"synria_task_breakdown_v1",goal:{title:"Roll a die",sentence,rationale:"Two steps so the cycle can repeat."},sub_tasks:[step("Die into cup","Die in start zone, gripper empty, arm at ready","Die in cup, gripper empty, arm at ready","skill"),step("Die back to start","Die in cup, gripper empty, arm at ready","Die in start zone, gripper empty, arm at ready","reset")]};}
@@ -61,6 +62,9 @@ const server = http.createServer(async (req, res) => {
     else if(route==="session/s1/close"){state.active_session=null;state.capture={state:"closed"};if(sessionList[0])sessionList[0].status="closed";value=state;}
     else if(route==="library/plan"){value={source:"built-in planner",breakdown:fakeBreakdown(payload.sentence),questions:[],recipe:"roll_a_die",fallback_reason:"",notes:[],warnings:[],proposed:{goal_id:"lib_roll_a_die",task_ids:["lib_roll_a_die_1","lib_roll_a_die_2"]}};}
     else if(route==="library/save"){libraryTasks.length=0;payload.breakdown.sub_tasks.forEach((step,i)=>libraryTasks.push({task_id:`lib_roll_a_die_${i+1}`,task_text:step.instruction,success_rule:step.success_rule,scene_requirements:step.scene_before_take,declared_fixed_scene:true,requires_unobserved_goal:false,episode_window:{min_episode_s:null,max_episode_s:null},task_source:"library",group:"Roll a die",display_name:`Roll a die: ${i+1} ${step.name}`,goal_id:"lib_roll_a_die",goal_title:"Roll a die",library_version:1,chain_position:i+1,kind:step.kind,frozen:false,name:step.name,start_state:step.start_state,end_state:step.end_state,suggested_takes:step.suggested_takes}));value={goal:{id:"lib_roll_a_die",title:payload.breakdown.goal.title,tasks:libraryTasks.map(t=>({task_id:t.task_id,version:1}))},warnings:[]};}
+    else if(route.endsWith("/time/start")){timing.running=true;timing.polls=0;timing.runs=[];timing.proposed_window=null;timing.phase="learning rest";value=timing;}
+    else if(route.endsWith("/time/stop")){timing.running=false;value=timing;}
+    else if(route.endsWith("/time/confirm")){timing.running=false;const t=libraryTasks[0];t.episode_window={min_episode_s:payload.min_episode_s,max_episode_s:payload.max_episode_s};value={...t,version:1,timing_runs:timing.runs,name:t.name};}
     else if(route==="session/s1/finish"){state.active_session=null;state.capture={state:"closed"};if(sessionList[0])sessionList[0].status="finished";value=state;}
     else if(route==="record/retry") {
       if(!allowSave){state.capture.error="save failed: disk full; pending frames retained";res.writeHead(409,{"Content-Type":"application/json"});res.end(JSON.stringify({error:state.capture.error}));return;}
@@ -73,6 +77,7 @@ const server = http.createServer(async (req, res) => {
   else if(route.startsWith("sessions"))value=sessionList;
   else if(route.startsWith("episodes/"))value=[];
   else if(route==="tasks")value=[{...task,task_source:"registry",group:"Built-in tasks",display_name:"Die into cup"},...libraryTasks];
+  else if(route.endsWith("/time")){if(timing.running){timing.polls++;if(timing.polls>=2&&timing.runs.length<3){timing.runs.push({index:timing.runs.length+1,duration_s:10+timing.runs.length,peak_deg:40,peak_joint:"Joint1",gripper_travel_mm:16,gripper_cycled:true});timing.phase="waiting for a move";}if(timing.runs.length>=3)timing.proposed_window={min_episode_s:8,max_episode_s:16};}value={task_id:"lib_roll_a_die_1",...timing,runs_wanted:"3 to 5",rest_learned:true,error:null};}
   else if(route==="library")value={goals:[],rules:["Every sub-task starts and ends with the gripper empty and the arm at the ready pose.","One object grasped per sub-task."],planner:{external_configured:false,source:"built-in planner"}};
   else if(route==="readiness")value=expireReports&&report.checked_utc?{...report,status:"expired",label:"Check expired · run again",percent:0}:report;
   else if(route==="cameras")value={cameras:["fake-wrist-video-index0","fake-front-video-index0"],message:"Synthetic identifiers"};
@@ -257,6 +262,22 @@ async function run() {
     assert.equal(await evaluate("[...document.querySelectorAll('#task optgroup')].map(g=>g.label).join('|')"),"Built-in tasks|Roll a die","the dropdown is grouped by goal with built-in tasks first");
     assert.equal(await evaluate("document.querySelector('[name=task_id]').value"),"lib_roll_a_die_1","the first saved task is selected");
     assert.match(await textOf("#notice"),/2 tasks saved under Roll a die/);
+    // Time it: listen to the arm feed, three moves, a proposed window, one confirmation.
+    assert.match(await textOf("#task-description"),/Library task from the goal "Roll a die", step 1, version 1/);
+    await evaluate("[...document.querySelectorAll('#task-description button')].find(n=>n.textContent==='Time it').click()");
+    await until("document.querySelector('#time-dialog').open");
+    assert.equal(await textOf("#time-title"),"Time: 1 Die into the cup");
+    await click("#time-start");
+    await until("document.querySelectorAll('#time-runs li').length===3 && !document.querySelector('#time-confirm').hidden","three timed moves and a proposed window");
+    assert.match(await textOf("#time-runs"),/Move 1: 10\.0 s, gripper closed and reopened, peak 40 degrees on Joint1/);
+    assert.equal(await evaluate("document.querySelector('#time-min').value+'-'+document.querySelector('#time-max').value"),"8-16");
+    await evaluate("document.querySelector('#time-max').value='15';document.querySelector('#time-max').dispatchEvent(new Event('input',{bubbles:true}))");
+    await click("#time-confirm");
+    await until("!document.querySelector('#time-dialog').open");
+    assert.equal(calls.at(-1).route,"library/lib_roll_a_die_1/time/confirm");
+    assert.equal(JSON.stringify(calls.at(-1).payload),JSON.stringify({min_episode_s:8,max_episode_s:15}),"the operator's edit is what is confirmed");
+    await until("document.querySelector('[data-task-id=lib_roll_a_die_1]').textContent.includes('8 to 15 s per take')","the card shows the confirmed take length");
+    assert.match(await textOf("#notice"),/8 to 15 s per take, stored with version 1/);
     await click("[data-task-id=die_into_cup]");
     assert.equal(await evaluate("document.querySelector('[name=task_id]').value"),"die_into_cup");
     const teachPosts=calls.length;

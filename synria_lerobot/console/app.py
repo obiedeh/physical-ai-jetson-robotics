@@ -33,6 +33,7 @@ from synria_lerobot.console.readiness import (
     runtime_dependencies,
 )
 from synria_lerobot.console.server import make_server
+from synria_lerobot.console.timing import TimingSession
 from synria_lerobot.recorder import (
     PhysicalEpisodeRecorder,
     RecordedPhysicalEpisode,
@@ -68,6 +69,14 @@ GUIDE_DOCUMENTS = {
     "first-motion": "reports/synria/first_safe_motion.md",
     "limits": "config/synria_limits.yaml",
 }
+
+
+def _joint_state_source(topic: str) -> Any:
+    """The recorder's own read-only joint-state subscriber, for timing on the bench."""
+    from synria_lerobot.recorder import RosJointStateSource
+
+    return RosJointStateSource(topic, node_name="synria_console_timer",
+                               first_sample_timeout_s=10.0)
 
 
 def library_task_definition(task: dict[str, Any]) -> TaskDefinition:
@@ -156,6 +165,8 @@ class ConsoleService:
         controller_factory: Callable[..., RecordingController] = RecordingController,
         playback: EpisodePlayback | None = None, clock: Callable[[], float] = time.monotonic,
         planner: ExternalPlanner | None = None,
+        timing_source_factory: Callable[[str], Any] | None = None,
+        timing_poll_s: float = 0.02,
     ) -> None:
         """Inject fake builders or clocks while retaining the production construction path."""
         resolved = workspace.resolve()
@@ -179,6 +190,9 @@ class ConsoleService:
         self.clock = clock
         self.playback = playback or EpisodePlayback()
         self.planner = planner
+        self._timing_source_factory = timing_source_factory or _joint_state_source
+        self._timing_poll_s = timing_poll_s
+        self._timing: TimingSession | None = None
         self._lock = threading.RLock()
         self._workspace_lock = WorkspaceLock(resolved)
         catalog = None
@@ -705,6 +719,56 @@ class ConsoleService:
             task_id, payload.get("min_episode_s"), payload.get("max_episode_s"), runs=runs,
         )
 
+    def start_timing(self, task_id: str, payload: dict[str, Any]) -> dict[str, Any]:
+        """Listen to the arm feed and time three to five moves; never while anything else owns it."""
+        if self.demo:
+            raise ValueError("Time it is not available in demo mode; it listens to the real arm")
+        if not is_library_task_id(task_id):
+            raise ValueError("only library tasks are timed here; registry timing is reviewed")
+        self.catalog.library_task(task_id)
+        topic = payload.get("topic", "/joint_states")
+        if type(topic) is not str or not topic.startswith("/"):
+            raise ValueError("the arm feed topic must be an absolute topic name")
+        with self._lock:
+            if self.controller is not None or self.readiness.running:
+                raise RuntimeError("pause the session or wait for the setup check before timing")
+            if self._timing is not None and self._timing.running:
+                raise RuntimeError("a timing pass is already running")
+            session = TimingSession(task_id, lambda: self._timing_source_factory(topic),
+                                    poll_s=self._timing_poll_s)
+            self._timing = session
+            session.start()
+            self.catalog.record_event(None, "timing_started", {"task_id": task_id, "topic": topic})
+            return session.snapshot()
+
+    def timing_status(self, task_id: str) -> dict[str, Any]:
+        """Progress of the timing pass for this task, or nothing running."""
+        session = self._timing
+        if session is None or session.task_id != task_id:
+            return {"task_id": task_id, "running": False, "phase": "not started", "runs": [],
+                    "runs_wanted": "3 to 5", "proposed_window": None, "rest_learned": False,
+                    "error": None}
+        return session.snapshot()
+
+    def stop_timing(self, task_id: str) -> dict[str, Any]:
+        """Stop listening and release the arm feed subscription."""
+        session = self._timing
+        if session is not None and session.task_id == task_id:
+            session.stop()
+            self.catalog.record_event(None, "timing_stopped",
+                                      {"task_id": task_id, "runs": len(session.timer.runs)})
+        return self.timing_status(task_id)
+
+    def confirm_timing(self, task_id: str, payload: dict[str, Any]) -> dict[str, Any]:
+        """Store the window the operator confirmed, with the runs that proposed it."""
+        session = self._timing
+        runs = [run.as_dict() for run in session.timer.runs] if (
+            session is not None and session.task_id == task_id
+        ) else []
+        if session is not None and session.task_id == task_id:
+            session.stop()
+        return self.time_library_task(task_id, {**payload, "runs": runs})
+
     def export_goal(self, goal_id: str) -> dict[str, Any]:
         """A registry-shaped JSON fragment of a goal's tasks for a reviewed commit."""
         goal = self.catalog.goal(goal_id)
@@ -801,6 +865,8 @@ class ConsoleService:
             }
         if len(route) == 2 and route[0] == "library-export":
             return self.export_goal(route[1])
+        if len(route) == 3 and route[0] == "library" and route[2] == "time":
+            return self.timing_status(route[1])
         if route == ["cameras"]:
             return list_cameras() if not self.demo else {
                 "cameras": ["synthetic:wrist", "synthetic:front"], "message": "Synthetic demo only",
@@ -877,6 +943,13 @@ class ConsoleService:
                 return self.save_goal(payload)
             if len(route) == 3 and route[0] == "library" and route[2] == "window":
                 return self.time_library_task(route[1], payload)
+            if len(route) == 4 and route[0] == "library" and route[2] == "time":
+                if route[3] == "start":
+                    return self.start_timing(route[1], payload)
+                if route[3] == "stop":
+                    return self.stop_timing(route[1])
+                if route[3] == "confirm":
+                    return self.confirm_timing(route[1], payload)
             if route == ["sessions"]:
                 return self.create_session(payload)
             if route == ["reindex"]:
@@ -952,6 +1025,8 @@ class ConsoleService:
         if self._closed:
             return
         cleanup_error: BaseException | None = None
+        if self._timing is not None:
+            self._timing.stop()
         try:
             self.close_session(reason=reason, force=force)
         except BaseException as error:

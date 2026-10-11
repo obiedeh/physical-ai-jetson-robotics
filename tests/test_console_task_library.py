@@ -186,3 +186,91 @@ def test_external_planner_is_reported_and_falls_back(tmp_path: Path) -> None:
         planned = service.mutate(["library", "plan"], {"sentence": "roll a die"})
         assert planned["source"] == "built-in planner"
         assert "could not be run" in planned["fallback_reason"]
+
+
+class FakeArmFeed:
+    """A read-only arm feed that rests, moves three times and rests, from a fake clock."""
+
+    def __init__(self) -> None:
+        """Lay out the samples in advance so the timing thread just walks through them."""
+        import math
+
+        from synria_lerobot.physical_contract import PhysicalState
+
+        rest = (1.55, 1.56, -0.60, 0.10, -0.81, -0.17, 0.0001)
+        self.samples: list[PhysicalState] = []
+        self.closed = False
+        now = 0.0
+
+        def push(values: tuple[float, ...]) -> None:
+            nonlocal now
+            now += 0.02
+            self.samples.append(PhysicalState(values[:6], values[6], now, now, None, now))
+
+        for _ in range(int(3.5 / 0.02)):
+            push(rest)
+        for move_s in (10.0, 12.0, 9.0):
+            count = int(move_s / 0.02)
+            for index in range(count):
+                phase = index / (count - 1)
+                swing = math.radians(40.0) * math.sin(math.pi * phase)
+                push((rest[0] + swing, rest[1], rest[2], rest[3], rest[4], rest[5],
+                      rest[6] + 0.016 * math.sin(math.pi * phase)))
+            for _ in range(int(3.0 / 0.02)):
+                push(rest)
+        self._index = 0
+
+    def read(self) -> Any:
+        """Hand out the next sample; after the last one keep returning it."""
+        sample = self.samples[min(self._index, len(self.samples) - 1)]
+        self._index += 1
+        return sample
+
+    def close(self) -> None:
+        """Record that the subscription was released."""
+        self.closed = True
+
+
+def test_time_it_listens_read_only_and_stores_the_confirmed_window(tmp_path: Path) -> None:
+    """Three moves are timed from the arm feed, a window is proposed, the operator confirms."""
+    import time
+
+    feeds: list[FakeArmFeed] = []
+
+    def factory(topic: str) -> FakeArmFeed:
+        assert topic == "/joint_states"
+        feed = FakeArmFeed()
+        feeds.append(feed)
+        return feed
+
+    with ConsoleFixture(tmp_path, timing_source_factory=factory,
+                        timing_poll_s=0.0005) as service:
+        service.catalog.save_goal(GOAL, catalog_tasks(seed_payload()), planner_source="operator")
+        with pytest.raises(ValueError, match="only library tasks"):
+            service.mutate(["library", "die_into_cup", "time", "start"], {})
+        status = service.mutate(["library", "lib_roll_a_die_1", "time", "start"], {})
+        assert status["running"] is True and status["phase"] == "learning rest"
+        with pytest.raises(RuntimeError, match="already running"):
+            service.mutate(["library", "lib_roll_a_die_1", "time", "start"], {})
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline:
+            status = service.read(["library", "lib_roll_a_die_1", "time"], {})
+            if len(status["runs"]) >= 3:
+                break
+            time.sleep(0.05)
+        assert len(status["runs"]) == 3, status
+        assert [round(run["duration_s"]) for run in status["runs"]] == [10, 12, 9]
+        assert all(run["gripper_cycled"] for run in status["runs"])
+        assert status["proposed_window"] == {"min_episode_s": 7.0, "max_episode_s": 16.0}
+        assert status["error"] is None
+        confirmed = service.mutate(["library", "lib_roll_a_die_1", "time", "confirm"],
+                                   {"min_episode_s": 8, "max_episode_s": 16})
+        assert confirmed["episode_window"] == {"min_episode_s": 8, "max_episode_s": 16}
+        assert len(confirmed["timing_runs"]) == 3
+        assert feeds and feeds[0].closed, "the subscription is released after confirming"
+        kinds = [row["kind"] for row in service.catalog.events()]
+        assert "timing_started" in kinds and "library_task_timed" in kinds
+        assert service.read(["library", "lib_roll_a_die_1", "time"], {})["running"] is False
+    with ConsoleFixture(tmp_path / "demo", demo=True) as demo:
+        with pytest.raises(ValueError, match="not available in demo mode"):
+            demo.mutate(["library", "lib_roll_a_die_1", "time", "start"], {})
