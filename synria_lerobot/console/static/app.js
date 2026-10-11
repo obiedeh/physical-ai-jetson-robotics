@@ -71,11 +71,13 @@ async function refreshSessions() {
   for (const session of sessions) {
     const card = text("article", ""); card.className = "card";
     const open = state.active_session?.id === session.id;
-    card.append(text("h3", session.name + demoLabel(session) + (open ? " · open now" : "")));
-    card.append(text("p", `${session.task_id} · ${session.status} · target ${session.target_episodes}`));
     const counts = session.counts || session;
-    card.append(text("p", `Saved ${counts.saved ?? counts.episode_count ?? 0} · success ${counts.success ?? counts.success_count ?? 0} · failure ${counts.failure ?? counts.failure_count ?? 0} · excluded ${counts.excluded ?? counts.excluded_count ?? 0}`));
-    card.append(text("p", `${session.updated_utc || ""} · ${((session.disk_size_bytes || session.size_bytes || 0)/1e6).toFixed(1)} MB`));
+    const saved = counts.saved ?? counts.episode_count ?? 0, target = session.target_episodes ?? "?";
+    const standing = open ? "Open now" : ["trashed", "purged"].includes(session.status) ? "In the trash" : saved >= (session.target_episodes ?? Infinity) ? "Finished" : saved ? "Paused" : "Not started";
+    card.append(text("h3", session.name + demoLabel(session)));
+    card.append(text("p", `${String(session.task_id).replaceAll("_", " ")} · ${standing} · ${saved} of ${target} takes saved`));
+    card.append(text("p", `${counts.success ?? counts.success_count ?? 0} success, ${counts.failure ?? counts.failure_count ?? 0} failure, ${counts.excluded ?? counts.excluded_count ?? 0} excluded · ${((session.disk_size_bytes || session.size_bytes || 0)/1e6).toFixed(1)} MB`));
+    card.append(text("p", session.updated_utc ? `Last used ${window.SynriaHome ? window.SynriaHome.ago(session.updated_utc) : session.updated_utc}` : ""));
     if(session.recovery_blocked)card.append(text("p",`RECOVERY BLOCKED: ${session.recovery_error}. Preserve the recording lock and journal; resolve through operator review before further writes.`));
     const actions = text("div", ""); actions.className = "actions";
     if (["trashed","purged"].includes(session.status)) {
@@ -282,7 +284,7 @@ function arrive(sectionId, announcement) {
 /** Render one route: pick the section, set the nav mode and load what that screen shows. */
 function render(next) {
   const previous = route; route = next;
-  const sections = {home:"home", sessions:"sessions", help:"help", intro:"home", new:"new", record:"record", review:"review", summary:"summary"};
+  const sections = {home:"home", sessions:"sessions", help:"help", intro:"intro", new:"new", record:"record", review:"review", summary:"summary"};
   showSection(sections[next.name]);
   $("record-route-note").hidden = true;
   if (next.name === "record" && state.active_session && state.active_session.id !== next.sessionId) {
@@ -367,9 +369,13 @@ function recordingShortcut(event) {
   if(cmd&&state.capture?.controls?.[cmd]){event.preventDefault();safe(()=>command(cmd));}
 }
 document.addEventListener("keydown",recordingShortcut);
+/** Has the operator already seen the one-time intro? Storage may be blocked; then it shows again. */
+function introSeen() { try { return localStorage.getItem("synria-intro-seen") === "1"; } catch (reason) { return false; } }
+$("intro-continue").onclick=()=>{try{localStorage.setItem("synria-intro-seen","1");}catch(reason){/* storage blocked */}window.SynriaRouter.go(routes().home(),{replace:true});};
 /** Load server state and form choices, then show the place the hash names or the natural start. */
 async function boot(){await refreshState();tasks=await api("tasks");{const none=text("option","Choose a task");none.value="";$("task").append(none);}for(const task of tasks){const option=text("option",task.task_id);option.value=task.task_id;$("task").append(option);}renderTaskWindows();const cameras=await api("cameras");$("camera-note").textContent=cameras.message;for(const id of ["wrist-choice","front-choice"]){$(id).append(text("option",""));for(const camera of cameras.cameras){const option=text("option",camera);option.value=camera;$(id).append(option);}}$("source").disabled=state.demo;$("smoke").hidden=state.demo;taskDescription();await refreshSessions();
-  const start=state.active_session?routes().record(state.active_session.id):routes().home();
+  const firstRun=!sessions.some(s=>!["trashed","purged"].includes(s.status))&&!introSeen();
+  const start=state.active_session?routes().record(state.active_session.id):firstRun?routes().intro():routes().home();
   window.SynriaRouter.start(render,start);
   window.synriaConsoleReady=true;window.dispatchEvent(new Event("console-ready"));}
 safe(boot);setInterval(()=>safe(refreshState),700);
