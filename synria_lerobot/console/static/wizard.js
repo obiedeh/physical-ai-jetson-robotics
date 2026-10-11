@@ -148,11 +148,53 @@ const SynriaWizard = (() => {
     if (isLibrary(task)) {
       box.append(text("p", `Library task from the goal "${task.goal_title}", step ${task.chain_position}, version ${task.library_version}. Takes record the step, its version and its place in the chain so they can be stitched together later.`));
       if (task.start_state) box.append(text("p", `Starts: ${task.start_state} Ends: ${task.end_state}`));
+      const timeIt = button("Time it", () => openTiming(task));
+      if (state.demo) { timeIt.disabled = true; timeIt.title = "Time it listens to the real arm; it is not available in demo mode."; }
+      box.append(timeIt);
     }
     const status = text("p", timed(task) ? `Take length ${windowWords(task)}. Takes recorded in this session count toward the dataset.`
       : "Take length not set yet. You can do practice runs now. To record takes that count, time this task first.");
     status.className = "task-status"; box.append(status);
     if (!timed(task)) box.append(button("How to time this task", () => window.SynriaGuide.openHelp("timing")));
+  }
+
+  let timingTask = null, timingPoll = null;
+  /** Paint the timing dialog from a status snapshot. */
+  function renderTiming(status) {
+    $("time-phase").textContent = status.error ? `Stopped: ${status.error}` : status.running ? `Listening. ${status.phase.charAt(0).toUpperCase()}${status.phase.slice(1)}.` : status.runs.length ? "Stopped." : "Not started.";
+    const list = $("time-runs"); list.replaceChildren();
+    for (const run of status.runs) list.append(text("li", `Move ${run.index}: ${run.duration_s.toFixed(1)} s${run.gripper_cycled ? ", gripper closed and reopened" : ""}, peak ${run.peak_deg.toFixed(0)} degrees on ${run.peak_joint}`));
+    const proposal = status.proposed_window;
+    $("time-proposal").hidden = !proposal;
+    if (proposal && !$("time-min").dataset.touched) { $("time-min").value = String(proposal.min_episode_s); $("time-max").value = String(proposal.max_episode_s); }
+    $("time-error").hidden = !status.error; $("time-error").textContent = status.error || "";
+    $("time-start").hidden = status.running; $("time-start").textContent = status.runs.length ? "Time it again" : "Start timing";
+    $("time-stop").hidden = !status.running;
+    $("time-confirm").hidden = !proposal;
+    $("time-start").classList.toggle("primary", !proposal);
+  }
+  /** Open the dialog for one library task and poll its progress while open. */
+  function openTiming(task) {
+    timingTask = task;
+    $("time-title").textContent = `Time: ${task.chain_position} ${task.name || taskTitle(task)}`;
+    delete $("time-min").dataset.touched;
+    $("time-dialog").showModal();
+    const poll = async () => { if (!$("time-dialog").open || !timingTask) return; renderTiming(await api(`library/${timingTask.task_id}/time`)); };
+    safe(poll);
+    clearInterval(timingPoll); timingPoll = setInterval(() => safe(poll), 700);
+  }
+  function wireTiming() {
+    $("time-close").onclick = () => { clearInterval(timingPoll); $("time-dialog").close(); };
+    $("time-dialog").addEventListener("close", () => clearInterval(timingPoll));
+    $("time-start").onclick = () => safe(async () => { renderTiming(await api(`library/${timingTask.task_id}/time/start`, {topic: formValues().follower_topic || "/joint_states"})); });
+    $("time-stop").onclick = () => safe(async () => { renderTiming(await api(`library/${timingTask.task_id}/time/stop`, {})); });
+    for (const id of ["time-min", "time-max"]) $(id).addEventListener("input", () => { $("time-min").dataset.touched = "1"; });
+    $("time-confirm").onclick = () => safe(async () => {
+      const saved = await api(`library/${timingTask.task_id}/time/confirm`, {min_episode_s: Number($("time-min").value), max_episode_s: Number($("time-max").value)});
+      clearInterval(timingPoll); $("time-dialog").close();
+      tasks = await api("tasks"); reloadTasks();
+      info("Take length saved", `${saved.name || timingTask.task_id}: ${saved.episode_window.min_episode_s} to ${saved.episode_window.max_episode_s} s per take, stored with version ${saved.version}.`, window.SynriaRouter.routes.wizard("task"));
+    });
   }
 
   /** After a task is chosen: scene prefill, suggested name, cards and footer. */
@@ -416,6 +458,7 @@ const SynriaWizard = (() => {
     if (armed) return;
     armed = true;
     renderTaskCards();
+    wireTiming();
     // The quick trial is the default; an earlier session's target is remembered, a draft wins.
     const last = (typeof sessions === "undefined" ? [] : sessions).find(item => !["trashed", "purged"].includes(item.status));
     if (last?.target_episodes) {

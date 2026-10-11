@@ -348,6 +348,17 @@ exported as a registry shaped JSON fragment for a reviewed commit. An untimed
 library task, like an untimed registry task, allows practice runs only; its
 take window is stored with the task version once the operator confirms it.
 
+**Time it** sits on a library task's panel on Choose task (not in demo mode). It
+opens a small dialog, subscribes read-only to the arm feed through the
+recorder's own joint-state subscriber, learns the rest pose for three seconds,
+then times each move from first motion to rest for three to five moves,
+noting the peak joint and whether the gripper closed and reopened. It
+proposes a take window from the runs (shortest take about 0.8 of the fastest
+move, longest about 1.3 of the slowest) which the operator can edit and must
+confirm; the confirmed window and the runs are stored with the task version,
+and a frozen version gets a new version. It refuses while a session is open
+or a setup check is running, and it never publishes anything.
+
 ## Storage and curation
 
 The workspace must be outside git. It contains `console.sqlite3`, five rotating

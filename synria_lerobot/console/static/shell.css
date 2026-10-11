@@ -155,3 +155,7 @@ fieldset.field small{color:var(--muted)}
 .task-group{grid-column:1/-1;margin:10px 0 0;font-size:14px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
 .task-card.teach-entry{border-style:dashed;justify-content:center;align-items:center;text-align:center}
 @media(max-width:900px){.teach-row{grid-template-columns:1fr}.teach-ask{flex-direction:column;align-items:stretch}}
+/* Time it: a small dialog that listens to the arm feed and proposes a take length. */
+#time-dialog{width:min(640px,calc(100vw - 32px));background:var(--panel);color:var(--text);border:1px solid #5e7888;border-radius:14px;padding:22px}#time-dialog::backdrop{background:#040910cc}
+.time-runs{list-style:none;padding:0;margin:8px 0;display:grid;gap:6px}.time-runs li{padding:8px 12px;background:#101b25;border-radius:6px}
+.time-proposal{margin:12px 0}#time-dialog .actions{display:flex;gap:10px;margin-top:12px}
