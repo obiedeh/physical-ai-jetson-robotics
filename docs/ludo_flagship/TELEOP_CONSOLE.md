@@ -77,8 +77,9 @@ the right; the primary stays disabled until the step is complete and the footer
 lists what is left, in order ("2 things left: choose the gripper size, tick the
 bench checks"). The stepper is an indicator: a completed step shows a tick and
 can be revisited, the later step cannot be clicked, and its address is clamped
-back while the first step is incomplete. Back never loses input: the draft is
-kept in browser storage (never the safety confirmations) and survives refresh.
+back while the first step is incomplete. Back never loses input: the draft (task, session name, target, scene note and
+the setup fields, never the safety confirmations) is kept in per-tab storage and
+a refresh restores the same step with the same inputs.
 Choose task shows one card per registry task in sentence case with a chip
 ("Practice only until timed" or the take length); choosing one shows the scene
 before each take as bullets, the success rule, one plain status, and the session
@@ -274,7 +275,8 @@ colours with a small Throw away, bad capture; Retry save only after a failed
 save; Cancel countdown only during a countdown; Finish practice run. After a
 save the banner reads "Take N saved as success. Quality checks passed" (or
 "Quality check failed: joint limits", or "Quality checks not run yet" until the
-result is known) for two seconds, then returns to Ready. Quality checks also run on demo data and say so. The counters
+result is known) for two seconds, then returns to Ready with that line kept
+underneath until the next recording starts. Quality checks also run on demo data and say so. The counters
 read in words with the target or practice note; Review last take opens the
 frame-exact review as an overlay and returns to the same recording state. A
 small Options row holds the countdown before recording (default 3 s) and sound
@@ -305,16 +307,27 @@ requires the same verdict.
 
 Choose task ends with a **Teach something new** card. On that screen the
 operator types what to teach the arm ("train to roll a dice") and presses
-**Break it down**. The planner answers with a goal and an ordered chain of
-sub-tasks, each an editable card: short name, the instruction sentence that
-becomes the take label, start state, end state the overhead camera can confirm,
-success rule, scene before each take, kind (skill, reset or recovery), objects
-grasped, suggested takes, and "not timed yet". Cards can be edited, moved,
-split, merged or deleted; a chain check warns when a step's end is not the next
-step's start, when a step grasps two objects, starts or ends holding something,
-has no reset step, or has a goal the camera cannot see. A short note explains
-why the boundaries are where they are. Nothing is saved until **Save tasks**,
-the only primary on the screen. The line under the goal says whether the
+**Break it down**; three example chips fill the box with sentences the built-in
+planner handles. The planner answers with a goal, a note on why the boundaries
+are where they are, a chain strip ("1 Die into cup, then 2 Roll and set the cup
+down, then 3 Die back to start (reset)", with optional recovery steps named
+separately) and one compact read-only card per step: short name, the
+instruction sentence that becomes the take label, Starts with, Ends with, a kind
+chip and suggested takes. Only chain steps are numbered; optional cards say
+Optional. A novice can accept the proposal without touching a field. Edit on a
+card opens the full form (states, success rule, scene lines, objects grasped,
+camera confirmation, kind, optional) with Move up, Move down, Split, Merge with
+next and Delete inside it. The chain check's warnings appear in plain words on
+the card they concern and never block saving; only an empty name or instruction
+does. The screen has the wizard's fixed footer: Cancel on the left, a reason in
+the middle, Save tasks on the right, shown only once a breakdown exists. Break
+it down is the primary until then and reads Break it down again afterwards; in
+the guided fallback ("The planner could not work out the object and where it
+goes from that sentence", followed by what the built-in planner understands) the
+only primary is Break it down with these answers, with an Add steps by hand link
+that opens one blank card in Edit. After Save tasks the page goes forward to
+Choose task with the new goal group shown, its first step preselected and one
+line saying how many tasks were saved. The line under the goal says whether the
 built-in planner or the external task planner command made the suggestion.
 
 The planner is a pure Python package with one validated schema and two backends

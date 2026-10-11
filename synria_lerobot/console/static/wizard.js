@@ -21,9 +21,10 @@ const SynriaWizard = (() => {
   let step = "task", checking = false, starting = false, armed = false, lastReason = "", autoName = true, lastTiles = "";
 
   /** Storage wrappers: a blocked store must never break the flow, only forget the draft. */
-  function readDraft() { try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || "null") || {}; } catch (reason) { return {}; } }
-  function writeDraft(draft) { try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch (reason) { /* storage blocked: the draft only lives in the page */ } }
-  function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (reason) { /* nothing to clear */ } }
+  // Per-tab storage: a refresh restores this tab's draft; another tab starts clean.
+  function readDraft() { try { return JSON.parse(sessionStorage.getItem(DRAFT_KEY) || "null") || {}; } catch (reason) { return {}; } }
+  function writeDraft(draft) { try { sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch (reason) { /* storage blocked: the draft only lives in the page */ } }
+  function clearDraft() { try { sessionStorage.removeItem(DRAFT_KEY); } catch (reason) { /* nothing to clear */ } }
 
   /** Save every named field except safety confirmations, which are never restored. */
   function saveDraft() {
@@ -461,6 +462,7 @@ const SynriaWizard = (() => {
     wireTiming();
     // The quick trial is the default; an earlier session's target is remembered, a draft wins.
     const last = (typeof sessions === "undefined" ? [] : sessions).find(item => !["trashed", "purged"].includes(item.status));
+    if (typeof editedSetupFields !== "undefined") editedSetupFields.add("target_episodes"); // the quick trial beats the runbook's 100
     if (last?.target_episodes) {
       const field = $("new-form").elements.target_episodes; field.value = String(last.target_episodes);
       const preset = document.querySelector("[data-preset-for=target_episodes]"); if (preset) { preset.value = [...preset.options].some(o => o.value === String(last.target_episodes)) ? String(last.target_episodes) : "custom"; preset.dispatchEvent(new Event("change", {bubbles:true})); }

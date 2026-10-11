@@ -94,7 +94,8 @@
       strip.dataset.signature = signature; strip.replaceChildren();
       for (const item of rows) {
         const li = document.createElement("li"); li.dataset.level = item.level;
-        li.append(text("b", item.name), text("span", item.detail === levelWords[item.level] ? item.detail : `${levelWords[item.level]} · ${item.detail}`));
+        const word = levelWords[item.level];
+        li.append(text("b", item.name), text("span", item.detail === word || item.detail.startsWith(`${word},`) || item.detail.startsWith(`${word} `) ? item.detail : `${word} · ${item.detail}`));
         strip.append(li);
       }
     }

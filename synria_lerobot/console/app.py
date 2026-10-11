@@ -720,7 +720,7 @@ class ConsoleService:
         )
 
     def start_timing(self, task_id: str, payload: dict[str, Any]) -> dict[str, Any]:
-        """Listen to the arm feed and time three to five moves; never while anything else owns it."""
+        """Time three to five moves from the arm feed; never while anything else owns the feed."""
         if self.demo:
             raise ValueError("Time it is not available in demo mode; it listens to the real arm")
         if not is_library_task_id(task_id):

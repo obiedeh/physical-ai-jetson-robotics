@@ -10,7 +10,7 @@ if (fragment.has("token")) {
 let state = {}, sessions = [], tasks = [], selected = null, frame = 0, playing = false;
 let rows = [], live = [], playGeneration = 0, frameGeneration = 0, lastCapture = "", lastCue = "", audioContext;
 let recordView = {reasons:{}, counters:"", lastSave:""};
-let reviewSessionId = "", route = null;
+let reviewSessionId = "", route = null, confirmingFinish = false;
 /** Read the per-launch token without failing when the browser blocks session storage. */
 function storedToken() { try { return sessionStorage.getItem("console-token") || ""; } catch (reason) { return ""; } }
 const token = storedToken();
@@ -145,6 +145,8 @@ function renderRecordBanner(c, active) {
   if (saved && saved.episode_index !== savedShownFor) { savedShownFor = saved.episode_index; savedUntil = Date.now() + 2000; }
   recordView = window.SynriaRecord.describe(c, active, {demo: state.demo, showSaved: Boolean(saved) && Date.now() < savedUntil});
   $("record-phase").textContent = recordView.headline.toUpperCase(); $("record-message").textContent = recordView.message;
+  const showLast = Boolean(saved) && recordView.phase === "ready";
+  $("record-saved").hidden = !showLast; if (showLast) $("record-saved").textContent = recordView.lastSave;
   $("record-banner").dataset.phase = recordView.phase;
   $("record-countdown").hidden = recordView.countdownS === null;
   if (recordView.countdownS !== null) { $("record-countdown-value").textContent = recordView.countdownS.toFixed(0); $("record-countdown-unit").textContent = recordView.countdownUnit; }
@@ -280,8 +282,9 @@ function renderFlowNav() {
   }
   const open = route.name === "record" && state.active_session?.id === route.sessionId;
   const busy = open && (recordView.recording || recordView.phase === "countdown");
-  $("pause-session").hidden = !open || busy; $("finish-session").hidden = !open || busy; $("exit-flow").hidden = open;
-  if (!open || busy) $("finish-confirm").hidden = true;
+  if (!open || busy) confirmingFinish = false;
+  $("finish-confirm").hidden = !confirmingFinish;
+  $("pause-session").hidden = !open || busy || confirmingFinish; $("finish-session").hidden = !open || busy || confirmingFinish; $("exit-flow").hidden = open;
   const list = $("breadcrumb");
   const signature = JSON.stringify(crumbs); if (list.dataset.signature === signature) return; list.dataset.signature = signature;
   list.replaceChildren();
@@ -340,9 +343,9 @@ async function closeOpenSession() {
 $("pause-session").onclick=()=>safe(async()=>{const saved=savedCount(state.active_session.id);const id=await closeOpenSession();window.SynriaRouter.go(routes().home());if(id!=="smoke")info("Session paused",`Your ${saved} take${saved===1?" is":"s are"} saved. The cameras are released. Continue from Home when you are ready.`,routes().home());});
 /** Finish: mark the session finished (reversible by Open) and show its summary. */
 async function finishSession(){const c=state.capture||{};if(c.state==="stopped"||c.state==="recording")throw Error("Save or throw away the stopped take first. Then pause or finish the session.");const id=state.active_session.id;if(id==="smoke"){await closeOpenSession();window.SynriaRouter.go(routes().home());return;}await api(`session/${id}/finish`,{});await refreshState();await refreshSessions();window.SynriaRouter.go(routes().summary(id));}
-$("finish-session").onclick=()=>safe(async()=>{const active=state.active_session;if(!active)return;const saved=savedCount(active.id),target=active.target_episodes??0;if(active.id!=="smoke"&&saved<target){$("finish-confirm-text").textContent=`Finish with ${saved} of ${target} takes? You can reopen it later.`;$("finish-confirm").hidden=false;$("finish-yes").focus();return;}await finishSession();});
-$("finish-yes").onclick=()=>safe(async()=>{$("finish-confirm").hidden=true;await finishSession();});
-$("finish-no").onclick=()=>{$("finish-confirm").hidden=true;$("finish-session").focus();};
+$("finish-session").onclick=()=>safe(async()=>{const active=state.active_session;if(!active)return;const saved=savedCount(active.id),target=active.target_episodes??0;if(active.id!=="smoke"&&saved<target){$("finish-confirm-text").textContent=`Finish with ${saved} of ${target} takes? You can reopen it later.`;confirmingFinish=true;renderFlowNav();$("finish-yes").focus();return;}await finishSession();});
+$("finish-yes").onclick=()=>safe(async()=>{confirmingFinish=false;renderFlowNav();await finishSession();});
+$("finish-no").onclick=()=>{confirmingFinish=false;renderFlowNav();$("finish-session").focus();};
 $("record-banner-action").onclick=()=>safe(async()=>{if($("record-banner-action").dataset.action==="close"){await closeOpenSession();window.SynriaRouter.go(routes().home());}});
 /** Session summary after Finish: counts in words, where the takes are, and what to do next. */
 async function renderSummary(id) {
@@ -398,6 +401,7 @@ $("intro-continue").onclick=()=>{try{localStorage.setItem("synria-intro-seen","1
 /** Rebuild the task select with built-in tasks first and library tasks grouped under their goal. */
 function fillTaskOptions(){const select=$("task"),previous=select.value;select.replaceChildren();const none=text("option","Choose a task");none.value="";select.append(none);let group=null,holder=select;for(const task of tasks){const heading=task.group||(task.task_source==="library"?task.goal_title:"Built-in tasks");if(heading!==group){group=heading;holder=document.createElement("optgroup");holder.label=heading;select.append(holder);}const option=text("option",task.display_name||task.task_id);option.value=task.task_id;holder.append(option);}select.value=tasks.some(t=>t.task_id===previous)?previous:"";}
 async function boot(){for(const [role,name] of Object.entries(window.SynriaRecord.NAMES)){document.querySelectorAll(`[data-camera-name=${role}]`).forEach(node=>{node.textContent=name;});}await refreshState();tasks=await api("tasks");fillTaskOptions();renderTaskWindows();const cameras=await api("cameras");$("camera-note").textContent=cameras.message;for(const id of ["wrist-choice","front-choice"]){$(id).append(text("option",""));for(const camera of cameras.cameras){const option=text("option",camera);option.value=camera;$(id).append(option);}}$("source").disabled=state.demo;$("smoke").hidden=state.demo;taskDescription();await refreshSessions();
+  if(window.SynriaWizard)window.SynriaWizard.initialize();
   const firstRun=!sessions.some(s=>!["trashed","purged"].includes(s.status))&&!introSeen();
   const start=state.active_session?routes().record(state.active_session.id):firstRun?routes().intro():routes().home();
   window.SynriaRouter.start(render,start);
