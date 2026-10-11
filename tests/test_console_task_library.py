@@ -138,7 +138,9 @@ def test_service_plans_saves_groups_exports_and_records_a_library_session(
         choices = service.read(["tasks"], {})
         assert [task["task_source"] for task in choices] == ["registry"] * 3 + ["library"] * 4
         library = [task for task in choices if task["task_source"] == "library"]
-        assert library[0]["display_name"] == "Roll a die: 1 Die into cup"
+        assert library[0]["display_name"] == "1. Die into cup"
+        assert library[3]["display_name"] == "Optional: Stand the cup up"
+        assert library[3]["optional"] is True and library[0]["optional"] is False
         assert library[0]["group"] == "Roll a die" and library[0]["task_id"] == "lib_roll_a_die_1"
         assert library[0]["episode_window"] == {"min_episode_s": None, "max_episode_s": None}
         export = service.read(["library-export", "lib_roll_a_die"], {})

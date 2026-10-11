@@ -61,7 +61,7 @@ const server = http.createServer(async (req, res) => {
     else if(route==="session/s1/open"){state.active_session=sessionList[0];state.capture={state:"idle",episode_index:0,pending_frame_count:0,min_episode_s:8,max_episode_s:25,remaining_s:25,countdown_s:null,controls:{start:true},counters:{saved:0,success:0,failure:0,discarded:0},recording_purpose:"qualifying"};value=state;}
     else if(route==="session/s1/close"){state.active_session=null;state.capture={state:"closed"};if(sessionList[0])sessionList[0].status="closed";value=state;}
     else if(route==="library/plan"){value=payload.sentence==="do the thing"&&!Object.keys(payload.answers||{}).length?{source:"built-in planner",breakdown:null,questions:[{key:"object",prompt:"Which object does the arm pick up?",example:"die"},{key:"container",prompt:"Which container does it go into, if any?",example:"cup"},{key:"destination",prompt:"Which marked destination does it go to, if there is no container?",example:"tray"}],recipe:"",fallback_reason:"",notes:[]}:{source:"built-in planner",breakdown:fakeBreakdown(payload.sentence),questions:[],recipe:"roll_a_die",fallback_reason:"",notes:[],warnings:[{step:2,code:"no_reset",message:"Step 2 is a reset step, check that it puts the scene back."}],proposed:{goal_id:"lib_roll_a_die",task_ids:["lib_roll_a_die_1","lib_roll_a_die_2"]}};}
-    else if(route==="library/save"){libraryTasks.length=0;payload.breakdown.sub_tasks.forEach((step,i)=>libraryTasks.push({task_id:`lib_roll_a_die_${i+1}`,task_text:step.instruction,success_rule:step.success_rule,scene_requirements:step.scene_before_take,declared_fixed_scene:true,requires_unobserved_goal:false,episode_window:{min_episode_s:null,max_episode_s:null},task_source:"library",group:"Roll a die",display_name:`Roll a die: ${i+1} ${step.name}`,goal_id:"lib_roll_a_die",goal_title:"Roll a die",library_version:1,chain_position:i+1,kind:step.kind,frozen:false,name:step.name,start_state:step.start_state,end_state:step.end_state,suggested_takes:step.suggested_takes}));value={goal:{id:"lib_roll_a_die",title:payload.breakdown.goal.title,tasks:libraryTasks.map(t=>({task_id:t.task_id,version:1}))},warnings:[]};}
+    else if(route==="library/save"){libraryTasks.length=0;payload.breakdown.sub_tasks.forEach((step,i)=>libraryTasks.push({task_id:`lib_roll_a_die_${i+1}`,task_text:step.instruction,success_rule:step.success_rule,scene_requirements:step.scene_before_take,declared_fixed_scene:true,requires_unobserved_goal:false,episode_window:{min_episode_s:null,max_episode_s:null},task_source:"library",group:"Roll a die",display_name:`${i+1}. ${step.name}`,optional:false,goal_id:"lib_roll_a_die",goal_title:"Roll a die",library_version:1,chain_position:i+1,kind:step.kind,frozen:false,name:step.name,start_state:step.start_state,end_state:step.end_state,suggested_takes:step.suggested_takes}));value={goal:{id:"lib_roll_a_die",title:payload.breakdown.goal.title,tasks:libraryTasks.map(t=>({task_id:t.task_id,version:1}))},warnings:[]};}
     else if(route.endsWith("/time/start")){timing.running=true;timing.polls=0;timing.runs=[];timing.proposed_window=null;timing.phase="learning rest";value=timing;}
     else if(route.endsWith("/time/stop")){timing.running=false;value=timing;}
     else if(route.endsWith("/time/confirm")){timing.running=false;const t=libraryTasks[0];t.episode_window={min_episode_s:payload.min_episode_s,max_episode_s:payload.max_episode_s};value={...t,version:1,timing_runs:timing.runs,name:t.name};}
@@ -286,7 +286,7 @@ async function run() {
     assert.equal(calls[savesBefore].payload.breakdown.sub_tasks[0].name,"Die into the cup","the edited card is what is saved");
     assert.equal(calls[savesBefore].payload.planner_source,"built-in planner");
     await until("document.querySelector('[data-task-id=lib_roll_a_die_1]')!==null","saved tasks appear as cards under their goal");
-    assert.match(await textOf("#task-cards"),/Built-in tasks.*Die into cup.*Roll a die.*1 Die into the cup.*Library task, not in the published registry.*2 Die back to start/s);
+    assert.match(await textOf("#task-cards"),/Built-in tasks.*Die into cup.*Roll a die.*1\. Die into the cup.*Your task\. Takes are saved but do not count toward dataset milestones\..*2\. Die back to start/s);
     assert.equal(await evaluate("[...document.querySelectorAll('#task optgroup')].map(g=>g.label).join('|')"),"Built-in tasks|Roll a die","the dropdown is grouped by goal with built-in tasks first");
     assert.equal(await evaluate("document.querySelector('[name=task_id]').value"),"lib_roll_a_die_1","the first saved task is selected");
     assert.match(await textOf("#notice"),/2 tasks saved under Roll a die\./);
@@ -295,6 +295,7 @@ async function run() {
     await evaluate("[...document.querySelectorAll('#task-description button')].find(n=>n.textContent==='Time it').click()");
     await until("document.querySelector('#time-dialog').open");
     assert.equal(await textOf("#time-title"),"Time: 1 Die into the cup");
+    assert.equal(await evaluate("document.querySelector('[name=task_id]').value"),"lib_roll_a_die_1");
     await click("#time-start");
     await until("document.querySelectorAll('#time-runs li').length===3 && !document.querySelector('#time-confirm').hidden","three timed moves and a proposed window");
     assert.match(await textOf("#time-runs"),/Move 1: 10\.0 s, gripper closed and reopened, peak 40 degrees on Joint1/);
@@ -312,7 +313,7 @@ async function run() {
     await pressPrimary();
     await until("location.hash==='#/new/check'");
     assert.equal(await textOf("#route-announcer"),"Step 2 of 2: Check setup");
-    assert.match(await textOf("#setup-line"),/50 mm gripper, ros2_control arm feed, wrist fake-wrist, overhead fake-front, 15 FPS, you: test\./,"remembered setup is one line");
+    assert.match(await textOf("#setup-line"),/^Die into cup, 50 mm gripper, ros2_control arm feed, wrist fake-wrist, overhead fake-front, 15 FPS, you: test\./,"the task leads the setup line");
     assert.equal(await evaluate("document.querySelector('#setup-configure').hidden"),true,"remembered values sit behind Change setup");
     assert.equal(await evaluate("document.querySelector('#setup-inline [name=follower_serial]')!==null && document.querySelector('#setup-inline [name=power_choice]')!==null"),true,"serial and power state are inline");
     assert.equal(await evaluate("document.activeElement.name"),"follower_serial","focus lands on the first missing inline field");
@@ -430,6 +431,7 @@ async function run() {
     assert.match(calls.at(-2).payload.name,/^Die into cup, \d{1,2} [A-Z][a-z]{2}, 1$/);
     assert.ok(presses<=4,`Home to recording took ${presses} presses`);
     await until("document.querySelector('#record-title').textContent==='Take 1 of 10'","the heading counts takes; the breadcrumb names the session");
+    assert.equal(await textOf("#record-move"),"The move: Synthetic fixture: put die into cup","the move is named under the take heading");
     assert.equal(await textOf("#breadcrumb"),`Home${calls.at(-2).payload.name}`);
     assert.equal(await evaluate("document.querySelector('#finish-session').classList.contains('primary')"),false,"Finish is neutral; the primary is Start recording");
     assert.equal(await evaluate("sessionStorage.getItem('synria-wizard-draft')"),null,"a started session clears the per-tab draft");
@@ -505,6 +507,9 @@ async function run() {
     await evaluate("SynriaRouter.go('sessions')");
     await until("!document.querySelector('#sessions').hidden");
     assert.match(await textOf("#session-list"),/Die into cup · Finished · 1 of 10 takes saved.*Reopen to add takes.*Review takes/s,"a finished session reads Finished and can be reopened");
+    assert.equal(await evaluate("document.querySelector('#home-cards')?null:0"),null);
+    await evaluate("SynriaRouter.go('home')");await until("!document.querySelector('#home').hidden");
+    assert.equal(await evaluate("document.querySelector('#home-cards .home-card.primary-card h3').textContent"),"New session","after a finished session New session is the highlight again");
     assert.equal(await evaluate("document.querySelector('#sessions-more').open"),false,"trash and reindex sit behind More");
     await evaluate("SynriaRouter.go('new/task')");
     await until("!document.querySelector('#new').hidden");

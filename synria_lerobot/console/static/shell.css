@@ -168,3 +168,4 @@ fieldset.field small{color:var(--muted)}
 #teach-footer #teach-cancel{min-width:140px;min-height:52px}#teach-footer #teach-save{min-width:220px;min-height:52px;font-size:18px;margin-left:auto}#teach-footer #teach-reason{flex:1;margin:0;color:#ffe9bd;text-align:center}
 .banner-second{margin:4px 0 0!important;font-size:16px!important;color:var(--muted)!important}
 #flow-nav{min-height:76px;flex-wrap:nowrap}
+.record-move{font-size:17px;color:var(--text);margin:0 0 6px}

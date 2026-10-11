@@ -119,10 +119,10 @@ const SynriaWizard = (() => {
       const card = document.createElement("button"); card.type = "button"; card.className = "card task-card";
       card.setAttribute("role", "radio"); card.dataset.taskId = task.task_id;
       card.setAttribute("aria-checked", String($("task").value === task.task_id));
-      card.append(text("h3", isLibrary(task) ? `${task.chain_position} ${task.name || taskTitle(task)}` : taskTitle(task)), text("p", plain(task.task_text)));
+      card.append(text("h3", isLibrary(task) ? (task.optional ? `Optional: ${task.name}` : `${task.chain_position}. ${task.name || taskTitle(task)}`) : taskTitle(task)), text("p", plain(task.task_text)));
       const chip = text("span", timed(task) ? windowWords(task) : "Practice only until timed"); chip.className = "chip " + (timed(task) ? "chip-ok" : "chip-warn");
       card.append(chip);
-      if (isLibrary(task)) { const mark = text("span", "Library task, not in the published registry"); mark.className = "chip library-chip"; card.append(mark); }
+      if (isLibrary(task)) { const mark = text("span", "Your task. Takes are saved but do not count toward dataset milestones."); mark.className = "chip library-chip"; card.append(mark); }
       card.onclick = () => { $("task").value = task.task_id; $("task").dispatchEvent(new Event("change", {bubbles:true})); };
       container.append(card);
     }
@@ -228,6 +228,8 @@ const SynriaWizard = (() => {
   function renderYourSetup() {
     const values = formValues();
     const parts = [];
+    const chosen = chosenTask();
+    if (chosen) parts.push(isLibrary(chosen) ? chosen.name : taskTitle(chosen));
     if (values.gripper_type) parts.push(`${values.gripper_type.replace("mm", " mm")} gripper`);
     if (!state.demo && values.state_source) parts.push(values.state_source === "ros2_control" ? "ros2_control arm feed" : "standalone driver arm feed");
     if (state.demo) parts.push("demo arm feed and cameras");

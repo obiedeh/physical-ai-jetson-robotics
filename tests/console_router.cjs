@@ -76,4 +76,9 @@ cards = home.cards({active_session: null}, [{...paused, status: "finished"}], fa
 assert.equal(cards[1].title, "Practice run", "a finished session is not offered to continue");
 cards = home.cards({active_session: {id: "s1"}}, [paused], false);
 assert.equal(cards[1].open, true);
+const finishedLater = {...paused, id: "s2", status: "finished", counts: {saved: 10}};
+cards = home.cards({active_session: null}, [finishedLater, paused], false);
+assert.equal(cards[1].title, "Continue recording", "the latest paused session is still offered");
+assert.equal(cards[1].primary, false, "but not highlighted when the most recent session was finished");
+assert.equal(cards[0].primary, true, "New session is the highlight again");
 console.log("router and home status verified");
