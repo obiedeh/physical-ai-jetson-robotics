@@ -34,6 +34,10 @@ OBJECT_SUCCESS_LIMITATION = (
     "Object success is the operator's label plus a camera still; "
     "no independent sensor confirms it."
 )
+LIBRARY_BINDING_KEYS = (
+    "task_source", "goal_id", "goal_title", "library_version", "chain_position",
+)
+"""Contract fields that bind a library task to its goal, version and chain position."""
 UNVERIFIED_LIMITS_LINE = "limits unverified by operator"
 GATE_NAMES = (
     "frame_count",
@@ -697,6 +701,10 @@ def _validate_summary_contract(
         contract = json.loads(contract_path.read_text(encoding="utf-8"))
         TaskDefinition.from_metadata(contract)
         _validate_timing_evidence(contract)
+        # The task source and goal binding travel with the summary so counting can see them.
+        for name in LIBRARY_BINDING_KEYS:
+            if name in contract:
+                provenance = {**provenance, name: contract[name]}
         if any(contract.get(name) != value for name, value in expected.items()):
             raise ValueError("supplied metadata differs from dataset contract")
     for episode in episodes:
@@ -837,7 +845,15 @@ def write_session_artifacts(
         "quality_valid_episode_count": quality_valid,
         "final_still_captures": provenance.get("final_still_captures", []),
         "state_source_provenance": provenance["state_source_provenance"],
-        "qualifying_episode_count": quality_valid if limits.verified else 0,
+        "task_source": provenance.get("task_source", "registry"),
+        **{name: provenance[name] for name in LIBRARY_BINDING_KEYS
+           if name in provenance and name != "task_source"},
+        # Library tasks run every gate but never count toward the published milestones.
+        "qualifying_episode_count": (
+            quality_valid
+            if limits.verified and provenance.get("task_source", "registry") == "registry"
+            else 0
+        ),
         "gate_results": [report.as_dict() for report in reports],
         "operator_labels": labels,
         "demonstration_success_rate": successes / len(retained) if retained else 0.0,

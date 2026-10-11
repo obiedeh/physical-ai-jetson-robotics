@@ -12,7 +12,9 @@ from synria_lerobot.task_registry import (
     EPISODE_WINDOW_KEYS as EPISODE_WINDOW_KEYS,
 )
 from synria_lerobot.task_registry import (
+    TASK_SOURCES,
     TaskDefinition,
+    is_library_task_id,
 )
 from synria_lerobot.task_registry import (
     episode_window_metadata as episode_window_metadata,
@@ -178,11 +180,17 @@ class PhysicalDatasetContract:
     task_id: str = field(kw_only=True)
     task_definition: TaskDefinition = field(kw_only=True)
     recording_purpose: str = field(default="qualifying", kw_only=True)
+    task_source: str = field(default="registry", kw_only=True)
+    goal_id: str | None = field(default=None, kw_only=True)
+    goal_title: str | None = field(default=None, kw_only=True)
+    library_version: int | None = field(default=None, kw_only=True)
+    chain_position: int | None = field(default=None, kw_only=True)
 
     def __post_init__(self) -> None:
         """Reject malformed identity, dimensions or timing at the data boundary."""
         if self.gripper_type not in GRIPPER_STROKE_M:
             raise ValueError("gripper_type must be '50mm' or '100mm'")
+        self._check_task_source()
         if self.version != CONTRACT_VERSION:
             raise ValueError(f"unsupported physical contract version: {self.version}")
         action_timing_metadata(self.action_source, self.action_lookahead_steps, 1)
@@ -207,6 +215,25 @@ class PhysicalDatasetContract:
         """Return the immutable instruction associated with every recorded frame."""
         return self.task_definition.task_text
 
+    def _check_task_source(self) -> None:
+        """A registry task carries no goal binding; a library task must carry all of it."""
+        if self.task_source not in TASK_SOURCES:
+            raise ValueError("task_source must be registry or library")
+        library = (self.goal_id, self.goal_title, self.library_version, self.chain_position)
+        if self.task_source == "registry":
+            if is_library_task_id(self.task_id) or any(value is not None for value in library):
+                raise ValueError("a registry task has no library goal binding")
+            return
+        if not is_library_task_id(self.task_id):
+            raise ValueError("a library task needs a library task id")
+        if type(self.goal_id) is not str or not is_library_task_id(self.goal_id):
+            raise ValueError("a library task needs its goal id")
+        if type(self.goal_title) is not str or not self.goal_title.strip():
+            raise ValueError("a library task needs its goal title")
+        for value in (self.library_version, self.chain_position):
+            if type(value) is not int or value < 1:
+                raise ValueError("a library task needs a positive version and chain position")
+
     def require_qualifying(self) -> None:
         """Refuse smoke and synthetic contracts at training and physical evaluation boundaries."""
         if self.recording_purpose != "qualifying":
@@ -225,6 +252,10 @@ class PhysicalDatasetContract:
             action_lookahead_steps=payload["action_lookahead_steps"],
             task_id=task.task_id, task_definition=task,
             recording_purpose=payload["recording_purpose"],
+            task_source=payload.get("task_source", "registry"),
+            goal_id=payload.get("goal_id"), goal_title=payload.get("goal_title"),
+            library_version=payload.get("library_version"),
+            chain_position=payload.get("chain_position"),
         )
         if contract.as_dict(fps=payload.get("requested_rate_hz")) != payload:
             raise ValueError("inconsistent physical contract metadata")
@@ -257,6 +288,12 @@ class PhysicalDatasetContract:
             "action_lookahead_steps": self.action_lookahead_steps,
             **self.task_definition.metadata(self.recording_purpose),
         }
+        if self.task_source == "library":
+            # Registry payloads stay byte-for-byte as before; only library datasets add these.
+            payload.update(
+                task_source="library", goal_id=self.goal_id, goal_title=self.goal_title,
+                library_version=self.library_version, chain_position=self.chain_position,
+            )
         if fps is not None:
             payload.update(
                 action_timing_metadata(self.action_source, self.action_lookahead_steps, fps)
