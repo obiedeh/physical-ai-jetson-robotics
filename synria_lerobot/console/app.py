@@ -753,6 +753,14 @@ class ConsoleService:
                     elif session_id != "smoke":
                         self.catalog.update_session(session_id, status="closed")
                     return self.state()
+                if action == "finish":
+                    # Finished is a label, not a lock: Open reverses it so takes can be added.
+                    if session_id == "smoke":
+                        raise ValueError("a practice run is never finished as a session")
+                    if self._active is not None and self._active["id"] == session_id:
+                        self.close_session()
+                    self.catalog.update_session(session_id, status="finished")
+                    return self.state()
                 if action == "rename":
                     return self.catalog.update_session(session_id, name=payload["name"])
                 if action == "trash":
