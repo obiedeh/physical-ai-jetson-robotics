@@ -85,6 +85,7 @@ class RecordingController:
         self._catalog_error: str | None = None
         self._saving = False
         self._counters = {"saved": 0, "success": 0, "failure": 0, "discarded": 0, "save_failed": 0}
+        self._stop_reason: str | None = None
         self._trace: deque[dict[str, Any]] = deque(maxlen=120)
         self._publish()
 
@@ -116,6 +117,7 @@ class RecordingController:
         self.recorder.start()
         self._next_sample = self.recorder.clock()
         self._error = None
+        self._stop_reason = None
         self._audit("episode started", {"episode_index": self.recorder.next_episode_index})
 
     def _save(self, command: str) -> None:
@@ -227,6 +229,7 @@ class RecordingController:
             self._start()
         elif name == "stop":
             self.recorder.stop()
+            self._stop_reason = "operator"
             self._audit(
                 "episode stopped",
                 {"episode_index": self.recorder.next_episode_index, "reason": "operator"},
@@ -281,6 +284,8 @@ class RecordingController:
             "catalog_error": self._catalog_error,
             "last_episode": copy.deepcopy(self._last_episode),
             "counters": dict(self._counters),
+            "stop_reason": self._stop_reason,
+            "smoke_complete": smoke_complete,
             "recording_purpose": self.recorder.config.contract.recording_purpose,
             "controls": {
                 "start": (
@@ -343,12 +348,14 @@ class RecordingController:
             try:
                 self._next_sample, capped = capture_due(self.recorder, self._next_sample, now=now)
                 if capped:
+                    self._stop_reason = "hard cap"
                     self._audit(
                         "episode stopped",
                         {"reason": "hard cap", "episode_index": self.recorder.next_episode_index},
                     )
             except Exception as error:
                 self._error = f"Capture failed: {error}; pending frames retained."
+                self._stop_reason = "capture fault"
                 if self.recorder.state is RecorderState.RECORDING:
                     self.recorder.stop()
                 self._audit(
