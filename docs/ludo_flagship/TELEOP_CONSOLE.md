@@ -225,22 +225,40 @@ e-stop function and camera framing cannot be certified by software. Frozen
 video and full episode quality still require their existing recording gates.
 No live physical check was run during development. **Implemented, unmeasured.**
 
-Record shows one plain-language banner that always states the current phase and
-the single next action: ready, recording with a large seconds-left countdown,
-stopped with the save choice, saving, saved with the quality checks worded
-(for example "8 of 9 passed, failed: joint limits"), or practice run finished
-with a Close sources button. A hard-cap stop is named in the banner. Buttons
-say what they do (Start recording, Stop, Save as success, Save as failure,
-Retry save, Discard), the available ones are large and high contrast, and
-disabled ones carry a tooltip saying why. Counters read as words with the
-target or practice note. Camera captions show age and native size; the full
-source record sits behind a Source details toggle. Both latest camera views,
-follower state and preflight results remain visible. Space starts/stops; S/F
-label a stopped episode, which is what saves it. Optional countdown and audio
-cues support hands-busy use. No recorder transition, guard or shortcut changed.
-Retry keeps failed-save frames; Discard needs confirmation and a reason. Tab
-closure does not stop capture; the server enforces the cap. Page Quit refuses
-pending frames. Process signals close sources and audit any lost pending frames.
+Recording is a mode. The breadcrumb reads Home, the session name, and "Take N
+of M" (takes count from 1 on screen; stored indices stay zero-based). While a
+session is open the nav holds **Pause session** and **Finish session** instead of
+Exit: Pause releases the cameras and arm feed, keeps every saved take and says
+the session can be continued from Home or Sessions; Finish does the same and
+shows the session summary (takes saved against the target, success, failure,
+excluded, task source, whether takes count toward the dataset, Review takes,
+Home). Both refuse while a stopped take is unsaved. The banner keeps a fixed
+height and states one phase in words: Ready ("Set the scene, then press Start
+recording"), Get ready with the countdown, Recording with the seconds left and
+a red pulsing border, Did it work? with a short note that a real task failure
+is saved as failure and only a bad capture is thrown away, Saving, Save failed
+with the frames kept, Nothing captured, Practice run finished, Session paused,
+or Recording blocked. The action area below also keeps a fixed height and shows
+only the actions that apply: one large Start recording (Space); one large Stop
+(Space); Yes, save as success (S) and No, save as failure (F) in different
+colours with a small Throw away, bad capture; Retry save only after a failed
+save; Cancel countdown only during a countdown; Finish practice run. After a
+save the banner reads "Take N saved as success. Quality checks passed" (or the
+failed checks named, or "Quality checks not run") for two seconds, then
+returns to Ready. Quality checks also run on demo data and say so. The counters
+read in words with the target or practice note; Review last take opens the
+frame-exact review as an overlay and returns to the same recording state. A
+small Options row holds the countdown before recording (default 3 s) and sound
+cues (on by default). Camera views are captioned Wrist camera and Overhead
+camera with a Live badge, show a warning on the tile when frames go stale, and
+take a red border while recording; age and native size sit inside Source
+details. Between takes, Reset the scene lists the task's scene bullets beside
+the cameras. Follower state, preflight and the last saved take's record sit
+under Technical details. Space starts and stops; S and F label a stopped take,
+which is what saves it. No recorder transition, guard or shortcut changed.
+Throw away needs confirmation and a reason. Tab closure does not stop capture;
+the server enforces the cap. Quit refuses pending frames. Process signals close
+sources and audit any lost pending frames.
 
 Review locks both cameras to the same stored row, with frame stepping, scrub,
 speed, state/action traces, timestamps/skew, provenance and native final still.

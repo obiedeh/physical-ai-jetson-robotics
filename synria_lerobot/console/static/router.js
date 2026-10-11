@@ -10,6 +10,7 @@
     ["new", /^new(?:\/(task|check|start))?$/],
     ["record", /^session\/([^/]+)\/record$/],
     ["review", /^session\/([^/]+)\/review(?:\/(\d+))?$/],
+    ["summary", /^session\/([^/]+)\/summary$/],
   ];
 
   /** Parse a location hash into a named route, or null for an empty, token or unknown hash. */
@@ -20,7 +21,7 @@
       const match = raw.match(pattern);
       if (!match) continue;
       if (name === "new") return {name, path: raw, step: match[1] || "task"};
-      if (name === "record") return {name, path: raw, sessionId: decodeURIComponent(match[1])};
+      if (name === "record" || name === "summary") return {name, path: raw, sessionId: decodeURIComponent(match[1])};
       if (name === "review") {
         return {name, path: raw, sessionId: decodeURIComponent(match[1]),
           episode: match[2] === undefined ? null : Number(match[2])};
@@ -38,6 +39,7 @@
     home: () => "home", sessions: () => "sessions", help: () => "help", intro: () => "intro",
     wizard: step => `new/${step || "task"}`,
     record: sessionId => `session/${encodeURIComponent(sessionId)}/record`,
+    summary: sessionId => `session/${encodeURIComponent(sessionId)}/summary`,
     review: (sessionId, episode) => `session/${encodeURIComponent(sessionId)}/review`
       + (episode === undefined || episode === null ? "" : `/${episode}`),
   };

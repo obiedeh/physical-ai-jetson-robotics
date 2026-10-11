@@ -1,5 +1,5 @@
 "use strict";
-/** Describe the Record screen in plain words: one phase, one next action, worded counters.
+/** Describe the Record screen in plain words: one phase, one message, only the actions that apply.
  *
  * This module only reads the server's capture snapshot. It never changes a recorder
  * transition, guard or keyboard shortcut; the server's controls remain authoritative.
@@ -13,19 +13,28 @@
     visual_sanity: "image brightness",
   };
   const GATE_COUNT = Object.keys(GATE_WORDS).length;
+  const LABELS = {
+    start: "Start recording (Space)", stop: "Stop (Space)", cancel_countdown: "Cancel countdown",
+    success: "Yes, save as success (S)", failure: "No, save as failure (F)", retry: "Retry save",
+    discard: "Throw away, bad capture", close: "Finish practice run",
+  };
 
   /** Say how many quality checks passed and name the failed ones in plain words. */
-  function gateSummary(episode) {
-    if (!episode || typeof episode.gate_passed !== "boolean") return "Quality checks: not evaluated";
+  function gateSummary(episode, demo = false) {
+    if (!episode || typeof episode.gate_passed !== "boolean") return "Quality checks not run";
     const failed = (episode.failed_gates || []).map(name => GATE_WORDS[name] || name);
     const passed = GATE_COUNT - failed.length;
-    if (!failed.length) return `Quality checks: ${GATE_COUNT} of ${GATE_COUNT} passed`;
-    return `Quality checks: ${passed} of ${GATE_COUNT} passed, failed: ${failed.join(", ")}`;
+    const suffix = demo ? " (demo data)" : "";
+    if (!failed.length) return `Quality checks passed${suffix}`;
+    return `Quality checks: ${passed} of ${GATE_COUNT} passed, failed: ${failed.join(", ")}${suffix}`;
   }
 
-  /** One sentence for the last saved episode. */
-  function savedSentence(episode) {
-    return `Saved episode ${episode.episode_index} as ${episode.operator_label}. ${gateSummary(episode)}.`;
+  /** Takes count from 1 on screen; the stored index stays zero-based. */
+  function takeNumber(index) { return (Number(index) || 0) + 1; }
+
+  /** One sentence for the last saved take. */
+  function savedSentence(episode, demo = false) {
+    return `Take ${takeNumber(episode.episode_index)} saved as ${episode.operator_label}. ${gateSummary(episode, demo)}`;
   }
 
   /** Worded counters: saved, labels, discards and the target or practice note. */
@@ -37,77 +46,83 @@
       + ` · Discarded ${c.discarded || 0} · ${target}`;
   }
 
-  /** Build the banner phase, message, countdown, optional action and tooltip reasons. */
-  function describe(capture, active) {
+  /** Build the phase, message, countdown, actions that apply and tooltip reasons for the rest. */
+  function describe(capture, active, options = {}) {
     const c = capture || {};
+    const demo = Boolean(options.demo);
     const reasons = {start: "", stop: "Not recording", success: "Nothing stopped to save",
       failure: "Nothing stopped to save", retry: "No failed save to retry",
       discard: "No pending frames", cancel_countdown: "No countdown pending"};
-    const view = {phase: "", message: "", countdownS: null, action: null, reasons,
+    const view = {phase: "", headline: "", message: "", countdownS: null, countdownUnit: "s left", actions: [], reasons,
+      recording: false, betweenTakes: false,
       counters: active ? counters(c, active) : "",
-      lastSave: c.last_episode ? savedSentence(c.last_episode) : ""};
+      lastSave: c.last_episode ? savedSentence(c.last_episode, demo) : "",
+      take: takeNumber(c.episode_index), target: active?.target_episodes ?? null};
+    const act = (...commands) => { view.actions = commands.map(command => ({command, label: LABELS[command]})); };
     if (!active) {
-      view.phase = "No session";
-      view.message = "Open a named session, or run a disposable smoke, to begin.";
+      view.phase = "no-session"; view.headline = "No session";
+      view.message = "Open a session from Home or Sessions to record.";
       Object.keys(reasons).forEach(key => { reasons[key] = "No session open"; });
       return view;
     }
-    const elapsed = (c.elapsed_s || 0).toFixed(1);
     const frames = c.pending_frame_count || 0;
     const remaining = Math.max(0, c.remaining_s ?? 0);
     if (c.state === "closed") {
-      view.phase = "Sources closed";
-      view.message = "Sources are closed. Open a session again to record.";
-      Object.keys(reasons).forEach(key => { reasons[key] = "Sources closed"; });
+      view.phase = "paused"; view.headline = "Session paused";
+      view.message = "Cameras are released and saved takes are kept. Continue from Home or Sessions.";
+      Object.keys(reasons).forEach(key => { reasons[key] = "Session paused"; });
     } else if (c.recovery_blocked) {
-      view.phase = "Recording blocked";
-      view.message = "The dataset needs recovery review. Close sources and follow the recovery procedure; do not remove the lock.";
+      view.phase = "blocked"; view.headline = "Recording blocked";
+      view.message = "The dataset needs recovery review. Pause the session and follow the recovery procedure; do not remove the lock.";
       reasons.start = "Recovery blocked";
     } else if (c.catalog_error) {
-      view.phase = "Catalog needs attention";
-      view.message = `Catalog error: ${c.catalog_error} Resolve pending frames, then close, reindex and reopen.`;
+      view.phase = "blocked"; view.headline = "Catalog needs attention";
+      view.message = `Catalog error: ${c.catalog_error} Resolve pending frames, then pause, reindex and open again.`;
       reasons.start = "Catalog needs reconciliation";
     } else if (c.countdown_s !== null && c.countdown_s !== undefined) {
-      view.phase = "Starting";
-      view.message = `Starting in ${c.countdown_s.toFixed(1)} s. Press Cancel countdown to abort.`;
-      view.countdownS = c.countdown_s;
-      reasons.start = "Countdown pending";
-      reasons.cancel_countdown = "";
+      view.phase = "countdown"; view.headline = "Get ready";
+      view.message = "Recording starts when the count reaches zero.";
+      view.countdownS = c.countdown_s; view.countdownUnit = "";
+      reasons.start = "Countdown pending"; reasons.cancel_countdown = "";
+      act("cancel_countdown");
     } else if (c.state === "recording") {
-      view.phase = "RECORDING";
-      view.message = `${remaining.toFixed(0)} s left. Press Stop (Space) when the move is done.`;
+      view.phase = "recording"; view.headline = "Recording"; view.recording = true;
+      view.message = "Press Stop (Space) when the move is done.";
       view.countdownS = remaining;
-      reasons.start = "Already recording";
-      reasons.stop = "";
-      reasons.discard = "Stop first";
+      reasons.start = "Already recording"; reasons.stop = ""; reasons.discard = "Stop first";
+      act("stop");
     } else if (c.saving) {
-      view.phase = "Saving";
-      view.message = `Saving episode ${c.episode_index ?? ""}…`;
-      reasons.start = "Saving";
-      reasons.success = reasons.failure = "Saving";
+      view.phase = "saving"; view.headline = "Saving";
+      view.message = `Saving take ${view.take}…`;
+      reasons.start = "Saving"; reasons.success = reasons.failure = "Saving";
     } else if (c.state === "stopped") {
-      view.phase = "Stopped";
-      const capped = c.stop_reason === "hard cap" ? `The ${c.max_episode_s ?? ""} s hard cap ended this capture. ` : "";
+      const capped = c.stop_reason === "hard cap" ? `The ${c.max_episode_s ?? ""} s limit ended this take. ` : "";
+      reasons.discard = ""; reasons.start = "Save or throw away the stopped take first";
       if (c.error) {
-        view.message = `Save failed: ${c.error} Pending frames are kept. Press Retry save, or Discard only for a faulty capture.`;
-        reasons.retry = "";
+        view.phase = "save-failed"; view.headline = "Save failed";
+        view.message = `${c.error} The frames are kept. Press Retry save; throw away only a bad capture.`;
+        reasons.retry = ""; act("retry", "discard");
       } else if (!frames) {
-        view.message = `${capped}Stopped with no frames captured. Discard this empty capture, then press Start recording (Space).`;
+        view.phase = "empty"; view.headline = "Nothing captured";
+        view.message = `${capped}Stopped with no frames. Throw it away and start again.`;
+        act("discard"); view.actions[0].label = "Throw away empty capture";
       } else {
-        view.message = `${capped}Stopped after ${elapsed} s with ${frames} frames. Save it: Save as success (S) or Save as failure (F). Discard only for a faulty capture.`;
-        reasons.success = reasons.failure = "";
+        view.phase = "did-it-work"; view.headline = "Did it work?";
+        view.message = `${capped}A real failure of the task is saved as failure. Throw away only a bad capture.`;
+        reasons.success = reasons.failure = ""; act("success", "failure", "discard");
       }
-      reasons.discard = "";
-      reasons.start = "Save or discard the stopped episode first";
     } else if (c.recording_purpose === "disposable_smoke" && c.smoke_complete) {
-      view.phase = "Practice run finished";
-      view.message = "Practice run finished. Close sources to run another or to start a real session.";
-      view.action = {label: "Close sources", command: "close"};
-      reasons.start = "Practice run finished; close sources";
+      view.phase = "practice-finished"; view.headline = "Practice run finished";
+      view.message = "The take is not kept. Finish to run another or to start a real session.";
+      reasons.start = "Practice run finished"; act("close");
+    } else if (options.showSaved && c.last_episode) {
+      view.phase = "saved"; view.headline = "Saved"; view.betweenTakes = true;
+      view.message = savedSentence(c.last_episode, demo);
+      act("start");
     } else {
-      view.phase = "Ready";
-      view.message = (c.last_episode ? savedSentence(c.last_episode) + " " : "")
-        + "Ready. Press Start recording (Space) to record.";
+      view.phase = "ready"; view.headline = "Ready"; view.betweenTakes = true;
+      view.message = "Set the scene, then press Start recording.";
+      act("start");
     }
     return view;
   }
@@ -121,5 +136,5 @@
     return age + size;
   }
 
-  window.SynriaRecord = {GATE_WORDS, GATE_COUNT, gateSummary, savedSentence, counters, describe, cameraBrief};
+  window.SynriaRecord = {GATE_WORDS, GATE_COUNT, LABELS, gateSummary, savedSentence, takeNumber, counters, describe, cameraBrief};
 })();
