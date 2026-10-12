@@ -55,7 +55,7 @@ function matchingReadinessSettings(left, right) {
 function renderReadiness(report) {
   readinessReport = report;
   const changed = report.checked_utc && !matchingReadinessSettings(report.form_settings, formValues());
-  const confirmations = [...document.querySelectorAll("[data-readiness-confirm]")];
+  const confirmations = typeof window !== "undefined" && window.SynriaConfirmations ? window.SynriaConfirmations() : [...document.querySelectorAll("[data-readiness-confirm]")];
   const unconfirmed = !state.demo && confirmations.some(node => !node.checked);
   const invalid = (changed || unconfirmed) && report.status === "ready";
   const level = invalid ? "expired" : report.status;
@@ -68,12 +68,14 @@ function renderReadiness(report) {
   $("readiness-fill").style.width = `${percent}%`;
   $("readiness-scope").textContent = `${report.scope} ${report.checked_utc ? `Checked ${report.checked_utc}. Expires after ${report.expires_after_s} seconds.` : ""}${changed ? " These results describe previous form settings; run again after changes." : ""}`;
   $("readiness-results").replaceChildren();
-  const pathNames = {follower_sample:"Arm feed", action_sample:"Leader arm", wrist_sample:"Wrist camera", front_sample:"Overhead camera", source_startup:"Read-only source startup"};
+  const pathNames = state.simulation
+    ? {follower_sample:"Sim arm feed", action_sample:"Leader arm (real follower feed)", wrist_sample:"Sim wrist camera", front_sample:"Sim front camera", source_startup:"Read-only source startup", isaac_record_mode:"Isaac record mode"}
+    : {follower_sample:"Arm feed", action_sample:"Leader arm", wrist_sample:"Wrist camera", front_sample:"Overhead camera", source_startup:"Read-only source startup"};
   for (const [name, check] of Object.entries(report.checks)) {
     const node = document.createElement("li");
     const level = check.status || (check.message === "Not run" ? "not_checked" : (check.passed ? "ready" : "not_ready"));
     node.className = check.passed ? "passed" : (level === "not_checked" ? "not-checked" : "failed");
-    const label = {not_checked:"Not checked", launching:"Launching", ready:"Ready", not_ready:"Not ready", configured:"Configured"}[level];
+    const label = {not_checked:"Not checked", launching:"Launching", ready:"Ready", not_ready:"Not ready", configured:"Configured", not_applicable:"Not applicable"}[level];
     node.dataset.level = level;
     node.textContent = `${label} · ${pathNames[name] || name.replaceAll("_", " ")} — ${check.message}`;
     if (check.details) {
@@ -84,6 +86,7 @@ function renderReadiness(report) {
     $("readiness-results").append(node);
   }
   $("readiness-confirmations").hidden = Boolean(state.demo);
+  if ($("sim-panel")) $("sim-panel").hidden = !state.simulation;
   $("check-readiness").disabled = readinessBusy || report.status === "checking" || Boolean(state.active_session);
   if(typeof window !== "undefined")window.dispatchEvent(new Event("console-readiness"));
 }
@@ -91,7 +94,7 @@ function renderReadiness(report) {
 /** Explicit operator action starts a bounded diagnostic, never a recording or driver. */
 async function runReadiness() {
   if (!$("new-form").reportValidity()) return;
-  const confirmations = Object.fromEntries([...document.querySelectorAll("[data-readiness-confirm]")]
+  const confirmations = Object.fromEntries((typeof window !== "undefined" && window.SynriaConfirmations ? window.SynriaConfirmations() : [...document.querySelectorAll("[data-readiness-confirm]")])
     .map(node => [node.dataset.readinessConfirm, node.checked]));
   if (!state.demo && Object.values(confirmations).some(value => !value)) {
     throw Error("Complete the physical safety confirmations before opening read-only sources.");

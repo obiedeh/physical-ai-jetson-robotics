@@ -53,7 +53,7 @@ function text(tag, value) { const node = document.createElement(tag); node.textC
 /** Create a same-page link to a route path, so navigation controls are real anchors. */
 function routeLink(label, path, kind = "") { const node = text("a", label); node.className = `button ${kind}`.trim(); node.href = window.SynriaRouter.href(path); node.dataset.route = path; return node; }
 /** Keep synthetic session identity visible wherever a session is displayed. */
-function demoLabel(session) { return session.source_kind === "synthetic_demo" ? " · SYNTHETIC DEMO" : ""; }
+function demoLabel(session) { return session.source_kind === "synthetic_demo" ? " · SYNTHETIC DEMO" : session.source_kind === "simulation" ? " · SIMULATION" : ""; }
 /** Emit an optional local audio cue without controlling the recorder clock. */
 function tone() {
   if (!$("audio").checked) return;
@@ -187,9 +187,11 @@ function renderResetScene(active, show) {
 /** Render server-owned capture status without starting or advancing acquisition. */
 async function refreshState() {
   state=await api("state"); const c=state.capture, active=state.active_session;
-  document.body.classList.toggle("demo",state.demo);$("mode").className=`badge ${state.demo?"demo":""}`;
-  $("mode").textContent=state.demo?"SYNTHETIC DEMO · NO ROBOT":"READ ONLY · PHYSICAL SOURCES";
-  $("mode-help").textContent=state.demo?"Demo mode: fake cameras and arm. Nothing recorded here is real.":"";$("mode-help").hidden=!state.demo;
+  document.body.classList.toggle("demo",state.demo);document.body.classList.toggle("simulation",Boolean(state.simulation));
+  $("mode").className=`badge ${state.demo?"demo":state.simulation?"simulation":""}`;
+  $("mode").textContent=state.demo?"SYNTHETIC DEMO · NO ROBOT":state.simulation?"SIMULATION · ISAAC RECORD MODE":"READ ONLY · PHYSICAL SOURCES";
+  $("mode-help").textContent=state.demo?"Demo mode: fake cameras and arm. Nothing recorded here is real.":state.simulation?"Simulation: Isaac cameras and the sim arm; the leader arm's follower feed is the action. Takes go to their own dataset and never count as physical data.":"";$("mode-help").hidden=!(state.demo||state.simulation);
+  if(state.simulation&&!document.body.dataset.simCaptions){document.body.dataset.simCaptions="1";for(const [role,name] of Object.entries({wrist:"Wrist camera · SIMULATION",front:"Front camera · SIMULATION"}))document.querySelectorAll(`[data-camera-name=${role}]`).forEach(node=>{node.textContent=name;});}
   const min=c.min_episode_s??0,max=c.max_episode_s??0,elapsed=c.elapsed_s||0;
   renderRecordBanner(c, active);
   $("preflight").textContent=JSON.stringify({...state.preflight,free_disk_bytes:state.free_disk_bytes,required_free_bytes:state.min_free_bytes},null,2);

@@ -158,7 +158,10 @@ not counts toward the dataset. Take windows remain operator decisions outside th
 <label class="check"><input type="checkbox" data-readiness-confirm="read_only">The arm feed I started has writes disabled and leaves torque unchanged.</label>
 <label class="check"><input type="checkbox" data-readiness-confirm="leader_link">The leader and follower sync cable is connected and teleoperation works as before.</label>
 <label class="check"><input type="checkbox" data-readiness-confirm="camera_roles">The wrist camera is on the wrist and the overhead camera looks down at the scene.</label>
-<label class="check"><input type="checkbox" data-readiness-confirm="procedure">I followed the safety checklist, and the power state and gripper size above are what I see.</label></div></article></div>
+<label class="check"><input type="checkbox" data-readiness-confirm="procedure">I followed the safety checklist, and the power state and gripper size above are what I see.</label></div></article>
+<article id="sim-panel" hidden><h3>SIMULATION · I have checked Isaac</h3><p class="small-print">Takes go to their own simulation dataset and never count as physical data. The arm serial, power state and limit verification belong to the real arm and are marked not applicable.</p><div id="sim-confirmations">
+<label class="check"><input type="checkbox" data-readiness-confirm="leader_link" data-sim-confirm>The leader arm drives the sim arm in Isaac record mode; nothing here moves the real arm.</label>
+<label class="check"><input type="checkbox" data-readiness-confirm="isaac_record" data-sim-confirm>Isaac record mode is running (bash scripts/run_alicia_stack.sh record) and its three views are live.</label></div></article></div>
 <button id="create" type="submit" class="visually-hidden" tabindex="-1" aria-hidden="true">Start session</button></form>
 <div id="wizard-footer" class="wizard-footer"><button type="button" id="wizard-back">Back</button><p id="wizard-reason" role="status"></p><button id="smoke" type="button" hidden>Do a practice run instead</button><button type="button" id="wizard-primary" class="primary">Continue</button></div></section>
 <section id="record" class="screen" hidden><div class="section-head"><h2 id="record-title" class="screen-title" tabindex="-1">No session open</h2></div>
