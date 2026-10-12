@@ -46,7 +46,7 @@ ACTION_TIMING_KEYS = (
 )
 DIRECT_JOINT_COMMAND_TOPIC = "/joint_commands"
 DEFAULT_COMMAND_TOPICS = (DIRECT_JOINT_COMMAND_TOPIC, "/policy_joint_targets")
-STATE_SOURCE_KINDS = ("standalone_driver", "ros2_control")
+STATE_SOURCE_KINDS = ("standalone_driver", "ros2_control", "isaac_simulation")
 
 
 def require_absolute_topic(topic: str) -> None:
@@ -238,7 +238,7 @@ class PhysicalDatasetContract:
         """Refuse smoke and synthetic contracts at training and physical evaluation boundaries."""
         if self.recording_purpose != "qualifying":
             raise ValueError(
-                "disposable smoke or synthetic demo is not eligible for training "
+                "disposable smoke, synthetic demo or simulation is not eligible for training "
                 "or physical evaluation"
             )
 

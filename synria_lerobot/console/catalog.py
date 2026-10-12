@@ -71,6 +71,7 @@ class Catalog:
                 "backups",
                 "sessions",
                 "sessions-demo",
+                "sessions-simulation",
                 "trash",
             )
         ):
@@ -390,9 +391,8 @@ class Catalog:
         allowed = self.workspace / (
             "trash"
             if session["status"] in {"trashed", "purged"}
-            else "sessions-demo"
-            if session["source_kind"] == "synthetic_demo"
-            else "sessions"
+            else {"synthetic_demo": "sessions-demo", "simulation": "sessions-simulation"}.get(
+                session["source_kind"], "sessions")
         )
         if (
             path.parent != allowed
@@ -504,14 +504,14 @@ class Catalog:
             if not name or len(name) > 160:
                 raise ValueError("session name must contain 1 to 160 characters")
             source = values.get("source_kind")
-            if source not in {"physical", "synthetic_demo"}:
-                raise ValueError("explicit physical or synthetic_demo source kind required")
+            if source not in {"physical", "synthetic_demo", "simulation"}:
+                raise ValueError("explicit physical, synthetic_demo or simulation source kind required")
             identity = uuid.uuid4().hex
             slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")[:60] or "session"
             slug += "-" + identity[:8]
             directory = (
                 self.workspace
-                / ("sessions-demo" if source == "synthetic_demo" else "sessions")
+                / {"synthetic_demo": "sessions-demo", "simulation": "sessions-simulation"}.get(source, "sessions")
                 / slug
             )
             now = utc_now()
@@ -809,7 +809,7 @@ class Catalog:
         with self._lock, self.connection:
             differences = []
             if session_id is None:
-                for collection in ("sessions", "sessions-demo", "trash"):
+                for collection in ("sessions", "sessions-demo", "sessions-simulation", "trash"):
                     for mirror in sorted((self.workspace / collection).glob("*/session.json")):
                         if mirror.is_symlink() or mirror.parent.is_symlink():
                             raise ValueError("session mirrors must not be symlinks")
@@ -818,9 +818,8 @@ class Catalog:
                         if collection == "trash":
                             row["status"] = "trashed"
                         else:
-                            expected = (
-                                "synthetic_demo" if collection == "sessions-demo" else "physical"
-                            )
+                            expected = {"sessions-demo": "synthetic_demo",
+                                        "sessions-simulation": "simulation"}.get(collection, "physical")
                             if row["source_kind"] != expected or row["slug"] != mirror.parent.name:
                                 raise ValueError(
                                     "session mirror collection or slug is inconsistent"
@@ -1033,7 +1032,8 @@ class Catalog:
             self._require_plain_tree(source)
             destination = (
                 self.workspace
-                / ("sessions-demo" if session["source_kind"] == "synthetic_demo" else "sessions")
+                / {"synthetic_demo": "sessions-demo", "simulation": "sessions-simulation"}.get(
+                    session["source_kind"], "sessions")
                 / session["slug"]
             )
             if destination.exists() or destination.is_symlink():

@@ -44,6 +44,7 @@ from synria_lerobot.physical_contract import (
     StateSourceProvenance,
     action_timing_metadata,
     guarded_command_topics,
+    require_absolute_topic,
 )
 from synria_lerobot.physical_contract import (
     ActionSource as ActionSourceKind,
@@ -58,6 +59,7 @@ from synria_lerobot.schema import (
     Episode,
 )
 from synria_lerobot.task_registry import (
+    SIMULATION,
     SYNTHETIC_DEMO,
     TASK_IDS,
     TASK_METADATA_KEYS,
@@ -661,6 +663,140 @@ class OpenCVFrameSource(_LatestSource[ImageFrame]):
             self._stop.set()
             self._join()
             self._capture.release()
+            self._closed = True
+
+
+def decode_image_message(
+    encoding: str, height: int, width: int, step: int, data: bytes, stored: tuple[int, int],
+) -> tuple[Any, Any]:
+    """Turn a sensor_msgs/Image payload into (stored RGB, native RGB) uint8 arrays.
+
+    rgb8 and bgr8 are accepted; the stored copy is resized to ``stored`` (width,
+    height) with area averaging when the native size differs. Pure, for tests.
+    """
+    import numpy as np
+
+    if encoding not in {"rgb8", "bgr8"}:
+        raise ValueError(f"image encoding {encoding!r} is not rgb8 or bgr8")
+    if any(type(value) is not int or value <= 0 for value in (height, width, step)):
+        raise ValueError("image dimensions must be positive integers")
+    if step < width * 3 or len(data) < step * height:
+        raise ValueError("image payload is shorter than its declared size")
+    rows = np.frombuffer(data, dtype=np.uint8, count=step * height).reshape(height, step)
+    native = rows[:, : width * 3].reshape(height, width, 3)
+    if encoding == "bgr8":
+        native = native[:, :, ::-1]
+    native = np.ascontiguousarray(native)
+    native.setflags(write=False)
+    if (width, height) == tuple(stored):
+        return native, native
+    try:
+        import cv2  # type: ignore[import-not-found]
+        resized = cv2.resize(native, tuple(stored), interpolation=cv2.INTER_AREA)
+    except ImportError:
+        ys = (np.arange(stored[1]) * height // stored[1]).astype(int)
+        xs = (np.arange(stored[0]) * width // stored[0]).astype(int)
+        resized = native[ys][:, xs]
+    resized = np.ascontiguousarray(resized)
+    resized.setflags(write=False)
+    return resized, native
+
+
+class RosImageFrameSource(_LatestSource[ImageFrame]):
+    """Owned-context, depth-one subscriber to a sensor_msgs/Image topic; publishes nothing.
+
+    The simulation source's cameras arrive as ROS images from Isaac record mode. The
+    frame timestamp is the host arrival time, as with the USB cameras, so the recorder's
+    skew and age gates apply unchanged.
+    """
+
+    def __init__(
+        self, topic: str, *, node_name: str, width: int = 224, height: int = 224,
+        timeout_s: float = 1.0,
+    ) -> None:
+        """Create the subscription inside an owned ROS context; close everything on failure."""
+        super().__init__(timeout_s=timeout_s)
+        require_absolute_topic(topic)
+        if any(type(value) is not int or value <= 0 for value in (width, height)):
+            raise ValueError("image width and height must be positive integers")
+        self._topic = topic
+        self._stored_resolution = (width, height)
+        try:
+            import rclpy  # type: ignore[import-not-found]
+            from rclpy.context import Context  # type: ignore[import-not-found]
+            from rclpy.executors import (  # type: ignore[import-not-found]
+                ExternalShutdownException,
+                SingleThreadedExecutor,
+            )
+            from sensor_msgs.msg import Image  # type: ignore[import-not-found]
+        except ImportError as exc:  # pragma: no cover - optional ROS dependency
+            raise RuntimeError("ROS 2 image dependencies are unavailable") from exc
+        self._rclpy = rclpy
+        self._context = Context()
+        with ExitStack() as startup:
+            rclpy.init(context=self._context)
+            startup.callback(_close_all, lambda: rclpy.shutdown(context=self._context))
+            self._node = rclpy.create_node(node_name, context=self._context)
+            startup.callback(_close_all, self._node.destroy_node)
+            self._executor = SingleThreadedExecutor(context=self._context)
+            startup.callback(
+                _close_all, lambda: self._executor.shutdown(timeout_sec=self._timeout_s)
+            )
+
+            def on_image(message: Any) -> None:
+                """Cache the newest frame with its host arrival time."""
+                arrived = time.monotonic()
+                stored, native = decode_image_message(
+                    str(message.encoding), int(message.height), int(message.width),
+                    int(message.step), bytes(message.data), self._stored_resolution,
+                )
+                self._store(ImageFrame(
+                    data=stored, monotonic_timestamp_s=arrived,
+                    native_resolution=(int(message.width), int(message.height)),
+                    source_id=self._topic, native_data=native,
+                ))
+
+            self._subscription = self._node.create_subscription(Image, topic, on_image, 1)
+            startup.callback(
+                _close_all, lambda: self._node.destroy_subscription(self._subscription)
+            )
+            self._executor.add_node(self._node)
+
+            def spin() -> None:
+                """Run callbacks until owned shutdown and surface unexpected stops."""
+                try:
+                    self._executor.spin()
+                    if not self._stop.is_set():
+                        raise RuntimeError("ROS executor stopped unexpectedly")
+                except ExternalShutdownException:
+                    if not self._stop.is_set():
+                        raise
+            self._start_worker(spin, node_name)
+            startup.pop_all()
+
+    def read(self) -> ImageFrame:
+        """Read the latest frame or report that none has arrived yet."""
+        try:
+            return self._read_latest()
+        except RuntimeError as error:
+            if "no source sample" in str(error):
+                raise RuntimeError(
+                    f"No image received on {self._topic}; check that Isaac record mode is "
+                    "publishing and that this terminal uses the same ROS domain."
+                ) from error
+            raise
+
+    def close(self) -> None:
+        """Stop the executor and release the owned context."""
+        if not self._closed:
+            self._stop.set()
+            self._executor.shutdown(timeout_sec=self._timeout_s)
+            self._join()
+            _close_all(
+                lambda: self._node.destroy_subscription(self._subscription),
+                self._node.destroy_node,
+                lambda: self._rclpy.shutdown(context=self._context),
+            )
             self._closed = True
 
 
@@ -1671,7 +1807,7 @@ def _parse_physical_args() -> argparse.Namespace:
 
 def recording_config_from_args(
     args: argparse.Namespace, *, dataset_path: Path | None = None,
-    synthetic_demo: bool = False,
+    synthetic_demo: bool = False, simulation: bool = False,
 ) -> PhysicalRecorderConfig:
     """Validate shared CLI and console settings without creating sources or files.
 
@@ -1679,11 +1815,16 @@ def recording_config_from_args(
     recording form. An unset real task window remains a refusal. Smoke receives
     its temporary path only when the owning builder enters its context.
     """
-    if type(synthetic_demo) is not bool:
-        raise ValueError("synthetic_demo must be an explicit boolean")
+    if type(synthetic_demo) is not bool or type(simulation) is not bool:
+        raise ValueError("synthetic_demo and simulation must be explicit booleans")
+    if synthetic_demo and simulation:
+        raise ValueError("synthetic demo and simulation are distinct launch modes")
     if synthetic_demo and args.smoke:
         raise ValueError("synthetic demo and disposable physical smoke are distinct purposes")
-    purpose = SYNTHETIC_DEMO if synthetic_demo else recording_purpose(args.smoke)
+    # A simulation practice run is a disposable smoke of the sim sources; a kept sim take
+    # carries the simulation purpose so it is never mistaken for physical data.
+    purpose = (SYNTHETIC_DEMO if synthetic_demo
+               else SIMULATION if simulation and not args.smoke else recording_purpose(args.smoke))
     task_definition = select_recording_task(args.task_registry, args.task_id, purpose=purpose)
     contract = PhysicalDatasetContract(
         gripper_type=args.gripper_type,
@@ -1704,7 +1845,9 @@ def recording_config_from_args(
     if synthetic_demo:
         if args.state_source not in (None, SYNTHETIC_DEMO):
             raise ValueError("synthetic demo must not declare a physical state source")
-    else:
+    elif simulation and args.state_source != "isaac_simulation":
+        raise ValueError("simulation must declare the isaac_simulation state source")
+    if not synthetic_demo:
         provenance = StateSourceProvenance(
             args.state_source, args.follower_topic,
             guarded_command_topics(tuple(args.guard_command_topic)),
@@ -1718,7 +1861,7 @@ def recording_config_from_args(
 
 @contextmanager
 def build_recording_session(
-    args: argparse.Namespace, *, synthetic_demo: bool = False,
+    args: argparse.Namespace, *, synthetic_demo: bool = False, simulation: bool = False,
     clock: Callable[[], float] | None = None,
     preflight: Callable[[str, dict[str, Any]], None] | None = None,
 ) -> Iterator[PhysicalEpisodeRecorder]:
@@ -1747,8 +1890,10 @@ def build_recording_session(
                 except Exception as error:
                     print(f"Preflight observer failed: {error}", file=sys.stderr)
 
-    with checked("configuration", source_kind=SYNTHETIC_DEMO if synthetic_demo else "physical"):
-        config = recording_config_from_args(args, synthetic_demo=synthetic_demo)
+    with checked("configuration", source_kind=(SYNTHETIC_DEMO if synthetic_demo else
+                                              SIMULATION if simulation else "physical")):
+        config = recording_config_from_args(args, synthetic_demo=synthetic_demo,
+                                            simulation=simulation)
     contract = config.contract
     with ExitStack() as session_cleanup:
         if args.smoke:
@@ -1818,6 +1963,12 @@ def build_recording_session(
             wrist: FrameSource
             if synthetic_demo:
                 wrist = SyntheticFrameSource("wrist", config, clock=source_clock)
+            elif simulation:
+                with checked("wrist_camera", source_id=args.wrist_camera):
+                    wrist = RosImageFrameSource(
+                        args.wrist_camera, node_name="synria_sim_wrist_image",
+                        width=config.image_width, height=config.image_height,
+                    )
             else:
                 with checked("wrist_camera", source_id=args.wrist_camera):
                     wrist = OpenCVFrameSource(
@@ -1827,6 +1978,12 @@ def build_recording_session(
             front: FrameSource
             if synthetic_demo:
                 front = SyntheticFrameSource("front", config, clock=source_clock)
+            elif simulation:
+                with checked("front_camera", source_id=args.front_camera):
+                    front = RosImageFrameSource(
+                        args.front_camera, node_name="synria_sim_front_image",
+                        width=config.image_width, height=config.image_height,
+                    )
             else:
                 with checked("front_camera", source_id=args.front_camera):
                     front = OpenCVFrameSource(
