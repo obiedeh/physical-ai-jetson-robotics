@@ -22,6 +22,10 @@ EPISODE_WINDOW_KEYS = ("min_episode_s", "max_episode_s")
 QUALIFYING = "qualifying"
 DISPOSABLE_SMOKE = "disposable_smoke"
 SYNTHETIC_DEMO = "synthetic_demo"
+SIMULATION = "simulation"
+# Window for simulation takes of a task that has no operator timing yet; a timed task
+# keeps its real window so sim takes are cut the same way as physical ones.
+SIMULATION_UNTIMED_WINDOW_S = (1.0, 120.0)
 TASK_METADATA_KEYS = (
     "task_id",
     "task_text",
@@ -42,8 +46,8 @@ def recording_purpose(smoke: bool, declared: str | None = None) -> str:
     """Validate explicit nonphysical purpose without relabeling ordinary recordings."""
     if type(smoke) is not bool:
         raise ValueError("smoke must be an explicit boolean")
-    if declared == SYNTHETIC_DEMO and not smoke:
-        return SYNTHETIC_DEMO
+    if declared in (SYNTHETIC_DEMO, SIMULATION) and not smoke:
+        return declared
     if declared is not None and declared != (DISPOSABLE_SMOKE if smoke else QUALIFYING):
         raise ValueError("smoke flag differs from the recorded purpose")
     return DISPOSABLE_SMOKE if smoke else QUALIFYING
@@ -178,6 +182,11 @@ class TaskDefinition:
             return episode_window_metadata(20.0, 20.0)
         if purpose == SYNTHETIC_DEMO:
             return episode_window_metadata(1.0, 30.0)
+        if purpose == SIMULATION:
+            try:
+                return self.require_configured()
+            except ValueError:
+                return episode_window_metadata(*SIMULATION_UNTIMED_WINDOW_S)
         raise ValueError("unknown recording purpose")
 
     def metadata(self, purpose: str = QUALIFYING) -> dict[str, Any]:
@@ -194,7 +203,9 @@ class TaskDefinition:
                 {**window, "reason": "disposable smoke; never qualifying"}
                 if purpose == DISPOSABLE_SMOKE
                 else ({**window, "reason": "synthetic demo; never qualifying"}
-                      if purpose == SYNTHETIC_DEMO else None)
+                      if purpose == SYNTHETIC_DEMO else
+                      ({**window, "reason": "simulation; never qualifying as physical data"}
+                       if purpose == SIMULATION else None))
             ),
         }
 
