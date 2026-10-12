@@ -27,6 +27,9 @@ from synria_lerobot.console.controller import RecordingController
 from synria_lerobot.console.playback import EpisodePlayback, confined_file, encode_rgb
 from synria_lerobot.console.readiness import (
     CONFIRMATIONS,
+    ISAAC_RECORD_HELP,
+    SIM_TOPICS,
+    SIMULATION_CONFIRMATIONS,
     ReadinessReport,
     inspect_samples,
     require_distinct_cameras,
@@ -157,8 +160,8 @@ class ConsoleService:
     """Coordinate catalog facts and one recorder context; browser clients own no capture state."""
 
     def __init__(
-        self, workspace: Path, *, demo: bool = False, registry: Path = DEFAULT_REGISTRY,
-        min_free_bytes: int = 1_000_000_000,
+        self, workspace: Path, *, demo: bool = False, simulation: bool = False,
+        registry: Path = DEFAULT_REGISTRY, min_free_bytes: int = 1_000_000_000,
         builder: Callable[..., AbstractContextManager[PhysicalEpisodeRecorder]] = (
             build_recording_session
         ),
@@ -181,8 +184,12 @@ class ConsoleService:
                 "console requires the repository config files; use an editable repository "
                 "installation in the dedicated recording environment"
             )
+        if demo and simulation:
+            raise ValueError("demo and simulation are distinct launch modes")
         self.workspace = resolved
         self.demo = demo
+        self.simulation = simulation
+        self.source_kind = "synthetic_demo" if demo else "simulation" if simulation else "physical"
         self.registry = registry
         self.min_free_bytes = min_free_bytes
         self.builder = builder
@@ -214,7 +221,7 @@ class ConsoleService:
         self._run_id: int | None = None
         self._smoke_episodes: list[dict[str, Any]] = []
         self._preflight: dict[str, Any] = {}
-        self.readiness = ReadinessReport(clock, demo=demo)
+        self.readiness = ReadinessReport(clock, demo=demo, simulation=simulation)
         self._closed = False
         self.quit_requested = threading.Event()
 
@@ -238,7 +245,7 @@ class ConsoleService:
         if set(payload) - allowed:
             raise ValueError("unknown session settings; paths and task windows are server-owned")
         required = ["name", "task_id", "gripper_type", "fps", "operator", "scene"]
-        if not self.demo:
+        if not self.demo and not self.simulation:
             required += ["state_source", "wrist_camera", "front_camera"]
             if not diagnostic:
                 required += ["follower_serial", "power_state_start"]
@@ -262,6 +269,12 @@ class ConsoleService:
         if self.demo:
             settings.update(state_source="synthetic_demo", wrist_camera="synthetic:wrist",
                             front_camera="synthetic:front")
+        elif self.simulation:
+            # Sim sources are fixed by the launch mode: the Isaac record topics for state and
+            # images, the real follower's /joint_states as the leader-type action.
+            settings.update(state_source="isaac_simulation", wrist_camera=SIM_TOPICS["wrist"],
+                            front_camera=SIM_TOPICS["front"], follower_topic=SIM_TOPICS["state"],
+                            action_source="leader", leader_topic=SIM_TOPICS["action"])
         elif payload.get("follower_usb_id"):
             connection = payload["follower_usb_id"]
             if not isinstance(connection, str) or connection not in list_serial_connections()[
@@ -318,6 +331,7 @@ class ConsoleService:
         """Use the recorder's configuration factory rather than copying its contract checks."""
         return recording_config_from_args(
             self._args(settings, repo_id, dataset, smoke), synthetic_demo=self.demo,
+            simulation=self.simulation,
         )
 
     def check_readiness(self, payload: dict[str, Any]) -> dict[str, Any]:
@@ -342,26 +356,42 @@ class ConsoleService:
             self.catalog.record_event(None, "readiness_started", {
                 "operator": payload["settings"].get("operator", ""),
                 "confirmations": payload["confirmations"], "demo": self.demo,
+                "simulation": self.simulation,
             })
             confirmations = payload["confirmations"]
+            wanted = ({} if self.demo else SIMULATION_CONFIRMATIONS if self.simulation
+                      else CONFIRMATIONS)
             confirmed = self.demo or (
-                set(confirmations) == set(CONFIRMATIONS)
+                set(confirmations) == set(wanted)
                 and all(value is True for value in confirmations.values())
             )
             report.check("operator_safety", confirmed,
                          "Synthetic only" if self.demo else
-                         ("Operator confirmed the runbook safety and physical connection checklist"
-                          if confirmed else "All physical safety confirmations are required"))
+                         ("Operator confirmed the leader link and Isaac record mode"
+                          if confirmed and self.simulation else
+                          "Operator confirmed the runbook safety and physical connection checklist"
+                          if confirmed else
+                          "Confirm the leader link and Isaac record mode" if self.simulation else
+                          "All physical safety confirmations are required"))
             if not confirmed:
-                raise ValueError("Confirm the physical safety checklist before opening sources")
-            missing_metadata = [] if self.demo else [
-                name for name in ("follower_serial", "power_state_start")
-                if not str(payload["settings"].get(name, "")).strip()
-            ]
-            report.check("recording_metadata", not missing_metadata,
-                         "Required before recording: " + ", ".join(missing_metadata)
-                         + ". Connection checks can continue; unknown values are not inferred."
-                         if missing_metadata else "Recording identity and power fields supplied")
+                raise ValueError("Confirm the Isaac simulation checklist before opening sources"
+                                 if self.simulation else
+                                 "Confirm the physical safety checklist before opening sources")
+            if self.simulation:
+                report.not_applicable(
+                    "recording_metadata",
+                    "Not applicable in simulation: follower serial and power state describe the "
+                    "real arm and are not recorded for sim takes")
+                missing_metadata = []
+            else:
+                missing_metadata = [] if self.demo else [
+                    name for name in ("follower_serial", "power_state_start")
+                    if not str(payload["settings"].get(name, "")).strip()
+                ]
+                report.check("recording_metadata", not missing_metadata,
+                             "Required before recording: " + ", ".join(missing_metadata)
+                             + ". Connection checks can continue; unknown values are not inferred."
+                             if missing_metadata else "Recording identity and power fields supplied")
             try:
                 settings = self._settings(payload["settings"], smoke=not self.demo,
                                           diagnostic=True)
@@ -375,22 +405,34 @@ class ConsoleService:
             except (ValueError, RuntimeError) as error:
                 report.check("qualifying_configuration", False, str(error))
             limits = load_limits(REPOSITORY / "config" / "synria_limits.yaml")
-            report.check("limits_verification", self.demo or limits.verified,
-                         "Synthetic only" if self.demo else
-                         ("Operator verification recorded" if limits.verified else
-                          "limits unverified by operator; qualifying collection is not ready"))
+            if self.simulation:
+                report.not_applicable(
+                    "limits_verification",
+                    "Not applicable in simulation: operator limit verification is a real-arm "
+                    "fact; the joint limit gate still applies to every sim sample")
+            else:
+                report.check("limits_verification", self.demo or limits.verified,
+                             "Synthetic only" if self.demo else
+                             ("Operator verification recorded" if limits.verified else
+                              "limits unverified by operator; qualifying collection is not ready"))
             free = shutil.disk_usage(self.workspace).free
             report.check("disk_space", free >= self.min_free_bytes,
                          "Available recording workspace space", remaining=free,
                          minimum=self.min_free_bytes)
             if free < self.min_free_bytes:
                 raise ValueError("Free disk space is below the recording floor")
-            if not self.demo:
-                available = list_cameras()["cameras"]
-                if any(settings[key] not in available for key in ("wrist_camera", "front_camera")):
-                    raise ValueError("Select two available stable camera IDs; refresh mapping")
-                require_distinct_cameras(settings["wrist_camera"], settings["front_camera"])
-            report.check("camera_mapping", True, "Distinct identities selected; no auto-mapping")
+            if self.simulation:
+                if settings["wrist_camera"] == settings["front_camera"]:
+                    raise ValueError("Sim wrist and front image topics must differ")
+                report.check("camera_mapping", True,
+                             f"Sim image topics {settings['wrist_camera']} and {settings['front_camera']}")
+            else:
+                if not self.demo:
+                    available = list_cameras()["cameras"]
+                    if any(settings[key] not in available for key in ("wrist_camera", "front_camera")):
+                        raise ValueError("Select two available stable camera IDs; refresh mapping")
+                    require_distinct_cameras(settings["wrist_camera"], settings["front_camera"])
+                report.check("camera_mapping", True, "Distinct identities selected; no auto-mapping")
             dependencies = runtime_dependencies(demo=self.demo)
             report.check("runtime_dependencies", all(dependencies.values()),
                          "Recording environment dependency availability", details=dependencies)
@@ -401,14 +443,20 @@ class ConsoleService:
                 args = self._args(settings, "local/readiness", Path(temporary) / "dataset",
                                   not self.demo)
                 report.launching("source_startup", "Opening read-only sources; no driver launch")
-                with self.builder(args, synthetic_demo=self.demo, clock=self.clock,
-                                  preflight=report.observe) as recorder:
+                with self.builder(args, synthetic_demo=self.demo, simulation=self.simulation,
+                                  clock=self.clock, preflight=report.observe) as recorder:
                     report.check("source_startup", True, "Shared source preflight completed")
+                    if self.simulation:
+                        report.check("isaac_record_mode", True,
+                                     "Isaac record mode is publishing the sim state and images")
                     inspect_samples(recorder, report, limits)
             report.check("cleanup", True, "Diagnostic sources closed; no episode started or saved")
         except Exception as error:
             if report.checks.get("source_startup", {}).get("status") == "launching":
                 report.check("source_startup", False, str(error))
+            if self.simulation and any(hint in str(error) for hint in (
+                    "No state sample received", "No image received", "no source sample")):
+                report.check("isaac_record_mode", False, ISAAC_RECORD_HELP)
             report.check("diagnostic", False, str(error))
         finally:
             report.finish()
@@ -425,12 +473,14 @@ class ConsoleService:
             "power_state_start", "notes",
         )}
         values.update(
-            source_kind="synthetic_demo" if self.demo else "physical",
-            recording_purpose="synthetic_demo" if self.demo else "qualifying",
+            source_kind=self.source_kind,
+            recording_purpose=("synthetic_demo" if self.demo else
+                               "simulation" if self.simulation else "qualifying"),
             task_id=task.task_id, task_definition_sha256=task.sha256,
             settings=settings, target_episodes=int(payload.get("target_episodes", 100)),
             git_sha=_git_sha(), host=socket.gethostname(),
-            repo_id="local/synria-console-" + secrets.token_hex(8),
+            repo_id=("local/synria-sim-" if self.simulation else "local/synria-console-")
+            + secrets.token_hex(8),
         )
         binding = library_snapshot_fields(source)
         if binding:
@@ -487,7 +537,7 @@ class ConsoleService:
             session = self.catalog.get_session(session_id)
             if session["status"] in {"trashed", "purged"}:
                 raise RuntimeError("restore this session before opening it")
-            if (session["source_kind"] == "synthetic_demo") != self.demo:
+            if session["source_kind"] != self.source_kind:
                 raise ValueError("session source kind differs from this launch mode")
             source = (Path(session["task_snapshot_path"]) if session.get("task_snapshot_path")
                       else self.registry)
@@ -520,7 +570,8 @@ class ConsoleService:
             self._preflight["checks"][name] = result
 
         context = self.builder(
-            args, synthetic_demo=self.demo, clock=self.clock, preflight=observe_preflight,
+            args, synthetic_demo=self.demo, simulation=self.simulation, clock=self.clock,
+            preflight=observe_preflight,
         )
         try:
             recorder = context.__enter__()
@@ -631,7 +682,8 @@ class ConsoleService:
         if active is not None and active["id"] != "smoke":
             active = self.catalog.get_session(active["id"])
         return {
-            "demo": self.demo, "active_session": active, "capture": status,
+            "demo": self.demo, "simulation": self.simulation, "source_kind": self.source_kind,
+            "active_session": active, "capture": status,
             "preflight": self._preflight,
             "free_disk_bytes": shutil.disk_usage(self.workspace).free,
             "min_free_bytes": self.min_free_bytes,
@@ -789,7 +841,8 @@ class ConsoleService:
                     "scene", "follower_topic", "leader_topic", "action_source"}
         for event in reversed(self.catalog.events()):
             detail = event.get("detail", {})
-            if event["kind"] == "readiness_completed" and detail.get("demo") is self.demo:
+            if (event["kind"] == "readiness_completed" and detail.get("demo") is self.demo
+                    and detail.get("simulation", False) is self.simulation):
                 previous = {key: value for key, value in detail.get("form_settings", {}).items()
                             if key in reusable and value not in (None, "")}
                 break
@@ -803,11 +856,16 @@ class ConsoleService:
                     | set(local_follower_serials(self.workspace)), key=str.casefold,
                 )
             ),
-            "recommended": {"fps": 15, "image_width": 224, "image_height": 224,
-                            "action_lookahead_steps": 1, "state_startup_timeout_s": 10,
-                            "target_episodes": 100, "action_source": "next_state",
-                            "follower_topic": "/joint_states",
-                            "leader_topic": "/leader/joint_states"},
+            "recommended": ({"fps": 15, "image_width": 224, "image_height": 224,
+                             "action_lookahead_steps": 1, "state_startup_timeout_s": 10,
+                             "target_episodes": 100, "action_source": "leader",
+                             "follower_topic": SIM_TOPICS["state"],
+                             "leader_topic": SIM_TOPICS["action"]} if self.simulation else
+                            {"fps": 15, "image_width": 224, "image_height": 224,
+                             "action_lookahead_steps": 1, "state_startup_timeout_s": 10,
+                             "target_episodes": 100, "action_source": "next_state",
+                             "follower_topic": "/joint_states",
+                             "leader_topic": "/leader/joint_states"}),
             "notice": "Recommended values are runbook candidates, not measurements. "
                       "Previous operator entries need review for this session. "
                       "The ROS state topic does not expose the manufacturer serial; saved "
@@ -826,8 +884,8 @@ class ConsoleService:
                     "middleware": os.environ.get("RMW_IMPLEMENTATION", "distribution default"),
                 },
                 "documents": GUIDE_DOCUMENTS,
-                "limits_verified": self.demo or self._operator_limits_verified(),
-                "demo": self.demo,
+                "limits_verified": self.demo or self.simulation or self._operator_limits_verified(),
+                "demo": self.demo, "simulation": self.simulation,
             }
         if len(route) == 2 and route[0] == "help" and route[1] in GUIDE_DOCUMENTS:
             path = GUIDE_DOCUMENTS[route[1]]
@@ -870,10 +928,16 @@ class ConsoleService:
         if len(route) == 3 and route[0] == "library" and route[2] == "time":
             return self.timing_status(route[1])
         if route == ["cameras"]:
+            if self.simulation:
+                return {"cameras": [SIM_TOPICS["wrist"], SIM_TOPICS["front"]],
+                        "message": "Simulation image topics from Isaac record mode"}
             return list_cameras() if not self.demo else {
                 "cameras": ["synthetic:wrist", "synthetic:front"], "message": "Synthetic demo only",
             }
         if route == ["serial-connections"]:
+            if self.simulation:
+                return {"connections": [],
+                        "message": "Simulation has no arm serial; real-arm identity is not recorded."}
             return list_serial_connections() if not self.demo else {
                 "connections": [], "message": "Synthetic demo has no physical USB connection.",
             }
@@ -967,7 +1031,7 @@ class ConsoleService:
                 session = {"id": "smoke", "name": f"Disposable smoke: {payload['name']}",
                            "settings": settings, "repo_id": "local/synria-console-smoke",
                            "dataset_path": str(self.workspace / "unused-smoke-root"),
-                           "source_kind": "synthetic_demo" if self.demo else "physical",
+                           "source_kind": self.source_kind,
                            "recording_purpose": "disposable_smoke"}
                 self._open(session, smoke=True)
                 assert self.controller is not None
@@ -1044,15 +1108,16 @@ class ConsoleService:
             raise cleanup_error
 
 
-def announce_url(url: str, *, demo: bool, stream: TextIO | None = None) -> None:
+def announce_url(url: str, *, demo: bool, stream: TextIO | None = None,
+                 simulation: bool = False) -> None:
     """Print the launch URL and flush it so a redirected log shows the token immediately.
 
     A background launch with stdout sent to a file otherwise keeps the only copy of
     the per-launch token in a block buffer until the process exits.
     """
     output = sys.stdout if stream is None else stream
-    print(f"Synria Teleop Console {'SYNTHETIC DEMO' if demo else 'read-only'}: {url}",
-          file=output, flush=True)
+    mode = "SYNTHETIC DEMO" if demo else "SIMULATION" if simulation else "read-only"
+    print(f"Synria Teleop Console {mode}: {url}", file=output, flush=True)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1060,6 +1125,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Read-only Synria Teleop Console")
     parser.add_argument("--workspace", type=Path, required=True)
     parser.add_argument("--demo", action="store_true")
+    parser.add_argument("--simulation", action="store_true",
+                        help="Record from Isaac record mode: sim state and images, real follower "
+                             "/joint_states as the action; takes are labelled SIMULATION")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--allow-remote", action="store_true")
@@ -1078,8 +1146,8 @@ def main(argv: list[str] | None = None) -> int:
         print("WARNING: remote HTTP exposes private recordings; use a trusted isolated network.",
               flush=True)
     planner = ExternalPlanner.from_environment(os.environ.get(ENVIRONMENT_VARIABLE))
-    service = ConsoleService(args.workspace, demo=args.demo, min_free_bytes=args.min_free_bytes,
-                             planner=planner)
+    service = ConsoleService(args.workspace, demo=args.demo, simulation=args.simulation,
+                             min_free_bytes=args.min_free_bytes, planner=planner)
     if planner is not None:
         print("External task planner command is configured; the built-in planner answers "
               "when it fails.", flush=True)
@@ -1110,7 +1178,7 @@ def main(argv: list[str] | None = None) -> int:
         for sig in (signal.SIGINT, signal.SIGTERM):
             previous[sig] = signal.signal(sig, request_shutdown)
         url = f"http://{args.host}:{server.server_address[1]}/#token={token}"
-        announce_url(url, demo=args.demo)
+        announce_url(url, demo=args.demo, simulation=args.simulation)
         if not args.no_browser:
             webbrowser.open(url)
         while not service.quit_requested.is_set():

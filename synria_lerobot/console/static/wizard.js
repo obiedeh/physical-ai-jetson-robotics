@@ -203,8 +203,8 @@ const SynriaWizard = (() => {
 
   /** Required fields still blank, in wizard order; serial and power count for leaving step 2. */
   function missingFields(values) {
-    const missing = window.SynriaGuide.missingInputs(values, state.demo).filter(name => name !== "task_id");
-    if (!state.demo) for (const name of ["follower_serial", "power_state_start"]) if (!String(values[name] || "").trim()) missing.push(name);
+    const missing = window.SynriaGuide.missingInputs(values, state.demo || state.simulation).filter(name => name !== "task_id");
+    if (!state.demo && !state.simulation) for (const name of ["follower_serial", "power_state_start"]) if (!String(values[name] || "").trim()) missing.push(name);
     const order = ["name", "operator", "gripper_type", "state_source", "wrist_camera", "front_camera", "fps", "scene", "follower_serial", "power_state_start"];
     return order.filter(name => missing.includes(name));
   }
@@ -231,15 +231,16 @@ const SynriaWizard = (() => {
     const chosen = chosenTask();
     if (chosen) parts.push(taskTitle(chosen));
     if (values.gripper_type) parts.push(`${values.gripper_type.replace("mm", " mm")} gripper`);
-    if (!state.demo && values.state_source) parts.push(values.state_source === "ros2_control" ? "ros2_control arm feed" : "standalone driver arm feed");
+    if (!state.demo && !state.simulation && values.state_source) parts.push(values.state_source === "ros2_control" ? "ros2_control arm feed" : "standalone driver arm feed");
     if (state.demo) parts.push("demo arm feed and cameras");
+    if (state.simulation) parts.push("SIMULATION: Isaac sim arm and cameras, leader feed as action");
     else if (values.wrist_camera && values.front_camera) parts.push(`wrist ${shortCamera(values.wrist_camera)}, overhead ${shortCamera(values.front_camera)}`);
     if (values.fps) parts.push(`${values.fps} FPS`);
     if (values.operator) parts.push(`you: ${values.operator}`);
     $("setup-line").textContent = parts.length ? parts.join(", ") + "." : "Nothing remembered yet.";
     const inline = $("setup-inline");
     const wanted = missingFields(values).filter(name => !["scene", "name"].includes(name));
-    if (!state.demo) for (const name of ["follower_serial", "power_state_start"]) if (!wanted.includes(name)) wanted.push(name);
+    if (!state.demo && !state.simulation) for (const name of ["follower_serial", "power_state_start"]) if (!wanted.includes(name)) wanted.push(name);
     for (const name of wanted) {
       const box = containerFor(name);
       if (box && box.parentElement !== inline) { inline.append(box); box.hidden = false; }
@@ -260,7 +261,10 @@ const SynriaWizard = (() => {
   /** Does the last report describe these exact settings, whatever its age? */
   function reportMatches() { const report = typeof readinessReport === "undefined" ? null : readinessReport; return Boolean(report?.checked_utc && matchingReadinessSettings(report.form_settings, formValues())); }
   /** All bench checks ticked, or none required in the synthetic demo. */
-  function confirmed() { return state.demo || [...document.querySelectorAll("[data-readiness-confirm]")].every(node => node.checked); }
+  function confirmed() { return state.demo || confirmationNodes().every(node => node.checked); }
+  /** The checklist that applies to this launch mode: the Isaac list in simulation, the bench list otherwise. */
+  function confirmationNodes() { return [...document.querySelectorAll("[data-readiness-confirm]")].filter(node => Boolean(node.hasAttribute("data-sim-confirm")) === Boolean(state.simulation)); }
+  window.SynriaConfirmations = confirmationNodes;
   /** Is a check running right now, by either the page or the server? */
   function checkRunning() { return checking || readinessBusy || (typeof readinessReport !== "undefined" && readinessReport?.status === "checking"); }
 
@@ -280,7 +284,7 @@ const SynriaWizard = (() => {
       if (path.status === "not_ready") return {name, state:"problem", text:path.message, help:path.help};
       return {name, state:"ok", text:okText(path)};
     };
-    const arm = fromPath("follower", "Arm feed", () => state.demo ? "Synthetic arm feed, fresh sample" : typeof rate === "number" ? `Receiving ${Math.round(rate)} readings per second` : "Receiving readings");
+    const arm = fromPath("follower", state.simulation ? "Sim arm feed" : "Arm feed", () => state.demo ? "Synthetic arm feed, fresh sample" : typeof rate === "number" ? `Receiving ${Math.round(rate)} readings per second` : "Receiving readings");
     if (!leader && arm.state === "ok") { const action = paths.find(item => item.id === "action"); if (action?.status === "not_ready") Object.assign(arm, {state:"problem", text:action.message, help:action.help}); }
     tiles.push(arm);
     if (leader) tiles.push(fromPath("action", "Leader arm", () => "Receiving leader readings"));
@@ -357,6 +361,7 @@ const SynriaWizard = (() => {
   function countingStatus() {
     const task = chosenTask(), values = formValues();
     if (state.demo) return {counts:false, why:"Demo takes never count toward the dataset.", practiceRun:false};
+    if (state.simulation) return {counts:true, why:"SIMULATION takes go to their own dataset and never count as physical data.", practiceRun:false};
     if (task && !timed(task)) return {counts:false, why:"This task is not timed yet. A practice run records one 20 second take and throws it away.", practiceRun:true};
     const needed = window.SynriaGuide.requirements(values).filter(key => key !== "metadata");
     if (needed.includes("limits")) return {counts:false, why:"Takes will not count toward the dataset until the joint limits are verified.", practiceRun:true};
@@ -414,7 +419,8 @@ const SynriaWizard = (() => {
   function show(name) {
     step = STEPS.includes(name) ? name : "task";
     for (const page of STEPS) $(`step-${page}`).hidden = page !== step;
-    $("bench-panel").hidden = Boolean(state.demo);
+    $("bench-panel").hidden = Boolean(state.demo || state.simulation);
+    $("sim-panel").hidden = !state.simulation;
     refresh();
     // The router calls show() once per arrival, so every arrival gets focus and an announcement.
     window.scrollTo({top:0, behavior:"auto"});
@@ -431,7 +437,7 @@ const SynriaWizard = (() => {
   /** Run the read-only setup check once per entry when the bench checks are confirmed. */
   async function maybeRunCheck() {
     if (step !== "check" || checkRunning() || !confirmed() || checkIsCurrent()) return;
-    if (window.SynriaGuide.missingInputs(formValues(), state.demo).length) return;
+    if (window.SynriaGuide.missingInputs(formValues(), state.demo || state.simulation).length) return;
     checking = true; refresh();
     try { await runReadiness(); } finally { checking = false; refresh(); }
   }

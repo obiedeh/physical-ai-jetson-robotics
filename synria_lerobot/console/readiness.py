@@ -24,6 +24,15 @@ from synria_lerobot.quality_gates import (
 )
 from synria_lerobot.recorder import PhysicalEpisodeRecorder
 
+SIMULATION_CONFIRMATIONS = {
+    "leader_link": "Leader arm drives the sim arm in Isaac record mode; nothing here moves the real arm",
+    "isaac_record": "Isaac record mode is running (bash scripts/run_alicia_stack.sh record)",
+}
+ISAAC_RECORD_HELP = ("Isaac record mode is not running or not publishing the sim topics. Start it "
+                     "with: bash scripts/run_alicia_stack.sh record (in the teleop repository), "
+                     "then run the check again.")
+SIM_TOPICS = {"state": "/isaac_joint_states", "wrist": "/isaac/wrist_camera/image_raw",
+              "front": "/isaac/front_camera/image_raw", "action": "/joint_states"}
 CONFIRMATIONS = {
     "secured": "Arm secured, workspace clear and emergency stop within reach",
     "read_only": "Existing state source has writes disabled and startup leaves torque unchanged",
@@ -43,10 +52,11 @@ def runtime_dependencies(*, demo: bool) -> dict[str, bool]:
 class ReadinessReport:
     """Keep auditable check results with conservative readiness wording and automatic expiry."""
 
-    def __init__(self, clock: Callable[[], float], *, demo: bool) -> None:
-        """Start unverified; demo results can never become a physical readiness claim."""
+    def __init__(self, clock: Callable[[], float], *, demo: bool, simulation: bool = False) -> None:
+        """Start unverified; demo and simulation results can never become a physical readiness claim."""
         self.clock = clock
         self.demo = demo
+        self.simulation = simulation
         self.running = False
         self.completed_s: float | None = None
         self.checks: dict[str, dict[str, Any]] = {}
@@ -68,7 +78,13 @@ class ReadinessReport:
             "limits_verification", "disk_space", "camera_mapping", "runtime_dependencies",
             "source_startup", "follower_sample", "action_sample", "wrist_sample", "front_sample",
             "source_alignment", "distinct_views", "cleanup",
-        )}
+        ) + (("isaac_record_mode",) if self.simulation else ())}
+
+    def not_applicable(self, name: str, message: str) -> None:
+        """Record openly that a real-arm fact does not apply to this source, never as a pass."""
+        self.checks = {**self.checks, name: {
+            "passed": True, "status": "not_applicable", "message": message,
+        }}
 
     def check(self, name: str, passed: bool, message: str, **facts: Any) -> None:
         """Publish one immutable result so polling never iterates a changing dictionary."""
@@ -125,10 +141,12 @@ class ReadinessReport:
             status, label, percent = "blocked", "Connection checks incomplete", 25 if passed else 0
         if self.demo:
             label = "SYNTHETIC DEMO · " + label
+        elif self.simulation:
+            label = "SIMULATION · " + label
         return {
             "status": status, "label": label, "percent": percent, "checks": checks,
             "passed_count": passed, "check_count": len(checks), "checked_utc": self.checked_utc,
-            "expires_after_s": 60, "demo": self.demo,
+            "expires_after_s": 60, "demo": self.demo, "simulation": self.simulation,
             "thumbnails": sorted(self.thumbnails),
             "form_settings": copy.deepcopy(self.form_settings),
             "scope": "Read-only snapshot, not motion authorization. Sources close after checks. "
