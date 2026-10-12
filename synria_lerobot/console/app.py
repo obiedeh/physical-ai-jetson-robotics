@@ -452,12 +452,17 @@ class ConsoleService:
                     inspect_samples(recorder, report, limits)
             report.check("cleanup", True, "Diagnostic sources closed; no episode started or saved")
         except Exception as error:
+            isaac_missing = self.simulation and any(hint in str(error) for hint in (
+                "No state sample received", "No image received", "no source sample"))
+            # In simulation a silent sim topic is told in operator words; the topic and
+            # timeout stay as a secondary technical detail.
+            shown = ISAAC_RECORD_HELP if isaac_missing else str(error)
+            facts = {"details": {"technical": str(error)}} if isaac_missing else {}
             if report.checks.get("source_startup", {}).get("status") == "launching":
-                report.check("source_startup", False, str(error))
-            if self.simulation and any(hint in str(error) for hint in (
-                    "No state sample received", "No image received", "no source sample")):
-                report.check("isaac_record_mode", False, ISAAC_RECORD_HELP)
-            report.check("diagnostic", False, str(error))
+                report.check("source_startup", False, shown, **facts)
+            if isaac_missing:
+                report.check("isaac_record_mode", False, ISAAC_RECORD_HELP, **facts)
+            report.check("diagnostic", False, shown, **facts)
         finally:
             report.finish()
             self.catalog.record_event(None, "readiness_completed", report.snapshot())

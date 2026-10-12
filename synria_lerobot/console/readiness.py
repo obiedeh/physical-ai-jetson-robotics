@@ -28,9 +28,8 @@ SIMULATION_CONFIRMATIONS = {
     "leader_link": "Leader arm drives the sim arm in Isaac record mode; nothing here moves the real arm",
     "isaac_record": "Isaac record mode is running (bash scripts/run_alicia_stack.sh record)",
 }
-ISAAC_RECORD_HELP = ("Isaac record mode is not running or not publishing the sim topics. Start it "
-                     "with: bash scripts/run_alicia_stack.sh record (in the teleop repository), "
-                     "then run the check again.")
+ISAAC_RECORD_HELP = ("Isaac record mode is not running. Start it with: bash scripts/run_alicia_stack.sh "
+                     "record, wait for the three views, then press Check again.")
 SIM_TOPICS = {"state": "/isaac_joint_states", "wrist": "/isaac/wrist_camera/image_raw",
               "front": "/isaac/front_camera/image_raw", "action": "/joint_states"}
 CONFIRMATIONS = {
