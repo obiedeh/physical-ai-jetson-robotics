@@ -41,9 +41,10 @@
       if (report.status === "checking" || sample.status === "launching") return row("checking", name, "Checking");
       return row(sample.passed ? "ready" : "neutral", name, sample.passed ? `OK, ${ago(report.checked_utc)}` : sample.message);
     };
-    rows.push(describe("Arm feed", ["follower_sample", "state_rate"]));
-    rows.push(describe("Wrist camera", ["wrist_sample", "wrist_camera"]));
-    rows.push(describe("Overhead camera", ["front_sample", "front_camera"]));
+    const sim = Boolean(current.simulation);
+    rows.push(describe(sim ? "Sim arm feed" : "Arm feed", ["follower_sample", "state_rate"]));
+    rows.push(describe(sim ? "Sim wrist camera" : "Wrist camera", ["wrist_sample", "wrist_camera"]));
+    rows.push(describe(sim ? "Sim front camera" : "Overhead camera", ["front_sample", "front_camera"]));
     if (typeof current.free_disk_bytes === "number") {
       const free = current.free_disk_bytes, floor = current.min_free_bytes || 0;
       rows.push(row(free >= floor ? "ready" : "attention", "Storage", `${(free / 1e9).toFixed(1)} GB free${free >= floor ? "" : ", below the recording floor"}`));

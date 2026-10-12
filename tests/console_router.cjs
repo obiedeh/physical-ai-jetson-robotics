@@ -39,6 +39,8 @@ let rows = home.statusRows({active_session: null, free_disk_bytes: 5e10, min_fre
 assert.equal(rows.map(r => r.name).join(), "Arm feed,Wrist camera,Overhead camera,Storage", "four tiles, software hidden when it is fine");
 assert.ok(rows.slice(0, 3).every(r => r.level === "neutral" && r.detail === "Not checked yet"), "no check means Not checked yet, never a fault");
 assert.equal(rows[3].level, "ready"); assert.match(rows[3].detail, /^50\.0 GB free$/);
+const simRows = home.statusRows({active_session: null, simulation: true, free_disk_bytes: 5e10, min_free_bytes: 1e9}, {status: "ready"}, null);
+assert.equal(simRows.map(r => r.name).join(), "Sim arm feed,Sim wrist camera,Sim front camera,Storage", "simulation mode names the sim sources");
 const checks = {follower_sample: {passed: true, status: "ready", message: "Fresh sample"},
   wrist_sample: {passed: false, status: "not_ready", message: "Camera device busy"},
   front_sample: {passed: false, status: "not_checked", message: "Not run"}};

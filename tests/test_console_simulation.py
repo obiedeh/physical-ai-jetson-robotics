@@ -141,6 +141,9 @@ def test_simulation_readiness_marks_real_arm_facts_not_applicable_and_names_isaa
         assert checks["camera_mapping"]["passed"] is True
         assert checks["isaac_record_mode"]["passed"] is False
         assert checks["isaac_record_mode"]["message"] == ISAAC_RECORD_HELP
+        assert checks["diagnostic"]["message"] == ISAAC_RECORD_HELP
+        assert "/isaac_joint_states" in checks["diagnostic"]["details"]["technical"]
+        assert "wait for the three views" in ISAAC_RECORD_HELP and "/isaac" not in ISAAC_RECORD_HELP
         assert seen["simulation"] is True and seen["synthetic_demo"] is False
         assert report["label"].startswith("SIMULATION")
         half = service.check_readiness({"settings": {**values(), "fps": 15},
