@@ -73,6 +73,7 @@ fieldset.field legend{color:var(--muted);font-size:14px;padding:0 6px}
 fieldset.field small{color:var(--muted)}
 #sources-panel .section-head h3{margin-right:auto}#sources-line{margin:4px 0 12px;font-size:14px}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.check-progress{margin:4px 0 10px;min-height:1.4em;color:var(--muted)}.check-progress[data-level="problem"]{color:var(--danger)}.check-progress[data-level="checking"]::before{content:"";display:inline-block;width:12px;height:12px;margin-right:8px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;vertical-align:-2px;animation:synria-spin .9s linear infinite}@keyframes synria-spin{to{transform:rotate(360deg)}}
 .tile{display:flex;flex-direction:column;gap:6px;padding:14px;border-left:5px solid #728394}
 .tile>span{font-size:12px;letter-spacing:.5px;font-weight:700;text-transform:uppercase;color:var(--muted)}.tile h4{margin:0;font-size:17px}.tile p{margin:0}
 .tile img{width:100%;height:120px;object-fit:cover;border-radius:6px;background:#0a0f14}

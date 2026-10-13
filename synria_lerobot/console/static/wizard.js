@@ -287,8 +287,8 @@ const SynriaWizard = (() => {
     const arm = fromPath("follower", state.simulation ? "Sim arm feed" : "Arm feed", () => state.demo ? "Synthetic arm feed, fresh sample" : typeof rate === "number" ? `Receiving ${Math.round(rate)} readings per second` : "Receiving readings");
     if (!leader && arm.state === "ok") { const action = paths.find(item => item.id === "action"); if (action?.status === "not_ready") Object.assign(arm, {state:"problem", text:action.message, help:action.help}); }
     tiles.push(arm);
-    if (leader) tiles.push(fromPath("action", "Leader arm", () => "Receiving leader readings"));
-    for (const [id, name] of [["wrist", "Wrist camera"], ["front", "Overhead camera"]]) {
+    if (leader) tiles.push(fromPath("action", state.simulation ? "Leader arm (real follower feed)" : "Leader arm", () => "Receiving leader readings"));
+    for (const [id, name] of (state.simulation ? [["wrist", "Sim wrist camera"], ["front", "Sim front camera"]] : [["wrist", "Wrist camera"], ["front", "Overhead camera"]])) {
       const tile = fromPath(id, name, () => { const size = checks[`${id}_sample`]?.native_resolution; return `Fresh frame${Array.isArray(size) ? `, ${size.join("×")}` : ""}`; });
       if (matches && (report.thumbnails || []).includes(id)) tile.image = `/media/readiness/${id}?v=${encodeURIComponent(report.checked_utc)}`;
       tiles.push(tile);
@@ -343,7 +343,12 @@ const SynriaWizard = (() => {
     if (name === "task") { if (!chosenTask()) items.push("choose a task"); return items; }
     if (name === "check") {
       for (const field of missingFields(values)) items.push(FIELD_WORDS[field]);
-      if (!confirmed()) items.push("tick the bench checks");
+      if (!confirmed()) items.push(state.simulation ? "tick the box to confirm you have checked the arm" : "tick the bench checks");
+      if (state.simulation && window.SynriaIsaac) {
+        const phase = window.SynriaIsaac.phase();
+        if (phase === "start") { items.push("start Isaac record mode"); return items; }
+        if (phase === "waiting") { items.push("wait for Isaac"); return items; }
+      }
       if (reportMatches() && !checkRunning()) {
         const tiles = tileRows();
         for (const tile of tiles) if (tile.state === "problem") items.push(tile.action);
@@ -404,11 +409,14 @@ const SynriaWizard = (() => {
     }
     if (step === "check") { renderYourSetup(); renderTiles(); }
     const result = completion(step);
-    $("wizard-primary").disabled = !result.ok;
+    const isaacPhase = step === "check" && state.simulation && window.SynriaIsaac ? window.SynriaIsaac.phase() : "ready";
+    $("wizard-primary").disabled = isaacPhase === "start" ? !(window.SynriaIsaac.last() && window.SynriaIsaac.last().available) : (isaacPhase === "waiting" || !result.ok);
     $("wizard-back").textContent = step === "task" ? "Cancel" : "Back";
-    $("wizard-primary").textContent = step === "check" ? primaryLabel() : "Continue";
+    $("wizard-primary").textContent = step !== "check" ? "Continue" : isaacPhase === "start" ? "Start Isaac record mode" : isaacPhase === "waiting" ? "Waiting for Isaac" : primaryLabel();
     const counting = step === "check" ? countingStatus() : {counts:true, why:"", practiceRun:false};
-    const reason = result.ok ? (step === "check" ? (counting.why || "Everything is in place.") : "") : result.reason;
+    const reason = isaacPhase === "start" ? "Isaac record mode is not running. Start it here; the checks run by themselves once it is up."
+      : isaacPhase === "waiting" ? "Isaac is starting; the checks run by themselves when it is up."
+      : result.ok ? (step === "check" ? (counting.why || "Everything is in place.") : "") : result.reason;
     if (reason !== lastReason) { $("wizard-reason").textContent = reason; lastReason = reason; }
     $("smoke").hidden = state.demo || step !== "check" || counting.practiceRun;
     $("smoke").disabled = state.demo || Boolean(state.active_session) || starting || missingFields(formValues()).length > 0 || !confirmed();
@@ -437,6 +445,7 @@ const SynriaWizard = (() => {
   /** Run the read-only setup check once per entry when the bench checks are confirmed. */
   async function maybeRunCheck() {
     if (step !== "check" || checkRunning() || !confirmed() || checkIsCurrent()) return;
+    if (state.simulation && !(window.SynriaIsaac && window.SynriaIsaac.running())) return;
     if (window.SynriaGuide.missingInputs(formValues(), state.demo || state.simulation).length) return;
     checking = true; refresh();
     try { await runReadiness(); } finally { checking = false; refresh(); }
@@ -453,7 +462,7 @@ const SynriaWizard = (() => {
         const tiles = tileRows();
         if (tiles.some(tile => tile.state !== "ok")) { starting = false; refresh(); return; }
       }
-      const session = await api("sessions", formValues());
+      const session = await api("sessions", {...formValues(), ...(state.simulation ? {arm_checked: confirmed()} : {})});
       await api(`session/${session.id}/open`, {});
       clearDraft();
       await refreshState(); await refreshSessions();
@@ -478,6 +487,7 @@ const SynriaWizard = (() => {
     const draft = restoreDraft();
     if (draft.values?.task_id) { $("task").value = draft.values.task_id; onTaskChosen(); }
     $("wizard-primary").onclick = () => safe(async () => {
+      if (step === "check" && state.simulation && window.SynriaIsaac && window.SynriaIsaac.phase() === "start") { await window.SynriaIsaac.start(); refresh(); return; }
       if (!completion(step).ok) return;
       if (step === "task") window.SynriaRouter.go(window.SynriaRouter.routes.wizard("check"));
       else if (countingStatus().practiceRun) $("smoke").click();
@@ -507,6 +517,7 @@ const SynriaWizard = (() => {
     $("readiness-confirmations").addEventListener("change", () => { refresh(); safe(maybeRunCheck); });
     $("new-form").onsubmit = event => { event.preventDefault(); safe(async () => { if (step === "check" && completion("check").ok) await startSession(); }); };
     window.addEventListener("console-readiness", refresh);
+    window.addEventListener("console-isaac", () => { if (!$("new").hidden) { refresh(); safe(maybeRunCheck); } });
     window.addEventListener("console-state", () => { if (!$("new").hidden) refresh(); });
     window.addEventListener("console-sessions", () => { if (autoName && chosenTask()) { suggestName(); if (!$("new").hidden) refresh(); } });
   }

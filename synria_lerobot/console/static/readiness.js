@@ -87,26 +87,65 @@ function renderReadiness(report) {
   }
   $("readiness-confirmations").hidden = Boolean(state.demo);
   if ($("sim-panel")) $("sim-panel").hidden = !state.simulation;
-  $("check-readiness").disabled = readinessBusy || report.status === "checking" || Boolean(state.active_session);
+  const isaacDown = Boolean(state.simulation) && !(window.SynriaIsaac && window.SynriaIsaac.running());
+  $("check-readiness").disabled = readinessBusy || report.status === "checking" || Boolean(state.active_session) || isaacDown;
+  $("check-readiness").title = isaacDown ? "Start Isaac record mode first; the checks run by themselves once it is running." : "";
   if(typeof window !== "undefined")window.dispatchEvent(new Event("console-readiness"));
+}
+
+/** The reason a check cannot start right now, in operator words, or null. */
+function checkBlocker(confirmations) {
+  if (typeof token !== "undefined" && !token) return "This tab has no launch key. Open the link printed in the console terminal.";
+  if (!state.demo && Object.values(confirmations).some(value => !value)) {
+    return state.simulation ? "Tick the box to confirm you have checked the arm" : "Complete the physical safety confirmations before opening read-only sources.";
+  }
+  if (state.simulation && !(window.SynriaIsaac && window.SynriaIsaac.running())) return "Start Isaac record mode first; the checks run by themselves once it is running.";
+  return null;
+}
+
+/** Words for the step the server is on, from the live snapshot. */
+function checkStepWords(report) {
+  const names = {source_startup:"opening read-only sources", follower_sample:state.simulation ? "sim arm feed" : "arm feed", action_sample:"leader arm",
+    wrist_sample:state.simulation ? "sim wrist camera" : "wrist camera", front_sample:state.simulation ? "sim front camera" : "overhead camera", source_alignment:"timing alignment"};
+  const launching = Object.entries(report?.checks || {}).find(([, check]) => check.status === "launching");
+  return launching ? (names[launching[0]] || launching[0].replaceAll("_", " ")) : "setup";
+}
+
+/** Show progress or the blocker next to the Check now button; never leaves a click silent. */
+function showCheckProgress(level, words) {
+  const node = $("check-progress"); if (!node) return;
+  node.dataset.level = level; node.textContent = words;
 }
 
 /** Explicit operator action starts a bounded diagnostic, never a recording or driver. */
 async function runReadiness() {
-  if (!$("new-form").reportValidity()) return;
+  if (!$("new-form").reportValidity()) { showCheckProgress("problem", "Fill in the highlighted fields first."); return; }
   const confirmations = Object.fromEntries((typeof window !== "undefined" && window.SynriaConfirmations ? window.SynriaConfirmations() : [...document.querySelectorAll("[data-readiness-confirm]")])
     .map(node => [node.dataset.readinessConfirm, node.checked]));
-  if (!state.demo && Object.values(confirmations).some(value => !value)) {
-    throw Error("Complete the physical safety confirmations before opening read-only sources.");
-  }
+  const blocker = checkBlocker(confirmations);
+  if (blocker) { showCheckProgress("problem", blocker); throw Error(blocker); }
   // A deliberate new attempt supersedes the earlier setup error; background polling never does.
   if (typeof window !== "undefined") error("");
   readinessBusy = true;
   $("check-readiness").disabled = true;
+  const startedAt = Date.now();
+  showCheckProgress("checking", "Checking… 0 s");
+  const live = typeof setInterval !== "function" ? null : setInterval(async () => {
+    const seconds = Math.round((Date.now() - startedAt) / 1000);
+    try { const snapshot = await api("readiness"); renderReadiness(snapshot); showCheckProgress("checking", `Checking ${checkStepWords(snapshot)}… ${seconds} s`); }
+    catch (reason) { showCheckProgress("checking", `Checking… ${seconds} s`); }
+  }, 500);
   try {
-    if (!await checkSoftware()) return;
-    renderReadiness(await api("readiness", {settings:formValues(), confirmations}));
+    if (!await checkSoftware()) { showCheckProgress("problem", "Console software is missing something; see the software panel."); return; }
+    const result = await api("readiness", {settings:formValues(), confirmations});
+    renderReadiness(result);
+    const seconds = Math.round((Date.now() - startedAt) / 1000);
+    showCheckProgress(result.status === "ready" || result.status === "attention" ? "ok" : "problem",
+      `${result.label}, ${result.passed_count} of ${result.check_count} checks passed in ${seconds} s.`);
+  } catch (reason) {
+    showCheckProgress("problem", `Check failed: ${reason.message || reason}`); throw reason;
   } finally {
+    if (live) clearInterval(live);
     readinessBusy = false;
     await pollReadiness();
   }

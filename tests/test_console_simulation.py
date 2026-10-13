@@ -93,7 +93,11 @@ def test_simulation_session_fixes_sim_topics_and_needs_no_real_arm_facts(tmp_pat
     """No serial or power state is asked for; sources are the Isaac topics; the dataset is marked simulation."""
     registry = synthetic_registry(tmp_path / "tasks.json", 4, 40)
     with ConsoleFixture(tmp_path / "workspace", simulation=True, registry=registry) as service:
-        session = service.create_session({**values(), "fps": 15})
+        with pytest.raises(ValueError, match="Tick the box to confirm you have checked the arm"):
+            service.create_session({**values(), "fps": 15})
+        session = service.create_session({**values(), "fps": 15, "arm_checked": True})
+        assert session["settings"]["arm_checked"] is True and session["settings"]["arm_checked_utc"].endswith("+00:00")
+        assert session["settings"]["arm_checked_statement"].startswith("I have physically checked the arm")
         assert session["source_kind"] == "simulation" and session["recording_purpose"] == "simulation"
         assert session["settings"]["state_source"] == "isaac_simulation"
         assert session["settings"]["wrist_camera"] == SIM_TOPICS["wrist"]
@@ -131,6 +135,7 @@ def test_simulation_readiness_marks_real_arm_facts_not_applicable_and_names_isaa
     with ConsoleFixture(tmp_path / "workspace", simulation=True, registry=registry,
                         builder=refusing_builder) as service:
         confirmations = {name: True for name in SIMULATION_CONFIRMATIONS}
+        assert list(confirmations) == ["arm_checked"]
         report = service.check_readiness({"settings": {**values(), "fps": 15}, "confirmations": confirmations})
         checks = report["checks"]
         assert checks["recording_metadata"]["status"] == "not_applicable"
@@ -143,12 +148,13 @@ def test_simulation_readiness_marks_real_arm_facts_not_applicable_and_names_isaa
         assert checks["isaac_record_mode"]["message"] == ISAAC_RECORD_HELP
         assert checks["diagnostic"]["message"] == ISAAC_RECORD_HELP
         assert "/isaac_joint_states" in checks["diagnostic"]["details"]["technical"]
-        assert "wait for the three views" in ISAAC_RECORD_HELP and "/isaac" not in ISAAC_RECORD_HELP
+        assert "Start Isaac record mode" in ISAAC_RECORD_HELP and "/isaac" not in ISAAC_RECORD_HELP
         assert seen["simulation"] is True and seen["synthetic_demo"] is False
         assert report["label"].startswith("SIMULATION")
         half = service.check_readiness({"settings": {**values(), "fps": 15},
-                                        "confirmations": {"leader_link": True}})
+                                        "confirmations": {"arm_checked": False}})
         assert half["checks"]["operator_safety"]["passed"] is False
+        assert half["checks"]["diagnostic"]["message"] == "Tick the box to confirm you have checked the arm"
 
 
 def test_not_applicable_counts_as_complete_but_is_labelled() -> None:

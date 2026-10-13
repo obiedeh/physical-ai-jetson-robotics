@@ -76,11 +76,21 @@
 
   /** Send one fixed action; the server accepts no parameters. */
   async function act(name) {
-    busy = true; render(last);
-    try { render(await api(`isaac/${name}`, {})); } finally { busy = false; render(last); }
+    busy = true;
+    if (name === "start" && last) {
+      // Say Starting at once; the server's own state replaces this on the next poll.
+      render({...last, status: "starting", label: "Starting Isaac record mode", button: {action: null, label: "Starting, please wait", closes: []}, failure: null});
+      if (typeof window !== "undefined") window.dispatchEvent(new Event("console-isaac"));
+    } else render(last);
+    try { render(await api(`isaac/${name}`, {})); } finally { busy = false; render(last); if (typeof window !== "undefined") window.dispatchEvent(new Event("console-isaac")); }
   }
 
-  window.SynriaIsaac = {last: lastState, render, progressLines, instanceLine};
+  /** Whether a healthy record-mode instance is up, as the server last reported. */
+  function running() { return Boolean(last && last.status === "running"); }
+  /** The phase the wizard footer should name: start, waiting or ready. */
+  function phase() { if (!last || last.status === "not_running" || last.status === "other_running") return "start"; return last.status === "starting" ? "waiting" : "ready"; }
+
+  window.SynriaIsaac = {last: lastState, render, progressLines, instanceLine, running, phase, start: () => act("start")};
   if (typeof window !== "undefined" && typeof document !== "undefined") {
     window.addEventListener("console-ready", () => {
       document.getElementById("isaac-action").onclick = () => safe(() => act("start"));

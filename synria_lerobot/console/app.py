@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import getpass
 import json
 import math
@@ -27,6 +28,8 @@ from synria_lerobot.console.controller import RecordingController
 from synria_lerobot.console.playback import EpisodePlayback, confined_file, encode_rgb
 from synria_lerobot.console.isaac import IsaacSupervisor, launcher_from_config
 from synria_lerobot.console.readiness import (
+    ARM_CHECK_MISSING,
+    ARM_CHECK_STATEMENT,
     CONFIRMATIONS,
     ISAAC_RECORD_HELP,
     SIM_TOPICS,
@@ -248,7 +251,7 @@ class ConsoleService:
             "wrist_camera", "front_camera", "guard_command_topic", "state_has_velocity",
             "leader_topic", "state_startup_timeout_s", "operator", "follower_serial",
             "leader_serial", "scene", "power_state_start", "target_episodes", "notes",
-            "follower_usb_id",
+            "follower_usb_id", "arm_checked",
         }
         if set(payload) - allowed:
             raise ValueError("unknown session settings; paths and task windows are server-owned")
@@ -283,6 +286,13 @@ class ConsoleService:
             settings.update(state_source="isaac_simulation", wrist_camera=SIM_TOPICS["wrist"],
                             front_camera=SIM_TOPICS["front"], follower_topic=SIM_TOPICS["state"],
                             action_source="leader", leader_topic=SIM_TOPICS["action"])
+            if not diagnostic:
+                # The one operator duty in simulation: the real leader still moves the real
+                # follower. The statement and the time it was ticked go into the session.
+                if payload.get("arm_checked") is not True:
+                    raise ValueError(ARM_CHECK_MISSING)
+                settings.update(arm_checked=True, arm_checked_statement=ARM_CHECK_STATEMENT,
+                                arm_checked_utc=datetime.now(timezone.utc).isoformat(timespec="seconds"))
         elif payload.get("follower_usb_id"):
             connection = payload["follower_usb_id"]
             if not isinstance(connection, str) or connection not in list_serial_connections()[
@@ -375,16 +385,25 @@ class ConsoleService:
             )
             report.check("operator_safety", confirmed,
                          "Synthetic only" if self.demo else
-                         ("Operator confirmed the leader link and Isaac record mode"
+                         ("Operator confirmed the arm check: " + ARM_CHECK_STATEMENT
                           if confirmed and self.simulation else
                           "Operator confirmed the runbook safety and physical connection checklist"
                           if confirmed else
-                          "Confirm the leader link and Isaac record mode" if self.simulation else
+                          ARM_CHECK_MISSING if self.simulation else
                           "All physical safety confirmations are required"))
             if not confirmed:
-                raise ValueError("Confirm the Isaac simulation checklist before opening sources"
-                                 if self.simulation else
+                raise ValueError(ARM_CHECK_MISSING if self.simulation else
                                  "Confirm the physical safety checklist before opening sources")
+            if self.simulation and self.isaac is not None and self.isaac.launcher is not None:
+                # Isaac record mode is detected, not declared: the sources are only opened once
+                # the supervisor sees a record-mode instance publishing at rate.
+                isaac_state = self.isaac.state()
+                if isaac_state["status"] != "running":
+                    report.check("isaac_record_mode", False, ISAAC_RECORD_HELP,
+                                 details={"isaac": isaac_state["label"]})
+                    raise ValueError("Start Isaac record mode first; the checks run by themselves "
+                                     "once it is running")
+                report.check("isaac_record_mode", True, "Isaac record mode is running (detected)")
             if self.simulation:
                 report.not_applicable(
                     "recording_metadata",
