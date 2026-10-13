@@ -95,7 +95,7 @@ function renderReadiness(report) {
 
 /** The reason a check cannot start right now, in operator words, or null. */
 function checkBlocker(confirmations) {
-  if (typeof token !== "undefined" && !token) return "This tab has no launch key. Open the link printed in the console terminal.";
+  if (typeof token !== "undefined" && !token && state.token_required !== false) return "This tab has no launch key. Open the link printed in the console terminal.";
   if (!state.demo && Object.values(confirmations).some(value => !value)) {
     return state.simulation ? "Tick the box to confirm you have checked the arm" : "Complete the physical safety confirmations before opening read-only sources.";
   }

@@ -138,7 +138,7 @@
     let dismissed = false; try { dismissed = localStorage.getItem(FIRST_RUN_KEY) === "1"; } catch (reason) { dismissed = false; }
     const active = list.filter(s => !["trashed", "purged"].includes(s.status));
     document.getElementById("first-run-strip").hidden = dismissed || active.length > 0;
-    document.getElementById("token-notice").hidden = Boolean(token);
+    document.getElementById("token-notice").hidden = Boolean(token) || state.token_required === false;
     document.getElementById("home-check-now").disabled = Boolean(state.active_session) || (typeof readinessBusy !== "undefined" && readinessBusy);
   }
 
