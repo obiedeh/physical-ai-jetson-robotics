@@ -276,6 +276,17 @@ def _evaluation_batches(loader: Any) -> Iterator[PredictionBatch]:
         )
 
 
+def _process_sees_cuda() -> bool:
+    """Whether the tensor runtime reports CUDA in this process, as the upstream update step asks.
+
+    Hiding CUDA through the environment only works before the runtime first looks for
+    it, so a cpu run in a process that already initialised CUDA still answers True.
+    """
+    import torch
+
+    return bool(torch.cuda.is_available())
+
+
 def train(
     dataset_root: Path,
     contract_path: Path,
@@ -483,11 +494,17 @@ def train(
     _write(evidence / "started.json", manifest)
     failure: BaseException | None = None
     optimization_started = False
+    meters = {key: AverageMeter(key) for key in ("loss", "grad_norm", "lr", "update_s")}
+    # The upstream update step records peak GPU memory whenever the process can see CUDA,
+    # whatever device this run trains on, and the tracker rejects metrics it was not
+    # given. Register the meter under the same condition, as the upstream trainer does.
+    if _process_sees_cuda():
+        meters["gpu_mem_gb"] = AverageMeter("mem_gb", ":.2f", reduction="max")
     metrics = MetricsTracker(
         config["batch_size"],
         len(training),
         len(training_ids),
-        {key: AverageMeter(key) for key in ("loss", "grad_norm", "lr", "update_s")},
+        meters,
     )
 
     def predict(observations: dict[str, Any]) -> np.ndarray:
