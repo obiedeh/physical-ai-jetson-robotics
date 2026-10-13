@@ -17,7 +17,9 @@ import os
 import re
 import signal
 import subprocess
+import threading
 import time
+from collections import deque
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -28,10 +30,14 @@ LAUNCHER_FILE = "isaac_launcher.json"
 LAUNCHER_NAME = "run_alicia_stack.sh"
 STATE_FILE = "isaac_record_launch.json"
 SIM_STATE_TOPIC = "/isaac_joint_states"
+SIM_TOPICS = {"state": SIM_STATE_TOPIC, "wrist": "/isaac/wrist_camera/image_raw",
+              "front": "/isaac/front_camera/image_raw"}
+RATE_WINDOW_S = 3.0
+HEALTHY_RATE_HZ = 13.5          # 15 Hz requested; a skipped render frame now and then is tolerated
+MAX_GAP_S = 0.5                 # a longer silence on any sim topic is not "publishing steadily"
 RECORD_FLAGS = ("--record-cameras", "--publish-sim-topics")
 TERMINATE_TIMEOUT_S = 10.0
 START_TIMEOUT_S = 240.0
-HEALTHY_RATE_HZ = 14.0
 DRIVER_PATTERN = "alicia_d_driver_node"
 READ_ONLY_DRIVER_ARGS = ("ros2", "launch", "alicia_d_driver", "alicia_d_driver.launch.py",
                          "joint_commands_enabled:=false", "torque_off_on_start:=false")
@@ -171,38 +177,136 @@ def read_log_markers(pid: int) -> dict[str, Any]:
     return markers
 
 
-def measure_topic_rate(topic: str = SIM_STATE_TOPIC, window_s: float = 1.0) -> float | None:
-    """Messages per second on a sim topic over a short window, or None when ROS is unavailable."""
-    try:
-        import rclpy  # type: ignore[import-not-found]
-        from rclpy.context import Context  # type: ignore[import-not-found]
-        from sensor_msgs.msg import JointState  # type: ignore[import-not-found]
-    except ImportError:
-        return None
-    context = Context()
-    count = 0
+class SimTopicMonitor:
+    """Background subscriber that measures the three sim topics over a sliding window.
 
-    def on_message(message: Any) -> None:
-        """Count one message."""
-        nonlocal count
-        count += 1
+    Runs in its own ROS context and thread only while a record-mode instance exists.
+    snapshot() gives per-topic rates over RATE_WINDOW_S, the longest silence, and
+    whether a full window has been observed yet; nothing is published.
+    """
 
-    try:
-        rclpy.init(context=context)
-        node = rclpy.create_node("synria_console_isaac_probe", context=context)
-        node.create_subscription(JointState, topic, on_message, 10)
-        deadline = time.monotonic() + window_s
-        while time.monotonic() < deadline:
-            rclpy.spin_once(node, timeout_sec=0.05, context=context)
-        node.destroy_node()
-    except Exception:  # noqa: BLE001
-        return None
-    finally:
+    def __init__(self, window_s: float = RATE_WINDOW_S) -> None:
+        """Nothing runs until start()."""
+        self.window_s = float(window_s)
+        self._stamps: dict[str, deque] = {name: deque() for name in SIM_TOPICS}
+        self._lock = threading.Lock()
+        self._stop = threading.Event()
+        self._thread: threading.Thread | None = None
+        self.started_at: float | None = None
+        self.error: str | None = None
+
+    def start(self) -> None:
+        """Start the subscriber thread once."""
+        if self._thread is not None and self._thread.is_alive():
+            return
+        self._stop.clear()
+        self.error = None
+        self.started_at = time.monotonic()
+        for stamps in self._stamps.values():
+            stamps.clear()
+        self._thread = threading.Thread(target=self._run, name="synria-sim-topic-monitor", daemon=True)
+        self._thread.start()
+
+    def stop(self) -> None:
+        """Stop the thread and release the ROS context."""
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join(3.0)
+        self._thread = None
+        self.started_at = None
+
+    def _record(self, name: str) -> None:
+        """Keep the arrival time of one message, dropping stamps older than the window."""
+        now = time.monotonic()
+        with self._lock:
+            stamps = self._stamps[name]
+            stamps.append(now)
+            while stamps and now - stamps[0] > self.window_s * 2:
+                stamps.popleft()
+
+    def _run(self) -> None:
+        """Own a ROS context, subscribe to the three topics, spin until stopped."""
         try:
-            rclpy.shutdown(context=context)
-        except Exception:  # noqa: BLE001
-            pass
-    return count / window_s
+            import rclpy  # type: ignore[import-not-found]
+            from rclpy.context import Context  # type: ignore[import-not-found]
+            from rclpy.executors import SingleThreadedExecutor  # type: ignore[import-not-found]
+            from sensor_msgs.msg import Image, JointState  # type: ignore[import-not-found]
+        except ImportError as exc:
+            self.error = f"ROS is unavailable in the console environment: {exc}"
+            return
+        context = Context()
+        try:
+            rclpy.init(context=context)
+            node = rclpy.create_node("synria_console_sim_monitor", context=context)
+            node.create_subscription(JointState, SIM_TOPICS["state"], lambda m: self._record("state"), 10)
+            node.create_subscription(Image, SIM_TOPICS["wrist"], lambda m: self._record("wrist"), 5)
+            node.create_subscription(Image, SIM_TOPICS["front"], lambda m: self._record("front"), 5)
+            executor = SingleThreadedExecutor(context=context)
+            executor.add_node(node)
+            while not self._stop.is_set():
+                executor.spin_once(timeout_sec=0.1)
+            executor.shutdown(timeout_sec=1.0)
+            node.destroy_node()
+        except Exception as exc:  # noqa: BLE001
+            self.error = f"sim topic monitor failed: {exc}"
+        finally:
+            try:
+                rclpy.shutdown(context=context)
+            except Exception:  # noqa: BLE001
+                pass
+
+    def snapshot(self) -> dict[str, Any]:
+        """Rates per topic over the window, the longest gap, and whether a full window has passed."""
+        now = time.monotonic()
+        elapsed = 0.0 if self.started_at is None else now - self.started_at
+        complete = elapsed >= self.window_s
+        rates: dict[str, float | None] = {}
+        gaps: dict[str, float | None] = {}
+        with self._lock:
+            for name, stamps in self._stamps.items():
+                recent = [s for s in stamps if now - s <= self.window_s]
+                span = self.window_s if complete else max(elapsed, 1e-6)
+                rates[name] = len(recent) / span if (complete or recent) else None
+                if recent:
+                    gaps[name] = max([b - a for a, b in zip(recent, recent[1:])] + [now - recent[-1]])
+                else:
+                    gaps[name] = None
+        return {"rates": rates, "max_gap_s": gaps, "complete": complete, "elapsed_s": round(elapsed, 1),
+                "window_s": self.window_s, "error": self.error}
+
+
+def steady(snapshot: dict[str, Any] | None) -> bool:
+    """All three sim topics at or above HEALTHY_RATE_HZ over a full window with no long silence."""
+    if not snapshot or not snapshot.get("complete") or snapshot.get("error"):
+        return False
+    rates, gaps = snapshot.get("rates", {}), snapshot.get("max_gap_s", {})
+    return all(
+        rates.get(name) is not None and rates[name] >= HEALTHY_RATE_HZ
+        and gaps.get(name) is not None and gaps[name] <= MAX_GAP_S
+        for name in SIM_TOPICS
+    )
+
+
+def waiting_words(record_up: bool, scene_loaded: bool, topics_started: bool,
+                  snapshot: dict[str, Any] | None, elapsed_s: float | None) -> str:
+    """Why the instance is not yet Running, in operator words, with the time waited."""
+    since = f", {int(elapsed_s)} s" if elapsed_s is not None else ""
+    if not record_up:
+        return "Waiting for the Isaac process" + since
+    if not scene_loaded:
+        return "Isaac is loading the scene" + since
+    if not topics_started:
+        return "Scene loaded, waiting for the sim topics" + since
+    if snapshot and snapshot.get("error"):
+        return f"Scene loaded; the console cannot measure the sim topics: {snapshot['error']}"
+    if not snapshot or not snapshot.get("complete"):
+        return "Scene loaded, measuring the sim topics" + since
+    rates = snapshot.get("rates", {})
+    low = [name for name in SIM_TOPICS if rates.get(name) is None or rates[name] < HEALTHY_RATE_HZ]
+    if low:
+        shown = ", ".join(f"{name} {rates[name]:.1f} Hz" if rates.get(name) is not None else f"{name} silent" for name in low)
+        return f"Scene loaded, waiting for camera feeds and state at 15 Hz ({shown})" + since
+    return "Scene loaded, sim topics paused" + since
 
 
 def launcher_from_config(workspace: Path, environ: dict[str, str] | None = None) -> Path | None:
@@ -243,7 +347,8 @@ class IsaacSupervisor:
         list_processes: Callable[[], list[ProcessInfo]] = read_proc_processes,
         gpu_memory: Callable[[], dict[int, int]] = read_gpu_memory,
         markers: Callable[[int], dict[str, Any]] = read_log_markers,
-        topic_rate: Callable[[], float | None] = measure_topic_rate,
+        monitor: SimTopicMonitor | None = None,
+        topic_rate: Callable[[], float | None] | None = None,
         send_signal: Callable[[int, int], None] = os.kill,
         spawn: Callable[[list[str], dict[str, str], Path, Path], int] | None = None,
         commit: Callable[[Path], str] = teleop_commit,
@@ -256,6 +361,7 @@ class IsaacSupervisor:
         self._list = list_processes
         self._gpu = gpu_memory
         self._markers = markers
+        self._monitor = monitor if monitor is not None else SimTopicMonitor()
         self._rate = topic_rate
         self._signal = send_signal
         self._spawn = spawn or self._spawn_detached
@@ -330,19 +436,26 @@ class IsaacSupervisor:
         others = [item for item in instances if item not in record]
         launch = self._launch_record()
         current = self._commit(self.launcher) if self.launcher else "unknown"
-        rate = self._rate() if record else None
-        healthy = bool(record) and rate is not None and rate >= HEALTHY_RATE_HZ
+        snapshot = self._topics_snapshot(bool(record))
+        rate = (snapshot or {}).get("rates", {}).get("state")
+        healthy = bool(record) and steady(snapshot)
         starting = False
+        launch_age = None
+        if launch and launch.get("status") in {"starting", "failed", "running"}:
+            launch_age = self._clock() - float(launch.get("started_at", 0))
         if launch and launch.get("status") == "starting":
-            age = self._clock() - float(launch.get("started_at", 0))
             if healthy:
                 launch = {**launch, "status": "running"}
                 self._write_launch(launch)
-            elif age > START_TIMEOUT_S:
-                launch = {**launch, "status": "failed", "error": "Isaac did not reach record mode in time"}
+            elif launch_age > START_TIMEOUT_S:
+                launch = {**launch, "status": "failed",
+                          "error": f"Isaac did not reach record mode in {int(START_TIMEOUT_S)} s; see the launch log"}
                 self._write_launch(launch)
             else:
                 starting = True
+        elif launch and launch.get("status") == "failed" and healthy:
+            launch = {**launch, "status": "running", "error": None}
+            self._write_launch(launch)
         if starting:
             status, label = "starting", "Starting Isaac record mode"
         elif healthy and not others:
@@ -350,9 +463,14 @@ class IsaacSupervisor:
         elif others:
             status, label = "other_running", "Another Isaac is running"
         elif record:
-            status, label = "starting", "Isaac record mode is up but not yet publishing at 15 Hz"
+            status, label = "starting", "Isaac record mode is up, not yet publishing steadily"
         else:
             status, label = "not_running", "Not running"
+        waiting = None
+        if status == "starting":
+            waiting = waiting_words(bool(record), any(item.scene_loaded for item in record),
+                                    any(item.topics_started for item in record), snapshot, launch_age)
+            label = waiting
         same_commit = bool(record) and all(item.commit in (None, current) for item in record)
         if status == "running" and not same_commit:
             label = "Running in record mode on an older teleop commit"
@@ -375,11 +493,26 @@ class IsaacSupervisor:
             "instances": [item.as_dict() for item in instances],
             "progress": {"process_up": bool(record), "scene_loaded": any(item.scene_loaded for item in record),
                          "topics_started": any(item.topics_started for item in record),
-                         "state_rate_hz": rate, "healthy": healthy},
+                         "state_rate_hz": rate, "healthy": healthy, "waiting": waiting,
+                         "topics": snapshot},
             "driver": self.driver(), "button": button, "can_stop": bool(record),
             "last_launch": launch, "failure": failed.get("error") if failed else None,
             "launch_log": launch.get("log") if launch else None,
         }
+
+    def _topics_snapshot(self, record_up: bool) -> dict[str, Any] | None:
+        """Rates of the sim topics: from the injected probe in tests, else the background monitor."""
+        if self._rate is not None:
+            value = self._rate()
+            if value is None:
+                return None
+            return {"rates": {name: value for name in SIM_TOPICS}, "max_gap_s": {name: 0.07 for name in SIM_TOPICS},
+                    "complete": True, "elapsed_s": RATE_WINDOW_S, "window_s": RATE_WINDOW_S, "error": None}
+        if not record_up:
+            self._monitor.stop()
+            return None
+        self._monitor.start()
+        return self._monitor.snapshot()
 
     # ---- actions -------------------------------------------------------------------------
     def start(self) -> dict[str, Any]:

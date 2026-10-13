@@ -127,7 +127,7 @@ def test_start_closes_only_this_users_isaac_then_launches_detached_without_the_d
     with pytest.raises(RuntimeError, match="already starting"):
         sup.start()
     fakes.now += isaac.START_TIMEOUT_S + 1
-    assert sup.state()["failure"] == "Isaac did not reach record mode in time"
+    assert sup.state()["failure"].startswith("Isaac did not reach record mode in")
     fakes.processes.append(proc(101, RECORD)); fakes.rate = 15.0
     sup2 = supervisor(tmp_path, fakes)
     sup2.start()
@@ -238,3 +238,37 @@ def test_readiness_waits_for_detected_isaac_record_mode(tmp_path: Path) -> None:
                                                        "fps": 15, "operator": "o", "scene": "s"},
                                           "confirmations": {"arm_checked": True}})
         assert opened == ["opened"] and report["checks"]["isaac_record_mode"]["passed"] is True
+
+
+def test_steady_needs_all_three_topics_over_a_full_window_with_tolerance() -> None:
+    """14.8 Hz with short gaps is steady; a silent camera, a long gap or a partial window is not."""
+    good = {"rates": {"state": 14.8, "wrist": 14.8, "front": 14.8}, "max_gap_s": {"state": 0.072, "wrist": 0.072, "front": 0.072}, "complete": True, "error": None}
+    assert isaac.steady(good)
+    assert not isaac.steady({**good, "rates": {**good["rates"], "front": None}})
+    assert not isaac.steady({**good, "rates": {**good["rates"], "wrist": 12.0}})
+    assert not isaac.steady({**good, "max_gap_s": {**good["max_gap_s"], "state": 0.8}})
+    assert not isaac.steady({**good, "complete": False})
+    assert not isaac.steady({**good, "error": "ROS is unavailable"})
+    assert not isaac.steady(None)
+
+
+def test_waiting_words_name_the_step_and_the_time(tmp_path: Path) -> None:
+    """The panel says what it is waiting for instead of a bare refusal, and times out with the log path."""
+    assert isaac.waiting_words(False, False, False, None, 3) == "Waiting for the Isaac process, 3 s"
+    assert isaac.waiting_words(True, False, False, None, 12) == "Isaac is loading the scene, 12 s"
+    assert isaac.waiting_words(True, True, False, None, 20) == "Scene loaded, waiting for the sim topics, 20 s"
+    assert isaac.waiting_words(True, True, True, {"complete": False}, 21) == "Scene loaded, measuring the sim topics, 21 s"
+    low = {"complete": True, "rates": {"state": 14.9, "wrist": 2.0, "front": None}}
+    assert isaac.waiting_words(True, True, True, low, 25) == "Scene loaded, waiting for camera feeds and state at 15 Hz (wrist 2.0 Hz, front silent), 25 s"
+    fakes = Fakes([proc(101, RECORD)], rate=None, markers={101: {"commit": "abc1234", "scene_loaded": True, "topics_started": True}})
+    sup = supervisor(tmp_path, fakes)
+    sup.start.__func__  # noqa: B018  (start is exercised elsewhere; here the record comes from a timed-out launch)
+    sup._write_launch({"status": "starting", "launch_pid": 1, "started_at": fakes.now - 30, "commit": "abc1234", "log": "/tmp/x.log"})
+    state = sup.state()
+    assert state["status"] == "starting" and state["label"].startswith("Scene loaded, measuring the sim topics, 30 s")
+    fakes.now += isaac.START_TIMEOUT_S
+    state = sup.state()
+    assert state["failure"].startswith("Isaac did not reach record mode in") and state["launch_log"] == "/tmp/x.log"
+    fakes.rate = 14.8
+    state = sup.state()
+    assert state["status"] == "running" and state["failure"] is None
