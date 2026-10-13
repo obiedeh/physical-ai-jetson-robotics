@@ -98,7 +98,9 @@ def test_states_not_running_running_other_and_starting(tmp_path: Path) -> None:
     healthy = supervisor(tmp_path, Fakes([proc(101, RECORD)], rate=15.2, markers={101: {"commit": "abc1234", "scene_loaded": True, "topics_started": True}}))
     state = healthy.state()
     assert state["status"] == "running" and state["button"]["action"] is None and state["can_stop"] is True
-    assert state["progress"] == {"process_up": True, "scene_loaded": True, "topics_started": True, "state_rate_hz": 15.2, "healthy": True}
+    assert {k: state["progress"][k] for k in ("process_up", "scene_loaded", "topics_started", "state_rate_hz", "healthy")} == {
+        "process_up": True, "scene_loaded": True, "topics_started": True, "state_rate_hz": 15.2, "healthy": True}
+    assert state["progress"]["waiting"] is None and state["progress"]["topics"]["complete"] is True
     assert healthy.start()["reused"] is True
     other = supervisor(tmp_path, Fakes([proc(202, APP), proc(9, DRIVER)]))
     state = other.state()
