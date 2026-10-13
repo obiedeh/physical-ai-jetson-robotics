@@ -12,20 +12,41 @@
       ],
       "declared_fixed_scene": true,
       "requires_unobserved_goal": false,
-      "episode_window": {"min_episode_s": null, "max_episode_s": null}
+      "episode_window": {
+        "min_episode_s": null,
+        "max_episode_s": null
+      }
+    },
+    {
+      "task_id": "pick_cup",
+      "task_text": "Pick up the cup from its marked location and hold on to it, lifted clear of the table.",
+      "success_rule": "The take ends with the cup lifted and held clear of the table in the gripper, confirmed by the operator and front-camera evidence.",
+      "scene_requirements": [
+        "The cup occupies its fixed marked location.",
+        "The cup and gripper remain visible during the trial."
+      ],
+      "declared_fixed_scene": true,
+      "requires_unobserved_goal": false,
+      "episode_window": {
+        "min_episode_s": null,
+        "max_episode_s": null
+      }
     },
     {
       "task_id": "roll_and_dump",
-      "task_text": "Pick the loaded cup from its marked location, shake it and invert it over the fixed dump tray.",
+      "task_text": "With the loaded cup already held in the gripper, shake it and invert it over the fixed dump tray.",
       "success_rule": "The die is at rest on the fixed dump tray and the cup was not dropped, confirmed by the operator and front-camera evidence.",
       "scene_requirements": [
-        "The cup contains the die and occupies its fixed marked location.",
+        "The cup contains the die and is already held in the gripper.",
         "The dump tray is fixed in the declared camera-visible location.",
         "The cup, gripper and dump tray remain visible during the trial."
       ],
       "declared_fixed_scene": true,
       "requires_unobserved_goal": false,
-      "episode_window": {"min_episode_s": null, "max_episode_s": null}
+      "episode_window": {
+        "min_episode_s": null,
+        "max_episode_s": null
+      }
     },
     {
       "task_id": "cup_return",
@@ -38,7 +59,10 @@
       ],
       "declared_fixed_scene": true,
       "requires_unobserved_goal": false,
-      "episode_window": {"min_episode_s": null, "max_episode_s": null}
+      "episode_window": {
+        "min_episode_s": null,
+        "max_episode_s": null
+      }
     }
   ]
 }

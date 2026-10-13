@@ -48,7 +48,7 @@ from .policy_client import (
 )
 from .quality_gates import OBJECT_SUCCESS_LIMITATION, load_limits
 from .recorder import _close_all
-from .task_registry import TASK_IDS, TaskDefinition
+from .task_registry import ROLL_SKILL_IDS, TaskDefinition
 from .turn_executor import (
     BoardCalibration,
     FixedSkillExecutor,
@@ -199,16 +199,16 @@ def run_roll_skills(
     if output.exists():
         raise FileExistsError("use a new output directory for each roll session")
     specifications = config["roll_skills"]
-    if set(specifications) != set(TASK_IDS):
+    if set(specifications) != set(ROLL_SKILL_IDS):
         raise ValueError("exactly three registered skill policies required")
     from .checkpoint_eval import _artifact_destination
 
     _artifact_destination(
         output,
-        tuple(Path(specifications[task]["checkpoint"]) for task in TASK_IDS),
+        tuple(Path(specifications[task]["checkpoint"]) for task in ROLL_SKILL_IDS),
         (
             Path(config["task_registry"]),
-            *(Path(specifications[task]["receipt"]) for task in TASK_IDS),
+            *(Path(specifications[task]["receipt"]) for task in ROLL_SKILL_IDS),
         ),
     )
     bindings = {
@@ -219,9 +219,9 @@ def run_roll_skills(
             enable_motion=enable_motion,
             transport=(transports or {}).get(task),
         )
-        for task in TASK_IDS
+        for task in ROLL_SKILL_IDS
     }
-    first = bindings[TASK_IDS[0]]
+    first = bindings[ROLL_SKILL_IDS[0]]
     for binding in bindings.values():
         if (
             any(
@@ -238,7 +238,7 @@ def run_roll_skills(
                 "skill policies require matching physical conventions and image shapes"
             )
     for key in ("policy_id", "checkpoint_content_sha256"):
-        if len({binding.metadata[key] for binding in bindings.values()}) != len(TASK_IDS):
+        if len({binding.metadata[key] for binding in bindings.values()}) != len(ROLL_SKILL_IDS):
             raise ValueError("three distinct task-bound policies/checkpoints required")
     io_config = fixed_io_configuration(config, first)
     roll_config = config["fixed_roll"]

@@ -19,7 +19,7 @@ from .evaluation import FixedTaskGrade
 from .perception import GatedPerception
 from .policy_client import GuardedCommandPath
 from .quality_gates import OBJECT_SUCCESS_LIMITATION
-from .task_registry import TASK_IDS, TaskDefinition
+from .task_registry import ROLL_SKILL_IDS, TaskDefinition
 from .turn_executor import FixedSkillExecutor, OperatorAbort, TurnExecutor
 
 
@@ -121,7 +121,7 @@ class FixedSkillRollArm:
         *,
         clock: Callable[[], float] = time.monotonic,
     ) -> None:
-        if tuple(skills) != TASK_IDS or any(
+        if tuple(skills) != ROLL_SKILL_IDS or any(
             executor.task.task_id != name for name, executor in skills.items()
         ):
             raise ValueError("exactly three ordered task-bound skill executors required")
@@ -227,7 +227,7 @@ class RollResult:
 
 def validate_roll_config(config: dict[str, Any], *, synthetic: bool = False) -> None:
     if config.get("mode") == "fixed_scene_skills":
-        if config.get("skills") != list(TASK_IDS):
+        if config.get("skills") != list(ROLL_SKILL_IDS):
             raise ValueError("fixed-scene roll must use the three registered skills in order")
         if config.get("read", {}).get("source") not in {"operator", "perception"}:
             raise ValueError("explicit operator or gated-perception die source required")
@@ -311,7 +311,7 @@ class RollMachine:
         value, error = None, None
         try:
             phases = (
-                TASK_IDS if self.fixed_skills else tuple(phase.value for phase in MOTION_PHASES)
+                ROLL_SKILL_IDS if self.fixed_skills else tuple(phase.value for phase in MOTION_PHASES)
             )
             for phase in phases:
                 self.state = RollState(phase) if not self.fixed_skills else None

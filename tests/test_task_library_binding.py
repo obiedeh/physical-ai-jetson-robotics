@@ -65,15 +65,15 @@ def test_malformed_ids_are_refused(task_id: str) -> None:
         replace(library_task(), task_id=task_id)
 
 
-def test_registry_file_still_requires_exactly_the_three_tasks(tmp_path: Path) -> None:
+def test_registry_file_still_requires_exactly_the_four_tasks(tmp_path: Path) -> None:
     """The published registry cannot smuggle a library task in."""
     payload = json.loads(REGISTRY.read_text(encoding="utf-8"))
     payload["tasks"].append(library_task().as_dict())
     path = tmp_path / "tasks.json"
     path.write_text(json.dumps(payload), encoding="utf-8")
-    with pytest.raises(ValueError, match="exactly the three"):
+    with pytest.raises(ValueError, match="exactly the four"):
         load_task_registry(path)
-    with pytest.raises(ValueError, match="exactly the three"):
+    with pytest.raises(ValueError, match="exactly the four"):
         load_task_source(path)
 
 

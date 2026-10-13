@@ -52,7 +52,7 @@ from synria_lerobot.recorder import (
     PhysicalEpisodeRecorder,
 )
 from synria_lerobot.sessions import run_fixed_evaluation, run_roll_skills
-from synria_lerobot.task_registry import TASK_IDS
+from synria_lerobot.task_registry import ROLL_SKILL_IDS
 
 
 def record_fake_episodes(root: Path, values: tuple[float, ...]) -> None:
@@ -323,7 +323,7 @@ def test_record_train_serve_evaluate_and_roll_with_no_hardware(
         roll.config.update(command_period_s=0.4, task_registry=str(registry))
         roll.config["roll_skills"]["die_into_cup"] = specification(identity, receipt, endpoint)
         stub_models = []
-        for task in TASK_IDS[1:]:
+        for task in ROLL_SKILL_IDS[1:]:
             directory = tmp_path / task
             directory.mkdir()
             stub_identity, stub_receipt, _ = checkpoint_fixture(directory, task)
@@ -385,8 +385,8 @@ def test_record_train_serve_evaluate_and_roll_with_no_hardware(
         assert rolled["roll"]["value"] == 4 and not rolled["d4_qualifying"]
         assert rolled["stage_status"] == "planned"
         assert rolled["skills"]["die_into_cup"]["checkpoint_content_sha256"] == saved_hash
-        assert [rolled["skills"][task]["task_id"] for task in TASK_IDS] == list(TASK_IDS)
-        assert len({rolled["skills"][task]["checkpoint_content_sha256"] for task in TASK_IDS}) == 3
+        assert [rolled["skills"][task]["task_id"] for task in ROLL_SKILL_IDS] == list(ROLL_SKILL_IDS)
+        assert len({rolled["skills"][task]["checkpoint_content_sha256"] for task in ROLL_SKILL_IDS}) == 3
         assert [stub.reset_count for stub in stub_models] == [1, 1]
         assert len(roll.ros.goals) == 3 and roll.ros.publisher_topics == ["/fake_policy_targets"]
         assert roll.ros.action_clients == ["/fake_gripper/follow_joint_trajectory"]
