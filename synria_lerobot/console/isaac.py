@@ -33,8 +33,10 @@ TERMINATE_TIMEOUT_S = 10.0
 START_TIMEOUT_S = 240.0
 HEALTHY_RATE_HZ = 14.0
 DRIVER_PATTERN = "alicia_d_driver_node"
-READ_ONLY_DRIVER_COMMAND = ("ros2 launch alicia_d_driver alicia_d_driver.launch.py "
-                            "joint_commands_enabled:=false torque_off_on_start:=false")
+READ_ONLY_DRIVER_ARGS = ("ros2", "launch", "alicia_d_driver", "alicia_d_driver.launch.py",
+                         "joint_commands_enabled:=false", "torque_off_on_start:=false")
+READ_ONLY_DRIVER_COMMAND = " ".join(READ_ONLY_DRIVER_ARGS)
+ROS_SETUP = "/opt/ros/jazzy/setup.bash"
 _SERIAL = re.compile(r"/dev/serial/by-id/\S+|/dev/tty\S+")
 
 
@@ -281,11 +283,35 @@ class IsaacSupervisor:
         return sorted(found, key=lambda item: item.pid)
 
     def driver(self) -> dict[str, Any]:
-        """Whether the arm driver is running; the page never starts it."""
+        """Whether the arm driver is running; the page can start only the read-only form, never stop it."""
         for process in self._list():
             if DRIVER_PATTERN in process.cmdline and not process.cmdline.lower().startswith(("bash", "/bin/bash")):
-                return {"running": True, "since_utc": process.started_utc, "read_only_command": READ_ONLY_DRIVER_COMMAND}
-        return {"running": False, "since_utc": None, "read_only_command": READ_ONLY_DRIVER_COMMAND}
+                return {"running": True, "since_utc": process.started_utc,
+                        "read_only_command": READ_ONLY_DRIVER_COMMAND, "can_start": False}
+        return {"running": False, "since_utc": None, "read_only_command": READ_ONLY_DRIVER_COMMAND,
+                "can_start": self.launcher is not None}
+
+    def driver_argv(self) -> list[str]:
+        """The one fixed driver command: the launch file's read-only form in the teleop environment.
+
+        The ROS distribution and the teleop checkout's install overlay (found from the
+        launcher path) are sourced so the driver package resolves; the port is auto-detected
+        by the launch file, so no serial or device path appears anywhere.
+        """
+        if self.launcher is None:
+            raise ValueError("Isaac launcher path is not configured; the driver environment comes from it")
+        overlay = self.launcher.resolve().parent.parent / "install" / "setup.bash"
+        script = (f"source {ROS_SETUP} && {{ [ -f {overlay} ] && source {overlay}; }}; "
+                  f"exec {READ_ONLY_DRIVER_COMMAND}")
+        return ["bash", "-c", script]
+
+    def start_driver(self) -> dict[str, Any]:
+        """Start the read-only arm driver, detached, only when none is running."""
+        if self.driver()["running"]:
+            raise RuntimeError("An arm driver is already running; the page never restarts it")
+        log = self.log_dir / f"arm_driver_readonly_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.log"
+        pid = self._spawn(self.driver_argv(), dict(os.environ), log, self.launcher.resolve().parent.parent)
+        return {**self.state(), "driver_launch_pid": pid, "driver_log": str(log)}
 
     def _launch_record(self) -> dict[str, Any] | None:
         """The last launch this console started, if its record is still meaningful."""

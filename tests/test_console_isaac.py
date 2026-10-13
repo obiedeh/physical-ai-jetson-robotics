@@ -180,3 +180,26 @@ def test_console_routes_are_simulation_only_and_take_no_parameters(tmp_path: Pat
         assert physical.read(["isaac"], {})["available"] is False
         with pytest.raises(ValueError, match="simulation mode"):
             physical.mutate(["isaac", "start"], {})
+
+
+def test_read_only_driver_start_is_fixed_and_only_when_no_driver_runs(tmp_path: Path) -> None:
+    """The driver command is the launch file's read-only form with no serial; a running driver blocks it."""
+    fakes = Fakes([])
+    sup = supervisor(tmp_path, fakes)
+    result = sup.start_driver()
+    argv, env, log, cwd = fakes.spawned[0]
+    assert argv[:2] == ["bash", "-c"] and len(argv) == 3
+    assert "joint_commands_enabled:=false" in argv[2] and "torque_off_on_start:=false" in argv[2]
+    assert "true" not in argv[2] and "/dev/" not in argv[2] and "port:=" not in argv[2]
+    assert argv[2].endswith("exec " + isaac.READ_ONLY_DRIVER_COMMAND)
+    assert log.name.startswith("arm_driver_readonly_") and log.parent == tmp_path / "workspace" / "isaac-logs"
+    assert result["driver_launch_pid"] == 4242 and sup.driver()["can_start"] is True
+    running = supervisor(tmp_path, Fakes([proc(9, DRIVER)]))
+    assert running.driver()["can_start"] is False
+    with pytest.raises(RuntimeError, match="already running"):
+        running.start_driver()
+    registry = synthetic_registry(tmp_path / "tasks.json", 4, 40)
+    with ConsoleFixture(tmp_path / "sim", simulation=True, registry=registry, isaac=sup) as service:
+        with pytest.raises(ValueError, match="no parameters"):
+            service.mutate(["isaac", "start-driver"], {"port": "/dev/ttyACM0"})
+        assert service.mutate(["isaac", "start-driver"], {})["driver_launch_pid"] == 4242
