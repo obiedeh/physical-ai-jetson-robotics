@@ -42,6 +42,11 @@
       return row(sample.passed ? "ready" : "neutral", name, sample.passed ? `OK, ${ago(report.checked_utc)}` : sample.message);
     };
     const sim = Boolean(current.simulation);
+    if (sim) {
+      const isaac = (typeof window !== "undefined" && window.SynriaIsaac) ? window.SynriaIsaac.last() : null;
+      const levels = {running: "ready", starting: "checking", other_running: "attention", not_running: "attention"};
+      rows.push(row(isaac ? (levels[isaac.status] || "neutral") : "neutral", "Isaac record mode", isaac ? isaac.label : "Not checked yet"));
+    }
     rows.push(describe(sim ? "Sim arm feed" : "Arm feed", ["follower_sample", "state_rate"]));
     rows.push(describe(sim ? "Sim wrist camera" : "Wrist camera", ["wrist_sample", "wrist_camera"]));
     rows.push(describe(sim ? "Sim front camera" : "Overhead camera", ["front_sample", "front_camera"]));
