@@ -138,7 +138,13 @@ the final front-camera still stays at native resolution. Gripper strokes are unv
 zero is open. The 10-second startup wait does not relax steady-state freshness. Take targets are goals,
 not counts toward the dataset. Take windows remain operator decisions outside this form.</p>
 <button type="button" id="done-setup">Done, back to the check</button></div></article>
-<article id="sources-panel"><div class="section-head"><h3>Cameras and arm feed</h3><button id="check-readiness" type="button">Check now</button></div>
+<article id="isaac-panel" hidden><div class="section-head"><h3>Isaac record mode</h3><span id="isaac-status" class="badge">Not checked</span></div>
+<ul id="isaac-progress" class="small-print"></ul><ul id="isaac-instances" class="small-print"></ul><p id="isaac-driver" class="small-print"></p><p id="isaac-closes" class="small-print" hidden></p>
+<div class="actions"><button type="button" id="isaac-action">Start Isaac record mode</button><button type="button" id="isaac-driver-start" hidden>Start arm driver (read-only)</button><button type="button" id="isaac-stop" class="danger" hidden>Stop Isaac</button></div><p id="isaac-note" class="small-print"></p></article>
+<article id="sim-panel" hidden><h3>SIMULATION · confirm you have checked the arm</h3><p class="small-print">The real leader still moves the real follower while you teleoperate the sim, so this is a real check. Ticking it is recorded with the time in the session. No serial, power state or limit verification is asked in simulation; takes go to their own simulation dataset and never count as physical data.</p><div id="sim-confirmations">
+<label class="check"><input type="checkbox" data-readiness-confirm="arm_checked" data-sim-confirm>I have physically checked the arm: the area around it is clear, the leader arm drives the sim arm, and nothing on this page moves the real arm.</label>
+</div></article>
+<article id="sources-panel"><div class="section-head"><h3>Cameras and arm feed</h3><button id="check-readiness" type="button">Check now</button></div><p id="check-progress" class="check-progress" role="status" aria-live="polite"></p>
 <p id="sources-line">Checked by itself when you reach this step.</p>
 <div id="source-tiles" class="tiles" aria-live="polite"></div>
 <details id="technical-details"><summary>Technical details</summary>
@@ -159,12 +165,7 @@ not counts toward the dataset. Take windows remain operator decisions outside th
 <label class="check"><input type="checkbox" data-readiness-confirm="leader_link">The leader and follower sync cable is connected and teleoperation works as before.</label>
 <label class="check"><input type="checkbox" data-readiness-confirm="camera_roles">The wrist camera is on the wrist and the overhead camera looks down at the scene.</label>
 <label class="check"><input type="checkbox" data-readiness-confirm="procedure">I followed the safety checklist, and the power state and gripper size above are what I see.</label></div></article>
-<article id="isaac-panel" hidden><div class="section-head"><h3>Isaac record mode</h3><span id="isaac-status" class="badge">Not checked</span></div>
-<ul id="isaac-progress" class="small-print"></ul><ul id="isaac-instances" class="small-print"></ul><p id="isaac-driver" class="small-print"></p><p id="isaac-closes" class="small-print" hidden></p>
-<div class="actions"><button type="button" id="isaac-action">Start Isaac record mode</button><button type="button" id="isaac-driver-start" hidden>Start arm driver (read-only)</button><button type="button" id="isaac-stop" class="danger" hidden>Stop Isaac</button></div><p id="isaac-note" class="small-print"></p></article>
-<article id="sim-panel" hidden><h3>SIMULATION · I have checked Isaac</h3><p class="small-print">Takes go to their own simulation dataset and never count as physical data. The arm serial, power state and limit verification belong to the real arm and are marked not applicable.</p><div id="sim-confirmations">
-<label class="check"><input type="checkbox" data-readiness-confirm="leader_link" data-sim-confirm>The leader arm drives the sim arm in Isaac record mode; nothing here moves the real arm.</label>
-<label class="check"><input type="checkbox" data-readiness-confirm="isaac_record" data-sim-confirm>Isaac record mode is running (bash scripts/run_alicia_stack.sh record) and its three views are live.</label></div></article></div>
+</div>
 <button id="create" type="submit" class="visually-hidden" tabindex="-1" aria-hidden="true">Start session</button></form>
 <div id="wizard-footer" class="wizard-footer"><button type="button" id="wizard-back">Back</button><p id="wizard-reason" role="status"></p><button id="smoke" type="button" hidden>Do a practice run instead</button><button type="button" id="wizard-primary" class="primary">Continue</button></div></section>
 <section id="record" class="screen" hidden><div class="section-head"><h2 id="record-title" class="screen-title" tabindex="-1">No session open</h2></div>

@@ -339,7 +339,7 @@ function render(next) {
 }
 $("exit-flow").onclick = () => window.SynriaRouter.go(routes().home());
 document.querySelectorAll("[data-command]").forEach(node=>node.onclick=()=>safe(()=>command(node.dataset.command)));
-$("smoke").onclick=()=>safe(async()=>{if(!$("new-form").reportValidity())return;await api("smoke",formValues());await refreshState();window.SynriaRouter.go(routes().record("smoke"));await refreshSessions();});
+$("smoke").onclick=()=>safe(async()=>{if(!$("new-form").reportValidity())return;await api("smoke",{...formValues(),...(state.simulation?{arm_checked:Boolean(window.SynriaConfirmations&&window.SynriaConfirmations().every(n=>n.checked))}:{})});await refreshState();window.SynriaRouter.go(routes().record("smoke"));await refreshSessions();});
 $("discard").onclick=()=>safe(async()=>{if(!confirm("Throw this take away? It cannot be recovered."))return;const reason=prompt("What went wrong with the capture? (required)","");if(reason){await api("record/discard",{reason});await refreshState();}});
 /** Release the cameras and arm feed; refuse while a stopped take is still unsaved. */
 async function closeOpenSession() {

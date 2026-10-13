@@ -203,3 +203,38 @@ def test_read_only_driver_start_is_fixed_and_only_when_no_driver_runs(tmp_path: 
         with pytest.raises(ValueError, match="no parameters"):
             service.mutate(["isaac", "start-driver"], {"port": "/dev/ttyACM0"})
         assert service.mutate(["isaac", "start-driver"], {})["driver_launch_pid"] == 4242
+
+
+def test_readiness_waits_for_detected_isaac_record_mode(tmp_path: Path) -> None:
+    """With a launcher configured, the check refuses in operator words until the supervisor sees record mode."""
+    from contextlib import contextmanager
+    registry = synthetic_registry(tmp_path / "tasks.json", 4, 40)
+    opened: list[str] = []
+
+    @contextmanager
+    def builder(args: Any, **kwargs: Any):
+        opened.append("opened")
+        raise RuntimeError("No image received on /isaac/wrist_camera/image_raw")
+        yield  # pragma: no cover
+
+    down = supervisor(tmp_path, Fakes([]))
+    with ConsoleFixture(tmp_path / "down", simulation=True, registry=registry, isaac=down, builder=builder) as service:
+        report = service.check_readiness({"settings": {"name": "t", "task_id": "die_into_cup", "gripper_type": "50mm",
+                                                       "fps": 15, "operator": "o", "scene": "s"},
+                                          "confirmations": {"arm_checked": True}})
+        assert opened == []
+        assert report["checks"]["isaac_record_mode"]["passed"] is False
+        assert report["checks"]["diagnostic"]["message"].startswith("Start Isaac record mode first")
+        assert "physical" not in report["checks"]["diagnostic"]["message"]
+    @contextmanager
+    def busy_camera(args: Any, **kwargs: Any):
+        opened.append("opened")
+        raise RuntimeError("camera device busy")
+        yield  # pragma: no cover
+
+    up = supervisor(tmp_path, Fakes([proc(101, RECORD)], rate=15.1, markers={101: {"commit": "abc1234", "scene_loaded": True, "topics_started": True}}))
+    with ConsoleFixture(tmp_path / "up", simulation=True, registry=registry, isaac=up, builder=busy_camera) as service:
+        report = service.check_readiness({"settings": {"name": "t", "task_id": "die_into_cup", "gripper_type": "50mm",
+                                                       "fps": 15, "operator": "o", "scene": "s"},
+                                          "confirmations": {"arm_checked": True}})
+        assert opened == ["opened"] and report["checks"]["isaac_record_mode"]["passed"] is True
