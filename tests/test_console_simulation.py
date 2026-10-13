@@ -177,3 +177,17 @@ def test_simulation_url_announcement_names_the_mode() -> None:
     stream = io.StringIO()
     announce_url("http://127.0.0.1:8768/#token=abc", demo=False, simulation=True, stream=stream)
     assert stream.getvalue().startswith("Synria Teleop Console SIMULATION: ")
+
+
+def test_practice_run_and_open_session_wait_for_isaac_in_operator_words(tmp_path: Path) -> None:
+    """With Isaac down the smoke and open-session routes refuse with the Isaac wording, never the raw timeout."""
+    from test_console_isaac import Fakes, supervisor
+    registry = synthetic_registry(tmp_path / "tasks.json", 4, 40)
+    down = supervisor(tmp_path, Fakes([]))
+    with ConsoleFixture(tmp_path / "ws", simulation=True, registry=registry, isaac=down,
+                        builder=lambda *a, **k: pytest.fail("opened sources")) as service:
+        with pytest.raises(ValueError, match="Start Isaac record mode"):
+            service.mutate(["smoke"], {**values(), "fps": 15, "arm_checked": True})
+        session = service.create_session({**values(), "fps": 15, "arm_checked": True})
+        with pytest.raises(ValueError, match="Start Isaac record mode"):
+            service.open_session(session["id"])

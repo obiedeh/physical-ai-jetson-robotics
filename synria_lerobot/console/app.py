@@ -561,11 +561,18 @@ class ConsoleService:
             gate_report=report,
         )
 
+    def _require_isaac_running(self) -> None:
+        """In simulation, refuse to open sim sources until the supervisor sees record mode."""
+        if self.simulation and self.isaac is not None and self.isaac.launcher is not None:
+            if self.isaac.state()["status"] != "running":
+                raise ValueError(ISAAC_RECORD_HELP)
+
     def open_session(self, session_id: str) -> dict[str, Any]:
         """Restore exact persisted settings and run the CLI's complete source preflight."""
         with self._lock:
             if self.controller is not None:
                 raise RuntimeError("close the current capture run before opening another session")
+            self._require_isaac_running()
             session = self.catalog.get_session(session_id)
             if session["status"] in {"trashed", "purged"}:
                 raise RuntimeError("restore this session before opening it")
@@ -1075,6 +1082,7 @@ class ConsoleService:
                     raise ValueError("synthetic demo and disposable physical smoke are distinct")
                 if self.controller is not None:
                     raise RuntimeError("close the current session before disposable smoke")
+                self._require_isaac_running()
                 settings = self._settings(payload, smoke=True)
                 session = {"id": "smoke", "name": f"Disposable smoke: {payload['name']}",
                            "settings": settings, "repo_id": "local/synria-console-smoke",
