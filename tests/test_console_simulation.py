@@ -97,7 +97,8 @@ def test_simulation_session_fixes_sim_topics_and_needs_no_real_arm_facts(tmp_pat
             service.create_session({**values(), "fps": 15})
         session = service.create_session({**values(), "fps": 15, "arm_checked": True})
         assert session["settings"]["arm_checked"] is True and session["settings"]["arm_checked_utc"].endswith("+00:00")
-        assert session["settings"]["arm_checked_statement"].startswith("I have physically checked the arm")
+        assert session["settings"]["arm_checked_statement"] == ("I have physically checked the arm: the area around it "
+                                                                 "is clear and the leader arm drives the sim arm.")
         assert session["source_kind"] == "simulation" and session["recording_purpose"] == "simulation"
         assert session["settings"]["state_source"] == "isaac_simulation"
         assert session["settings"]["wrist_camera"] == SIM_TOPICS["wrist"]
