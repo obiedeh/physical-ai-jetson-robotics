@@ -26,7 +26,7 @@ from synria_lerobot.policy_server import (
 )
 from synria_lerobot.quality_gates import load_limits
 from synria_lerobot.sessions import bind_fixed_skill, run_roll_skills
-from synria_lerobot.task_registry import TASK_IDS
+from synria_lerobot.task_registry import ROLL_SKILL_IDS
 from synria_lerobot.turn_executor import AbortGuardSink, FixedSkillExecutor, OperatorAbort
 
 
@@ -52,7 +52,7 @@ class Transport:
 def roll_config(tmp_path: Path) -> tuple[dict, dict[str, Transport]]:
     config = ready_config(tmp_path)
     transports = {}
-    for task in TASK_IDS:
+    for task in ROLL_SKILL_IDS:
         root = tmp_path / task
         root.mkdir()
         identity, receipt, registry = fixture(root, task)
@@ -162,8 +162,8 @@ def test_three_skills_share_one_sink_without_board_or_token_path(tmp_path: Path)
     result = run(tmp_path, config, transports, io, enable_motion=True)
     assert result["status"] == "completed", result
     assert result["roll"]["value"] == 4
-    assert io.labels == list(TASK_IDS) and len(io.offers) == 6
-    assert io.confirmations == list(TASK_IDS)
+    assert io.labels == list(ROLL_SKILL_IDS) and len(io.offers) == 6
+    assert io.confirmations == list(ROLL_SKILL_IDS)
     assert io.sinks == io.authorizations == io.preflight_calls == 1 and io.closed
     assert result["d4_qualifying"] is False and result["stage_status"] == "planned"
     records = [
@@ -188,18 +188,18 @@ def test_failed_skill_is_ledgered_and_stops_following_skills(
     tmp_path: Path, failed_index: int
 ) -> None:
     config, transports = roll_config(tmp_path)
-    io = RollIO(tmp_path, fail=TASK_IDS[failed_index])
+    io = RollIO(tmp_path, fail=ROLL_SKILL_IDS[failed_index])
     result = run(tmp_path, config, transports, io, enable_motion=True)
     assert result["status"] == "failed" and result["roll"]["value"] is None
-    assert io.labels == list(TASK_IDS[: failed_index + 1]) and io.closed
-    for task in TASK_IDS[failed_index + 1 :]:
+    assert io.labels == list(ROLL_SKILL_IDS[: failed_index + 1]) and io.closed
+    for task in ROLL_SKILL_IDS[failed_index + 1 :]:
         assert not transports[task].calls
 
 
 def test_abort_during_policy_response_prevents_offer_and_retains_attempt(tmp_path: Path) -> None:
     config, transports = roll_config(tmp_path)
     io = RollIO(tmp_path)
-    transports[TASK_IDS[0]].after_response = lambda: setattr(io, "pending", True)
+    transports[ROLL_SKILL_IDS[0]].after_response = lambda: setattr(io, "pending", True)
     result = run(tmp_path, config, transports, io, enable_motion=True)
     assert result["status"] == "failed" and not io.offers and not io.labels and io.closed
     records = [
@@ -207,16 +207,16 @@ def test_abort_during_policy_response_prevents_offer_and_retains_attempt(tmp_pat
         for line in (tmp_path / "run/skill_attempts.jsonl").read_text().splitlines()
     ]
     assert records[-1]["status"] == "aborted" and records[-1]["failure_still"]["sha256"]
-    assert all(not transports[task].calls for task in TASK_IDS[1:])
+    assert all(not transports[task].calls for task in ROLL_SKILL_IDS[1:])
 
 
 @pytest.mark.parametrize("key", ["task_id", "checkpoint_content_sha256", "response_timeout_s"])
 def test_identity_mismatch_refuses_before_any_source_opens(tmp_path: Path, key: str) -> None:
     config, transports = roll_config(tmp_path)
-    original = transports[TASK_IDS[-1]].identity.metadata()
+    original = transports[ROLL_SKILL_IDS[-1]].identity.metadata()
     corrupted = copy.deepcopy(original)
     corrupted[key] = "mismatch"
-    transports[TASK_IDS[-1]].metadata = lambda _: corrupted
+    transports[ROLL_SKILL_IDS[-1]].metadata = lambda _: corrupted
     calls = []
     with pytest.raises(ValueError, match="metadata differs"):
         run_roll_skills(
@@ -233,13 +233,13 @@ def test_identity_mismatch_refuses_before_any_source_opens(tmp_path: Path, key: 
 @pytest.mark.parametrize("value", [None, True, 0, -1, 1.5, float("nan")])
 def test_explicit_command_budget_required(tmp_path: Path, value: object) -> None:
     config, transports = roll_config(tmp_path)
-    config["roll_skills"][TASK_IDS[0]]["max_steps"] = value
+    config["roll_skills"][ROLL_SKILL_IDS[0]]["max_steps"] = value
     with pytest.raises(ValueError, match="command budget"):
         bind_fixed_skill(
             config,
-            config["roll_skills"][TASK_IDS[0]],
-            TASK_IDS[0],
-            transport=transports[TASK_IDS[0]],
+            config["roll_skills"][ROLL_SKILL_IDS[0]],
+            ROLL_SKILL_IDS[0],
+            transport=transports[ROLL_SKILL_IDS[0]],
         )
 
 
@@ -285,19 +285,19 @@ def test_roll_primary_fault_and_cleanup_failures_are_both_retained(tmp_path: Pat
     assert result["status"] == "failed" and io.closed
     assert "primary synthetic" in result["roll"]["error"]
     assert any("secondary synthetic" in error for error in result["errors"])
-    assert all((tmp_path / f"run/{task}_latencies.jsonl").is_file() for task in TASK_IDS)
+    assert all((tmp_path / f"run/{task}_latencies.jsonl").is_file() for task in ROLL_SKILL_IDS)
     assert result["power_state_end"]
 
 
 def test_timeout_cannot_be_replaced_by_a_session_default(tmp_path: Path) -> None:
     config, transports = roll_config(tmp_path)
-    config["roll_skills"][TASK_IDS[0]]["response_timeout_s"] *= 2
+    config["roll_skills"][ROLL_SKILL_IDS[0]]["response_timeout_s"] *= 2
     with pytest.raises(ValueError, match="per-policy timeout"):
         bind_fixed_skill(
             config,
-            config["roll_skills"][TASK_IDS[0]],
-            TASK_IDS[0],
-            transport=transports[TASK_IDS[0]],
+            config["roll_skills"][ROLL_SKILL_IDS[0]],
+            ROLL_SKILL_IDS[0],
+            transport=transports[ROLL_SKILL_IDS[0]],
         )
 
 
@@ -305,7 +305,7 @@ def test_reused_probe_path_keeps_one_current_abort_guard_and_one_hold_forward(
     tmp_path: Path,
 ) -> None:
     config, transports = roll_config(tmp_path)
-    task = TASK_IDS[0]
+    task = ROLL_SKILL_IDS[0]
     binding = bind_fixed_skill(
         config,
         config["roll_skills"][task],
@@ -381,7 +381,7 @@ def test_full_roll_uses_three_real_local_http_endpoints_and_one_fake_sink(tmp_pa
         io = RollIO(tmp_path)
         result = run(tmp_path, config, {}, io, enable_motion=True)
         assert result["status"] == "completed", result
-        assert io.sinks == 1 and len(io.offers) == 6 and io.labels == list(TASK_IDS)
+        assert io.sinks == 1 and len(io.offers) == 6 and io.labels == list(ROLL_SKILL_IDS)
         assert all(transport.model.reset_count == 1 for transport in transports.values())
     finally:
         for server in servers:
@@ -410,7 +410,7 @@ def test_mid_skill_fault_holds_and_retains_failure_without_advancing(
         for line in (tmp_path / "run/skill_attempts.jsonl").read_text().splitlines()
     ]
     assert len(records) == 2 and records[-1]["status"] in {"failed", "aborted"}
-    assert not io.labels and not transports[TASK_IDS[1]].calls
+    assert not io.labels and not transports[ROLL_SKILL_IDS[1]].calls
 
 
 @pytest.mark.parametrize("key", ["command_period_s", "image_width"])
@@ -441,9 +441,9 @@ def test_incompatible_common_physical_configuration_opens_no_source(
 def test_declining_second_scene_stops_without_reinterpreting_first_success(tmp_path: Path) -> None:
     config, transports = roll_config(tmp_path)
     io = RollIO(tmp_path)
-    io.confirm_skill = lambda task: task.task_id == TASK_IDS[0]
+    io.confirm_skill = lambda task: task.task_id == ROLL_SKILL_IDS[0]
     result = run(tmp_path, config, transports, io, enable_motion=True)
-    assert result["status"] == "failed" and io.labels == [TASK_IDS[0]] and len(io.offers) == 2
+    assert result["status"] == "failed" and io.labels == [ROLL_SKILL_IDS[0]] and len(io.offers) == 2
     records = [
         json.loads(line)
         for line in (tmp_path / "run/skill_attempts.jsonl").read_text().splitlines()
@@ -455,7 +455,7 @@ def test_declining_second_scene_stops_without_reinterpreting_first_success(tmp_p
 
 def test_roll_evidence_cannot_mutate_a_frozen_checkpoint(tmp_path: Path) -> None:
     config, transports = roll_config(tmp_path)
-    checkpoint = Path(config["roll_skills"][TASK_IDS[0]]["checkpoint"])
+    checkpoint = Path(config["roll_skills"][ROLL_SKILL_IDS[0]]["checkpoint"])
     before = strict_content_hash(checkpoint)
     calls = []
     with pytest.raises(ValueError, match="artifact"):
@@ -477,7 +477,7 @@ def test_invalid_operator_die_value_is_not_a_completed_roll(tmp_path: Path, valu
     io.operator_roll = lambda **kwargs: value
     result = run(tmp_path, config, transports, io, enable_motion=True)
     assert result["status"] == "failed" and result["roll"]["value"] is None
-    assert io.labels == list(TASK_IDS) and io.closed
+    assert io.labels == list(ROLL_SKILL_IDS) and io.closed
 
 
 @pytest.mark.parametrize("failure", ["hold", "capture", "timeout"])
@@ -498,10 +498,10 @@ def test_failure_paths_keep_attempt_and_stop_next_skill(tmp_path: Path, failure:
         def timeout(*args):
             raise TimeoutError("synthetic timeout")
 
-        transports[TASK_IDS[1]].request = timeout
+        transports[ROLL_SKILL_IDS[1]].request = timeout
     result = run(tmp_path, config, transports, io, enable_motion=True)
     assert result["status"] == "failed" and io.closed
-    assert not transports[TASK_IDS[-1]].calls
+    assert not transports[ROLL_SKILL_IDS[-1]].calls
     records = [
         json.loads(line)
         for line in (tmp_path / "run/skill_attempts.jsonl").read_text().splitlines()

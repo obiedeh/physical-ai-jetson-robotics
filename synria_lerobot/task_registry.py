@@ -12,7 +12,10 @@ from typing import Any
 
 REGISTRY_VERSION = "synria_fixed_scene_tasks_v1"
 LIBRARY_SNAPSHOT_VERSION = "synria_task_library_snapshot_v1"
-TASK_IDS = ("die_into_cup", "roll_and_dump", "cup_return")
+TASK_IDS = ("die_into_cup", "pick_cup", "roll_and_dump", "cup_return")
+# The physical roll pipeline chains these three skills in this order; Pick cup is a
+# recordable task of the library, not a roll skill, so the chain is unchanged.
+ROLL_SKILL_IDS = ("die_into_cup", "roll_and_dump", "cup_return")
 TASK_SOURCES = ("registry", "library")
 LIBRARY_TASK_ID = re.compile(r"^lib_[a-z0-9]+(?:_[a-z0-9]+)*$")
 LIBRARY_SNAPSHOT_KEYS = (
@@ -287,7 +290,7 @@ def load_task_registry(path: Path) -> dict[str, TaskDefinition]:
         raise ValueError("unsupported fixed-scene task registry")
     tasks = [TaskDefinition.from_dict(value) for value in payload["tasks"]]
     if len(tasks) != len(TASK_IDS) or {task.task_id for task in tasks} != set(TASK_IDS):
-        raise ValueError("registry must contain exactly the three distinct fixed-scene task ids")
+        raise ValueError("registry must contain exactly the four distinct fixed-scene task ids")
     return {task.task_id: task for task in tasks}
 
 

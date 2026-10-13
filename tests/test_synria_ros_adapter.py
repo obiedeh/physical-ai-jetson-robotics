@@ -1110,7 +1110,7 @@ def test_three_roll_skills_use_one_fake_ros_publisher_and_native_stills(
     from test_synria_roll_skills import roll_config
 
     from synria_lerobot.sessions import run_roll_skills
-    from synria_lerobot.task_registry import TASK_IDS
+    from synria_lerobot.task_registry import ROLL_SKILL_IDS
 
     setup.clock.now = initial_epoch
     config, transports = roll_config(tmp_path)
@@ -1168,7 +1168,7 @@ def test_three_roll_skills_use_one_fake_ros_publisher_and_native_stills(
     assert setup.settings["armed_topic"] not in setup.ros.publisher_topics
     assert setup.ros.action_clients == [setup.settings["gripper_action"]]
     assert len(setup.ros.goals) == 6
-    assert [transports[task].model.reset_count for task in TASK_IDS] == [1, 1, 1]
+    assert [transports[task].model.reset_count for task in ROLL_SKILL_IDS] == [1, 1, 1]
     stills = [event for event in result["source_preflight"]["events"] if "front_still" in event]
     assert len(stills) == 4 and all(event["resolution"] == [640, 480] for event in stills)
     assert "node" in setup.ros.closed and not setup.answers

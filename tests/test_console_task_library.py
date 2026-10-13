@@ -121,7 +121,7 @@ def test_service_plans_saves_groups_exports_and_records_a_library_session(
     """Plan, save, see the grouped dropdown, export a fragment, create and open a session."""
     with ConsoleFixture(tmp_path, demo=True) as service:
         before = service.read(["tasks"], {})
-        assert [task["task_source"] for task in before] == ["registry"] * 3
+        assert [task["task_source"] for task in before] == ["registry"] * 4
         planned = service.mutate(["library", "plan"], {"sentence": "train to roll a dice"})
         assert planned["source"] == "built-in planner" and planned["fallback_reason"] == ""
         assert planned["proposed"]["goal_id"] == "lib_roll_a_die"
@@ -136,7 +136,7 @@ def test_service_plans_saves_groups_exports_and_records_a_library_session(
             "breakdown": planned["breakdown"], "planner_source": planned["source"]})
         assert saved["goal"]["id"] == "lib_roll_a_die" and len(saved["goal"]["tasks"]) == 4
         choices = service.read(["tasks"], {})
-        assert [task["task_source"] for task in choices] == ["registry"] * 3 + ["library"] * 4
+        assert [task["task_source"] for task in choices] == ["registry"] * 4 + ["library"] * 4
         library = [task for task in choices if task["task_source"] == "library"]
         assert library[0]["display_name"] == "1. Die into cup"
         assert library[3]["display_name"] == "Optional: Stand the cup up"
