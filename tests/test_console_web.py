@@ -260,3 +260,39 @@ def test_announce_url_flushes_token_line_immediately() -> None:
     announce_url("http://127.0.0.1:8765/#token=abc", demo=True, stream=demo_stream)
     assert demo_stream.getvalue().startswith("Synria Teleop Console SYNTHETIC DEMO: ")
     assert demo_stream.flush_count >= 1
+
+
+def test_loopback_console_without_a_token_still_refuses_other_origins_and_hosts() -> None:
+    """Without a launch token the page can act, but another site or Host name still cannot."""
+    service = FakeService()
+    server = make_server(service, token=None)
+    worker = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": 0.01})
+    worker.start()
+    try:
+        port = server.server_port
+        endpoint_without_token = (service, port, "")
+
+        def post(headers: dict[str, str]) -> int:
+            """POST one action with the given header overrides and return the status."""
+            return request(endpoint_without_token, "/api/record/start", method="POST", headers=headers)[0]
+
+        assert post({}) == 200                                         # own origin, no token needed
+        assert post({"Origin": "http://evil.example"}) == 403            # another site
+        assert post({"Host": f"evil.example:{port}"}) == 403             # rebinding by Host name
+        connection = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
+        try:
+            connection.request("POST", "/api/record/start", body=b"{}",
+                               headers={"Content-Type": "application/json"})    # no Origin at all
+            assert connection.getresponse().status == 403
+        finally:
+            connection.close()
+    finally:
+        server.shutdown()
+        server.server_close()
+        worker.join(2)
+
+
+def test_a_console_beyond_loopback_must_keep_its_token() -> None:
+    """Dropping the token is a loopback-only choice."""
+    with pytest.raises(ValueError, match="requires a launch token"):
+        make_server(FakeService(), token=None, host="0.0.0.0", allow_remote=True)

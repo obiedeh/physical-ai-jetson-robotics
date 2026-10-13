@@ -233,6 +233,8 @@ class ConsoleService:
         self._smoke_episodes: list[dict[str, Any]] = []
         self._preflight: dict[str, Any] = {}
         self.readiness = ReadinessReport(clock, demo=demo, simulation=simulation)
+        # Set by the launcher: False for a loopback console, which needs no launch token.
+        self.token_required = True
         self._closed = False
         self.quit_requested = threading.Event()
 
@@ -722,6 +724,7 @@ class ConsoleService:
             active = self.catalog.get_session(active["id"])
         return {
             "demo": self.demo, "simulation": self.simulation, "source_kind": self.source_kind,
+            "token_required": self.token_required,
             "active_session": active, "capture": status,
             "preflight": self._preflight,
             "free_disk_bytes": shutil.disk_usage(self.workspace).free,
@@ -1213,7 +1216,12 @@ def main(argv: list[str] | None = None) -> int:
         finally:
             service.close()
         return 0
-    token = secrets.token_urlsafe(32)
+    # Loopback consoles run without a launch token: the page only listens to the arm feed
+    # and cameras, and the server still refuses any other Host or Origin. A console bound
+    # beyond loopback keeps its per-launch token.
+    loopback = args.host in {"127.0.0.1", "localhost"}
+    token = None if loopback else secrets.token_urlsafe(32)
+    service.token_required = token is not None
     try:
         server = make_server(
             service, token=token, host=args.host, port=args.port, allow_remote=args.allow_remote,
@@ -1233,7 +1241,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         for sig in (signal.SIGINT, signal.SIGTERM):
             previous[sig] = signal.signal(sig, request_shutdown)
-        url = f"http://{args.host}:{server.server_address[1]}/#token={token}"
+        url = f"http://{args.host}:{server.server_address[1]}/" + (f"#token={token}" if token else "")
         announce_url(url, demo=args.demo, simulation=args.simulation)
         if not args.no_browser:
             webbrowser.open(url)

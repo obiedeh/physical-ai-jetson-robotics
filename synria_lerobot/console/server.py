@@ -35,15 +35,23 @@ class ConsoleAPI(Protocol):
 
 
 def make_server(
-    service: ConsoleAPI, *, token: str, host: str = "127.0.0.1", port: int = 0,
+    service: ConsoleAPI, *, token: str | None, host: str = "127.0.0.1", port: int = 0,
     allow_remote: bool = False,
 ) -> ThreadingHTTPServer:
-    """Create an HTTP server whose browser origin cannot mutate it without its launch token."""
+    """Create an HTTP server that only its own page can drive.
+
+    Every request must name this console's bound address as Host, and every action must
+    carry this console's own Origin, so another site open in the browser cannot reach it.
+    A loopback console needs no launch token (token None): it only reads the arm feed and
+    cameras and never writes to the arm. A console bound beyond loopback must have one.
+    """
     if ":" in host:
         raise ValueError("this console supports IPv4 bind addresses only")
     if host not in {"127.0.0.1", "localhost"} and not allow_remote:
         raise ValueError("non-loopback bind requires --allow-remote and trusted network isolation")
-    if len(token) < 32:
+    if token is None and host not in {"127.0.0.1", "localhost"}:
+        raise ValueError("a console bound beyond loopback requires a launch token")
+    if token is not None and len(token) < 32:
         raise ValueError("launch token must contain at least 32 characters")
 
     class Handler(BaseHTTPRequestHandler):
@@ -93,7 +101,7 @@ def make_server(
                 raise PermissionError("a single same-origin Origin is required")
             if origins and origins[0] != f"http://{hosts[0]}":
                 raise PermissionError("Origin is not this console's origin")
-            if mutation:
+            if mutation and token is not None:
                 tokens = self.headers.get_all("X-Console-Token", [])
                 if len(tokens) != 1 or not hmac.compare_digest(tokens[0], token):
                     raise PermissionError("launch token is missing or invalid")
