@@ -24,8 +24,8 @@ from synria_lerobot.quality_gates import (
 )
 from synria_lerobot.recorder import PhysicalEpisodeRecorder
 
-ARM_CHECK_STATEMENT = ("I have physically checked the arm: the area around it is clear, the leader arm "
-                       "drives the sim arm, and nothing on this page moves the real arm.")
+ARM_CHECK_STATEMENT = ("I have physically checked the arm: the area around it is clear and the leader arm "
+                       "drives the sim arm.")
 ARM_CHECK_MISSING = "Tick the box to confirm you have checked the arm"
 SIMULATION_CONFIRMATIONS = {"arm_checked": ARM_CHECK_STATEMENT}
 ISAAC_RECORD_HELP = ("Isaac record mode is not running. Press Start Isaac record mode above and wait "
