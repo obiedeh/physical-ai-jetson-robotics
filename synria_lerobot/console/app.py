@@ -25,6 +25,7 @@ from typing import Any, TextIO
 from synria_lerobot.console.catalog import Catalog
 from synria_lerobot.console.controller import RecordingController
 from synria_lerobot.console.playback import EpisodePlayback, confined_file, encode_rgb
+from synria_lerobot.console.isaac import IsaacSupervisor, launcher_from_config
 from synria_lerobot.console.readiness import (
     CONFIRMATIONS,
     ISAAC_RECORD_HELP,
@@ -168,6 +169,7 @@ class ConsoleService:
         controller_factory: Callable[..., RecordingController] = RecordingController,
         playback: EpisodePlayback | None = None, clock: Callable[[], float] = time.monotonic,
         planner: ExternalPlanner | None = None,
+        isaac: IsaacSupervisor | None = None,
         timing_source_factory: Callable[[str], Any] | None = None,
         timing_poll_s: float = 0.02,
     ) -> None:
@@ -197,6 +199,12 @@ class ConsoleService:
         self.clock = clock
         self.playback = playback or EpisodePlayback()
         self.planner = planner
+        # Simulation only: the Isaac record mode supervisor, with the launcher path from the
+        # environment or the workspace, never from the repository. Injected in tests.
+        self.isaac = isaac
+        if self.isaac is None and simulation:
+            self.isaac = IsaacSupervisor(resolved, resolved / "isaac-logs",
+                                         launcher=launcher_from_config(resolved))
         self._timing_source_factory = timing_source_factory or _joint_state_source
         self._timing_poll_s = timing_poll_s
         self._timing: TimingSession | None = None
@@ -916,6 +924,11 @@ class ConsoleService:
             }
         if route == ["state"]:
             return self.state()
+        if route == ["isaac"]:
+            if not self.simulation or self.isaac is None:
+                return {"available": False, "status": "not_applicable",
+                        "label": "Isaac supervision is for the simulation console only"}
+            return self.isaac.state()
         if route == ["readiness"]:
             return self.readiness.snapshot()
         if route == ["setup-suggestions"]:
@@ -1008,6 +1021,15 @@ class ConsoleService:
         with self._lock:
             if route == ["readiness"]:
                 return self.check_readiness(payload)
+            if len(route) == 2 and route[0] == "isaac":
+                if not self.simulation or self.isaac is None:
+                    raise ValueError("Isaac supervision is only available in simulation mode")
+                if payload:
+                    raise ValueError("Isaac actions take no parameters; the command is fixed")
+                if route[1] == "start":
+                    return self.isaac.start()
+                if route[1] == "stop":
+                    return self.isaac.stop()
             if route == ["library", "plan"]:
                 return self.plan_goal(payload)
             if route == ["library", "save"]:
