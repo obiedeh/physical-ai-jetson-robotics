@@ -340,3 +340,48 @@ def test_incomplete_checkpoint_preparation_or_save_is_recorded_without_plausible
     assert "N/A (no finalized checkpoint)" in ledger
     assert sum(line.startswith("|") for line in ledger.splitlines()) == 1
     assert not (repository / config["timeline"]).exists()
+
+
+
+class _CudaVisible:
+    """Stand in for the tensor runtime as one module sees it: CUDA reported, all else delegated."""
+
+    def __init__(self, real: object) -> None:
+        """Keep the real runtime for everything that is not the CUDA question."""
+        self._real = real
+        self.cuda = type("cuda", (), {
+            "is_available": staticmethod(lambda: True),
+            "max_memory_allocated": staticmethod(lambda *args, **kwargs: 0),
+            "reset_peak_memory_stats": staticmethod(lambda *args, **kwargs: None),
+        })()
+
+    def __getattr__(self, name: str) -> object:
+        """Delegate every other attribute to the real runtime."""
+        return getattr(self._real, name)
+
+
+def test_cpu_training_completes_when_the_process_can_already_see_cuda(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The upstream update step records GPU memory whenever CUDA is visible to the process.
+
+    Hiding CUDA through the environment only works before the tensor runtime first looks
+    for it, so a process that has already initialised CUDA (an earlier test, a notebook, a
+    cuda run in the same session) still reports it as available during a cpu run. The
+    tracker must carry the memory meter in that case. The condition is reproduced
+    directly, for the upstream update step and for the trainer's own check, so the
+    result does not depend on test order or on a GPU being present.
+    """
+    config, dataset = training_fixture(tmp_path, monkeypatch)
+    import lerobot.scripts.lerobot_train as upstream
+    import torch
+
+    import synria_lerobot.act_training as implementation
+
+    monkeypatch.setattr(upstream, "torch", _CudaVisible(torch))
+    monkeypatch.setattr(implementation, "_process_sees_cuda", lambda: True)
+    manifest = train(
+        dataset, dataset / "physical_contract.json", tmp_path / "raw-training", 7, 2, config
+    )
+    assert manifest["status"] == "completed" and manifest["completed_steps"] == 2
+    assert manifest["last_training_metrics"]["gpu_mem_gb"] == 0
