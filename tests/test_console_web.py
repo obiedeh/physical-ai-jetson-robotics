@@ -296,3 +296,50 @@ def test_a_console_beyond_loopback_must_keep_its_token() -> None:
     """Dropping the token is a loopback-only choice."""
     with pytest.raises(ValueError, match="requires a launch token"):
         make_server(FakeService(), token=None, host="0.0.0.0", allow_remote=True)
+
+
+def test_lan_side_requires_the_token_for_reads_and_accepts_header_or_cookie() -> None:
+    """On a token-protected server data reads need the token; the page files do not."""
+    service = FakeService()
+    token = "L" * 43
+    server = make_server(service, token=token)
+    worker = threading.Thread(target=server.serve_forever, kwargs={"poll_interval": 0.01})
+    worker.start()
+    try:
+        port = server.server_port
+
+        def get(path: str, headers: dict[str, str]) -> tuple[int, bytes]:
+            """GET one path with only the given headers."""
+            connection = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
+            try:
+                connection.request("GET", path, headers=headers)
+                response = connection.getresponse()
+                return response.status, response.read()
+            finally:
+                connection.close()
+
+        assert get("/api/state", {})[0] == 403
+        assert get("/api/state", {"X-Console-Token": "wrong" * 9})[0] == 403
+        status, body = get("/api/state", {"X-Console-Token": token})
+        assert status == 200 and json.loads(body)["token_required"] is True
+        assert get("/api/state", {"Cookie": f"other=1; console_token={token}"})[0] == 200
+        assert get("/media/readiness/wrist", {})[0] == 403
+        assert get("/", {})[0] == 200 and get("/app.js", {})[0] == 200
+    finally:
+        server.shutdown()
+        server.server_close()
+        worker.join(2)
+
+
+def test_lan_host_must_be_a_private_address_and_the_link_file_is_owner_only(tmp_path: Path) -> None:
+    """Never the wildcard, loopback or a public address; the link file is mode 600."""
+    from synria_lerobot.console.app import validate_lan_host, write_private_link
+
+    assert validate_lan_host("192.168.1.235") == "192.168.1.235"
+    for bad in ("0.0.0.0", "127.0.0.1", "8.8.8.8", "169.254.1.1", "::1", "home.local"):
+        with pytest.raises(ValueError):
+            validate_lan_host(bad)
+    target = tmp_path / "links" / "lan.txt"
+    write_private_link(target, "http://192.168.1.235:8765/#token=abc")
+    assert target.read_text() == "http://192.168.1.235:8765/#token=abc\n"
+    assert (target.stat().st_mode & 0o777) == 0o600

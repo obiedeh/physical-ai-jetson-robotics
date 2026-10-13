@@ -1179,6 +1179,35 @@ def announce_url(url: str, *, demo: bool, stream: TextIO | None = None,
     print(f"Synria Teleop Console {mode}: {url}", file=output, flush=True)
 
 
+def validate_lan_host(value: str) -> str:
+    """Accept only a private IPv4 address of this network, never loopback or the wildcard.
+
+    The LAN side of a console is for another device in the same home network; an
+    address that is public, unspecified (0.0.0.0) or loopback is refused.
+    """
+    import ipaddress
+
+    try:
+        address = ipaddress.IPv4Address(value)
+    except ValueError as error:
+        raise ValueError("LAN host must be an IPv4 address") from error
+    if address.is_unspecified or address.is_loopback or not address.is_private or address.is_link_local:
+        raise ValueError("LAN host must be this machine's private network address, "
+                         "not loopback, 0.0.0.0 or a public address")
+    return str(address)
+
+
+def write_private_link(path: Path, line: str) -> None:
+    """Write a launch link to a file only its owner can read, replacing any earlier one."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    handle = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    try:
+        os.fchmod(handle, 0o600)
+        os.write(handle, (line + "\n").encode("utf-8"))
+    finally:
+        os.close(handle)
+
+
 def main(argv: list[str] | None = None) -> int:
     """Launch the packaged console, opening the browser with its secret only in the URL fragment."""
     parser = argparse.ArgumentParser(description="Read-only Synria Teleop Console")
@@ -1190,6 +1219,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--allow-remote", action="store_true")
+    parser.add_argument("--lan-host", default="",
+                        help="Also serve on this private network address, same port, with a "
+                             "launch token required for every data request; loopback is unchanged")
+    parser.add_argument("--lan-link-file", type=Path, default=None,
+                        help="Owner-only file that receives the LAN link with its token")
     parser.add_argument("--no-browser", action="store_true")
     parser.add_argument("--min-free-bytes", type=int, default=1_000_000_000)
     parser.add_argument("--reindex", action="store_true")
@@ -1230,6 +1264,28 @@ def main(argv: list[str] | None = None) -> int:
         service.close()
         raise
     server.timeout = 0.25
+    lan_server = None
+    lan_url = ""
+    if args.lan_host:
+        try:
+            if not loopback:
+                raise ValueError("--lan-host adds a LAN side to a loopback console")
+            if args.lan_link_file is None:
+                raise ValueError("--lan-host needs --lan-link-file for its launch link")
+            lan_host = validate_lan_host(args.lan_host)
+            lan_token = secrets.token_urlsafe(32)
+            lan_server = make_server(service, token=lan_token, host=lan_host,
+                                     port=server.server_address[1], allow_remote=True)
+            lan_url = f"http://{lan_host}:{lan_server.server_address[1]}/"
+            write_private_link(args.lan_link_file, f"{lan_url}#token={lan_token}")
+            threading.Thread(target=lan_server.serve_forever, kwargs={"poll_interval": 0.25},
+                             name="synria-console-lan", daemon=True).start()
+        except BaseException:
+            server.server_close()
+            if lan_server is not None:
+                lan_server.server_close()
+            service.close()
+            raise
     interrupted: list[str] = []
 
     def request_shutdown(signum: int, frame: Any) -> None:
@@ -1243,12 +1299,19 @@ def main(argv: list[str] | None = None) -> int:
             previous[sig] = signal.signal(sig, request_shutdown)
         url = f"http://{args.host}:{server.server_address[1]}/" + (f"#token={token}" if token else "")
         announce_url(url, demo=args.demo, simulation=args.simulation)
+        if lan_server is not None:
+            # The token never goes to the log; the full link is in the owner-only file.
+            print(f"Synria Teleop Console LAN (token required): {lan_url} "
+                  f"full link in {args.lan_link_file}", flush=True)
         if not args.no_browser:
             webbrowser.open(url)
         while not service.quit_requested.is_set():
             server.handle_request()
     finally:
         server.server_close()
+        if lan_server is not None:
+            lan_server.shutdown()
+            lan_server.server_close()
         try:
             service.close(
                 force=bool(interrupted), reason=interrupted[-1] if interrupted else "shutdown",
