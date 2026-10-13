@@ -14,9 +14,12 @@ let reviewSessionId = "", route = null, confirmingFinish = false;
 /** Read the per-launch token without failing when the browser blocks session storage. */
 function storedToken() { try { return sessionStorage.getItem("console-token") || ""; } catch (reason) { return ""; } }
 const token = storedToken();
+// On a token-protected address images cannot send a header, so the same token rides in a
+// cookie scoped to this console; on loopback there is no token and nothing is set.
+if (token) { try { document.cookie = `console_token=${token}; path=/; SameSite=Strict`; } catch (reason) { /* cookies blocked: previews stay empty */ } }
 /** Send same-origin JSON requests through the existing authenticated API boundary. */
 async function api(path, payload) {
-  const options = payload === undefined ? {} : {method:"POST", headers:{"Content-Type":"application/json", "X-Console-Token":token}, body:JSON.stringify(payload)};
+  const options = payload === undefined ? (token ? {headers:{"X-Console-Token":token}} : {}) : {method:"POST", headers:{"Content-Type":"application/json", "X-Console-Token":token}, body:JSON.stringify(payload)};
   const response = await fetch(`/api/${path}`, options);
   const result = await response.json();
   if (!response.ok) throw Error(result.error || "Request refused");

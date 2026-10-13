@@ -43,7 +43,11 @@ def make_server(
     Every request must name this console's bound address as Host, and every action must
     carry this console's own Origin, so another site open in the browser cannot reach it.
     A loopback console needs no launch token (token None): it only reads the arm feed and
-    cameras and never writes to the arm. A console bound beyond loopback must have one.
+    cameras and never writes to the arm. A console bound beyond loopback must have one,
+    and there the token is required for every API and media request, reads included,
+    since anyone on that network can reach the port; it arrives in the X-Console-Token
+    header or in the console_token cookie the page sets from the launch link (images
+    cannot send headers). Only the static page files load without it.
     """
     if ":" in host:
         raise ValueError("this console supports IPv4 bind addresses only")
@@ -106,6 +110,19 @@ def make_server(
                 if len(tokens) != 1 or not hmac.compare_digest(tokens[0], token):
                     raise PermissionError("launch token is missing or invalid")
 
+        def _require_read_token(self) -> None:
+            """On a token-protected server, refuse data reads that carry no valid token."""
+            if token is None:
+                return
+            offered = list(self.headers.get_all("X-Console-Token", []))
+            for header in self.headers.get_all("Cookie", []):
+                for part in header.split(";"):
+                    name, _, value = part.strip().partition("=")
+                    if name == "console_token":
+                        offered.append(value)
+            if not any(hmac.compare_digest(value, token) for value in offered):
+                raise PermissionError("launch token is missing or invalid")
+
         def _route(self) -> tuple[list[str], dict[str, list[str]]]:
             """Parse a relative route without encoded path aliases or traversal segments."""
             parsed = urlsplit(self.path)
@@ -136,8 +153,14 @@ def make_server(
                 self._guard(mutation=False)
                 route, query = self._route()
                 if route[0] == "api":
-                    self._json(200, service.read(route[1:], query))
+                    self._require_read_token()
+                    result = service.read(route[1:], query)
+                    if route[1:] == ["state"] and isinstance(result, dict):
+                        # Each bound address answers for itself: loopback needs no token.
+                        result = {**result, "token_required": token is not None}
+                    self._json(200, result)
                 elif route[0] == "media":
+                    self._require_read_token()
                     self._send(200, service.media(route[1:], query), "image/jpeg")
                 else:
                     name = "index.html" if route == [""] else "/".join(route)
