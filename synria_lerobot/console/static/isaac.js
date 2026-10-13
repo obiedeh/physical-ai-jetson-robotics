@@ -44,7 +44,9 @@
     const driver = isaac.driver || {};
     document.getElementById("isaac-driver").textContent = driver.running
       ? `Arm driver is running (reused, never restarted by this page).`
-      : `Arm driver is not running. This page never starts it. Read-only start, in the teleop environment: ${driver.read_only_command || ""}`;
+      : `Arm driver is not running. The button starts only the read-only form: ${driver.read_only_command || ""}`;
+    const driverStart = document.getElementById("isaac-driver-start");
+    driverStart.hidden = Boolean(driver.running); driverStart.disabled = busy || !driver.can_start;
     const closes = document.getElementById("isaac-closes");
     const willClose = (isaac.button && isaac.button.closes) || [];
     closes.hidden = willClose.length === 0;
@@ -83,6 +85,7 @@
     window.addEventListener("console-ready", () => {
       document.getElementById("isaac-action").onclick = () => safe(() => act("start"));
       document.getElementById("isaac-stop").onclick = () => safe(async () => { if (confirm("Stop Isaac record mode? Takes already saved are kept.")) await act("stop"); });
+      document.getElementById("isaac-driver-start").onclick = () => safe(() => act("start-driver"));
       timer = setInterval(() => safe(poll), 2000); safe(poll);
     });
   }

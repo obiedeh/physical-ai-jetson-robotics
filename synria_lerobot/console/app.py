@@ -1030,6 +1030,8 @@ class ConsoleService:
                     return self.isaac.start()
                 if route[1] == "stop":
                     return self.isaac.stop()
+                if route[1] == "start-driver":
+                    return self.isaac.start_driver()
             if route == ["library", "plan"]:
                 return self.plan_goal(payload)
             if route == ["library", "save"]:
