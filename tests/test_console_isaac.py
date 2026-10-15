@@ -6,11 +6,16 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-
-from synria_lerobot.console import isaac
-from synria_lerobot.console.isaac import IsaacSupervisor, ProcessInfo, classify, launcher_from_config
 from test_console_service import ConsoleFixture
 from test_task_registry import synthetic_registry
+
+from synria_lerobot.console import isaac
+from synria_lerobot.console.isaac import (
+    IsaacSupervisor,
+    ProcessInfo,
+    classify,
+    launcher_from_config,
+)
 
 KIT = "/home/user/isaacsim/kit/python/bin/python3"
 SCENE = "/home/user/github/teleop/scripts/isaac_sim/alicia_d_live_scene.py"
@@ -130,7 +135,8 @@ def test_start_closes_only_this_users_isaac_then_launches_detached_without_the_d
         sup.start()
     fakes.now += isaac.START_TIMEOUT_S + 1
     assert sup.state()["failure"].startswith("Isaac did not reach record mode in")
-    fakes.processes.append(proc(101, RECORD)); fakes.rate = 15.0
+    fakes.processes.append(proc(101, RECORD))
+    fakes.rate = 15.0
     sup2 = supervisor(tmp_path, fakes)
     sup2.start()
     assert sup2.state()["status"] == "starting" or sup2.state()["status"] == "running"
@@ -148,12 +154,14 @@ def test_stop_closes_scene_instances_only(tmp_path: Path) -> None:
 
 def test_launcher_path_comes_from_environment_or_workspace_and_is_validated(tmp_path: Path) -> None:
     """No launcher means no button; a configured path must be an absolute existing launcher script."""
-    workspace = tmp_path / "ws"; workspace.mkdir()
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
     assert launcher_from_config(workspace, {}) is None
     good = tmp_path / "teleop" / "scripts" / "run_alicia_stack.sh"
-    good.parent.mkdir(parents=True); good.write_text("#!/bin/bash\n")
+    good.parent.mkdir(parents=True)
+    good.write_text("#!/bin/bash\n")
     assert launcher_from_config(workspace, {isaac.LAUNCHER_ENV: str(good)}) == good
-    (workspace / isaac.LAUNCHER_FILE).write_text('{"launcher": "%s"}' % good)
+    (workspace / isaac.LAUNCHER_FILE).write_text(f'{{"launcher": "{good}"}}')
     assert launcher_from_config(workspace, {}) == good
     with pytest.raises(ValueError, match="absolute path"):
         launcher_from_config(workspace, {isaac.LAUNCHER_ENV: "scripts/run_alicia_stack.sh"})

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone
 import getpass
 import json
 import math
@@ -20,13 +19,14 @@ import time
 import webbrowser
 from collections.abc import Callable
 from contextlib import AbstractContextManager
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, TextIO
 
 from synria_lerobot.console.catalog import Catalog
 from synria_lerobot.console.controller import RecordingController
-from synria_lerobot.console.playback import EpisodePlayback, confined_file, encode_rgb
 from synria_lerobot.console.isaac import IsaacSupervisor, launcher_from_config
+from synria_lerobot.console.playback import EpisodePlayback, confined_file, encode_rgb
 from synria_lerobot.console.readiness import (
     ARM_CHECK_MISSING,
     ARM_CHECK_STATEMENT,
@@ -419,8 +419,9 @@ class ConsoleService:
                 ]
                 report.check("recording_metadata", not missing_metadata,
                              "Required before recording: " + ", ".join(missing_metadata)
-                             + ". Connection checks can continue; unknown values are not inferred."
-                             if missing_metadata else "Recording identity and power fields supplied")
+                             + ". Connection checks can continue; unknown values are not "
+                             "inferred." if missing_metadata
+                             else "Recording identity and power fields supplied")
             try:
                 settings = self._settings(payload["settings"], smoke=not self.demo,
                                           diagnostic=True)
@@ -443,7 +444,8 @@ class ConsoleService:
                 report.check("limits_verification", self.demo or limits.verified,
                              "Synthetic only" if self.demo else
                              ("Operator verification recorded" if limits.verified else
-                              "limits unverified by operator; qualifying collection is not ready"))
+                              "limits unverified by operator; qualifying collection is "
+                              "not ready"))
             free = shutil.disk_usage(self.workspace).free
             report.check("disk_space", free >= self.min_free_bytes,
                          "Available recording workspace space", remaining=free,
@@ -454,14 +456,17 @@ class ConsoleService:
                 if settings["wrist_camera"] == settings["front_camera"]:
                     raise ValueError("Sim wrist and front image topics must differ")
                 report.check("camera_mapping", True,
-                             f"Sim image topics {settings['wrist_camera']} and {settings['front_camera']}")
+                             f"Sim image topics {settings['wrist_camera']} "
+                             f"and {settings['front_camera']}")
             else:
                 if not self.demo:
                     available = list_cameras()["cameras"]
-                    if any(settings[key] not in available for key in ("wrist_camera", "front_camera")):
+                    camera_keys = ("wrist_camera", "front_camera")
+                    if any(settings[key] not in available for key in camera_keys):
                         raise ValueError("Select two available stable camera IDs; refresh mapping")
                     require_distinct_cameras(settings["wrist_camera"], settings["front_camera"])
-                report.check("camera_mapping", True, "Distinct identities selected; no auto-mapping")
+                report.check("camera_mapping", True,
+                             "Distinct identities selected; no auto-mapping")
             dependencies = runtime_dependencies(demo=self.demo)
             report.check("runtime_dependencies", all(dependencies.values()),
                          "Recording environment dependency availability", details=dependencies)
@@ -984,7 +989,8 @@ class ConsoleService:
         if route == ["serial-connections"]:
             if self.simulation:
                 return {"connections": [],
-                        "message": "Simulation has no arm serial; real-arm identity is not recorded."}
+                        "message": "Simulation has no arm serial; real-arm identity is not "
+                                   "recorded."}
             return list_serial_connections() if not self.demo else {
                 "connections": [], "message": "Synthetic demo has no physical USB connection.",
             }
@@ -1191,7 +1197,8 @@ def validate_lan_host(value: str) -> str:
         address = ipaddress.IPv4Address(value)
     except ValueError as error:
         raise ValueError("LAN host must be an IPv4 address") from error
-    if address.is_unspecified or address.is_loopback or not address.is_private or address.is_link_local:
+    if (address.is_unspecified or address.is_loopback or not address.is_private
+            or address.is_link_local):
         raise ValueError("LAN host must be this machine's private network address, "
                          "not loopback, 0.0.0.0 or a public address")
     return str(address)
@@ -1297,7 +1304,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         for sig in (signal.SIGINT, signal.SIGTERM):
             previous[sig] = signal.signal(sig, request_shutdown)
-        url = f"http://{args.host}:{server.server_address[1]}/" + (f"#token={token}" if token else "")
+        fragment = f"#token={token}" if token else ""
+        url = f"http://{args.host}:{server.server_address[1]}/" + fragment
         announce_url(url, demo=args.demo, simulation=args.simulation)
         if lan_server is not None:
             # The token never goes to the log; the full link is in the owner-only file.
