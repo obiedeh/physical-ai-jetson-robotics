@@ -274,7 +274,8 @@ def test_loopback_console_without_a_token_still_refuses_other_origins_and_hosts(
 
         def post(headers: dict[str, str]) -> int:
             """POST one action with the given header overrides and return the status."""
-            return request(endpoint_without_token, "/api/record/start", method="POST", headers=headers)[0]
+            return request(endpoint_without_token, "/api/record/start", method="POST",
+                           headers=headers)[0]
 
         assert post({}) == 200                                         # own origin, no token needed
         assert post({"Origin": "http://evil.example"}) == 403            # another site

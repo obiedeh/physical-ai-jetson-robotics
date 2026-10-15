@@ -8,6 +8,8 @@ from typing import Any
 
 import numpy as np
 import pytest
+from test_console_service import ConsoleFixture, values
+from test_task_registry import synthetic_registry
 
 from synria_lerobot import recorder
 from synria_lerobot.console.app import ConsoleService, announce_url
@@ -24,8 +26,6 @@ from synria_lerobot.task_registry import (
     load_task_source,
     recording_purpose,
 )
-from test_console_service import ConsoleFixture, values
-from test_task_registry import synthetic_registry
 
 
 def sim_args(tmp_path: Path, registry: Path, *, smoke: bool = False) -> argparse.Namespace:

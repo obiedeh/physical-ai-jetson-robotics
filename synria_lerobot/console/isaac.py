@@ -20,10 +20,11 @@ import subprocess
 import threading
 import time
 from collections import deque
-from dataclasses import asdict, dataclass, field
+from collections.abc import Callable
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 LAUNCHER_ENV = "SYNRIA_ISAAC_LAUNCHER"
 LAUNCHER_FILE = "isaac_launcher.json"
@@ -268,7 +269,7 @@ class SimTopicMonitor:
                 span = self.window_s if complete else max(elapsed, 1e-6)
                 rates[name] = len(recent) / span if (complete or recent) else None
                 if recent:
-                    gaps[name] = max([b - a for a, b in zip(recent, recent[1:])] + [now - recent[-1]])
+                    gaps[name] = max([b - a for a, b in zip(recent, recent[1:], strict=False)] + [now - recent[-1]])
                 else:
                     gaps[name] = None
         return {"rates": rates, "max_gap_s": gaps, "complete": complete, "elapsed_s": round(elapsed, 1),
