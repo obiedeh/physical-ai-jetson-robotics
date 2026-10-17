@@ -315,3 +315,87 @@ def test_waiting_words_name_the_step_and_the_time(tmp_path: Path) -> None:
     fakes.rate = 14.8
     state = sup.state()
     assert state["status"] == "running" and state["failure"] is None
+
+
+def test_a_launch_whose_isaac_process_dies_fails_at_once_with_the_log_errors(
+    tmp_path: Path,
+) -> None:
+    """A dead Isaac process is reported on the next poll with its traceback; Relaunch is offered."""
+    fakes = Fakes([proc(9, DRIVER), proc(4242, "bash /x/run_alicia_stack.sh record")])
+    sup = supervisor(tmp_path, fakes)
+    result = sup.start()
+    log = Path(result["last_launch"]["log"])
+    isaac_log = tmp_path / "alicia_isaac_launch.log"
+    log.write_text("  Launching Isaac Sim...\n  Isaac Sim PID: 777\n  Logs: "
+                   f"{isaac_log}\n\nStack started in 'record' mode.\n")
+    fakes.processes.append(proc(777, "bash /x/scripts/isaac_sim/run_alicia_d_live_scene.sh"))
+    fakes.now += 5
+    state = sup.state()
+    assert state["status"] == "starting" and state["failure"] is None
+    assert state["last_launch"]["isaac_pid"] == 777
+    assert state["isaac_log"] == str(isaac_log)
+    isaac_log.write_text(
+        "2026-10-17T03:03:20Z [7,873ms] [Warning] [omni.usd] something harmless\n"
+        "2026-10-17T03:03:20Z [7,914ms] [Error] [omni.kit.app._impl] [py stderr]: "
+        "Traceback (most recent call last):\n"
+        "2026-10-17T03:03:20Z [7,914ms] [Error] [omni.kit.app._impl] [py stderr]:   File "
+        "\"scene.py\", line 610, in spawn_pick_objects\n"
+        "2026-10-17T03:03:20Z [7,915ms] [Error] [omni.kit.app._impl] [py stderr]: "
+        "pxr.Tf.ErrorException: Path must be an absolute path: <>\n"
+        "2026-10-17T03:03:21Z [8,795ms] [Warning] [carb] Recursive unloadAllPlugins() detected!\n"
+    )
+    fakes.processes = [p for p in fakes.processes if p.pid not in {777, 4242}]
+    fakes.now += 4
+    state = sup.state()
+    assert state["status"] == "not_running" and state["label"] == "Last launch failed"
+    assert state["failure"] == ("Isaac process 777 exited after 9 s before reaching record "
+                                "mode; see the Isaac log")
+    assert state["failure_detail"] == [
+        "Traceback (most recent call last):",
+        'File "scene.py", line 610, in spawn_pick_objects',
+        "pxr.Tf.ErrorException: Path must be an absolute path: <>",
+    ]
+    assert state["button"] == {"action": "start", "label": "Relaunch Isaac record mode",
+                               "closes": []}
+    assert state["last_launch"]["status"] == "failed"
+    relaunch = sup.start()
+    assert relaunch["status"] == "starting" and relaunch["reused"] is False
+    assert len(fakes.spawned) == 2 and relaunch["failure"] is None
+    assert relaunch["last_launch"].get("isaac_pid") is None
+
+
+def test_a_launcher_that_exits_without_an_isaac_pid_fails_after_the_grace_period(
+    tmp_path: Path,
+) -> None:
+    """No pid line and a dead launcher means the launcher failed; a missing log still waits."""
+    fakes = Fakes([proc(9, DRIVER)])
+    sup = supervisor(tmp_path, fakes)
+    result = sup.start()
+    fakes.now += isaac.LAUNCHER_GRACE_S + 1
+    assert sup.state()["status"] == "starting"           # no log at all: nothing to judge yet
+    Path(result["last_launch"]["log"]).write_text("Mode: record\n  Driver already running.\n")
+    fakes.now += 1
+    state = sup.state()
+    assert state["failure"] == ("The launcher exited after 17 s without starting Isaac; "
+                                "see the launch log")
+    assert state["failure_detail"] == []
+    assert state["button"]["label"] == "Relaunch Isaac record mode"
+
+
+def test_failure_tail_keeps_error_lines_without_prefixes_and_tolerates_missing_logs(
+    tmp_path: Path,
+) -> None:
+    """Only error, fatal, traceback and kill lines are kept, newest last, bounded in number."""
+    assert isaac.failure_tail(None) == [] and isaac.failure_tail(tmp_path / "missing.log") == []
+    log = tmp_path / "isaac.log"
+    lines = [f"2026-10-17T03:03:20Z [{i},000ms] [Error] [omni.kit.app._impl] [py stderr]: e{i}"
+             for i in range(20)]
+    lines.append("2026-10-17T03:03:21Z [21,000ms] [Fatal] [carb] out of memory")
+    lines.append("Killed")
+    lines.append("2026-10-17T03:03:21Z [21,000ms] [Info] [carb] fine")
+    log.write_text("\n".join(lines) + "\n")
+    tail = isaac.failure_tail(log)
+    assert len(tail) == isaac.FAILURE_TAIL_LINES
+    assert tail[-3:] == ["e19", "out of memory", "Killed"]
+    assert isaac.launch_facts(tmp_path / "nope.log") == {
+        "isaac_pid": None, "isaac_log": None, "log_exists": False}
