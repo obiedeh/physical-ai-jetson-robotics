@@ -299,6 +299,8 @@ function renderFlowNav() {
   if (!open || busy) confirmingFinish = false;
   $("finish-confirm").hidden = !confirmingFinish;
   $("pause-session").hidden = !open || busy || confirmingFinish; $("finish-session").hidden = !open || busy || confirmingFinish; $("exit-flow").hidden = open;
+  $("restart-session").hidden = !open || busy || confirmingFinish;
+  $("restart-session").textContent = state.active_session?.id === "smoke" ? "Restart practice run" : "Restart session";
   const list = $("breadcrumb");
   const signature = JSON.stringify(crumbs); if (list.dataset.signature === signature) return; list.dataset.signature = signature;
   list.replaceChildren();
@@ -365,6 +367,9 @@ $("finish-no").onclick=()=>{confirmingFinish=false;renderFlowNav();$("finish-ses
 $("record-banner-action").onclick=()=>safe(async()=>{if($("record-banner-action").dataset.action==="close"){await closeOpenSession();window.SynriaRouter.go(routes().home());}});
 // Redo closes the finished practice run, then starts another with the same setup values.
 $("record-banner-redo").onclick=()=>safe(async()=>{await closeOpenSession();await startPracticeRun();});
+/** Restart: close the open session's sources and open the same session again, in Ready. A practice run starts another practice run with the same setup values; a stopped unsaved take refuses, as Pause does. */
+async function restartSession(){const id=await closeOpenSession();if(id==="smoke"){await startPracticeRun();return;}await api(`session/${id}/open`,{});await refreshState();await refreshSessions();window.SynriaRouter.go(routes().record(id));}
+$("restart-session").onclick=()=>safe(restartSession);
 /** Session summary after Finish: counts in words, where the takes are, and what to do next. */
 async function renderSummary(id) {
   const session = sessions.find(s => s.id === id) || await api(`session/${id}`);

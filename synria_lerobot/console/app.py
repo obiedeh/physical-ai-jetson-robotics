@@ -1185,9 +1185,9 @@ class ConsoleService:
                            "dataset_path": str(self.workspace / "unused-smoke-root"),
                            "source_kind": self.source_kind,
                            "recording_purpose": "disposable_smoke"}
+                # The sources open and the page lands in Ready; recording begins only when
+                # the operator presses Start recording, after the countdown, as for any take.
                 self._open(session, smoke=True)
-                assert self.controller is not None
-                self.controller.command("start")
                 return self.state()
             if route == ["shutdown"]:
                 self.close_session(reason="operator quit")

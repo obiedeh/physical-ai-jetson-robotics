@@ -328,9 +328,11 @@ def test_disposable_smoke_starts_after_shared_builder_and_stays_transient(
             **values(), "state_source": "standalone_driver", "wrist_camera": "fake-wrist",
             "front_camera": "fake-front", "follower_serial": "fake", "power_state_start": "fake",
         })
-        assert state["capture"]["state"] == "recording"
+        # A practice run waits in Ready until the operator presses Start recording.
+        assert state["capture"]["state"] == "idle" and state["capture"]["controls"]["start"]
         assert state["active_session"]["id"] == "smoke"
         assert service.catalog.sessions() == []
+        assert service.mutate(["record", "start"], {})["state"] == "recording"
         service.mutate(["record", "discard"], {"reason": "synthetic smoke test complete"})
         if cleanup_failure:
             with pytest.raises(RuntimeError, match="synthetic smoke cleanup failure"):

@@ -100,6 +100,8 @@ def test_smoke_close_writes_a_report_with_frame_and_camera_facts(tmp_path: Path)
         })
         assert service.controller is not None
         controller = service.controller
+        assert controller.snapshot()["state"] == "idle"
+        service.mutate(["record", "start"], {})
         wait_for(pending_at_least(controller, 1))
         for step in range(1, 5):
             clock.now = step / 15
