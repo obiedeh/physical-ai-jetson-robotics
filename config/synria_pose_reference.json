@@ -56,8 +56,14 @@
   },
   "notes": [
     "read_minus_model_deg is the encoder reading at the vendor reference pose; the implied per-joint correction for a model-true display is its negative. The reference pose is itself placed by eye, so these are starting values, not measured zero offsets.",
-    "At the reference pose every joint reads within 2 deg of the model zero, so the -4.0 deg Joint2 visual offset the Isaac record mode uses (chosen by eye on 2026-10-17 with the real gripper touching the table) is not a zero mismatch. It is the pose-dependent gravity sag and gear play under load at the table, which a constant offset only approximates.",
+    "At the reference pose every joint reads within 2 deg of the model zero. The sim display correction is split: Joint2 -1.5 (upright match) and Joint3 -3.35 (table match), see sim_visual_offsets_deg. The remainder beyond the zero readings is pose-dependent gravity sag and gear play under load, which this split approximates between the upright and table poses.",
     "Folded rest exceeds the configured Joint2 recording bound of 96 deg and sits 0.5 deg inside the Joint3 lower bound of -34 deg (config/synria_limits.yaml), which is why takes that start or end at rest fail the limits gate.",
     "Gravity sag and gear play are not separated here; they need the from-above and from-below readings described in the operator runbook."
-  ]
+  ],
+  "sim_visual_offsets_deg": {
+    "what": "Isaac record-mode display offsets locked by the operator on 2026-10-17 after the reference-pose readings; removed from the published sim state so recorded data never carries them.",
+    "Joint2": -1.5,
+    "Joint3": -3.35,
+    "how": "Joint2 stepped with the arm upright at the vendor reference pose (-2.5, -1.5); Joint3 stepped with the real fingertips resting on the table (-2.5, -3.0, -3.15, -3.2, -3.25, -3.35) until the sim fingertips touched too. Replaces the single Joint2 -4.0 of the night before."
+  }
 }
