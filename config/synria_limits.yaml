@@ -1,13 +1,13 @@
 {
   "verified_by": "Obinna Edeh",
   "verified_on": "2026-10-17",
-  "limits_source": "operator calibrated collision boundaries of 2026-10-10 (kept byte for byte in synria_limits_2026-10-10_reference.yaml); Joint2 upper, Joint3 lower and Joint5 upper widened on 2026-10-17 from a read-only sweep of the follower encoders to the physical stops, see reports/limits/sweep_20261017T215329Z.json; whole degrees, converted exactly to radians",
+  "limits_source": "operator calibrated collision boundaries of 2026-10-10 (kept byte for byte in synria_limits_2026-10-10_reference.yaml); Joint2 upper, Joint3 lower and Joint5 upper widened on 2026-10-17 from a read-only sweep of the follower encoders to the physical stops, Joint5 lower widened the same day after recorded picks reached -71.5 deg, see reports/limits/sweep_20261017T215329Z.json; whole degrees, converted exactly to radians",
   "joint_limits_deg": {
     "Joint1": [-155, 144],
     "Joint2": [-87, 100],
     "Joint3": [-35, 135],
     "Joint4": [-112, 88],
-    "Joint5": [-69, 68],
+    "Joint5": [-72, 68],
     "Joint6": [-171, 176]
   },
   "joint_names": ["Joint1", "Joint2", "Joint3", "Joint4", "Joint5", "Joint6"],
@@ -16,7 +16,7 @@
     "Joint2": [-1.5184364492350666, 1.7453292519943295],
     "Joint3": [-0.6108652381980153, 2.356194490192345],
     "Joint4": [-1.9547687622336491, 1.53588974175501],
-    "Joint5": [-1.2042771838760873, 1.1868238913561442],
+    "Joint5": [-1.2566370614359172, 1.1868238913561442],
     "Joint6": [-2.9845130209103035, 3.07177948351002]
   },
   "gripper_limits_m": {

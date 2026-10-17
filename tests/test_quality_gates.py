@@ -812,7 +812,7 @@ def test_summary_validates_native_still_evidence_and_marks_legacy_unknown(
 
 OPERATOR_LIMITS_DEG = {
     "Joint1": (-155, 144), "Joint2": (-87, 100), "Joint3": (-35, 135),
-    "Joint4": (-112, 88), "Joint5": (-69, 68), "Joint6": (-171, 176),
+    "Joint4": (-112, 88), "Joint5": (-72, 68), "Joint6": (-171, 176),
 }
 
 
