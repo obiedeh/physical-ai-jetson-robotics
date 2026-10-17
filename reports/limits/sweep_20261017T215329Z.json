@@ -20,6 +20,15 @@
       "margin_to_measured_stop_deg": 0.99,
       "side": "upper",
       "to_deg": 68
+    },
+    {
+      "decided_utc": "2026-10-17T23:30:00+00:00",
+      "from_deg": -69,
+      "joint": "Joint5",
+      "margin_to_measured_stop_deg": 0.6,
+      "reason": "simulation takes 11 to 13 of session Pick cup, 17 Oct, 3 pitched the wrist to between -70.5 and -71.5 deg during the pick and failed the state_action_limits gate; the measured stop is -72.6 deg",
+      "side": "lower",
+      "to_deg": -72
     }
   ],
   "csv_outside_git": "~/synria-console-logs/limits_sweep_20261017_161733.csv",
@@ -53,7 +62,7 @@
       88
     ],
     "Joint5": [
-      -69,
+      -72,
       68
     ],
     "Joint6": [
@@ -115,7 +124,7 @@
   },
   "method": "The operator jogged every joint to both physical stops with the leader arm while a depth-ten read-only subscriber on the console host logged every follower sample to CSV; no publisher was created. Per-joint minima and maxima over the whole log are the measured stops. The gripper was captured in a second read-only sweep of its own; see gripper_measured_m.",
   "operator": "Obinna Edeh",
-  "pass_rule": "every configured bound, before and after, lies inside the measured stop; Joint3 lower is set 0.4 deg past the static sweep reading because recorded motion on 2026-10-17 reached -35.1 deg at that stop",
+  "pass_rule": "every configured bound, before and after, lies inside the measured stop; Joint3 lower is set 0.4 deg past the static sweep reading because recorded motion on 2026-10-17 reached -35.1 deg at that stop; Joint5 lower is set 0.6 deg inside the measured stop after recorded picks reached -71.5 deg",
   "samples": 106331,
   "started_utc": "2026-10-17T21:17:33.515000+00:00",
   "topic": "/joint_states"
