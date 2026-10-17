@@ -39,6 +39,11 @@ MAX_GAP_S = 0.5                 # a longer silence on any sim topic is not "publ
 RECORD_FLAGS = ("--record-cameras", "--publish-sim-topics")
 TERMINATE_TIMEOUT_S = 10.0
 START_TIMEOUT_S = 240.0
+LAUNCHER_GRACE_S = 15.0         # the launcher prints the Isaac pid within seconds or it failed
+FAILURE_TAIL_LINES = 12
+_ISAAC_PID = re.compile(r"Isaac Sim PID:\s*(\d+)")
+_ISAAC_LOG = re.compile(r"Logs:\s*(\S+)")
+_LOG_PREFIX = re.compile(r"^\S+ \[[\d,]+ms\] \[(\w+)\] \[[^\]]+\] (?:\[py stderr\]: )?")
 DRIVER_PATTERN = "alicia_d_driver_node"
 READ_ONLY_DRIVER_ARGS = ("ros2", "launch", "alicia_d_driver", "alicia_d_driver.launch.py",
                          "joint_commands_enabled:=false", "torque_off_on_start:=false")
@@ -176,6 +181,53 @@ def read_log_markers(pid: int) -> dict[str, Any]:
         markers["scene_loaded"] = markers["scene_loaded"] or "TELEOP MODE:" in text
         markers["topics_started"] = markers["topics_started"] or "SIM TOPICS: publishing" in text
     return markers
+
+
+def pid_suffix(log: Path) -> str:
+    """A short distinct suffix for a launch log name that already exists."""
+    suffix = 1
+    while (log.parent / f"{log.stem}_{suffix}{log.suffix}").exists():
+        suffix += 1
+    return str(suffix)
+
+
+def launch_facts(log: Path) -> dict[str, Any]:
+    """The Isaac pid and Isaac log path the launcher printed, once it has; both None before."""
+    facts: dict[str, Any] = {"isaac_pid": None, "isaac_log": None, "log_exists": False}
+    try:
+        text = log.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return facts
+    facts["log_exists"] = True
+    pid = _ISAAC_PID.search(text)
+    path = _ISAAC_LOG.search(text)
+    facts["isaac_pid"] = int(pid.group(1)) if pid else None
+    facts["isaac_log"] = path.group(1) if path else None
+    return facts
+
+
+def failure_tail(log: Path | None, limit: int = FAILURE_TAIL_LINES) -> list[str]:
+    """The last error lines of an Isaac log, prefixes stripped, so the panel can show why.
+
+    Kit logs every Python traceback line as an [Error] entry; those lines, plus any
+    fatal or crash markers, are kept. An unreadable or missing log gives an empty list.
+    """
+    if log is None:
+        return []
+    try:
+        lines = Path(log).read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return []
+    kept: list[str] = []
+    for line in lines:
+        match = _LOG_PREFIX.match(line)
+        level = match.group(1).lower() if match else ""
+        body = line[match.end():] if match else line
+        if level in {"error", "fatal"} or "Traceback" in body or "Killed" in body:
+            body = body.strip()
+            if body:
+                kept.append(body[:240])
+    return kept[-limit:]
 
 
 class SimTopicMonitor:
@@ -461,13 +513,9 @@ class IsaacSupervisor:
             if healthy:
                 launch = {**launch, "status": "running"}
                 self._write_launch(launch)
-            elif launch_age is not None and launch_age > START_TIMEOUT_S:
-                launch = {**launch, "status": "failed",
-                          "error": f"Isaac did not reach record mode in {int(START_TIMEOUT_S)} s; "
-                                   "see the launch log"}
-                self._write_launch(launch)
             else:
-                starting = True
+                launch = self._watch_launch(launch, launch_age or 0.0, bool(record))
+                starting = launch.get("status") == "starting"
         elif launch and launch.get("status") == "failed" and healthy:
             launch = {**launch, "status": "running", "error": None}
             self._write_launch(launch)
@@ -490,8 +538,12 @@ class IsaacSupervisor:
         same_commit = bool(record) and all(item.commit in (None, current) for item in record)
         if status == "running" and not same_commit:
             label = "Running in record mode on an older teleop commit"
+        failed = launch if launch and launch.get("status") == "failed" else None
         button: dict[str, Any]
-        if status == "not_running":
+        if status == "not_running" and failed:
+            label = "Last launch failed"
+            button = {"action": "start", "label": "Relaunch Isaac record mode", "closes": []}
+        elif status == "not_running":
             button = {"action": "start", "label": "Start Isaac record mode", "closes": []}
         elif status == "other_running":
             button = {"action": "start", "label": "Close running Isaac and start record mode",
@@ -503,7 +555,6 @@ class IsaacSupervisor:
             button = {"action": None, "label": "Starting, please wait", "closes": []}
         else:
             button = {"action": None, "label": "Record mode is up; reusing it", "closes": []}
-        failed = launch if launch and launch.get("status") == "failed" else None
         return {
             "available": self.launcher is not None, "status": status, "label": label,
             "launcher": str(self.launcher) if self.launcher else None, "teleop_commit": current,
@@ -515,8 +566,49 @@ class IsaacSupervisor:
                          "topics": snapshot},
             "driver": self.driver(), "button": button, "can_stop": bool(record),
             "last_launch": launch, "failure": failed.get("error") if failed else None,
+            "failure_detail": list(failed.get("error_detail") or []) if failed else [],
             "launch_log": launch.get("log") if launch else None,
+            "isaac_log": launch.get("isaac_log") if launch else None,
         }
+
+    def _watch_launch(self, launch: dict[str, Any], age_s: float,
+                      record_up: bool) -> dict[str, Any]:
+        """Catch a launch that died instead of waiting the full timeout for it.
+
+        The launcher prints the Isaac pid and the Isaac log path within seconds; both are
+        kept in the launch record. The launch is failed at once when that Isaac process is
+        gone with no record-mode instance in its place, when the launcher itself exited
+        without ever printing a pid, or, as the last resort, when the start timeout
+        passes. A failure carries the last error lines of the Isaac log so the panel can
+        say why, and the button becomes Relaunch.
+        """
+        updated = dict(launch)
+        log = launch.get("log")
+        facts = launch_facts(Path(log)) if log else {"log_exists": False}
+        if launch.get("isaac_pid") is None and facts.get("isaac_pid") is not None:
+            updated["isaac_pid"] = facts["isaac_pid"]
+            updated["isaac_log"] = facts.get("isaac_log")
+        isaac_pid = updated.get("isaac_pid")
+        launcher_pid = launch.get("launch_pid")
+        error = None
+        if record_up:
+            error = None
+        elif isaac_pid is not None and not self._alive(int(isaac_pid)):
+            error = (f"Isaac process {isaac_pid} exited after {int(age_s)} s before reaching "
+                     "record mode; see the Isaac log")
+        elif (isaac_pid is None and facts.get("log_exists") and launcher_pid is not None
+              and not self._alive(int(launcher_pid)) and age_s > LAUNCHER_GRACE_S):
+            error = (f"The launcher exited after {int(age_s)} s without starting Isaac; "
+                     "see the launch log")
+        if error is None and age_s > START_TIMEOUT_S:
+            error = (f"Isaac did not reach record mode in {int(START_TIMEOUT_S)} s; "
+                     "see the launch log")
+        if error is not None:
+            detail = failure_tail(updated.get("isaac_log"))
+            updated.update({"status": "failed", "error": error, "error_detail": detail})
+        if updated != launch:
+            self._write_launch(updated)
+        return updated
 
     def _topics_snapshot(self, record_up: bool) -> dict[str, Any] | None:
         """Rates of the sim topics: the injected probe in tests, else the background monitor."""
@@ -545,12 +637,17 @@ class IsaacSupervisor:
         if current["status"] == "running" and current["button"]["action"] is None:
             return {**current, "reused": True}
         closed = self._terminate([IsaacProcess(**item) for item in current["button"]["closes"]])
-        stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        started = self._clock()
+        started_utc = datetime.fromtimestamp(started, timezone.utc)
+        stamp = started_utc.strftime("%Y%m%d_%H%M%S")
         log = self.log_dir / f"isaac_record_{stamp}.log"
+        if log.exists():
+            # A relaunch within the same second must not read the previous launch's pid line.
+            log = self.log_dir / f"isaac_record_{stamp}_{pid_suffix(log)}.log"
         env = {**os.environ, "SKIP_DRIVER": "1"}
         pid = self._spawn([str(self.launcher), "record"], env, log, self.launcher.parent.parent)
-        self._write_launch({"status": "starting", "launch_pid": pid, "started_at": self._clock(),
-                            "started_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        self._write_launch({"status": "starting", "launch_pid": pid, "started_at": started,
+                            "started_utc": started_utc.isoformat(timespec="seconds"),
                             "commit": self._commit(self.launcher), "log": str(log),
                             "closed": closed})
         return {**self.state(), "closed": closed, "launch_pid": pid, "reused": False}

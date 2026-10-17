@@ -57,8 +57,12 @@
     const stop = document.getElementById("isaac-stop"); stop.hidden = !isaac.can_stop; stop.disabled = busy;
     const note = document.getElementById("isaac-note");
     note.textContent = !isaac.available ? "Launcher path is not configured: set SYNRIA_ISAAC_LAUNCHER or isaac_launcher.json in the workspace."
-      : isaac.failure ? `Last launch failed: ${isaac.failure}. Log: ${isaac.launch_log || "unknown"}`
+      : isaac.failure ? `Last launch failed: ${isaac.failure}. Launch log: ${isaac.launch_log || "unknown"}. Isaac log: ${isaac.isaac_log || "unknown"}. Press Relaunch once the cause is fixed.`
       : isaac.status === "running" ? `Teleop commit ${isaac.teleop_commit}. The setup check runs by itself.` : "";
+    const detail = document.getElementById("isaac-failure-detail");
+    const lines = (isaac.failure && isaac.failure_detail) || [];
+    detail.hidden = lines.length === 0;
+    detail.textContent = lines.join("\n");
   }
 
   /** Fetch and draw; once the state is running, run the setup check by itself one time. */
