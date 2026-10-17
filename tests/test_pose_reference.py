@@ -14,7 +14,8 @@ def test_pose_reference_is_well_formed_and_attributed() -> None:
     """Every pose carries six joint readings in degrees, and the file says who read them."""
     payload = json.loads(REFERENCE.read_text(encoding="utf-8"))
     assert payload["measured_by"].strip() and payload["measured_on"]
-    assert tuple(payload["joint_names"]) == tuple(load_limits(Path("config/synria_limits.yaml")).joint_names)
+    limits = load_limits(Path("config/synria_limits.yaml"))
+    assert tuple(payload["joint_names"]) == tuple(limits.joint_names)
     for pose in payload["poses"].values():
         assert len(pose["read_angles_deg"]) == 6
         assert all(isinstance(value, float) for value in pose["read_angles_deg"])
