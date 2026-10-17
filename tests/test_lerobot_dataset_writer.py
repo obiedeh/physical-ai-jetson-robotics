@@ -241,7 +241,7 @@ def test_smoke_uses_nonexisting_child_path(monkeypatch: pytest.MonkeyPatch) -> N
         assert config.contract.recording_purpose == "disposable_smoke"
         assert config.contract.task_definition.min_episode_s is None
         assert config.contract.task_definition.max_episode_s is None
-        assert config.min_episode_s == config.max_episode_s == config.hard_cap_s == 20
+        assert config.min_episode_s == config.max_episode_s == config.hard_cap_s == 30
         return SimpleNamespace(finalize=lambda: None)
 
     monkeypatch.setattr(recorder, "LeRobotDatasetWriter", fake_writer)
@@ -296,7 +296,7 @@ def test_real_disposable_dataset_preserves_registry_identity_across_resume(
     payload = json.loads((config.dataset_path / "physical_contract.json").read_text())
     assert payload["task_definition"] == task.as_dict()
     assert payload["task_definition_sha256"] == task.sha256
-    assert payload["min_episode_s"] == payload["max_episode_s"] == 20
+    assert payload["min_episode_s"] == payload["max_episode_s"] == 30
     for name in (
         "physical_episode_metadata", "physical_quality_records", "physical_capture_provenance",
     ):

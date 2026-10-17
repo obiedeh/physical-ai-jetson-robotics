@@ -498,7 +498,7 @@ def test_smoke_is_diagnosed_but_never_qualifies_or_affects_demo_success(
         provenance={**_provenance("leader"),
                     **task.metadata("disposable_smoke")},
         episodes=[replace(_baseline_episode(), smoke=True, task_definition=task)], limits=limits,
-        gate_config=GateConfig(min_episode_s=20, max_episode_s=20),
+        gate_config=GateConfig(min_episode_s=30, max_episode_s=30),
     )
     assert summary["recorded_episode_count"] == 1
     assert summary["smoke_episode_count"] == 1
@@ -540,7 +540,7 @@ def test_aggregate_refuses_smoke_counts_tampering(tmp_path: Path, field: str) ->
         session_dir=data / "smoke", dataset_path=dataset,
         provenance={**_provenance("leader"), **task.metadata("disposable_smoke")},
         episodes=[replace(_baseline_episode(), smoke=True)], limits=load_limits(LIMITS_PATH),
-        gate_config=GateConfig(min_episode_s=20, max_episode_s=20),
+        gate_config=GateConfig(min_episode_s=30, max_episode_s=30),
     )
     summary[field] = [0] if field in {"episode_indices", "operator_labels"} else 1
     (data / "smoke" / "session_summary.json").write_text(json.dumps(summary))

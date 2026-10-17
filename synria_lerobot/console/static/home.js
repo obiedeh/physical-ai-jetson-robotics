@@ -85,7 +85,7 @@
     } else if (demo) {
       out.push({kind:"disabled", title:"Practice run", text:"Not available in demo mode.", verb:"Start a practice run"});
     } else {
-      out.push({kind:"link", title:"Practice run", text:"20 seconds, not kept. Choose the task, then pick the practice run on Check setup.", verb:"Start a practice run", route:r.wizard("task")});
+      out.push({kind:"link", title:"Practice run", text:"A short timed take, not kept. Choose the task, then pick the practice run on Check setup.", verb:"Start a practice run", route:r.wizard("task")});
     }
     const takes = list.some(s => !["trashed", "purged"].includes(s.status) && (s.counts?.saved ?? 0) > 0);
     out.push(takes ? {kind:"link", title:"Review recordings", text:"Watch saved takes frame by frame.", verb:"Open review", route:r.sessions()}

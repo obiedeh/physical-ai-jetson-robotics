@@ -109,8 +109,8 @@ assert.equal(record.NAMES.front, "Overhead camera");
 view = record.describe({...base, recording_purpose: "disposable_smoke", smoke_complete: true, last_episode: saved,
   counters: {saved: 1, success: 1, failure: 0, discarded: 0}, controls: {}}, active);
 assert.equal(view.phase, "practice-finished");
-assert.equal(view.message, "The take is not kept. Finish to run another or to start a real session.");
-assert.equal(labels(view), "Finish practice run");
+assert.equal(view.message, "The take is not kept. Run another with the same setup, or finish to start a real session.");
+assert.equal(labels(view), "Run another practice run|Finish practice run");
 assert.equal(view.counters, "Saved 1 (1 success, 0 failure) · Practice run, not counted");
 assert.equal(view.reasons.start, "Practice run finished");
 

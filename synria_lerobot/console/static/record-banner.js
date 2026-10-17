@@ -34,7 +34,8 @@
   const LABELS = {
     start: "Start recording (Space)", stop: "Stop (Space)", cancel_countdown: "Cancel countdown",
     success: "Yes, save as success (S)", failure: "No, save as failure (F)", retry: "Retry save",
-    discard: "Throw away, bad capture", close: "Finish practice run",
+    discard: "Throw away, bad capture", redo: "Run another practice run",
+    close: "Finish practice run",
   };
 
   /** Say how many quality checks passed and name the failed ones in plain words. */
@@ -135,8 +136,8 @@
       }
     } else if (c.recording_purpose === "disposable_smoke" && c.smoke_complete) {
       view.phase = "practice-finished"; view.headline = "Practice run finished";
-      view.message = "The take is not kept. Finish to run another or to start a real session.";
-      reasons.start = "Practice run finished"; act("close");
+      view.message = "The take is not kept. Run another with the same setup, or finish to start a real session.";
+      reasons.start = "Practice run finished"; act("redo", "close");
     } else if (options.showSaved && c.last_episode) {
       view.phase = "saved"; view.headline = "Saved"; view.betweenTakes = true;
       view.message = savedSentence(c.last_episode, demo);

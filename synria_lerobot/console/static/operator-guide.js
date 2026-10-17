@@ -49,7 +49,7 @@ const SynriaGuide = (() => {
     timing: {title:"Register the real task window", summary:"This task has no timed take window yet, so its takes cannot count toward the dataset.", steps:[
       "Time the actual task under the approved physical procedure; do not infer duration from a software test.",
       "Prospectively record observations, chosen minimum/maximum, rationale, operator and date in DECISIONS.md. Update that task in config/synria_tasks.json through reviewed repository changes.",
-      "The console cannot set or override this window. A 20 second practice run is separate, never counts, and still needs identity, safety and the setup check."], doc:"decisions"},
+      "The console cannot set or override this window. A practice run is separate, never counts, and still needs identity, safety and the setup check."], doc:"decisions"},
     limits: {title:"Verify the physical limits", summary:"Candidate ranges are present, but the file is explicitly unverified, so takes cannot count toward the dataset.", steps:[
       "Open config/synria_limits.yaml below to inspect the six candidate arm-joint ranges and the gripper stroke ranges used by the recorder's quality gate.",
       "The Alicia-D checkout documents a Joint5 soft cap for its Isaac ghost-arm path and self-collision margins/spheres for that simulation. Those are not, by themselves, verified physical-arm limits or a collision check used by this recorder; do not copy simulation collision geometry into the scalar joint-range file.",
@@ -263,7 +263,7 @@ const SynriaGuide = (() => {
     $("new-form").addEventListener("change", update);
     $("readiness-confirmations").addEventListener("change", update);
     const smokeAction = $("smoke").onclick;
-    $("smoke").onclick = event => {if (confirm("Start a 20 second practice run? It opens the cameras and arm feed, records one take and throws it away afterwards. Check safety and framing first.")) smokeAction(event);};
+    $("smoke").onclick = event => {if (confirm("Start a practice run? It opens the cameras and arm feed, records one take and throws it away afterwards. Check safety and framing first.")) smokeAction(event);};
     SynriaWizard.initialize();
     try {
       metadata = await api("operator-guide");

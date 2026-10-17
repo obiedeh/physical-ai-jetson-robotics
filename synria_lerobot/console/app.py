@@ -59,12 +59,14 @@ from synria_lerobot.task_planner import (
     validate_breakdown,
 )
 from synria_lerobot.task_registry import (
+    DEFAULT_SMOKE_WINDOW_S,
     LIBRARY_SNAPSHOT_VERSION,
     TaskDefinition,
     is_library_task_id,
     library_snapshot_fields,
     load_task_registry,
     load_task_source,
+    validate_smoke_window,
 )
 
 REPOSITORY = Path(__file__).resolve().parents[2]
@@ -288,10 +290,13 @@ class ConsoleService:
             "wrist_camera", "front_camera", "guard_command_topic", "state_has_velocity",
             "leader_topic", "state_startup_timeout_s", "operator", "follower_serial",
             "leader_serial", "scene", "power_state_start", "target_episodes", "notes",
-            "follower_usb_id", "arm_checked",
+            "follower_usb_id", "arm_checked", "practice_seconds",
         }
         if set(payload) - allowed:
             raise ValueError("unknown session settings; paths and task windows are server-owned")
+        if "practice_seconds" in payload and not smoke:
+            raise ValueError("practice run length applies to practice runs only; session take "
+                             "windows are registered with the task")
         required = ["name", "task_id", "gripper_type", "fps", "operator", "scene"]
         if not self.demo and not self.simulation:
             required += ["state_source", "wrist_camera", "front_camera"]
@@ -340,6 +345,9 @@ class ConsoleService:
         timeout = settings["state_startup_timeout_s"]
         if isinstance(timeout, bool) or not math.isfinite(timeout) or timeout <= 0:
             raise ValueError("state startup wait must be positive and finite")
+        if smoke:
+            settings["practice_seconds"] = validate_smoke_window(
+                payload.get("practice_seconds", DEFAULT_SMOKE_WINDOW_S))
         if not isinstance(settings["guard_command_topic"], list):
             raise ValueError("guarded topics must be a list of absolute topic names")
         self._config(settings, "local/console-validation", self.workspace / "validation", smoke)

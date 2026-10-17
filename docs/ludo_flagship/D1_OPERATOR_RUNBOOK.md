@@ -12,7 +12,8 @@ the [three fixed-scene tasks](../../config/synria_tasks.json), not token moves.
 The operator must time each task and record the chosen window in
 [DECISIONS.md](DECISIONS.md) before configuring it. All real task windows are
 currently unset. Qualifying recording refuses an unset window; only explicitly
-disposable smoke may use its separate 20-second window before timing is configured.
+disposable smoke may use its separate practice window (30 seconds unless set with
+`--practice-seconds`, 5 to 120) before timing is configured.
 Select the task before starting the recorder; it loads instruction, scene requirements,
 success rule and window from the registry, not from command-line text or duration overrides.
 
@@ -232,14 +233,15 @@ python -m synria_lerobot.recorder \
   --fps "$FPS"
 ```
 
-Enter `start`, teleoperate for 20 seconds until the automatic cap stops capture,
+Enter `start`, teleoperate for the practice length (30 seconds unless
+`--practice-seconds` says otherwise) until the automatic cap stops capture,
 then enter `success` or `failure` under the protocol rules. After one saved
 episode, the process finalizes and exits. Its temporary dataset and still are
 deleted on exit and never count toward D1. Smoke checks the write path; there
 is no live preview or automatic quality-gate report, and no retained visual
 evidence from its deleted still. Resolve failures, then review retained data.
 Its contract and every sidecar record `recording_purpose=disposable_smoke` plus
-an explicit 20/20-second window override. The original selected registry snapshot
+an explicit practice-length window override. The original selected registry snapshot
 and hash remain unchanged, including null operator timing. This override is not
 an operator measurement. Smoke cannot resume into qualifying data, contribute to
 counts, or supply a training/evaluation motion contract.
