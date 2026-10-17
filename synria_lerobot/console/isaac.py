@@ -31,8 +31,9 @@ LAUNCHER_FILE = "isaac_launcher.json"
 LAUNCHER_NAME = "run_alicia_stack.sh"
 STATE_FILE = "isaac_record_launch.json"
 SIM_STATE_TOPIC = "/isaac_joint_states"
+# The recorded trio; the sim's side view is a page preview and is not part of record-mode health.
 SIM_TOPICS = {"state": SIM_STATE_TOPIC, "wrist": "/isaac/wrist_camera/image_raw",
-              "front": "/isaac/front_camera/image_raw"}
+              "front": "/isaac/overhead_camera/image_raw"}
 RATE_WINDOW_S = 3.0
 HEALTHY_RATE_HZ = 13.5          # 15 Hz requested; a skipped render frame now and then is tolerated
 MAX_GAP_S = 0.5                 # a longer silence on any sim topic is not "publishing steadily"

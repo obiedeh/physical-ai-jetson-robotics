@@ -206,3 +206,74 @@ def test_practice_run_and_open_session_wait_for_isaac_in_operator_words(tmp_path
         session = service.create_session({**values(), "fps": 15, "arm_checked": True})
         with pytest.raises(ValueError, match="Start Isaac record mode"):
             service.open_session(session["id"])
+
+
+def test_simulation_shows_the_side_view_as_a_preview_that_is_never_recorded(tmp_path: Path) -> None:
+    """In simulation an open session carries a preview-only scene source; physical mode has none."""
+    pytest.importorskip("cv2")
+    from dataclasses import replace
+
+    from test_console_isaac import RECORD, Fakes, proc, supervisor
+    from test_console_smoke_report import ArrayFrameSource, ClockStateSource
+    from test_physical_recorder import FakeClock, FakeWriter
+
+    from synria_lerobot.physical_contract import ImageFrame
+
+    clock = FakeClock()
+
+    class FakeScene:
+        """The side view subscriber: one frame on demand, closed with the session."""
+
+        def __init__(self, topic: str) -> None:
+            self.topic = topic
+            self.closed = False
+
+        def read(self) -> ImageFrame:
+            return ImageFrame(np.full((8, 8, 3), 90, dtype=np.uint8), clock(),
+                              native_resolution=(8, 8), source_id=self.topic)
+
+        def close(self) -> None:
+            self.closed = True
+
+    scenes: list[FakeScene] = []
+
+    def scene_source(topic: str) -> FakeScene:
+        scenes.append(FakeScene(topic))
+        return scenes[-1]
+
+    @contextmanager
+    def fake_builder(args: argparse.Namespace, **kwargs: Any) -> Any:
+        """Synthetic sim sources behind the real simulation contract."""
+        config = replace(recorder.recording_config_from_args(
+            args, simulation=True, dataset_path=tmp_path / "practice" / "dataset",
+        ), state_source_provenance=None)
+        capture = recorder.PhysicalEpisodeRecorder(
+            config=config, state_source=ClockStateSource(clock),
+            action_source=recorder.LeaderActionSource(ClockStateSource(clock)),
+            wrist_source=ArrayFrameSource("wrist", clock),
+            front_source=ArrayFrameSource("front", clock),
+            writer=FakeWriter(tmp_path), clock=clock,
+        )
+        try:
+            yield capture
+        finally:
+            capture.close()
+
+    ready = {101: {"commit": "abc1234", "scene_loaded": True, "topics_started": True}}
+    running = supervisor(tmp_path, Fakes([proc(101, RECORD)], rate=15.2, markers=ready))
+    registry = synthetic_registry(tmp_path / "tasks.json", 4, 40)
+    with ConsoleFixture(tmp_path / "ws", simulation=True, registry=registry, isaac=running,
+                        builder=fake_builder, clock=clock, scene_source=scene_source) as service:
+        with pytest.raises(RuntimeError, match="no scene preview is open"):
+            service.media(["preview", "scene"], {})
+        service.mutate(["smoke"], {**values(), "fps": 15, "arm_checked": True})
+        assert service.state()["scene_preview"] is True
+        assert [scene.topic for scene in scenes] == [SIM_TOPICS["scene"]]
+        assert SIM_TOPICS["scene"] not in (SIM_TOPICS["wrist"], SIM_TOPICS["front"])
+        jpeg = service.media(["preview", "scene"], {})
+        assert jpeg[:2] == b"\xff\xd8"
+        service.close_session()
+        assert scenes[0].closed and service.state()["scene_preview"] is False
+    with ConsoleFixture(tmp_path / "physical", registry=registry,
+                        scene_source=scene_source) as physical:
+        assert physical.state()["scene_preview"] is False

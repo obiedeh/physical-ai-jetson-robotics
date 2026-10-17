@@ -41,10 +41,16 @@ require an already prepared recording/ROS environment.
 
 `synria-teleop-console --simulation` (or `python -m synria_lerobot.console.app
 --simulation`) records from the Isaac Sim teleop scene instead of the arm: the
-state source is `/isaac_joint_states` and the cameras are the two `/isaac`
-image topics, all published by the scene's record mode at twice the dataset
-rate, as the real cameras and arm outrun it, so the newest sim sample is never
-a whole dataset period older than the leader reading taken with it.
+state source is `/isaac_joint_states` and the two recorded cameras are the
+sim's wrist camera and its overhead camera (`/isaac/wrist_camera/image_raw`
+and `/isaac/overhead_camera/image_raw`), the same two views as the physical
+rig, all published by the scene's record mode at twice the dataset rate, as
+the real cameras and arm outrun it, so the newest sim sample is never a whole
+dataset period older than the leader reading taken with it. The sim's side-on
+front camera (`/isaac/front_camera/image_raw`) appears on the record page as a
+third panel, Front view, marked preview only: the console subscribes to it
+while a session is open so the operator can see the arm and the objects, and
+it is never recorded or counted by any check.
 The page shows an Isaac record mode panel with one fixed button. The launcher
 path comes from `SYNRIA_ISAAC_LAUNCHER` or `isaac_launcher.json` in the
 workspace, never from the page. The panel polls the launch it started: while

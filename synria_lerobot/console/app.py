@@ -81,6 +81,13 @@ GUIDE_DOCUMENTS = {
 }
 
 
+def _scene_preview_source(topic: str) -> Any:
+    """A read-only subscriber for the sim's side view, shown on the page and never recorded."""
+    from synria_lerobot.recorder import RosImageFrameSource
+
+    return RosImageFrameSource(topic, node_name="synria_console_scene_preview")
+
+
 def _joint_state_source(topic: str) -> Any:
     """The recorder's own read-only joint-state subscriber, for timing on the bench."""
     from synria_lerobot.recorder import RosJointStateSource
@@ -211,8 +218,13 @@ class ConsoleService:
         isaac: IsaacSupervisor | None = None,
         timing_source_factory: Callable[[str], Any] | None = None,
         timing_poll_s: float = 0.02,
+        scene_source: Callable[[str], Any] = _scene_preview_source,
     ) -> None:
-        """Inject fake builders or clocks while retaining the production construction path."""
+        """Inject fake builders or clocks while retaining the production construction path.
+
+        ``scene_source`` builds the simulation's preview-only side view subscriber; tests
+        pass a fake so no ROS context is needed.
+        """
         resolved = workspace.resolve()
         broad = {Path(resolved.anchor), Path.home().resolve(), Path.cwd().resolve()}
         if (workspace.is_symlink() or resolved in broad or resolved == REPOSITORY
@@ -234,6 +246,8 @@ class ConsoleService:
         self.registry = registry
         self.min_free_bytes = min_free_bytes
         self.builder = builder
+        self._scene_source = scene_source
+        self._scene_preview: Any = None
         self.controller_factory = controller_factory
         self.clock = clock
         self.playback = playback or EpisodePlayback()
@@ -676,6 +690,13 @@ class ConsoleService:
                 self.catalog.end_capture_run(refused_run, f"preflight refused: {error}")
             raise
         self._context, self._recorder, self._active = context, recorder, session
+        if self.simulation:
+            # The side view is for the operator's eyes only: its failure never blocks a session.
+            try:
+                self._scene_preview = self._scene_source(SIM_TOPICS["scene"])
+            except Exception as error:  # noqa: BLE001
+                self._scene_preview = None
+                self.catalog.record_event(None, "scene_preview_unavailable", {"error": str(error)})
         if smoke:
             session["dataset_path"] = str(recorder.config.dataset_path)
         try:
@@ -758,6 +779,10 @@ class ConsoleService:
                     attempt(lambda: self.catalog.record_event(
                         identity, "capture_cleanup_failed", {"errors": list(errors)},
                     ))
+            scene = self._scene_preview
+            if scene is not None:
+                attempt(scene.close)
+            self._scene_preview = None
             self.controller = None
             self._context = self._recorder = self._active = None
             self._run_id = None
@@ -816,6 +841,7 @@ class ConsoleService:
             "demo": self.demo, "simulation": self.simulation, "source_kind": self.source_kind,
             "token_required": self.token_required,
             "active_session": active, "capture": status,
+            "scene_preview": self._scene_preview is not None,
             "preflight": self._preflight,
             "free_disk_bytes": shutil.disk_usage(self.workspace).free,
             "min_free_bytes": self.min_free_bytes,
@@ -1125,6 +1151,12 @@ class ConsoleService:
                 raise RuntimeError("no session is open")
             frame = controller.preview_frame(route[1])
             return encode_rgb(frame.data)
+        if route == ["preview", "scene"]:
+            scene = self._scene_preview
+            if scene is None:
+                raise RuntimeError("no scene preview is open; it exists in simulation while a "
+                                   "session is open")
+            return encode_rgb(scene.read().data)
         if len(route) == 2 and route[0] == "readiness" and route[1] in {"wrist", "front"}:
             # The sample the last setup check already read; no camera is opened here.
             return encode_rgb(self.readiness.thumbnails[route[1]])
