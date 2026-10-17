@@ -208,6 +208,9 @@ async function refreshState() {
   const follower=c.follower||c.state_source||{}, values=follower.values||follower.positions||c.joint_state;
   if(Array.isArray(values)){live.push({state:values.slice(0,7)});live=live.slice(-100);$("joint-values").textContent=values.slice(0,7).map((v,i)=>`${i===6?"Gripper":"J"+(i+1)}: ${v.toFixed(4)}`).join("  ")+` · incoming ${follower.rate_hz??"synthetic"} Hz · age ${(follower.age_s||0).toFixed(3)} s${follower.stale?" · STALE":""}`;trace($("live-trace"),live);}else if(follower.error){$("joint-values").textContent=follower.error;}
   for(const camera of ["wrist","front"]){const info=c.cameras?.[camera]||{};const stale=Boolean(info.error)||(info.age_s??0)>0.2;$(camera+"-brief").textContent=window.SynriaRecord.cameraBrief(info);$(camera+"-source").textContent=JSON.stringify(info,null,2);$(camera+"-preview").closest("figure").classList.toggle("stale",stale);const warning=$(camera+"-health");warning.hidden=!active||!stale;warning.textContent=info.error?`No frames: ${info.error}`:"Frames are stale";document.querySelector(`[data-live=${camera}]`).hidden=!active||stale;if(active&&!$("record").hidden)$(camera+"-preview").src=`/media/preview/${camera}?v=${Date.now()}`;}
+  // Simulation only: the side view is shown for the operator and never recorded.
+  const sceneOn=Boolean(active&&state.scene_preview);$("scene-figure").hidden=!sceneOn;
+  if(sceneOn&&!$("record").hidden)$("scene-preview").src=`/media/preview/scene?v=${Date.now()}`;
   const cue=recording?(elapsed>=max-2?"cap":elapsed>=min?"minimum":"start"):c.last_episode?`saved-${c.last_episode.episode_index}`:"";
   if(cue&&cue!==lastCue){tone();lastCue=cue;}lastCapture=c.state;
   renderFlowNav();

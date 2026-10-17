@@ -30,8 +30,12 @@ ARM_CHECK_MISSING = "Tick the box to confirm you have checked the arm"
 SIMULATION_CONFIRMATIONS = {"arm_checked": ARM_CHECK_STATEMENT}
 ISAAC_RECORD_HELP = ("Isaac record mode is not running. Press Start Isaac record mode above and "
                      "wait for Running; the checks then run by themselves.")
+# The recorded sim views match the physical rig: the wrist camera and the overhead camera
+# (the recorder's "front" slot). The sim's side-on front view is published for the operator's
+# page only and is never recorded.
 SIM_TOPICS = {"state": "/isaac_joint_states", "wrist": "/isaac/wrist_camera/image_raw",
-              "front": "/isaac/front_camera/image_raw", "action": "/joint_states"}
+              "front": "/isaac/overhead_camera/image_raw", "action": "/joint_states",
+              "scene": "/isaac/front_camera/image_raw"}
 CONFIRMATIONS = {
     "secured": "Arm secured, workspace clear and emergency stop within reach",
     "read_only": "Existing state source has writes disabled and startup leaves torque unchanged",
