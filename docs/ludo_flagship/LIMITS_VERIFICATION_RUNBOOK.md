@@ -79,24 +79,35 @@ same tolerance of the configured stroke.
 
 ## Results
 
-Fill this table from the JSON report. Leave it blank until measured.
+Measured on 2026-10-17 by a read-only sweep, not yet by `verify_limits.py`:
+the operator jogged every joint to both stops while a subscriber on the console
+host logged every follower sample (106331 samples over
+36 minutes). Minima and maxima are the measured stops. The
+yaml columns show the file as it was before the sweep; the pass rule is the one
+above. Report: `reports/limits/sweep_20261017T215329Z.json`.
 
 | joint | yaml min (deg) | yaml max (deg) | measured min (deg) | measured max (deg) | delta min | delta max | pass/fail |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Joint1 | -155 | 144 | | | | | |
-| Joint2 | -87 | 96 | | | | | |
-| Joint3 | -34 | 135 | | | | | |
-| Joint4 | -112 | 88 | | | | | |
-| Joint5 | -69 | 65 | | | | | |
-| Joint6 | -171 | 176 | | | | | |
+| Joint1 | -155 | 144 | -157.32 | 156.27 | -2.3 | 12.3 | pass |
+| Joint2 | -87 | 96 | -102.13 | 101.16 | -15.1 | 5.2 | pass |
+| Joint3 | -34 | 135 | -34.63 | 139.39 | -0.6 | 4.4 | pass |
+| Joint4 | -112 | 88 | -159.08 | 160.75 | -47.1 | 72.8 | pass |
+| Joint5 | -69 | 65 | -72.6 | 68.99 | -3.6 | 4.0 | pass |
+| Joint6 | -171 | 176 | -179.82 | 179.65 | -8.8 | 3.7 | pass |
 
 | gripper | yaml min (m) | yaml max (m) | measured closed (m) | measured open (m) | delta closed | delta open | pass/fail |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 50mm | 0.000 | 0.025 | | | | | |
+| 50mm | 0.000 | 0.025 | 0.000 | not captured | | | open not captured, unmeasured |
 | 100mm | 0.000 | 0.050 | | | | | not installed, unmeasured |
 
-Report file: `reports/limits/verification_<timestamp>.json` (none yet).
-Limits file stamped: no.
+After the sweep the operator widened three sides, each kept inside its measured
+stop: Joint2 upper 96 to 100 (stop 101.2; the folded rest reads 100.3), Joint3
+lower -34 to -35 (static stop -34.6, recorded motion reached -35.1), Joint5
+upper 65 to 68 (stop 69.0). The pre-sweep file is kept byte for byte as
+`config/synria_limits_2026-10-10_reference.yaml`; the working file is
+`config/synria_limits.yaml` with `verified_on` 2026-10-17. A
+`verify_limits.py` run with the interactive marks and the gripper fully open
+is still open and would be the formal stamp.
 
 ## If a joint fails
 

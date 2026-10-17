@@ -505,7 +505,7 @@ def test_source_fault_during_alignment_window_is_not_ready(
         session.close()
 
 
-@pytest.mark.parametrize(("joint3_deg", "expected"), [(-34.37, True), (-35.5, False)])
+@pytest.mark.parametrize(("joint3_deg", "expected"), [(-35.37, True), (-36.5, False)])
 def test_follower_sample_uses_recording_tolerance_on_joints(
     tmp_path: Path, fake_connections: None, joint3_deg: float, expected: bool,
 ) -> None:
@@ -530,8 +530,8 @@ def test_follower_sample_uses_recording_tolerance_on_joints(
         assert report.checks["follower_sample"]["passed"] is expected
         if not expected:
             message = report.checks["follower_sample"]["message"]
-            assert message.startswith("Arm is beyond a recording limit: Joint3 at -35.5 deg is "
-                                      "below its -35 deg recording bound.")
+            assert message.startswith("Arm is beyond a recording limit: Joint3 at -36.5 deg is "
+                                      "below its -36 deg recording bound.")
             assert "Move the arm to an upright position" in message
             assert "operator joint or gripper limits" in message
         session.close()
@@ -546,14 +546,14 @@ def test_limit_violations_name_each_joint_and_the_gripper() -> None:
     limits = load_limits(app.REPOSITORY / "config/synria_limits.yaml")
     parked = (0.0, math.radians(101.3), math.radians(-33.7), 0.0, 0.0, 0.0, 0.0001)
     assert limit_violations(parked, limits, "50mm") == [
-        "Joint2 at 101.3 deg is above its 97 deg recording bound"]
+        "Joint2 at 101.3 deg is above its 101 deg recording bound"]
     assert limit_violations((0.0,) * 6 + (-0.0005,), limits, "50mm") == [
         "Gripper at -0.5 mm is outside 0 to 25 mm"]
     assert limit_violations((0.0,) * 7, limits, "50mm") == []
     assert limit_violations((0.0,) * 6, limits, "50mm") == [
         "expected 6 joints and a gripper, got 6 values"]
     assert limits_pose_message(parked, limits, "50mm").startswith(
-        "Arm is beyond a recording limit: Joint2 at 101.3 deg is above its 97 deg recording "
+        "Arm is beyond a recording limit: Joint2 at 101.3 deg is above its 101 deg recording "
         "bound. The arm is probably at its folded rest position.")
 
 

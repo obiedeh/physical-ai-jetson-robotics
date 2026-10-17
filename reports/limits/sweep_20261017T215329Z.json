@@ -1,0 +1,118 @@
+{
+  "changes": [
+    {
+      "from_deg": 96,
+      "joint": "Joint2",
+      "margin_to_measured_stop_deg": 1.16,
+      "side": "upper",
+      "to_deg": 100
+    },
+    {
+      "from_deg": -34,
+      "joint": "Joint3",
+      "margin_to_measured_stop_deg": -0.37,
+      "side": "lower",
+      "to_deg": -35
+    },
+    {
+      "from_deg": 65,
+      "joint": "Joint5",
+      "margin_to_measured_stop_deg": 0.99,
+      "side": "upper",
+      "to_deg": 68
+    }
+  ],
+  "csv_outside_git": "~/synria-console-logs/limits_sweep_20261017_161733.csv",
+  "ended_utc": "2026-10-17T21:53:29.960000+00:00",
+  "git_sha": "34a82cef58fae86fc753e73aa7772635e36f8edb",
+  "gripper_measured_m": {
+    "max": 0.01015,
+    "min": 3e-05,
+    "note": "open not captured; the 50mm stroke of 0.025 m stays unverified by this sweep"
+  },
+  "kind": "read_only_sweep",
+  "limits_after_deg": {
+    "Joint1": [
+      -155,
+      144
+    ],
+    "Joint2": [
+      -87,
+      100
+    ],
+    "Joint3": [
+      -35,
+      135
+    ],
+    "Joint4": [
+      -112,
+      88
+    ],
+    "Joint5": [
+      -69,
+      68
+    ],
+    "Joint6": [
+      -171,
+      176
+    ]
+  },
+  "limits_before_deg": {
+    "Joint1": [
+      -155,
+      144
+    ],
+    "Joint2": [
+      -87,
+      96
+    ],
+    "Joint3": [
+      -34,
+      135
+    ],
+    "Joint4": [
+      -112,
+      88
+    ],
+    "Joint5": [
+      -69,
+      65
+    ],
+    "Joint6": [
+      -171,
+      176
+    ]
+  },
+  "measured_stops_deg": {
+    "Joint1": {
+      "max": 156.27,
+      "min": -157.32
+    },
+    "Joint2": {
+      "max": 101.16,
+      "min": -102.13
+    },
+    "Joint3": {
+      "max": 139.39,
+      "min": -34.63
+    },
+    "Joint4": {
+      "max": 160.75,
+      "min": -159.08
+    },
+    "Joint5": {
+      "max": 68.99,
+      "min": -72.6
+    },
+    "Joint6": {
+      "max": 179.65,
+      "min": -179.82
+    }
+  },
+  "method": "The operator jogged every joint to both physical stops with the leader arm while a depth-ten read-only subscriber on the console host logged every follower sample to CSV; no publisher was created. Per-joint minima and maxima over the whole log are the measured stops. The gripper was not fully opened during the sweep, so its open reading is not a stop.",
+  "operator": "Obinna Edeh",
+  "pass_rule": "every configured bound, before and after, lies inside the measured stop; Joint3 lower is set 0.4 deg past the static sweep reading because recorded motion on 2026-10-17 reached -35.1 deg at that stop",
+  "samples": 106331,
+  "started_utc": "2026-10-17T21:17:33.515000+00:00",
+  "topic": "/joint_states"
+}

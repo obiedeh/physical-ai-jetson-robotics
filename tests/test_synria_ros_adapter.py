@@ -1183,15 +1183,16 @@ def test_command_path_keeps_exact_limits_without_recording_tolerance(setup: Any)
     content["recording_tolerance_deg"] = 1.0
     limits_path.write_text(json.dumps(content))
     exact_upper = content["joint_limits_rad"]["Joint5"][1]
-    # 1.12 rad sits inside every joint's exact range and 0.0145 rad below Joint5's upper bound.
-    setup.sources.position = 1.12
+    # Start 0.0145 rad below Joint5's exact upper bound, inside every joint's exact range, so
+    # the bound binds before the per-cycle delta limit does.
+    setup.sources.position = exact_upper - 0.0145
     io = ready(setup)
     assert io.limits.recording_tolerance_deg == 1.0
     io.offer((100.0,) * 7)
     published = setup.ros.published[0].position
     # Clamped to the exact bound, not bound plus tolerance.
     assert published[4] == pytest.approx(exact_upper)
-    assert published[0] == pytest.approx(1.12 + 0.03)  # other joints are delta-limited only
+    assert published[0] == pytest.approx(exact_upper - 0.0145 + 0.03)  # others delta-limited only
     # A state 0.5 degrees past the exact bound is inside the recording tolerance but is
     # still refused by the command path.
     setup.sources.position = exact_upper + math.radians(0.5)
