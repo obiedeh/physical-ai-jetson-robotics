@@ -529,8 +529,32 @@ def test_follower_sample_uses_recording_tolerance_on_joints(
         report.finish()
         assert report.checks["follower_sample"]["passed"] is expected
         if not expected:
-            assert "operator joint or gripper limits" in report.checks["follower_sample"]["message"]
+            message = report.checks["follower_sample"]["message"]
+            assert message.startswith("Arm is beyond a recording limit: Joint3 at -35.5 deg is "
+                                      "below its -35 deg recording bound.")
+            assert "Move the arm to an upright position" in message
+            assert "operator joint or gripper limits" in message
         session.close()
+
+
+def test_limit_violations_name_each_joint_and_the_gripper() -> None:
+    """The folded rest pose names Joint2 and the bound; a negative gripper is named in mm."""
+    import math
+
+    from synria_lerobot.console.readiness import limit_violations, limits_pose_message
+
+    limits = load_limits(app.REPOSITORY / "config/synria_limits.yaml")
+    parked = (0.0, math.radians(101.3), math.radians(-33.7), 0.0, 0.0, 0.0, 0.0001)
+    assert limit_violations(parked, limits, "50mm") == [
+        "Joint2 at 101.3 deg is above its 97 deg recording bound"]
+    assert limit_violations((0.0,) * 6 + (-0.0005,), limits, "50mm") == [
+        "Gripper at -0.5 mm is outside 0 to 25 mm"]
+    assert limit_violations((0.0,) * 7, limits, "50mm") == []
+    assert limit_violations((0.0,) * 6, limits, "50mm") == [
+        "expected 6 joints and a gripper, got 6 values"]
+    assert limits_pose_message(parked, limits, "50mm").startswith(
+        "Arm is beyond a recording limit: Joint2 at 101.3 deg is above its 97 deg recording "
+        "bound. The arm is probably at its folded rest position.")
 
 
 def test_readiness_uses_episode_skew_gate_and_action_source_semantics() -> None:

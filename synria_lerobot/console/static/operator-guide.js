@@ -55,6 +55,10 @@ const SynriaGuide = (() => {
       "The Alicia-D checkout documents a Joint5 soft cap for its Isaac ghost-arm path and self-collision margins/spheres for that simulation. Those are not, by themselves, verified physical-arm limits or a collision check used by this recorder; do not copy simulation collision geometry into the scalar joint-range file.",
       "Compare the candidate values with approved evidence for this exact physical arm and installed gripper. Record the source and operator verification through a reviewed change; do not set verified_by or verified_on just to clear the status.",
       "Until an operator-approved verification is recorded, no take counts toward the dataset. This console neither edits limits nor authorizes motion."], doc:"limits"},
+    pose: {title:"Move the arm off its rest pose", summary:"The arm is parked beyond a recording bound, usually the folded rest position; the console only listens and cannot move it.", steps:[
+      "Move the arm to an upright position, away from the folded rest pose, and press Check again.",
+      "Start takes from a slightly raised rest. Any frame back at the park fails the joint limit quality check when the take is saved.",
+      "Do not edit the limits file to make the check pass. The bounds are verified on the bench with the limits verification runbook, and only that changes them."], doc:"limits"},
     disk: {title:"Restore safe recording space", summary:"The workspace has insufficient available space or a filesystem operation failed.", steps:[
       "Do not discard pending frames just to retry. Keep the process alive while resolving a save failure.",
       "Check the external workspace’s capacity and permissions. Preserve datasets, sidecars, recording locks and journals.",
@@ -91,6 +95,7 @@ const SynriaGuide = (() => {
     const value = `${name} ${message}`.toLowerCase();
     const rules = [
       ["auth", /token|origin|host is not/], ["network", /failed to fetch|network|load failed|connection refused/],
+      ["pose", /beyond a recording limit|rest position|rest pose/],
       ["recovery", /recover|journal|lock|another console|another writer/],
       ["publishers", /publisher|command_topic|command topic|graph/],
       ["timeout", /no state sample|first sample|state_rate.*no |state source.*timed out/],
