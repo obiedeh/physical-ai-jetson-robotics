@@ -811,8 +811,8 @@ def test_summary_validates_native_still_evidence_and_marks_legacy_unknown(
 
 
 OPERATOR_LIMITS_DEG = {
-    "Joint1": (-155, 144), "Joint2": (-87, 96), "Joint3": (-34, 135),
-    "Joint4": (-112, 88), "Joint5": (-69, 65), "Joint6": (-171, 176),
+    "Joint1": (-155, 144), "Joint2": (-87, 100), "Joint3": (-35, 135),
+    "Joint4": (-112, 88), "Joint5": (-69, 68), "Joint6": (-171, 176),
 }
 
 
@@ -829,7 +829,7 @@ def test_operator_limits_file_is_signed_with_exact_degree_conversions() -> None:
     """The committed file holds the operator's whole-degree boundaries converted exactly."""
     limits = load_limits(LIMITS_PATH)
     assert limits.verified and limits.verified_by == "Obinna Edeh"
-    assert limits.verified_on == "2026-10-10"
+    assert limits.verified_on == "2026-10-17"
     assert limits.joint_names == tuple(OPERATOR_LIMITS_DEG)
     for (lower, upper), name in zip(limits.joint_limits_rad, OPERATOR_LIMITS_DEG, strict=True):
         assert (lower, upper) == (
@@ -842,10 +842,10 @@ def test_operator_limits_file_is_signed_with_exact_degree_conversions() -> None:
 @pytest.mark.parametrize(
     ("joint3_deg", "gripper_m", "expected_ok"),
     [
-        (-34.37, 0.01, True),   # resting reading inside the 1 degree recording tolerance
+        (-35.37, 0.01, True),   # reading past the -35 bound but inside the 1 degree tolerance
         (-34.0, 0.01, True),    # exact boundary
-        (-35.5, 0.01, False),   # beyond the tolerance
-        (-34.37, 0.0251, False),  # gripper gets no tolerance
+        (-36.5, 0.01, False),   # beyond the tolerance
+        (-35.37, 0.0251, False),  # gripper gets no tolerance
     ],
 )
 def test_recording_gate_applies_tolerance_to_joints_only(
@@ -883,7 +883,7 @@ def test_recording_tolerance_loading_rules(tmp_path: Path) -> None:
     assert loaded.recording_tolerance_deg == 0.0
     assert loaded.recording_bounds("50mm")[:6] == loaded.joint_limits_rad
     assert evaluate_episode(
-        _episode_with_joint3(-34.37), loaded, GateConfig(20, 30),
+        _episode_with_joint3(-35.37), loaded, GateConfig(20, 30),
     ).gates["state_action_limits"] is False
     for bad in (-1.0, "1.0", True):
         path.write_text(json.dumps({**payload, "recording_tolerance_deg": bad}), encoding="utf-8")

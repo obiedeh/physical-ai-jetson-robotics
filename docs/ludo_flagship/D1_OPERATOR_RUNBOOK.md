@@ -394,6 +394,10 @@ Candidate [limits](../../config/synria_limits.yaml) require operator
 `verified_by` and `verified_on`. While empty, summaries say
 "limits unverified by operator" and count zero qualifying D1 episodes.
 
+The pre-sweep limits of 2026-10-10 are kept unchanged in
+[synria_limits_2026-10-10_reference.yaml](../../config/synria_limits_2026-10-10_reference.yaml)
+for comparison; only `synria_limits.yaml` is read by the code.
+
 [Pose reference](../../config/synria_pose_reference.json) holds the follower's
 encoder readings at the vendor standby posture and at the folded rest, read from
 `/joint_states` with the servo zero untouched. It is a starting reference for the
