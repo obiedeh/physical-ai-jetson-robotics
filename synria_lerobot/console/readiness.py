@@ -19,6 +19,7 @@ from typing import Any
 from synria_lerobot.quality_gates import (
     GateConfig,
     PhysicalLimits,
+    gate_config_for,
     source_timestamp_skew,
     within_recording_limits,
 )
@@ -224,7 +225,8 @@ def inspect_samples(
     import numpy as np
 
     config = recorder.config
-    gates = GateConfig(config.min_episode_s, config.max_episode_s)
+    gates = gate_config_for(config.contract.recording_purpose,
+                            config.min_episode_s, config.max_episode_s)
     timestamps: dict[str, float] = {}
     images: list[Any] = []
 

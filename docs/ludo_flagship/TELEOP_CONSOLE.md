@@ -51,6 +51,12 @@ front camera (`/isaac/front_camera/image_raw`) appears on the record page as a
 third panel, Front view, marked preview only: the console subscribes to it
 while a session is open so the operator can see the arm and the objects, and
 it is never recorded or counted by any check.
+Isaac stalls for up to 200 ms on a render hitch while the USB leader keeps
+streaming, so simulation takes are judged with 0.2 s added to the timestamp
+skew and source age gates (0.25 s and 0.4 s instead of 0.05 s and 0.2 s). The
+thresholds come from the take's recording purpose, are written into its quality
+record, and a record whose stored thresholds disagree with its purpose is
+refused. Physical takes, practice runs and the demo keep the unchanged gates.
 The page shows an Isaac record mode panel with one fixed button. The launcher
 path comes from `SYNRIA_ISAAC_LAUNCHER` or `isaac_launcher.json` in the
 workspace, never from the page. The panel polls the launch it started: while
