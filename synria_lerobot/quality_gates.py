@@ -720,7 +720,7 @@ def _validate_summary_contract(
             raise ValueError("physical summaries require recorded incoming state rate evidence")
         if episode.state_rate_measurement is not None:
             measurement = StateRateMeasurement(**episode.state_rate_measurement)
-            if measurement.rate_hz < episode.fps:
+            if not measurement.meets_requested_rate(episode.fps):
                 raise ValueError("requested rate exceeds recorded incoming state measurement")
         _validate_timing_evidence({
             "action_source": episode.action_source,

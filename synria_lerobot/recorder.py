@@ -1930,10 +1930,11 @@ def build_recording_session(
                 # Constructor lookup stays late-bound for fake-source callers.
                 with checked("state_rate", requested_fps=config.fps):
                     measurement = physical_follower.measure_rate()
-                    if config.fps > measurement.rate_hz:
+                    if not measurement.meets_requested_rate(config.fps):
                         raise ValueError(
                             f"requested {config.fps:g} fps exceeds measured joint state rate "
-                            f"{measurement.rate_hz:.3f} Hz"
+                            f"{measurement.rate_hz:.3f} Hz ({measurement.message_count} "
+                            f"callbacks in {measurement.duration_s:.2f} s)"
                         )
                     if preflight is not None:
                         preflight("state_rate_evidence", {"passed": True, **asdict(measurement)})

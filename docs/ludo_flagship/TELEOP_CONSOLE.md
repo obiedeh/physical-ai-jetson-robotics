@@ -37,6 +37,29 @@ environment paths for this host; preserve the authorized ROS domain and middlewa
 settings. Neither launch configures a driver. Direct entry-point launches still
 require an already prepared recording/ROS environment.
 
+### Simulation mode
+
+`synria-teleop-console --simulation` (or `python -m synria_lerobot.console.app
+--simulation`) records from the Isaac Sim teleop scene instead of the arm: the
+state source is `/isaac_joint_states` and the cameras are the two `/isaac`
+image topics, all published by the scene's record mode at twice the dataset
+rate, as the real cameras and arm outrun it, so the newest sim sample is never
+a whole dataset period older than the leader reading taken with it.
+The page shows an Isaac record mode panel with one fixed button. The launcher
+path comes from `SYNRIA_ISAAC_LAUNCHER` or `isaac_launcher.json` in the
+workspace, never from the page. The panel polls the launch it started: while
+the scene is loading it names the step it waits for and the time waited, and
+it does not wait out the start timeout when the launch has already died. The
+Isaac process id and Isaac log path the launcher prints are kept in the launch
+record; when that process is gone with no record-mode instance in its place,
+or the launcher exits without printing one, the launch is marked failed at
+once, the last error lines of the Isaac log are shown under the panel, and the
+button becomes Relaunch Isaac record mode. The start timeout remains the last
+resort. The requested-rate check accepts a callback count that is one short
+of the requested periods over the measurement window, the resolution of a
+count, and never a source more than five percent slow; the same rule applies
+when a session summary is written.
+
 ## Use
 
 The page has one navigation model. Outside a flow the global nav offers three
