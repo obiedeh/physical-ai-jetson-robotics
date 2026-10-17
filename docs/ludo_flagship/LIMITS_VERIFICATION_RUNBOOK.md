@@ -97,7 +97,7 @@ above. Report: `reports/limits/sweep_20261017T215329Z.json`.
 
 | gripper | yaml min (m) | yaml max (m) | measured closed (m) | measured open (m) | delta closed | delta open | pass/fail |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 50mm | 0.000 | 0.025 | 0.000 | not captured | | | open not captured, unmeasured |
+| 50mm | 0.000 | 0.025 | 0.0000 | 0.0250 | +0.0000 | +0.0000 | pass |
 | 100mm | 0.000 | 0.050 | | | | | not installed, unmeasured |
 
 After the sweep the operator widened three sides, each kept inside its measured
@@ -105,9 +105,9 @@ stop: Joint2 upper 96 to 100 (stop 101.2; the folded rest reads 100.3), Joint3
 lower -34 to -35 (static stop -34.6, recorded motion reached -35.1), Joint5
 upper 65 to 68 (stop 69.0). The pre-sweep file is kept byte for byte as
 `config/synria_limits_2026-10-10_reference.yaml`; the working file is
-`config/synria_limits.yaml` with `verified_on` 2026-10-17. A
-`verify_limits.py` run with the interactive marks and the gripper fully open
-is still open and would be the formal stamp.
+`config/synria_limits.yaml` with `verified_on` 2026-10-17. The 50mm gripper was captured in a second sweep of its own: closed 0.0000 m,
+open 0.0250 m, matching the configured stroke. A `verify_limits.py` run with
+the interactive marks is still open and would be the formal stamp.
 
 ## If a joint fails
 

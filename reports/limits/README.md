@@ -13,5 +13,6 @@ Written by `scripts/verify_limits.py`
   stops; the CSV it summarises lives outside git.
 
 Status: one read-only sweep recorded on 2026-10-17 (`sweep_20261017T215329Z.json`),
-which widened Joint2 upper, Joint3 lower and Joint5 upper. The interactive
+which widened Joint2 upper, Joint3 lower and Joint5 upper, with the 50mm gripper
+captured closed 0.0000 m and open 0.0250 m in a second sweep. The interactive
 `verify_limits.py` run is still open. **Sweep measured; script run pending.**
