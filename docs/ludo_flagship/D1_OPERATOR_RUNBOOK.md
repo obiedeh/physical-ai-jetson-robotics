@@ -394,6 +394,14 @@ Candidate [limits](../../config/synria_limits.yaml) require operator
 `verified_by` and `verified_on`. While empty, summaries say
 "limits unverified by operator" and count zero qualifying D1 episodes.
 
+[Pose reference](../../config/synria_pose_reference.json) holds the follower's
+encoder readings at the vendor standby posture and at the folded rest, read from
+`/joint_states` with the servo zero untouched. It is a starting reference for the
+sim visual offsets and for the limits review, not a calibration: the vendor zero
+is placed by eye. To separate gear play from gravity sag, read the same pose
+approached from above and from below, with and without the cup in the gripper,
+and record the four readings next to it.
+
 ## Troubleshooting
 
 The recorder waits up to 10 seconds for the first state message to allow ROS 2
