@@ -39,7 +39,8 @@ only; the report says so in its `coverage_note`.
 
 ## Physical smoke capture
 
-Use the physical console's Practice run (disposable smoke, 20 seconds). When
+Use the physical console's Practice run (disposable smoke, 30 seconds unless
+you set another length on the Check setup step). When
 the smoke context closes, the console writes
 `~/synria-console/smoke-reports/smoke_physical_<timestamp>.json` with the
 settings, the measured state rate, and per episode the frame count, duration,

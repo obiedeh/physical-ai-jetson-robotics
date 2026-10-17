@@ -367,7 +367,7 @@ const SynriaWizard = (() => {
     const task = chosenTask(), values = formValues();
     if (state.demo) return {counts:false, why:"Demo takes never count toward the dataset.", practiceRun:false};
     if (state.simulation) return {counts:true, why:"SIMULATION takes go to their own dataset and never count as physical data.", practiceRun:false};
-    if (task && !timed(task)) return {counts:false, why:"This task is not timed yet. A practice run records one 20 second take and throws it away.", practiceRun:true};
+    if (task && !timed(task)) return {counts:false, why:"This task is not timed yet. A practice run records one short take, 30 seconds unless you set the length below, and throws it away.", practiceRun:true};
     const needed = window.SynriaGuide.requirements(values).filter(key => key !== "metadata");
     if (needed.includes("limits")) return {counts:false, why:"Takes will not count toward the dataset until the joint limits are verified.", practiceRun:true};
     return {counts:true, why:"", practiceRun:false};
@@ -419,6 +419,7 @@ const SynriaWizard = (() => {
       : result.ok ? (step === "check" ? (counting.why || "Everything is in place.") : "") : result.reason;
     if (reason !== lastReason) { $("wizard-reason").textContent = reason; lastReason = reason; }
     $("smoke").hidden = state.demo || step !== "check" || counting.practiceRun;
+    $("practice-length").hidden = state.demo || step !== "check";
     $("smoke").disabled = state.demo || Boolean(state.active_session) || starting || missingFields(formValues()).length > 0 || !confirmed();
     $("smoke").title = $("smoke").disabled ? "A practice run needs the setup values, the follower serial and the power state." : "Opens the cameras and arm feed, records one 20 second take and throws it away.";
   }

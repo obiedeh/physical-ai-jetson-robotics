@@ -156,9 +156,9 @@ def test_smoke_preserves_original_task_snapshot_and_uses_explicit_override(
     payload = contract.as_dict(fps=15)
     assert payload["task_definition"] == task.as_dict()
     assert payload["task_definition_sha256"] == task.sha256
-    assert payload["min_episode_s"] == payload["max_episode_s"] == 20
+    assert payload["min_episode_s"] == payload["max_episode_s"] == 30
     assert payload["episode_window_override"] == {
-        "min_episode_s": 20, "max_episode_s": 20, "reason": "disposable smoke; never qualifying",
+        "min_episode_s": 30, "max_episode_s": 30, "reason": "disposable smoke; never qualifying",
     }
     assert PhysicalDatasetContract.from_dict(payload) == contract
     with pytest.raises(ValueError, match="disposable smoke"):
@@ -168,7 +168,7 @@ def test_smoke_preserves_original_task_snapshot_and_uses_explicit_override(
 @pytest.mark.parametrize("field,value", [
     ("recording_purpose", None), ("recording_purpose", "qualifying"),
     ("episode_window_override", None), ("episode_window_override", {"min_episode_s": 20}),
-    ("min_episode_s", 19), ("max_episode_s", 30),
+    ("min_episode_s", 29), ("max_episode_s", 31),
     ("smoke", False), ("smoke", 1), ("smoke", "true"), ("smoke", None),
 ])
 def test_smoke_metadata_refuses_relabelling(field: str, value: object) -> None:

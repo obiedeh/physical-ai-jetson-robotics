@@ -6,7 +6,7 @@ import hashlib
 import json
 import math
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -29,6 +29,10 @@ SIMULATION = "simulation"
 # Window for simulation takes of a task that has no operator timing yet; a timed task
 # keeps its real window so sim takes are cut the same way as physical ones.
 SIMULATION_UNTIMED_WINDOW_S = (1.0, 120.0)
+# A practice run (disposable smoke) records one take of exactly this many seconds; the
+# operator may set another length within the bounds for one run at a time.
+DEFAULT_SMOKE_WINDOW_S = 30.0
+SMOKE_WINDOW_BOUNDS_S = (5.0, 120.0)
 TASK_METADATA_KEYS = (
     "task_id",
     "task_text",
@@ -117,6 +121,17 @@ def validate_fixed_scene_schedule(trials: Any, task_id: str) -> None:
         geometry = current
 
 
+def validate_smoke_window(seconds: Any) -> float:
+    """The practice run length as a float within SMOKE_WINDOW_BOUNDS_S, else ValueError."""
+    if (isinstance(seconds, bool) or not isinstance(seconds, (int, float))
+            or not math.isfinite(seconds)):
+        raise ValueError("practice run length must be a number of seconds")
+    low, high = SMOKE_WINDOW_BOUNDS_S
+    if not low <= float(seconds) <= high:
+        raise ValueError(f"practice run length must be between {low:g} and {high:g} seconds")
+    return float(seconds)
+
+
 @dataclass(frozen=True)
 class TaskDefinition:
     """Freeze one skill instruction, scene and prospective operator timing window."""
@@ -126,9 +141,13 @@ class TaskDefinition:
     scene_requirements: tuple[str, ...]
     min_episode_s: float | None
     max_episode_s: float | None
+    # Practice run length for this session only; not part of the task's identity or hash.
+    smoke_window_s: float | None = None
 
     def __post_init__(self) -> None:
         """Reject malformed identity, dimensions or timing at the data boundary."""
+        if self.smoke_window_s is not None:
+            validate_smoke_window(self.smoke_window_s)
         if type(self.task_id) is not str or (
             self.task_id not in TASK_IDS and not is_library_task_id(self.task_id)
         ):
@@ -153,6 +172,10 @@ class TaskDefinition:
     def require_configured(self) -> dict[str, float]:
         """Refuse qualifying collection until the operator supplies task timing."""
         return episode_window_metadata(self.min_episode_s, self.max_episode_s)
+
+    def with_smoke_window(self, seconds: Any) -> TaskDefinition:
+        """The same task with the practice run length set for one disposable smoke session."""
+        return replace(self, smoke_window_s=validate_smoke_window(seconds))
 
     def as_dict(self) -> dict[str, Any]:
         """Serialize canonical evidence fields for exact contract and resume comparison."""
@@ -182,7 +205,8 @@ class TaskDefinition:
         if purpose == QUALIFYING:
             return self.require_configured()
         if purpose == DISPOSABLE_SMOKE:
-            return episode_window_metadata(20.0, 20.0)
+            seconds = DEFAULT_SMOKE_WINDOW_S if self.smoke_window_s is None else self.smoke_window_s
+            return episode_window_metadata(seconds, seconds)
         if purpose == SYNTHETIC_DEMO:
             return episode_window_metadata(1.0, 30.0)
         if purpose == SIMULATION:

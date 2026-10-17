@@ -406,7 +406,7 @@ async function run() {
     assert.equal(await evaluate("formValues().follower_serial"),"ARM-TEST");
     scenario="pass";
     await until("!document.querySelector('#wizard-reason').textContent.includes('preserve the dataset') && !SynriaWizard.flags().checking && !readinessBusy && SynriaWizard.tileRows().every(t=>t.state==='ok')","the check reruns by itself and passes");
-    assert.equal(await reason(),"This task is not timed yet. A practice run records one 20 second take and throws it away.");
+    assert.equal(await reason(),"This task is not timed yet. A practice run records one short take, 30 seconds unless you set the length below, and throws it away.");
     assert.match(await textOf("#source-tiles"),/OK.*Arm feed.*Receiving 25 readings per second/s,"arm feed states its rate in words");
     assert.equal(await evaluate("document.querySelector('#wizard-primary').disabled"),false,"identity supplied lets the practice run start");
     assert.equal(await textOf("#wizard-primary"),"Start practice run");

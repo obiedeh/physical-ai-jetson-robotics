@@ -306,7 +306,7 @@ def test_disposable_smoke_starts_after_shared_builder_and_stays_transient(
         config = replace(recorder.recording_config_from_args(
             args, dataset_path=tmp_path / "temporary-smoke" / "dataset",
         ), state_source_provenance=None)
-        assert config.min_episode_s == config.max_episode_s == 20
+        assert config.min_episode_s == config.max_episode_s == 30
         capture = recorder.PhysicalEpisodeRecorder(
             config=config, state_source=FakeStateSource([
                 PhysicalState((0.0,) * 6, 0.01, 0.0, 0.0, ros_arrival_stamp_s=0.0)

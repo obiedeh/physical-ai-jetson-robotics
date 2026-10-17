@@ -170,7 +170,7 @@ image size and operator metadata. Real task windows remain unset: qualifying
 collection is refused until prospective operator timing is recorded in
 [DECISIONS.md](DECISIONS.md) and the registry is configured outside the console.
 Only disposable smoke is available before then. Its button runs the shared
-preflight, then automatically starts the existing 20-second temporary capture;
+preflight, then automatically starts the temporary capture of the practice run length (30 s unless the operator sets it);
 this flow is fake-tested, not hardware-verified. Review remains available until
 closing its context, when temporary data is disposed. It never qualifies.
 When the smoke context closes, the console writes
@@ -301,7 +301,9 @@ or Recording blocked. The action area below also keeps a fixed height and shows
 only the actions that apply: one large Start recording (Space); one large Stop
 (Space); Yes, save as success (S) and No, save as failure (F) in different
 colours with a small Throw away, bad capture; Retry save only after a failed
-save; Cancel countdown only during a countdown; Finish practice run. After a
+save; Cancel countdown only during a countdown; Run another practice run and
+Finish practice run when a practice run has ended (Run another closes the
+finished run and starts a new one with the same setup values). After a
 save the banner reads "Take N saved as success. Quality checks passed" (or
 "Quality check failed: joint limits", or "Quality checks not run yet" until the
 result is known) for two seconds, then returns to Ready with that line kept

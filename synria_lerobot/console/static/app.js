@@ -170,6 +170,8 @@ function renderRecordBanner(c, active) {
   $("discard").disabled = !active || !c.controls?.discard;
   const action = $("record-banner-action"); action.hidden = !wanted.has("close");
   if (wanted.has("close")) { action.textContent = wanted.get("close"); action.dataset.action = "close"; }
+  const redo = $("record-banner-redo"); redo.hidden = !wanted.has("redo");
+  if (wanted.has("redo")) redo.textContent = wanted.get("redo");
   $("camera-views").classList.toggle("recording", recordView.recording);
   $("record-title").textContent = active ? (recordView.target !== null ? `Take ${recordView.take} of ${recordView.target}` : `Take ${recordView.take}`) : "No session open";
   const move = active ? tasks.find(item => item.task_id === active.task_id) : null;
@@ -342,7 +344,9 @@ function render(next) {
 }
 $("exit-flow").onclick = () => window.SynriaRouter.go(routes().home());
 document.querySelectorAll("[data-command]").forEach(node=>node.onclick=()=>safe(()=>command(node.dataset.command)));
-$("smoke").onclick=()=>safe(async()=>{if(!$("new-form").reportValidity())return;await api("smoke",{...formValues(),...(state.simulation?{arm_checked:Boolean(window.SynriaConfirmations&&window.SynriaConfirmations().every(n=>n.checked))}:{})});await refreshState();window.SynriaRouter.go(routes().record("smoke"));await refreshSessions();});
+/** Open the sources with the setup form's values and record one disposable practice take. */
+async function startPracticeRun(){if(!$("new-form").reportValidity()||!$("practice-seconds").reportValidity())return;await api("smoke",{...formValues(),practice_seconds:Number($("practice-seconds").value),...(state.simulation?{arm_checked:Boolean(window.SynriaConfirmations&&window.SynriaConfirmations().every(n=>n.checked))}:{})});await refreshState();window.SynriaRouter.go(routes().record("smoke"));await refreshSessions();}
+$("smoke").onclick=()=>safe(startPracticeRun);
 $("discard").onclick=()=>safe(async()=>{if(!confirm("Throw this take away? It cannot be recovered."))return;const reason=prompt("What went wrong with the capture? (required)","");if(reason){await api("record/discard",{reason});await refreshState();}});
 /** Release the cameras and arm feed; refuse while a stopped take is still unsaved. */
 async function closeOpenSession() {
@@ -359,6 +363,8 @@ $("finish-session").onclick=()=>safe(async()=>{const active=state.active_session
 $("finish-yes").onclick=()=>safe(async()=>{confirmingFinish=false;renderFlowNav();await finishSession();});
 $("finish-no").onclick=()=>{confirmingFinish=false;renderFlowNav();$("finish-session").focus();};
 $("record-banner-action").onclick=()=>safe(async()=>{if($("record-banner-action").dataset.action==="close"){await closeOpenSession();window.SynriaRouter.go(routes().home());}});
+// Redo closes the finished practice run, then starts another with the same setup values.
+$("record-banner-redo").onclick=()=>safe(async()=>{await closeOpenSession();await startPracticeRun();});
 /** Session summary after Finish: counts in words, where the takes are, and what to do next. */
 async function renderSummary(id) {
   const session = sessions.find(s => s.id === id) || await api(`session/${id}`);

@@ -1810,7 +1810,12 @@ def _parse_physical_args() -> argparse.Namespace:
     parser.add_argument("--image-height", type=int, default=224)
     parser.add_argument("--state-has-velocity", action="store_true")
     parser.add_argument("--smoke", action="store_true")
-    return parser.parse_args()
+    parser.add_argument("--practice-seconds", type=float, default=None,
+                        help="Length of the one --smoke take in seconds (default 30, 5 to 120)")
+    args = parser.parse_args()
+    if args.practice_seconds is not None and not args.smoke:
+        parser.error("--practice-seconds applies to --smoke runs only")
+    return args
 
 
 def recording_config_from_args(
@@ -1834,6 +1839,11 @@ def recording_config_from_args(
     purpose = (SYNTHETIC_DEMO if synthetic_demo
                else SIMULATION if simulation and not args.smoke else recording_purpose(args.smoke))
     task_definition = select_recording_task(args.task_registry, args.task_id, purpose=purpose)
+    # The practice run length shapes disposable smoke only; the same settings also build
+    # the qualifying configuration the console checks, where the task window rules.
+    practice_seconds = getattr(args, "practice_seconds", None)
+    if args.smoke and practice_seconds is not None:
+        task_definition = task_definition.with_smoke_window(practice_seconds)
     contract = PhysicalDatasetContract(
         gripper_type=args.gripper_type,
         action_source=ActionSourceKind(args.action_source),
