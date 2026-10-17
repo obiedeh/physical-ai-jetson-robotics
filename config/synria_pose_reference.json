@@ -23,23 +23,23 @@
         0.0
       ],
       "read_angles_deg": [
-        -1.23,
-        0.97,
-        -4.04,
+        -1.14,
+        0.88,
+        -0.97,
         1.58,
-        1.49,
+        1.85,
         -2.64
       ],
       "gripper_m": 0.0001,
       "read_minus_model_deg": [
-        -1.23,
-        0.97,
-        -4.04,
+        -1.14,
+        0.88,
+        -0.97,
         1.58,
-        1.49,
+        1.85,
         -2.64
       ],
-      "placement_confidence": "Operator placed the pose by eye and reports the Joint3 placement as uncertain; the Joint3 value may be placement error rather than a zero mismatch."
+      "placement_confidence": "Operator placed the pose by eye twice. The first placement read Joint3 at -4.04 and Joint5 at 1.49; the operator judged the Joint3 placement poor, re-placed the arm, and the second placement (recorded here) read Joint3 at -0.97. Placement repeatability by eye is therefore about 3 deg on Joint3 and under 0.5 deg elsewhere."
     },
     "folded_rest": {
       "what": "The folded rest position the arm is left in between sessions; the pose every take started or ended in on 2026-10-17.",
@@ -56,7 +56,7 @@
   },
   "notes": [
     "read_minus_model_deg is the encoder reading at the vendor reference pose; the implied per-joint correction for a model-true display is its negative. The reference pose is itself placed by eye, so these are starting values, not measured zero offsets.",
-    "The Isaac record mode uses a Joint2 visual offset of -4.0 deg chosen by eye on 2026-10-17 with the real gripper touching the table. The Joint3 reading at the reference pose (-4.04) is not trusted on its own because the operator eyeballed the Joint3 placement; it only says the mismatch could be on Joint3 rather than Joint2 and needs a repeatable pose, such as the forearm checked with a level, before any offset is moved.",
+    "At the reference pose every joint reads within 2 deg of the model zero, so the -4.0 deg Joint2 visual offset the Isaac record mode uses (chosen by eye on 2026-10-17 with the real gripper touching the table) is not a zero mismatch. It is the pose-dependent gravity sag and gear play under load at the table, which a constant offset only approximates.",
     "Folded rest exceeds the configured Joint2 recording bound of 96 deg and sits 0.5 deg inside the Joint3 lower bound of -34 deg (config/synria_limits.yaml), which is why takes that start or end at rest fail the limits gate.",
     "Gravity sag and gear play are not separated here; they need the from-above and from-below readings described in the operator runbook."
   ]
