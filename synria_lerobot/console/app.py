@@ -511,7 +511,7 @@ class ConsoleService:
                 raise ValueError("Free disk space is below the recording floor")
             if self.simulation:
                 if settings["wrist_camera"] == settings["front_camera"]:
-                    raise ValueError("Sim wrist and front image topics must differ")
+                    raise ValueError("Sim wrist and overhead image topics must differ")
                 report.check("camera_mapping", True,
                              f"Sim image topics {settings['wrist_camera']} "
                              f"and {settings['front_camera']}")

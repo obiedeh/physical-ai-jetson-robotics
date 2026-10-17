@@ -288,7 +288,7 @@ const SynriaWizard = (() => {
     if (!leader && arm.state === "ok") { const action = paths.find(item => item.id === "action"); if (action?.status === "not_ready") Object.assign(arm, {state:"problem", text:action.message, help:action.help}); }
     tiles.push(arm);
     if (leader) tiles.push(fromPath("action", state.simulation ? "Leader arm (real follower feed)" : "Leader arm", () => "Receiving leader readings"));
-    for (const [id, name] of (state.simulation ? [["wrist", "Sim wrist camera"], ["front", "Sim front camera"]] : [["wrist", "Wrist camera"], ["front", "Overhead camera"]])) {
+    for (const [id, name] of (state.simulation ? [["wrist", "Sim wrist camera"], ["front", "Sim overhead camera"]] : [["wrist", "Wrist camera"], ["front", "Overhead camera"]])) {
       const tile = fromPath(id, name, () => { const size = checks[`${id}_sample`]?.native_resolution; return `Fresh frame${Array.isArray(size) ? `, ${size.join("×")}` : ""}`; });
       if (matches && (report.thumbnails || []).includes(id)) tile.image = `/media/readiness/${id}?v=${encodeURIComponent(report.checked_utc)}`;
       tiles.push(tile);
