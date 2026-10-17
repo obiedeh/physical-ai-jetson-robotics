@@ -26,9 +26,13 @@
   "ended_utc": "2026-10-17T21:53:29.960000+00:00",
   "git_sha": "34a82cef58fae86fc753e73aa7772635e36f8edb",
   "gripper_measured_m": {
-    "max": 0.01015,
-    "min": 3e-05,
-    "note": "open not captured; the 50mm stroke of 0.025 m stays unverified by this sweep"
+    "csv_outside_git": "~/synria-console-logs/gripper_sweep_20261017_171900.csv",
+    "ended_utc": "2026-10-17T22:19:38.378000+00:00",
+    "max": 0.025,
+    "min": 0.0,
+    "note": "Second read-only sweep of the 50mm gripper alone, fully closed then fully open, after the joint sweep; closed reads 0.0000 m and open 0.0250 m, matching the configured 0 to 0.025 m stroke within the 2 mm gripper tolerance.",
+    "samples": 1867,
+    "started_utc": "2026-10-17T22:19:00.420000+00:00"
   },
   "kind": "read_only_sweep",
   "limits_after_deg": {
@@ -109,7 +113,7 @@
       "min": -179.82
     }
   },
-  "method": "The operator jogged every joint to both physical stops with the leader arm while a depth-ten read-only subscriber on the console host logged every follower sample to CSV; no publisher was created. Per-joint minima and maxima over the whole log are the measured stops. The gripper was not fully opened during the sweep, so its open reading is not a stop.",
+  "method": "The operator jogged every joint to both physical stops with the leader arm while a depth-ten read-only subscriber on the console host logged every follower sample to CSV; no publisher was created. Per-joint minima and maxima over the whole log are the measured stops. The gripper was captured in a second read-only sweep of its own; see gripper_measured_m.",
   "operator": "Obinna Edeh",
   "pass_rule": "every configured bound, before and after, lies inside the measured stop; Joint3 lower is set 0.4 deg past the static sweep reading because recorded motion on 2026-10-17 reached -35.1 deg at that stop",
   "samples": 106331,
