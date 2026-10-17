@@ -116,6 +116,9 @@ class ActionTimingMetadata(TypedDict):
     requested_rate_hz: float
 
 
+RATE_SHORTFALL_FRACTION = 0.05
+
+
 @dataclass(frozen=True)
 class StateRateMeasurement:
     """One callback-count measurement, not an assumed driver publication rate."""
@@ -141,6 +144,21 @@ class StateRateMeasurement:
             raise ValueError("state rate measurement count and rate are inconsistent")
         if not 0 <= self.max_callback_gap_s <= self.duration_s:
             raise ValueError("state rate callback gap is outside the measured interval")
+
+    def meets_requested_rate(self, fps: float) -> bool:
+        """Whether the source keeps up with the requested rate, within this count's resolution.
+
+        A callback count over a finite window can fall one short of the requested periods
+        purely from where the window's boundaries land, so a source paced at exactly the
+        dataset rate, as the simulation is, lands on either side of the requested count.
+        One callback of slack is allowed, and never more than RATE_SHORTFALL_FRACTION of
+        the requested rate, so a genuinely slow source still fails.
+        """
+        if isinstance(fps, bool) or not math.isfinite(fps) or fps <= 0:
+            raise ValueError("requested rate must be positive and finite")
+        requested = math.floor(fps * self.duration_s)
+        return (self.message_count >= requested - 1
+                and self.rate_hz >= (1.0 - RATE_SHORTFALL_FRACTION) * fps)
 
 
 def action_timing_metadata(
