@@ -816,9 +816,11 @@ class ConsoleService:
         runs = payload.get("runs", [])
         if type(runs) is not list or len(runs) > 20:
             raise ValueError("timing runs must be a short list")
-        return self.catalog.set_library_window(
-            task_id, payload.get("min_episode_s"), payload.get("max_episode_s"), runs=runs,
-        )
+        low, high = payload.get("min_episode_s"), payload.get("max_episode_s")
+        if (isinstance(low, bool) or isinstance(high, bool)
+                or not isinstance(low, (int, float)) or not isinstance(high, (int, float))):
+            raise ValueError("take window bounds must be numbers of seconds")
+        return self.catalog.set_library_window(task_id, float(low), float(high), runs=runs)
 
     def start_timing(self, task_id: str, payload: dict[str, Any]) -> dict[str, Any]:
         """Time three to five moves from the arm feed; never while anything else owns the feed."""

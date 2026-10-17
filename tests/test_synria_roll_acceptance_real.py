@@ -385,8 +385,9 @@ def test_record_train_serve_evaluate_and_roll_with_no_hardware(
         assert rolled["roll"]["value"] == 4 and not rolled["d4_qualifying"]
         assert rolled["stage_status"] == "planned"
         assert rolled["skills"]["die_into_cup"]["checkpoint_content_sha256"] == saved_hash
-        assert [rolled["skills"][task]["task_id"] for task in ROLL_SKILL_IDS] == list(ROLL_SKILL_IDS)
-        assert len({rolled["skills"][task]["checkpoint_content_sha256"] for task in ROLL_SKILL_IDS}) == 3
+        rolled_skills = rolled["skills"]
+        assert [rolled_skills[t]["task_id"] for t in ROLL_SKILL_IDS] == list(ROLL_SKILL_IDS)
+        assert len({rolled_skills[t]["checkpoint_content_sha256"] for t in ROLL_SKILL_IDS}) == 3
         assert [stub.reset_count for stub in stub_models] == [1, 1]
         assert len(roll.ros.goals) == 3 and roll.ros.publisher_topics == ["/fake_policy_targets"]
         assert roll.ros.action_clients == ["/fake_gripper/follow_joint_trajectory"]

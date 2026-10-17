@@ -20,7 +20,7 @@ import subprocess
 import threading
 import time
 from collections import deque
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -205,7 +205,8 @@ class SimTopicMonitor:
         self.started_at = time.monotonic()
         for stamps in self._stamps.values():
             stamps.clear()
-        self._thread = threading.Thread(target=self._run, name="synria-sim-topic-monitor", daemon=True)
+        self._thread = threading.Thread(target=self._run, name="synria-sim-topic-monitor",
+                                        daemon=True)
         self._thread.start()
 
     def stop(self) -> None:
@@ -239,7 +240,8 @@ class SimTopicMonitor:
         try:
             rclpy.init(context=context)
             node = rclpy.create_node("synria_console_sim_monitor", context=context)
-            node.create_subscription(JointState, SIM_TOPICS["state"], lambda m: self._record("state"), 10)
+            node.create_subscription(JointState, SIM_TOPICS["state"],
+                                     lambda m: self._record("state"), 10)
             node.create_subscription(Image, SIM_TOPICS["wrist"], lambda m: self._record("wrist"), 5)
             node.create_subscription(Image, SIM_TOPICS["front"], lambda m: self._record("front"), 5)
             executor = SingleThreadedExecutor(context=context)
@@ -257,7 +259,7 @@ class SimTopicMonitor:
                 pass
 
     def snapshot(self) -> dict[str, Any]:
-        """Rates per topic over the window, the longest gap, and whether a full window has passed."""
+        """Rates per topic over the window, the longest gap, and whether a full window passed."""
         now = time.monotonic()
         elapsed = 0.0 if self.started_at is None else now - self.started_at
         complete = elapsed >= self.window_s
@@ -269,11 +271,12 @@ class SimTopicMonitor:
                 span = self.window_s if complete else max(elapsed, 1e-6)
                 rates[name] = len(recent) / span if (complete or recent) else None
                 if recent:
-                    gaps[name] = max([b - a for a, b in zip(recent, recent[1:], strict=False)] + [now - recent[-1]])
+                    pairs = zip(recent, recent[1:], strict=False)
+                    gaps[name] = max([b - a for a, b in pairs] + [now - recent[-1]])
                 else:
                     gaps[name] = None
-        return {"rates": rates, "max_gap_s": gaps, "complete": complete, "elapsed_s": round(elapsed, 1),
-                "window_s": self.window_s, "error": self.error}
+        return {"rates": rates, "max_gap_s": gaps, "complete": complete,
+                "elapsed_s": round(elapsed, 1), "window_s": self.window_s, "error": self.error}
 
 
 def steady(snapshot: dict[str, Any] | None) -> bool:
@@ -305,15 +308,18 @@ def waiting_words(record_up: bool, scene_loaded: bool, topics_started: bool,
     rates = snapshot.get("rates", {})
     low = [name for name in SIM_TOPICS if rates.get(name) is None or rates[name] < HEALTHY_RATE_HZ]
     if low:
-        shown = ", ".join(f"{name} {rates[name]:.1f} Hz" if rates.get(name) is not None else f"{name} silent" for name in low)
+        shown = ", ".join(
+            f"{name} {rates[name]:.1f} Hz" if rates.get(name) is not None else f"{name} silent"
+            for name in low
+        )
         return f"Scene loaded, waiting for camera feeds and state at 15 Hz ({shown})" + since
     return "Scene loaded, sim topics paused" + since
 
 
 def launcher_from_config(workspace: Path, environ: dict[str, str] | None = None) -> Path | None:
     """The teleop launcher path from the environment or the workspace file; None when unset."""
-    environ = os.environ if environ is None else environ
-    value = environ.get(LAUNCHER_ENV, "")
+    source: Mapping[str, str] = os.environ if environ is None else environ
+    value = source.get(LAUNCHER_ENV, "")
     if not value:
         path = workspace / LAUNCHER_FILE
         if path.is_file():
@@ -390,9 +396,10 @@ class IsaacSupervisor:
         return sorted(found, key=lambda item: item.pid)
 
     def driver(self) -> dict[str, Any]:
-        """Whether the arm driver is running; the page can start only the read-only form, never stop it."""
+        """Whether the arm driver runs; the page may start the read-only form, never stop it."""
         for process in self._list():
-            if DRIVER_PATTERN in process.cmdline and not process.cmdline.lower().startswith(("bash", "/bin/bash")):
+            shell = process.cmdline.lower().startswith(("bash", "/bin/bash"))
+            if DRIVER_PATTERN in process.cmdline and not shell:
                 return {"running": True, "since_utc": process.started_utc,
                         "read_only_command": READ_ONLY_DRIVER_COMMAND, "can_start": False}
         return {"running": False, "since_utc": None, "read_only_command": READ_ONLY_DRIVER_COMMAND,
@@ -406,7 +413,8 @@ class IsaacSupervisor:
         by the launch file, so no serial or device path appears anywhere.
         """
         if self.launcher is None:
-            raise ValueError("Isaac launcher path is not configured; the driver environment comes from it")
+            raise ValueError(
+                "Isaac launcher path is not configured; the driver environment comes from it")
         overlay = self.launcher.resolve().parent.parent / "install" / "setup.bash"
         script = (f"source {ROS_SETUP} && {{ [ -f {overlay} ] && source {overlay}; }}; "
                   f"exec {READ_ONLY_DRIVER_COMMAND}")
@@ -416,8 +424,12 @@ class IsaacSupervisor:
         """Start the read-only arm driver, detached, only when none is running."""
         if self.driver()["running"]:
             raise RuntimeError("An arm driver is already running; the page never restarts it")
-        log = self.log_dir / f"arm_driver_readonly_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.log"
-        pid = self._spawn(self.driver_argv(), dict(os.environ), log, self.launcher.resolve().parent.parent)
+        argv = self.driver_argv()
+        if self.launcher is None:
+            raise ValueError("Isaac launcher path is not configured")
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        log = self.log_dir / f"arm_driver_readonly_{stamp}.log"
+        pid = self._spawn(argv, dict(os.environ), log, self.launcher.resolve().parent.parent)
         return {**self.state(), "driver_launch_pid": pid, "driver_log": str(log)}
 
     def _launch_record(self) -> dict[str, Any] | None:
@@ -426,7 +438,8 @@ class IsaacSupervisor:
         if not path.is_file():
             return None
         try:
-            return json.loads(path.read_text(encoding="utf-8"))
+            value = json.loads(path.read_text(encoding="utf-8"))
+            return value if isinstance(value, dict) else None
         except (OSError, ValueError):
             return None
 
@@ -448,9 +461,10 @@ class IsaacSupervisor:
             if healthy:
                 launch = {**launch, "status": "running"}
                 self._write_launch(launch)
-            elif launch_age > START_TIMEOUT_S:
+            elif launch_age is not None and launch_age > START_TIMEOUT_S:
                 launch = {**launch, "status": "failed",
-                          "error": f"Isaac did not reach record mode in {int(START_TIMEOUT_S)} s; see the launch log"}
+                          "error": f"Isaac did not reach record mode in {int(START_TIMEOUT_S)} s; "
+                                   "see the launch log"}
                 self._write_launch(launch)
             else:
                 starting = True
@@ -470,11 +484,13 @@ class IsaacSupervisor:
         waiting = None
         if status == "starting":
             waiting = waiting_words(bool(record), any(item.scene_loaded for item in record),
-                                    any(item.topics_started for item in record), snapshot, launch_age)
+                                    any(item.topics_started for item in record), snapshot,
+                                    launch_age)
             label = waiting
         same_commit = bool(record) and all(item.commit in (None, current) for item in record)
         if status == "running" and not same_commit:
             label = "Running in record mode on an older teleop commit"
+        button: dict[str, Any]
         if status == "not_running":
             button = {"action": "start", "label": "Start Isaac record mode", "closes": []}
         elif status == "other_running":
@@ -492,7 +508,8 @@ class IsaacSupervisor:
             "available": self.launcher is not None, "status": status, "label": label,
             "launcher": str(self.launcher) if self.launcher else None, "teleop_commit": current,
             "instances": [item.as_dict() for item in instances],
-            "progress": {"process_up": bool(record), "scene_loaded": any(item.scene_loaded for item in record),
+            "progress": {"process_up": bool(record),
+                         "scene_loaded": any(item.scene_loaded for item in record),
                          "topics_started": any(item.topics_started for item in record),
                          "state_rate_hz": rate, "healthy": healthy, "waiting": waiting,
                          "topics": snapshot},
@@ -502,13 +519,14 @@ class IsaacSupervisor:
         }
 
     def _topics_snapshot(self, record_up: bool) -> dict[str, Any] | None:
-        """Rates of the sim topics: from the injected probe in tests, else the background monitor."""
+        """Rates of the sim topics: the injected probe in tests, else the background monitor."""
         if self._rate is not None:
             value = self._rate()
             if value is None:
                 return None
-            return {"rates": {name: value for name in SIM_TOPICS}, "max_gap_s": {name: 0.07 for name in SIM_TOPICS},
-                    "complete": True, "elapsed_s": RATE_WINDOW_S, "window_s": RATE_WINDOW_S, "error": None}
+            return {"rates": {name: value for name in SIM_TOPICS},
+                    "max_gap_s": {name: 0.07 for name in SIM_TOPICS}, "complete": True,
+                    "elapsed_s": RATE_WINDOW_S, "window_s": RATE_WINDOW_S, "error": None}
         if not record_up:
             self._monitor.stop()
             return None
@@ -527,12 +545,14 @@ class IsaacSupervisor:
         if current["status"] == "running" and current["button"]["action"] is None:
             return {**current, "reused": True}
         closed = self._terminate([IsaacProcess(**item) for item in current["button"]["closes"]])
-        log = self.log_dir / f"isaac_record_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.log"
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        log = self.log_dir / f"isaac_record_{stamp}.log"
         env = {**os.environ, "SKIP_DRIVER": "1"}
         pid = self._spawn([str(self.launcher), "record"], env, log, self.launcher.parent.parent)
         self._write_launch({"status": "starting", "launch_pid": pid, "started_at": self._clock(),
                             "started_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                            "commit": self._commit(self.launcher), "log": str(log), "closed": closed})
+                            "commit": self._commit(self.launcher), "log": str(log),
+                            "closed": closed})
         return {**self.state(), "closed": closed, "launch_pid": pid, "reused": False}
 
     def stop(self) -> dict[str, Any]:

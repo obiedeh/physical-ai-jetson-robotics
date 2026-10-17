@@ -505,15 +505,13 @@ class Catalog:
                 raise ValueError("session name must contain 1 to 160 characters")
             source = values.get("source_kind")
             if source not in {"physical", "synthetic_demo", "simulation"}:
-                raise ValueError("explicit physical, synthetic_demo or simulation source kind required")
+                raise ValueError(
+                    "explicit physical, synthetic_demo or simulation source kind required")
             identity = uuid.uuid4().hex
             slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")[:60] or "session"
             slug += "-" + identity[:8]
-            directory = (
-                self.workspace
-                / {"synthetic_demo": "sessions-demo", "simulation": "sessions-simulation"}.get(source, "sessions")
-                / slug
-            )
+            collections = {"synthetic_demo": "sessions-demo", "simulation": "sessions-simulation"}
+            directory = self.workspace / collections.get(source, "sessions") / slug
             now = utc_now()
             row: dict[str, Any] = {
                 key: str(values.get(key, ""))
@@ -818,8 +816,9 @@ class Catalog:
                         if collection == "trash":
                             row["status"] = "trashed"
                         else:
-                            expected = {"sessions-demo": "synthetic_demo",
-                                        "sessions-simulation": "simulation"}.get(collection, "physical")
+                            kinds = {"sessions-demo": "synthetic_demo",
+                                     "sessions-simulation": "simulation"}
+                            expected = kinds.get(collection, "physical")
                             if row["source_kind"] != expected or row["slug"] != mirror.parent.name:
                                 raise ValueError(
                                     "session mirror collection or slug is inconsistent"

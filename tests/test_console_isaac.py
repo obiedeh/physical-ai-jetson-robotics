@@ -1,4 +1,4 @@
-"""Verify Isaac record mode supervision with fake process lists, signals and a fake launcher only."""
+"""Verify Isaac record mode supervision with fake process lists, signals and a fake launcher."""
 from __future__ import annotations
 
 import signal
@@ -19,11 +19,13 @@ from synria_lerobot.console.isaac import (
 
 KIT = "/home/user/isaacsim/kit/python/bin/python3"
 SCENE = "/home/user/github/teleop/scripts/isaac_sim/alicia_d_live_scene.py"
-RECORD = f"{KIT} {SCENE} --no-obstacles --pick-objects --physics-drive --sim-cameras --record-cameras --publish-sim-topics"
+RECORD = (f"{KIT} {SCENE} --no-obstacles --pick-objects --physics-drive --sim-cameras "
+          "--record-cameras --publish-sim-topics")
 PHYSICS = f"{KIT} {SCENE} --no-obstacles --pick-objects --physics-drive --sim-cameras"
 APP = "/home/user/isaacsim/kit/kit /home/user/isaacsim/apps/isaacsim.exp.full.kit"
 LAB = "/home/user/IsaacLab/_isaac_sim/python.sh scripts/train.py --task Isaac-Lab-Thing"
-DRIVER = "/opt/ros/jazzy/lib/alicia_d_driver/alicia_d_driver_node --ros-args -p port:=/dev/serial/by-id/usb-1a86_X-if00"
+DRIVER = ("/opt/ros/jazzy/lib/alicia_d_driver/alicia_d_driver_node --ros-args "
+          "-p port:=/dev/serial/by-id/usb-1a86_X-if00")
 
 
 def proc(pid: int, cmdline: str, started: str = "2026-10-12T22:00:00+00:00") -> ProcessInfo:
@@ -34,7 +36,8 @@ def proc(pid: int, cmdline: str, started: str = "2026-10-12T22:00:00+00:00") -> 
 class Fakes:
     """Injectable fakes: a process table, signals sent, spawns made, markers and rates."""
 
-    def __init__(self, processes: list[ProcessInfo], rate: float | None = None, markers: dict[int, dict[str, Any]] | None = None) -> None:
+    def __init__(self, processes: list[ProcessInfo], rate: float | None = None,
+                 markers: dict[int, dict[str, Any]] | None = None) -> None:
         self.processes = list(processes)
         self.signals: list[tuple[int, int]] = []
         self.spawned: list[tuple[list[str], dict[str, str], Path, Path]] = []
@@ -67,7 +70,8 @@ class Fakes:
         self.now += seconds
 
 
-def supervisor(tmp_path: Path, fakes: Fakes, *, launcher: Path | None = None, commit: str = "abc1234") -> IsaacSupervisor:
+def supervisor(tmp_path: Path, fakes: Fakes, *, launcher: Path | None = None,
+               commit: str = "abc1234") -> IsaacSupervisor:
     """A supervisor wired to the fakes; the launcher is a real empty file so the path validates."""
     if launcher is None:
         launcher = tmp_path / "scripts" / "run_alicia_stack.sh"
@@ -76,18 +80,20 @@ def supervisor(tmp_path: Path, fakes: Fakes, *, launcher: Path | None = None, co
     return IsaacSupervisor(
         tmp_path / "workspace", tmp_path / "workspace" / "isaac-logs", launcher=launcher,
         list_processes=fakes.list_processes, gpu_memory=lambda: {101: 4002, 202: 3376},
-        markers=lambda pid: fakes.markers.get(pid, {"commit": None, "scene_loaded": False, "topics_started": False}),
+        markers=lambda pid: fakes.markers.get(
+            pid, {"commit": None, "scene_loaded": False, "topics_started": False}),
         topic_rate=lambda: fakes.rate, send_signal=fakes.send_signal, spawn=fakes.spawn,
         commit=lambda path: commit, clock=fakes.clock, sleep=fakes.sleep,
     )
 
 
 def test_classification_names_isaac_families_and_never_the_driver() -> None:
-    """The teleop scene, the Isaac Sim app, Isaac Lab and Kit are Isaac; the driver and shells are not."""
+    """The teleop scene, Isaac Sim app, Isaac Lab and Kit are Isaac; driver and shells are not."""
     assert classify(proc(1, RECORD)) == "teleop scene"
     assert classify(proc(2, APP)) == "Isaac Sim app"
     assert classify(proc(3, LAB)) == "Isaac Lab"
-    assert classify(proc(4, "/home/user/isaacsim/kit/python/bin/python3 -m something")) == "Kit process"
+    kit = proc(4, "/home/user/isaacsim/kit/python/bin/python3 -m something")
+    assert classify(kit) == "Kit process"
     assert classify(proc(5, DRIVER)) is None
     assert classify(proc(6, "/bin/bash /home/user/isaacsim/python.sh " + SCENE)) is None
     assert classify(proc(7, "python -m synria_lerobot.console.app --simulation")) is None
@@ -98,33 +104,46 @@ def test_states_not_running_running_other_and_starting(tmp_path: Path) -> None:
     """Each state names its button; a healthy record instance on the current commit is reused."""
     nothing = supervisor(tmp_path, Fakes([proc(9, DRIVER)]))
     state = nothing.state()
-    assert state["status"] == "not_running" and state["button"]["label"] == "Start Isaac record mode"
-    assert state["driver"]["running"] is True and "joint_commands_enabled:=false" in state["driver"]["read_only_command"]
-    healthy = supervisor(tmp_path, Fakes([proc(101, RECORD)], rate=15.2, markers={101: {"commit": "abc1234", "scene_loaded": True, "topics_started": True}}))
+    assert state["status"] == "not_running"
+    assert state["button"]["label"] == "Start Isaac record mode"
+    assert state["driver"]["running"] is True
+    assert "joint_commands_enabled:=false" in state["driver"]["read_only_command"]
+    ready = {101: {"commit": "abc1234", "scene_loaded": True, "topics_started": True}}
+    healthy = supervisor(tmp_path, Fakes([proc(101, RECORD)], rate=15.2, markers=ready))
     state = healthy.state()
-    assert state["status"] == "running" and state["button"]["action"] is None and state["can_stop"] is True
-    assert {k: state["progress"][k] for k in ("process_up", "scene_loaded", "topics_started", "state_rate_hz", "healthy")} == {
-        "process_up": True, "scene_loaded": True, "topics_started": True, "state_rate_hz": 15.2, "healthy": True}
+    assert state["status"] == "running" and state["button"]["action"] is None
+    assert state["can_stop"] is True
+    keys = ("process_up", "scene_loaded", "topics_started", "state_rate_hz", "healthy")
+    assert {k: state["progress"][k] for k in keys} == {
+        "process_up": True, "scene_loaded": True, "topics_started": True,
+        "state_rate_hz": 15.2, "healthy": True}
     assert state["progress"]["waiting"] is None and state["progress"]["topics"]["complete"] is True
     assert healthy.start()["reused"] is True
     other = supervisor(tmp_path, Fakes([proc(202, APP), proc(9, DRIVER)]))
     state = other.state()
-    assert state["status"] == "other_running" and state["button"]["label"] == "Close running Isaac and start record mode"
-    assert [item["pid"] for item in state["button"]["closes"]] == [202] and state["instances"][0]["gpu_mb"] == 3376
-    assert state["driver"]["running"] is True and all(item["kind"] != "driver" for item in state["instances"])
+    assert state["status"] == "other_running"
+    assert state["button"]["label"] == "Close running Isaac and start record mode"
+    assert [item["pid"] for item in state["button"]["closes"]] == [202]
+    assert state["instances"][0]["gpu_mb"] == 3376
+    assert state["driver"]["running"] is True
+    assert all(item["kind"] != "driver" for item in state["instances"])
     slow = supervisor(tmp_path, Fakes([proc(101, PHYSICS)]))
-    assert slow.state()["status"] == "other_running"   # physics mode without the sim topics is not record mode
+    # Physics mode without the sim topics is not record mode.
+    assert slow.state()["status"] == "other_running"
     up_not_publishing = supervisor(tmp_path, Fakes([proc(101, RECORD)], rate=0.0))
     assert up_not_publishing.state()["status"] == "starting"
 
 
-def test_start_closes_only_this_users_isaac_then_launches_detached_without_the_driver(tmp_path: Path) -> None:
-    """SIGTERM first, SIGKILL after the timeout, then the fixed launcher in record mode with SKIP_DRIVER=1."""
+def test_start_closes_only_this_users_isaac_then_launches_detached_without_the_driver(
+    tmp_path: Path,
+) -> None:
+    """SIGTERM, then SIGKILL after the timeout, then the launcher in record mode, SKIP_DRIVER=1."""
     fakes = Fakes([proc(202, APP), proc(303, LAB), proc(9, DRIVER)])
     fakes.die_on_term = False
     sup = supervisor(tmp_path, fakes)
     result = sup.start()
-    assert [sig for _, sig in fakes.signals] == [signal.SIGTERM, signal.SIGTERM, signal.SIGKILL, signal.SIGKILL]
+    sent = [sig for _, sig in fakes.signals]
+    assert sent == [signal.SIGTERM, signal.SIGTERM, signal.SIGKILL, signal.SIGKILL]
     assert {pid for pid, _ in fakes.signals} == {202, 303}       # never the driver
     assert all(row["result"] == "killed after timeout" for row in result["closed"])
     argv, env, log, cwd = fakes.spawned[0]
@@ -153,7 +172,7 @@ def test_stop_closes_scene_instances_only(tmp_path: Path) -> None:
 
 
 def test_launcher_path_comes_from_environment_or_workspace_and_is_validated(tmp_path: Path) -> None:
-    """No launcher means no button; a configured path must be an absolute existing launcher script."""
+    """No launcher means no button; a configured path must be an absolute, existing launcher."""
     workspace = tmp_path / "ws"
     workspace.mkdir()
     assert launcher_from_config(workspace, {}) is None
@@ -167,15 +186,15 @@ def test_launcher_path_comes_from_environment_or_workspace_and_is_validated(tmp_
         launcher_from_config(workspace, {isaac.LAUNCHER_ENV: "scripts/run_alicia_stack.sh"})
     with pytest.raises(ValueError, match="absolute path"):
         launcher_from_config(workspace, {isaac.LAUNCHER_ENV: str(tmp_path / "evil.sh")})
-    sup = IsaacSupervisor(workspace, workspace / "logs", launcher=None, list_processes=list, gpu_memory=dict,
-                          topic_rate=lambda: None)
+    sup = IsaacSupervisor(workspace, workspace / "logs", launcher=None, list_processes=list,
+                          gpu_memory=dict, topic_rate=lambda: None)
     assert sup.state()["available"] is False
     with pytest.raises(ValueError, match="not configured"):
         sup.start()
 
 
 def test_console_routes_are_simulation_only_and_take_no_parameters(tmp_path: Path) -> None:
-    """Physical mode has no Isaac control; simulation exposes state, start and stop with fixed commands."""
+    """Physical mode has no Isaac control; simulation exposes state, start and stop."""
     registry = synthetic_registry(tmp_path / "tasks.json", 4, 40)
     fakes = Fakes([])
     sup = supervisor(tmp_path, fakes)
@@ -193,7 +212,7 @@ def test_console_routes_are_simulation_only_and_take_no_parameters(tmp_path: Pat
 
 
 def test_read_only_driver_start_is_fixed_and_only_when_no_driver_runs(tmp_path: Path) -> None:
-    """The driver command is the launch file's read-only form with no serial; a running driver blocks it."""
+    """The driver command is the read-only launch form, no serial; a running driver blocks it."""
     fakes = Fakes([])
     sup = supervisor(tmp_path, fakes)
     result = sup.start_driver()
@@ -202,7 +221,8 @@ def test_read_only_driver_start_is_fixed_and_only_when_no_driver_runs(tmp_path: 
     assert "joint_commands_enabled:=false" in argv[2] and "torque_off_on_start:=false" in argv[2]
     assert "true" not in argv[2] and "/dev/" not in argv[2] and "port:=" not in argv[2]
     assert argv[2].endswith("exec " + isaac.READ_ONLY_DRIVER_COMMAND)
-    assert log.name.startswith("arm_driver_readonly_") and log.parent == tmp_path / "workspace" / "isaac-logs"
+    assert log.name.startswith("arm_driver_readonly_")
+    assert log.parent == tmp_path / "workspace" / "isaac-logs"
     assert result["driver_launch_pid"] == 4242 and sup.driver()["can_start"] is True
     running = supervisor(tmp_path, Fakes([proc(9, DRIVER)]))
     assert running.driver()["can_start"] is False
@@ -216,7 +236,7 @@ def test_read_only_driver_start_is_fixed_and_only_when_no_driver_runs(tmp_path: 
 
 
 def test_readiness_waits_for_detected_isaac_record_mode(tmp_path: Path) -> None:
-    """With a launcher configured, the check refuses in operator words until the supervisor sees record mode."""
+    """With a launcher configured, the check refuses in operator words until record mode is seen."""
     from contextlib import contextmanager
     registry = synthetic_registry(tmp_path / "tasks.json", 4, 40)
     opened: list[str] = []
@@ -228,9 +248,11 @@ def test_readiness_waits_for_detected_isaac_record_mode(tmp_path: Path) -> None:
         yield  # pragma: no cover
 
     down = supervisor(tmp_path, Fakes([]))
-    with ConsoleFixture(tmp_path / "down", simulation=True, registry=registry, isaac=down, builder=builder) as service:
-        report = service.check_readiness({"settings": {"name": "t", "task_id": "die_into_cup", "gripper_type": "50mm",
-                                                       "fps": 15, "operator": "o", "scene": "s"},
+    settings = {"name": "t", "task_id": "die_into_cup", "gripper_type": "50mm", "fps": 15,
+                "operator": "o", "scene": "s"}
+    with ConsoleFixture(tmp_path / "down", simulation=True, registry=registry, isaac=down,
+                        builder=builder) as service:
+        report = service.check_readiness({"settings": settings,
                                           "confirmations": {"arm_checked": True}})
         assert opened == []
         assert report["checks"]["isaac_record_mode"]["passed"] is False
@@ -242,17 +264,20 @@ def test_readiness_waits_for_detected_isaac_record_mode(tmp_path: Path) -> None:
         raise RuntimeError("camera device busy")
         yield  # pragma: no cover
 
-    up = supervisor(tmp_path, Fakes([proc(101, RECORD)], rate=15.1, markers={101: {"commit": "abc1234", "scene_loaded": True, "topics_started": True}}))
-    with ConsoleFixture(tmp_path / "up", simulation=True, registry=registry, isaac=up, builder=busy_camera) as service:
-        report = service.check_readiness({"settings": {"name": "t", "task_id": "die_into_cup", "gripper_type": "50mm",
-                                                       "fps": 15, "operator": "o", "scene": "s"},
+    ready = {101: {"commit": "abc1234", "scene_loaded": True, "topics_started": True}}
+    up = supervisor(tmp_path, Fakes([proc(101, RECORD)], rate=15.1, markers=ready))
+    with ConsoleFixture(tmp_path / "up", simulation=True, registry=registry, isaac=up,
+                        builder=busy_camera) as service:
+        report = service.check_readiness({"settings": settings,
                                           "confirmations": {"arm_checked": True}})
         assert opened == ["opened"] and report["checks"]["isaac_record_mode"]["passed"] is True
 
 
 def test_steady_needs_all_three_topics_over_a_full_window_with_tolerance() -> None:
     """14.8 Hz with short gaps is steady; a silent camera, a long gap or a partial window is not."""
-    good = {"rates": {"state": 14.8, "wrist": 14.8, "front": 14.8}, "max_gap_s": {"state": 0.072, "wrist": 0.072, "front": 0.072}, "complete": True, "error": None}
+    good = {"rates": {"state": 14.8, "wrist": 14.8, "front": 14.8},
+            "max_gap_s": {"state": 0.072, "wrist": 0.072, "front": 0.072},
+            "complete": True, "error": None}
     assert isaac.steady(good)
     assert not isaac.steady({**good, "rates": {**good["rates"], "front": None}})
     assert not isaac.steady({**good, "rates": {**good["rates"], "wrist": 12.0}})
@@ -263,22 +288,30 @@ def test_steady_needs_all_three_topics_over_a_full_window_with_tolerance() -> No
 
 
 def test_waiting_words_name_the_step_and_the_time(tmp_path: Path) -> None:
-    """The panel says what it is waiting for instead of a bare refusal, and times out with the log path."""
+    """The panel says what it waits for, not a bare refusal, and times out with the log path."""
     assert isaac.waiting_words(False, False, False, None, 3) == "Waiting for the Isaac process, 3 s"
     assert isaac.waiting_words(True, False, False, None, 12) == "Isaac is loading the scene, 12 s"
-    assert isaac.waiting_words(True, True, False, None, 20) == "Scene loaded, waiting for the sim topics, 20 s"
-    assert isaac.waiting_words(True, True, True, {"complete": False}, 21) == "Scene loaded, measuring the sim topics, 21 s"
+    assert (isaac.waiting_words(True, True, False, None, 20)
+            == "Scene loaded, waiting for the sim topics, 20 s")
+    assert (isaac.waiting_words(True, True, True, {"complete": False}, 21)
+            == "Scene loaded, measuring the sim topics, 21 s")
     low = {"complete": True, "rates": {"state": 14.9, "wrist": 2.0, "front": None}}
-    assert isaac.waiting_words(True, True, True, low, 25) == "Scene loaded, waiting for camera feeds and state at 15 Hz (wrist 2.0 Hz, front silent), 25 s"
-    fakes = Fakes([proc(101, RECORD)], rate=None, markers={101: {"commit": "abc1234", "scene_loaded": True, "topics_started": True}})
+    assert isaac.waiting_words(True, True, True, low, 25) == (
+        "Scene loaded, waiting for camera feeds and state at 15 Hz (wrist 2.0 Hz, front silent), "
+        "25 s")
+    ready = {101: {"commit": "abc1234", "scene_loaded": True, "topics_started": True}}
+    fakes = Fakes([proc(101, RECORD)], rate=None, markers=ready)
     sup = supervisor(tmp_path, fakes)
     sup.start.__func__  # noqa: B018  (start is exercised elsewhere; here the record comes from a timed-out launch)
-    sup._write_launch({"status": "starting", "launch_pid": 1, "started_at": fakes.now - 30, "commit": "abc1234", "log": "/tmp/x.log"})
+    sup._write_launch({"status": "starting", "launch_pid": 1, "started_at": fakes.now - 30,
+                       "commit": "abc1234", "log": "/tmp/x.log"})
     state = sup.state()
-    assert state["status"] == "starting" and state["label"].startswith("Scene loaded, measuring the sim topics, 30 s")
+    assert state["status"] == "starting"
+    assert state["label"].startswith("Scene loaded, measuring the sim topics, 30 s")
     fakes.now += isaac.START_TIMEOUT_S
     state = sup.state()
-    assert state["failure"].startswith("Isaac did not reach record mode in") and state["launch_log"] == "/tmp/x.log"
+    assert state["failure"].startswith("Isaac did not reach record mode in")
+    assert state["launch_log"] == "/tmp/x.log"
     fakes.rate = 14.8
     state = sup.state()
     assert state["status"] == "running" and state["failure"] is None
