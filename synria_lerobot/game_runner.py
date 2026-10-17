@@ -311,7 +311,8 @@ class RollMachine:
         value, error = None, None
         try:
             phases = (
-                ROLL_SKILL_IDS if self.fixed_skills else tuple(phase.value for phase in MOTION_PHASES)
+                ROLL_SKILL_IDS if self.fixed_skills
+                else tuple(phase.value for phase in MOTION_PHASES)
             )
             for phase in phases:
                 self.state = RollState(phase) if not self.fixed_skills else None

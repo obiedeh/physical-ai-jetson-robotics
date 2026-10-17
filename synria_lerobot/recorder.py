@@ -155,6 +155,14 @@ class OperatorLabel(str, Enum):
     FAILURE = "failure"
 
 
+def _discard_result(action: Callable[[], object]) -> Callable[[], None]:
+    """Adapt a cleanup call whose return value carries no meaning into a plain callback."""
+    def run() -> None:
+        """Run the wrapped cleanup and drop its return value."""
+        action()
+    return run
+
+
 def _close_all(*callbacks: Callable[[], None]) -> None:
     """Attempt every cleanup without hiding an exception already being handled."""
     active_error = sys.exc_info()[1]
@@ -439,9 +447,9 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
             self._node = rclpy.create_node(node_name, context=self._context)
             startup.callback(_close_all, self._node.destroy_node)
             self._executor = SingleThreadedExecutor(context=self._context)
-            startup.callback(
-                _close_all, lambda: self._executor.shutdown(timeout_sec=self._timeout_s)
-            )
+            startup.callback(_close_all, _discard_result(
+                lambda: self._executor.shutdown(timeout_sec=self._timeout_s)
+            ))
 
             def on_state(message: Any) -> None:
                 """Cache the newest state with host arrival and ROS timestamps."""
@@ -465,9 +473,9 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
                 ))
 
             self._subscription = self._node.create_subscription(JointState, topic, on_state, 1)
-            startup.callback(
-                _close_all, lambda: self._node.destroy_subscription(self._subscription)
-            )
+            startup.callback(_close_all, _discard_result(
+                lambda: self._node.destroy_subscription(self._subscription)
+            ))
             self._executor.add_node(self._node)
 
             def spin() -> None:
@@ -593,7 +601,7 @@ class RosJointStateSource(_LatestSource[PhysicalState]):
         self._closed = True
         _close_all(
             lambda: self._executor.remove_node(self._node),
-            lambda: self._node.destroy_subscription(self._subscription),
+            _discard_result(lambda: self._node.destroy_subscription(self._subscription)),
             self._node.destroy_node,
             lambda: self._rclpy.shutdown(context=self._context),
         )
@@ -739,9 +747,9 @@ class RosImageFrameSource(_LatestSource[ImageFrame]):
             self._node = rclpy.create_node(node_name, context=self._context)
             startup.callback(_close_all, self._node.destroy_node)
             self._executor = SingleThreadedExecutor(context=self._context)
-            startup.callback(
-                _close_all, lambda: self._executor.shutdown(timeout_sec=self._timeout_s)
-            )
+            startup.callback(_close_all, _discard_result(
+                lambda: self._executor.shutdown(timeout_sec=self._timeout_s)
+            ))
 
             def on_image(message: Any) -> None:
                 """Cache the newest frame with its host arrival time."""
@@ -757,9 +765,9 @@ class RosImageFrameSource(_LatestSource[ImageFrame]):
                 ))
 
             self._subscription = self._node.create_subscription(Image, topic, on_image, 1)
-            startup.callback(
-                _close_all, lambda: self._node.destroy_subscription(self._subscription)
-            )
+            startup.callback(_close_all, _discard_result(
+                lambda: self._node.destroy_subscription(self._subscription)
+            ))
             self._executor.add_node(self._node)
 
             def spin() -> None:
@@ -793,7 +801,7 @@ class RosImageFrameSource(_LatestSource[ImageFrame]):
             self._executor.shutdown(timeout_sec=self._timeout_s)
             self._join()
             _close_all(
-                lambda: self._node.destroy_subscription(self._subscription),
+                _discard_result(lambda: self._node.destroy_subscription(self._subscription)),
                 self._node.destroy_node,
                 lambda: self._rclpy.shutdown(context=self._context),
             )
