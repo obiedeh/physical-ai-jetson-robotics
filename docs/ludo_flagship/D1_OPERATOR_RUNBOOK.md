@@ -274,6 +274,9 @@ At the prompt:
 - `retry`: retry a failed save with the same retained frames and label.
 - `discard`: explicitly abandon pending frames after a setup/recording fault;
   note the reason. Do not erase genuine task failures.
+- `abort`: throw away a stopped take that was never attempted (the operator
+  did nothing or changed their mind). Audited as a discard with a fixed
+  reason, never saved as a failure, and not counted separately.
 - `quit`: finalize and exit while idle. Save or explicitly discard pending
   frames first; a new `start` cannot replace them.
 

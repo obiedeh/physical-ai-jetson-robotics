@@ -311,7 +311,8 @@ with the frames kept, Nothing captured, Practice run finished, Session paused,
 or Recording blocked. The action area below also keeps a fixed height and shows
 only the actions that apply: one large Start recording (Space); one large Stop
 (Space); Yes, save as success (S) and No, save as failure (F) in different
-colours with a small Throw away, bad capture; Retry save only after a failed
+colours, Aborted, throw away (A) for a take the operator never attempted, with a
+small Throw away, bad capture; Retry save only after a failed
 save; Cancel countdown only during a countdown; Run another practice run and
 Finish practice run when a practice run has ended (Run another closes the
 finished run and starts a new one with the same setup values). After a
@@ -328,7 +329,9 @@ take a red border while recording; age and native size sit inside Source
 details. Between takes, Reset the scene lists the task's scene bullets beside
 the cameras. Follower state, preflight and the last saved take's record sit
 under Technical details. Space starts and stops; S and F label a stopped take,
-which is what saves it. No recorder transition, guard or shortcut changed.
+which is what saves it; A throws it away as aborted after one confirmation and
+needs no typed reason, because nothing was attempted. An aborted take is not
+saved and is not counted apart; it only adds to the thrown-away count.
 Throw away needs confirmation and a reason. Tab closure does not stop capture;
 the server enforces the cap. Quit refuses pending frames. Process signals close
 sources and audit any lost pending frames.
@@ -429,7 +432,8 @@ missing catalog facts from session mirrors and sidecars and records differences:
 synria-teleop-console --workspace "$HOME/synria-console" --reindex
 ```
 
-Discard abandons unsaved memory. Exclude keeps saved bytes and labels, appending
+Discard abandons unsaved memory; an aborted take is a discard with a fixed
+reason and is tracked no further. Exclude keeps saved bytes and labels, appending
 a reason/operator/time to the sibling log; Restore appends the inverse decision.
 Quality-valid demonstrations that fail the task retain their failure label.
 Summaries separate exclusions and reject stale curation hashes. Training reads

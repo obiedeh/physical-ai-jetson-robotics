@@ -120,9 +120,14 @@ def test_reload_rename_discard_and_pending_quit_are_server_owned(
         assert service.state()["capture"]["state"] == "recording"
         service.mutate(["record", "discard"], {"reason": "synthetic capture interruption"})
         assert service.state()["active_session"]["counts"]["discarded"] == 1
+        service.mutate(["record", "start"], {})
+        service.mutate(["record", "stop"], {})
+        service.mutate(["record", "abort"], {})
+        counts = service.state()["active_session"]["counts"]
+        assert counts["discarded"] == 2 and counts["failure"] == 0 and "aborted" not in counts
         service.close_session()
         service.open_session(identity)
-        assert service.state()["active_session"]["counts"]["discarded"] == 1
+        assert service.state()["active_session"]["counts"]["discarded"] == 2
 
 
 def test_registry_drift_refuses_resume_without_opening_sources(tmp_path: Path) -> None:

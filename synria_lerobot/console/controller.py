@@ -38,6 +38,10 @@ class _Request:
     cancelled: bool = False
 
 
+ABORT_REASON = "operator aborted the take before attempting the task"
+"""Audit reason written when the operator throws a take away as aborted, not failed."""
+
+
 class RecordingController:
     """Own a recorder lifecycle without adding any command-capable robot interface."""
 
@@ -49,6 +53,7 @@ class RecordingController:
             "failure",
             "retry",
             "discard",
+            "abort",
             "countdown",
             "cancel_countdown",
         }
@@ -240,22 +245,35 @@ class RecordingController:
             reason = arguments.get("reason", "")
             if type(reason) is not str or not reason.strip():
                 raise ValueError("discard requires an explicit reason and confirmation")
-            if self.recorder.state is RecorderState.IDLE:
-                raise RuntimeError("no pending capture to discard")
-            count = self.recorder.pending_frame_count
-            self.recorder.discard()
-            self._counters["discarded"] += 1
-            self._error = None
-            self._audit(
-                "episode discarded",
-                {
-                    "reason": reason,
-                    "pending_frame_count": count,
-                    "episode_index": self.recorder.next_episode_index,
-                },
-            )
+            self._discard(reason)
+        elif name == "abort":
+            stopped = self.recorder.state is RecorderState.STOPPED
+            if not stopped or not self.recorder.pending_frame_count:
+                raise RuntimeError("stop the take before throwing it away as aborted")
+            self._discard(ABORT_REASON)
         else:
             raise ValueError("unknown recording command")
+
+    def _discard(self, reason: str) -> None:
+        """Abandon the pending capture and audit why; the frames are gone for good.
+
+        Both a typed capture fault and an aborted take go through here. Neither is saved,
+        so an aborted take never appears as a task failure; only the audit line records it.
+        """
+        if self.recorder.state is RecorderState.IDLE:
+            raise RuntimeError("no pending capture to discard")
+        count = self.recorder.pending_frame_count
+        self.recorder.discard()
+        self._counters["discarded"] += 1
+        self._error = None
+        self._audit(
+            "episode discarded",
+            {
+                "reason": reason,
+                "pending_frame_count": count,
+                "episode_index": self.recorder.next_episode_index,
+            },
+        )
 
     def _publish(self) -> None:
         """Copy small owner metadata without holding the lock across capture, save or encoding."""
@@ -322,6 +340,13 @@ class RecordingController:
                 "discard": (
                     not closed
                     and state is not RecorderState.IDLE
+                    and not blocked
+                    and not self._saving
+                ),
+                "abort": (
+                    not closed
+                    and has_frames
+                    and state is RecorderState.STOPPED
                     and not blocked
                     and not self._saving
                 ),
