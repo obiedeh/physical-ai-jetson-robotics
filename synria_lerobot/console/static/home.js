@@ -49,7 +49,7 @@
     }
     rows.push(describe(sim ? "Sim arm feed" : "Arm feed", ["follower_sample", "state_rate"]));
     rows.push(describe(sim ? "Sim wrist camera" : "Wrist camera", ["wrist_sample", "wrist_camera"]));
-    rows.push(describe(sim ? "Sim front camera" : "Overhead camera", ["front_sample", "front_camera"]));
+    rows.push(describe(sim ? "Sim overhead camera" : "Overhead camera", ["front_sample", "front_camera"]));
     if (typeof current.free_disk_bytes === "number") {
       const free = current.free_disk_bytes, floor = current.min_free_bytes || 0;
       rows.push(row(free >= floor ? "ready" : "attention", "Storage", `${(free / 1e9).toFixed(1)} GB free${free >= floor ? "" : ", below the recording floor"}`));

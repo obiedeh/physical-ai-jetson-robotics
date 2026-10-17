@@ -196,7 +196,7 @@ async function refreshState() {
   $("mode").className=`badge ${state.demo?"demo":state.simulation?"simulation":""}`;
   $("mode").textContent=state.demo?"SYNTHETIC DEMO · NO ROBOT":state.simulation?"SIMULATION · ISAAC RECORD MODE":"READ ONLY · PHYSICAL SOURCES";
   $("mode-help").textContent=state.demo?"Demo mode: fake cameras and arm. Nothing recorded here is real.":state.simulation?"Simulation: Isaac cameras and the sim arm; the leader arm's follower feed is the action. Takes go to their own dataset and never count as physical data.":"";$("mode-help").hidden=!(state.demo||state.simulation);
-  if(state.simulation&&!document.body.dataset.simCaptions){document.body.dataset.simCaptions="1";for(const [role,name] of Object.entries({wrist:"Wrist camera · SIMULATION",front:"Front camera · SIMULATION"}))document.querySelectorAll(`[data-camera-name=${role}]`).forEach(node=>{node.textContent=name;});}
+  if(state.simulation&&!document.body.dataset.simCaptions){document.body.dataset.simCaptions="1";for(const [role,name] of Object.entries({wrist:"Wrist camera · SIMULATION",front:"Overhead camera · SIMULATION"}))document.querySelectorAll(`[data-camera-name=${role}]`).forEach(node=>{node.textContent=name;});}
   const min=c.min_episode_s??0,max=c.max_episode_s??0,elapsed=c.elapsed_s||0;
   renderRecordBanner(c, active);
   $("preflight").textContent=JSON.stringify({...state.preflight,free_disk_bytes:state.free_disk_bytes,required_free_bytes:state.min_free_bytes},null,2);

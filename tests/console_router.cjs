@@ -40,7 +40,7 @@ assert.equal(rows.map(r => r.name).join(), "Arm feed,Wrist camera,Overhead camer
 assert.ok(rows.slice(0, 3).every(r => r.level === "neutral" && r.detail === "Not checked yet"), "no check means Not checked yet, never a fault");
 assert.equal(rows[3].level, "ready"); assert.match(rows[3].detail, /^50\.0 GB free$/);
 const simRows = home.statusRows({active_session: null, simulation: true, free_disk_bytes: 5e10, min_free_bytes: 1e9}, {status: "ready"}, null);
-assert.equal(simRows.map(r => r.name).join(), "Isaac record mode,Sim arm feed,Sim wrist camera,Sim front camera,Storage", "simulation mode adds the Isaac tile and names the sim sources");
+assert.equal(simRows.map(r => r.name).join(), "Isaac record mode,Sim arm feed,Sim wrist camera,Sim overhead camera,Storage", "simulation mode adds the Isaac tile and names the sim sources");
 assert.equal(simRows[0].detail, "Not checked yet", "no Isaac state yet is neutral, never a fault");
 const checks = {follower_sample: {passed: true, status: "ready", message: "Fresh sample"},
   wrist_sample: {passed: false, status: "not_ready", message: "Camera device busy"},

@@ -69,7 +69,7 @@ function renderReadiness(report) {
   $("readiness-scope").textContent = `${report.scope} ${report.checked_utc ? `Checked ${report.checked_utc}. Expires after ${report.expires_after_s} seconds.` : ""}${changed ? " These results describe previous form settings; run again after changes." : ""}`;
   $("readiness-results").replaceChildren();
   const pathNames = state.simulation
-    ? {follower_sample:"Sim arm feed", action_sample:"Leader arm (real follower feed)", wrist_sample:"Sim wrist camera", front_sample:"Sim front camera", source_startup:"Read-only source startup", isaac_record_mode:"Isaac record mode"}
+    ? {follower_sample:"Sim arm feed", action_sample:"Leader arm (real follower feed)", wrist_sample:"Sim wrist camera", front_sample:"Sim overhead camera", source_startup:"Read-only source startup", isaac_record_mode:"Isaac record mode"}
     : {follower_sample:"Arm feed", action_sample:"Leader arm", wrist_sample:"Wrist camera", front_sample:"Overhead camera", source_startup:"Read-only source startup"};
   for (const [name, check] of Object.entries(report.checks)) {
     const node = document.createElement("li");
@@ -106,7 +106,7 @@ function checkBlocker(confirmations) {
 /** Words for the step the server is on, from the live snapshot. */
 function checkStepWords(report) {
   const names = {source_startup:"opening read-only sources", follower_sample:state.simulation ? "sim arm feed" : "arm feed", action_sample:"leader arm",
-    wrist_sample:state.simulation ? "sim wrist camera" : "wrist camera", front_sample:state.simulation ? "sim front camera" : "overhead camera", source_alignment:"timing alignment"};
+    wrist_sample:state.simulation ? "sim wrist camera" : "wrist camera", front_sample:state.simulation ? "sim overhead camera" : "overhead camera", source_alignment:"timing alignment"};
   const launching = Object.entries(report?.checks || {}).find(([, check]) => check.status === "launching");
   return launching ? (names[launching[0]] || launching[0].replaceAll("_", " ")) : "setup";
 }

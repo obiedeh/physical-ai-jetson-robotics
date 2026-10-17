@@ -257,7 +257,7 @@ then **Ready** or **Not ready**, with one row for each library/encoder and a sho
 missing-dependency message. It checks automatically on page load and before
 connection preflight; Recheck software does not start sources or services.
 Library discovery is not a compatibility or hardware test. Each connection path
-(follower state, action source, wrist camera and front camera) also has its own
+(follower state, action source, wrist camera and overhead camera) also has its own
 status and failure reason. **Launching** on a source path means opening/checking
 read-only inputs, never launching a driver. Unattempted paths remain **Not checked**;
 technical details are collapsed beneath the short message. No software status
