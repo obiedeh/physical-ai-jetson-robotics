@@ -13,7 +13,7 @@ import pytest
 from test_console_recording_builder import settings
 from test_physical_recorder import FakeClock, FakeWriter
 
-from synria_lerobot.console.controller import RecordingController
+from synria_lerobot.console.controller import ABORT_REASON, RecordingController
 from synria_lerobot.console.demo import SyntheticStateSource
 from synria_lerobot.physical_contract import ImageFrame
 from synria_lerobot.recorder import (
@@ -258,6 +258,25 @@ def test_discard_requires_reason_and_recovery_preserves_pending_frames(tmp_path:
     controller.command("discard", reason="operator interruption")
     assert controller.recorder.pending_frame_count == 0
     assert any(name == "episode discarded" for name, _ in events)
+    controller.shutdown("done")
+
+
+def test_abort_throws_a_stopped_take_away_without_a_typed_reason(tmp_path: Path) -> None:
+    """Aborted is a plain discard with a fixed reason: audited, never a failure label."""
+    controller, _, _, events = setup_controller(tmp_path)
+    controller.command("start")
+    controller.tick()
+    with pytest.raises(RuntimeError, match="stop the take"):
+        controller.command("abort")
+    assert not controller.snapshot()["controls"]["abort"]
+    state = controller.command("stop")
+    assert state["controls"]["abort"] and state["controls"]["discard"]
+    state = controller.command("abort")
+    assert controller.recorder.pending_frame_count == 0
+    assert state["counters"]["discarded"] == 1 and state["counters"]["failure"] == 0
+    assert "aborted" not in state["counters"]
+    [detail] = [detail for name, detail in events if name == "episode discarded"]
+    assert detail["reason"] == ABORT_REASON
     controller.shutdown("done")
 
 

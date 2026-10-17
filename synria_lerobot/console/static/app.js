@@ -218,6 +218,7 @@ async function refreshState() {
 }
 /** Request one existing recorder transition and refresh the resulting state. */
 async function command(name) {
+  if(name==="abort"&&!confirm("Throw this take away as aborted? Nothing is saved and it cannot be recovered."))return;
   if(name==="start"&&Number($("countdown").value)>0)await api("record/countdown",{seconds:Number($("countdown").value)});
   else await api(`record/${name}`,{});
   await refreshState();if(["success","failure","retry"].includes(name))await refreshSessions();
@@ -417,6 +418,7 @@ function recordingShortcut(event) {
   if(event.code==="Space")cmd=lastCapture==="recording"?"stop":"start";
   else if(lastCapture==="stopped"&&event.key.toLowerCase()==="s")cmd="success";
   else if(lastCapture==="stopped"&&event.key.toLowerCase()==="f")cmd="failure";
+  else if(lastCapture==="stopped"&&event.key.toLowerCase()==="a")cmd="abort";
   if(cmd&&state.capture?.controls?.[cmd]){event.preventDefault();safe(()=>command(cmd));}
 }
 document.addEventListener("keydown",recordingShortcut);

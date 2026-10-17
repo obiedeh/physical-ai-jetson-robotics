@@ -70,7 +70,7 @@ const SynriaGuide = (() => {
     save: {title:"Keep the frames and retry safely", summary:"A stopped take is not safe on disk until its save completes.", steps:[
       "Keep the console process running. Closing a browser tab does not stop capture, but terminating the process loses pending frames.",
       "Inspect the save error and resolve storage or camera issues. Use Retry save to keep the same frames and label.",
-      "If recovery is blocked, preserve locks and journals and stop writes. Throw away is only for an unusable capture and needs a reason; keep genuine task failures as failures.",
+      "If recovery is blocked, preserve locks and journals and stop writes. Throw away is only for an unusable capture and needs a reason; Aborted is for a take you never attempted; keep genuine task failures as failures.",
       "After a save, review both views, the traces, the quality checks and the overhead photo before scaling up."], doc:"runbook"},
     contract: {title:"Keep dataset settings consistent", summary:"The existing dataset does not match the proposed session contract or capture provenance.", steps:[
       "Resume with the exact original task, image/camera settings, FPS, action source, lookahead, gripper and velocity contract.",

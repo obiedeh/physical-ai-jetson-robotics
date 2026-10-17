@@ -34,7 +34,7 @@
   const LABELS = {
     start: "Start recording (Space)", stop: "Stop (Space)", cancel_countdown: "Cancel countdown",
     success: "Yes, save as success (S)", failure: "No, save as failure (F)", retry: "Retry save",
-    discard: "Throw away, bad capture", redo: "Run another practice run",
+    abort: "Aborted, throw away (A)", discard: "Throw away, bad capture", redo: "Run another practice run",
     close: "Finish practice run",
   };
 
@@ -75,7 +75,7 @@
     const demo = Boolean(options.demo);
     const reasons = {start: "", stop: "Not recording", success: "Nothing stopped to save",
       failure: "Nothing stopped to save", retry: "No failed save to retry",
-      discard: "No pending frames", cancel_countdown: "No countdown pending"};
+      abort: "Nothing stopped to throw away", discard: "No pending frames", cancel_countdown: "No countdown pending"};
     const view = {phase: "", headline: "", message: "", countdownS: null, countdownUnit: "s left", actions: [], reasons,
       recording: false, betweenTakes: false,
       counters: active ? counters(c, active) : "",
@@ -120,7 +120,7 @@
       reasons.start = "Saving"; reasons.success = reasons.failure = "Saving";
     } else if (c.state === "stopped") {
       const capped = c.stop_reason === "hard cap" ? `The ${c.max_episode_s ?? ""} s limit ended this take. ` : "";
-      reasons.discard = ""; reasons.start = "Save or throw away the stopped take first";
+      reasons.discard = ""; reasons.abort = ""; reasons.start = "Save or throw away the stopped take first";
       if (c.error) {
         view.phase = "save-failed"; view.headline = "Save failed";
         view.message = `${c.error} The frames are kept. Press Retry save; throw away only a bad capture.`;
@@ -131,8 +131,8 @@
         act("discard"); view.actions[0].label = "Throw away empty capture";
       } else {
         view.phase = "did-it-work"; view.headline = "Did it work?";
-        view.message = `${capped}A real failure of the task is saved as failure. Throw away only a bad capture.`;
-        reasons.success = reasons.failure = ""; act("success", "failure", "discard");
+        view.message = `${capped}A real failure of the task is saved as failure. Aborted means you never attempted it; nothing is saved. Throw away only a bad capture.`;
+        reasons.success = reasons.failure = ""; act("success", "failure", "abort", "discard");
       }
     } else if (c.recording_purpose === "disposable_smoke" && c.smoke_complete) {
       view.phase = "practice-finished"; view.headline = "Practice run finished";

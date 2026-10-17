@@ -442,7 +442,7 @@ async function run() {
     await evaluate("SynriaGuide.openHelp('save')");
     assert.equal(await evaluate("lastCapture"),"stopped");
     assert.equal(await textOf("#record-phase"),"DID IT WORK?","a stopped take asks whether it worked");
-    assert.equal(await evaluate("[...document.querySelectorAll('#record-controls button')].filter(n=>!n.hidden).map(n=>n.textContent).join('|')"),"Yes, save as success (S)|No, save as failure (F)|Throw away, bad capture","only the actions that apply are shown");
+    assert.equal(await evaluate("[...document.querySelectorAll('#record-controls button')].filter(n=>!n.hidden).map(n=>n.textContent).join('|')"),"Yes, save as success (S)|No, save as failure (F)|Aborted, throw away (A)|Throw away, bad capture","only the actions that apply are shown");
     assert.equal(await evaluate("document.querySelector('[data-command=start]').hidden"),true,"Start recording is hidden while a take waits for its label");
     assert.equal(await evaluate("document.querySelector('#pause-session').hidden"),false,"Pause and Finish replace Exit while a session is open");
     assert.equal(await evaluate("document.querySelector('#exit-flow').hidden"),true);

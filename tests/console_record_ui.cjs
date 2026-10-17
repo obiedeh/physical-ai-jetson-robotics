@@ -56,13 +56,14 @@ assert.equal(commands(view), "stop", "recording shows one large Stop");
 assert.equal(view.reasons.start, "Already recording");
 
 view = record.describe({...base, state: "stopped", elapsed_s: 14.2, pending_frame_count: 213,
-  stop_reason: "operator", controls: {success: true, failure: true, discard: true}}, active);
+  stop_reason: "operator", controls: {success: true, failure: true, abort: true, discard: true}}, active);
 assert.equal(view.phase, "did-it-work");
 assert.equal(view.headline, "Did it work?");
-assert.equal(view.message, "A real failure of the task is saved as failure. Throw away only a bad capture.");
-assert.equal(commands(view), "success,failure,discard");
-assert.equal(labels(view), "Yes, save as success (S)|No, save as failure (F)|Throw away, bad capture");
+assert.equal(view.message, "A real failure of the task is saved as failure. Aborted means you never attempted it; nothing is saved. Throw away only a bad capture.");
+assert.equal(commands(view), "success,failure,abort,discard");
+assert.equal(labels(view), "Yes, save as success (S)|No, save as failure (F)|Aborted, throw away (A)|Throw away, bad capture");
 assert.equal(view.reasons.success, "");
+assert.equal(view.reasons.abort, "");
 assert.equal(view.reasons.start, "Save or throw away the stopped take first");
 
 view = record.describe({...base, state: "stopped", elapsed_s: 20, pending_frame_count: 300,
