@@ -4,6 +4,9 @@ Recorded device measurements, simulation outcomes and corrections. Device plots
 use NVIDIA green; simulation plots use blue. Charts are regenerated from report
 files by [plot_evidence.py](../../scripts/plot_evidence.py), with
 [source hashes and data gaps](figures/sources.json).
+The physical Synria bench steps planned for 2026-10-18 and their evidence files
+are indexed in [BENCH_WEEKEND_2026-10-18.md](BENCH_WEEKEND_2026-10-18.md); all
+of them are implemented, unmeasured until that page links a report.
 
 ## What Was Measured
 
