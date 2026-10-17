@@ -164,6 +164,47 @@ def require_distinct_cameras(wrist: str, front: str) -> None:
                          "of one USB identity are not a verified wrist/front pair.")
 
 
+JOINT_WORDS = ("Joint1", "Joint2", "Joint3", "Joint4", "Joint5", "Joint6", "Gripper")
+
+
+def limit_violations(values: tuple[float, ...], limits: PhysicalLimits,
+                     gripper_type: str) -> list[str]:
+    """Name every value outside the recording bounds, in operator units.
+
+    Joints are reported in degrees against the operator bound plus the recording
+    tolerance; the gripper in millimetres against its exact bound. An unknown gripper
+    type or a malformed vector is reported as such rather than silently passing.
+    """
+    if len(values) != 7:
+        return [f"expected 6 joints and a gripper, got {len(values)} values"]
+    if gripper_type not in limits.gripper_limits_m:
+        return [f"gripper type {gripper_type!r} has no limits"]
+    out: list[str] = []
+    bounds = limits.recording_bounds(gripper_type)
+    for name, value, (lower, upper) in zip(JOINT_WORDS, values, bounds, strict=True):
+        if math.isfinite(value) and lower <= value <= upper:
+            continue
+        if name == "Gripper":
+            out.append(f"{name} at {value * 1000:.1f} mm is outside {lower * 1000:.0f} to "
+                       f"{upper * 1000:.0f} mm")
+        else:
+            side, bound = (("below", lower) if math.isfinite(value) and value < lower
+                           else ("above", upper))
+            out.append(f"{name} at {math.degrees(value):.1f} deg is {side} its "
+                       f"{math.degrees(bound):.0f} deg recording bound")
+    return out
+
+
+def limits_pose_message(values: tuple[float, ...], limits: PhysicalLimits,
+                        gripper_type: str) -> str:
+    """The refusal shown when a sample is outside the operator joint or gripper limits."""
+    named = "; ".join(limit_violations(values, limits, gripper_type)) or "unknown value"
+    return (f"Arm is beyond a recording limit: {named}. The arm is probably at its folded rest "
+            "position. Move the arm to an upright position, away from the rest pose, and press "
+            "Check again. (Outside the operator joint or gripper limits; recording tolerance "
+            "applied to joints only.)")
+
+
 def inspect_samples(
     recorder: PhysicalEpisodeRecorder, report: ReadinessReport, limits: PhysicalLimits, *,
     sleep: Callable[[float], None] = time.sleep, settle_s: float = 0.5, window_s: float = 1.0,
@@ -199,13 +240,14 @@ def inspect_samples(
     def vector(values: tuple[float, ...]) -> None:
         """Check six joints and the gripper with the shared recording-limit helper.
 
-        The recording tolerance applies to the joints only; commands never use it.
+        The recording tolerance applies to the joints only; commands never use it. The
+        refusal names each value that is out of bounds and tells the operator to move
+        the arm, since the usual cause is an arm parked at its folded rest pose.
         """
         if len(values) != 7 or not within_recording_limits(
             values, limits, config.contract.gripper_type,
         ):
-            raise ValueError("State/action is outside the operator joint or gripper limits "
-                             "(recording tolerance applied to joints only)")
+            raise ValueError(limits_pose_message(values, limits, config.contract.gripper_type))
 
     report.launching("follower_sample", "Checking latest follower state")
     try:
