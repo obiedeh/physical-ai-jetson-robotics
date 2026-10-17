@@ -277,3 +277,31 @@ def test_simulation_shows_the_side_view_as_a_preview_that_is_never_recorded(tmp_
     with ConsoleFixture(tmp_path / "physical", registry=registry,
                         scene_source=scene_source) as physical:
         assert physical.state()["scene_preview"] is False
+
+
+def test_a_sim_session_from_an_older_camera_layout_is_refused_in_operator_words(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Stored topics that are not this launch mode's recorded views refuse to reopen."""
+    from test_console_isaac import RECORD, Fakes, proc, supervisor
+
+    from synria_lerobot.console import app as console_app
+
+    ready = {101: {"commit": "abc1234", "scene_loaded": True, "topics_started": True}}
+    running = supervisor(tmp_path, Fakes([proc(101, RECORD)], rate=15.2, markers=ready))
+    registry = synthetic_registry(tmp_path / "tasks.json", 4, 40)
+
+    def builder_reached(*args: Any, **kwargs: Any) -> Any:
+        raise RuntimeError("builder reached")
+
+    with ConsoleFixture(tmp_path / "ws", simulation=True, registry=registry, isaac=running,
+                        builder=builder_reached) as service:
+        session = service.create_session({**values(), "fps": 15, "arm_checked": True})
+        with pytest.raises(RuntimeError, match="builder reached"):
+            service.open_session(session["id"])      # current layout: the guard lets it through
+        monkeypatch.setitem(console_app.SIM_TOPICS, "front", "/isaac/elsewhere/image_raw")
+        with pytest.raises(ValueError, match="older simulation camera layout") as refusal:
+            service.open_session(session["id"])
+        assert "front /isaac/overhead_camera/image_raw (now /isaac/elsewhere/image_raw)" in str(
+            refusal.value)
+        assert "Start a new session" in str(refusal.value)
