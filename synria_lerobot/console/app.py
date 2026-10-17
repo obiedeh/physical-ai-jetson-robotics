@@ -19,6 +19,7 @@ import time
 import webbrowser
 from collections.abc import Callable
 from contextlib import AbstractContextManager
+from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, TextIO
@@ -93,6 +94,39 @@ def library_task_definition(task: dict[str, Any]) -> TaskDefinition:
         task["task_id"], task["instruction"], task["success_rule"],
         tuple(task["scene_before_take"]), window.get("min_episode_s"), window.get("max_episode_s"),
     )
+
+
+PRIVATE_SETTINGS = frozenset({"follower_serial", "leader_serial", "follower_usb_id"})
+
+
+def smoke_episode_facts(episode: RecordedPhysicalEpisode, fps: float) -> dict[str, Any]:
+    """Frame and camera delivery facts for one smoke episode, computed from its frames.
+
+    Expected frames are the requested rate times the capture duration; dropped frames are
+    the shortfall. Each camera's delivered rate counts distinct frame timestamps, so a
+    camera that stalled while the loop kept sampling shows repeated frames rather than a
+    full rate.
+    """
+    frames = episode.frames
+    duration = episode.duration_s
+    expected = int(round(duration * fps)) if duration > 0 else 0
+
+    def camera(name: str) -> dict[str, Any]:
+        """Distinct frames, delivered rate and repeats for one camera."""
+        distinct = len({getattr(frame, name).monotonic_timestamp_s for frame in frames})
+        return {
+            "distinct_frames": distinct,
+            "delivered_fps": round(distinct / duration, 3) if duration > 0 else 0.0,
+            "repeated_frames": len(frames) - distinct,
+        }
+
+    return {
+        "frame_count": len(frames), "duration_s": duration, "requested_fps": fps,
+        "achieved_sample_rate_hz": episode.achieved_sample_rate_hz,
+        "expected_frame_count": expected,
+        "dropped_frames": max(0, expected - len(frames)),
+        "wrist_camera": camera("wrist"), "front_camera": camera("front"),
+    }
 
 
 def _git_sha() -> str:
@@ -231,6 +265,7 @@ class ConsoleService:
         self._active: dict[str, Any] | None = None
         self._run_id: int | None = None
         self._smoke_episodes: list[dict[str, Any]] = []
+        self._smoke_started_utc: str | None = None
         self._preflight: dict[str, Any] = {}
         self.readiness = ReadinessReport(clock, demo=demo, simulation=simulation)
         # Set by the launcher: False for a loopback console, which needs no launch token.
@@ -556,10 +591,9 @@ class ConsoleService:
             GateConfig(min_episode_s=episode.min_episode_s, max_episode_s=episode.max_episode_s),
         ).as_dict()
         if self._active["id"] == "smoke":
-            row = {"episode_index": episode.episode_index,
+            row = {**smoke_episode_facts(episode, self._recorder.config.fps),
+                   "episode_index": episode.episode_index,
                    "operator_label": episode.operator_label.value,
-                   "duration_s": episode.duration_s, "frame_count": len(episode.frames),
-                   "achieved_sample_rate_hz": episode.achieved_sample_rate_hz,
                    "gate_passed": report["passed"], "failed_gates": report["failed_gates"]}
             self._smoke_episodes.append(row)
             return row
@@ -655,6 +689,7 @@ class ConsoleService:
                     maximum_gap=measurement.max_callback_gap_s if measurement else None,
                 )
             else:
+                self._smoke_started_utc = datetime.now(timezone.utc).isoformat(timespec="seconds")
                 self._audit("capture run started", {"recording_purpose": "disposable_smoke"})
             self.controller = self.controller_factory(
                 recorder, emit_event=self._audit, on_saved=self._saved,
@@ -706,6 +741,7 @@ class ConsoleService:
                         "disposal_succeeded": disposed, "cleanup_errors": list(errors),
                     },
                 ))
+                attempt(lambda: self._write_smoke_report(reason, disposed, list(errors)))
             if self._active is not None and self._active["id"] != "smoke":
                 identity = self._active["id"]
                 attempt(lambda: self.catalog.set_busy(identity, False))
@@ -720,6 +756,47 @@ class ConsoleService:
             self._smoke_episodes = []
             if errors:
                 raise RuntimeError("capture cleanup failed: " + "; ".join(errors))
+
+    def _write_smoke_report(self, exit_reason: str, disposed: bool,
+                            cleanup_errors: list[str]) -> Path:
+        """Write the smoke evidence file: settings, state rate, per-episode frame and camera facts.
+
+        The file lands in the workspace under smoke-reports, never in the repository; the
+        operator copies a physical one into reports/smoke to cite it. Serial numbers and USB
+        ids are left out so the copy is safe to commit.
+        """
+        assert self._active is not None
+        settings = {key: value for key, value in self._active["settings"].items()
+                    if key not in PRIVATE_SETTINGS}
+        recorder = self._recorder
+        measurement = recorder.config.state_rate_measurement if recorder is not None else None
+        ended = datetime.now(timezone.utc)
+        report = {
+            "kind": "synria_console_smoke_report",
+            "recording_purpose": "disposable_smoke",
+            "source_kind": self.source_kind,
+            "evidence_class": ("physical capture" if self.source_kind == "physical"
+                               else self.source_kind),
+            "started_utc": self._smoke_started_utc,
+            "ended_utc": ended.isoformat(timespec="seconds"),
+            "git_sha": _git_sha(),
+            "settings": settings,
+            "state_rate_measurement": asdict(measurement) if measurement is not None else None,
+            "episodes": list(self._smoke_episodes),
+            "exit_reason": exit_reason,
+            "disposal_succeeded": disposed,
+            "cleanup_errors": cleanup_errors,
+        }
+        directory = self.workspace / "smoke-reports"
+        directory.mkdir(parents=True, exist_ok=True)
+        stamp = ended.strftime("%Y%m%dT%H%M%SZ")
+        path = directory / f"smoke_{self.source_kind}_{stamp}.json"
+        path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        self.catalog.record_event(None, "smoke_report_written", {
+            "path": str(path), "episodes": len(self._smoke_episodes),
+            "source_kind": self.source_kind,
+        })
+        return path
 
     def state(self) -> dict[str, Any]:
         """Return enough server-owned state to reconstruct the page after any reload."""

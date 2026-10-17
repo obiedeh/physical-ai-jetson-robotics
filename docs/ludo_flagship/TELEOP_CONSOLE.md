@@ -150,6 +150,12 @@ Only disposable smoke is available before then. Its button runs the shared
 preflight, then automatically starts the existing 20-second temporary capture;
 this flow is fake-tested, not hardware-verified. Review remains available until
 closing its context, when temporary data is disposed. It never qualifies.
+When the smoke context closes, the console writes
+`smoke-reports/smoke_<source kind>_<UTC timestamp>.json` in the workspace with
+the settings (serials and USB ids left out), the measured state rate and, per
+episode, frame count, duration, achieved sample rate, expected and dropped
+frames, and each camera's distinct frames and delivered rate. Copy a physical
+one into `reports/smoke/` to cite it.
 
 The new-session form offers documented Synria presets: explicit 15/30 FPS
 choices, 224-pixel stored dimensions, one-frame lookahead, a 10-second first-state
