@@ -170,8 +170,10 @@ image size and operator metadata. Real task windows remain unset: qualifying
 collection is refused until prospective operator timing is recorded in
 [DECISIONS.md](DECISIONS.md) and the registry is configured outside the console.
 Only disposable smoke is available before then. Its button runs the shared
-preflight, then automatically starts the temporary capture of the practice run length (30 s unless the operator sets it);
-this flow is fake-tested, not hardware-verified. Review remains available until
+preflight and lands on the record page in Ready; the operator presses Start
+recording, the countdown runs, and one temporary capture of the practice run
+length (30 s unless the operator sets it) follows. This flow is fake-tested,
+not hardware-verified. Review remains available until
 closing its context, when temporary data is disposed. It never qualifies.
 When the smoke context closes, the console writes
 `smoke-reports/smoke_<source kind>_<UTC timestamp>.json` in the workspace with
@@ -282,8 +284,11 @@ No live physical check was run during development. **Implemented, unmeasured.**
 Recording is a mode. The breadcrumb reads Home and the session name; the
 heading reads "Take N of M" (takes count from 1 wherever a person reads them;
 stored indices stay zero-based). While a session is open the nav holds **Pause
-session** and **Finish session** instead of Exit, both hidden during a countdown
-or a take: Pause releases the cameras and arm feed, keeps every saved take and
+session**, **Restart session** and **Finish session** instead of Exit, all
+hidden during a countdown or a take. Restart closes the sources and opens the
+same session again in Ready (for a practice run, it starts another practice
+run with the same setup values); like Pause, it refuses while a stopped take
+is unsaved. Pause releases the cameras and arm feed, keeps every saved take and
 shows a neutral confirmation on Home that clears on the next navigation; the
 session reads Paused in the list. Finish marks the session Finished (a status,
 not a lock: Reopen to add takes reverses it), asks once inline when below
