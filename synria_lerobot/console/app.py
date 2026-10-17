@@ -630,6 +630,24 @@ class ConsoleService:
             if self.isaac.state()["status"] != "running":
                 raise ValueError(ISAAC_RECORD_HELP)
 
+    def _require_current_sim_layout(self, settings: dict[str, Any]) -> None:
+        """Refuse a sim session whose stored topics are not this launch mode's recorded views.
+
+        A session's settings are fixed when it is created. When the simulation's recorded
+        views change, an older session would keep recording the old topics under the
+        current labels, so it is refused in operator words and a new session is asked for.
+        """
+        stored = {name: settings.get(key) for name, key in (
+            ("state", "follower_topic"), ("wrist", "wrist_camera"), ("front", "front_camera"))}
+        current = {name: SIM_TOPICS[name] for name in stored}
+        if stored != current:
+            differing = ", ".join(f"{name} {stored[name]} (now {current[name]})"
+                                  for name in stored if stored[name] != current[name])
+            raise ValueError(
+                "This session was created with an older simulation camera layout and cannot "
+                f"be reopened: {differing}. Start a new session; its takes already saved stay "
+                "as they are.")
+
     def open_session(self, session_id: str) -> dict[str, Any]:
         """Restore exact persisted settings and run the CLI's complete source preflight."""
         with self._lock:
@@ -641,6 +659,8 @@ class ConsoleService:
                 raise RuntimeError("restore this session before opening it")
             if session["source_kind"] != self.source_kind:
                 raise ValueError("session source kind differs from this launch mode")
+            if self.simulation:
+                self._require_current_sim_layout(session["settings"])
             source = (Path(session["task_snapshot_path"]) if session.get("task_snapshot_path")
                       else self.registry)
             task = load_task_source(source)[session["task_id"]]
