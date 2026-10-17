@@ -600,9 +600,9 @@ class ConsoleService:
     def _saved(self, episode: RecordedPhysicalEpisode) -> dict[str, Any]:
         """Evaluate committed sidecars with existing gates before inserting catalog facts."""
         from synria_lerobot.quality_gates import (
-            GateConfig,
             episode_quality_record,
             evaluate_episode,
+            gate_config_for,
             load_limits,
         )
 
@@ -610,7 +610,8 @@ class ConsoleService:
         record = episode_quality_record(episode, fps=self._recorder.config.fps)
         report = evaluate_episode(
             record, load_limits(REPOSITORY / "config" / "synria_limits.yaml"),
-            GateConfig(min_episode_s=episode.min_episode_s, max_episode_s=episode.max_episode_s),
+            gate_config_for(record.recording_purpose, episode.min_episode_s,
+                            episode.max_episode_s),
         ).as_dict()
         if self._active["id"] == "smoke":
             row = {**smoke_episode_facts(episode, self._recorder.config.fps),

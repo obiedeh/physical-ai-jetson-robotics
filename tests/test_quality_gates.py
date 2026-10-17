@@ -130,6 +130,47 @@ def test_corrupt_limit_fails_exact_gate() -> None:
     assert _failed_gates(_replace_frame(episode, 0, frame)) == ["state_action_limits"]
 
 
+def _hitched_episode(purpose: str | None) -> EpisodeQualityRecord:
+    """One frame whose sim sources are 150 ms behind the leader, as an Isaac hitch leaves it."""
+    episode = _baseline_episode()
+    if purpose is not None:
+        episode = replace(episode, declared_recording_purpose=purpose)
+    timestamps = dict(episode.frames[5].timestamps)
+    timestamps["action_monotonic_s"] = 5.15
+    timestamps["sample_monotonic_s"] = 5.16
+    timestamps["action_ros_header_s"] = 1005.15
+    timestamps["action_ros_arrival_s"] = 1005.16
+    return _replace_frame(episode, 5, replace(episode.frames[5], timestamps=timestamps))
+
+
+def test_simulation_takes_get_a_hitch_allowance_that_physical_takes_do_not() -> None:
+    """A 150 ms sim stall passes only under the simulation thresholds, which the record states."""
+    from synria_lerobot.quality_gates import gate_config_for, gate_thresholds
+    from synria_lerobot.task_registry import SIMULATION
+
+    physical = _hitched_episode(None)
+    assert _failed_gates(physical) == ["timestamp_skew"]
+    simulated = _hitched_episode(SIMULATION)
+    report = evaluate_episode(
+        simulated, load_limits(LIMITS_PATH),
+        gate_config_for(SIMULATION, simulated.min_episode_s, simulated.max_episode_s),
+    )
+    assert report.failed_gates == []
+    assert gate_thresholds("qualifying") == {"max_timestamp_skew_s": 0.05, "max_source_age_s": 0.2}
+    assert gate_thresholds(SIMULATION) == {"max_timestamp_skew_s": 0.25, "max_source_age_s": 0.4}
+    assert gate_config_for("qualifying", 20, 30) == GateConfig(20, 30)
+    for episode, expected in ((physical, gate_thresholds("qualifying")),
+                              (simulated, gate_thresholds(SIMULATION))):
+        payload = episode.as_dict()
+        assert {name: payload[name] for name in expected} == expected
+        restored = EpisodeQualityRecord.from_dict(payload)
+        assert restored.recording_purpose == episode.recording_purpose
+        assert restored.gate_thresholds == expected and restored.frames == episode.frames
+    tampered = {**simulated.as_dict(), "max_timestamp_skew_s": 1.0}
+    with pytest.raises(ValueError, match="max_timestamp_skew_s differs from the recording purpose"):
+        EpisodeQualityRecord.from_dict(tampered)
+
+
 def test_corrupt_timestamp_skew_fails_exact_gate() -> None:
     episode = _baseline_episode()
     timestamps = dict(episode.frames[0].timestamps)

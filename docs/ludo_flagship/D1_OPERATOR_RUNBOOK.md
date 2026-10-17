@@ -388,7 +388,9 @@ or read-only/unchanged-torque behavior on hardware.
 Default freshness limits are 0.2 seconds of source age and ROS-header delay,
 0.02 seconds of future-header offset, and 0.05 seconds of contemporaneous source
 skew. The summary CLI exposes freshness thresholds and records them; do not
-relax them retrospectively to conceal failed capture. Derived actions are
+relax them retrospectively to conceal failed capture. Simulation takes alone
+add 0.2 s to the skew and source-age limits for Isaac render hitches; the
+thresholds a take was judged by are written into its quality record. Derived actions are
 checked against their target frame, not treated as current-camera skew.
 Candidate [limits](../../config/synria_limits.yaml) require operator
 `verified_by` and `verified_on`. While empty, summaries say

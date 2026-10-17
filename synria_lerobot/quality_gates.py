@@ -25,6 +25,7 @@ from synria_lerobot.physical_contract import (
 from synria_lerobot.recorder import OperatorLabel, RecordedPhysicalEpisode
 from synria_lerobot.task_registry import (
     DISPOSABLE_SMOKE,
+    SIMULATION,
     TASK_METADATA_KEYS,
     TaskDefinition,
     recording_purpose,
@@ -112,15 +113,28 @@ class EpisodeQualityRecord:
         """Read the bound hard cap used to validate this episode's duration."""
         return self.task_definition.recording_window(self.recording_purpose)["max_episode_s"]
 
+    @property
+    def gate_thresholds(self) -> dict[str, float]:
+        """The timing thresholds this episode is judged by, fixed by its recording purpose."""
+        return gate_thresholds(self.recording_purpose)
+
     def as_dict(self) -> dict[str, object]:
-        """Serialize frame diagnostics and their authoritative task-purpose metadata."""
-        return {**asdict(self), **self.task_definition.metadata(self.recording_purpose)}
+        """Serialize frame diagnostics, task-purpose metadata and the timing thresholds used."""
+        return {
+            **asdict(self), **self.task_definition.metadata(self.recording_purpose),
+            **self.gate_thresholds,
+        }
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> EpisodeQualityRecord:
         """Validate saved task identity and reconstruct repeatable quality evidence."""
         if type(payload["episode_index"]) is not int or payload["episode_index"] < 0:
             raise ValueError("episode indices must be non-negative integers")
+        expected = gate_thresholds(recording_purpose(payload["smoke"],
+                                                     payload.get("recording_purpose")))
+        for name, value in expected.items():
+            if name in payload and payload[name] != value:
+                raise ValueError(f"recorded {name} differs from the recording purpose")
         return cls(
             episode_index=payload["episode_index"],
             task_definition=TaskDefinition.from_metadata(payload),
@@ -204,14 +218,45 @@ class PhysicalLimits:
         )
 
 
+# Isaac publishes the state and both cameras at twice the recording rate and stalls for
+# up to 200 ms on a render hitch while the USB leader keeps streaming, so a clean take
+# can carry two or three frames whose sources are far apart. Simulation takes therefore
+# get this much extra skew and source age on top of the physical gate. Simulation data
+# never counts as physical evidence, and the thresholds used are written into every
+# take's quality record.
+SIMULATION_HITCH_ALLOWANCE_S = 0.2
+GATE_THRESHOLD_KEYS = ("max_timestamp_skew_s", "max_source_age_s")
+
+
+def gate_thresholds(purpose: str) -> dict[str, float]:
+    """The timing thresholds a recording purpose is judged by.
+
+    Physical takes, practice runs and synthetic demos use the gate defaults. Simulation
+    takes add :data:`SIMULATION_HITCH_ALLOWANCE_S` to the skew and source-age limits so
+    a short Isaac stall does not fail an otherwise clean take.
+    """
+    allowance = SIMULATION_HITCH_ALLOWANCE_S if purpose == SIMULATION else 0.0
+    return {
+        "max_timestamp_skew_s": GateConfig.default_max_timestamp_skew_s + allowance,
+        "max_source_age_s": GateConfig.default_max_source_age_s + allowance,
+    }
+
+
+def gate_config_for(purpose: str, min_episode_s: float, max_episode_s: float) -> GateConfig:
+    """A gate configuration for one recording purpose; the console's only way to build one."""
+    return GateConfig(min_episode_s, max_episode_s, **gate_thresholds(purpose))
+
+
 @dataclass(frozen=True)
 class GateConfig:
     """Freeze episode-window and freshness thresholds used to assess capture quality."""
+    default_max_timestamp_skew_s = 0.05
+    default_max_source_age_s = 0.2
     min_episode_s: float
     max_episode_s: float
     frame_count_tolerance_fraction: float = 0.1
-    max_timestamp_skew_s: float = 0.05
-    max_source_age_s: float = 0.2
+    max_timestamp_skew_s: float = default_max_timestamp_skew_s
+    max_source_age_s: float = default_max_source_age_s
     max_header_delay_s: float = 0.2
     max_header_future_s: float = 0.02
     black_mean_threshold: float = 1.0

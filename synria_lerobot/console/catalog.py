@@ -750,8 +750,8 @@ class Catalog:
             ).fetchone()
             from synria_lerobot.quality_gates import (
                 EpisodeQualityRecord,
-                GateConfig,
                 evaluate_episode,
+                gate_config_for,
                 load_limits,
             )
 
@@ -759,7 +759,8 @@ class Catalog:
             gate = evaluate_episode(
                 quality_record,
                 load_limits(Path(__file__).resolve().parents[2] / "config/synria_limits.yaml"),
-                GateConfig(quality_record.min_episode_s, quality_record.max_episode_s),
+                gate_config_for(quality_record.recording_purpose,
+                                quality_record.min_episode_s, quality_record.max_episode_s),
             )
             exclusion = exclusions.entries.get(index, {})
             values = {
