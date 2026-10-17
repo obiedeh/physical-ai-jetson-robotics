@@ -3,24 +3,60 @@
   "measured_by": "Obinna Edeh",
   "measured_on": "2026-10-17",
   "method": "Operator placed the arm by hand at each pose with the driver running; the console host read /joint_states three times one second apart and all three readings agreed to 0.01 deg. Angles in degrees, gripper in metres, as published by the driver.",
-  "joint_names": ["Joint1", "Joint2", "Joint3", "Joint4", "Joint5", "Joint6"],
+  "joint_names": [
+    "Joint1",
+    "Joint2",
+    "Joint3",
+    "Joint4",
+    "Joint5",
+    "Joint6"
+  ],
   "poses": {
     "vendor_standby_reference": {
       "what": "The vendor's standby posture from the Alicia-D installation guide: every joint at its zero, joint protrusions and camera-post protrusion pointing diagonally upward, placed by eye.",
-      "model_angles_deg": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-      "read_angles_deg": [-1.23, 0.97, -4.04, 1.58, 1.49, -2.64],
+      "model_angles_deg": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "read_angles_deg": [
+        -1.23,
+        0.97,
+        -4.04,
+        1.58,
+        1.49,
+        -2.64
+      ],
       "gripper_m": 0.0001,
-      "read_minus_model_deg": [-1.23, 0.97, -4.04, 1.58, 1.49, -2.64]
+      "read_minus_model_deg": [
+        -1.23,
+        0.97,
+        -4.04,
+        1.58,
+        1.49,
+        -2.64
+      ],
+      "placement_confidence": "Operator placed the pose by eye and reports the Joint3 placement as uncertain; the Joint3 value may be placement error rather than a zero mismatch."
     },
     "folded_rest": {
       "what": "The folded rest position the arm is left in between sessions; the pose every take started or ended in on 2026-10-17.",
-      "read_angles_deg": [-2.1, 100.3, -33.5, 0.9, -55.5, -8.0],
+      "read_angles_deg": [
+        -2.1,
+        100.3,
+        -33.5,
+        0.9,
+        -55.5,
+        -8.0
+      ],
       "gripper_m": 0.0227
     }
   },
   "notes": [
     "read_minus_model_deg is the encoder reading at the vendor reference pose; the implied per-joint correction for a model-true display is its negative. The reference pose is itself placed by eye, so these are starting values, not measured zero offsets.",
-    "The Isaac record mode uses a Joint2 visual offset of -4.0 deg chosen by eye on 2026-10-17 with the real gripper touching the table. This reference suggests most of that mismatch is on Joint3 (-4.04 at reference) rather than Joint2 (+0.97); a Joint3 offset flag does not exist in the sim yet.",
+    "The Isaac record mode uses a Joint2 visual offset of -4.0 deg chosen by eye on 2026-10-17 with the real gripper touching the table. The Joint3 reading at the reference pose (-4.04) is not trusted on its own because the operator eyeballed the Joint3 placement; it only says the mismatch could be on Joint3 rather than Joint2 and needs a repeatable pose, such as the forearm checked with a level, before any offset is moved.",
     "Folded rest exceeds the configured Joint2 recording bound of 96 deg and sits 0.5 deg inside the Joint3 lower bound of -34 deg (config/synria_limits.yaml), which is why takes that start or end at rest fail the limits gate.",
     "Gravity sag and gear play are not separated here; they need the from-above and from-below readings described in the operator runbook."
   ]
