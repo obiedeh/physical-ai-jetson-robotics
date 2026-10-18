@@ -183,10 +183,14 @@ success rate in the scene against the trained episode count.
 with `--lane simulation`, with the Isaac scene in its policy launch mode
 (`SKIP_DRIVER=1 bash scripts/run_alicia_stack.sh policy` in the teleop
 repository), which mirrors `/isaac/policy_joint_targets` instead of the real
-arm's feedback. Before every trial the runner asks the scene for a Randomize
-and reset, walks the arm from wherever it is to the start pose (the dataset's
-mean first frame unless `--start-pose` is given) within the per-command step
-bound, then resets the policy and steps it at the command period. The score
+arm's feedback. Before every trial the runner walks the arm from wherever it
+is to the start pose (the dataset's mean first frame unless `--start-pose` is
+given) within the per-command step bound, then asks the scene for a Randomize
+and reset at `--randomize-scale` (1x by default; the layout is drawn for the
+arm at the start pose), then resets the policy and steps it at the command
+period. With `--placement-seed N` trial i's draw is seeded with N plus i, so
+two campaigns sharing a seed face the same placements and can be compared
+trial by trial; without it the scene draws unseeded. The score
 follows the served task and comes from the scene's own poses. `pick_cup`:
 success when the cup has been `--lift-m` (3 cm) above its rest height for
 `--hold-s` (1 s) without a break. `cup_pick_and_place`: success when the cup,
