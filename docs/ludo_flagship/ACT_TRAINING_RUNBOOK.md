@@ -313,6 +313,10 @@ a dataset is frozen.
 
 Three optional levers, each recorded in the manifest and refused when malformed:
 
+- Geometric transforms (`affine`) are never applied to a fixed-camera policy: they
+  move the apparent object in the image without moving the action label and
+  destroy the pixel-to-action mapping (strategy review of 2026-10-18, G7). Use
+  colour, brightness, contrast, saturation, hue and sharpness only.
 - `image_transforms` in the training configuration names upstream transforms
   (brightness, contrast, saturation, hue, sharpness, affine) applied to training
   frames only, never to held-out frames, with the upstream default ranges.
