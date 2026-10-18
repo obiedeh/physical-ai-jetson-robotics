@@ -104,8 +104,23 @@ def test_held_share_is_reported_beside_the_modes() -> None:
     assert summary["holds"] == 45 and summary["steps"] == 400
     assert summary["held_share"] == pytest.approx(45 / 400)
     text = render_markdown(summarize_reports_from([summary]))
-    assert "| steps held |" in text
+    assert "| steps held |" in text and "[95% interval]" in text
     assert "| p | 20000 | 3 |" in text and "| 11.2% |" in text
+    assert "0% [0, 56]" in text
+
+
+def test_wilson_interval_widths() -> None:
+    """Twenty trials span about forty points; fifty about twenty-five; none gives zeros."""
+    from synria_lerobot.sim_trial_analysis import wilson_interval
+
+    low, high = wilson_interval(7, 20)
+    assert 0.18 < low < 0.19 and 0.56 < high < 0.58
+    low, high = wilson_interval(28, 50)
+    assert 0.42 < low < 0.43 and 0.68 < high < 0.70
+    assert wilson_interval(0, 0) == (0.0, 0.0)
+    assert wilson_interval(0, 50)[0] == 0.0 and wilson_interval(50, 50)[1] == 1.0
+    with pytest.raises(ValueError):
+        wilson_interval(3, 2)
 
 
 def summarize_reports_from(rows: list[dict[str, Any]]) -> dict[str, Any]:
