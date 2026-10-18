@@ -88,7 +88,7 @@ const SynriaGuide = (() => {
       "Vary the placement on every take with the Randomize 1x, 2x and 3x buttons, rotated across takes, so the dataset covers the reachable band. Fixed-spot takes stopped teaching anything after about 25; varied takes were the only ones that produced picks from new spots.",
       "Start every take a little off the folded rest pose; at the fold Joint2 sits within a degree of its recording bound.",
       "In about one take in five, start the grasp slightly off, back off and re-grasp, so the model sees a recovery and not only perfect approaches.",
-      "Hover over the cup at a fixed height and stop, descend straight down with the gripper open and stop, and only then close; a swoop that squeezes on the way down teaches closing by timing instead of by sight.",
+      "Approach from whatever direction suits the cup in one continuous motion with no pauses, keep the gripper fully open until the cup is between the fingers, then close in one deliberate squeeze; use one approach style across a session. Tightening on the way in teaches closing by timing instead of by sight.",
       "Close the gripper, let it settle for a beat, then lift; finish the way the scene scores the task: for pick_cup the cup held clear of the table, for cup_pick_and_place the cup released upright inside the mark with the gripper backed away.",
       "Keep the pace and the camera framing unchanged within a session, label honestly (Aborted for a take you did not attempt), and aim for 50 or more takes in one session."], doc:"protocol"},
     general: {title:"Resolve the reported check", summary:"The operation was refused; no successful result should be assumed.", steps:[

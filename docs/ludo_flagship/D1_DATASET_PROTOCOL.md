@@ -98,10 +98,13 @@ rules above stay as pre-registered for the physical D1 skills.
 - In about one take in five, show a recovery: start the grasp slightly off, back
   off and re-grasp. The common closed-loop failure was a miss of a few
   centimetres with no idea what to do next.
-- Hover over the cup at a fixed height and stop, descend straight down with the
-  gripper open and stop, and only then close. A swoop that squeezes on the way
-  down teaches the model to close by timing instead of by sight; closing in mid
-  air was the trials' common grasp failure.
+- Approach from whatever direction suits the cup, low and pitched or from
+  above, in one continuous motion with no pauses: a pause is an ambiguous state
+  that the model imitates as a stall. Keep the gripper fully open until the cup
+  is between the fingers, then close in one deliberate squeeze, and use one
+  approach style across a session so the model learns one way in. A take that
+  tightens on the way in teaches the model to close by timing instead of by
+  sight; closing in mid air was the trials' common grasp failure.
 - Close the gripper, settle for a beat, then lift; end a `pick_cup` take with
   the cup held clear of the table, which is how the scene scores a lift (3 cm
   for 1 s). End a `cup_pick_and_place` take with the cup released upright inside
