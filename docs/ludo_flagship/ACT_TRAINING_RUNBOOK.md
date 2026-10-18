@@ -207,6 +207,18 @@ publishes on `/joint_states`, `/joint_commands`, `/policy_joint_targets` or
 The report, written once under `reports/sim_policy/`, carries the rule, every
 trial, the success rate and `physical_evidence: false`.
 
+### Failure modes of the campaigns
+
+`scripts/summarize_sim_trial_failures.py --study <study directory>` sorts every
+trial of every `trials_*.json` into one mode (success; held by the safety
+client; lifted then dropped; reached the mark but not held there, place score
+only; moved the cup without a lift; reached the cup without a grasp; never
+reached the cup; cup untouched with no gripper pose recorded) and writes
+`FAILURE_MODES.md` and `failure_modes.json` beside them, with the campaigns the
+study superseded marked and left out of the totals. The first study's table
+says the cup was untouched in 164 of 180 current trials: the approach and the
+grasp are the bottleneck, not the lift, so the next changes aim there.
+
 ### Augmentation, temporal ensembling and checkpoint averaging
 
 Three optional levers, each recorded in the manifest and refused when malformed:

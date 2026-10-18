@@ -1,0 +1,500 @@
+{
+  "kind": "simulation_trial_failure_modes",
+  "lane": "simulation",
+  "note": "Simulation lane; sorted from the campaign reports; superseded campaigns listed but not totalled; never physical evidence.",
+  "physical_evidence": false,
+  "rows": [
+    {
+      "modes": {
+        "cup untouched, reach not recorded": 19,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 0,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 1
+      },
+      "policy_id": "simcup17oct3_n005",
+      "reach_recorded": false,
+      "recoveries": 0,
+      "report": "reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n005_20261018T092749Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "success_rate": 0.05,
+      "successes": 1,
+      "superseded": true,
+      "task_id": "pick_cup",
+      "trials": 20,
+      "utc": "2026-10-18T09:39:14.333458+00:00"
+    },
+    {
+      "modes": {
+        "cup untouched, reach not recorded": 20,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 0,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 0
+      },
+      "policy_id": "simcup17oct3_n005",
+      "reach_recorded": false,
+      "recoveries": 0,
+      "report": "reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n005_20261018T105251Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "success_rate": 0.0,
+      "successes": 0,
+      "superseded": false,
+      "task_id": "pick_cup",
+      "trials": 20,
+      "utc": "2026-10-18T11:04:41.338624+00:00"
+    },
+    {
+      "modes": {
+        "cup untouched, reach not recorded": 20,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 0,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 0
+      },
+      "policy_id": "simcup17oct3_n010",
+      "reach_recorded": false,
+      "recoveries": 0,
+      "report": "reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n010_20261018T093914Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "success_rate": 0.0,
+      "successes": 0,
+      "superseded": true,
+      "task_id": "pick_cup",
+      "trials": 20,
+      "utc": "2026-10-18T09:51:04.736343+00:00"
+    },
+    {
+      "modes": {
+        "cup untouched, reach not recorded": 20,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 0,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 0
+      },
+      "policy_id": "simcup17oct3_n010",
+      "reach_recorded": false,
+      "recoveries": 0,
+      "report": "reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n010_20261018T110441Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "success_rate": 0.0,
+      "successes": 0,
+      "superseded": false,
+      "task_id": "pick_cup",
+      "trials": 20,
+      "utc": "2026-10-18T11:16:31.755305+00:00"
+    },
+    {
+      "modes": {
+        "cup untouched, reach not recorded": 20,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 0,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 0
+      },
+      "policy_id": "simcup17oct3_n015",
+      "reach_recorded": false,
+      "recoveries": 0,
+      "report": "reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n015_20261018T095105Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "success_rate": 0.0,
+      "successes": 0,
+      "superseded": true,
+      "task_id": "pick_cup",
+      "trials": 20,
+      "utc": "2026-10-18T10:02:56.513405+00:00"
+    },
+    {
+      "modes": {
+        "cup untouched, reach not recorded": 20,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 0,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 0
+      },
+      "policy_id": "simcup17oct3_n015",
+      "reach_recorded": false,
+      "recoveries": 0,
+      "report": "reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n015_20261018T111632Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "success_rate": 0.0,
+      "successes": 0,
+      "superseded": false,
+      "task_id": "pick_cup",
+      "trials": 20,
+      "utc": "2026-10-18T11:28:23.149764+00:00"
+    },
+    {
+      "modes": {
+        "cup untouched, reach not recorded": 20,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 0,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 0
+      },
+      "policy_id": "simcup17oct3_n020",
+      "reach_recorded": false,
+      "recoveries": 0,
+      "report": "reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n020_20261018T100256Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "success_rate": 0.0,
+      "successes": 0,
+      "superseded": true,
+      "task_id": "pick_cup",
+      "trials": 20,
+      "utc": "2026-10-18T10:14:46.881823+00:00"
+    },
+    {
+      "modes": {
+        "cup untouched, reach not recorded": 20,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 0,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 0
+      },
+      "policy_id": "simcup17oct3_n020",
+      "reach_recorded": false,
+      "recoveries": 0,
+      "report": "reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n020_20261018T112823Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "success_rate": 0.0,
+      "successes": 0,
+      "superseded": false,
+      "task_id": "pick_cup",
+      "trials": 20,
+      "utc": "2026-10-18T11:40:14.717255+00:00"
+    },
+    {
+      "modes": {
+        "cup untouched, reach not recorded": 19,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 1,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 0
+      },
+      "policy_id": "simcup17oct3_n025",
+      "reach_recorded": false,
+      "recoveries": 0,
+      "report": "reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n025_20261018T101447Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "success_rate": 0.0,
+      "successes": 0,
+      "superseded": true,
+      "task_id": "pick_cup",
+      "trials": 20,
+      "utc": "2026-10-18T10:26:34.894870+00:00"
+    },
+    {
+      "modes": {
+        "cup untouched, reach not recorded": 17,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 3,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 0
+      },
+      "policy_id": "simcup17oct3_n025",
+      "reach_recorded": false,
+      "recoveries": 28,
+      "report": "reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n025_20261018T114015Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "success_rate": 0.0,
+      "successes": 0,
+      "superseded": false,
+      "task_id": "pick_cup",
+      "trials": 20,
+      "utc": "2026-10-18T11:52:02.536212+00:00"
+    },
+    {
+      "modes": {
+        "cup untouched, reach not recorded": 20,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 0,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 0
+      },
+      "policy_id": "simcup17oct3_n030",
+      "reach_recorded": false,
+      "recoveries": 0,
+      "report": "reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n030_20261018T102635Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "success_rate": 0.0,
+      "successes": 0,
+      "superseded": true,
+      "task_id": "pick_cup",
+      "trials": 20,
+      "utc": "2026-10-18T10:38:28.904097+00:00"
+    },
+    {
+      "modes": {
+        "cup untouched, reach not recorded": 20,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 0,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 0
+      },
+      "policy_id": "simcup17oct3_n030",
+      "reach_recorded": false,
+      "recoveries": 2,
+      "report": "reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n030_20261018T115202Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "success_rate": 0.0,
+      "successes": 0,
+      "superseded": false,
+      "task_id": "pick_cup",
+      "trials": 20,
+      "utc": "2026-10-18T12:03:56.525665+00:00"
+    },
+    {
+      "modes": {
+        "cup untouched, reach not recorded": 4,
+        "held by the safety client most of the trial": 12,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 1,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 3
+      },
+      "policy_id": "simcup17oct3_n035",
+      "reach_recorded": false,
+      "recoveries": 0,
+      "report": "reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n035_20261018T103829Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "success_rate": 0.15,
+      "successes": 3,
+      "superseded": true,
+      "task_id": "pick_cup",
+      "trials": 20,
+      "utc": "2026-10-18T10:49:41.878272+00:00"
+    },
+    {
+      "modes": {
+        "cup untouched, reach not recorded": 12,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 1,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 7
+      },
+      "policy_id": "simcup17oct3_n035",
+      "reach_recorded": false,
+      "recoveries": 26,
+      "report": "reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n035_20261018T120356Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "success_rate": 0.35,
+      "successes": 7,
+      "superseded": false,
+      "task_id": "pick_cup",
+      "trials": 20,
+      "utc": "2026-10-18T12:14:12.287816+00:00"
+    },
+    {
+      "modes": {
+        "cup untouched, reach not recorded": 18,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 1,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 1
+      },
+      "policy_id": "simcup17oct3_n040",
+      "reach_recorded": false,
+      "recoveries": 0,
+      "report": "reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n040_20261018T121412Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "success_rate": 0.05,
+      "successes": 1,
+      "superseded": false,
+      "task_id": "pick_cup",
+      "trials": 20,
+      "utc": "2026-10-18T12:25:50.101386+00:00"
+    },
+    {
+      "modes": {
+        "cup untouched, reach not recorded": 17,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 2,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 1
+      },
+      "policy_id": "simcup17oct3_n045",
+      "reach_recorded": false,
+      "recoveries": 29,
+      "report": "reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n045_20261018T122550Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "success_rate": 0.05,
+      "successes": 1,
+      "superseded": false,
+      "task_id": "pick_cup",
+      "trials": 20,
+      "utc": "2026-10-18T12:37:27.862599+00:00"
+    }
+  ],
+  "totals": {
+    "cup untouched, reach not recorded": 164,
+    "held by the safety client most of the trial": 0,
+    "lifted, then dropped": 0,
+    "moved the cup, no lift": 7,
+    "never reached the cup": 0,
+    "reached the cup, no grasp": 0,
+    "reached the mark, not held there": 0,
+    "success": 9
+  },
+  "trials": 180,
+  "utc": "2026-10-18T15:43:43.831756+00:00"
+}
