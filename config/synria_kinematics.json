@@ -1,0 +1,26 @@
+{
+  "version": "synria_kinematics_v1",
+  "source": "Alicia_D_v5_6_gripper_50mm.urdf (teleop repository, alicia_d_descriptions/urdf), joint origins, axes and the gripper_center fixed joint copied verbatim",
+  "joint_names": ["Joint1", "Joint2", "Joint3", "Joint4", "Joint5", "Joint6"],
+  "chain": [
+    {"xyz": [0.0, 0.0, 0.1295], "rpy": [0.0, -0.0397818431857344, 0.0], "axis": [-0.0397713509246861, 0.0, 0.999208806829496]},
+    {"xyz": [0.00170499781414124, 0.0, 0.0428360815487805], "rpy": [1.5707963267949, -1.5707963267949, 0.0], "axis": [0.0, 0.0, -1.0]},
+    {"xyz": [0.223671302741224, 0.0226916129580064, -4.99999999962493e-05], "rpy": [0.0, 0.0, -2.35619449019234], "axis": [0.0, 0.0, -1.0]},
+    {"xyz": [0.00211000000000178, -0.0990000000000033, -0.0002000000000025], "rpy": [1.5707963267949, 0.0, 0.0], "axis": [0.0, 0.0, -1.0]},
+    {"xyz": [0.0, -0.000500000000001193, 0.12235], "rpy": [1.5707963267949, 0.0, 0.0], "axis": [0.0, 0.0, 1.0]},
+    {"xyz": [-0.00384999999999935, 0.0574999999999998, -0.00100000000000219], "rpy": [-1.5707963267949, 0.0, 0.0], "axis": [0.0, 0.0, -1.0]}
+  ],
+  "tool": {
+    "frame": "gripper_center",
+    "xyz": [0.0002, 0.0, 0.13098],
+    "rpy": [0.0, 0.0, 0.0],
+    "note": "The fingertip plane on the gripper centre line; +Z is the approach axis, the fingers open along +/-Y to 25.5 mm each side."
+  },
+  "calibration_offsets_deg": {
+    "simulation": {"Joint2": -1.5, "Joint3": -3.35},
+    "physical": {}
+  },
+  "calibration_note": "A reported joint angle plus its lane's offset is the URDF angle. The simulation offsets are the visual offsets the scene's policy mode adds before driving (teleop run_alicia_stack.sh, set by the operator on 2026-10-17); the physical offsets are unmeasured and must be verified by the operator before this file is used for a physical plan.",
+  "base_in_world": {"xyz": [0.0, 0.0, 0.0], "yaw_deg": 0.0},
+  "validated": "2026-10-18: forward kinematics of a still simulation sample with the simulation offsets reproduced the scene's published gripper_center position to 0.0 mm; a moving sample differed by 6 mm from sampling skew."
+}
