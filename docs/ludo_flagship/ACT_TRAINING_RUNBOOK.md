@@ -258,7 +258,27 @@ reached the cup; cup untouched with no gripper pose recorded) and writes
 `FAILURE_MODES.md` and `failure_modes.json` beside them, with the campaigns the
 study superseded marked and left out of the totals. The first study's table
 says the cup was untouched in 164 of 180 current trials: the approach and the
-grasp are the bottleneck, not the lift, so the next changes aim there.
+grasp are the bottleneck, not the lift, so the next changes aim there. The
+table's last column is the share of all steps the safety client held, whatever
+the mode: a hold short of half a trial does not make a mode, but a policy pulled
+back from a joint bound on a sixth of its steps is pressing the operator limits.
+
+### Which takes press the operator limits
+
+`scripts/audit_dataset_limits.py --dataset-root <dataset> --output <study directory>`
+compares every commanded and observed value of a dataset with
+`config/synria_limits.yaml` and writes `LIMITS_AUDIT.md` and `limits_audit.json`:
+per joint and per episode, the frames within half a degree of a bound, the
+frames past the exact bound and the frames past the recording tolerance. The
+recording gate accepts a joint up to that tolerance beyond a whole-degree bound;
+the policy client does not, so it clamps every such command and, in the
+simulation lane, holds and pulls the arm back whenever the sagging sim joint
+reads past the bound. On the first dataset, 41 of 50 takes press a bound, 17 of
+them Joint2's upper stop on the far reach and 21 of them Joint3's lower stop,
+and 1010 frames are past a bound without any past the tolerance. A take that
+presses a bound teaches a target the client will clip, so the next recording
+batch keeps cups inside the reach the limits allow, and the audit is run before
+a dataset is frozen.
 
 ### Augmentation, temporal ensembling and checkpoint averaging
 

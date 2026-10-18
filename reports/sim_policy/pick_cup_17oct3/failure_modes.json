@@ -5,6 +5,8 @@
   "physical_evidence": false,
   "rows": [
     {
+      "held_share": 0.0,
+      "holds": 0,
       "modes": {
         "cup untouched, reach not recorded": 19,
         "held by the safety client most of the trial": 0,
@@ -27,6 +29,7 @@
       },
       "score": "lift",
       "step": 20000,
+      "steps": 2876,
       "success_rate": 0.05,
       "successes": 1,
       "superseded": true,
@@ -35,6 +38,8 @@
       "utc": "2026-10-18T09:39:14.333458+00:00"
     },
     {
+      "held_share": 0.0,
+      "holds": 0,
       "modes": {
         "cup untouched, reach not recorded": 20,
         "held by the safety client most of the trial": 0,
@@ -57,6 +62,7 @@
       },
       "score": "lift",
       "step": 20000,
+      "steps": 3000,
       "success_rate": 0.0,
       "successes": 0,
       "superseded": false,
@@ -65,6 +71,8 @@
       "utc": "2026-10-18T11:04:41.338624+00:00"
     },
     {
+      "held_share": 0.0,
+      "holds": 0,
       "modes": {
         "cup untouched, reach not recorded": 20,
         "held by the safety client most of the trial": 0,
@@ -87,6 +95,7 @@
       },
       "score": "lift",
       "step": 20000,
+      "steps": 3000,
       "success_rate": 0.0,
       "successes": 0,
       "superseded": true,
@@ -95,6 +104,8 @@
       "utc": "2026-10-18T09:51:04.736343+00:00"
     },
     {
+      "held_share": 0.0,
+      "holds": 0,
       "modes": {
         "cup untouched, reach not recorded": 20,
         "held by the safety client most of the trial": 0,
@@ -117,6 +128,7 @@
       },
       "score": "lift",
       "step": 20000,
+      "steps": 3000,
       "success_rate": 0.0,
       "successes": 0,
       "superseded": false,
@@ -125,6 +137,8 @@
       "utc": "2026-10-18T11:16:31.755305+00:00"
     },
     {
+      "held_share": 0.0,
+      "holds": 0,
       "modes": {
         "cup untouched, reach not recorded": 20,
         "held by the safety client most of the trial": 0,
@@ -147,6 +161,7 @@
       },
       "score": "lift",
       "step": 20000,
+      "steps": 3000,
       "success_rate": 0.0,
       "successes": 0,
       "superseded": true,
@@ -155,6 +170,8 @@
       "utc": "2026-10-18T10:02:56.513405+00:00"
     },
     {
+      "held_share": 0.0,
+      "holds": 0,
       "modes": {
         "cup untouched, reach not recorded": 20,
         "held by the safety client most of the trial": 0,
@@ -177,6 +194,7 @@
       },
       "score": "lift",
       "step": 20000,
+      "steps": 3000,
       "success_rate": 0.0,
       "successes": 0,
       "superseded": false,
@@ -185,6 +203,8 @@
       "utc": "2026-10-18T11:28:23.149764+00:00"
     },
     {
+      "held_share": 0.0,
+      "holds": 0,
       "modes": {
         "cup untouched, reach not recorded": 20,
         "held by the safety client most of the trial": 0,
@@ -207,6 +227,7 @@
       },
       "score": "lift",
       "step": 20000,
+      "steps": 3000,
       "success_rate": 0.0,
       "successes": 0,
       "superseded": true,
@@ -215,6 +236,8 @@
       "utc": "2026-10-18T10:14:46.881823+00:00"
     },
     {
+      "held_share": 0.0,
+      "holds": 0,
       "modes": {
         "cup untouched, reach not recorded": 20,
         "held by the safety client most of the trial": 0,
@@ -237,6 +260,7 @@
       },
       "score": "lift",
       "step": 20000,
+      "steps": 3000,
       "success_rate": 0.0,
       "successes": 0,
       "superseded": false,
@@ -245,6 +269,8 @@
       "utc": "2026-10-18T11:40:14.717255+00:00"
     },
     {
+      "held_share": 0.025333333333333333,
+      "holds": 76,
       "modes": {
         "cup untouched, reach not recorded": 19,
         "held by the safety client most of the trial": 0,
@@ -267,6 +293,7 @@
       },
       "score": "lift",
       "step": 20000,
+      "steps": 3000,
       "success_rate": 0.0,
       "successes": 0,
       "superseded": true,
@@ -275,6 +302,8 @@
       "utc": "2026-10-18T10:26:34.894870+00:00"
     },
     {
+      "held_share": 0.009333333333333334,
+      "holds": 28,
       "modes": {
         "cup untouched, reach not recorded": 17,
         "held by the safety client most of the trial": 0,
@@ -297,6 +326,7 @@
       },
       "score": "lift",
       "step": 20000,
+      "steps": 3000,
       "success_rate": 0.0,
       "successes": 0,
       "superseded": false,
@@ -305,6 +335,8 @@
       "utc": "2026-10-18T11:52:02.536212+00:00"
     },
     {
+      "held_share": 0.0,
+      "holds": 0,
       "modes": {
         "cup untouched, reach not recorded": 20,
         "held by the safety client most of the trial": 0,
@@ -327,6 +359,7 @@
       },
       "score": "lift",
       "step": 20000,
+      "steps": 3000,
       "success_rate": 0.0,
       "successes": 0,
       "superseded": true,
@@ -335,6 +368,8 @@
       "utc": "2026-10-18T10:38:28.904097+00:00"
     },
     {
+      "held_share": 0.0006666666666666666,
+      "holds": 2,
       "modes": {
         "cup untouched, reach not recorded": 20,
         "held by the safety client most of the trial": 0,
@@ -357,6 +392,7 @@
       },
       "score": "lift",
       "step": 20000,
+      "steps": 3000,
       "success_rate": 0.0,
       "successes": 0,
       "superseded": false,
@@ -365,6 +401,8 @@
       "utc": "2026-10-18T12:03:56.525665+00:00"
     },
     {
+      "held_share": 0.6485148514851485,
+      "holds": 1834,
       "modes": {
         "cup untouched, reach not recorded": 4,
         "held by the safety client most of the trial": 12,
@@ -387,6 +425,7 @@
       },
       "score": "lift",
       "step": 20000,
+      "steps": 2828,
       "success_rate": 0.15,
       "successes": 3,
       "superseded": true,
@@ -395,6 +434,8 @@
       "utc": "2026-10-18T10:49:41.878272+00:00"
     },
     {
+      "held_share": 0.01020408163265306,
+      "holds": 26,
       "modes": {
         "cup untouched, reach not recorded": 12,
         "held by the safety client most of the trial": 0,
@@ -417,6 +458,7 @@
       },
       "score": "lift",
       "step": 20000,
+      "steps": 2548,
       "success_rate": 0.35,
       "successes": 7,
       "superseded": false,
@@ -425,6 +467,8 @@
       "utc": "2026-10-18T12:14:12.287816+00:00"
     },
     {
+      "held_share": 0.0,
+      "holds": 0,
       "modes": {
         "cup untouched, reach not recorded": 18,
         "held by the safety client most of the trial": 0,
@@ -447,6 +491,7 @@
       },
       "score": "lift",
       "step": 20000,
+      "steps": 2941,
       "success_rate": 0.05,
       "successes": 1,
       "superseded": false,
@@ -455,6 +500,8 @@
       "utc": "2026-10-18T12:25:50.101386+00:00"
     },
     {
+      "held_share": 0.009874021109976166,
+      "holds": 29,
       "modes": {
         "cup untouched, reach not recorded": 17,
         "held by the safety client most of the trial": 0,
@@ -477,6 +524,7 @@
       },
       "score": "lift",
       "step": 20000,
+      "steps": 2937,
       "success_rate": 0.05,
       "successes": 1,
       "superseded": false,
@@ -496,5 +544,5 @@
     "success": 9
   },
   "trials": 180,
-  "utc": "2026-10-18T15:43:43.831756+00:00"
+  "utc": "2026-10-18T18:39:08.733773+00:00"
 }
