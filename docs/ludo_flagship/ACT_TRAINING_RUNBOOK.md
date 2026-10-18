@@ -174,9 +174,28 @@ A configuration or probe set without a `lane` field is physical.
 
 The data-scaling study trains the same dataset at several
 `training_episode_limit` values with the same held-out set, seed and step count,
-and compares the held-out action error per checkpoint (and, once the simulation
-runner exists, the closed-loop success rate in the scene) against the trained
-episode count.
+and compares the held-out action error per checkpoint and the closed-loop
+success rate in the scene against the trained episode count.
+
+### Closed-loop trials in the scene
+
+`scripts/run_sim_policy_trials.py` runs scored trials against a server started
+with `--lane simulation`, with the Isaac scene in its policy launch mode
+(`SKIP_DRIVER=1 bash scripts/run_alicia_stack.sh policy` in the teleop
+repository), which mirrors `/isaac/policy_joint_targets` instead of the real
+arm's feedback. Before every trial the runner asks the scene for a Randomize
+and reset, walks the arm from wherever it is to the start pose (the dataset's
+mean first frame unless `--start-pose` is given) within the per-command step
+bound, then resets the policy and steps it at the command period. The score is
+the scene's own cup pose: success when the cup has been `--lift-m` (3 cm) above
+its rest height for `--hold-s` (1 s) without a break; the trial otherwise ends
+at `--max-trial-s`. Speed bounds come from
+[`config/synria_sim_policy.json`](../../config/synria_sim_policy.json), a
+simulation-lane file the physical command path refuses. The runner never
+publishes on `/joint_states`, `/joint_commands`, `/policy_joint_targets` or
+`/policy_arm`, and refuses a server or contract outside the simulation lane.
+The report, written once under `reports/sim_policy/`, carries the rule, every
+trial, the success rate and `physical_evidence: false`.
 
 ## Failures and evidence
 
