@@ -153,7 +153,9 @@ def main(argv: list[str] | None = None) -> int:
                 margin_rad=math.radians(args.margin_deg),
             )
 
-        actions = ExecutorActionSource(factory, publisher)
+        actions = ExecutorActionSource(
+            factory, publisher, (*limits.joint_limits_rad, limits.gripper_limits_m[args.gripper]),
+        )
         recorder = stack.enter_context(build_recording_session(
             recorder_args(args), simulation=True, injected_action_source=actions,
         ))

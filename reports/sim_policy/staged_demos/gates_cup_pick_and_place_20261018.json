@@ -1,0 +1,59 @@
+{
+  "dataset_root": "/home/oedeh/synria-sim-datasets/staged_place_01/dataset",
+  "episodes": 150,
+  "excluded_after_review": [
+    13,
+    22,
+    27,
+    85,
+    86,
+    94,
+    120,
+    125,
+    133,
+    139,
+    143
+  ],
+  "gate_failed": {
+    "120": [
+      "timestamp_skew"
+    ],
+    "125": [
+      "state_action_limits",
+      "timestamp_skew"
+    ],
+    "13": [
+      "timestamp_skew"
+    ],
+    "133": [
+      "timestamp_skew"
+    ],
+    "139": [
+      "state_action_limits",
+      "timestamp_skew"
+    ],
+    "143": [
+      "state_action_limits"
+    ],
+    "22": [
+      "timestamp_skew"
+    ],
+    "27": [
+      "state_action_limits"
+    ],
+    "85": [
+      "timestamp_skew"
+    ],
+    "86": [
+      "state_action_limits"
+    ],
+    "94": [
+      "state_action_limits"
+    ]
+  },
+  "kind": "simulation_corpus_gate_review",
+  "lane": "simulation",
+  "note": "Every take that failed any recording gate at the simulation thresholds is excluded from training; the limits audit beside this file names the joint.",
+  "physical_evidence": false,
+  "utc": "2026-10-18T23:55:48.125917+00:00"
+}

@@ -54,19 +54,26 @@ class ExecutorActionSource:
     """Leader-type actions that are the staged executor's commands, published as they are read.
 
     ``read`` is called by the recorder once per sample with the follower state it just
-    sampled; the executor's command for that state is sent to the sink and returned as
-    the frame's action, stamped with the follower sample's clocks so the skew and
-    freshness gates see a contemporaneous source. ``reset`` starts a new executor for
-    the next take.
+    sampled; the executor's command for that state is clamped to the operator bounds,
+    as the policy client clamps every command, sent to the sink and returned as the
+    frame's action, stamped with the follower sample's clocks so the skew and freshness
+    gates see a contemporaneous source. The clamp matters: a step interpolated from a
+    joint that sags past its stop would otherwise command past the stop, and the first
+    corpus showed the sim arm sagging two degrees beyond on Joint3 when it did.
+    ``reset`` starts a new executor for the next take.
     """
 
     kind = ActionSourceKind.LEADER
 
-    def __init__(self, factory: Callable[[], StagedExecutor], sink: TargetSink) -> None:
-        """Keep the executor factory and the target sink; no executor until reset."""
-        self.factory, self.sink = factory, sink
+    def __init__(self, factory: Callable[[], StagedExecutor], sink: TargetSink,
+                 bounds: tuple[tuple[float, float], ...]) -> None:
+        """Keep the executor factory, the target sink and the seven bounds; no executor yet."""
+        if len(bounds) != 7 or any(lo >= hi for lo, hi in bounds):
+            raise ValueError("seven ordered operator bounds are required")
+        self.factory, self.sink, self.bounds = factory, sink, tuple(bounds)
         self.executor: StagedExecutor | None = None
         self.steps = 0
+        self.clamped = 0
 
     def reset(self) -> StagedExecutor:
         """A fresh executor for a new take."""
@@ -84,11 +91,14 @@ class ExecutorActionSource:
         if self.executor is None:
             raise RuntimeError("reset the action source before a take")
         state = (*follower_state.joint_positions_rad, follower_state.gripper_m)
-        action, _ = self.executor.step(state)
+        raw, _ = self.executor.step(state)
+        action = tuple(min(hi, max(lo, float(v)))
+                       for v, (lo, hi) in zip(raw, self.bounds, strict=True))
+        self.clamped += action != tuple(float(v) for v in raw)
         self.sink.offer(action)
         self.steps += 1
         return ActionSample(
-            values=tuple(float(v) for v in action),
+            values=action,
             monotonic_timestamp_s=follower_state.monotonic_timestamp_s,
             ros_header_stamp_s=follower_state.ros_header_stamp_s,
             ros_arrival_stamp_s=follower_state.ros_arrival_stamp_s,
@@ -147,6 +157,7 @@ class TakeRecord:
     duration_s: float
     max_lift_m: float
     stage_record: dict[str, Any]
+    clamped_steps: int = 0
 
 
 class DemonstrationSession:
@@ -258,6 +269,7 @@ class DemonstrationSession:
             final_phase=executor.phase, feasible=executor.record.feasible,
             steps=self.actions.steps, duration_s=episode.duration_s,
             max_lift_m=scorer.max_lift_m, stage_record=asdict(executor.record),
+            clamped_steps=self.actions.clamped,
         )
         self.takes.append(record)
         self.log(f"take {index}: {'success' if success else 'failure'} after "

@@ -35,6 +35,7 @@ REPOSITORY = Path(__file__).resolve().parents[1]
 CHAIN = KinematicChain.load(REPOSITORY / "config" / "synria_kinematics.json")
 LIMITS = load_limits(REPOSITORY / "config" / "synria_limits.yaml")
 START = (-0.0088, 1.5918, -0.582, 0.0341, -0.7888, -0.0499, 0.0143)
+BOUNDS = (*LIMITS.joint_limits_rad, LIMITS.gripper_limits_m["50mm"])
 
 
 class FakeClock:
@@ -133,7 +134,7 @@ def session(tmp_path: Path, cup_xy: tuple[float, float], takes: int = 1,
         CHAIN, "simulation", LIMITS, "50mm", CUP_SIDE_PITCHED, LIFT_SCORE, scene.cup_pose,
         None, max_step_rad=0.8 / fps, max_gripper_step_m=0.04 / fps,
         margin_rad=math.radians(3),
-    ), scene)
+    ), scene, BOUNDS)
     recorder = PhysicalEpisodeRecorder(
         config=config, state_source=scene, action_source=actions,
         wrist_source=FakeFrames("wrist", clock), front_source=FakeFrames("front", clock),
@@ -167,6 +168,9 @@ def test_a_reachable_cup_is_lifted_recorded_and_labelled_success(tmp_path: Path)
     assert all(len(frame.action) == 7 for frame in episode.frames)
     closed = [frame for frame in episode.frames if frame.action[6] > 0.02]
     assert closed, "the squeeze is on record"
+    assert all(lo <= value <= hi for frame in episode.frames
+               for value, (lo, hi) in zip(frame.action, BOUNDS, strict=True))
+    assert take.clamped_steps == 0
     assert read_exclusions(tmp_path / "dataset").excluded_ids == ()
     write_summary(summary, tmp_path / "report" / "demo.json")
     assert json.loads((tmp_path / "report" / "demo.json").read_text())["successes"] == 1
@@ -190,8 +194,11 @@ def test_action_source_needs_a_reset_and_config_refuses_nonsense(tmp_path: Path)
     """No executor before reset; bad counts and timing are refused."""
     clock = FakeClock()
     scene = FakeScene((-0.3, 0.0), clock)
-    actions = ExecutorActionSource(lambda: None, scene)  # type: ignore[arg-type,return-value]
+    none = lambda: None  # noqa: E731
+    actions = ExecutorActionSource(none, scene, BOUNDS)  # type: ignore[arg-type]
     assert actions.phase == "plan"
+    with pytest.raises(ValueError, match="seven ordered"):
+        ExecutorActionSource(none, scene, BOUNDS[:6])  # type: ignore[arg-type]
     with pytest.raises(RuntimeError, match="reset"):
         actions.read(scene.read())
     with pytest.raises(ValueError, match="takes"):
