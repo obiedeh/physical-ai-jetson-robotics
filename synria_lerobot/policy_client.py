@@ -16,7 +16,7 @@ from typing import Any, Protocol
 from urllib.request import Request, urlopen
 
 from .embodiment import SynriaEmbodiment, SynriaObservation
-from .physical_contract import DRIVER_JOINT_NAMES
+from .physical_contract import DRIVER_JOINT_NAMES, PHYSICAL_LANE, training_lane
 from .policy_codec import MAX_RESPONSE_BYTES, decode_policy_response, encode_policy_request
 from .quality_gates import PhysicalLimits
 
@@ -91,11 +91,20 @@ class PolicySafetyConfig:
 
     @classmethod
     def load(
-        cls, path: Path, *, command_period_s: float, response_timeout_s: float
+        cls, path: Path, *, command_period_s: float, response_timeout_s: float,
+        lane: str = PHYSICAL_LANE,
     ) -> PolicySafetyConfig:
+        """Read a shared speed and freshness file for one lane.
+
+        A file without a lane field is the physical arm's. The simulation lane's file
+        carries looser speed bounds for the Isaac scene and is refused on the physical
+        path, so it can never set the real arm's step limits.
+        """
         data = json.loads(path.read_text(encoding="utf-8"))
         if {"max_delta", "response_timeout_s", "command_period_s"} & data.keys():
             raise ValueError("shared config cannot set step deltas, period or policy timeout")
+        if training_lane(data) != training_lane({"lane": lane}):
+            raise ValueError("policy safety config lane differs from the requested lane")
         return cls(
             data["max_joint_speed_rad_s"], data["max_gripper_speed_m_s"],
             command_period_s, response_timeout_s, data["max_observation_age_s"],
