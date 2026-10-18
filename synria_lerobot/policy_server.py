@@ -411,7 +411,9 @@ class FixedScenePolicyService:
     ``serve_ensemble=False`` serves such a checkpoint chunk by chunk instead, as an
     ablation of the ensembling alone; the override is named in the metadata every
     trial report copies, so a campaign run that way can never pass as the manifest's
-    own serving mode. The physical lane refuses the override at the command line.
+    own serving mode, and a physical session, which binds only metadata equal to the
+    receipt, refuses such a server. The physical lane also refuses the override at
+    the command line.
     """
 
     def __init__(
@@ -445,8 +447,16 @@ class FixedScenePolicyService:
         )
 
     def metadata(self) -> dict[str, Any]:
-        """The checkpoint's metadata plus any serving override, for every report to copy."""
-        return {**self.identity.metadata(), "serving_overrides": dict(self.serving_overrides)}
+        """The checkpoint's metadata, plus the serving overrides only when one is active.
+
+        A physical session binds an endpoint only when its metadata equals the frozen
+        receipt's byte for byte, so the key is absent when nothing is overridden and a
+        server with an override can never be bound to the physical arm.
+        """
+        metadata = self.identity.metadata()
+        if self.serving_overrides:
+            metadata["serving_overrides"] = dict(self.serving_overrides)
+        return metadata
 
     def _validate(self, payload: dict[str, Any]) -> None:
         contract = self.identity.contract.as_dict()
