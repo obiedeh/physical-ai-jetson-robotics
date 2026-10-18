@@ -133,3 +133,30 @@ def summarize_reports_from(rows: list[dict[str, Any]]) -> dict[str, Any]:
     return {"rows": [{"report": "r", "superseded": False, **row} for row in rows],
             "totals": {mode: totals.get(mode, 0) for mode in MODES},
             "trials": sum(row["trials"] for row in rows)}
+
+
+def test_place_reports_carry_the_final_distance_distribution() -> None:
+    """Lifted trials' final distances are summarised against the radius; others are not."""
+    summary = summarize_report(report([
+        trial(success=True, max_lift_m=0.05, final_cup_target_distance_m=0.01),
+        trial(max_lift_m=0.05, final_cup_target_distance_m=0.04),
+        trial(max_lift_m=0.05, final_cup_target_distance_m=0.02),
+        trial(max_lift_m=0.0, final_cup_target_distance_m=0.30),
+    ], score="place"))
+    placement = summary["placement"]
+    assert placement["lifted"] == 3 and placement["within_radius"] == 2
+    assert placement["median_m"] == 0.02 and placement["p90_m"] == 0.04
+    assert summarize_report(report([trial()]))["placement"] is None
+    text = render_markdown(summarize_reports_from([summary]))
+    assert "| p | 20000 | 3 | 2 of 3 at 3 cm | 2.0 | 4.0 |" in text
+
+
+def test_placement_tolerances_load_per_task(tmp_path: Path) -> None:
+    """The committed file gives the cup task 3 cm and refuses an unknown task."""
+    from synria_lerobot.sim_policy_runner import load_placement_tolerance
+
+    path = Path("config/synria_placement_tolerances.json")
+    assert load_placement_tolerance(path, "cup_pick_and_place") == 0.03
+    assert load_placement_tolerance(path, "ludo_token_move") == 0.01
+    with pytest.raises(ValueError, match="no placement tolerance"):
+        load_placement_tolerance(path, "pick_cup")

@@ -267,6 +267,16 @@ table's last column is the share of all steps the safety client held, whatever
 the mode: a hold short of half a trial does not make a mode, but a policy pulled
 back from a joint bound on a sixth of its steps is pressing the operator limits.
 
+### Placement tolerance per task
+
+`config/synria_placement_tolerances.json` holds the radius within which a released
+object counts as placed, per task: 3 cm for the cup mark, 1 cm for a Ludo token
+and a checkers piece, 1.2 cm for a chess piece. The trial script takes it as the
+default `--place-radius-m` for the served task, and every place campaign's
+failure-mode table ends with the final cup-to-mark distance of the trials that
+lifted the cup, median and 90th percentile, against that radius, so a near miss
+is measured and not only counted.
+
 ### Goal channels in training and serving
 
 When the dataset's contract declares goal channels, the trainer requires the
