@@ -200,6 +200,11 @@ def test_trials_are_added_to_completed_rows_without_retraining(tmp_path: Path) -
     assert result["rows"][1]["trials"]["success_rate"] == 0.25 and "trials_utc" in result
     table = (tmp_path / "e" / "STUDY.md").read_text()
     assert "| 100% | 2 | `old.json` |" in table and "| 25% | 4 | `new.json` |" in table
+    replaced = add_trials(result, campaign, log=lambda text: None, replace=True)
+    assert served == ["p2", "p1", "p2"]
+    assert replaced["rows"][0]["superseded_trials"][0]["report"] == "old.json"
+    assert replaced["rows"][1]["superseded_trials"][0]["report"] == "new.json"
+    assert all(row["trials"]["report"] == "new.json" for row in replaced["rows"])
     with pytest.raises(ValueError, match="completed study only"):
         add_trials({**study, "status": "started"}, campaign)
     with pytest.raises(ValueError, match="simulation lane"):
