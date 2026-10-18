@@ -316,6 +316,26 @@ are unmeasured and the executor refuses the physical lane. It is the ceiling
 measurement for the staged design and the demonstration engine of the strategy
 review, not a learned policy, and its campaigns say so in their metadata.
 
+### The demonstration engine
+
+`scripts/record_staged_demonstrations.py --task-id cup_pick_and_place --takes 200
+--placement-seed 3026 --dataset-path DATASET --repo-id local/NAME --report-dir DIR`
+records a simulation dataset driven by the staged executor, under the same
+contract, writer and quality gates as a teleoperated take. The recorder samples
+the sim state, both cameras and the task's goal channels at the dataset rate; on
+every sample the executor plans or steps from the sampled state, its command is
+published on the sim-only target topic and stored as the frame's leader-type
+action, stamped with the follower sample's clocks. Each take walks to the start
+pose, asks the scene for a seeded Randomize (the seed plus the take index; choose
+a seed far from the evaluation seeds 2026 and 2027 so no evaluation placement
+enters training), settles, and records until the scene's score is met and held
+or the executor finishes without it. Successes are labelled success; failures
+are labelled failure and appended to the dataset's exclusion log, so training
+sees only the takes that reached the score and the record stays honest. The
+summary beside the report dir lists every take's label, phase and stage
+answers. The dataset is a simulation dataset like any other for the trainer and
+the study script; nothing about it is physical evidence.
+
 ### Serving and client ablations on a fixed seed
 
 Two switches let a paired campaign measure one serving-side change alone, with
