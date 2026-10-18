@@ -186,10 +186,16 @@ repository), which mirrors `/isaac/policy_joint_targets` instead of the real
 arm's feedback. Before every trial the runner asks the scene for a Randomize
 and reset, walks the arm from wherever it is to the start pose (the dataset's
 mean first frame unless `--start-pose` is given) within the per-command step
-bound, then resets the policy and steps it at the command period. The score is
-the scene's own cup pose: success when the cup has been `--lift-m` (3 cm) above
-its rest height for `--hold-s` (1 s) without a break; the trial otherwise ends
-at `--max-trial-s`. Speed bounds come from
+bound, then resets the policy and steps it at the command period. The score
+follows the served task and comes from the scene's own poses. `pick_cup`:
+success when the cup has been `--lift-m` (3 cm) above its rest height for
+`--hold-s` (1 s) without a break. `cup_pick_and_place`: success when the cup,
+lifted at least once, rests within `--place-radius-m` (3 cm) of the scene's
+mark (`/isaac/pick_objects/place_target/pose`) and within `--place-height-m`
+(1 cm) of its rest height with the gripper centre `--gripper-clear-m` (6 cm)
+away, for `--hold-s`. Any other task is refused. Every trial records where the
+cup stood after the reset; the trial otherwise ends at `--max-trial-s`. Speed
+bounds come from
 [`config/synria_sim_policy.json`](../../config/synria_sim_policy.json), a
 simulation-lane file the physical command path refuses. The runner never
 publishes on `/joint_states`, `/joint_commands`, `/policy_joint_targets` or

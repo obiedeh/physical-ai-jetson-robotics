@@ -17,8 +17,11 @@ Then::
 
 The runner reads ``/isaac_joint_states`` and the two recorded camera topics, publishes
 targets on ``/isaac/policy_joint_targets`` (never a real-arm topic), asks the scene for
-a Randomize and reset before every trial, and scores each trial from the scene's cup
-pose: success when the cup is ``--lift-m`` above its rest height for ``--hold-s``. The
+a Randomize and reset before every trial, and scores each trial from the scene's poses
+by the served task: ``pick_cup`` succeeds when the cup is ``--lift-m`` above its rest
+height for ``--hold-s``; ``cup_pick_and_place`` when the cup, lifted at least once, rests
+within ``--place-radius-m`` of the scene's mark and within ``--place-height-m`` of its
+rest height with the gripper centre ``--gripper-clear-m`` away, for ``--hold-s``. The
 scene's gripper pose gives each trial its closest and final gripper-to-cup distance. The
 start pose is the mean first frame of the dataset unless ``--start-pose`` gives seven
 values. The report is written once and says it is simulation evidence only.
@@ -50,9 +53,12 @@ from synria_lerobot.policy_client import (  # noqa: E402
 from synria_lerobot.quality_gates import load_limits  # noqa: E402
 from synria_lerobot.recorder import RosImageFrameSource, RosJointStateSource  # noqa: E402
 from synria_lerobot.sim_policy_runner import (  # noqa: E402
+    PLACE_SCORE,
+    SCORE_BY_TASK,
     SIM_CUP_POSE_TOPIC,
     SIM_GRIPPER_POSE_TOPIC,
     SIM_OVERHEAD_TOPIC,
+    SIM_PLACE_TARGET_POSE_TOPIC,
     SIM_RANDOMIZE_TOPIC,
     SIM_STATE_TOPIC,
     SIM_TARGET_TOPIC,
@@ -88,6 +94,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--hold-s", type=float, default=1.0)
     parser.add_argument("--settle-s", type=float, default=2.0)
     parser.add_argument("--approach-s", type=float, default=2.0)
+    parser.add_argument("--place-radius-m", type=float, default=0.03,
+                        help="Place score: the cup's centre within this of the mark's centre.")
+    parser.add_argument("--place-height-m", type=float, default=0.01,
+                        help="Place score: the cup within this of its rest height.")
+    parser.add_argument("--gripper-clear-m", type=float, default=0.06,
+                        help="Place score: the gripper centre at least this far from the cup.")
     parser.add_argument("--target-topic", default=SIM_TARGET_TOPIC)
     parser.add_argument("--image-size", type=int, default=224)
     return parser
@@ -108,6 +120,10 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("the policy server is not serving the simulation lane; "
                          "start it with --lane simulation")
     contract = PhysicalDatasetContract.from_dict(metadata["physical_contract"])
+    score = SCORE_BY_TASK.get(contract.task_id)
+    if score is None:
+        raise SystemExit(f"task {contract.task_id} has no scene score; trials run for "
+                         f"{sorted(SCORE_BY_TASK)}")
     safety = PolicySafetyConfig.load(
         args.policy_config, command_period_s=args.command_period_s,
         response_timeout_s=args.response_timeout_s, lane=SIMULATION_LANE,
@@ -116,7 +132,9 @@ def main(argv: list[str] | None = None) -> int:
     config = TrialConfig(
         trials=args.trials, command_period_s=args.command_period_s, start_pose=start_pose,
         max_trial_s=args.max_trial_s, lift_m=args.lift_m, hold_s=args.hold_s,
-        settle_s=args.settle_s, approach_s=args.approach_s,
+        settle_s=args.settle_s, approach_s=args.approach_s, score=score,
+        place_radius_m=args.place_radius_m, place_height_m=args.place_height_m,
+        gripper_clear_m=args.gripper_clear_m,
     )
     with ExitStack() as stack:
         publisher = stack.enter_context(_closing(RosSimPublisher(
@@ -140,9 +158,14 @@ def main(argv: list[str] | None = None) -> int:
         gripper = stack.enter_context(_closing(RosPoseSource(
             SIM_GRIPPER_POSE_TOPIC, node_name="synria_sim_policy_gripper",
         )))
+        target = None
+        if score == PLACE_SCORE:
+            target = stack.enter_context(_closing(RosPoseSource(
+                SIM_PLACE_TARGET_POSE_TOPIC, node_name="synria_sim_policy_mark",
+            )))
         runner = SimulationTrialRunner(
             client, publisher, state, wrist, front, cup, publisher.request_randomize, config,
-            gripper_source=gripper,
+            gripper_source=gripper, target_source=target,
         )
         report = runner.run(metadata)
     report["endpoint"] = args.endpoint

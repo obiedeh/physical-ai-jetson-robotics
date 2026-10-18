@@ -33,6 +33,22 @@
       }
     },
     {
+      "task_id": "cup_pick_and_place",
+      "task_text": "Pick up the cup from its marked location, carry it to the marked target and release it upright inside the target, then back the gripper away clear.",
+      "success_rule": "The take ends with the cup upright and at rest inside the marked target and the gripper clear of it, confirmed by the operator and front-camera evidence; in simulation, the scene's cup pose at rest within the target radius with the gripper pose clear for one second.",
+      "scene_requirements": [
+        "The cup occupies its fixed marked location.",
+        "The target has a fixed visible mark, inside the arm's reach and clear of the other objects.",
+        "The cup, the target mark and the gripper remain visible during the trial."
+      ],
+      "declared_fixed_scene": true,
+      "requires_unobserved_goal": false,
+      "episode_window": {
+        "min_episode_s": null,
+        "max_episode_s": null
+      }
+    },
+    {
       "task_id": "roll_and_dump",
       "task_text": "With the loaded cup already held in the gripper, shake it and invert it over the fixed dump tray.",
       "success_rule": "The die is at rest on the fixed dump tray and the cup was not dropped, confirmed by the operator and front-camera evidence.",

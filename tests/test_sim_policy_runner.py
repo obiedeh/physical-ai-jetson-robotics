@@ -22,9 +22,11 @@ from synria_lerobot.physical_contract import (
 from synria_lerobot.policy_client import FakePolicy, PolicyClient, PolicySafetyConfig
 from synria_lerobot.quality_gates import load_limits
 from synria_lerobot.sim_policy_runner import (
+    PLACE_SCORE,
     REAL_ARM_TOPICS,
     LiftScorer,
     ObjectPose,
+    PlaceScorer,
     SimulationTrialRunner,
     TrialConfig,
     approach_targets,
@@ -37,11 +39,11 @@ LIMITS = Path("config/synria_limits.yaml")
 START = (0.0, 0.3, -0.2, 0.0, -0.5, 0.0, 0.02)
 
 
-def contract(purpose: str = "simulation") -> PhysicalDatasetContract:
-    """A pick-cup style contract in the given purpose."""
+def contract(purpose: str = "simulation", task_id: str = "pick_cup") -> PhysicalDatasetContract:
+    """A contract for one registry task in the given purpose."""
     return PhysicalDatasetContract(
-        "50mm", ActionSource.LEADER, False, task_id="pick_cup",
-        task_definition=synthetic_task(1, 120, "pick_cup"), recording_purpose=purpose,
+        "50mm", ActionSource.LEADER, False, task_id=task_id,
+        task_definition=synthetic_task(1, 120, task_id), recording_purpose=purpose,
     )
 
 
@@ -98,6 +100,59 @@ class Scene:
         return ObjectPose((0.3 + offset, 0.0, self.cup_z), self.clock())
 
 
+MARK = (0.2, -0.1, 0.001)
+
+
+class PlacingScene(Scene):
+    """A fake scene with a mark: a closed gripper carries the cup over it; opening sets it down."""
+
+    def __init__(self, clock: FakeClock, *, releases: bool = True) -> None:
+        super().__init__(clock)
+        self.releases = releases
+        self.cup_xy = (0.3, 0.0)
+
+    def offer(self, action: tuple[float, ...]) -> None:
+        self.targets.append(tuple(action))
+        closed = action[6] < 0.005
+        carried = self.cup_xy == MARK[:2]
+        self.pose = tuple(action)
+        if closed:
+            self.cup_xy = MARK[:2]
+            self.cup_z = self.cup_rest + 0.05
+        elif carried and self.releases:
+            self.cup_z = self.cup_rest
+        else:
+            self.cup_z = self.cup_rest + (0.05 if carried else 0.0)
+
+    def randomize(self) -> None:
+        super().randomize()
+        self.cup_xy = (0.3, 0.0)
+
+    def read_cup(self) -> ObjectPose:
+        return ObjectPose((*self.cup_xy, self.cup_z), self.clock())
+
+    def read_gripper(self) -> ObjectPose:
+        """On the cup while closed; 10 cm away once open."""
+        offset = 0.0 if self.pose[6] < 0.005 else 0.1
+        return ObjectPose((self.cup_xy[0] + offset, self.cup_xy[1], self.cup_z), self.clock())
+
+    def read_mark(self) -> ObjectPose:
+        return ObjectPose(MARK, self.clock())
+
+
+class SequencePolicy:
+    """A fake transport answering each action in turn, then the last one forever."""
+
+    def __init__(self, actions: list[tuple[float, ...]]) -> None:
+        self.actions = list(actions)
+
+    def request(self, payload: dict[str, Any], timeout_s: float) -> dict[str, Any]:
+        action = self.actions.pop(0) if len(self.actions) > 1 else self.actions[0]
+        return {"request_id": payload["request_id"],
+                "observation_timestamp_s": payload["observation_timestamp_s"],
+                "action": action, "inference_s": 0.0}
+
+
 class Source:
     """Adapt one scene reader to the source protocol."""
 
@@ -126,6 +181,97 @@ def runner(scene: Scene, clock: FakeClock, action: tuple[float, ...], *, trials:
         clock=clock, sleep=sleep, log=lambda text: None,
         gripper_source=Source(scene.read_gripper),
     )
+
+
+def place_runner(scene: PlacingScene, clock: FakeClock, actions: list[tuple[float, ...]], *,
+                 trials: int = 1, mark: bool = True, gripper: bool = True,
+                 score: str = PLACE_SCORE, task_id: str = "cup_pick_and_place",
+                 ) -> SimulationTrialRunner:
+    """A place-scored runner over the placing scene with a scripted policy."""
+    client = PolicyClient(SynriaEmbodiment(contract(task_id=task_id)), SequencePolicy(actions),
+                          load_limits(LIMITS), safety(0.2), clock=clock)
+    config = TrialConfig(trials=trials, command_period_s=0.2, start_pose=START, max_trial_s=6.0,
+                         lift_m=0.03, hold_s=1.0, settle_s=0.4, approach_s=1.0, score=score)
+
+    def sleep(seconds: float) -> None:
+        clock.now += seconds
+
+    return SimulationTrialRunner(
+        client, scene, Source(scene.read_state), Source(scene.read_image),
+        Source(scene.read_image), Source(scene.read_cup), scene.randomize, config,
+        clock=clock, sleep=sleep, log=lambda text: None,
+        gripper_source=Source(scene.read_gripper) if gripper else None,
+        target_source=Source(scene.read_mark) if mark else None,
+    )
+
+
+def test_place_scorer_needs_a_lift_then_a_resting_cup_in_the_mark_with_the_gripper_clear() -> None:
+    """Nudged into the mark fails; lifted, set down inside, gripper clear, held a second passes."""
+    scorer = PlaceScorer(0.0, (0.2, -0.1), 0.03, 0.03, 0.01, 0.06, 1.0)
+    on_mark = (0.21, -0.1, 0.0)
+    far = (0.5, -0.1, 0.0)
+    assert not scorer.feed(on_mark, far, 0.0) and not scorer.feed(on_mark, far, 1.5)
+    assert not scorer.lifted and scorer.min_target_distance_m == pytest.approx(0.01)
+    assert not scorer.feed((0.3, 0.0, 0.05), (0.3, 0.0, 0.05), 2.0) and scorer.lifted
+    assert not scorer.feed((0.2, -0.1, 0.04), (0.2, -0.1, 0.04), 2.2)   # held above the mark
+    assert not scorer.feed(on_mark, (0.21, -0.1, 0.0), 2.4)            # gripper still on it
+    assert not scorer.feed(on_mark, far, 2.6) and not scorer.feed(on_mark, far, 3.5)
+    assert not scorer.feed((0.26, -0.1, 0.0), far, 3.6)                # knocked out of the mark
+    assert not scorer.feed(on_mark, far, 3.8) and not scorer.feed(on_mark, far, 4.7)
+    assert scorer.feed(on_mark, far, 4.8) and scorer.success_at_s == 4.8
+    assert scorer.final_target_distance_m == pytest.approx(0.01)
+    assert scorer.max_lift_m == pytest.approx(0.05)
+    with pytest.raises(ValueError, match="finite"):
+        PlaceScorer(0.0, (0.2, float("nan")), 0.03, 0.03, 0.01, 0.06, 1.0)
+
+
+def test_runner_scores_a_placement_and_a_cup_never_released(tmp_path: Path) -> None:
+    """Close, carry, open over the mark: success with distances recorded; never opening fails."""
+    clock = FakeClock()
+    scene = PlacingScene(clock)
+    closing, opening = (*START[:6], 0.0), (*START[:6], 0.02)
+    report = place_runner(scene, clock, [closing] * 4 + [opening]).run(
+        {"lane": "simulation", "policy_id": "p"})
+    assert report["score"] == "place" and "mark" in report["score_rule"]
+    assert report["successes"] == 1
+    [trial] = report["trials"]
+    assert trial["success"] and trial["target_xy_m"] == pytest.approx(MARK[:2])
+    assert trial["cup_start_xy_m"] == pytest.approx((0.3, 0.0))
+    assert trial["max_lift_m"] == pytest.approx(0.05)
+    assert trial["final_cup_target_distance_m"] == pytest.approx(0.0)
+    assert trial["min_cup_target_distance_m"] == pytest.approx(0.0)
+    assert trial["final_gripper_cup_distance_m"] == pytest.approx(0.1)
+    write_report(report, tmp_path / "place.json")
+    assert json.loads((tmp_path / "place.json").read_text())["score"] == "place"
+
+    clock = FakeClock()
+    held = PlacingScene(clock)
+    report = place_runner(held, clock, [closing]).run({"lane": "simulation"})
+    [trial] = report["trials"]
+    assert not trial["success"] and trial["min_cup_target_distance_m"] == pytest.approx(0.0)
+    assert trial["final_gripper_cup_distance_m"] == pytest.approx(0.0)
+
+    lift = runner(Scene(clock), clock, closing, trials=1).run({"lane": "simulation"})
+    assert lift["score"] == "lift" and lift["trials"][0]["target_xy_m"] is None
+    assert lift["trials"][0]["cup_start_xy_m"] == pytest.approx((0.3, 0.0))
+
+
+def test_runner_refuses_a_score_the_task_is_not_judged_by_or_a_missing_mark() -> None:
+    """The place task refuses the lift score and runs only with the mark and gripper poses."""
+    clock = FakeClock()
+    scene = PlacingScene(clock)
+    with pytest.raises(ValueError, match="scored by place, not lift"):
+        place_runner(scene, clock, [START], score="lift")
+    with pytest.raises(ValueError, match="scored by lift, not place"):
+        place_runner(scene, clock, [START], task_id="pick_cup")
+    with pytest.raises(ValueError, match="mark pose"):
+        place_runner(scene, clock, [START], mark=False)
+    with pytest.raises(ValueError, match="gripper pose"):
+        place_runner(scene, clock, [START], gripper=False)
+    with pytest.raises(ValueError, match="no scene score"):
+        place_runner(scene, clock, [START], task_id="cup_return", score="lift")
+    with pytest.raises(ValueError, match="score must be"):
+        TrialConfig(trials=1, command_period_s=0.2, start_pose=START, score="drop")
 
 
 def test_lift_scorer_needs_an_unbroken_hold() -> None:
