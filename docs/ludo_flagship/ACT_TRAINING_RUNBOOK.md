@@ -267,6 +267,33 @@ table's last column is the share of all steps the safety client held, whatever
 the mode: a hold short of half a trial does not make a mode, but a policy pulled
 back from a joint bound on a sixth of its steps is pressing the operator limits.
 
+### The staged executor: what, where, how, plan, execute
+
+`scripts/serve_staged_executor.py --task-id pick_cup --command-period-s 0.2
+--stage-log STAGES.jsonl` serves a scripted expert on the policy protocol, and
+`scripts/run_sim_staged_campaign.py` runs a seeded campaign against it with the
+same client, guard, limits and scorer as a learned policy's. Before it moves it
+answers four questions and writes them to the stage log: what (the registry
+task and its object), where (the object's and the mark's positions from the
+scene's published poses; a camera locator replaces that on hardware), how (a
+grasp strategy per object class; the cup's is the median of the operator's own
+takes at the squeeze: gripper centre 30 mm up, approach pitched 54 degrees from
+vertical, fingers horizontal, lift 80 mm) and plan (inverse kinematics on the
+committed chain in `config/synria_kinematics.json`, every waypoint 3 degrees
+inside the operator bounds, on the operator's own elbow branch; when a group of
+waypoints does not solve at the strategy's pitch, steeper pitches of 40, 25 and
+10 degrees are tried and the pitch used is recorded). A plan that does not solve
+at any pitch is reported as infeasible with the waypoint that failed, and the
+arm holds. Offline, all 50 seeded placements of seed 2026 solve for both tasks,
+seven place marks at the 40 degree fallback. Execution is approach, descend along the approach axis, squeeze,
+lift, and for the place score carry, lower, release and retreat; each phase
+entry, every stall and the final phase are in the record, so a failed trial
+names its stage. The chain was validated against the scene's published gripper
+centre to 0.0 mm with the simulation calibration offsets; the physical offsets
+are unmeasured and the executor refuses the physical lane. It is the ceiling
+measurement for the staged design and the demonstration engine of the strategy
+review, not a learned policy, and its campaigns say so in their metadata.
+
 ### Serving and client ablations on a fixed seed
 
 Two switches let a paired campaign measure one serving-side change alone, with
