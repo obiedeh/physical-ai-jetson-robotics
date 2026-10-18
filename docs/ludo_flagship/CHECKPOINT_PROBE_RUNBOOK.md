@@ -45,7 +45,10 @@ interchangeable with a different hashing convention.
 
 Training episodes must be exactly all actual dataset episodes except the
 frozen held-out set. Both sets must be nonempty. Neither unknown indices nor
-silently unused episodes are allowed. Then register and commit the probe file
+silently unused episodes are allowed. (The simulation lane, described in the
+[ACT runbook](ACT_TRAINING_RUNBOOK.md#simulation-lane), may omit excluded
+takes and study subsets, but names every omitted index; its probe sets say
+`"lane": "simulation"` and carry no physical trials.) Then register and commit the probe file
 before constructing a trainer:
 
 ```bash

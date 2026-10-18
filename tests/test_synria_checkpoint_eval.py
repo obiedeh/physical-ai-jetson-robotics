@@ -5,6 +5,7 @@ import json
 import subprocess
 import threading
 import time
+from dataclasses import replace
 from html.parser import HTMLParser
 from pathlib import Path
 from types import SimpleNamespace as NS
@@ -269,6 +270,74 @@ def test_probes_require_committed_unchanged_matching_hash(probe_setup: Any) -> N
 def test_training_partition_is_complete_real_and_disjoint(probe_setup: Any, ids: tuple) -> None:
     with pytest.raises(ValueError):
         evaluator(probe_setup, ids)
+
+
+def simulation_probe_setup(fixture: Any, physical_trials: list | None = None) -> Any:
+    """Re-register the fixture's probe set for a simulation dataset, in the simulation lane."""
+    contract = replace(
+        PhysicalDatasetContract.from_dict(fixture.config["physical_contract"]),
+        recording_purpose="simulation",
+    ).as_dict(fps=10)
+    (fixture.dataset / "physical_contract.json").write_text(json.dumps(contract))
+    fixture.config.update(
+        lane="simulation", physical_contract=contract,
+        physical_trials=[] if physical_trials is None else physical_trials,
+        dataset_content_sha256=strict_content_hash(fixture.dataset),
+    )
+    fixture.probe.write_text(json.dumps(fixture.config))
+    fixture.digest = register_probes(fixture.probe)
+    fixture.config = json.loads(fixture.probe.read_text())
+    commit(fixture.repository, fixture.probe)
+    return fixture
+
+
+def test_simulation_probes_hold_out_episodes_without_physical_trials(probe_setup: Any) -> None:
+    """Sim probes register with no trials; physical lanes and physical trials are refused."""
+    from synria_lerobot.checkpoint_eval import validate_probes
+
+    physical_contract = dict(probe_setup.config["physical_contract"])
+    fixture = simulation_probe_setup(probe_setup)
+    assert fixture.config["probe_sha256"] == fixture.digest
+    with pytest.raises(ValueError, match="no physical trials"):
+        validate_probes({**fixture.config, "physical_trials": [fixed_probe_trial()]})
+    with pytest.raises(ValueError, match="not eligible"):
+        validate_probes({**fixture.config, "lane": "physical"})
+    with pytest.raises(ValueError, match="simulation lane"):
+        validate_probes({**fixture.config, "physical_contract": physical_contract})
+
+
+def test_simulation_evaluator_names_omitted_episodes_and_physical_never_omits(
+    probe_setup: Any,
+) -> None:
+    """Omissions are allowed only in the simulation lane and must complete the partition."""
+    with pytest.raises(ValueError, match="simulation-lane study setting"):
+        CheckpointEvaluator(
+            probe_setup.probe, probe_setup.repository, probe_setup.digest, probe_setup.dataset,
+            (0,), metadata_reader=probe_setup.reader, omitted_episode_indices=(1,),
+        )
+    with pytest.raises(ValueError, match="lane differs"):
+        CheckpointEvaluator(
+            probe_setup.probe, probe_setup.repository, probe_setup.digest, probe_setup.dataset,
+            (0, 1), metadata_reader=probe_setup.reader, lane="simulation",
+        )
+    fixture = simulation_probe_setup(probe_setup)
+    evaluator = CheckpointEvaluator(
+        fixture.probe, fixture.repository, fixture.digest, fixture.dataset, (0,),
+        metadata_reader=fixture.reader, lane="simulation", omitted_episode_indices=(1,),
+    )
+    assert evaluator.lane == "simulation" and evaluator.omitted_ids == (1,)
+    for training, omitted in (((0,), ()), ((0, 1), (1,)), ((0,), (2,))):
+        with pytest.raises(ValueError):
+            CheckpointEvaluator(
+                fixture.probe, fixture.repository, fixture.digest, fixture.dataset, training,
+                metadata_reader=fixture.reader, lane="simulation",
+                omitted_episode_indices=omitted,
+            )
+    with pytest.raises(ValueError, match="lane differs"):
+        CheckpointEvaluator(
+            fixture.probe, fixture.repository, fixture.digest, fixture.dataset, (0, 1),
+            metadata_reader=fixture.reader,
+        )
 
 
 def test_frozen_frame_counts_match_actual_metadata(probe_setup: Any) -> None:

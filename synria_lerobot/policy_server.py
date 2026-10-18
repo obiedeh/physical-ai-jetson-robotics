@@ -20,7 +20,14 @@ import numpy as np
 
 from .act_training import FEATURE_KEYS, TRAINING_VERSION, validate_config
 from .checkpoint_eval import strict_content_hash
-from .physical_contract import IMAGE_KEYS, PhysicalDatasetContract
+from .physical_contract import (
+    IMAGE_KEYS,
+    PHYSICAL_LANE,
+    SIMULATION_LANE,
+    TRAINING_LANES,
+    PhysicalDatasetContract,
+    training_lane,
+)
 from .policy_codec import (
     MAX_REQUEST_BYTES,
     MAX_RESPONSE_BYTES,
@@ -52,10 +59,17 @@ class CheckpointIdentity:
     content_sha256: str
     manifest: dict[str, Any]
     contract: PhysicalDatasetContract
+    lane: str = PHYSICAL_LANE
 
     @classmethod
-    def load(cls, checkpoint: Path, receipt: Path, registry: Path) -> CheckpointIdentity:
-        """A finalized diagnostic receipt confirms completeness, not policy quality."""
+    def load(
+        cls, checkpoint: Path, receipt: Path, registry: Path, lane: str = PHYSICAL_LANE,
+    ) -> CheckpointIdentity:
+        """A finalized diagnostic receipt confirms completeness, not policy quality.
+
+        The checkpoint must belong to the serving lane: a physical server never loads a
+        simulation checkpoint, and a simulation server never loads a physical one.
+        """
         record = _read_record(receipt)
         manifest = _read_record(checkpoint / "physical_policy_manifest.json")
         if set(record) != set(manifest) | {
@@ -87,12 +101,19 @@ class CheckpointIdentity:
         ):
             raise ValueError("checkpoint receipt step is inconsistent")
         contract = PhysicalDatasetContract.from_dict(manifest["physical_contract"])
-        contract.require_qualifying()
+        lane = training_lane({"lane": lane})
+        contract.require_lane(lane)
+        if training_lane(manifest) != lane or training_lane(
+            manifest.get("configuration") or {}
+        ) != lane:
+            raise ValueError("checkpoint lane differs from the serving lane")
         tasks = load_task_registry(registry)
         if tasks[contract.task_id] != contract.task_definition:
             raise ValueError("checkpoint task snapshot differs from the fixed-scene registry")
         if (
-            manifest.get("fixed_scene_motion_eligible") is not True
+            manifest.get("fixed_scene_motion_eligible") is not (lane == PHYSICAL_LANE)
+            or (lane == SIMULATION_LANE
+                and manifest.get("simulation_motion_eligible") is not True)
             or manifest.get("eligible_task_ids") != [contract.task_id]
             or manifest.get("varying_target_motion_eligible") is not False
             or manifest.get("task_text_conditioning") is not False
@@ -132,7 +153,7 @@ class CheckpointIdentity:
             ):
                 raise ValueError("checkpoint image feature shapes must be bounded CHW RGB")
         # Original absolute receipt paths may differ on the serving host; identity is content.
-        return cls(checkpoint.resolve(), digest, copy.deepcopy(manifest), contract)
+        return cls(checkpoint.resolve(), digest, copy.deepcopy(manifest), contract, lane)
 
     def verify_content(self) -> None:
         if strict_content_hash(self.checkpoint) != self.content_sha256:
@@ -151,7 +172,10 @@ class CheckpointIdentity:
                 "cadence": self.manifest["cadence"],
                 "response_timeout_s": self.manifest["configuration"]["response_timeout_s"],
                 "model_feature_shapes": self.manifest["model_feature_shapes"],
-                "fixed_scene_motion_eligible": True,
+                "lane": self.lane,
+                "physical_eligible": self.lane == PHYSICAL_LANE,
+                "fixed_scene_motion_eligible": self.lane == PHYSICAL_LANE,
+                "simulation_motion_eligible": self.lane == SIMULATION_LANE,
                 "eligible_task_ids": [self.contract.task_id],
                 "varying_target_motion_eligible": False,
                 "task_text_conditioning": False,
@@ -513,8 +537,12 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--device", choices=("cpu", "cuda"), required=True)
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8080)
+    parser.add_argument("--lane", choices=TRAINING_LANES, default=PHYSICAL_LANE,
+                        help="Serve a physical checkpoint (default) or a simulation-lane one.")
     args = parser.parse_args(argv)
-    identity = CheckpointIdentity.load(args.checkpoint, args.checkpoint_record, args.task_registry)
+    identity = CheckpointIdentity.load(
+        args.checkpoint, args.checkpoint_record, args.task_registry, args.lane,
+    )
     service = FixedScenePolicyService(identity, LocalACTModel(identity, args.device))
     with make_http_server(service, args.host, args.port) as server:
         server.serve_forever()
