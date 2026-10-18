@@ -1,0 +1,20 @@
+{
+  "version": "synria_sim_data_scaling_v1",
+  "study_id": "",
+  "dataset_root": "",
+  "contract": "",
+  "training_config": "",
+  "raw_output_root": "",
+  "evidence_root": "",
+  "policy_prefix": "",
+  "subset_sizes": [
+    5,
+    10,
+    15,
+    20,
+    25
+  ],
+  "seed": 0,
+  "steps": 0,
+  "note": "Template. dataset_root and raw_output_root live outside git; evidence_root is inside the repository under reports/sim_policy/<study_id>; training_config is a simulation-lane ACT configuration with a registered, committed probe set and training_episode_limit unset. The largest subset may equal the number of episodes available for training, which trains on all of them."
+}

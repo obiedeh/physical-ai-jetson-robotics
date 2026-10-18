@@ -197,6 +197,23 @@ publishes on `/joint_states`, `/joint_commands`, `/policy_joint_targets` or
 The report, written once under `reports/sim_policy/`, carries the rule, every
 trial, the success rate and `physical_evidence: false`.
 
+### The data-scaling study
+
+`scripts/run_sim_data_scaling_study.py --spec <study>.json` trains the frozen
+dataset at each size in `subset_sizes` (nested by recording order, so each
+run contains every smaller one) with one seed, step count and held-out set,
+through the simulation-lane trainer, so every run has its own evidence
+directory, checkpoint hash and ledger row. The template is
+[`config/synria_sim_data_scaling.json`](../../config/synria_sim_data_scaling.json).
+With `--trials N` the final checkpoint of each run is served on a local port
+and the trial campaign above runs against the scene before the next size
+trains. The study record `study.json` and the table `STUDY.md` are written
+into the evidence root after every row, so a failed study leaves what it
+measured marked failed. The table lists, per episode count, the held-out
+joint error of the final checkpoint and the closed-loop success rate; its
+caveats (recording order is not random, one seed, simulation only) are part
+of the document.
+
 ## Failures and evidence
 
 Review the evidence directory's start/run manifests, checkpoint records and
