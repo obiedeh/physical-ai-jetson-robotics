@@ -182,6 +182,32 @@ def run_study(
     return study
 
 
+def add_trials(
+    study: dict[str, Any], trial_fn: TrialFn, *, write_to: Path | None = None,
+    log: Callable[[str], None] = print,
+) -> dict[str, Any]:
+    """Run the trial campaign for every row of a completed study that has none yet.
+
+    Training is never repeated: the rows' saved checkpoints are served as they are.
+    The record is rewritten after every campaign when ``write_to`` is given.
+    """
+    if study.get("status") != "completed":
+        raise ValueError("trials are added to a completed study only")
+    if training_lane(study) != SIMULATION_LANE:
+        raise ValueError("trial campaigns belong to the simulation lane")
+    for row in study["rows"]:
+        if row.get("trials") is not None:
+            continue
+        log(f"study {study['study_id']}: trials for {row['policy_id']}")
+        row["trials"] = trial_fn(row)
+        if write_to is not None:
+            write_study(study, write_to)
+    study["trials_utc"] = datetime.now(timezone.utc).isoformat()
+    if write_to is not None:
+        write_study(study, write_to)
+    return study
+
+
 def _number(value: Any, digits: int, unit: str = "") -> str:
     """A table cell for an optional number."""
     if value is None or (isinstance(value, float) and not math.isfinite(value)):
