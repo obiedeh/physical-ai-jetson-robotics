@@ -18,6 +18,7 @@ trial into a mode. "avg4" is the average of the last four checkpoints.
 | plain 45 takes, avg4 of 5000 to 20000 | 9 | 18% [10, 31] | 5.4 cm |
 | v2 (chunk 15, six transforms incl. affine, ensembling 0.01), step 20000 | 0 | 0% [0, 7] | 22.2 cm |
 | v2, avg4 | 0 | 0% [0, 7] | 23.3 cm |
+| staged executor (scripted what-where-how-plan-execute, ground-truth poses), `reports/sim_policy/staged_seed2026` | 50 | 100% [93, 100] | at the cup |
 
 What the pairing shows, with the caveat that one seed is one draw of placements:
 
@@ -34,3 +35,10 @@ What the pairing shows, with the caveat that one seed is one draw of placements:
   the affine transform is now refused by the trainer on the strategy decision.
 - The 35-take checkpoint scored 7 of 20 on the earlier unseeded placements and 0
   of 50 here: twenty trials carry no decision.
+- The staged executor, with the scene's own poses as its where, lifts the cup on
+  every one of the same placements with no holds and no stalls, in about eight
+  seconds a trial. That is the ceiling of the staged design and the measure of
+  what the learned policy is being asked to learn: the geometry, which the planner
+  does, and the squeeze, which the demonstrations show. It is scripted; it is not
+  a learned policy and its where is ground truth, so the next measurement replaces
+  the where with a camera locator.

@@ -16,7 +16,9 @@ what, where, how and plan answers. Nothing here publishes on a real-arm topic.
 from __future__ import annotations
 
 import argparse
+import signal
 import sys
+import threading
 from pathlib import Path
 
 REPOSITORY = Path(__file__).resolve().parents[1]
@@ -112,6 +114,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     try:
         with make_http_server(service, args.host, args.port) as server:
+            # A campaign stops the server with SIGTERM; shut down cleanly so the last
+            # trial's stage record is written before the process exits.
+            signal.signal(signal.SIGTERM, lambda *_: threading.Thread(
+                target=server.shutdown, daemon=True).start())
             print(f"staged executor serving {args.task_id} on http://{args.host}:{args.port}",
                   flush=True)
             server.serve_forever()
