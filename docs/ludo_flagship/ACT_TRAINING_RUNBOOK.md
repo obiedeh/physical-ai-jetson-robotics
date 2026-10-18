@@ -244,9 +244,13 @@ manifest or the campaign report.
   at the 0.2 s period); the physical file carries none. Every trial record counts
   its guarded steps and the report carries the safety settings.
 
-The Help page's recording rules now ask for a hover, a straight descent with the
-gripper open, a stop, and only then the close, which is the recording-side fix for
-the same failure.
+The Help page's recording rules ask for a continuous approach from any direction
+that suits the cup, the gripper fully open until the cup is between the fingers,
+and one deliberate squeeze, with one approach style per session; that is the
+recording-side fix for the same failure. An earlier wording asked for a hover and
+a stop before the descent; it was withdrawn because a pause in a demonstration is
+an ambiguous state the model imitates as a stall, and a top-down descent hides the
+cup from the wrist camera in the last centimetres.
 
 ### Failure modes of the campaigns
 
