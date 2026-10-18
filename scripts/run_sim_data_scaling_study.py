@@ -53,6 +53,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--response-timeout-s", type=float)
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cuda")
     parser.add_argument("--port", type=int, default=8090)
+    parser.add_argument("--randomize-scale", type=float, default=1.0,
+                        help="Passed to the trial runner: the scene's Randomize scale.")
+    parser.add_argument("--placement-seed", type=int, default=None,
+                        help="Passed to the trial runner: trial i's layout is seeded with "
+                             "seed + i, the same for every row, so rows face the same placements.")
     parser.add_argument("--task-registry", type=Path,
                         default=REPOSITORY / "config" / "synria_tasks.json")
     return parser
@@ -99,6 +104,9 @@ def campaign_for(args: argparse.Namespace, spec: dict[str, Any]) -> Any:
                 "--command-period-s", str(args.command_period_s),
                 "--response-timeout-s", str(args.response_timeout_s),
                 "--dataset-root", spec["dataset_root"], "--output", str(report),
+                "--randomize-scale", str(args.randomize_scale),
+                *(["--placement-seed", str(args.placement_seed)]
+                  if args.placement_seed is not None else []),
             ], check=True)
         finally:
             server.terminate()
