@@ -53,6 +53,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--task-registry", type=Path, default=DEFAULT_REGISTRY)
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cuda")
     parser.add_argument("--port", type=int, default=8090)
+    parser.add_argument("--policy-config", type=Path, default=None,
+                        help="Safety file for the trial client; the trial script's default "
+                             "simulation file when omitted.")
+    parser.add_argument("--temporal-ensemble", choices=("manifest", "off"), default="manifest",
+                        help="Serve every checkpoint as its manifest says, or without temporal "
+                             "ensembling as an ablation.")
     return parser
 
 
@@ -67,6 +73,7 @@ def run_campaign(args: argparse.Namespace, checkpoint: Path, record: Path) -> Pa
         "--checkpoint", str(checkpoint), "--checkpoint-record", str(record),
         "--task-registry", str(args.task_registry),
         "--device", args.device, "--port", str(args.port), "--lane", "simulation",
+        "--temporal-ensemble", args.temporal_ensemble,
     ])
     try:
         metadata = wait_for_server(endpoint, SERVER_START_TIMEOUT_S)
@@ -81,6 +88,8 @@ def run_campaign(args: argparse.Namespace, checkpoint: Path, record: Path) -> Pa
             "--randomize-scale", str(args.randomize_scale),
             *(["--placement-seed", str(args.placement_seed)]
               if args.placement_seed is not None else []),
+            *(["--policy-config", str(args.policy_config)]
+              if args.policy_config is not None else []),
         ], check=True)
     finally:
         server.terminate()

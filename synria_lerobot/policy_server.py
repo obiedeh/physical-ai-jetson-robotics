@@ -408,6 +408,10 @@ class FixedScenePolicyService:
     With a ``temporal_ensemble_coeff`` in the checkpoint's training configuration the
     service predicts on every request and ensembles overlapping chunks; otherwise it
     predicts once per chunk and hands out the chunk's actions at the command stride.
+    ``serve_ensemble=False`` serves such a checkpoint chunk by chunk instead, as an
+    ablation of the ensembling alone; the override is named in the metadata every
+    trial report copies, so a campaign run that way can never pass as the manifest's
+    own serving mode. The physical lane refuses the override at the command line.
     """
 
     def __init__(
@@ -416,6 +420,7 @@ class FixedScenePolicyService:
         model: ChunkModel,
         *,
         clock: Callable[[], float] = time.perf_counter,
+        serve_ensemble: bool = True,
     ) -> None:
         identity.verify_content()
         if set(model.image_shapes) != set(IMAGE_KEYS):
@@ -430,10 +435,18 @@ class FixedScenePolicyService:
         coeff = validate_temporal_ensemble(
             identity.manifest["configuration"].get("temporal_ensemble_coeff")
         )
+        self.serving_overrides: dict[str, str] = {}
+        if coeff is not None and not serve_ensemble:
+            self.serving_overrides["temporal_ensemble"] = "off"
+            coeff = None
         self.ensemble = None if coeff is None else TemporalEnsemble(
             identity.manifest["configuration"]["chunk_size"],
             identity.manifest["cadence"]["command_stride_steps"], coeff,
         )
+
+    def metadata(self) -> dict[str, Any]:
+        """The checkpoint's metadata plus any serving override, for every report to copy."""
+        return {**self.identity.metadata(), "serving_overrides": dict(self.serving_overrides)}
 
     def _validate(self, payload: dict[str, Any]) -> None:
         contract = self.identity.contract.as_dict()
@@ -567,7 +580,7 @@ def make_http_server(
             if self.path != "/metadata":
                 self._send(404, encode_policy_response({"error": "unknown policy route"}))
                 return
-            self._send(200, encode_policy_response(service.identity.metadata()))
+            self._send(200, encode_policy_response(service.metadata()))
 
         def do_POST(self) -> None:
             try:
@@ -607,10 +620,16 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--port", type=int, default=8080)
     parser.add_argument("--lane", choices=TRAINING_LANES, default=PHYSICAL_LANE,
                         help="Serve a physical checkpoint (default) or a simulation-lane one.")
+    parser.add_argument("--temporal-ensemble", choices=("manifest", "off"), default="manifest",
+                        help="Serve a checkpoint trained for temporal ensembling without it "
+                             "(simulation lane only; recorded in the metadata).")
     args = parser.parse_args(argv)
+    if args.temporal_ensemble == "off" and args.lane != SIMULATION_LANE:
+        parser.error("--temporal-ensemble off is a simulation-lane ablation only")
     identity = CheckpointIdentity.load(
         args.checkpoint, args.checkpoint_record, args.task_registry, args.lane,
     )
-    service = FixedScenePolicyService(identity, LocalACTModel(identity, args.device))
+    service = FixedScenePolicyService(identity, LocalACTModel(identity, args.device),
+                                      serve_ensemble=args.temporal_ensemble == "manifest")
     with make_http_server(service, args.host, args.port) as server:
         server.serve_forever()

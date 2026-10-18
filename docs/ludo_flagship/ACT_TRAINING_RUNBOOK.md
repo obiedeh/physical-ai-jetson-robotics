@@ -263,6 +263,31 @@ table's last column is the share of all steps the safety client held, whatever
 the mode: a hold short of half a trial does not make a mode, but a policy pulled
 back from a joint bound on a sixth of its steps is pressing the operator limits.
 
+### Serving and client ablations on a fixed seed
+
+Two switches let a paired campaign measure one serving-side change alone, with
+everything else fixed by the placement seed:
+
+- `--policy-config config/synria_sim_policy_noguard.json` on
+  `run_sim_checkpoint_campaigns.py` runs the trial client without the gripper
+  guard; the file is the simulation safety file minus the guard and is never
+  served to the physical arm.
+- `--temporal-ensemble off` serves a checkpoint trained with a
+  `temporal_ensemble_coeff` chunk by chunk instead; the server refuses it outside
+  the simulation lane and names the override under `serving_overrides` in the
+  metadata every trial report copies, so such a run can never pass as the
+  manifest's own serving mode.
+
+The first paired campaigns at seed 2026 with the guard on scored the plain
+45-take final checkpoint 28 of 50 against 1 of 20 in the earlier unseeded
+campaign, and both v2 checkpoints 0 of 50 with the gripper never within 13 cm of
+the cup. The guard, the seeded placements and the scene with the place mark all
+changed between those runs, so the chain queued after the approach recipe runs
+the plain checkpoint at seed 2026 without the guard, the v2 checkpoint without
+ensembling, and the plain checkpoint at seed 2027 with the guard, each 50
+trials, into `reports/sim_policy/paired_seed2026_noguard`,
+`paired_seed2026_noensemble` and `paired_seed2027`. Unmeasured until they land.
+
 ### Which takes press the operator limits
 
 `scripts/audit_dataset_limits.py --dataset-root <dataset> --output <study directory>`
