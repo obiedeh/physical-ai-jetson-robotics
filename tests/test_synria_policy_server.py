@@ -410,7 +410,7 @@ def test_http_protocol_transport_metadata_and_malformed_body(tmp_path: Path) -> 
         assert result.request_encode_s >= 0 and result.response_decode_s >= 0
         with urlopen(endpoint + "/metadata", timeout=2) as response:
             metadata = decode_policy_response(response.read())
-        assert metadata == {**identity.metadata(), "serving_overrides": {}}
+        assert metadata == identity.metadata()
         assert HttpPolicyTransport(endpoint).metadata(2) == metadata
         metadata["eligible_task_ids"].append("cup_return")
         assert identity.metadata()["eligible_task_ids"] == ["die_into_cup"]
@@ -559,11 +559,12 @@ def test_ensembling_can_be_served_off_as_a_named_override(tmp_path: Path) -> Non
     assert served.metadata()["serving_overrides"] == {"temporal_ensemble": "off"}
     assert served.metadata()["temporal_ensemble_coeff"] == 0.01
     as_trained = FixedScenePolicyService(identity, StubModel())
-    assert as_trained.ensemble is not None and as_trained.metadata()["serving_overrides"] == {}
+    assert as_trained.ensemble is not None and "serving_overrides" not in as_trained.metadata()
     (tmp_path / "plain").mkdir()
     plain = FixedScenePolicyService(fixture(tmp_path / "plain")[0], StubModel(),
                                     serve_ensemble=False)
     assert plain.serving_overrides == {}, "nothing to override without a coefficient"
+    assert plain.metadata() == plain.identity.metadata()
     with pytest.raises(SystemExit):
         main(["--checkpoint", str(identity.checkpoint), "--checkpoint-record", str(receipt),
               "--task-registry", str(registry), "--device", "cpu", "--temporal-ensemble", "off"])
