@@ -1,0 +1,36 @@
+# Paired campaigns at placement seed 2026
+
+Simulation lane; never physical evidence. Every campaign below faced the same 50
+seeded cup placements (seed 2026 plus the trial index), with the gripper guard
+(close above 0.016 m after three consecutive requests) in the simulation safety
+file, a 0.2 s command period and a 0.5 s response timeout. The Wilson 95%
+interval is given with each rate; `FAILURE_MODES.md` beside this file sorts every
+trial into a mode. "avg4" is the average of the last four checkpoints.
+
+| checkpoint | successes of 50 | rate [95% interval] | closest approach, median |
+|---|---|---|---|
+| plain 35 takes, step 20000 | 0 | 0% [0, 7] | 16.1 cm |
+| plain 40 takes, step 20000 | 4 | 8% [3, 19] | 7.0 cm |
+| plain 45 takes, step 5000 | 0 | 0% [0, 7] | 14.2 cm |
+| plain 45 takes, step 10000 | 1 | 2% [0, 10] | 7.4 cm |
+| plain 45 takes, step 15000 | 6 | 12% [6, 24] | 8.1 cm |
+| plain 45 takes, step 20000 | 28 | 56% [42, 69] | 1.8 cm |
+| plain 45 takes, avg4 of 5000 to 20000 | 9 | 18% [10, 31] | 5.4 cm |
+| v2 (chunk 15, six transforms incl. affine, ensembling 0.01), step 20000 | 0 | 0% [0, 7] | 22.2 cm |
+| v2, avg4 | 0 | 0% [0, 7] | 23.3 cm |
+
+What the pairing shows, with the caveat that one seed is one draw of placements:
+
+- Training is far from converged at 20000 steps: the same run goes 0, 1, 6, 28
+  across its four checkpoints. The 60000-step retrain in phase B tests that.
+- Averaging the last four checkpoints hurts closed loop as it hurt held-out error:
+  9 against 28. It is not a free lever here.
+- The data-scaling curve is steeper than the earlier 20-trial campaigns said: 35
+  takes 0, 40 takes 4, 45 takes 28; the earlier 7 of 20 for 35 takes was a
+  placement draw, not a measurement.
+- v2 is broken closed loop whatever the checkpoint, with the gripper never within
+  22 cm of the cup, while holding the best held-out error of the study. The
+  ablations queued behind the approach recipe separate ensembling from the rest;
+  the affine transform is now refused by the trainer on the strategy decision.
+- The 35-take checkpoint scored 7 of 20 on the earlier unseeded placements and 0
+  of 50 here: twenty trials carry no decision.
