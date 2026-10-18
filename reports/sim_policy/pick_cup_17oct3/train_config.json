@@ -1,0 +1,84 @@
+{
+  "architecture": {
+    "dim_feedforward": 3200,
+    "dim_model": 512,
+    "dropout": 0.1,
+    "kl_weight": 10.0,
+    "latent_dim": 32,
+    "n_decoder_layers": 1,
+    "n_encoder_layers": 4,
+    "n_heads": 8,
+    "n_vae_encoder_layers": 4
+  },
+  "backbone_learning_rate": 1e-05,
+  "batch_size": 8,
+  "chunk_size": 30,
+  "command_period_s": 0.2,
+  "dataset_repo_id": "local/pick_cup_17oct3_sim",
+  "device": "cuda",
+  "evidence_directory": "",
+  "expected_contract": {
+    "action_lookahead_steps": 1,
+    "action_source": "leader",
+    "contract_version": "synria_physical_v1",
+    "effective_action_lookahead_steps": 0,
+    "episode_window_override": {
+      "max_episode_s": 120.0,
+      "min_episode_s": 1.0,
+      "reason": "simulation; never qualifying as physical data"
+    },
+    "gripper_type": "50mm",
+    "image_keys": [
+      "observation.images.wrist",
+      "observation.images.front"
+    ],
+    "max_episode_s": 120.0,
+    "min_episode_s": 1.0,
+    "nominal_action_lookahead_s": 0.0,
+    "recording_purpose": "simulation",
+    "requested_rate_hz": 15,
+    "state_has_velocity": false,
+    "state_names": [
+      "Joint1",
+      "Joint2",
+      "Joint3",
+      "Joint4",
+      "Joint5",
+      "Joint6",
+      "Gripper"
+    ],
+    "task_definition": {
+      "declared_fixed_scene": true,
+      "episode_window": {
+        "max_episode_s": null,
+        "min_episode_s": null
+      },
+      "requires_unobserved_goal": false,
+      "scene_requirements": [
+        "The cup occupies its fixed marked location.",
+        "The cup and gripper remain visible during the trial."
+      ],
+      "success_rule": "The take ends with the cup lifted and held clear of the table in the gripper, confirmed by the operator and front-camera evidence.",
+      "task_id": "pick_cup",
+      "task_text": "Pick up the cup from its marked location and hold on to it, lifted clear of the table."
+    },
+    "task_definition_sha256": "1adf24f5b502a8b1911aeb24b0f6bebf94750f2456d5a67dfa08986c7fa41236",
+    "task_id": "pick_cup",
+    "task_text": "Pick up the cup from its marked location and hold on to it, lifted clear of the table."
+  },
+  "grad_clip_norm": 10.0,
+  "lane": "simulation",
+  "learning_rate": 1e-05,
+  "policy_id": "",
+  "policy_ledger": "docs/ludo_flagship/SIM_POLICY_LEDGER.md",
+  "probe_set": "reports/sim_policy/pick_cup_17oct3/probes.json",
+  "probe_sha256": "4300c43aa9a645d401235daaf9f108510cdd933fbb5ddac5e1a4d40a6ab082ef",
+  "repository": "/home/oedeh/github/physical-ai-jetson-robotics",
+  "response_timeout_s": 0.5,
+  "save_freq": 5000,
+  "timeline": "docs/ludo_flagship/timeline.jsonl",
+  "training_episode_limit": null,
+  "version": "synria_act_training_v1",
+  "video_backend": "pyav",
+  "weight_decay": 0.0001
+}
