@@ -269,6 +269,26 @@ def test_real_simulation_lane_trains_a_subset_and_marks_nothing_physical(
         assert saved["lane"] == "simulation" and saved["physical_eligible"] is False
 
 
+def test_real_augmented_training_records_its_transforms(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Augmentation on training frames trains and is written into the manifest and checkpoint."""
+    config, dataset = training_fixture(tmp_path, monkeypatch, simulation=True)
+    config["image_transforms"] = {"enable": True, "max_num_transforms": 2, "random_order": True,
+                                  "transforms": ["brightness", "affine"]}
+    config["temporal_ensemble_coeff"] = 0.01
+    manifest = train(
+        dataset, dataset / "physical_contract.json", tmp_path / "raw-aug", 3, 1, config
+    )
+    assert manifest["status"] == "completed"
+    assert manifest["configuration"]["image_transforms"]["transforms"] == ["brightness", "affine"]
+    assert manifest["configuration"]["temporal_ensemble_coeff"] == 0.01
+    saved = json.loads(
+        (Path(manifest["checkpoints"][-1]["path"]) / "physical_policy_manifest.json").read_text()
+    )
+    assert saved["configuration"]["image_transforms"]["enable"] is True
+
+
 def test_simulation_lane_needs_its_own_ledger_and_a_limit_within_the_data(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

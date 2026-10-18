@@ -18,7 +18,12 @@ from typing import Any, Protocol, cast
 
 import numpy as np
 
-from .act_training import FEATURE_KEYS, TRAINING_VERSION, validate_config
+from .act_training import (
+    FEATURE_KEYS,
+    TRAINING_VERSION,
+    validate_config,
+    validate_temporal_ensemble,
+)
 from .checkpoint_eval import strict_content_hash
 from .physical_contract import (
     IMAGE_KEYS,
@@ -171,6 +176,10 @@ class CheckpointIdentity:
                 "physical_contract": self.manifest["physical_contract"],
                 "cadence": self.manifest["cadence"],
                 "response_timeout_s": self.manifest["configuration"]["response_timeout_s"],
+                "temporal_ensemble_coeff": self.manifest["configuration"].get(
+                    "temporal_ensemble_coeff"
+                ),
+                "image_transforms": self.manifest["configuration"].get("image_transforms"),
                 "model_feature_shapes": self.manifest["model_feature_shapes"],
                 "lane": self.lane,
                 "physical_eligible": self.lane == PHYSICAL_LANE,
@@ -353,8 +362,53 @@ class LocalACTModel:
         return cast(np.ndarray, np.asarray(prediction.detach().cpu().numpy())[0])
 
 
+class TemporalEnsemble:
+    """Temporal ensembling over overlapping chunks at the serving cadence.
+
+    Every request predicts a fresh chunk; the action returned for the current step is
+    the weighted mean of what every still-overlapping chunk predicted for that step,
+    with weights exp(-coeff * age) where the oldest chunk has age 0, as in the ACT
+    paper (coefficient 0 weighs chunks equally; a positive coefficient favours older
+    chunks). Time advances by the command stride between requests, so a chunk of
+    ``chunk_size`` dataset steps stays in the ensemble for ``chunk_size // stride``
+    requests.
+    """
+
+    def __init__(self, chunk_size: int, stride: int, coeff: float) -> None:
+        if type(chunk_size) is not int or chunk_size < 1 or type(stride) is not int or stride < 1:
+            raise ValueError("ensemble chunk size and stride must be positive integers")
+        if stride > chunk_size:
+            raise ValueError("command stride must not exceed the chunk size")
+        self.chunk_size, self.stride, self.coeff = chunk_size, stride, float(coeff)
+        self.reset()
+
+    def reset(self) -> None:
+        """Forget every chunk; the next request starts a new ensemble."""
+        self._chunks: list[tuple[int, np.ndarray]] = []
+        self._now = 0
+
+    def step(self, chunk: np.ndarray) -> list[float]:
+        """Add a chunk predicted at the current step and return the ensembled action for it."""
+        chunk = np.asarray(chunk, dtype=float)
+        if chunk.shape != (self.chunk_size, 7) or not np.isfinite(chunk).all():
+            raise ValueError("policy chunk must contain finite seven-value absolute actions")
+        self._chunks = [(origin, c) for origin, c in self._chunks
+                        if origin + self.chunk_size > self._now]
+        self._chunks.append((self._now, chunk))
+        rows = [c[self._now - origin] for origin, c in self._chunks]
+        weights = np.exp(-self.coeff * np.arange(len(rows), dtype=float))
+        action = (np.asarray(rows) * weights[:, None]).sum(axis=0) / weights.sum()
+        self._now += self.stride
+        return [float(value) for value in action]
+
+
 class FixedScenePolicyService:
-    """One model/queue; callers must reset at each independent skill trial."""
+    """One model/queue; callers must reset at each independent skill trial.
+
+    With a ``temporal_ensemble_coeff`` in the checkpoint's training configuration the
+    service predicts on every request and ensembles overlapping chunks; otherwise it
+    predicts once per chunk and hands out the chunk's actions at the command stride.
+    """
 
     def __init__(
         self,
@@ -373,6 +427,13 @@ class FixedScenePolicyService:
         self.identity, self.model, self.clock = identity, model, clock
         self._queue: deque[list[float]] = deque()
         self._lock = threading.Lock()
+        coeff = validate_temporal_ensemble(
+            identity.manifest["configuration"].get("temporal_ensemble_coeff")
+        )
+        self.ensemble = None if coeff is None else TemporalEnsemble(
+            identity.manifest["configuration"]["chunk_size"],
+            identity.manifest["cadence"]["command_stride_steps"], coeff,
+        )
 
     def _validate(self, payload: dict[str, Any]) -> None:
         contract = self.identity.contract.as_dict()
@@ -440,7 +501,9 @@ class FixedScenePolicyService:
                 if payload["reset"]:
                     self._queue.clear()
                     self.model.reset()
-                if not self._queue:
+                    if self.ensemble is not None:
+                        self.ensemble.reset()
+                if self.ensemble is not None or not self._queue:
                     started = self.clock()
                     chunk = np.asarray(self.model.predict_chunk(payload))
                     if chunk.shape != (
@@ -450,8 +513,11 @@ class FixedScenePolicyService:
                         raise ValueError(
                             "policy chunk must contain finite seven-value absolute actions"
                         )
-                    stride = self.identity.manifest["cadence"]["command_stride_steps"]
-                    self._queue.extend(chunk[::stride].astype(float).tolist())
+                    if self.ensemble is not None:
+                        self._queue.append(self.ensemble.step(chunk))
+                    else:
+                        stride = self.identity.manifest["cadence"]["command_stride_steps"]
+                        self._queue.extend(chunk[::stride].astype(float).tolist())
                     inference_s = _finite(self.clock() - started, "inference latency")
                 action = self._queue.popleft()
                 return encode_policy_response(
@@ -465,6 +531,8 @@ class FixedScenePolicyService:
                 )
             except BaseException:
                 self._queue.clear()
+                if self.ensemble is not None:
+                    self.ensemble.reset()
                 try:
                     self.model.reset()
                 except Exception:

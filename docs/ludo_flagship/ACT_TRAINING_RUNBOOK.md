@@ -197,6 +197,23 @@ publishes on `/joint_states`, `/joint_commands`, `/policy_joint_targets` or
 The report, written once under `reports/sim_policy/`, carries the rule, every
 trial, the success rate and `physical_evidence: false`.
 
+### Augmentation, temporal ensembling and checkpoint averaging
+
+Three optional levers, each recorded in the manifest and refused when malformed:
+
+- `image_transforms` in the training configuration names upstream transforms
+  (brightness, contrast, saturation, hue, sharpness, affine) applied to training
+  frames only, never to held-out frames, with the upstream default ranges.
+- `temporal_ensemble_coeff` makes the policy server predict a chunk on every
+  request and return, for the current step, the exp-weighted mean of what every
+  still-overlapping chunk predicted for it (weight `exp(-coeff * age)`, oldest
+  chunk age 0, as in the ACT paper). Null keeps the one-prediction-per-chunk queue.
+- `scripts/average_synria_checkpoints.py --evidence <run> --last 4` averages the
+  float weights of a completed run's last evaluated checkpoints into one
+  checkpoint beside them, evaluates it on the frozen held-out set with the run's
+  evaluator, and writes a receipt the policy server accepts. The manifest names
+  the averaged steps. Nothing trains.
+
 ### The data-scaling study
 
 `scripts/run_sim_data_scaling_study.py --spec <study>.json` trains the frozen

@@ -92,6 +92,11 @@ class Scene:
     def read_cup(self) -> ObjectPose:
         return ObjectPose((0.3, 0.0, self.cup_z), self.clock())
 
+    def read_gripper(self) -> ObjectPose:
+        """The gripper sits 10 cm from the cup until it closes, then on it."""
+        offset = 0.0 if self.pose[6] < 0.005 else 0.1
+        return ObjectPose((0.3 + offset, 0.0, self.cup_z), self.clock())
+
 
 class Source:
     """Adapt one scene reader to the source protocol."""
@@ -119,6 +124,7 @@ def runner(scene: Scene, clock: FakeClock, action: tuple[float, ...], *, trials:
         client, scene, Source(scene.read_state), Source(scene.read_image),
         Source(scene.read_image), Source(scene.read_cup), scene.randomize, config,
         clock=clock, sleep=sleep, log=lambda text: None,
+        gripper_source=Source(scene.read_gripper),
     )
 
 
@@ -166,6 +172,9 @@ def test_runner_scores_a_lift_and_a_timeout_and_reports_both(tmp_path: Path) -> 
     assert first["approach_steps"] >= 1 and first["max_lift_m"] == pytest.approx(0.05)
     assert first["holds"] == 0 and first["cup_rest_z_m"] == pytest.approx(0.001)
     assert first["recoveries"] == 0 and "recovery_rule" in report
+    assert first["min_gripper_cup_distance_m"] == pytest.approx(0.0)
+    assert first["final_gripper_cup_distance_m"] == pytest.approx(0.0)
+    assert len(first["final_state"]) == 7 and first["final_state"][6] == 0.0
 
     clock = FakeClock()
     idle = Scene(clock, liftable=False)
@@ -173,6 +182,8 @@ def test_runner_scores_a_lift_and_a_timeout_and_reports_both(tmp_path: Path) -> 
     [trial] = report["trials"]
     assert not trial["success"] and trial["time_to_success_s"] is None
     assert trial["duration_s"] >= 6.0 and trial["steps"] == pytest.approx(30, abs=1)
+    assert trial["min_gripper_cup_distance_m"] == pytest.approx(0.1)
+    assert trial["final_state"][:6] == pytest.approx(START[:6])
     assert report["success_rate"] == 0.0
     path = tmp_path / "trials.json"
     write_report(report, path)

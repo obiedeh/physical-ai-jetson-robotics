@@ -182,6 +182,27 @@ def test_episode_limit_must_be_a_positive_integer(tmp_path: Path, limit: Any) ->
         validate_config(sim_config, simulated)
 
 
+AUGMENTATION = {"enable": True, "max_num_transforms": 3, "random_order": False,
+                "transforms": ["brightness", "contrast", "affine"]}
+
+
+def test_augmentation_and_ensembling_blocks_are_validated(tmp_path: Path) -> None:
+    """Optional blocks: absent means off; present means well formed and named from the list."""
+    config, physical = settings(tmp_path)
+    assert validate_config({**config, "image_transforms": AUGMENTATION,
+                            "temporal_ensemble_coeff": 0.01}, physical)
+    assert validate_config({**config, "image_transforms": None,
+                            "temporal_ensemble_coeff": None}, physical)
+    for bad in ({**AUGMENTATION, "transforms": ["blur"]}, {**AUGMENTATION, "transforms": []},
+                {**AUGMENTATION, "enable": 1}, {**AUGMENTATION, "max_num_transforms": 0},
+                {"enable": True}, {**AUGMENTATION, "transforms": ["hue", "hue"]}):
+        with pytest.raises(ValueError, match="image|max_num_transforms"):
+            validate_config({**config, "image_transforms": bad}, physical)
+    for bad in (-0.1, float("nan"), True, "0.01"):
+        with pytest.raises(ValueError, match="temporal_ensemble_coeff"):
+            validate_config({**config, "temporal_ensemble_coeff": bad}, physical)
+
+
 def test_episode_limit_is_refused_outside_the_simulation_lane(tmp_path: Path) -> None:
     """Physical training always uses every episode outside the held-out set."""
     config, physical = settings(tmp_path)

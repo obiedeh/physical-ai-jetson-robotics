@@ -42,6 +42,39 @@ CADENCE_SEMANTICS = (
     "chunk slots 0,q,2q preserve recorded lookahead; physical cadence is unmeasured"
 )
 FEATURE_KEYS = ("observation.state", "observation.images.wrist", "observation.images.front")
+# The upstream image transforms a configuration may enable for training frames, by name.
+IMAGE_TRANSFORM_NAMES = ("brightness", "contrast", "saturation", "hue", "sharpness", "affine")
+
+
+def validate_image_transforms(value: Any) -> dict[str, Any] | None:
+    """Check an optional image augmentation block; None means no augmentation.
+
+    The block names upstream transforms (:data:`IMAGE_TRANSFORM_NAMES`) applied to
+    training frames only, never to held-out frames, with their upstream default ranges.
+    """
+    if value is None:
+        return None
+    if type(value) is not dict or set(value) != {"enable", "max_num_transforms", "random_order",
+                                                 "transforms"}:
+        raise ValueError("image_transforms needs enable, max_num_transforms, random_order, "
+                         "transforms")
+    if type(value["enable"]) is not bool or type(value["random_order"]) is not bool:
+        raise ValueError("image_transforms flags must be booleans")
+    _integer(value["max_num_transforms"], "max_num_transforms")
+    names = value["transforms"]
+    if (type(names) is not list or not names or len(set(names)) != len(names)
+            or any(name not in IMAGE_TRANSFORM_NAMES for name in names)):
+        raise ValueError(f"image transforms must be distinct names from {IMAGE_TRANSFORM_NAMES}")
+    return value
+
+
+def validate_temporal_ensemble(value: Any) -> float | None:
+    """Check the optional server-side temporal ensembling coefficient; None disables it."""
+    if value is None:
+        return None
+    if type(value) not in (int, float) or not math.isfinite(value) or value < 0:
+        raise ValueError("temporal_ensemble_coeff must be a finite nonnegative number or null")
+    return float(value)
 
 
 def _save_upstream_checkpoint(
@@ -156,6 +189,8 @@ def validate_config(config: dict[str, Any], contract: dict[str, Any]) -> dict[st
     _number(config.get("weight_decay"), "weight_decay", allow_zero=True)
     if config.get("device") not in {"cpu", "cuda"} or config.get("video_backend") != "pyav":
         raise ValueError("explicit cpu/cuda device and local pyav video backend required")
+    validate_image_transforms(config.get("image_transforms"))
+    validate_temporal_ensemble(config.get("temporal_ensemble_coeff"))
     architecture = config.get("architecture")
     keys = {
         "dim_model",
@@ -276,6 +311,29 @@ def _policy_features(metadata: Any, state_size: int) -> tuple[dict[str, Any], di
     if image_shapes[0] != image_shapes[1]:
         raise ValueError("ACT requires equal stored camera shapes")
     return inputs, {"action": PolicyFeature(FeatureType.ACTION, (7,))}
+
+
+def _image_transforms_config(block: dict[str, Any] | None) -> Any:
+    """The upstream transform configuration for a validated block, or None when absent."""
+    if block is None or not block["enable"]:
+        return None
+    from lerobot.transforms.transforms import ImageTransformsConfig
+
+    defaults = ImageTransformsConfig()
+    return ImageTransformsConfig(
+        enable=True, max_num_transforms=block["max_num_transforms"],
+        random_order=block["random_order"],
+        tfs={name: defaults.tfs[name] for name in block["transforms"]},
+    )
+
+
+def _image_transforms(transforms_config: Any) -> Any:
+    """The callable applied to training frames, or None when augmentation is off."""
+    if transforms_config is None:
+        return None
+    from lerobot.transforms.transforms import ImageTransforms
+
+    return ImageTransforms(transforms_config)
 
 
 def _evaluation_batches(loader: Any) -> Iterator[PredictionBatch]:
@@ -430,7 +488,11 @@ def train(
         download_videos=False,
         token=False,
     )
-    training = LeRobotDataset(**dataset_args, episodes=list(training_ids))
+    transforms_config = _image_transforms_config(config.get("image_transforms"))
+    training = LeRobotDataset(
+        **dataset_args, episodes=list(training_ids),
+        image_transforms=_image_transforms(transforms_config),
+    )
     held_out = LeRobotDataset(**dataset_args, episodes=frozen["held_out_episodes"])
     if training.meta.fps != contract["requested_rate_hz"]:
         raise ValueError("library dataset rate differs from physical contract")
@@ -473,6 +535,7 @@ def train(
             episodes=list(training_ids),
             use_imagenet_stats=False,
             video_backend=config["video_backend"],
+            **({"image_transforms": transforms_config} if transforms_config is not None else {}),
         ),
         policy=policy_config,
         output_dir=output,
