@@ -1,0 +1,102 @@
+{
+  "kind": "simulation_trial_failure_modes",
+  "lane": "simulation",
+  "note": "Simulation lane; sorted from the campaign reports; superseded campaigns listed but not totalled; never physical evidence.",
+  "physical_evidence": false,
+  "rows": [
+    {
+      "held_share": 0.0,
+      "holds": 0,
+      "modes": {
+        "cup untouched, reach not recorded": 0,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 0,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 50
+      },
+      "placement": {
+        "lifted": 50,
+        "median_m": 0.0037752257673268606,
+        "p90_m": 0.006860618390774879,
+        "radius_m": 0.03,
+        "within_radius": 50
+      },
+      "policy_id": "staged_expert_v1",
+      "reach_recorded": true,
+      "recoveries": 0,
+      "report": "reports/sim_policy/staged_seed2026/trials_staged_expert_cup_pick_and_place_20261018T222718Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": 0.03,
+        "reach_m": 0.03
+      },
+      "score": "place",
+      "step": null,
+      "steps": 3492,
+      "success_interval": [
+        0.9286499658256813,
+        1.0
+      ],
+      "success_rate": 1.0,
+      "successes": 50,
+      "superseded": false,
+      "task_id": "cup_pick_and_place",
+      "trials": 50,
+      "utc": "2026-10-18T22:43:00.381601+00:00"
+    },
+    {
+      "held_share": 0.0,
+      "holds": 0,
+      "modes": {
+        "cup untouched, reach not recorded": 0,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 0,
+        "never reached the cup": 0,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 50
+      },
+      "placement": null,
+      "policy_id": "staged_expert_v1",
+      "reach_recorded": true,
+      "recoveries": 0,
+      "report": "reports/sim_policy/staged_seed2026/trials_staged_expert_pick_cup_20261018T221650Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": null,
+      "steps": 1923,
+      "success_interval": [
+        0.9286499658256813,
+        1.0
+      ],
+      "success_rate": 1.0,
+      "successes": 50,
+      "superseded": false,
+      "task_id": "pick_cup",
+      "trials": 50,
+      "utc": "2026-10-18T22:27:17.940762+00:00"
+    }
+  ],
+  "totals": {
+    "cup untouched, reach not recorded": 0,
+    "held by the safety client most of the trial": 0,
+    "lifted, then dropped": 0,
+    "moved the cup, no lift": 0,
+    "never reached the cup": 0,
+    "reached the cup, no grasp": 0,
+    "reached the mark, not held there": 0,
+    "success": 100
+  },
+  "trials": 100,
+  "utc": "2026-10-18T22:43:31.688874+00:00"
+}
