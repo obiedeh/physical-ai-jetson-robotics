@@ -1,0 +1,14 @@
+{
+  "final_phase": {
+    "done": 22,
+    "retreat": 27
+  },
+  "infeasible": 0,
+  "infeasible_waypoints": {},
+  "report": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_seed2026/trials_staged_expert_cup_pick_and_place_20261018T222718Z.json",
+  "stage_log": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_seed2026/stages_cup_pick_and_place_20261018T222718Z.jsonl",
+  "stalls_by_phase": {},
+  "success_rate": 1.0,
+  "successes": 50,
+  "trials": 49
+}

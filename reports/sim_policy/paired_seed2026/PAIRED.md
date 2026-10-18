@@ -19,6 +19,7 @@ trial into a mode. "avg4" is the average of the last four checkpoints.
 | v2 (chunk 15, six transforms incl. affine, ensembling 0.01), step 20000 | 0 | 0% [0, 7] | 22.2 cm |
 | v2, avg4 | 0 | 0% [0, 7] | 23.3 cm |
 | staged executor (scripted what-where-how-plan-execute, ground-truth poses), `reports/sim_policy/staged_seed2026` | 50 | 100% [93, 100] | at the cup |
+| staged executor, `cup_pick_and_place` on the same placements (place score, 3 cm) | 50 | 100% [93, 100] | final distance median 0.4 cm, p90 0.7 cm |
 
 What the pairing shows, with the caveat that one seed is one draw of placements:
 
