@@ -278,11 +278,15 @@ def test_real_augmented_training_records_its_transforms(
                                   "transforms": ["brightness", "affine"]}
     config["temporal_ensemble_coeff"] = 0.01
     config["dataloader_workers"] = 1
+    config["episode_weights"] = {"0": 3, "7-9": 2}
     manifest = train(
         dataset, dataset / "physical_contract.json", tmp_path / "raw-aug", 3, 1, config
     )
     assert manifest["status"] == "completed"
     assert manifest["configuration"]["dataloader_workers"] == 1
+    assert manifest["episode_weights"] == {str(i): (3.0 if i == 0 else 1.0)
+                                           for i in manifest["training_episode_indices"]}
+    assert manifest["frame_sampling"].startswith("with replacement")
     assert manifest["configuration"]["image_transforms"]["transforms"] == ["brightness", "affine"]
     assert manifest["configuration"]["temporal_ensemble_coeff"] == 0.01
     saved = json.loads(

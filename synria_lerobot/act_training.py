@@ -81,6 +81,35 @@ def validate_dataloader_workers(value: Any) -> int:
     return _integer(value, "dataloader_workers", minimum=0)
 
 
+def validate_episode_weights(value: Any) -> dict[int, float] | None:
+    """Check the optional per-episode sampling weights; None means every frame is drawn alike.
+
+    The block maps episode indices, written as ``"31"`` or as an inclusive range
+    ``"31-50"``, to positive weights. Frames of a weighted episode are drawn that many
+    times as often as frames of an unweighted one (weight 1); the training set itself is
+    unchanged, as are the held-out frames. An index named twice is refused.
+    """
+    if value is None:
+        return None
+    if type(value) is not dict or not value:
+        raise ValueError("episode_weights must be a nonempty mapping of episode indices to weights")
+    weights: dict[int, float] = {}
+    for key, weight in value.items():
+        if type(key) is not str or not re.fullmatch(r"\d+(-\d+)?", key):
+            raise ValueError(f"episode_weights key {key!r} is not an index or an a-b range")
+        if type(weight) not in (int, float) or not math.isfinite(weight) or weight <= 0:
+            raise ValueError(f"episode_weights[{key!r}] must be a positive finite number")
+        first, _, last = key.partition("-")
+        indices = range(int(first), int(last or first) + 1)
+        if not indices:
+            raise ValueError(f"episode_weights range {key!r} is empty")
+        for index in indices:
+            if index in weights:
+                raise ValueError(f"episode {index} is weighted twice")
+            weights[index] = float(weight)
+    return weights
+
+
 def validate_temporal_ensemble(value: Any) -> float | None:
     """Check the optional server-side temporal ensembling coefficient; None disables it."""
     if value is None:
@@ -205,6 +234,7 @@ def validate_config(config: dict[str, Any], contract: dict[str, Any]) -> dict[st
     validate_image_transforms(config.get("image_transforms"))
     validate_temporal_ensemble(config.get("temporal_ensemble_coeff"))
     validate_dataloader_workers(config.get("dataloader_workers"))
+    validate_episode_weights(config.get("episode_weights"))
     architecture = config.get("architecture")
     keys = {
         "dim_model",
@@ -533,10 +563,25 @@ def train(
     preprocessor, postprocessor = make_act_pre_post_processors(policy_config, dataset_stats=stats)
     policy, optimizer = accelerator.prepare(policy, optimizer)
     workers = validate_dataloader_workers(config.get("dataloader_workers"))
+    weights = validate_episode_weights(config.get("episode_weights"))
+    applied_weights: dict[str, float] | None = None
+    sampler = None
+    if weights is not None:
+        # Frames are drawn with replacement in proportion to their episode's weight; an
+        # episode outside the training set contributes nothing, and the record says which
+        # weights took effect.
+        frame_episodes = [int(index) for index in training.hf_dataset["episode_index"]]
+        applied_weights = {str(index): weights.get(index, 1.0) for index in training_ids}
+        frame_weights = [weights.get(index, 1.0) for index in frame_episodes]
+        sampler = torch.utils.data.WeightedRandomSampler(
+            frame_weights, num_samples=len(frame_weights), replacement=True,
+            generator=torch.Generator().manual_seed(seed),
+        )
     loader = torch.utils.data.DataLoader(
         training,
         batch_size=config["batch_size"],
-        shuffle=True,
+        shuffle=sampler is None,
+        sampler=sampler,
         num_workers=workers,
         persistent_workers=workers > 0,
         generator=torch.Generator().manual_seed(seed),
@@ -588,6 +633,9 @@ def train(
         "physical_eligible": lane == PHYSICAL_LANE,
         "training_episode_limit": limit,
         "omitted_episode_indices": omitted,
+        "episode_weights": applied_weights,
+        "frame_sampling": ("uniform over training frames" if applied_weights is None
+                           else "with replacement, in proportion to the episode weights"),
         "cadence": cadence,
         "configuration": config,
         "seed": seed,

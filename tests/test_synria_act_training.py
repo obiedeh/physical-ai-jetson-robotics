@@ -16,6 +16,7 @@ from synria_lerobot.act_training import (
     train,
     validate_config,
     validate_dataloader_workers,
+    validate_episode_weights,
 )
 from synria_lerobot.physical_contract import ActionSource, PhysicalDatasetContract
 
@@ -211,6 +212,13 @@ def test_augmentation_and_ensembling_blocks_are_validated(tmp_path: Path) -> Non
     for bad in (-1, True, 1.5, "2"):
         with pytest.raises(ValueError, match="dataloader_workers"):
             validate_config({**config, "dataloader_workers": bad}, physical)
+    assert validate_episode_weights(None) is None
+    assert validate_episode_weights({"3": 2, "5-7": 0.5}) == {3: 2.0, 5: 0.5, 6: 0.5, 7: 0.5}
+    assert validate_config({**config, "episode_weights": {"31-50": 2}}, physical)
+    for bad in ({}, [], {"a": 1}, {"3": 0}, {"3": True}, {"3": float("inf")}, {"3": 1, "2-4": 1},
+                {3: 1}, {"4-2": 1}):
+        with pytest.raises(ValueError, match="episode"):
+            validate_config({**config, "episode_weights": bad}, physical)
 
 
 def test_episode_limit_is_refused_outside_the_simulation_lane(tmp_path: Path) -> None:

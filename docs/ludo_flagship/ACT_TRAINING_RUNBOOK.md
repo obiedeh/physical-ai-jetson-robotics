@@ -207,6 +207,14 @@ publishes on `/joint_states`, `/joint_commands`, `/policy_joint_targets` or
 The report, written once under `reports/sim_policy/`, carries the rule, every
 trial, the success rate and `physical_evidence: false`.
 
+`scripts/run_sim_checkpoint_campaigns.py` serves several saved checkpoints in
+turn (each named with its receipt) and runs one campaign against each with the
+same `--placement-seed` and `--randomize-scale`, one report per checkpoint in
+`--output-dir`. That is how a run's intermediate checkpoints, its averaged
+checkpoint and another run's are compared on the same placements; the study
+driver's `--trials-only` mode takes the same two options for a row's final
+checkpoint.
+
 ### Failure modes of the campaigns
 
 `scripts/summarize_sim_trial_failures.py --study <study directory>` sorts every
@@ -232,6 +240,14 @@ Three optional levers, each recorded in the manifest and refused when malformed:
   augmented run on the simulation study host trained about seven times slower
   per step than the plain baseline with 0 workers. The count is part of the
   recorded configuration; held-out evaluation always uses 0.
+- `episode_weights` in the training configuration maps episode indices
+  (`"31"`, or an inclusive range `"30-49"`) to positive weights; frames of a
+  weighted episode are drawn that many times as often as frames of an
+  unweighted one, with replacement. The training set and the held-out frames
+  are unchanged, and the manifest records the weight that took effect for every
+  training episode. The first study showed the randomized takes were the only
+  ones that produced picks from new spots, so weighting them up is the cheap
+  way to make them count more without recording.
 - `temporal_ensemble_coeff` makes the policy server predict a chunk on every
   request and return, for the current step, the exp-weighted mean of what every
   still-overlapping chunk predicted for it (weight `exp(-coeff * age)`, oldest
