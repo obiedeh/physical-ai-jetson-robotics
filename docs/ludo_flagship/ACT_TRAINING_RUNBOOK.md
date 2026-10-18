@@ -204,6 +204,12 @@ Three optional levers, each recorded in the manifest and refused when malformed:
 - `image_transforms` in the training configuration names upstream transforms
   (brightness, contrast, saturation, hue, sharpness, affine) applied to training
   frames only, never to held-out frames, with the upstream default ranges.
+  Augmentation runs on the CPU inside the data loader, so set
+  `dataloader_workers` (default 0, every frame decoded and augmented in the
+  training process) to a few worker processes when it is enabled. The first
+  augmented run on the simulation study host trained about seven times slower
+  per step than the plain baseline with 0 workers. The count is part of the
+  recorded configuration; held-out evaluation always uses 0.
 - `temporal_ensemble_coeff` makes the policy server predict a chunk on every
   request and return, for the current step, the exp-weighted mean of what every
   still-overlapping chunk predicted for it (weight `exp(-coeff * age)`, oldest

@@ -272,15 +272,17 @@ def test_real_simulation_lane_trains_a_subset_and_marks_nothing_physical(
 def test_real_augmented_training_records_its_transforms(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Augmentation on training frames trains and is written into the manifest and checkpoint."""
+    """Augmentation in one loader worker trains and is written into the manifest and checkpoint."""
     config, dataset = training_fixture(tmp_path, monkeypatch, simulation=True)
     config["image_transforms"] = {"enable": True, "max_num_transforms": 2, "random_order": True,
                                   "transforms": ["brightness", "affine"]}
     config["temporal_ensemble_coeff"] = 0.01
+    config["dataloader_workers"] = 1
     manifest = train(
         dataset, dataset / "physical_contract.json", tmp_path / "raw-aug", 3, 1, config
     )
     assert manifest["status"] == "completed"
+    assert manifest["configuration"]["dataloader_workers"] == 1
     assert manifest["configuration"]["image_transforms"]["transforms"] == ["brightness", "affine"]
     assert manifest["configuration"]["temporal_ensemble_coeff"] == 0.01
     saved = json.loads(

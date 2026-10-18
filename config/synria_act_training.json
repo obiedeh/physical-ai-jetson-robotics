@@ -19,6 +19,7 @@
   "device": "cpu",
   "image_transforms": null,
   "temporal_ensemble_coeff": null,
+  "dataloader_workers": 0,
   "video_backend": "pyav",
   "learning_rate": 0.00001,
   "backbone_learning_rate": 0.00001,

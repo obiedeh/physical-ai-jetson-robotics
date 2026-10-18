@@ -11,7 +11,12 @@ from typing import Any
 import pytest
 from test_task_registry import synthetic_task
 
-from synria_lerobot.act_training import _save_upstream_checkpoint, train, validate_config
+from synria_lerobot.act_training import (
+    _save_upstream_checkpoint,
+    train,
+    validate_config,
+    validate_dataloader_workers,
+)
 from synria_lerobot.physical_contract import ActionSource, PhysicalDatasetContract
 
 
@@ -201,6 +206,11 @@ def test_augmentation_and_ensembling_blocks_are_validated(tmp_path: Path) -> Non
     for bad in (-0.1, float("nan"), True, "0.01"):
         with pytest.raises(ValueError, match="temporal_ensemble_coeff"):
             validate_config({**config, "temporal_ensemble_coeff": bad}, physical)
+    assert validate_dataloader_workers(None) == 0 and validate_dataloader_workers(4) == 4
+    assert validate_config({**config, "dataloader_workers": 2}, physical)
+    for bad in (-1, True, 1.5, "2"):
+        with pytest.raises(ValueError, match="dataloader_workers"):
+            validate_config({**config, "dataloader_workers": bad}, physical)
 
 
 def test_episode_limit_is_refused_outside_the_simulation_lane(tmp_path: Path) -> None:
