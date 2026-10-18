@@ -410,7 +410,7 @@ def test_http_protocol_transport_metadata_and_malformed_body(tmp_path: Path) -> 
         assert result.request_encode_s >= 0 and result.response_decode_s >= 0
         with urlopen(endpoint + "/metadata", timeout=2) as response:
             metadata = decode_policy_response(response.read())
-        assert metadata == identity.metadata()
+        assert metadata == {**identity.metadata(), "serving_overrides": {}}
         assert HttpPolicyTransport(endpoint).metadata(2) == metadata
         metadata["eligible_task_ids"].append("cup_return")
         assert identity.metadata()["eligible_task_ids"] == ["die_into_cup"]
@@ -543,3 +543,27 @@ def test_local_loader_refuses_custom_imports_escaped_state_or_download_before_fa
     with pytest.raises(ValueError):
         LocalACTModel(identity, "cpu")
     assert imports == []
+
+
+def test_ensembling_can_be_served_off_as_a_named_override(tmp_path: Path) -> None:
+    """The override drops the ensemble, is named in the metadata, and is refused physically."""
+    from synria_lerobot.policy_server import main
+
+    identity, receipt, registry = fixture(tmp_path)
+    manifest = dict(identity.manifest)
+    manifest["configuration"] = {**manifest["configuration"], "temporal_ensemble_coeff": 0.01}
+    identity = CheckpointIdentity(identity.checkpoint, identity.content_sha256, manifest,
+                                  identity.contract, identity.lane)
+    served = FixedScenePolicyService(identity, StubModel(), serve_ensemble=False)
+    assert served.ensemble is None
+    assert served.metadata()["serving_overrides"] == {"temporal_ensemble": "off"}
+    assert served.metadata()["temporal_ensemble_coeff"] == 0.01
+    as_trained = FixedScenePolicyService(identity, StubModel())
+    assert as_trained.ensemble is not None and as_trained.metadata()["serving_overrides"] == {}
+    (tmp_path / "plain").mkdir()
+    plain = FixedScenePolicyService(fixture(tmp_path / "plain")[0], StubModel(),
+                                    serve_ensemble=False)
+    assert plain.serving_overrides == {}, "nothing to override without a coefficient"
+    with pytest.raises(SystemExit):
+        main(["--checkpoint", str(identity.checkpoint), "--checkpoint-record", str(receipt),
+              "--task-registry", str(registry), "--device", "cpu", "--temporal-ensemble", "off"])

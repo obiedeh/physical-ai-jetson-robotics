@@ -1,0 +1,17 @@
+{
+  "lane": "simulation",
+  "max_joint_speed_rad_s": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "max_gripper_speed_m_s": 0.05,
+  "max_observation_age_s": 0.5,
+  "verified_by": "",
+  "verified_on": "",
+  "status": "simulation only",
+  "note": "Simulation-lane ablation copy of synria_sim_policy.json without the gripper guard, for paired campaigns that measure the guard alone; never served to the physical arm."
+}
