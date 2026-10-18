@@ -75,6 +75,28 @@ fixed within the declared session conditions. Record each reset and variation
 in `session_notes.md`. Stop and declare a new scene before changing this setup;
 do not introduce token targets or an unobserved goal.
 
+## Recording for training results
+
+These rules come from the first simulation data-scaling study (2026-10-18,
+`reports/sim_policy/pick_cup_17oct3/`). They apply to simulation sessions now and
+to any physical skill whose protocol declares varied placement; the fixed-scene
+rules above stay as pre-registered for the physical D1 skills.
+
+- Vary the object placement on every take, rotating the scene's Randomize 1x,
+  2x and 3x across takes so the dataset covers the reachable band. Takes from one
+  fixed spot stopped improving the held-out error after about 25; takes from
+  varied spots were the only ones that produced closed-loop picks from new spots.
+- Start every take a little off the folded rest pose; at the fold Joint2 sits
+  within a degree of its recording bound.
+- In about one take in five, show a recovery: start the grasp slightly off, back
+  off and re-grasp. The common closed-loop failure was a miss of a few
+  centimetres with no idea what to do next.
+- Close the gripper, settle for a beat, then lift; end the take with the cup
+  held clear of the table, which is how the scene scores a lift (3 cm for 1 s).
+- Keep the pace and the camera framing unchanged within a session; label a take
+  you did not attempt as aborted; aim for 50 or more takes in one session so the
+  nested subsets and the held-out takes of a study stay simple.
+
 ## Pre-register the dataset settings
 
 Declare the follower `STATE_SOURCE` as `standalone_driver` or `ros2_control`,

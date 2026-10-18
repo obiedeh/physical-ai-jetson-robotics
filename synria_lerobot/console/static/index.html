@@ -50,6 +50,17 @@
 <li><strong>Assign the two camera roles.</strong> Wrist camera on the wrist; overhead camera fixed above the scene. Close preview apps. A listed USB device is not proof of a working stream.</li></ol>
 <p>The console never moves the arm, starts a driver, changes torque, launches a bridge or arms a policy.</p>
 <details id="environment-context"><summary>Technical details: this console’s environment</summary><p id="environment-facts">Loading local environment details…</p><p>Compare the ROS domain and middleware with the existing arm feed terminal. Loading libraries does not start that source.</p></details>
+<h3 id="record-for-training-title">Record for the best training results</h3>
+<p>What the first simulation study taught us: the model learns only what the takes show it. These rules apply to simulation sessions now and to any physical skill whose protocol declares varied placement; the pre-registered fixed-scene physical protocol is unchanged.</p>
+<ol class="procedure-list" id="record-for-training">
+<li><strong>Vary the placement on every take.</strong> Use the Randomize buttons, and rotate 1x, 2x and 3x across takes so the dataset covers the whole reachable band. Takes from one fixed spot stopped teaching anything after about 25 of them; takes from varied spots were the only ones that produced picks from new spots.</li>
+<li><strong>Start every take a little off the folded rest pose.</strong> At the fold Joint2 sits within a degree of its recording bound; a take that starts there can fail the limits gate or clip a bound in sim.</li>
+<li><strong>Show recoveries, not only clean picks.</strong> In about one take in five, start the grasp slightly off, back off and re-grasp. A model shown only perfect approaches has no idea what to do after a 2 cm miss, and that was the common failure.</li>
+<li><strong>Close, settle, then lift.</strong> Hold the gripper closed for a beat before lifting. Early lifts with a loose grasp recorded as success teach the model to lift early and drop.</li>
+<li><strong>Finish with the cup held clear of the table.</strong> The scene scores a lift as held 3 cm up for one second; end your takes the same way so the data and the score agree.</li>
+<li><strong>Keep the pace steady and the camera framing unchanged.</strong> Do not touch camera defaults between takes of one session; the model sees the images, not the scene.</li>
+<li><strong>Label honestly.</strong> A take you did not attempt is Aborted, throw away. A real failure of the task is saved as failure; it still teaches the approach.</li>
+<li><strong>Aim for 50 or more takes per session, in one session.</strong> One dataset keeps the nested subsets and the held-out takes simple for the study.</li></ol>
 <h3>Procedures</h3><div id="help-topics" class="cards"></div>
 <details id="task-timing-entry"><summary>Task timing controls are not in this console</summary><p>Takes count toward the dataset only when the task has a timed window registered in the repository. You can do practice runs before that.</p>
 <fieldset class="wide" id="task-window-registration"><legend>Take timing registration, read only</legend><div id="task-window-list"></div>
@@ -172,6 +183,7 @@ not counts toward the dataset. Take windows remain operator decisions outside th
 <section id="record" class="screen" hidden><div class="section-head"><h2 id="record-title" class="screen-title" tabindex="-1">No session open</h2></div>
 <p id="record-move" class="record-move" hidden></p>
 <p id="record-route-note" class="route-note" hidden></p>
+<p class="small-print" id="record-training-reminder">For training-quality takes: vary the placement every take, start off the fold, show a recovery now and then, close and settle before lifting. <a href="#/help" data-route="help">Full rules under Help</a>.</p>
 <div id="record-banner" class="record-banner" role="status" aria-live="polite" data-phase="no-session"><div class="banner-main"><span class="eyebrow" id="record-phase">NO SESSION</span><p id="record-message">Open a session from Home or Sessions to record.</p><p id="record-saved" class="banner-second" hidden></p></div><div id="record-countdown" class="record-countdown" hidden><b id="record-countdown-value">0</b><small id="record-countdown-unit">s left</small></div></div>
 <div class="record-actions" id="record-controls"><button data-command="start" class="primary big" hidden>Start recording (Space)</button><button data-command="cancel_countdown" class="primary big" hidden>Cancel countdown</button><button data-command="stop" class="stop big" hidden>Stop (Space)</button>
 <button data-command="success" class="success big" hidden>Yes, save as success (S)</button><button data-command="failure" class="failure big" hidden>No, save as failure (F)</button><button data-command="abort" class="big" hidden>Aborted, throw away (A)</button>

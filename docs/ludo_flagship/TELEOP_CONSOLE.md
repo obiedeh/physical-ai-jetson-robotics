@@ -166,7 +166,9 @@ browser shortcut combinations. No procedure can bypass a recorder guard.
 
 Readiness blockers include direct next steps: missing serial/power metadata
 jumps to the empty field and explains where to find each value; task timing opens
-the registry status; limits opens the read-only config. Source alignment is
+the registry status; limits opens the read-only config. The Help page also carries
+"Record for the best training results", the recording rules the first simulation
+study produced, and the record page shows a one-line reminder of them. Source alignment is
 neutral **Not checked** until every required fresh sample exists. With all
 samples present, it reports the measured skew against the existing threshold.
 The Alicia-D Isaac ghost-arm soft cap and simulation self-collision geometry are

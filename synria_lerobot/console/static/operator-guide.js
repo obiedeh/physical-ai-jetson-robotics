@@ -84,6 +84,12 @@ const SynriaGuide = (() => {
       "Open the URL printed by the running console, including its token fragment. A restart changes that token.",
       "Use the exact local host and port; do not paste the token into a public report.",
       "Reopening a view does not stop or restart capture. Inspect the restored session before taking action."], doc:"runbook"},
+    training: {title:"Record for the best training results", summary:"The model learns only what the takes show it: vary the placement, start off the fold, show recoveries, settle before lifting.", steps:[
+      "Vary the placement on every take with the Randomize 1x, 2x and 3x buttons, rotated across takes, so the dataset covers the reachable band. Fixed-spot takes stopped teaching anything after about 25; varied takes were the only ones that produced picks from new spots.",
+      "Start every take a little off the folded rest pose; at the fold Joint2 sits within a degree of its recording bound.",
+      "In about one take in five, start the grasp slightly off, back off and re-grasp, so the model sees a recovery and not only perfect approaches.",
+      "Close the gripper, let it settle for a beat, then lift; finish with the cup held clear of the table, the same way the scene scores a lift.",
+      "Keep the pace and the camera framing unchanged within a session, label honestly (Aborted for a take you did not attempt), and aim for 50 or more takes in one session."], doc:"protocol"},
     general: {title:"Resolve the reported check", summary:"The operation was refused; no successful result should be assumed.", steps:[
       "Read the exact error and expand technical evidence. Correct the indicated field or prerequisite before retrying.",
       "Do not bypass safety checks, edit dataset evidence or restart a process with an unsaved take.",
