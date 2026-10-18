@@ -1,0 +1,746 @@
+{
+  "cadence": {
+    "action_lookahead_steps": 1,
+    "command_period_s": 0.2,
+    "command_stride_steps": 3,
+    "dataset_rate_hz": 15,
+    "semantics": "absolute target offered now and held until the next command tick; chunk slots 0,q,2q preserve recorded lookahead; physical cadence is unmeasured"
+  },
+  "checkpoints": [],
+  "completed_steps": 0,
+  "configuration": {
+    "architecture": {
+      "dim_feedforward": 3200,
+      "dim_model": 512,
+      "dropout": 0.1,
+      "kl_weight": 10.0,
+      "latent_dim": 32,
+      "n_decoder_layers": 1,
+      "n_encoder_layers": 4,
+      "n_heads": 8,
+      "n_vae_encoder_layers": 4
+    },
+    "backbone_learning_rate": 1e-05,
+    "batch_size": 8,
+    "chunk_size": 30,
+    "command_period_s": 0.2,
+    "dataset_repo_id": "local/pick_cup_17oct3_sim",
+    "device": "cuda",
+    "evidence_directory": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/train_n015",
+    "expected_contract": {
+      "action_lookahead_steps": 1,
+      "action_source": "leader",
+      "contract_version": "synria_physical_v1",
+      "effective_action_lookahead_steps": 0,
+      "episode_window_override": {
+        "max_episode_s": 120.0,
+        "min_episode_s": 1.0,
+        "reason": "simulation; never qualifying as physical data"
+      },
+      "gripper_type": "50mm",
+      "image_keys": [
+        "observation.images.wrist",
+        "observation.images.front"
+      ],
+      "max_episode_s": 120.0,
+      "min_episode_s": 1.0,
+      "nominal_action_lookahead_s": 0.0,
+      "recording_purpose": "simulation",
+      "requested_rate_hz": 15,
+      "state_has_velocity": false,
+      "state_names": [
+        "Joint1",
+        "Joint2",
+        "Joint3",
+        "Joint4",
+        "Joint5",
+        "Joint6",
+        "Gripper"
+      ],
+      "task_definition": {
+        "declared_fixed_scene": true,
+        "episode_window": {
+          "max_episode_s": null,
+          "min_episode_s": null
+        },
+        "requires_unobserved_goal": false,
+        "scene_requirements": [
+          "The cup occupies its fixed marked location.",
+          "The cup and gripper remain visible during the trial."
+        ],
+        "success_rule": "The take ends with the cup lifted and held clear of the table in the gripper, confirmed by the operator and front-camera evidence.",
+        "task_id": "pick_cup",
+        "task_text": "Pick up the cup from its marked location and hold on to it, lifted clear of the table."
+      },
+      "task_definition_sha256": "1adf24f5b502a8b1911aeb24b0f6bebf94750f2456d5a67dfa08986c7fa41236",
+      "task_id": "pick_cup",
+      "task_text": "Pick up the cup from its marked location and hold on to it, lifted clear of the table."
+    },
+    "grad_clip_norm": 10.0,
+    "lane": "simulation",
+    "learning_rate": 1e-05,
+    "policy_id": "simcup17oct3_n015",
+    "policy_ledger": "docs/ludo_flagship/SIM_POLICY_LEDGER.md",
+    "probe_set": "reports/sim_policy/pick_cup_17oct3/probes.json",
+    "probe_sha256": "4300c43aa9a645d401235daaf9f108510cdd933fbb5ddac5e1a4d40a6ab082ef",
+    "repository": "/home/oedeh/github/physical-ai-jetson-robotics",
+    "response_timeout_s": 0.5,
+    "save_freq": 5000,
+    "timeline": "docs/ludo_flagship/timeline.jsonl",
+    "training_episode_limit": 15,
+    "version": "synria_act_training_v1",
+    "video_backend": "pyav",
+    "weight_decay": 0.0001
+  },
+  "dataset_content_sha256": "283517bcbb74bd6746bbc0968419e12ed7eb45166a8c51a2b8dacf4a659d6568",
+  "dataset_path": "/home/oedeh/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
+  "declared_input_conditioning": [
+    "observation.state",
+    "observation.images.wrist",
+    "observation.images.front"
+  ],
+  "eligible_task_ids": [
+    "pick_cup"
+  ],
+  "excluded_episode_ids": [
+    5
+  ],
+  "exclusion_log_sha256": "45f0bc3a77b5f5d741437ee89e66be0c352c8c479a0f95fd8d4dd42a94e810be",
+  "fixed_scene_motion_eligible": false,
+  "git_sha": "3fed6712a323c6f831e0a256c9568091ed42d877",
+  "held_out_episodes": [
+    12,
+    24,
+    36,
+    44
+  ],
+  "host": "aimlstation",
+  "lane": "simulation",
+  "model_feature_shapes": {
+    "action": [
+      7
+    ],
+    "observation.images.front": [
+      3,
+      224,
+      224
+    ],
+    "observation.images.wrist": [
+      3,
+      224,
+      224
+    ],
+    "observation.state": [
+      7
+    ]
+  },
+  "normalization": "training episodes only",
+  "omitted_episode_indices": [
+    5,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    45,
+    46,
+    47,
+    48,
+    49
+  ],
+  "partial_checkpoints": [],
+  "physical_contract": {
+    "action_lookahead_steps": 1,
+    "action_source": "leader",
+    "contract_version": "synria_physical_v1",
+    "effective_action_lookahead_steps": 0,
+    "episode_window_override": {
+      "max_episode_s": 120.0,
+      "min_episode_s": 1.0,
+      "reason": "simulation; never qualifying as physical data"
+    },
+    "gripper_type": "50mm",
+    "image_keys": [
+      "observation.images.wrist",
+      "observation.images.front"
+    ],
+    "max_episode_s": 120.0,
+    "min_episode_s": 1.0,
+    "nominal_action_lookahead_s": 0.0,
+    "recording_purpose": "simulation",
+    "requested_rate_hz": 15,
+    "state_has_velocity": false,
+    "state_names": [
+      "Joint1",
+      "Joint2",
+      "Joint3",
+      "Joint4",
+      "Joint5",
+      "Joint6",
+      "Gripper"
+    ],
+    "task_definition": {
+      "declared_fixed_scene": true,
+      "episode_window": {
+        "max_episode_s": null,
+        "min_episode_s": null
+      },
+      "requires_unobserved_goal": false,
+      "scene_requirements": [
+        "The cup occupies its fixed marked location.",
+        "The cup and gripper remain visible during the trial."
+      ],
+      "success_rule": "The take ends with the cup lifted and held clear of the table in the gripper, confirmed by the operator and front-camera evidence.",
+      "task_id": "pick_cup",
+      "task_text": "Pick up the cup from its marked location and hold on to it, lifted clear of the table."
+    },
+    "task_definition_sha256": "1adf24f5b502a8b1911aeb24b0f6bebf94750f2456d5a67dfa08986c7fa41236",
+    "task_id": "pick_cup",
+    "task_text": "Pick up the cup from its marked location and hold on to it, lifted clear of the table."
+  },
+  "physical_eligible": false,
+  "policy_id": "simcup17oct3_n015",
+  "pretrained_backbone_weights": null,
+  "probe_set": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/probes.json",
+  "probe_sha256": "4300c43aa9a645d401235daaf9f108510cdd933fbb5ddac5e1a4d40a6ab082ef",
+  "requested_steps": 20000,
+  "seed": 17,
+  "simulation_motion_eligible": true,
+  "stage_status": "planned",
+  "status": "started",
+  "task_text_conditioning": false,
+  "torch_version": "2.11.0+cu130",
+  "training_episode_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    13,
+    14,
+    15,
+    16
+  ],
+  "training_episode_limit": 15,
+  "training_stats": {
+    "action": {
+      "count": [
+        6922
+      ],
+      "max": [
+        0.17487381398677826,
+        1.7594759464263916,
+        0.7976700067520142,
+        0.2454369217157364,
+        1.1688933372497559,
+        0.2040194422006607,
+        0.024974999949336052
+      ],
+      "mean": [
+        -0.01471331749919762,
+        0.6491206268317367,
+        -0.36857806853099695,
+        0.013474989835279451,
+        -0.056453971343738724,
+        -0.009159592289463595,
+        0.01004810455639741
+      ],
+      "min": [
+        -0.21629129350185394,
+        -0.6657476425170898,
+        -0.604388415813446,
+        -0.07209710031747818,
+        -1.2517282962799072,
+        -0.21935924887657166,
+        0.0
+      ],
+      "q01": [
+        -0.08649975163035732,
+        -0.4684359393112758,
+        -0.5892877587830183,
+        -0.0031590697279442006,
+        -0.8950807950726154,
+        -0.02670586861043155,
+        5.756274179566368e-05
+      ],
+      "q10": [
+        -0.07981869399882754,
+        -0.4502992132777622,
+        -0.5826900462549337,
+        0.0011246009300675543,
+        -0.8476159846730126,
+        -0.026145251031075473,
+        5.756274179566368e-05
+      ],
+      "q50": [
+        -0.01408459419632636,
+        0.6537743225143982,
+        -0.40799861681218363,
+        0.013579054905160585,
+        -0.18724823781058797,
+        -0.006075268847599813,
+        0.005470730334467856
+      ],
+      "q90": [
+        0.04787374989877138,
+        1.6363249319020334,
+        -0.09386885074898,
+        0.02809699587849686,
+        0.9385767234402391,
+        -0.003030060599917292,
+        0.023033028338435225
+      ],
+      "q99": [
+        0.0701850962421076,
+        1.6485211564208042,
+        0.09828465463697497,
+        0.028784282647604433,
+        0.9632321676559426,
+        -0.0025699114669377734,
+        0.023336110340033973
+      ],
+      "std": [
+        0.06504012892284744,
+        0.8425107231763437,
+        0.21216829126298992,
+        0.08185796787574125,
+        0.7487018330615356,
+        0.12910188761178648,
+        0.011101074387268503
+      ]
+    },
+    "observation.images.front": {
+      "count": [
+        1572
+      ],
+      "max": [
+        [
+          [
+            0.9607843160629272
+          ]
+        ],
+        [
+          [
+            0.9607843160629272
+          ]
+        ],
+        [
+          [
+            0.9803921580314636
+          ]
+        ]
+      ],
+      "mean": [
+        [
+          [
+            0.7385212777149283
+          ]
+        ],
+        [
+          [
+            0.7383650465851825
+          ]
+        ],
+        [
+          [
+            0.7381977790791266
+          ]
+        ]
+      ],
+      "min": [
+        [
+          [
+            0.0
+          ]
+        ],
+        [
+          [
+            0.0
+          ]
+        ],
+        [
+          [
+            0.0
+          ]
+        ]
+      ],
+      "q01": [
+        [
+          [
+            0.10036374002059725
+          ]
+        ],
+        [
+          [
+            0.10342508273960291
+          ]
+        ],
+        [
+          [
+            0.10427221690513809
+          ]
+        ]
+      ],
+      "q10": [
+        [
+          [
+            0.33842284242773857
+          ]
+        ],
+        [
+          [
+            0.3395259006143828
+          ]
+        ],
+        [
+          [
+            0.3374005934828735
+          ]
+        ]
+      ],
+      "q50": [
+        [
+          [
+            0.8408300760576738
+          ]
+        ],
+        [
+          [
+            0.8403493480116134
+          ]
+        ],
+        [
+          [
+            0.8392626905091967
+          ]
+        ]
+      ],
+      "q90": [
+        [
+          [
+            0.8510014210874334
+          ]
+        ],
+        [
+          [
+            0.8509663853695858
+          ]
+        ],
+        [
+          [
+            0.8486584102773991
+          ]
+        ]
+      ],
+      "q99": [
+        [
+          [
+            0.8549139220376927
+          ]
+        ],
+        [
+          [
+            0.8546427166444309
+          ]
+        ],
+        [
+          [
+            0.8518365678827365
+          ]
+        ]
+      ],
+      "std": [
+        [
+          [
+            0.30886038905755064
+          ]
+        ],
+        [
+          [
+            0.3085145038705751
+          ]
+        ],
+        [
+          [
+            0.3079812507089303
+          ]
+        ]
+      ]
+    },
+    "observation.images.wrist": {
+      "count": [
+        1572
+      ],
+      "max": [
+        [
+          [
+            0.9647058844566345
+          ]
+        ],
+        [
+          [
+            0.9725490212440491
+          ]
+        ],
+        [
+          [
+            0.9882352948188782
+          ]
+        ]
+      ],
+      "mean": [
+        [
+          [
+            0.47189917889335986
+          ]
+        ],
+        [
+          [
+            0.527372675542613
+          ]
+        ],
+        [
+          [
+            0.573833166870452
+          ]
+        ]
+      ],
+      "min": [
+        [
+          [
+            0.0
+          ]
+        ],
+        [
+          [
+            0.0
+          ]
+        ],
+        [
+          [
+            0.0
+          ]
+        ]
+      ],
+      "q01": [
+        [
+          [
+            0.017409047588722047
+          ]
+        ],
+        [
+          [
+            0.03544218337349569
+          ]
+        ],
+        [
+          [
+            0.0498713888007722
+          ]
+        ]
+      ],
+      "q10": [
+        [
+          [
+            0.075292542991915
+          ]
+        ],
+        [
+          [
+            0.09521457873768217
+          ]
+        ],
+        [
+          [
+            0.10909440981058097
+          ]
+        ]
+      ],
+      "q50": [
+        [
+          [
+            0.47720211971361604
+          ]
+        ],
+        [
+          [
+            0.6031258878126781
+          ]
+        ],
+        [
+          [
+            0.6892132567459975
+          ]
+        ]
+      ],
+      "q90": [
+        [
+          [
+            0.8502491206731627
+          ]
+        ],
+        [
+          [
+            0.8502290329493256
+          ]
+        ],
+        [
+          [
+            0.8500375945557044
+          ]
+        ]
+      ],
+      "q99": [
+        [
+          [
+            0.8559797860745118
+          ]
+        ],
+        [
+          [
+            0.8772154300833505
+          ]
+        ],
+        [
+          [
+            0.9256150853029901
+          ]
+        ]
+      ],
+      "std": [
+        [
+          [
+            0.32908169752743577
+          ]
+        ],
+        [
+          [
+            0.312613845396875
+          ]
+        ],
+        [
+          [
+            0.3007361819407375
+          ]
+        ]
+      ]
+    },
+    "observation.state": {
+      "count": [
+        6922
+      ],
+      "max": [
+        0.17418347299098969,
+        1.753503441810608,
+        0.7748106122016907,
+        0.2479109913110733,
+        1.168873906135559,
+        0.20402556657791138,
+        0.024901028722524643
+      ],
+      "mean": [
+        -0.014540696778390916,
+        0.6417726372422182,
+        -0.3723730423553112,
+        0.01363730578306859,
+        -0.05472276425858267,
+        -0.00915238854809799,
+        0.0030383776225985427
+      ],
+      "min": [
+        -0.21605020761489868,
+        -0.66000896692276,
+        -0.6201758980751038,
+        -0.09054934978485107,
+        -1.2518105506896973,
+        -0.21860916912555695,
+        0.0
+      ],
+      "q01": [
+        -0.08578602972546175,
+        -0.4759912982253868,
+        -0.5957390058575411,
+        -0.004994331226920684,
+        -0.8949183021285774,
+        -0.029094120623824077,
+        0.00018609938680704227
+      ],
+      "q10": [
+        -0.07987385314751011,
+        -0.45609235863930375,
+        -0.5842340584031204,
+        0.0008507907259050435,
+        -0.8481298770831569,
+        -0.026239819900949795,
+        0.00023568128277470888
+      ],
+      "q50": [
+        -0.013776990004698418,
+        0.649954621942358,
+        -0.4143988465529574,
+        0.013652103761576167,
+        -0.18239906935397784,
+        -0.006065987415372247,
+        0.00141999056745453
+      ],
+      "q90": [
+        0.04779507496927834,
+        1.6312947020101283,
+        -0.09865669195582316,
+        0.028380304307467213,
+        0.937593714410836,
+        -0.0018863742967976296,
+        0.007286409030984582
+      ],
+      "q99": [
+        0.07211989730858702,
+        1.6431079212995563,
+        0.08973703837501386,
+        0.03165525687228037,
+        0.9634075426915161,
+        0.0004626700950178055,
+        0.01824380332582249
+      ],
+      "std": [
+        0.06507407669450158,
+        0.8420535380965796,
+        0.21091918988644412,
+        0.08128544719627559,
+        0.7482302379967088,
+        0.12881274997641182,
+        0.005041388696792084
+      ]
+    }
+  },
+  "upstream_version": "0.6.1",
+  "utc": "2026-10-18T04:24:30.355613+00:00",
+  "varying_target_motion_eligible": false,
+  "version": "synria_act_training_v1",
+  "visual_goal_cue_declared": false
+}

@@ -1,0 +1,176 @@
+{
+  "checkpoint_content_sha256": "430f77c0787eaba3d9f83e559141fae1b57ccc6c226a7e0584960a37df9d22d6",
+  "checkpoint_path": "/home/oedeh/synria-sim-training/pick_cup_17oct3/simcup17oct3_n025/checkpoints/step-000015000",
+  "dataset_content_sha256": "283517bcbb74bd6746bbc0968419e12ed7eb45166a8c51a2b8dacf4a659d6568",
+  "dataset_path": "/home/oedeh/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
+  "held_out_episodes": [
+    12,
+    24,
+    36,
+    44
+  ],
+  "held_out_frame_counts": {
+    "12": 452,
+    "24": 395,
+    "36": 334,
+    "44": 396
+  },
+  "kind": "checkpoint_eval",
+  "lane": "simulation",
+  "metrics": {
+    "axes": {
+      "Gripper": {
+        "mae": 0.001977396527509643,
+        "max_error": 0.025620686821639538,
+        "rmse": 0.004543807867138543,
+        "unit": "m"
+      },
+      "Joint1": {
+        "mae": 0.03661825492657896,
+        "max_error": 0.3564000725746155,
+        "rmse": 0.05989806854835909,
+        "unit": "rad"
+      },
+      "Joint2": {
+        "mae": 0.14564845291076078,
+        "max_error": 1.1019378900527954,
+        "rmse": 0.19634382724905108,
+        "unit": "rad"
+      },
+      "Joint3": {
+        "mae": 0.08908401717833332,
+        "max_error": 1.023578847758472,
+        "rmse": 0.15844276908706578,
+        "unit": "rad"
+      },
+      "Joint4": {
+        "mae": 0.012406209033797622,
+        "max_error": 0.0877250712364912,
+        "rmse": 0.016036412544380336,
+        "unit": "rad"
+      },
+      "Joint5": {
+        "mae": 0.13718938249249063,
+        "max_error": 2.0090683698654175,
+        "rmse": 0.21026124265179258,
+        "unit": "rad"
+      },
+      "Joint6": {
+        "mae": 0.014530781498064391,
+        "max_error": 0.05078456923365593,
+        "rmse": 0.016908190909260545,
+        "unit": "rad"
+      }
+    },
+    "held_out_frames": 1577,
+    "valid_action_count": 45570
+  },
+  "omitted_episode_indices": [
+    5,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    45,
+    46,
+    47,
+    48,
+    49
+  ],
+  "physical_contract": {
+    "action_lookahead_steps": 1,
+    "action_source": "leader",
+    "contract_version": "synria_physical_v1",
+    "effective_action_lookahead_steps": 0,
+    "episode_window_override": {
+      "max_episode_s": 120.0,
+      "min_episode_s": 1.0,
+      "reason": "simulation; never qualifying as physical data"
+    },
+    "gripper_type": "50mm",
+    "image_keys": [
+      "observation.images.wrist",
+      "observation.images.front"
+    ],
+    "max_episode_s": 120.0,
+    "min_episode_s": 1.0,
+    "nominal_action_lookahead_s": 0.0,
+    "recording_purpose": "simulation",
+    "requested_rate_hz": 15,
+    "state_has_velocity": false,
+    "state_names": [
+      "Joint1",
+      "Joint2",
+      "Joint3",
+      "Joint4",
+      "Joint5",
+      "Joint6",
+      "Gripper"
+    ],
+    "task_definition": {
+      "declared_fixed_scene": true,
+      "episode_window": {
+        "max_episode_s": null,
+        "min_episode_s": null
+      },
+      "requires_unobserved_goal": false,
+      "scene_requirements": [
+        "The cup occupies its fixed marked location.",
+        "The cup and gripper remain visible during the trial."
+      ],
+      "success_rule": "The take ends with the cup lifted and held clear of the table in the gripper, confirmed by the operator and front-camera evidence.",
+      "task_id": "pick_cup",
+      "task_text": "Pick up the cup from its marked location and hold on to it, lifted clear of the table."
+    },
+    "task_definition_sha256": "1adf24f5b502a8b1911aeb24b0f6bebf94750f2456d5a67dfa08986c7fa41236",
+    "task_id": "pick_cup",
+    "task_text": "Pick up the cup from its marked location and hold on to it, lifted clear of the table."
+  },
+  "physical_probe_attempts": [],
+  "policy_id": "simcup17oct3_n025",
+  "probe_set_id": "pick_cup_17oct3_sim",
+  "probe_sha256": "4300c43aa9a645d401235daaf9f108510cdd933fbb5ddac5e1a4d40a6ab082ef",
+  "purpose": "diagnostic_only_no_policy_selection",
+  "stage_status": "planned",
+  "status": "evaluated",
+  "step": 15000,
+  "training_episode_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    25,
+    26,
+    27
+  ],
+  "utc": "2026-10-18T06:21:58.157954+00:00"
+}
