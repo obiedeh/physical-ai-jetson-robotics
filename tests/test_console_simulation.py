@@ -247,12 +247,23 @@ def test_simulation_shows_the_side_view_as_a_preview_that_is_never_recorded(tmp_
         config = replace(recorder.recording_config_from_args(
             args, simulation=True, dataset_path=tmp_path / "practice" / "dataset",
         ), state_source_provenance=None)
+        class FakeGoalSource:
+            """The scene's object pose for the declared goal channels, fixed."""
+
+            def read(self) -> recorder.GoalSample:
+                return recorder.GoalSample((0.3, 0.0, 0.0) * len(config.contract.goal_channels),
+                                           clock())
+
+            def close(self) -> None:
+                pass
+
         capture = recorder.PhysicalEpisodeRecorder(
             config=config, state_source=ClockStateSource(clock),
             action_source=recorder.LeaderActionSource(ClockStateSource(clock)),
             wrist_source=ArrayFrameSource("wrist", clock),
             front_source=ArrayFrameSource("front", clock),
             writer=FakeWriter(tmp_path), clock=clock,
+            goal_source=FakeGoalSource() if config.contract.goal_channels else None,
         )
         try:
             yield capture
@@ -305,3 +316,15 @@ def test_a_sim_session_from_an_older_camera_layout_is_refused_in_operator_words(
         assert "front /isaac/overhead_camera/image_raw (now /isaac/elsewhere/image_raw)" in str(
             refusal.value)
         assert "Start a new session" in str(refusal.value)
+
+
+def test_simulation_sessions_declare_the_task_goal_channels() -> None:
+    """Every scene task declares its object; the place task also the mark; unknown none."""
+    from synria_lerobot.console.isaac import sim_goal_channels
+
+    assert sim_goal_channels("pick_cup") == ["object=/isaac/pick_objects/cup/pose"]
+    assert sim_goal_channels("die_into_cup") == ["object=/isaac/pick_objects/die/pose"]
+    assert sim_goal_channels("cup_pick_and_place") == [
+        "object=/isaac/pick_objects/cup/pose", "target=/isaac/pick_objects/place_target/pose",
+    ]
+    assert sim_goal_channels("not_a_task") == []

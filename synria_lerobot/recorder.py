@@ -35,6 +35,7 @@ from edge_ai.camera_inference import CameraInferenceLoop, MockFrameSource
 from synria_lerobot.dataset import SynriaEpisodeDataset, generate_synthetic_episode
 from synria_lerobot.physical_contract import (
     DEFAULT_COMMAND_TOPICS,
+    GOAL_KEY,
     STATE_SOURCE_KINDS,
     ImageFrame,
     PhysicalDatasetContract,
@@ -115,6 +116,64 @@ class FrameSource(Protocol):
     def close(self) -> None:
         """Close owned resources while preserving unresolved recovery evidence."""
         ...
+
+
+@dataclass(frozen=True)
+class GoalSample:
+    """The goal channels' world positions, three values per channel, and their oldest stamp."""
+
+    values: tuple[float, ...]
+    monotonic_timestamp_s: float
+
+
+class GoalSource(Protocol):
+    """Read the goal channels a contract declares; required exactly when it declares any."""
+
+    def read(self) -> GoalSample:
+        """Return the latest positions of every declared channel, in contract order."""
+        ...
+
+    def close(self) -> None:
+        """Close owned resources while preserving unresolved recovery evidence."""
+        ...
+
+
+class RosGoalSource:
+    """One PoseStamped subscriber per goal channel, read together as one goal sample.
+
+    ``topics`` maps each declared channel name, in contract order, to the absolute topic
+    that publishes its world pose; every channel must have one. Simulation lane today;
+    on hardware the same protocol is served by a perception adapter.
+    """
+
+    def __init__(self, channels: tuple[str, ...], topics: dict[str, str], *,
+                 node_prefix: str = "synria_goal", timeout_s: float = 1.0) -> None:
+        """Open one pose subscriber per channel; close every opened one on failure."""
+        from synria_lerobot.sim_policy_runner import RosPoseSource
+
+        missing = [name for name in channels if name not in topics]
+        if missing:
+            raise ValueError(f"goal channels without a topic: {missing}")
+        self.channels = tuple(channels)
+        self._sources: list[Any] = []
+        try:
+            for name in self.channels:
+                self._sources.append(RosPoseSource(
+                    topics[name], node_name=f"{node_prefix}_{name}", timeout_s=timeout_s,
+                ))
+        except BaseException:
+            _close_all(*(source.close for source in self._sources))
+            raise
+
+    def read(self) -> GoalSample:
+        """The newest position of every channel; the sample's stamp is the oldest of them."""
+        poses = [source.read() for source in self._sources]
+        values = tuple(float(v) for pose in poses for v in pose.position_m)
+        return GoalSample(values, min(pose.monotonic_timestamp_s for pose in poses))
+
+    def close(self) -> None:
+        """Close every channel's subscriber."""
+        _close_all(*(source.close for source in self._sources))
 
 
 class DatasetWriter(Protocol):
@@ -310,6 +369,7 @@ class _PendingFrame:
     wrist: ImageFrame
     front: ImageFrame
     sample_monotonic_s: float
+    goal: tuple[float, ...] | None = None
 
 
 class NextStateActionSource:
@@ -838,6 +898,8 @@ class LeRobotDatasetWriter:
                 "names": ["channels", "height", "width"],
             },
         }
+        if config.contract.goal_channels:
+            features[GOAL_KEY] = {"dtype": "float32", "shape": (config.contract.goal_size,)}
         for timestamp_name in (
             "state_monotonic_s",
             "state_ros_header_s",
@@ -1066,6 +1128,9 @@ class LeRobotDatasetWriter:
                 name: np.asarray([value], dtype=np.float64)
                 for name, value in frame.timestamps().items()
             }
+            goal = self._contract.check_goal(frame.goal)
+            goal_feature = ({} if goal is None
+                            else {GOAL_KEY: np.asarray(goal, dtype=np.float32)})
             self._dataset.add_frame(
                 {
                     "observation.state": np.asarray(
@@ -1075,6 +1140,7 @@ class LeRobotDatasetWriter:
                     "observation.images.wrist": frame.wrist.data,
                     "observation.images.front": frame.front.data,
                     "task": self._task,
+                    **goal_feature,
                     **timestamp_features,
                 }
             )
@@ -1263,15 +1329,20 @@ class PhysicalEpisodeRecorder:
         writer: DatasetWriter,
         clock: Callable[[], float] = time.monotonic,
         command_publisher_guard: Callable[[tuple[str, ...]], None] | None = None,
+        goal_source: GoalSource | None = None,
     ) -> None:
         """Initialize owned resources and lifecycle state for safe recording."""
         if action_source.kind is not config.contract.action_source:
             raise ValueError("action source does not match dataset contract")
+        if bool(config.contract.goal_channels) != (goal_source is not None):
+            raise ValueError("a goal source is required exactly when the contract declares "
+                             "goal channels")
         self.config = config
         self.state_source = state_source
         self.action_source = action_source
         self.wrist_source = wrist_source
         self.front_source = front_source
+        self.goal_source = goal_source
         self.writer = writer
         self.clock = clock
         # A real source always supplies its own graph check, even when a fake guard is passed.
@@ -1351,6 +1422,9 @@ class PhysicalEpisodeRecorder:
         action = self.action_source.read(follower)
         wrist = self.wrist_source.read()
         front = self.front_source.read()
+        goal = None
+        if self.goal_source is not None:
+            goal = self.config.contract.check_goal(self.goal_source.read().values)
         sampled = self.clock()
         if sampled - self._started >= self.config.hard_cap_s:
             self.stop()
@@ -1369,6 +1443,7 @@ class PhysicalEpisodeRecorder:
                 wrist=replace(wrist, native_data=None),
                 front=replace(front, native_data=None),
                 sample_monotonic_s=sampled,
+                goal=goal,
             )
         )
         self._ended = sampled
@@ -1465,6 +1540,7 @@ class PhysicalEpisodeRecorder:
                     sample_monotonic_timestamp_s=pending.sample_monotonic_s,
                     action_ros_header_stamp_s=action.ros_header_stamp_s,
                     action_ros_arrival_stamp_s=action.ros_arrival_stamp_s,
+                    goal=pending.goal,
                 )
             )
         return frames
@@ -1478,6 +1554,7 @@ class PhysicalEpisodeRecorder:
                 self.action_source.close,
                 self.wrist_source.close,
                 self.front_source.close,
+                *(() if self.goal_source is None else (self.goal_source.close,)),
                 self.writer.finalize,
             )
 
@@ -1809,6 +1886,9 @@ def _parse_physical_args() -> argparse.Namespace:
     parser.add_argument("--image-width", type=int, default=224)
     parser.add_argument("--image-height", type=int, default=224)
     parser.add_argument("--state-has-velocity", action="store_true")
+    parser.add_argument("--goal-channel", action="append", default=[], metavar="NAME=TOPIC",
+                        help="Declare a goal channel (object or target) and the absolute "
+                             "PoseStamped topic that publishes its world pose; repeatable.")
     parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--practice-seconds", type=float, default=None,
                         help="Length of the one --smoke take in seconds (default 30, 5 to 120)")
@@ -1816,6 +1896,20 @@ def _parse_physical_args() -> argparse.Namespace:
     if args.practice_seconds is not None and not args.smoke:
         parser.error("--practice-seconds applies to --smoke runs only")
     return args
+
+
+def parse_goal_channels(entries: list[str]) -> dict[str, str]:
+    """``NAME=TOPIC`` entries in order; names and topics are validated by the contract."""
+    topics: dict[str, str] = {}
+    for entry in entries:
+        name, separator, topic = str(entry).partition("=")
+        if not separator or not name or not topic:
+            raise ValueError(f"goal channel must be NAME=TOPIC, not {entry!r}")
+        if name in topics:
+            raise ValueError(f"goal channel {name} declared twice")
+        require_absolute_topic(topic)
+        topics[name] = topic
+    return topics
 
 
 def recording_config_from_args(
@@ -1844,6 +1938,9 @@ def recording_config_from_args(
     practice_seconds = getattr(args, "practice_seconds", None)
     if args.smoke and practice_seconds is not None:
         task_definition = task_definition.with_smoke_window(practice_seconds)
+    goal_topics = parse_goal_channels(getattr(args, "goal_channel", []) or [])
+    if goal_topics and synthetic_demo:
+        raise ValueError("synthetic demo has no goal channels")
     contract = PhysicalDatasetContract(
         gripper_type=args.gripper_type,
         action_source=ActionSourceKind(args.action_source),
@@ -1852,6 +1949,7 @@ def recording_config_from_args(
         task_id=task_definition.task_id,
         task_definition=task_definition,
         recording_purpose=purpose,
+        goal_channels=tuple(goal_topics),
         **library_snapshot_fields(args.task_registry),
     )
     path = dataset_path if dataset_path is not None else args.dataset_path
@@ -2009,6 +2107,12 @@ def build_recording_session(
                         args.front_camera, width=config.image_width, height=config.image_height
                     )
             startup_cleanup.callback(_close_all, front.close)
+            goal_source: GoalSource | None = None
+            if contract.goal_channels:
+                goal_topics = parse_goal_channels(args.goal_channel)
+                with checked("goal_channels", topics=goal_topics):
+                    goal_source = RosGoalSource(contract.goal_channels, goal_topics)
+                startup_cleanup.callback(_close_all, goal_source.close)
             recorder = PhysicalEpisodeRecorder(
                 config=config,
                 state_source=follower,
@@ -2017,6 +2121,7 @@ def build_recording_session(
                 front_source=front,
                 writer=writer,
                 clock=source_clock,
+                goal_source=goal_source,
             )
             session_cleanup.callback(_close_all, recorder.close)
             startup_cleanup.pop_all()

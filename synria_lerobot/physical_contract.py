@@ -42,6 +42,15 @@ SIMULATION_JOINT_NAMES = (
 JOINT_NAME_MAPPING = dict(zip(DRIVER_JOINT_NAMES, SIMULATION_JOINT_NAMES, strict=True))
 GRIPPER_STROKE_M = {"50mm": 0.025, "100mm": 0.05}
 IMAGE_KEYS = ("observation.images.wrist", "observation.images.front")
+# The goal channels: world-frame positions, three metres each, of named scene entities
+# that a policy may be conditioned on. "object" is the task's pick object and "target"
+# its place target. They are stored as the dataset's environment-state feature and sent
+# with every policy request when the contract declares them; the world frame is the
+# robot base frame, which is the scene's world origin and, on hardware, the calibrated
+# base of the arm.
+GOAL_KEY = "observation.environment_state"
+GOAL_CHANNEL_NAMES = ("object", "target")
+GOAL_VALUES_PER_CHANNEL = 3
 ACTION_TIMING_KEYS = (
     "action_lookahead_steps", "effective_action_lookahead_steps",
     "nominal_action_lookahead_s", "requested_rate_hz",
@@ -225,11 +234,16 @@ class PhysicalDatasetContract:
     goal_title: str | None = field(default=None, kw_only=True)
     library_version: int | None = field(default=None, kw_only=True)
     chain_position: int | None = field(default=None, kw_only=True)
+    goal_channels: tuple[str, ...] = field(default=(), kw_only=True)
 
     def __post_init__(self) -> None:
         """Reject malformed identity, dimensions or timing at the data boundary."""
         if self.gripper_type not in GRIPPER_STROKE_M:
             raise ValueError("gripper_type must be '50mm' or '100mm'")
+        if type(self.goal_channels) is not tuple or any(
+            name not in GOAL_CHANNEL_NAMES for name in self.goal_channels
+        ) or len(set(self.goal_channels)) != len(self.goal_channels):
+            raise ValueError(f"goal_channels must be distinct names from {GOAL_CHANNEL_NAMES}")
         self._check_task_source()
         if self.version != CONTRACT_VERSION:
             raise ValueError(f"unsupported physical contract version: {self.version}")
@@ -310,6 +324,7 @@ class PhysicalDatasetContract:
             goal_id=payload.get("goal_id"), goal_title=payload.get("goal_title"),
             library_version=payload.get("library_version"),
             chain_position=payload.get("chain_position"),
+            goal_channels=tuple(payload.get("goal_channels", ())),
         )
         if contract.as_dict(fps=payload.get("requested_rate_hz")) != payload:
             raise ValueError("inconsistent physical contract metadata")
@@ -319,6 +334,24 @@ class PhysicalDatasetContract:
     def gripper_stroke_m(self) -> float:
         """Return the declared hardware gripper stroke in driver units."""
         return GRIPPER_STROKE_M[self.gripper_type]
+
+    @property
+    def goal_size(self) -> int:
+        """How many values the goal vector carries: three per declared channel."""
+        return GOAL_VALUES_PER_CHANNEL * len(self.goal_channels)
+
+    def check_goal(self, goal: tuple[float, ...] | None) -> tuple[float, ...] | None:
+        """Require a finite goal of the declared size, or none when no channel is declared."""
+        if not self.goal_channels:
+            if goal is not None:
+                raise ValueError("the contract declares no goal channels")
+            return None
+        if goal is None or len(goal) != self.goal_size:
+            raise ValueError(f"the goal needs {self.goal_size} values for "
+                             f"channels {list(self.goal_channels)}")
+        values = tuple(float(v) for v in goal)
+        _require_finite(values, "goal")
+        return values
 
     def prepare_state(self, state: PhysicalState) -> PhysicalState:
         """Select the dataset's state fields, never infer them from one message."""
@@ -348,6 +381,9 @@ class PhysicalDatasetContract:
                 task_source="library", goal_id=self.goal_id, goal_title=self.goal_title,
                 library_version=self.library_version, chain_position=self.chain_position,
             )
+        if self.goal_channels:
+            # Datasets without goal channels keep their payload byte for byte.
+            payload["goal_channels"] = list(self.goal_channels)
         if fps is not None:
             payload.update(
                 action_timing_metadata(self.action_source, self.action_lookahead_steps, fps)
@@ -425,6 +461,7 @@ class PhysicalFrame:
     sample_monotonic_timestamp_s: float | None = None
     action_ros_header_stamp_s: float | None = None
     action_ros_arrival_stamp_s: float | None = None
+    goal: tuple[float, ...] | None = None
 
     def __post_init__(self) -> None:
         """Reject malformed identity, dimensions or timing at the data boundary."""
@@ -433,6 +470,10 @@ class PhysicalFrame:
         _require_finite(self.action, "action")
         if not math.isfinite(self.action_monotonic_timestamp_s):
             raise ValueError("action monotonic timestamp must be finite")
+        if self.goal is not None:
+            if not self.goal or len(self.goal) % GOAL_VALUES_PER_CHANNEL:
+                raise ValueError("a goal carries three values per channel")
+            _require_finite(self.goal, "goal")
 
     def timestamps(self) -> dict[str, float]:
         """Preserve independent source and sampling clock values for freshness gates."""

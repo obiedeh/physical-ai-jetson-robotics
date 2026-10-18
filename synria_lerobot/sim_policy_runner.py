@@ -386,10 +386,27 @@ class SimulationTrialRunner:
         self.task = contract.task_text
 
     def observe(self) -> SynriaObservation:
-        """The newest sample of every source, with the trained instruction."""
+        """The newest sample of every source, with the trained instruction and the goal.
+
+        The goal channels the served contract declares are filled from the scene's
+        published poses: "object" from the cup, "target" from the mark; a declared
+        channel without a source refuses the trial rather than sending a guess.
+        """
+        goal: tuple[float, ...] | None = None
+        channels = self.client.embodiment.contract.goal_channels
+        if channels:
+            values: list[float] = []
+            for name in channels:
+                if name == "object":
+                    values.extend(self.cup_source.read().position_m)
+                elif name == "target" and self.target_source is not None:
+                    values.extend(self.target_source.read().position_m)
+                else:
+                    raise ValueError(f"no scene source for goal channel {name!r}")
+            goal = tuple(values)
         return SynriaObservation(
             self.state_source.read(), self.wrist_source.read(), self.front_source.read(),
-            self.task,
+            self.task, goal,
         )
 
     def approach(self) -> int:

@@ -195,7 +195,7 @@ def test_episode_limit_must_be_a_positive_integer(tmp_path: Path, limit: Any) ->
 
 
 AUGMENTATION = {"enable": True, "max_num_transforms": 3, "random_order": False,
-                "transforms": ["brightness", "contrast", "affine"]}
+                "transforms": ["brightness", "contrast", "sharpness"]}
 
 
 def test_augmentation_and_ensembling_blocks_are_validated(tmp_path: Path) -> None:
@@ -428,3 +428,12 @@ def test_unsafe_destinations_fail_before_optional_runtime_or_writes(
     assert (dataset / "physical_contract.json").read_bytes() == before
     assert not (repository / config["evidence_directory"]).exists()
     assert (repository / "POLICY_LEDGER.md").read_text() == "# Synthetic ledger\n"
+
+
+def test_geometric_image_transforms_are_refused(tmp_path: Path) -> None:
+    """An affine transform moves the object without moving the label; the trainer refuses it."""
+    config, physical = settings(tmp_path)
+    with pytest.raises(ValueError, match="geometric image transforms"):
+        validate_config({**config, "image_transforms": {**AUGMENTATION,
+                                                        "transforms": ["brightness", "affine"]}},
+                        physical)

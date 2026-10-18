@@ -19,13 +19,14 @@ from typing import Any, Protocol, cast
 import numpy as np
 
 from .act_training import (
-    FEATURE_KEYS,
     TRAINING_VERSION,
+    feature_keys,
     validate_config,
     validate_temporal_ensemble,
 )
 from .checkpoint_eval import strict_content_hash
 from .physical_contract import (
+    GOAL_KEY,
     IMAGE_KEYS,
     PHYSICAL_LANE,
     SIMULATION_LANE,
@@ -122,7 +123,9 @@ class CheckpointIdentity:
             or manifest.get("eligible_task_ids") != [contract.task_id]
             or manifest.get("varying_target_motion_eligible") is not False
             or manifest.get("task_text_conditioning") is not False
-            or manifest.get("declared_input_conditioning") != list(FEATURE_KEYS)
+            or manifest.get("declared_input_conditioning")
+            != list(feature_keys(contract.goal_channels))
+            or list(manifest.get("goal_channels", [])) != list(contract.goal_channels)
         ):
             raise ValueError("checkpoint is not eligible for its single fixed-scene task")
         cadence = validate_config(manifest["configuration"], manifest["physical_contract"])
@@ -138,8 +141,9 @@ class CheckpointIdentity:
         state_size = 13 if contract.state_has_velocity else 7
         if (
             type(shapes) is not dict
-            or set(shapes) != {*FEATURE_KEYS, "action"}
+            or set(shapes) != {*feature_keys(contract.goal_channels), "action"}
             or (shapes["observation.state"] != [state_size] or shapes["action"] != [7])
+            or (contract.goal_channels and shapes[GOAL_KEY] != [contract.goal_size])
         ):
             raise ValueError("checkpoint requires physical model feature shapes")
         if any(
@@ -309,7 +313,7 @@ class LocalACTModel:
             raise ValueError("saved model shapes differ from checkpoint evidence")
         state_size = 13 if identity.contract.state_has_velocity else 7
         if (
-            set(config.input_features) != set(FEATURE_KEYS)
+            set(config.input_features) != set(feature_keys(identity.contract.goal_channels))
             or set(config.output_features)
             != {
                 "action",
@@ -351,6 +355,8 @@ class LocalACTModel:
                 dtype=torch.float32,
             ),
         }
+        if GOAL_KEY in observation:
+            batch[GOAL_KEY] = torch.tensor([observation[GOAL_KEY]], dtype=torch.float32)
         for key in IMAGE_KEYS:
             # Codec arrays are read-only; own the tensor buffer before normalization.
             image = np.array(observation[key], dtype=np.float32, copy=True) / 255.0
@@ -470,6 +476,8 @@ class FixedScenePolicyService:
             "reset",
             "observation_timestamp_s",
         }
+        if self.identity.contract.goal_channels:
+            required.add(GOAL_KEY)
         if set(payload) != required or _canonical(
             {key: payload[key] for key in contract}
         ) != _canonical(contract):
@@ -497,6 +505,12 @@ class FixedScenePolicyService:
             raise ValueError("invalid physical observation state")
         if not 0 <= state[6] <= self.identity.contract.gripper_stroke_m:
             raise ValueError("state gripper differs from the contract range")
+        if self.identity.contract.goal_channels:
+            goal = payload[GOAL_KEY]
+            if (type(goal) not in (list, tuple)
+                    or len(goal) != self.identity.contract.goal_size
+                    or any(type(v) not in (int, float) or not math.isfinite(v) for v in goal)):
+                raise ValueError("goal differs from the contract's goal channels")
         stamps = payload["timestamps"]
         if type(stamps) is not dict or set(stamps) != {"state", "state_ros", "wrist", "front"}:
             raise ValueError("all physical observation timestamps are required")

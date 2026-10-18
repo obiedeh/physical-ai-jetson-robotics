@@ -114,6 +114,22 @@ rules above stay as pre-registered for the physical D1 skills.
   you did not attempt as aborted; aim for 50 or more takes in one session so the
   nested subsets and the held-out takes of a study stay simple.
 
+## Goal channels
+
+A dataset may declare goal channels, named `object` and `target`, each the world-frame
+position of one scene entity in metres, three values per channel, stored as the
+`observation.environment_state` feature and sent with every policy request. The
+world frame is the robot base frame: the scene's origin in simulation and the
+calibrated base of the arm on hardware. A policy trained on such a dataset reads
+the goal as an input and its server refuses a request without it; a dataset without
+channels keeps its contract byte for byte. Simulation sessions declare the task's
+object from the scene's published poses (the die for `die_into_cup`, the cup for the
+cup tasks) and, for `cup_pick_and_place`, the mark as the target; the recorder takes
+them as `--goal-channel object=/isaac/pick_objects/cup/pose` entries. Physical
+sessions declare none until a perception adapter supplies the positions, and a
+physical policy without goal channels is a fixed-scene skill with no goal, which is
+why token moves need them.
+
 ## Pre-register the dataset settings
 
 Declare the follower `STATE_SOURCE` as `standalone_driver` or `ros2_control`,
