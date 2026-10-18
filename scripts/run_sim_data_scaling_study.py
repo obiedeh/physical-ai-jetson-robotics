@@ -46,6 +46,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--trials", type=int, help="Run a scored campaign per subset.")
     parser.add_argument("--trials-only", action="store_true",
                         help="Add campaigns to a completed study's saved checkpoints; no training.")
+    parser.add_argument("--replace-trials", action="store_true",
+                        help="With --trials-only: rerun every row's campaign, keeping the old "
+                             "ones on the row as superseded.")
     parser.add_argument("--command-period-s", type=float)
     parser.add_argument("--response-timeout-s", type=float)
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cuda")
@@ -122,7 +125,7 @@ def main(argv: list[str] | None = None) -> int:
         if trial_fn is None:
             raise SystemExit("--trials-only needs --trials")
         study = json.loads((evidence / "study.json").read_text(encoding="utf-8"))
-        study = add_trials(study, trial_fn, write_to=evidence)
+        study = add_trials(study, trial_fn, write_to=evidence, replace=args.replace_trials)
     else:
         study = run_study(spec, trial_fn=trial_fn, write_to=evidence)
     print(json.dumps({"status": study["status"], "rows": len(study["rows"]),

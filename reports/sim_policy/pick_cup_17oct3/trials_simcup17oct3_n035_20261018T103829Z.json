@@ -1,0 +1,308 @@
+{
+  "config": {
+    "approach_s": 2.0,
+    "command_period_s": 0.2,
+    "hold_s": 1.0,
+    "lift_m": 0.03,
+    "max_trial_s": 30.0,
+    "settle_s": 2.0,
+    "start_pose": [
+      -0.008750990955159068,
+      1.591839239001274,
+      -0.582017513513565,
+      0.034139014910906554,
+      -0.7887723721563816,
+      -0.04994584923610091,
+      0.01425838550946537
+    ],
+    "trials": 20
+  },
+  "endpoint": "http://127.0.0.1:8090",
+  "kind": "simulation_policy_trials",
+  "lane": "simulation",
+  "note": "Simulation lane; scored in the Isaac scene; never physical evidence.",
+  "physical_evidence": false,
+  "policy": {
+    "checkpoint_content_sha256": "9f62900f2d45b1a1edeef265d69ec74fe31aecc39db88766e67d9bb382918b8f",
+    "dataset_content_sha256": "283517bcbb74bd6746bbc0968419e12ed7eb45166a8c51a2b8dacf4a659d6568",
+    "lane": "simulation",
+    "policy_id": "simcup17oct3_n035",
+    "probe_sha256": "4300c43aa9a645d401235daaf9f108510cdd933fbb5ddac5e1a4d40a6ab082ef",
+    "step": 20000
+  },
+  "score_rule": "cup 3.0 cm above its rest height for 1.0 s without a break, from the scene's published cup pose",
+  "start_pose_source": "/home/oedeh/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
+  "success_rate": 0.15,
+  "successes": 3,
+  "task_id": "pick_cup",
+  "task_text": "Pick up the cup from its marked location and hold on to it, lifted clear of the table.",
+  "trials": [
+    {
+      "approach_steps": 12,
+      "cup_rest_z_m": 7.82310962677002e-08,
+      "duration_s": 30.134958538983483,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 0,
+      "max_lift_m": 0.0007051024585962296,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "cup_rest_z_m": 2.421438694000244e-08,
+      "duration_s": 30.013442101015244,
+      "hold_reasons": {
+        "current state outside limits": 147
+      },
+      "holds": 147,
+      "index": 1,
+      "max_lift_m": 5.21540641784668e-08,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "cup_rest_z_m": 5.21540641784668e-08,
+      "duration_s": 30.0126053019776,
+      "hold_reasons": {
+        "current state outside limits": 147
+      },
+      "holds": 147,
+      "index": 2,
+      "max_lift_m": 3.3527612686157227e-08,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "cup_rest_z_m": 4.6566128730773926e-08,
+      "duration_s": 30.015827607014216,
+      "hold_reasons": {
+        "current state outside limits": 147
+      },
+      "holds": 147,
+      "index": 3,
+      "max_lift_m": 4.842877388000488e-08,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "cup_rest_z_m": 5.4016709327697754e-08,
+      "duration_s": 30.01040693098912,
+      "hold_reasons": {
+        "current state outside limits": 147
+      },
+      "holds": 147,
+      "index": 4,
+      "max_lift_m": 1.6763806343078613e-08,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "cup_rest_z_m": 5.029141902923584e-08,
+      "duration_s": 18.810512460011523,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 5,
+      "max_lift_m": 0.18496170081198215,
+      "steps": 95,
+      "success": true,
+      "time_to_success_s": 18.810480932006612
+    },
+    {
+      "approach_steps": 10,
+      "cup_rest_z_m": 5.029141902923584e-08,
+      "duration_s": 18.21278323698789,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 6,
+      "max_lift_m": 0.19935851730406284,
+      "steps": 92,
+      "success": true,
+      "time_to_success_s": 18.212757182016503
+    },
+    {
+      "approach_steps": 10,
+      "cup_rest_z_m": 5.029141902923584e-08,
+      "duration_s": 30.011097285023425,
+      "hold_reasons": {
+        "current state outside limits": 147
+      },
+      "holds": 147,
+      "index": 7,
+      "max_lift_m": 7.636845111846924e-08,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "cup_rest_z_m": 5.4016709327697754e-08,
+      "duration_s": 30.01091746002203,
+      "hold_reasons": {
+        "current state outside limits": 147
+      },
+      "holds": 147,
+      "index": 8,
+      "max_lift_m": 3.3527612686157227e-08,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "cup_rest_z_m": 5.774199962615967e-08,
+      "duration_s": 30.013467725017108,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 9,
+      "max_lift_m": 0.00021424703299999237,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "cup_rest_z_m": 3.3527612686157227e-08,
+      "duration_s": 30.011160419962835,
+      "hold_reasons": {
+        "current state outside limits": 147
+      },
+      "holds": 147,
+      "index": 10,
+      "max_lift_m": 5.029141902923584e-08,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "cup_rest_z_m": 6.891787052154541e-08,
+      "duration_s": 18.020804474013858,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 11,
+      "max_lift_m": 0.2415588404983282,
+      "steps": 91,
+      "success": true,
+      "time_to_success_s": 18.02077329502208
+    },
+    {
+      "approach_steps": 10,
+      "cup_rest_z_m": 6.146728992462158e-08,
+      "duration_s": 30.012410390016157,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 12,
+      "max_lift_m": 0.0014424603432416916,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "cup_rest_z_m": 2.7939677238464355e-08,
+      "duration_s": 30.01017345697619,
+      "hold_reasons": {
+        "current state outside limits": 147
+      },
+      "holds": 147,
+      "index": 13,
+      "max_lift_m": 8.009374141693115e-08,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "cup_rest_z_m": 5.21540641784668e-08,
+      "duration_s": 30.013010339986067,
+      "hold_reasons": {
+        "current state outside limits": 147
+      },
+      "holds": 147,
+      "index": 14,
+      "max_lift_m": 7.636845111846924e-08,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "cup_rest_z_m": 5.029141902923584e-08,
+      "duration_s": 30.012868627964053,
+      "hold_reasons": {
+        "current state outside limits": 147
+      },
+      "holds": 147,
+      "index": 15,
+      "max_lift_m": 4.0978193283081055e-08,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "cup_rest_z_m": 5.029141902923584e-08,
+      "duration_s": 30.01110768999206,
+      "hold_reasons": {
+        "current state outside limits": 147
+      },
+      "holds": 147,
+      "index": 16,
+      "max_lift_m": 2.7939677238464355e-08,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "cup_rest_z_m": 9.12696123123169e-08,
+      "duration_s": 30.01348548801616,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 17,
+      "max_lift_m": 0.0010258257389068604,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "cup_rest_z_m": 5.960464477539063e-08,
+      "duration_s": 30.011441242997535,
+      "hold_reasons": {
+        "current state outside limits": 147
+      },
+      "holds": 147,
+      "index": 18,
+      "max_lift_m": 6.51925802230835e-08,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "cup_rest_z_m": 5.029141902923584e-08,
+      "duration_s": 30.01201913197292,
+      "hold_reasons": {
+        "current state outside limits": 70
+      },
+      "holds": 70,
+      "index": 19,
+      "max_lift_m": 0.002312546595931053,
+      "steps": 150,
+      "success": false,
+      "time_to_success_s": null
+    }
+  ],
+  "utc": "2026-10-18T10:49:41.878272+00:00"
+}

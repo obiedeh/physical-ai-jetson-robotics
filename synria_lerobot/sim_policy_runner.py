@@ -11,6 +11,13 @@ rest height for ``hold_s`` without a break, or at the trial time limit. The scor
 from the scene's published cup pose, not from an operator label, so a data-scaling
 study can compare runs on the same rule.
 
+A hold is not a dead end here. When the client holds because the sim state sits a
+fraction past an operator bound (the physics drive overshoots a clamped target, or the
+sim gripper reads a hair over its stroke), the runner publishes a recovery target
+clamped just inside the bounds so the drive pulls the joint back and the policy resumes
+on the next step. The physical client keeps holding in that case, as it must; this
+recovery exists only in the simulation lane and is counted per trial.
+
 Nothing here can reach the real arm: the target topic is refused when it is any of the
 real arm's command or feedback topics, the contract must carry the simulation purpose,
 and the server must report the simulation lane. Reports say so in every record.
@@ -52,6 +59,8 @@ SIM_CUP_POSE_TOPIC = "/isaac/pick_objects/cup/pose"
 # The real arm's command topics, its feedback topic and the deployment bridge's own name.
 REAL_ARM_TOPICS = frozenset({*DEFAULT_COMMAND_TOPICS, "/joint_states", "/policy_arm"})
 REPORT_KIND = "simulation_policy_trials"
+# Hold reasons the client gives when the observed state, not the policy, is at fault.
+RECOVERABLE_HOLDS = frozenset({"current state outside limits", "gripper exceeds contract stroke"})
 
 
 def require_sim_only_topic(topic: str) -> str:
@@ -112,13 +121,15 @@ class TrialConfig:
     hold_s: float = 1.0
     settle_s: float = 2.0
     approach_s: float = 2.0
+    recovery_margin_rad: float = math.radians(0.5)
+    recovery_gripper_margin_m: float = 0.001
 
     def __post_init__(self) -> None:
         """Reject a campaign that could not be scored or replayed."""
         if type(self.trials) is not int or self.trials < 1:
             raise ValueError("trials must be a positive integer")
         for name in ("command_period_s", "max_trial_s", "lift_m", "hold_s", "settle_s",
-                     "approach_s"):
+                     "approach_s", "recovery_margin_rad", "recovery_gripper_margin_m"):
             value = getattr(self, name)
             if type(value) not in (int, float) or not math.isfinite(value) or value <= 0:
                 raise ValueError(f"{name} must be a positive finite number")
@@ -189,6 +200,28 @@ def approach_targets(
     return targets
 
 
+def recovery_target(
+    current: tuple[float, ...], bounds: tuple[tuple[float, float], ...],
+    joint_margin_rad: float, gripper_margin_m: float,
+) -> tuple[float, ...]:
+    """The current state pulled just inside every bound.
+
+    Joints come inside by the joint margin, the gripper to its stroke less its margin. A
+    value already inside stays where it is, so the recovery moves only what clipped.
+    """
+    if len(current) != 7 or len(bounds) != 7:
+        raise ValueError("recovery needs seven values and seven bounds")
+    target = []
+    for index, (value, (lo, hi)) in enumerate(zip(current, bounds, strict=True)):
+        margin = gripper_margin_m if index == 6 else joint_margin_rad
+        low = lo if index == 6 else lo + margin
+        high = hi - margin
+        if low > high:
+            raise ValueError("recovery margin is wider than the bound")
+        target.append(min(high, max(low, float(value))))
+    return tuple(target)
+
+
 @dataclass(frozen=True)
 class TrialRecord:
     """What one trial did, enough to recount the campaign from the report."""
@@ -203,6 +236,7 @@ class TrialRecord:
     max_lift_m: float
     cup_rest_z_m: float
     approach_steps: int
+    recoveries: int
 
 
 class SimulationTrialRunner:
@@ -264,17 +298,27 @@ class SimulationTrialRunner:
         scorer = LiftScorer(rest_z, config.lift_m, config.hold_s)
         holds: Counter[str] = Counter()
         steps = 0
+        recoveries = 0
         started = self.clock()
         first = True
         try:
             while self.clock() - started < config.max_trial_s:
                 tick = self.clock()
-                decision = self.client.step(self.observe(), reset=first)
+                observation = self.observe()
+                decision = self.client.step(observation, reset=first)
                 first = False
                 steps += 1
                 if decision.hold or decision.action is None:
                     holds[decision.reason] += 1
-                    self.sink.hold()
+                    if decision.reason in RECOVERABLE_HOLDS:
+                        state = observation.state
+                        self.sink.offer(recovery_target(
+                            (*state.joint_positions_rad, state.gripper_m), self.client.bounds,
+                            config.recovery_margin_rad, config.recovery_gripper_margin_m,
+                        ))
+                        recoveries += 1
+                    else:
+                        self.sink.hold()
                 else:
                     self.sink.offer(decision.action)
                 if scorer.feed(self.cup_source.read().position_m[2], self.clock()):
@@ -292,11 +336,12 @@ class SimulationTrialRunner:
             time_to_success_s=(success_at - started) if success_at is not None else None,
             duration_s=duration, steps=steps, holds=sum(holds.values()),
             hold_reasons=dict(sorted(holds.items())), max_lift_m=scorer.max_lift_m,
-            cup_rest_z_m=rest_z, approach_steps=approach_steps,
+            cup_rest_z_m=rest_z, approach_steps=approach_steps, recoveries=recoveries,
         )
         verdict = "success" if success else "failure"
         self.log(f"trial {index}: {verdict} after {duration:.1f} s, {steps} steps, "
-                 f"{record.holds} holds, max lift {scorer.max_lift_m * 100:.1f} cm")
+                 f"{record.holds} holds, {recoveries} recoveries, "
+                 f"max lift {scorer.max_lift_m * 100:.1f} cm")
         return record
 
     def run(self, policy: dict[str, Any]) -> dict[str, Any]:
@@ -321,6 +366,8 @@ class SimulationTrialRunner:
             "score_rule": (f"cup {self.config.lift_m * 100:.1f} cm above its rest height for "
                            f"{self.config.hold_s:.1f} s without a break, from the scene's "
                            f"published cup pose"),
+            "recovery_rule": ("a hold for a state past an operator bound publishes the state "
+                              "clamped just inside the bounds, simulation lane only"),
             "trials": [asdict(trial) for trial in trials],
             "successes": successes,
             "success_rate": successes / len(trials),

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +28,7 @@ from synria_lerobot.sim_policy_runner import (
     SimulationTrialRunner,
     TrialConfig,
     approach_targets,
+    recovery_target,
     require_sim_only_topic,
     write_report,
 )
@@ -163,6 +165,7 @@ def test_runner_scores_a_lift_and_a_timeout_and_reports_both(tmp_path: Path) -> 
     assert first["success"] and first["time_to_success_s"] == pytest.approx(1.0 + 0.2, abs=0.21)
     assert first["approach_steps"] >= 1 and first["max_lift_m"] == pytest.approx(0.05)
     assert first["holds"] == 0 and first["cup_rest_z_m"] == pytest.approx(0.001)
+    assert first["recoveries"] == 0 and "recovery_rule" in report
 
     clock = FakeClock()
     idle = Scene(clock, liftable=False)
@@ -237,3 +240,35 @@ def test_trial_config_rejects_unusable_rules() -> None:
         TrialConfig(trials=1, command_period_s=0.2, start_pose=START, hold_s=5.0, max_trial_s=4.0)
     with pytest.raises(ValueError, match="lift_m"):
         TrialConfig(trials=1, command_period_s=0.2, start_pose=START, lift_m=0.0)
+
+
+def test_recovery_pulls_a_clipped_joint_back_inside_and_the_policy_resumes() -> None:
+    """A drive that overshoots past a bound would hold forever; the sim runner nudges it back."""
+    bounds = ((-1.0, 1.0),) * 6 + ((0.0, 0.025),)
+    nudged = recovery_target((0.0, 1.02, -1.5, 0.3, 0.0, 0.0, 0.0262), bounds,
+                             math.radians(0.5), 0.001)
+    assert nudged[0] == 0.0 and nudged[3] == 0.3
+    assert nudged[1] == pytest.approx(1.0 - math.radians(0.5))
+    assert nudged[2] == pytest.approx(-1.0 + math.radians(0.5))
+    assert nudged[6] == pytest.approx(0.024)
+    with pytest.raises(ValueError, match="wider than the bound"):
+        recovery_target((0.0,) * 7, ((0.0, 0.001),) * 7, 0.01, 0.0005)
+
+    clock = FakeClock()
+
+    class Overshoot(Scene):
+        """Commanding Joint3 near its bound lands the physics 0.3 degrees past it."""
+
+        def offer(self, action: tuple[float, ...]) -> None:
+            super().offer(action)
+            if action[2] < -0.60:
+                self.pose = (*action[:2], -0.6108 - math.radians(0.3), *action[3:])
+
+    scene = Overshoot(clock)
+    low_joint3 = (*START[:2], -0.605, *START[3:6], 0.0)
+    report = runner(scene, clock, low_joint3, trials=1).run({"lane": "simulation"})
+    [trial] = report["trials"]
+    assert trial["recoveries"] >= 1 and trial["holds"] == trial["recoveries"]
+    assert trial["hold_reasons"] == {"current state outside limits": trial["holds"]}
+    assert trial["success"], "after each recovery the policy acts again and closes the gripper"
+    assert max(t[2] for t in scene.targets) >= -0.6108 + math.radians(0.5) - 1e-9

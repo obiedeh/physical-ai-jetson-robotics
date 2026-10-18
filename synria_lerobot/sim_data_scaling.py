@@ -184,17 +184,25 @@ def run_study(
 
 def add_trials(
     study: dict[str, Any], trial_fn: TrialFn, *, write_to: Path | None = None,
-    log: Callable[[str], None] = print,
+    log: Callable[[str], None] = print, replace: bool = False,
 ) -> dict[str, Any]:
     """Run the trial campaign for every row of a completed study that has none yet.
 
     Training is never repeated: the rows' saved checkpoints are served as they are.
-    The record is rewritten after every campaign when ``write_to`` is given.
+    With ``replace`` every row runs again and each earlier campaign is kept on the row
+    under ``superseded_trials``, so the table shows one rule for every size while the
+    old reports stay citable. The record is rewritten after every campaign when
+    ``write_to`` is given.
     """
     if study.get("status") != "completed":
         raise ValueError("trials are added to a completed study only")
     if training_lane(study) != SIMULATION_LANE:
         raise ValueError("trial campaigns belong to the simulation lane")
+    if replace:
+        for row in study["rows"]:
+            if row.get("trials") is not None:
+                row.setdefault("superseded_trials", []).append(row["trials"])
+                row["trials"] = None
     for row in study["rows"]:
         if row.get("trials") is not None:
             continue
