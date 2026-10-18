@@ -215,6 +215,39 @@ checkpoint and another run's are compared on the same placements; the study
 driver's `--trials-only` mode takes the same two options for a row's final
 checkpoint.
 
+### Approach levers: state noise, action smoothing, grasp-phase sampling, gripper guard
+
+The first study's failures were approach and grasp failures: the policy descended,
+hesitated, and closed by timing rather than by sight. Four levers aim there; all
+default to off, so every recorded run is unchanged, and each is recorded in the
+manifest or the campaign report.
+
+- `state_noise` in the training configuration adds Gaussian noise (`joint_rad`,
+  `gripper_m`, driver units) to every training sample's joint state and replaces
+  the state of a `drop_probability` share of samples with the training mean, so the
+  model cannot read the grasp timing off its own joints and has to use the cameras.
+  Held-out evaluation sees clean states.
+- `action_smoothing_window` (odd, 3 or more) replaces the six joint actions of
+  every training chunk with a centred moving average over the chunk, edge padded;
+  the gripper action is untouched. The recorded hand shake of the leader arm is
+  what this removes. Held-out error is still measured against the raw actions.
+- `grasp_phase` oversamples the frames around each take's final close: the close is
+  the frame after the last gripper action below `close_above_m` (0.016 m sits
+  between the leader's idle squeeze, about 0.011 m in the first dataset, and a
+  close on the cup, 0.018 m and above); frames `seconds_before_close` before to
+  `seconds_after_close` after it are drawn `weight` times as often, multiplied
+  with any `episode_weights`. The manifest records how many frames were weighted.
+- `gripper_guard` in the policy safety file (`close_above_m`, `consecutive_steps`)
+  makes the client honour a change between open and closed only after that many
+  consecutive requests, holding the gripper where it was meanwhile; joints are
+  never touched. `config/synria_sim_policy.json` carries 0.016 m and 3 steps (0.6 s
+  at the 0.2 s period); the physical file carries none. Every trial record counts
+  its guarded steps and the report carries the safety settings.
+
+The Help page's recording rules now ask for a hover, a straight descent with the
+gripper open, a stop, and only then the close, which is the recording-side fix for
+the same failure.
+
 ### Failure modes of the campaigns
 
 `scripts/summarize_sim_trial_failures.py --study <study directory>` sorts every

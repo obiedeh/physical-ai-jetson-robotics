@@ -1,0 +1,15 @@
+{
+  "contract": "/home/oedeh/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset/physical_contract.json",
+  "dataset_root": "/home/oedeh/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
+  "evidence_root": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3_approach",
+  "policy_prefix": "simcup17oct3appr",
+  "raw_output_root": "/home/oedeh/synria-sim-training/pick_cup_17oct3_approach",
+  "seed": 17,
+  "steps": 20000,
+  "study_id": "pick_cup_17oct3_approach",
+  "subset_sizes": [
+    45
+  ],
+  "training_config": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3_approach/train_config.json",
+  "version": "synria_sim_data_scaling_v1"
+}

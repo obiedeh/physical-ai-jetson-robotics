@@ -279,6 +279,10 @@ def test_real_augmented_training_records_its_transforms(
     config["temporal_ensemble_coeff"] = 0.01
     config["dataloader_workers"] = 1
     config["episode_weights"] = {"0": 3, "7-9": 2}
+    config["state_noise"] = {"joint_rad": 0.01, "gripper_m": 0.001, "drop_probability": 0.2}
+    config["action_smoothing_window"] = 3
+    config["grasp_phase"] = {"seconds_before_close": 1.0, "seconds_after_close": 0.5,
+                             "close_above_m": 0.016, "weight": 2.0}
     manifest = train(
         dataset, dataset / "physical_contract.json", tmp_path / "raw-aug", 3, 1, config
     )
@@ -287,6 +291,9 @@ def test_real_augmented_training_records_its_transforms(
     assert manifest["episode_weights"] == {str(i): (3.0 if i == 0 else 1.0)
                                            for i in manifest["training_episode_indices"]}
     assert manifest["frame_sampling"].startswith("with replacement")
+    assert manifest["state_noise"]["drop_probability"] == 0.2
+    assert manifest["action_smoothing_window"] == 3
+    assert manifest["grasp_phase"]["weight"] == 2.0 and manifest["grasp_phase_frames"] >= 0
     assert manifest["configuration"]["image_transforms"]["transforms"] == ["brightness", "affine"]
     assert manifest["configuration"]["temporal_ensemble_coeff"] == 0.01
     saved = json.loads(

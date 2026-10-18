@@ -241,6 +241,8 @@ def test_runner_scores_a_placement_and_a_cup_never_released(tmp_path: Path) -> N
     assert report["successes"] == 1
     [trial] = report["trials"]
     assert trial["success"] and trial["target_xy_m"] == pytest.approx(MARK[:2])
+    # The release (gripper value 0.02, a close in driver terms) waited for the guard.
+    assert trial["guarded_steps"] == 2
     assert trial["cup_start_xy_m"] == pytest.approx((0.3, 0.0))
     assert trial["max_lift_m"] == pytest.approx(0.05)
     assert trial["final_cup_target_distance_m"] == pytest.approx(0.0)
@@ -338,6 +340,8 @@ def test_runner_scores_a_lift_and_a_timeout_and_reports_both(tmp_path: Path) -> 
     assert first["approach_steps"] >= 1 and first["max_lift_m"] == pytest.approx(0.05)
     assert first["holds"] == 0 and first["cup_rest_z_m"] == pytest.approx(0.001)
     assert first["recoveries"] == 0 and "recovery_rule" in report
+    assert first["guarded_steps"] == 0
+    assert report["safety"]["gripper_guard"] == {"close_above_m": 0.016, "consecutive_steps": 3}
     assert scene.seeds == [(None, 1.0)] * 2 and "unseeded" in report["placement_rule"]
     assert first["placement_seed"] is None
     # The arm is walked to the start pose before the layout is drawn, every trial.

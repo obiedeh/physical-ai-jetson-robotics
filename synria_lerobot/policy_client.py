@@ -43,6 +43,36 @@ class CommandSink(Protocol):
 
 
 @dataclass(frozen=True)
+class GripperGuard:
+    """Hysteresis on the gripper command: a close or an open must be asked for repeatedly.
+
+    A predicted gripper value at or above ``close_above_m`` (driver units, 0 open) asks
+    for a close; below it, an open. The client honours a change of state only after
+    ``consecutive_steps`` requests in a row and keeps the gripper where it was until
+    then, so a single-frame false close on the way down, or a flicker open once the
+    cup is held, never reaches the arm. Joints are never touched.
+    """
+
+    close_above_m: float
+    consecutive_steps: int
+
+    def __post_init__(self) -> None:
+        """Reject a threshold that is not a positive length or a count below one."""
+        if (type(self.close_above_m) not in (int, float) or not math.isfinite(self.close_above_m)
+                or self.close_above_m <= 0):
+            raise ValueError("gripper guard close_above_m must be a positive finite length")
+        if type(self.consecutive_steps) is not int or self.consecutive_steps < 1:
+            raise ValueError("gripper guard consecutive_steps must be a positive integer")
+
+    @classmethod
+    def from_dict(cls, value: Any) -> GripperGuard:
+        """Build from the safety file's block, refusing unknown or missing fields."""
+        if type(value) is not dict or set(value) != {"close_above_m", "consecutive_steps"}:
+            raise ValueError("gripper_guard needs exactly close_above_m and consecutive_steps")
+        return cls(value["close_above_m"], value["consecutive_steps"])
+
+
+@dataclass(frozen=True)
 class PolicySafetyConfig:
     max_joint_speed_rad_s: tuple[float, ...]
     max_gripper_speed_m_s: float
@@ -51,8 +81,11 @@ class PolicySafetyConfig:
     max_observation_age_s: float
     verified_by: str = ""
     verified_on: str = ""
+    gripper_guard: GripperGuard | None = None
 
     def __post_init__(self) -> None:
+        if self.gripper_guard is not None and not isinstance(self.gripper_guard, GripperGuard):
+            raise ValueError("gripper_guard must be a GripperGuard or None")
         if not isinstance(self.max_joint_speed_rad_s, (tuple, list)) or len(
             self.max_joint_speed_rad_s
         ) != 6:
@@ -105,10 +138,12 @@ class PolicySafetyConfig:
             raise ValueError("shared config cannot set step deltas, period or policy timeout")
         if training_lane(data) != training_lane({"lane": lane}):
             raise ValueError("policy safety config lane differs from the requested lane")
+        guard = data.get("gripper_guard")
         return cls(
             data["max_joint_speed_rad_s"], data["max_gripper_speed_m_s"],
             command_period_s, response_timeout_s, data["max_observation_age_s"],
             data["verified_by"], data["verified_on"],
+            None if guard is None else GripperGuard.from_dict(guard),
         )
 
 
@@ -122,6 +157,8 @@ class PolicyDecision:
     request_id: str
     request_encode_s: float | None = None
     response_decode_s: float | None = None
+    # Set when the gripper guard kept the gripper where it was instead of the prediction.
+    gripper_guard: str | None = None
 
 
 class HttpPolicyTransport:
@@ -195,6 +232,9 @@ class PolicyClient:
         self.clock = clock
         self.latencies: list[PolicyDecision] = []
         self._pending: Future[TransportResult | dict[str, Any] | None] | None = None
+        self._guard_closed = False
+        self._guard_count = 0
+        self._guard_gripper: float | None = None
         if limits.joint_names != DRIVER_JOINT_NAMES:
             raise ValueError("limit joint ordering differs from physical contract")
         self.bounds = (
@@ -224,6 +264,28 @@ class PolicyClient:
         threading.Thread(target=invoke, daemon=True).start()
         return future.result(timeout=self.config.response_timeout_s)
 
+    def _guard(self, action: tuple[float, ...], current: tuple[float, ...], delta: float,
+               reset: bool) -> tuple[tuple[float, ...], str | None]:
+        """Apply the gripper guard to a clamped action; see :class:`GripperGuard`."""
+        guard = self.config.gripper_guard
+        assert guard is not None
+        if reset:
+            self._guard_closed, self._guard_count, self._guard_gripper = False, 0, None
+        wants_closed = action[6] >= guard.close_above_m
+        if wants_closed == self._guard_closed:
+            self._guard_count, self._guard_gripper = 0, action[6]
+            return action, None
+        self._guard_count += 1
+        if self._guard_count >= guard.consecutive_steps:
+            self._guard_closed, self._guard_count, self._guard_gripper = wants_closed, 0, action[6]
+            return action, None
+        lo, hi = self.bounds[6]
+        held = current[6] if self._guard_gripper is None else self._guard_gripper
+        held = max(lo, current[6] - delta, min(hi, current[6] + delta, held))
+        note = (f"gripper {'close' if wants_closed else 'open'} pending "
+                f"{self._guard_count}/{guard.consecutive_steps}")
+        return (*action[:6], held), note
+
     def step(self, observation: SynriaObservation, *, reset: bool = False) -> PolicyDecision:
         start = self.clock()
         request_id = uuid.uuid4().hex
@@ -231,6 +293,7 @@ class PolicyClient:
         encode_s: float | None = None
         decode_s: float | None = None
         action: tuple[float, ...] | None = None
+        guard_note: str | None = None
         reason = "accepted"
         try:
             payload = self.embodiment.observation(observation)
@@ -283,13 +346,15 @@ class PolicyClient:
                     raw, current, self.config.max_delta, self.bounds, strict=True
                 )
             )
+            if self.config.gripper_guard is not None:
+                action, guard_note = self._guard(action, current, self.config.max_delta[6], reset)
         except Exception as exc:
             reason = str(exc) or type(exc).__name__
             if inference is not None and (not math.isfinite(inference) or inference < 0):
                 inference = None
         decision = PolicyDecision(
             action, action is None, reason, inference, max(0.0, self.clock() - start), request_id,
-            encode_s, decode_s,
+            encode_s, decode_s, guard_note,
         )
         self.latencies.append(decision)
         return decision

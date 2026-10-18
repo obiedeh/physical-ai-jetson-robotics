@@ -13,10 +13,16 @@ from test_task_registry import synthetic_task
 
 from synria_lerobot.act_training import (
     _save_upstream_checkpoint,
+    grasp_phase_frame_weights,
+    perturb_state,
+    smooth_actions,
     train,
+    validate_action_smoothing,
     validate_config,
     validate_dataloader_workers,
     validate_episode_weights,
+    validate_grasp_phase,
+    validate_state_noise,
 )
 from synria_lerobot.physical_contract import ActionSource, PhysicalDatasetContract
 
@@ -219,6 +225,79 @@ def test_augmentation_and_ensembling_blocks_are_validated(tmp_path: Path) -> Non
                 {3: 1}, {"4-2": 1}):
         with pytest.raises(ValueError, match="episode"):
             validate_config({**config, "episode_weights": bad}, physical)
+
+
+NOISE = {"joint_rad": 0.02, "gripper_m": 0.002, "drop_probability": 0.1}
+PHASE = {"seconds_before_close": 2.0, "seconds_after_close": 1.0, "close_above_m": 0.016,
+         "weight": 3.0}
+
+
+def test_approach_levers_are_validated(tmp_path: Path) -> None:
+    """State noise, action smoothing and the grasp phase: absent means off, else well formed."""
+    config, physical = settings(tmp_path)
+    assert validate_config({**config, "state_noise": NOISE, "action_smoothing_window": 5,
+                            "grasp_phase": PHASE}, physical)
+    assert validate_state_noise(None) is None and validate_action_smoothing(None) is None
+    assert validate_grasp_phase(None) is None
+    assert validate_state_noise(NOISE) == NOISE and validate_action_smoothing(3) == 3
+    for bad in ({**NOISE, "drop_probability": 1}, {**NOISE, "joint_rad": -1}, {"joint_rad": 0.1},
+                {"joint_rad": 0, "gripper_m": 0, "drop_probability": 0}):
+        with pytest.raises(ValueError, match="state_noise|drop_probability|joint_rad"):
+            validate_config({**config, "state_noise": bad}, physical)
+    for bad in (2, 4, 1, True, 3.0):
+        with pytest.raises(ValueError, match="action_smoothing_window"):
+            validate_config({**config, "action_smoothing_window": bad}, physical)
+    for bad in ({**PHASE, "weight": 1}, {**PHASE, "close_above_m": 0}, {"weight": 3},
+                {**PHASE, "seconds_before_close": -1}):
+        with pytest.raises(ValueError, match="grasp_phase|weight|close_above_m|seconds_before"):
+            validate_config({**config, "grasp_phase": bad}, physical)
+
+
+def test_grasp_phase_weights_surround_the_final_close_only() -> None:
+    """Frames two seconds before to one second after the last close are weighted; others not."""
+    # Episode 0: open for 10 frames, closed for 10; at 5 fps the window is frames 0 to 15.
+    # Episode 1: never closes. Episode 2: ends open. Episode 3: a brief early close then open,
+    # then the final close at frame 8 of 10.
+    episodes = [0] * 20 + [1] * 5 + [2] * 6 + [3] * 10
+    frames = list(range(20)) + list(range(5)) + list(range(6)) + list(range(10))
+    grippers = ([0.0] * 10 + [0.02] * 10 + [0.0] * 5 + [0.02] * 3 + [0.0] * 3
+                + [0.0, 0.02, 0.02, 0.0, 0.0, 0.0, 0.0, 0.0, 0.02, 0.02])
+    weights, count = grasp_phase_frame_weights(episodes, frames, grippers, 5.0, PHASE)
+    assert weights[:16] == [3.0] * 16 and weights[16:20] == [1.0] * 4
+    assert weights[20:31] == [1.0] * 11
+    assert weights[31:] == [1.0] * 0 + [3.0] * 10
+    assert count == 26
+    # Shuffled input lines up with its own order.
+    order = list(range(len(episodes)))[::-1]
+    shuffled, _ = grasp_phase_frame_weights(
+        [episodes[i] for i in order], [frames[i] for i in order], [grippers[i] for i in order],
+        5.0, PHASE,
+    )
+    assert shuffled == [weights[i] for i in order]
+
+
+def test_smoothing_and_state_noise_act_on_the_batch_tensors() -> None:
+    """Joints are averaged over the chunk with edge padding, the gripper kept, noise seeded."""
+    torch = pytest.importorskip("torch")
+    actions = torch.zeros((1, 5, 7))
+    actions[0, :, 0] = torch.tensor([0.0, 0.0, 1.0, 0.0, 0.0])
+    actions[0, :, 6] = torch.tensor([0.0, 0.0, 1.0, 1.0, 1.0])
+    smoothed = smooth_actions(actions, 3)
+    assert smoothed[0, :, 0].tolist() == pytest.approx([0.0, 1 / 3, 1 / 3, 1 / 3, 0.0])
+    assert smoothed[0, :, 6].tolist() == [0.0, 0.0, 1.0, 1.0, 1.0]
+    assert smooth_actions(actions, 5)[0, 0, 0] == pytest.approx(1 / 5)
+    state = torch.full((4, 7), 0.5)
+    mean = torch.zeros(7)
+    noisy = perturb_state(state, {"joint_rad": 0.01, "gripper_m": 0.001, "drop_probability": 0.0},
+                          mean, torch.Generator().manual_seed(1))
+    assert noisy.shape == state.shape and not torch.equal(noisy, state)
+    assert (noisy - state).abs().max() < 0.1
+    again = perturb_state(state, {"joint_rad": 0.01, "gripper_m": 0.001, "drop_probability": 0.0},
+                          mean, torch.Generator().manual_seed(1))
+    assert torch.equal(noisy, again)
+    dropped = perturb_state(state, {"joint_rad": 0.0, "gripper_m": 0.0, "drop_probability": 1.0},
+                            mean, torch.Generator().manual_seed(1))
+    assert torch.equal(dropped, torch.zeros((4, 7)))
 
 
 def test_episode_limit_is_refused_outside_the_simulation_lane(tmp_path: Path) -> None:

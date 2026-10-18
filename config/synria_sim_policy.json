@@ -12,6 +12,10 @@
   "max_observation_age_s": 0.5,
   "verified_by": "",
   "verified_on": "",
+  "gripper_guard": {
+    "close_above_m": 0.016,
+    "consecutive_steps": 3
+  },
   "status": "simulation only",
-  "note": "Speed bounds for policy trials in the Isaac scene, where the arm is driven by position drives and nothing physical can move. The lane field makes the physical command path refuse this file. Command period and per-policy response timeout are explicit runner inputs."
+  "note": "Speed bounds for policy trials in the Isaac scene, where the arm is driven by position drives and nothing physical can move. The lane field makes the physical command path refuse this file. Command period and per-policy response timeout are explicit runner inputs. The gripper guard honours a close or an open only after three consecutive requests (0.6 s at the 0.2 s command period); 0.016 m sits between the leader's idle squeeze in the recorded takes (about 0.011 m) and a close on the cup (0.018 m and above)."
 }

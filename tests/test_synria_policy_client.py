@@ -20,6 +20,7 @@ from synria_lerobot.physical_contract import (
 )
 from synria_lerobot.policy_client import (
     FakePolicy,
+    GripperGuard,
     GuardedCommandPath,
     PolicyClient,
     PolicySafetyConfig,
@@ -363,3 +364,57 @@ def test_policy_client_bounds_are_exact_limits_not_recording_bounds() -> None:
     c = client(FakePolicy((0,) * 7))
     assert c.bounds[:6] == limits.joint_limits_rad
     assert c.bounds != limits.recording_bounds("50mm")
+
+
+class Scripted:
+    """A transport answering a fixed sequence of actions, the last one repeated."""
+
+    def __init__(self, actions: list[tuple[float, ...]]) -> None:
+        self.actions = list(actions)
+
+    def request(self, payload: dict[str, Any], timeout_s: float) -> dict[str, Any]:
+        action = self.actions.pop(0) if len(self.actions) > 1 else self.actions[0]
+        return {"request_id": payload["request_id"],
+                "observation_timestamp_s": payload["observation_timestamp_s"],
+                "action": action, "inference_s": 0.0}
+
+
+def test_gripper_guard_needs_repeated_requests_and_never_touches_the_joints() -> None:
+    """A close is honoured on the third request, a one-step flicker open is held, reset clears."""
+    closed, opened = (0.0,) * 6 + (0.02,), (0.0,) * 6 + (0.0,)
+    c = client(Scripted([closed, closed, closed, opened, closed, closed]))
+    c.config = replace(c.config, max_gripper_speed_m_s=0.05,
+                       gripper_guard=GripperGuard(0.016, 3))
+    first = c.step(observation(), reset=True)
+    assert first.action == (0.0,) * 6 + (0.01,)
+    assert first.gripper_guard == "gripper close pending 1/3"
+    second = c.step(observation())
+    assert second.action[6] == 0.01 and second.gripper_guard == "gripper close pending 2/3"
+    third = c.step(observation())
+    assert third.action[6] == 0.02 and third.gripper_guard is None and not third.hold
+    flicker = c.step(observation())
+    assert flicker.action[6] == 0.02 and flicker.gripper_guard == "gripper open pending 1/3"
+    again = c.step(observation())
+    assert again.action[6] == 0.02 and again.gripper_guard is None
+    after_reset = c.step(observation(), reset=True)
+    assert after_reset.action[6] == 0.01
+    assert after_reset.gripper_guard == "gripper close pending 1/3"
+    assert json.loads(json.dumps(after_reset.__dict__))["gripper_guard"].startswith("gripper")
+
+
+def test_gripper_guard_is_validated_and_only_the_simulation_file_carries_one() -> None:
+    """Bad blocks are refused; the physical safety file has no guard, the simulation file does."""
+    for bad in ((0, 3), (0.016, 0), (0.016, 1.5), (float("nan"), 3), (0.016, True)):
+        with pytest.raises(ValueError, match="gripper guard"):
+            GripperGuard(*bad)
+    for bad in ({"close_above_m": 0.016}, {"close_above_m": 0.016, "consecutive_steps": 3, "x": 1}):
+        with pytest.raises(ValueError, match="gripper_guard"):
+            GripperGuard.from_dict(bad)
+    physical = PolicySafetyConfig.load(Path("config/synria_policy.json"), command_period_s=0.4,
+                                       response_timeout_s=0.1)
+    assert physical.gripper_guard is None
+    simulated = PolicySafetyConfig.load(Path("config/synria_sim_policy.json"), command_period_s=0.2,
+                                        response_timeout_s=0.5, lane="simulation")
+    assert simulated.gripper_guard == GripperGuard(0.016, 3)
+    with pytest.raises(ValueError, match="GripperGuard or None"):
+        replace(physical, gripper_guard={"close_above_m": 0.016, "consecutive_steps": 3})
