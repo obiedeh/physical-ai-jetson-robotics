@@ -575,6 +575,17 @@ def write_report(report: dict[str, Any], path: Path) -> None:
         stream.write(json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + "\n")
 
 
+def load_placement_tolerance(path: Path, task_id: str) -> float:
+    """The committed placement radius for one task; refused when the task has none."""
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("version") != "synria_placement_tolerances_v1":
+        raise ValueError("unsupported placement tolerances file")
+    radius = payload.get("radius_m", {}).get(task_id)
+    if type(radius) not in (int, float) or not math.isfinite(radius) or radius <= 0:
+        raise ValueError(f"no placement tolerance for task {task_id}")
+    return float(radius)
+
+
 def start_pose_from_dataset(root: Path) -> tuple[float, ...]:
     """The mean first-frame state of every episode in a LeRobot dataset, as a start pose."""
     from pyarrow import parquet

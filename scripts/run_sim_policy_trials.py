@@ -69,12 +69,14 @@ from synria_lerobot.sim_policy_runner import (  # noqa: E402
     RosSimPublisher,
     SimulationTrialRunner,
     TrialConfig,
+    load_placement_tolerance,
     start_pose_from_dataset,
     write_report,
 )
 
 DEFAULT_LIMITS = REPOSITORY / "config" / "synria_limits.yaml"
 DEFAULT_POLICY_CONFIG = REPOSITORY / "config" / "synria_sim_policy.json"
+DEFAULT_TOLERANCES = REPOSITORY / "config" / "synria_placement_tolerances.json"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -100,7 +102,9 @@ def build_parser() -> argparse.ArgumentParser:
                         help="The scene's Randomize scale for every reset (0.5 to 3).")
     parser.add_argument("--placement-seed", type=int, default=None,
                         help="Seed of trial 0's layout draw; trial i uses seed + i.")
-    parser.add_argument("--place-radius-m", type=float, default=0.03,
+    parser.add_argument("--placement-tolerances", type=Path, default=DEFAULT_TOLERANCES,
+                        help="Committed per-task placement radii; the place radius default.")
+    parser.add_argument("--place-radius-m", type=float, default=None,
                         help="Place score: the cup's centre within this of the mark's centre.")
     parser.add_argument("--place-height-m", type=float, default=0.01,
                         help="Place score: the cup within this of its rest height.")
@@ -130,6 +134,10 @@ def main(argv: list[str] | None = None) -> int:
     if score is None:
         raise SystemExit(f"task {contract.task_id} has no scene score; trials run for "
                          f"{sorted(SCORE_BY_TASK)}")
+    place_radius = args.place_radius_m
+    if place_radius is None:
+        place_radius = (load_placement_tolerance(args.placement_tolerances, contract.task_id)
+                        if score == PLACE_SCORE else 0.03)
     safety = PolicySafetyConfig.load(
         args.policy_config, command_period_s=args.command_period_s,
         response_timeout_s=args.response_timeout_s, lane=SIMULATION_LANE,
@@ -139,7 +147,7 @@ def main(argv: list[str] | None = None) -> int:
         trials=args.trials, command_period_s=args.command_period_s, start_pose=start_pose,
         max_trial_s=args.max_trial_s, lift_m=args.lift_m, hold_s=args.hold_s,
         settle_s=args.settle_s, approach_s=args.approach_s, score=score,
-        place_radius_m=args.place_radius_m, place_height_m=args.place_height_m,
+        place_radius_m=place_radius, place_height_m=args.place_height_m,
         gripper_clear_m=args.gripper_clear_m, randomize_scale=args.randomize_scale,
         placement_seed=args.placement_seed,
     )

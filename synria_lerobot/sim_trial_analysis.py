@@ -84,6 +84,29 @@ def classify_trial(trial: dict[str, Any], lift_m: float, *, place_radius_m: floa
     return REACHED_NO_GRASP if distance <= reach_m else NEVER_REACHED
 
 
+def placement_summary(report: dict[str, Any]) -> dict[str, Any]:
+    """The final cup-to-mark distance of every trial that lifted the cup, against the radius.
+
+    A place campaign is judged on where the cup ended, not only on the pass count, so
+    the median and 90th percentile distance say how far a near miss was.
+    """
+    radius = float(report["config"]["place_radius_m"])
+    distances = sorted(
+        float(trial["final_cup_target_distance_m"]) for trial in report["trials"]
+        if trial.get("final_cup_target_distance_m") is not None
+        and float(trial["max_lift_m"]) >= float(report["config"]["lift_m"])
+    )
+    if not distances:
+        return {"radius_m": radius, "lifted": 0, "within_radius": 0, "median_m": None,
+                "p90_m": None}
+    return {
+        "radius_m": radius, "lifted": len(distances),
+        "within_radius": sum(1 for d in distances if d <= radius),
+        "median_m": distances[len(distances) // 2],
+        "p90_m": distances[min(len(distances) - 1, int(0.9 * len(distances)))],
+    }
+
+
 def summarize_report(report: dict[str, Any], *, nudge_m: float = NUDGE_M,
                      reach_m: float = REACH_M) -> dict[str, Any]:
     """Mode counts for one campaign report, with the rule values that sorted them.
@@ -120,6 +143,7 @@ def summarize_report(report: dict[str, Any], *, nudge_m: float = NUDGE_M,
         "steps": steps,
         "held_share": holds / steps if steps else 0.0,
         "success_interval": wilson_interval(int(report["successes"]), len(modes)),
+        "placement": placement_summary(report) if report.get("score") == "place" else None,
         "rules": {"lift_m": config["lift_m"], "nudge_m": nudge_m, "reach_m": reach_m,
                   "place_radius_m": place_radius},
     }
@@ -199,6 +223,19 @@ def render_markdown(summary: dict[str, Any]) -> str:
         lines.append(f"| {name} | {row['step']} | {row['trials']} | {rate} | {cells} | {held} |")
     totals = " | ".join(str(summary["totals"][mode]) for mode in used)
     lines.append(f"| all current | | {summary['trials']} | | {totals} | |")
+    placed = [row for row in summary["rows"] if row.get("placement")]
+    if placed:
+        lines += ["", "Placement, for the trials that lifted the cup: final distance of the cup",
+                  "from the mark's centre against the task's radius.", "",
+                  "| policy | step | lifted | within radius | median (cm) | p90 (cm) |",
+                  "|---|---|---|---|---|---|"]
+        for row in placed:
+            p = row["placement"]
+            median = "" if p["median_m"] is None else f"{100 * p['median_m']:.1f}"
+            p90 = "" if p["p90_m"] is None else f"{100 * p['p90_m']:.1f}"
+            lines.append(f"| {row['policy_id']} | {row['step']} | {p['lifted']} | "
+                         f"{p['within_radius']} of {p['lifted']} at {100 * p['radius_m']:.0f} cm "
+                         f"| {median} | {p90} |")
     lines.append("")
     return "\n".join(lines)
 

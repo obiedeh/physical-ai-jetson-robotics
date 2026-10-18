@@ -1,0 +1,10 @@
+{
+  "version": "synria_placement_tolerances_v1",
+  "note": "Radius in metres within which a released object counts as placed, per task; the place scorer's default. Board games need the token on its square: Ludo squares sit about 30 mm apart and chess squares 40 to 55 mm, so the cup mark's 30 mm is the loosest tolerance here and the token tasks to come are tighter. Every place campaign reports the final-distance distribution against this value.",
+  "radius_m": {
+    "cup_pick_and_place": 0.03,
+    "ludo_token_move": 0.010,
+    "chess_piece_move": 0.012,
+    "checkers_piece_move": 0.010
+  }
+}
