@@ -10,6 +10,7 @@ import pytest
 
 from synria_lerobot.sim_data_scaling import (
     STUDY_VERSION,
+    add_trials,
     render_markdown,
     run_config,
     run_study,
@@ -175,3 +176,31 @@ def test_real_tiny_study_trains_two_nested_subsets(
     ledger = (repository / "POLICY_LEDGER.md").read_text()
     assert ledger.count("lane=simulation") == 2
     assert (repository / "reports/study-tiny/STUDY.md").exists()
+
+
+def test_trials_are_added_to_completed_rows_without_retraining(tmp_path: Path) -> None:
+    """Rows without a campaign get one; rows with one are kept; incomplete studies are refused."""
+    study = {
+        "study_id": "s", "lane": "simulation", "status": "completed", "dataset_root": "x",
+        "held_out_episodes": [1], "available_episodes": 3, "seed": 0, "steps": 1,
+        "rows": [
+            {"episodes_trained": 1, "policy_id": "p1", "trials": {"report": "old.json",
+             "trials": 2, "successes": 2, "success_rate": 1.0}},
+            {"episodes_trained": 2, "policy_id": "p2", "trials": None},
+        ],
+    }
+    served: list[str] = []
+
+    def campaign(row: dict[str, Any]) -> dict[str, Any]:
+        served.append(row["policy_id"])
+        return {"report": "new.json", "trials": 4, "successes": 1, "success_rate": 0.25}
+
+    result = add_trials(study, campaign, write_to=tmp_path / "e", log=lambda text: None)
+    assert served == ["p2"] and result["rows"][0]["trials"]["report"] == "old.json"
+    assert result["rows"][1]["trials"]["success_rate"] == 0.25 and "trials_utc" in result
+    table = (tmp_path / "e" / "STUDY.md").read_text()
+    assert "| 100% | 2 | `old.json` |" in table and "| 25% | 4 | `new.json` |" in table
+    with pytest.raises(ValueError, match="completed study only"):
+        add_trials({**study, "status": "started"}, campaign)
+    with pytest.raises(ValueError, match="simulation lane"):
+        add_trials({**study, "lane": "physical"}, campaign)

@@ -12,8 +12,10 @@ outside git and an evidence root inside the repository. Usage::
 Without ``--trials`` only training and the held-out error run. With it, after each
 subset finishes, the final checkpoint is served on a local port with
 ``--lane simulation`` and ``scripts/run_sim_policy_trials.py`` runs the campaign against
-the Isaac scene, which must already be in policy mode. The study record and the
-Markdown table land in the evidence root; both say they are simulation evidence only.
+the Isaac scene, which must already be in policy mode. ``--trials-only`` adds
+the campaigns to a completed study's saved checkpoints without training anything.
+The study record and the Markdown table land in the evidence root; both say they
+are simulation evidence only.
 """
 
 from __future__ import annotations
@@ -32,7 +34,7 @@ if str(REPOSITORY) not in sys.path:
     sys.path.insert(0, str(REPOSITORY))
 
 from synria_lerobot.policy_client import HttpPolicyTransport  # noqa: E402
-from synria_lerobot.sim_data_scaling import run_study  # noqa: E402
+from synria_lerobot.sim_data_scaling import add_trials, run_study  # noqa: E402
 
 SERVER_START_TIMEOUT_S = 120.0
 
@@ -42,6 +44,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--spec", type=Path, required=True)
     parser.add_argument("--trials", type=int, help="Run a scored campaign per subset.")
+    parser.add_argument("--trials-only", action="store_true",
+                        help="Add campaigns to a completed study's saved checkpoints; no training.")
     parser.add_argument("--command-period-s", type=float)
     parser.add_argument("--response-timeout-s", type=float)
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cuda")
@@ -114,7 +118,13 @@ def main(argv: list[str] | None = None) -> int:
     spec = json.loads(args.spec.read_text(encoding="utf-8"))
     trial_fn = campaign_for(args, spec) if args.trials else None
     evidence = Path(spec["evidence_root"])
-    study = run_study(spec, trial_fn=trial_fn, write_to=evidence)
+    if args.trials_only:
+        if trial_fn is None:
+            raise SystemExit("--trials-only needs --trials")
+        study = json.loads((evidence / "study.json").read_text(encoding="utf-8"))
+        study = add_trials(study, trial_fn, write_to=evidence)
+    else:
+        study = run_study(spec, trial_fn=trial_fn, write_to=evidence)
     print(json.dumps({"status": study["status"], "rows": len(study["rows"]),
                       "record": str(evidence / "study.json"), "table": str(evidence / "STUDY.md")}))
     return 0
