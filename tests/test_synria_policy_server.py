@@ -108,6 +108,55 @@ def fixture(
     return CheckpointIdentity.load(checkpoint, receipt, registry, lane), receipt, registry
 
 
+def test_temporal_ensemble_averages_overlapping_chunks_at_the_stride() -> None:
+    """Each request predicts; the action is the exp-weighted mean over chunks covering that step."""
+    from synria_lerobot.policy_server import TemporalEnsemble
+
+    ensemble = TemporalEnsemble(chunk_size=6, stride=3, coeff=0.0)
+    first = np.full((6, 7), 1.0)
+    second = np.full((6, 7), 3.0)
+    third = np.full((6, 7), 5.0)
+    assert ensemble.step(first) == [1.0] * 7
+    assert ensemble.step(second) == [2.0] * 7, "step 3: first and second both cover it"
+    assert ensemble.step(third) == [4.0] * 7, "step 6: the first chunk has expired"
+    weighted = TemporalEnsemble(chunk_size=6, stride=3, coeff=1.0)
+    weighted.step(first)
+    expected = (1.0 * 1.0 + 3.0 * np.exp(-1.0)) / (1.0 + np.exp(-1.0))
+    assert weighted.step(second) == pytest.approx([expected] * 7)
+    weighted.reset()
+    assert weighted.step(third) == [5.0] * 7
+    with pytest.raises(ValueError):
+        TemporalEnsemble(chunk_size=6, stride=9, coeff=0.0)
+    with pytest.raises(ValueError, match="finite seven-value"):
+        ensemble.step(np.full((5, 7), 1.0))
+
+
+def test_service_with_ensembling_predicts_every_request_and_resets_with_the_model(
+    tmp_path: Path,
+) -> None:
+    """A checkpoint trained for ensembling makes the service predict on each request."""
+    identity, receipt, registry = fixture(tmp_path)
+    manifest = dict(identity.manifest)
+    manifest["configuration"] = {**manifest["configuration"], "temporal_ensemble_coeff": 0.0}
+    identity = CheckpointIdentity(identity.checkpoint, identity.content_sha256, manifest,
+                                  identity.contract, identity.lane)
+    model = StubModel()
+    service = FixedScenePolicyService(identity, model)
+    assert service.ensemble is not None
+    # Stub chunks are rows 0..11 at a stride of 6: step 0 sees row 0 of one chunk; step 6
+    # averages row 6 of the first with row 0 of the second; at step 12 the first has expired.
+    for calls, expected in ((1, 0.0), (2, 3.0), (3, 3.0)):
+        response = decode_policy_response(
+            service.request(encode_policy_request(payload(identity, reset=calls == 1)))
+        )
+        assert model.calls == calls
+        assert response["action"] == pytest.approx([expected] * 7)
+    assert identity.metadata()["temporal_ensemble_coeff"] == 0.0
+    (tmp_path / "plain").mkdir()
+    plain, _, _ = fixture(tmp_path / "plain")
+    assert FixedScenePolicyService(plain, StubModel()).ensemble is None
+
+
 def test_each_server_lane_loads_only_its_own_checkpoints(tmp_path: Path) -> None:
     """A sim checkpoint is refused by the physical server and served, marked, by the sim one."""
     identity, receipt, registry = fixture(tmp_path, lane="simulation")

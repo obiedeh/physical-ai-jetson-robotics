@@ -56,6 +56,7 @@ SIM_OVERHEAD_TOPIC = "/isaac/overhead_camera/image_raw"
 SIM_TARGET_TOPIC = "/isaac/policy_joint_targets"
 SIM_RANDOMIZE_TOPIC = "/pick_objects_randomize"
 SIM_CUP_POSE_TOPIC = "/isaac/pick_objects/cup/pose"
+SIM_GRIPPER_POSE_TOPIC = "/isaac/pick_objects/gripper/pose"
 # The real arm's command topics, its feedback topic and the deployment bridge's own name.
 REAL_ARM_TOPICS = frozenset({*DEFAULT_COMMAND_TOPICS, "/joint_states", "/policy_arm"})
 REPORT_KIND = "simulation_policy_trials"
@@ -237,6 +238,9 @@ class TrialRecord:
     cup_rest_z_m: float
     approach_steps: int
     recoveries: int
+    min_gripper_cup_distance_m: float | None
+    final_gripper_cup_distance_m: float | None
+    final_state: tuple[float, ...]
 
 
 class SimulationTrialRunner:
@@ -256,8 +260,13 @@ class SimulationTrialRunner:
         clock: Callable[[], float] = time.monotonic,
         sleep: Callable[[float], None] = time.sleep,
         log: Callable[[str], None] = print,
+        gripper_source: PoseSource | None = None,
     ) -> None:
-        """Refuse anything but a simulation contract whose command period matches the config."""
+        """Refuse anything but a simulation contract whose command period matches the config.
+
+        ``gripper_source`` is optional: with it every trial records how close the gripper
+        came to the cup and where it ended, which tells a near miss from a far one.
+        """
         client.embodiment.contract.require_lane(SIMULATION_LANE)
         client.config.require_command_period(config.command_period_s)
         self.client, self.sink, self.config = client, sink, config
@@ -265,6 +274,7 @@ class SimulationTrialRunner:
             state_source, wrist_source, front_source,
         )
         self.cup_source, self.randomize = cup_source, randomize
+        self.gripper_source = gripper_source
         self.clock, self.sleep, self.log = clock, sleep, log
         self.task = client.embodiment.contract.task_text
 
@@ -299,12 +309,16 @@ class SimulationTrialRunner:
         holds: Counter[str] = Counter()
         steps = 0
         recoveries = 0
+        min_distance: float | None = None
+        final_distance: float | None = None
+        last_state: tuple[float, ...] = ()
         started = self.clock()
         first = True
         try:
             while self.clock() - started < config.max_trial_s:
                 tick = self.clock()
                 observation = self.observe()
+                last_state = (*observation.state.joint_positions_rad, observation.state.gripper_m)
                 decision = self.client.step(observation, reset=first)
                 first = False
                 steps += 1
@@ -321,7 +335,13 @@ class SimulationTrialRunner:
                         self.sink.hold()
                 else:
                     self.sink.offer(decision.action)
-                if scorer.feed(self.cup_source.read().position_m[2], self.clock()):
+                cup = self.cup_source.read()
+                if self.gripper_source is not None:
+                    gripper = self.gripper_source.read().position_m
+                    final_distance = math.dist(gripper, cup.position_m)
+                    min_distance = (final_distance if min_distance is None
+                                    else min(min_distance, final_distance))
+                if scorer.feed(cup.position_m[2], self.clock()):
                     break
                 remaining = config.command_period_s - (self.clock() - tick)
                 if remaining > 0:
@@ -337,11 +357,14 @@ class SimulationTrialRunner:
             duration_s=duration, steps=steps, holds=sum(holds.values()),
             hold_reasons=dict(sorted(holds.items())), max_lift_m=scorer.max_lift_m,
             cup_rest_z_m=rest_z, approach_steps=approach_steps, recoveries=recoveries,
+            min_gripper_cup_distance_m=min_distance, final_gripper_cup_distance_m=final_distance,
+            final_state=last_state,
         )
         verdict = "success" if success else "failure"
+        closest = "" if min_distance is None else f", closest {min_distance * 100:.1f} cm"
         self.log(f"trial {index}: {verdict} after {duration:.1f} s, {steps} steps, "
                  f"{record.holds} holds, {recoveries} recoveries, "
-                 f"max lift {scorer.max_lift_m * 100:.1f} cm")
+                 f"max lift {scorer.max_lift_m * 100:.1f} cm{closest}")
         return record
 
     def run(self, policy: dict[str, Any]) -> dict[str, Any]:

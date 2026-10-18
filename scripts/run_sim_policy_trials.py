@@ -19,6 +19,7 @@ The runner reads ``/isaac_joint_states`` and the two recorded camera topics, pub
 targets on ``/isaac/policy_joint_targets`` (never a real-arm topic), asks the scene for
 a Randomize and reset before every trial, and scores each trial from the scene's cup
 pose: success when the cup is ``--lift-m`` above its rest height for ``--hold-s``. The
+scene's gripper pose gives each trial its closest and final gripper-to-cup distance. The
 start pose is the mean first frame of the dataset unless ``--start-pose`` gives seven
 values. The report is written once and says it is simulation evidence only.
 """
@@ -50,6 +51,7 @@ from synria_lerobot.quality_gates import load_limits  # noqa: E402
 from synria_lerobot.recorder import RosImageFrameSource, RosJointStateSource  # noqa: E402
 from synria_lerobot.sim_policy_runner import (  # noqa: E402
     SIM_CUP_POSE_TOPIC,
+    SIM_GRIPPER_POSE_TOPIC,
     SIM_OVERHEAD_TOPIC,
     SIM_RANDOMIZE_TOPIC,
     SIM_STATE_TOPIC,
@@ -135,8 +137,12 @@ def main(argv: list[str] | None = None) -> int:
         cup = stack.enter_context(_closing(RosPoseSource(
             SIM_CUP_POSE_TOPIC, node_name="synria_sim_policy_cup",
         )))
+        gripper = stack.enter_context(_closing(RosPoseSource(
+            SIM_GRIPPER_POSE_TOPIC, node_name="synria_sim_policy_gripper",
+        )))
         runner = SimulationTrialRunner(
             client, publisher, state, wrist, front, cup, publisher.request_randomize, config,
+            gripper_source=gripper,
         )
         report = runner.run(metadata)
     report["endpoint"] = args.endpoint
