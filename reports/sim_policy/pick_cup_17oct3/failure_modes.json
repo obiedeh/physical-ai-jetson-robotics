@@ -30,6 +30,10 @@
       "score": "lift",
       "step": 20000,
       "steps": 2876,
+      "success_interval": [
+        0.008881219432873136,
+        0.23613589351256675
+      ],
       "success_rate": 0.05,
       "successes": 1,
       "superseded": true,
@@ -63,6 +67,10 @@
       "score": "lift",
       "step": 20000,
       "steps": 3000,
+      "success_interval": [
+        0.0,
+        0.16113012549493322
+      ],
       "success_rate": 0.0,
       "successes": 0,
       "superseded": false,
@@ -96,6 +104,10 @@
       "score": "lift",
       "step": 20000,
       "steps": 3000,
+      "success_interval": [
+        0.0,
+        0.16113012549493322
+      ],
       "success_rate": 0.0,
       "successes": 0,
       "superseded": true,
@@ -129,6 +141,10 @@
       "score": "lift",
       "step": 20000,
       "steps": 3000,
+      "success_interval": [
+        0.0,
+        0.16113012549493322
+      ],
       "success_rate": 0.0,
       "successes": 0,
       "superseded": false,
@@ -162,6 +178,10 @@
       "score": "lift",
       "step": 20000,
       "steps": 3000,
+      "success_interval": [
+        0.0,
+        0.16113012549493322
+      ],
       "success_rate": 0.0,
       "successes": 0,
       "superseded": true,
@@ -195,6 +215,10 @@
       "score": "lift",
       "step": 20000,
       "steps": 3000,
+      "success_interval": [
+        0.0,
+        0.16113012549493322
+      ],
       "success_rate": 0.0,
       "successes": 0,
       "superseded": false,
@@ -228,6 +252,10 @@
       "score": "lift",
       "step": 20000,
       "steps": 3000,
+      "success_interval": [
+        0.0,
+        0.16113012549493322
+      ],
       "success_rate": 0.0,
       "successes": 0,
       "superseded": true,
@@ -261,6 +289,10 @@
       "score": "lift",
       "step": 20000,
       "steps": 3000,
+      "success_interval": [
+        0.0,
+        0.16113012549493322
+      ],
       "success_rate": 0.0,
       "successes": 0,
       "superseded": false,
@@ -294,6 +326,10 @@
       "score": "lift",
       "step": 20000,
       "steps": 3000,
+      "success_interval": [
+        0.0,
+        0.16113012549493322
+      ],
       "success_rate": 0.0,
       "successes": 0,
       "superseded": true,
@@ -327,6 +363,10 @@
       "score": "lift",
       "step": 20000,
       "steps": 3000,
+      "success_interval": [
+        0.0,
+        0.16113012549493322
+      ],
       "success_rate": 0.0,
       "successes": 0,
       "superseded": false,
@@ -360,6 +400,10 @@
       "score": "lift",
       "step": 20000,
       "steps": 3000,
+      "success_interval": [
+        0.0,
+        0.16113012549493322
+      ],
       "success_rate": 0.0,
       "successes": 0,
       "superseded": true,
@@ -393,6 +437,10 @@
       "score": "lift",
       "step": 20000,
       "steps": 3000,
+      "success_interval": [
+        0.0,
+        0.16113012549493322
+      ],
       "success_rate": 0.0,
       "successes": 0,
       "superseded": false,
@@ -426,6 +474,10 @@
       "score": "lift",
       "step": 20000,
       "steps": 2828,
+      "success_interval": [
+        0.05236779195949584,
+        0.36042329588695743
+      ],
       "success_rate": 0.15,
       "successes": 3,
       "superseded": true,
@@ -459,6 +511,10 @@
       "score": "lift",
       "step": 20000,
       "steps": 2548,
+      "success_interval": [
+        0.18118954786794464,
+        0.5671494897805354
+      ],
       "success_rate": 0.35,
       "successes": 7,
       "superseded": false,
@@ -492,6 +548,10 @@
       "score": "lift",
       "step": 20000,
       "steps": 2941,
+      "success_interval": [
+        0.008881219432873136,
+        0.23613589351256675
+      ],
       "success_rate": 0.05,
       "successes": 1,
       "superseded": false,
@@ -525,6 +585,10 @@
       "score": "lift",
       "step": 20000,
       "steps": 2937,
+      "success_interval": [
+        0.008881219432873136,
+        0.23613589351256675
+      ],
       "success_rate": 0.05,
       "successes": 1,
       "superseded": false,
@@ -544,5 +608,5 @@
     "success": 9
   },
   "trials": 180,
-  "utc": "2026-10-18T18:39:08.733773+00:00"
+  "utc": "2026-10-18T21:38:46.871348+00:00"
 }

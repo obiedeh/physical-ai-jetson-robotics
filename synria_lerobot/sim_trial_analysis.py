@@ -14,6 +14,7 @@ got the cup to the mark. Simulation lane only; never physical evidence.
 from __future__ import annotations
 
 import json
+import math
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -35,6 +36,23 @@ CUP_UNTOUCHED = "cup untouched, reach not recorded"
 HELD_BY_SAFETY = "held by the safety client most of the trial"
 MODES = (SUCCESS, LIFTED_AND_DROPPED, PLACED_BUT_NOT_HELD, NUDGED, REACHED_NO_GRASP,
          NEVER_REACHED, CUP_UNTOUCHED, HELD_BY_SAFETY)
+
+
+def wilson_interval(successes: int, trials: int, z: float = 1.96) -> tuple[float, float]:
+    """The Wilson score interval for a success rate; (0, 0) for no trials.
+
+    Twenty trials carry an interval about forty points wide, which is why a campaign
+    is read with its interval and never as a point.
+    """
+    if trials <= 0:
+        return 0.0, 0.0
+    if not 0 <= successes <= trials:
+        raise ValueError("successes must lie between zero and the trial count")
+    rate = successes / trials
+    denominator = 1 + z * z / trials
+    centre = (rate + z * z / (2 * trials)) / denominator
+    half = z * math.sqrt(rate * (1 - rate) / trials + z * z / (4 * trials * trials)) / denominator
+    return max(0.0, centre - half), min(1.0, centre + half)
 
 
 def classify_trial(trial: dict[str, Any], lift_m: float, *, place_radius_m: float | None = None,
@@ -101,6 +119,7 @@ def summarize_report(report: dict[str, Any], *, nudge_m: float = NUDGE_M,
         "holds": holds,
         "steps": steps,
         "held_share": holds / steps if steps else 0.0,
+        "success_interval": wilson_interval(int(report["successes"]), len(modes)),
         "rules": {"lift_m": config["lift_m"], "nudge_m": nudge_m, "reach_m": reach_m,
                   "place_radius_m": place_radius},
     }
@@ -161,19 +180,25 @@ def render_markdown(summary: dict[str, Any]) -> str:
         f"{REACH_M * 100:.0f} cm of the cup's",
         "centre, known only for campaigns that recorded the gripper pose; a hold is a",
         "trial the safety client refused for more than half its steps; the last column",
-        "is the share of all steps the client held, whatever the mode. A campaign a",
+        "is the share of all steps the client held, whatever the mode; the success rate",
+        "carries its Wilson 95% interval, which is about forty points wide at twenty",
+        "trials and twenty-five at fifty. A campaign a",
         "study reran under a changed rule is marked superseded and left out of the totals.",
         "",
-        "| policy | step | trials | " + " | ".join(used) + " | steps held |",
-        "|---|---|---|" + "---|" * (len(used) + 1),
+        "| policy | step | trials | success rate [95% interval] | " + " | ".join(used)
+        + " | steps held |",
+        "|---|---|---|---|" + "---|" * (len(used) + 1),
     ]
     for row in summary["rows"]:
         cells = " | ".join(str(row["modes"][mode]) for mode in used)
-        name = row["policy_id"] + (" (superseded)" if row.get("superseded") else "")
+        name = str(row["policy_id"]) + (" (superseded)" if row.get("superseded") else "")
         held = f"{100 * row.get('held_share', 0.0):.1f}%"
-        lines.append(f"| {name} | {row['step']} | {row['trials']} | {cells} | {held} |")
+        low, high = row.get("success_interval") or wilson_interval(
+            row["successes"], row["trials"])
+        rate = f"{100 * row['success_rate']:.0f}% [{100 * low:.0f}, {100 * high:.0f}]"
+        lines.append(f"| {name} | {row['step']} | {row['trials']} | {rate} | {cells} | {held} |")
     totals = " | ".join(str(summary["totals"][mode]) for mode in used)
-    lines.append(f"| all current | | {summary['trials']} | {totals} | |")
+    lines.append(f"| all current | | {summary['trials']} | | {totals} | |")
     lines.append("")
     return "\n".join(lines)
 
