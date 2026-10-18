@@ -78,6 +78,10 @@ def training_fixture(
             PhysicalDatasetContract.from_dict(contract), recording_purpose=SIMULATION,
         ).as_dict(fps=15)
         config.update(expected_contract=contract, lane="simulation")
+    if record_dataset is not None:
+        # A caller-written dataset defines its own contract, goal channels included.
+        contract = json.loads((dataset / "physical_contract.json").read_text())
+        config.update(expected_contract=contract)
     assert json.loads((dataset / "physical_contract.json").read_text()) == contract
     repository = Path(config["repository"])
     repository.mkdir()
@@ -275,7 +279,7 @@ def test_real_augmented_training_records_its_transforms(
     """Augmentation in one loader worker trains and is written into the manifest and checkpoint."""
     config, dataset = training_fixture(tmp_path, monkeypatch, simulation=True)
     config["image_transforms"] = {"enable": True, "max_num_transforms": 2, "random_order": True,
-                                  "transforms": ["brightness", "affine"]}
+                                  "transforms": ["brightness", "sharpness"]}
     config["temporal_ensemble_coeff"] = 0.01
     config["dataloader_workers"] = 1
     config["episode_weights"] = {"0": 3, "7-9": 2}
@@ -294,7 +298,8 @@ def test_real_augmented_training_records_its_transforms(
     assert manifest["state_noise"]["drop_probability"] == 0.2
     assert manifest["action_smoothing_window"] == 3
     assert manifest["grasp_phase"]["weight"] == 2.0 and manifest["grasp_phase_frames"] >= 0
-    assert manifest["configuration"]["image_transforms"]["transforms"] == ["brightness", "affine"]
+    assert manifest["configuration"]["image_transforms"]["transforms"] == ["brightness",
+                                                                            "sharpness"]
     assert manifest["configuration"]["temporal_ensemble_coeff"] == 0.01
     saved = json.loads(
         (Path(manifest["checkpoints"][-1]["path"]) / "physical_policy_manifest.json").read_text()
@@ -488,3 +493,74 @@ def test_cpu_training_completes_when_the_process_can_already_see_cuda(
     )
     assert manifest["status"] == "completed" and manifest["completed_steps"] == 2
     assert manifest["last_training_metrics"]["gpu_mem_gb"] == 0
+
+
+def test_real_goal_conditioned_training_declares_and_serves_the_goal(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A dataset with a goal channel trains an ENV input and the served model requires it."""
+    from test_task_registry import synthetic_registry
+
+    from synria_lerobot.act_training import FEATURE_KEYS
+    from synria_lerobot.physical_contract import GOAL_KEY
+    from synria_lerobot.policy_codec import decode_policy_response, encode_policy_request
+    from synria_lerobot.policy_server import (
+        CheckpointIdentity,
+        FixedScenePolicyService,
+        LocalACTModel,
+    )
+
+    goal = (0.3, 0.1, 0.0)
+
+    def record(dataset: Path, values: tuple[float, ...]) -> None:
+        base = writer_config(dataset)
+        base = replace(base, contract=replace(base.contract, goal_channels=("object",)),
+                       image_width=32, image_height=32)
+        writer = LeRobotDatasetWriter(base)
+        try:
+            for index, value in enumerate(values):
+                episode = synthetic_episode(index, width=32, height=32)
+                episode.frames[:] = [
+                    replace(frame, state=replace(frame.state, joint_positions_rad=(value,) * 6,
+                                                 gripper_m=value / 100),
+                            action=(*((value,) * 6), value / 100), goal=goal)
+                    for frame in episode.frames
+                ]
+                writer.write_episode(episode)
+        finally:
+            writer.finalize()
+
+    config, dataset = training_fixture(tmp_path, monkeypatch, record_dataset=record)
+    contract = json.loads((dataset / "physical_contract.json").read_text())
+    assert contract["goal_channels"] == ["object"]
+    config["expected_contract"] = contract
+    manifest = train(
+        dataset, dataset / "physical_contract.json", tmp_path / "raw-training", 7, 2, config
+    )
+    assert manifest["status"] == "completed"
+    assert manifest["declared_input_conditioning"] == [*FEATURE_KEYS, GOAL_KEY]
+    assert manifest["goal_channels"] == ["object"]
+    assert manifest["model_feature_shapes"][GOAL_KEY] == [3]
+    np.testing.assert_allclose(manifest["training_stats"][GOAL_KEY]["mean"], goal, atol=1e-6)
+    checkpoint = Path(manifest["checkpoints"][-1]["path"])
+    evidence = Path(config["repository"]) / config["evidence_directory"]
+    registry = synthetic_registry(tmp_path / "serving-registry.json", 0.1, 1)
+    identity = CheckpointIdentity.load(
+        checkpoint, evidence / "checkpoint-step-000000002.json", registry,
+    )
+    assert identity.contract.goal_channels == ("object",)
+    model = LocalACTModel(identity, "cpu")
+    service = FixedScenePolicyService(identity, model)
+    request = {
+        **identity.contract.as_dict(), "embodiment": "synria_alicia_d",
+        "observation.state": [0.0] * 7, GOAL_KEY: list(goal),
+        **{key: np.zeros(shape, np.uint8) for key, shape in model.image_shapes.items()},
+        "timestamps": dict(state=1.0, state_ros=10.0, wrist=1.0, front=1.0),
+        "task": identity.contract.task_text, "request_id": "goal-conditioned",
+        "reset": True, "observation_timestamp_s": 1.0,
+    }
+    response = decode_policy_response(service.request(encode_policy_request(request)))
+    assert len(response["action"]) == 7 and np.isfinite(response["action"]).all()
+    without = {key: value for key, value in request.items() if key != GOAL_KEY}
+    with pytest.raises(ValueError, match="request contract/task identity"):
+        service.request(encode_policy_request(without))

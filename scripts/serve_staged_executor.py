@@ -64,20 +64,24 @@ def build_parser() -> argparse.ArgumentParser:
                         help="Fraction of the client's per-step limit the executor uses.")
     parser.add_argument("--margin-deg", type=float, default=3.0,
                         help="Distance every planned joint keeps from its operator bound.")
+    parser.add_argument("--goal-channel", action="append", default=[], choices=("object", "target"),
+                        help="Declare a goal channel in the served contract, so a campaign or "
+                             "a recording driven by this executor carries it; repeatable.")
     parser.add_argument("--stage-log", type=Path, required=True)
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8091)
     return parser
 
 
-def contract_for_task(task_id: str, registry: Path, gripper: str) -> PhysicalDatasetContract:
+def contract_for_task(task_id: str, registry: Path, gripper: str,
+                      goal_channels: tuple[str, ...] = ()) -> PhysicalDatasetContract:
     """The simulation-lane contract the executor declares for one registry task."""
     tasks = load_task_registry(registry)
     if task_id not in tasks:
         raise SystemExit(f"task {task_id} is not in {registry}")
     return PhysicalDatasetContract(
         gripper, ActionSource.LEADER, False, task_id=task_id, task_definition=tasks[task_id],
-        recording_purpose="simulation",
+        recording_purpose="simulation", goal_channels=goal_channels,
     )
 
 
@@ -86,7 +90,8 @@ def main(argv: list[str] | None = None) -> int:
     import math
 
     args = build_parser().parse_args(argv)
-    contract = contract_for_task(args.task_id, args.task_registry, args.gripper)
+    contract = contract_for_task(args.task_id, args.task_registry, args.gripper,
+                                 tuple(args.goal_channel))
     safety = PolicySafetyConfig.load(
         args.policy_config, command_period_s=args.command_period_s,
         response_timeout_s=0.5, lane=SIMULATION_LANE,

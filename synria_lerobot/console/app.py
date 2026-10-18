@@ -26,7 +26,11 @@ from typing import Any, TextIO
 
 from synria_lerobot.console.catalog import Catalog
 from synria_lerobot.console.controller import RecordingController
-from synria_lerobot.console.isaac import IsaacSupervisor, launcher_from_config
+from synria_lerobot.console.isaac import (
+    IsaacSupervisor,
+    launcher_from_config,
+    sim_goal_channels,
+)
 from synria_lerobot.console.playback import EpisodePlayback, confined_file, encode_rgb
 from synria_lerobot.console.readiness import (
     ARM_CHECK_MISSING,
@@ -341,7 +345,8 @@ class ConsoleService:
             # images, the real follower's /joint_states as the leader-type action.
             settings.update(state_source="isaac_simulation", wrist_camera=SIM_TOPICS["wrist"],
                             front_camera=SIM_TOPICS["front"], follower_topic=SIM_TOPICS["state"],
-                            action_source="leader", leader_topic=SIM_TOPICS["action"])
+                            action_source="leader", leader_topic=SIM_TOPICS["action"],
+                            goal_channel=sim_goal_channels(str(settings["task_id"])))
             if not diagnostic:
                 # The one operator duty in simulation: the real leader still moves the real
                 # follower. The statement and the time it was ticked go into the session.

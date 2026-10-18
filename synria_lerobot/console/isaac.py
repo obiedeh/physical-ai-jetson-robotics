@@ -34,6 +34,13 @@ SIM_STATE_TOPIC = "/isaac_joint_states"
 # The recorded trio; the sim's side view is a page preview and is not part of record-mode health.
 SIM_TOPICS = {"state": SIM_STATE_TOPIC, "wrist": "/isaac/wrist_camera/image_raw",
               "front": "/isaac/overhead_camera/image_raw"}
+# The scene publishes every pick object's world pose; a simulation take declares the task's
+# object as its "object" goal channel and, for the place task, the mark as "target", so the
+# dataset carries the goal the strategy of 2026-10-18 requires of every new policy.
+SIM_OBJECT_POSE_TOPIC = "/isaac/pick_objects/{name}/pose"
+SIM_TASK_OBJECTS = {"die_into_cup": "die", "pick_cup": "cup", "cup_pick_and_place": "cup",
+                    "roll_and_dump": "cup", "cup_return": "cup"}
+SIM_TASK_TARGETS = {"cup_pick_and_place": "place_target"}
 RATE_WINDOW_S = 3.0
 HEALTHY_RATE_HZ = 13.5          # 15 Hz requested; a skipped render frame now and then is tolerated
 MAX_GAP_S = 0.5                 # a longer silence on any sim topic is not "publishing steadily"
@@ -712,3 +719,19 @@ class IsaacSupervisor:
                                        stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
                                        start_new_session=True)
         return process.pid
+
+
+def sim_goal_channels(task_id: str) -> list[str]:
+    """The recorder's ``NAME=TOPIC`` goal channels for one registry task in the scene.
+
+    Every task declares its object; the place task also declares the mark. A task the
+    table does not know declares nothing, so an unknown task never records a guess.
+    """
+    channels = []
+    obj = SIM_TASK_OBJECTS.get(task_id)
+    if obj is not None:
+        channels.append("object=" + SIM_OBJECT_POSE_TOPIC.format(name=obj))
+    target = SIM_TASK_TARGETS.get(task_id)
+    if target is not None:
+        channels.append("target=" + SIM_OBJECT_POSE_TOPIC.format(name=target))
+    return channels

@@ -30,6 +30,8 @@ from .checkpoint_eval import (
 from .evaluation import append_policy_row
 from .exclusions import read_exclusions, require_training_exclusions, require_unchanged_exclusions
 from .physical_contract import (
+    GOAL_KEY,
+    GOAL_VALUES_PER_CHANNEL,
     PHYSICAL_LANE,
     SIMULATION_LANE,
     PhysicalDatasetContract,
@@ -42,8 +44,17 @@ CADENCE_SEMANTICS = (
     "chunk slots 0,q,2q preserve recorded lookahead; physical cadence is unmeasured"
 )
 FEATURE_KEYS = ("observation.state", "observation.images.wrist", "observation.images.front")
+
+
+def feature_keys(goal_channels: tuple[str, ...] | list[str]) -> tuple[str, ...]:
+    """The policy's input keys: state and both images, plus the goal when channels are declared."""
+    return (*FEATURE_KEYS, GOAL_KEY) if goal_channels else FEATURE_KEYS
 # The upstream image transforms a configuration may enable for training frames, by name.
 IMAGE_TRANSFORM_NAMES = ("brightness", "contrast", "saturation", "hue", "sharpness", "affine")
+# A geometric transform moves the object in a fixed camera's image without moving the
+# action label, which breaks the pixel-to-action mapping the policy depends on; the
+# strategy review of 2026-10-18 banned them for every fixed-camera policy.
+GEOMETRIC_TRANSFORM_NAMES = ("affine",)
 
 
 def validate_image_transforms(value: Any) -> dict[str, Any] | None:
@@ -51,6 +62,7 @@ def validate_image_transforms(value: Any) -> dict[str, Any] | None:
 
     The block names upstream transforms (:data:`IMAGE_TRANSFORM_NAMES`) applied to
     training frames only, never to held-out frames, with their upstream default ranges.
+    Geometric transforms (:data:`GEOMETRIC_TRANSFORM_NAMES`) are refused.
     """
     if value is None:
         return None
@@ -65,6 +77,11 @@ def validate_image_transforms(value: Any) -> dict[str, Any] | None:
     if (type(names) is not list or not names or len(set(names)) != len(names)
             or any(name not in IMAGE_TRANSFORM_NAMES for name in names)):
         raise ValueError(f"image transforms must be distinct names from {IMAGE_TRANSFORM_NAMES}")
+    geometric = [name for name in names if name in GEOMETRIC_TRANSFORM_NAMES]
+    if geometric:
+        raise ValueError(f"geometric image transforms {geometric} move the object in a fixed "
+                         "camera's image without moving the action label; use colour "
+                         "transforms only")
     return value
 
 
@@ -322,7 +339,8 @@ def validate_config(config: dict[str, Any], contract: dict[str, Any]) -> dict[st
     }
 
 
-def training_stats(root: Path, episode_ids: tuple[int, ...], state_size: int) -> dict[str, Any]:
+def training_stats(root: Path, episode_ids: tuple[int, ...], state_size: int,
+                   goal_size: int = 0) -> dict[str, Any]:
     """Aggregate only selected episode statistics, never the dataset-global statistics."""
     import pyarrow.parquet as parquet
     from lerobot.datasets.compute_stats import aggregate_stats
@@ -337,6 +355,8 @@ def training_stats(root: Path, episode_ids: tuple[int, ...], state_size: int) ->
         "observation.images.wrist": (3, 1, 1),
         "observation.images.front": (3, 1, 1),
     }
+    if goal_size:
+        shapes[GOAL_KEY] = (goal_size,)
     for path in sorted((root / "meta/episodes").rglob("*.parquet")):
         for row in parquet.read_table(path).to_pylist():
             episode = row["episode_index"]
@@ -386,8 +406,15 @@ def _plain_stats(stats: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _policy_features(metadata: Any, state_size: int) -> tuple[dict[str, Any], dict[str, Any]]:
-    """Construct model features only after dataset dimensions match the physical contract."""
+def _policy_features(metadata: Any, state_size: int,
+                     goal_size: int = 0) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Construct model features only after dataset dimensions match the physical contract.
+
+    With goal channels the dataset must carry the environment-state feature of the
+    contract's size, which becomes the policy's ENV input; without them the feature must
+    be absent, so a dataset never conditions a policy on a goal its contract does not
+    declare.
+    """
     from lerobot.configs.types import FeatureType, PolicyFeature
 
     features = metadata.features
@@ -396,6 +423,13 @@ def _policy_features(metadata: Any, state_size: int) -> tuple[dict[str, Any], di
     ) != (7,):
         raise ValueError("dataset state/action shapes differ from the physical contract")
     inputs = {"observation.state": PolicyFeature(FeatureType.STATE, (state_size,))}
+    if goal_size:
+        goal = features.get(GOAL_KEY)
+        if goal is None or tuple(goal["shape"]) != (goal_size,):
+            raise ValueError("dataset goal feature differs from the contract's goal channels")
+        inputs[GOAL_KEY] = PolicyFeature(FeatureType.ENV, (goal_size,))
+    elif GOAL_KEY in features:
+        raise ValueError("dataset carries a goal feature the contract does not declare")
     image_shapes = []
     for key in FEATURE_KEYS[1:]:
         feature = features[key]
@@ -496,11 +530,12 @@ def perturb_state(state: Any, noise: dict[str, float], mean: Any, generator: Any
     return perturbed
 
 
-def _evaluation_batches(loader: Any) -> Iterator[PredictionBatch]:
+def _evaluation_batches(loader: Any, keys: tuple[str, ...] = FEATURE_KEYS,
+                        ) -> Iterator[PredictionBatch]:
     """Expose held-out observations and actions to the frozen checkpoint evaluator."""
     for batch in loader:
         yield PredictionBatch(
-            {key: batch[key] for key in FEATURE_KEYS},
+            {key: batch[key] for key in keys},
             batch["action"].cpu().numpy(),
             batch["action_is_pad"].cpu().numpy(),
             tuple(int(value) for value in batch["episode_index"].reshape(-1).tolist()),
@@ -636,7 +671,10 @@ def train(
     np.random.seed(seed)
     torch.manual_seed(seed)
     state_size = 13 if contract["state_has_velocity"] else 7
-    stats = training_stats(dataset_root, training_ids, state_size)
+    goal_channels = tuple(contract.get("goal_channels", ()))
+    goal_size = GOAL_VALUES_PER_CHANNEL * len(goal_channels)
+    input_keys = feature_keys(goal_channels)
+    stats = training_stats(dataset_root, training_ids, state_size, goal_size)
     delta = {
         "action": [index / contract["requested_rate_hz"] for index in range(config["chunk_size"])]
     }
@@ -656,7 +694,7 @@ def train(
     held_out = LeRobotDataset(**dataset_args, episodes=frozen["held_out_episodes"])
     if training.meta.fps != contract["requested_rate_hz"]:
         raise ValueError("library dataset rate differs from physical contract")
-    inputs, outputs = _policy_features(training.meta, state_size)
+    inputs, outputs = _policy_features(training.meta, state_size, goal_size)
     policy_config = ACTConfig(
         input_features=inputs,
         output_features=outputs,
@@ -783,7 +821,8 @@ def train(
         "torch_version": torch.__version__,
         "normalization": "training episodes only",
         "task_text_conditioning": False,
-        "declared_input_conditioning": list(FEATURE_KEYS),
+        "declared_input_conditioning": list(input_keys),
+        "goal_channels": list(goal_channels),
         "model_feature_shapes": {
             key: list(feature.shape) for key, feature in {**inputs, **outputs}.items()
         },
@@ -905,7 +944,7 @@ def train(
                     checkpoint,
                     config["policy_id"],
                     step,
-                    _evaluation_batches(held_loader),
+                    _evaluation_batches(held_loader, input_keys),
                     predict,
                     evidence / "evaluations",
                     timeline,

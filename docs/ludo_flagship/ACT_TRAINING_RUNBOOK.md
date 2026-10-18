@@ -267,6 +267,18 @@ table's last column is the share of all steps the safety client held, whatever
 the mode: a hold short of half a trial does not make a mode, but a policy pulled
 back from a joint bound on a sixth of its steps is pressing the operator limits.
 
+### Goal channels in training and serving
+
+When the dataset's contract declares goal channels, the trainer requires the
+`observation.environment_state` feature of three values per channel, trains it
+as the policy's environment-state input, normalises it from the training
+episodes' own statistics, records `goal_channels` and the input key in the
+manifest, and the held-out evaluation feeds it. A dataset with the feature but
+no declared channel, or the reverse, is refused. The served checkpoint requires
+the goal in every request and the trial runner fills it from the scene's poses
+by channel name. Without channels nothing changes: contracts, manifests and
+requests are byte for byte what they were.
+
 ### The staged executor: what, where, how, plan, execute
 
 `scripts/serve_staged_executor.py --task-id pick_cup --command-period-s 0.2
