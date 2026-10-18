@@ -16,8 +16,10 @@ Then::
         --output reports/sim_policy/<policy_id>/trials_<utc>.json
 
 The runner reads ``/isaac_joint_states`` and the two recorded camera topics, publishes
-targets on ``/isaac/policy_joint_targets`` (never a real-arm topic), asks the scene for
-a Randomize and reset before every trial, and scores each trial from the scene's poses
+targets on ``/isaac/policy_joint_targets`` (never a real-arm topic), walks the arm to the
+start pose and then asks the scene for a Randomize and reset before every trial (at
+``--randomize-scale``, seeded from ``--placement-seed`` plus the trial index when given, so
+campaigns sharing a seed face the same placements), and scores each trial from the scene's poses
 by the served task: ``pick_cup`` succeeds when the cup is ``--lift-m`` above its rest
 height for ``--hold-s``; ``cup_pick_and_place`` when the cup, lifted at least once, rests
 within ``--place-radius-m`` of the scene's mark and within ``--place-height-m`` of its
@@ -94,6 +96,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--hold-s", type=float, default=1.0)
     parser.add_argument("--settle-s", type=float, default=2.0)
     parser.add_argument("--approach-s", type=float, default=2.0)
+    parser.add_argument("--randomize-scale", type=float, default=1.0,
+                        help="The scene's Randomize scale for every reset (0.5 to 3).")
+    parser.add_argument("--placement-seed", type=int, default=None,
+                        help="Seed of trial 0's layout draw; trial i uses seed + i.")
     parser.add_argument("--place-radius-m", type=float, default=0.03,
                         help="Place score: the cup's centre within this of the mark's centre.")
     parser.add_argument("--place-height-m", type=float, default=0.01,
@@ -134,7 +140,8 @@ def main(argv: list[str] | None = None) -> int:
         max_trial_s=args.max_trial_s, lift_m=args.lift_m, hold_s=args.hold_s,
         settle_s=args.settle_s, approach_s=args.approach_s, score=score,
         place_radius_m=args.place_radius_m, place_height_m=args.place_height_m,
-        gripper_clear_m=args.gripper_clear_m,
+        gripper_clear_m=args.gripper_clear_m, randomize_scale=args.randomize_scale,
+        placement_seed=args.placement_seed,
     )
     with ExitStack() as stack:
         publisher = stack.enter_context(_closing(RosSimPublisher(

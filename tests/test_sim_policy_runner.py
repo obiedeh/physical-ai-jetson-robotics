@@ -65,6 +65,8 @@ class Scene:
         self.targets: list[tuple[float, ...]] = []
         self.holds = 0
         self.randomized = 0
+        self.seeds: list[tuple[int | None, float]] = []
+        self.targets_at_randomize: list[int] = []
         self.cup_rest = 0.0
         self.cup_z = 0.0
 
@@ -79,8 +81,10 @@ class Scene:
     def hold(self) -> None:
         self.holds += 1
 
-    def randomize(self) -> None:
+    def randomize(self, seed: int | None, scale: float) -> None:
         self.randomized += 1
+        self.seeds.append((seed, scale))
+        self.targets_at_randomize.append(len(self.targets))
         self.cup_rest = 0.001 * self.randomized
         self.cup_z = self.cup_rest
 
@@ -124,8 +128,8 @@ class PlacingScene(Scene):
         else:
             self.cup_z = self.cup_rest + (0.05 if carried else 0.0)
 
-    def randomize(self) -> None:
-        super().randomize()
+    def randomize(self, seed: int | None, scale: float) -> None:
+        super().randomize(seed, scale)
         self.cup_xy = (0.3, 0.0)
 
     def read_cup(self) -> ObjectPose:
@@ -164,13 +168,14 @@ class Source:
 
 
 def runner(scene: Scene, clock: FakeClock, action: tuple[float, ...], *, trials: int = 2,
-           purpose: str = "simulation", period: float = 0.2) -> SimulationTrialRunner:
+           purpose: str = "simulation", period: float = 0.2, seed: int | None = None,
+           scale: float = 1.0) -> SimulationTrialRunner:
     """A runner over the fake scene with a policy that always answers ``action``."""
     client = PolicyClient(SynriaEmbodiment(contract(purpose)), FakePolicy(action),
                           load_limits(LIMITS), safety(period), clock=clock)
     config = TrialConfig(trials=trials, command_period_s=period, start_pose=START,
                          max_trial_s=6.0, lift_m=0.03, hold_s=1.0, settle_s=0.4,
-                         approach_s=1.0)
+                         approach_s=1.0, placement_seed=seed, randomize_scale=scale)
 
     def sleep(seconds: float) -> None:
         clock.now += seconds
@@ -256,6 +261,21 @@ def test_runner_scores_a_placement_and_a_cup_never_released(tmp_path: Path) -> N
     assert lift["trials"][0]["cup_start_xy_m"] == pytest.approx((0.3, 0.0))
 
 
+def test_seeded_placements_run_from_the_seed_plus_the_trial_index() -> None:
+    """With a placement seed every reset is seeded in order at the configured scale."""
+    clock = FakeClock()
+    scene = Scene(clock)
+    report = runner(scene, clock, START, trials=3, seed=2026, scale=2.0).run(
+        {"lane": "simulation"})
+    assert scene.seeds == [(2026, 2.0), (2027, 2.0), (2028, 2.0)]
+    assert [t["placement_seed"] for t in report["trials"]] == [2026, 2027, 2028]
+    assert "seeded" in report["placement_rule"] and report["config"]["randomize_scale"] == 2.0
+    for bad in ({"randomize_scale": 4.0}, {"randomize_scale": 0.0}, {"placement_seed": -1},
+                {"placement_seed": 1.5}):
+        with pytest.raises(ValueError, match="randomize_scale|placement_seed"):
+            TrialConfig(trials=1, command_period_s=0.2, start_pose=START, **bad)
+
+
 def test_runner_refuses_a_score_the_task_is_not_judged_by_or_a_missing_mark() -> None:
     """The place task refuses the lift score and runs only with the mark and gripper poses."""
     clock = FakeClock()
@@ -318,6 +338,11 @@ def test_runner_scores_a_lift_and_a_timeout_and_reports_both(tmp_path: Path) -> 
     assert first["approach_steps"] >= 1 and first["max_lift_m"] == pytest.approx(0.05)
     assert first["holds"] == 0 and first["cup_rest_z_m"] == pytest.approx(0.001)
     assert first["recoveries"] == 0 and "recovery_rule" in report
+    assert scene.seeds == [(None, 1.0)] * 2 and "unseeded" in report["placement_rule"]
+    assert first["placement_seed"] is None
+    # The arm is walked to the start pose before the layout is drawn, every trial.
+    assert scene.targets_at_randomize[0] == first["approach_steps"]
+    assert scene.targets_at_randomize[1] > scene.targets_at_randomize[0] + first["steps"]
     assert first["min_gripper_cup_distance_m"] == pytest.approx(0.0)
     assert first["final_gripper_cup_distance_m"] == pytest.approx(0.0)
     assert len(first["final_state"]) == 7 and first["final_state"][6] == 0.0

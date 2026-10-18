@@ -5,13 +5,17 @@ the sim arm state and the two recorded camera views from the scene's sim topics,
 policy server started with ``--lane simulation`` for actions through the ordinary
 :class:`~synria_lerobot.policy_client.PolicyClient`, and publishes seven-value joint
 targets on a sim-only topic that the scene's policy launch mode mirrors. Every trial
-starts with a randomized object reset, an approach from wherever the arm is to a fixed
-start pose, and a policy reset; it ends when the task's score has been met for
+starts with an approach from wherever the arm is to a fixed start pose, then a
+randomized object reset laid out for that pose, and a policy reset; it ends when the
+task's score has been met for
 ``hold_s`` without a break, or at the trial time limit. ``pick_cup`` scores a lift: the
 cup held ``lift_m`` above its rest height. ``cup_pick_and_place`` scores a placement:
 the cup lifted at least once, then at rest inside the scene's mark with the gripper
 backed clear. Both come from the scene's published poses, not from an operator label,
-so a data-scaling study can compare runs on the same rule.
+so a data-scaling study can compare runs on the same rule. With a placement seed every
+trial's reset is seeded (seed plus trial index) and the arm stands at the same start
+pose when the layout is drawn, so two campaigns with the same seed face the same
+placements and their success rates can be compared trial by trial.
 
 A hold is not a dead end here. When the client holds because the sim state sits a
 fraction past an operator bound (the physics drive overshoots a clamped target, or the
@@ -57,6 +61,9 @@ SIM_WRIST_TOPIC = "/isaac/wrist_camera/image_raw"
 SIM_OVERHEAD_TOPIC = "/isaac/overhead_camera/image_raw"
 SIM_TARGET_TOPIC = "/isaac/policy_joint_targets"
 SIM_RANDOMIZE_TOPIC = "/pick_objects_randomize"
+SIM_RANDOMIZE_SCALE_TOPIC = "/pick_objects_randomize_scale"
+SIM_RANDOMIZE_SEEDED_TOPIC = "/pick_objects_randomize_seeded"
+RANDOMIZE_SCALE_BOUNDS = (0.5, 3.0)
 SIM_CUP_POSE_TOPIC = "/isaac/pick_objects/cup/pose"
 SIM_GRIPPER_POSE_TOPIC = "/isaac/pick_objects/gripper/pose"
 SIM_PLACE_TARGET_POSE_TOPIC = "/isaac/pick_objects/place_target/pose"
@@ -136,6 +143,10 @@ class TrialConfig:
     place_radius_m: float = 0.03
     place_height_m: float = 0.01
     gripper_clear_m: float = 0.06
+    # The scene's Randomize scale (the panel's 1x, 2x, 3x) and, when set, the seed of
+    # trial 0's layout draw; trial i draws from seed + i. None leaves the scene's own draws.
+    randomize_scale: float = 1.0
+    placement_seed: int | None = None
 
     def __post_init__(self) -> None:
         """Reject a campaign that could not be scored or replayed."""
@@ -149,6 +160,13 @@ class TrialConfig:
                 raise ValueError(f"{name} must be a positive finite number")
         if self.score not in (LIFT_SCORE, PLACE_SCORE):
             raise ValueError(f"score must be {LIFT_SCORE} or {PLACE_SCORE}")
+        low, high = RANDOMIZE_SCALE_BOUNDS
+        if (type(self.randomize_scale) not in (int, float)
+                or not low <= float(self.randomize_scale) <= high):
+            raise ValueError(f"randomize_scale must be between {low:g} and {high:g}")
+        if self.placement_seed is not None and (type(self.placement_seed) is not int
+                                                or self.placement_seed < 0):
+            raise ValueError("placement_seed must be a nonnegative integer or None")
         pose = tuple(float(value) for value in self.start_pose)
         if len(pose) != 7 or any(not math.isfinite(value) for value in pose) or pose[6] < 0:
             raise ValueError("start_pose needs six joint angles in radians and a gripper width")
@@ -313,6 +331,7 @@ class TrialRecord:
     target_xy_m: tuple[float, float] | None
     min_cup_target_distance_m: float | None
     final_cup_target_distance_m: float | None
+    placement_seed: int | None
 
 
 class SimulationTrialRunner:
@@ -326,7 +345,7 @@ class SimulationTrialRunner:
         wrist_source: FrameSource,
         front_source: FrameSource,
         cup_source: PoseSource,
-        randomize: Callable[[], None],
+        randomize: Callable[[int | None, float], None],
         config: TrialConfig,
         *,
         clock: Callable[[], float] = time.monotonic,
@@ -341,7 +360,8 @@ class SimulationTrialRunner:
         task. ``gripper_source`` is optional for the lift score: with it every trial
         records how close the gripper came to the cup and where it ended, which tells a
         near miss from a far one. The place score needs it and ``target_source``, the
-        scene's mark pose.
+        scene's mark pose. ``randomize`` takes the trial's seed (None when the config has
+        no placement seed) and the Randomize scale.
         """
         contract = client.embodiment.contract
         contract.require_lane(SIMULATION_LANE)
@@ -383,12 +403,13 @@ class SimulationTrialRunner:
         return len(targets)
 
     def run_trial(self, index: int) -> TrialRecord:
-        """One trial: randomized reset, approach, policy reset, steps to the score or the limit."""
+        """One trial: approach, seeded random reset, policy reset, steps to the score or limit."""
         config = self.config
-        self.randomize()
-        self.sleep(config.settle_s)
         approach_steps = self.approach()
         self.sleep(config.settle_s / 2)
+        seed = None if config.placement_seed is None else config.placement_seed + index
+        self.randomize(seed, config.randomize_scale)
+        self.sleep(config.settle_s)
         cup_start = self.cup_source.read().position_m
         rest_z = cup_start[2]
         scorer: LiftScorer | PlaceScorer
@@ -464,6 +485,7 @@ class SimulationTrialRunner:
                                        if isinstance(scorer, PlaceScorer) else None),
             final_cup_target_distance_m=(scorer.final_target_distance_m
                                          if isinstance(scorer, PlaceScorer) else None),
+            placement_seed=seed,
         )
         verdict = "success" if success else "failure"
         closest = "" if min_distance is None else f", closest {min_distance * 100:.1f} cm"
@@ -511,6 +533,12 @@ class SimulationTrialRunner:
             "score_rule": self.score_rule(),
             "recovery_rule": ("a hold for a state past an operator bound publishes the state "
                               "clamped just inside the bounds, simulation lane only"),
+            "placement_rule": ("the arm is walked to the start pose first, then the scene "
+                               "draws a Randomize layout at the configured scale"
+                               + (", seeded with placement_seed plus the trial index so "
+                                  "campaigns sharing the seed face the same placements"
+                                  if self.config.placement_seed is not None else
+                                  " from the scene's own unseeded draws")),
             "trials": [asdict(trial) for trial in trials],
             "successes": successes,
             "success_rate": successes / len(trials),
@@ -625,38 +653,50 @@ class RosPoseSource(_LatestSource[ObjectPose]):
 
 
 class RosSimPublisher:
-    """Joint targets on the sim-only target topic and reset requests on the randomize topic.
+    """Joint targets on the sim-only target topic and reset requests on the randomize topics.
 
     The target topic is checked against the real arm's topics before any publisher
     exists. ``hold`` republishes the last target so the scene's drive keeps its place;
-    before any target it sends nothing.
+    before any target it sends nothing. A reset request goes on the plain randomize
+    topic (Bool, 1x), the scale topic (Float64) for another scale, or the seeded topic
+    (Float64MultiArray of seed and scale) when the trial carries a placement seed.
     """
 
     def __init__(
         self, *, target_topic: str = SIM_TARGET_TOPIC, randomize_topic: str = SIM_RANDOMIZE_TOPIC,
+        scale_topic: str = SIM_RANDOMIZE_SCALE_TOPIC,
+        seeded_topic: str = SIM_RANDOMIZE_SEEDED_TOPIC,
         node_name: str = "synria_sim_policy_runner",
     ) -> None:
-        """Create both publishers inside an owned ROS context."""
-        require_sim_only_topic(target_topic)
-        require_sim_only_topic(randomize_topic)
+        """Create the publishers inside an owned ROS context."""
+        for topic in (target_topic, randomize_topic, scale_topic, seeded_topic):
+            require_sim_only_topic(topic)
         try:
             import rclpy  # type: ignore[import-not-found]
             from rclpy.context import Context  # type: ignore[import-not-found]
             from sensor_msgs.msg import JointState  # type: ignore[import-not-found]
-            from std_msgs.msg import Bool  # type: ignore[import-not-found]
+            from std_msgs.msg import (  # type: ignore[import-not-found]
+                Bool,
+                Float64,
+                Float64MultiArray,
+            )
         except ImportError as exc:  # pragma: no cover - optional ROS dependency
             raise RuntimeError("ROS 2 publisher dependencies are unavailable") from exc
         self._rclpy = rclpy
         self._JointState, self._Bool = JointState, Bool
+        self._Float64, self._Float64MultiArray = Float64, Float64MultiArray
         self._context = Context()
         rclpy.init(context=self._context)
         self._node = rclpy.create_node(node_name, context=self._context)
         self._targets = self._node.create_publisher(JointState, target_topic, 10)
         self._randomize = self._node.create_publisher(Bool, randomize_topic, 10)
+        self._scale = self._node.create_publisher(Float64, scale_topic, 10)
+        self._seeded = self._node.create_publisher(Float64MultiArray, seeded_topic, 10)
         self._lock = threading.Lock()
         self._last: tuple[float, ...] | None = None
         self.sent = 0
         self.target_topic, self.randomize_topic = target_topic, randomize_topic
+        self.scale_topic, self.seeded_topic = scale_topic, seeded_topic
         self._closed = False
 
     def offer(self, action: tuple[float, ...]) -> None:
@@ -680,11 +720,23 @@ class RosSimPublisher:
         if last is not None:
             self.offer(last)
 
-    def request_randomize(self) -> None:
-        """Ask the scene for a Randomize and reset."""
-        message = self._Bool()
-        message.data = True
-        self._randomize.publish(message)
+    def request_randomize(self, seed: int | None = None, scale: float = 1.0) -> None:
+        """Ask the scene for a Randomize and reset at ``scale``, seeded when ``seed`` is given."""
+        low, high = RANDOMIZE_SCALE_BOUNDS
+        if not low <= float(scale) <= high:
+            raise ValueError(f"randomize scale must be between {low:g} and {high:g}")
+        if seed is not None:
+            seeded = self._Float64MultiArray()
+            seeded.data = [float(int(seed)), float(scale)]
+            self._seeded.publish(seeded)
+        elif float(scale) == 1.0:
+            message = self._Bool()
+            message.data = True
+            self._randomize.publish(message)
+        else:
+            scaled = self._Float64()
+            scaled.data = float(scale)
+            self._scale.publish(scaled)
 
     def close(self) -> None:
         """Destroy the publishers and release the owned context."""
@@ -692,6 +744,8 @@ class RosSimPublisher:
             _close_all(
                 _discard_result(lambda: self._node.destroy_publisher(self._targets)),
                 _discard_result(lambda: self._node.destroy_publisher(self._randomize)),
+                _discard_result(lambda: self._node.destroy_publisher(self._scale)),
+                _discard_result(lambda: self._node.destroy_publisher(self._seeded)),
                 self._node.destroy_node,
                 lambda: self._rclpy.shutdown(context=self._context),
             )
