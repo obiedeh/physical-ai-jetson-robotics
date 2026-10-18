@@ -55,9 +55,15 @@ class StubModel:
 def fixture(
     tmp_path: Path,
     task_id: str = "die_into_cup",
+    lane: str = "physical",
 ) -> tuple[CheckpointIdentity, Path, Path]:
+    """A stub checkpoint with a complete receipt, in the physical or the simulation lane."""
     config, contract = settings(tmp_path)
     contract.update(synthetic_task(0.1, 1, task_id).metadata())
+    if lane == "simulation":
+        contract.update(synthetic_task(0.1, 1, task_id).metadata("simulation"))
+        contract["recording_purpose"] = "simulation"
+        config["lane"] = "simulation"
     config["chunk_size"] = 12
     checkpoint = tmp_path / "checkpoint"
     checkpoint.mkdir()
@@ -71,7 +77,9 @@ def fixture(
         "probe_sha256": config["probe_sha256"],
         "configuration": config,
         "cadence": validate_config(config, contract),
-        "fixed_scene_motion_eligible": True,
+        "lane": lane,
+        "fixed_scene_motion_eligible": lane == "physical",
+        "simulation_motion_eligible": lane == "simulation",
         "eligible_task_ids": [task_id],
         "varying_target_motion_eligible": False,
         "task_text_conditioning": False,
@@ -97,7 +105,34 @@ def fixture(
         )
     )
     registry = synthetic_registry(tmp_path / "registry.json", 0.1, 1)
-    return CheckpointIdentity.load(checkpoint, receipt, registry), receipt, registry
+    return CheckpointIdentity.load(checkpoint, receipt, registry, lane), receipt, registry
+
+
+def test_each_server_lane_loads_only_its_own_checkpoints(tmp_path: Path) -> None:
+    """A sim checkpoint is refused by the physical server and served, marked, by the sim one."""
+    identity, receipt, registry = fixture(tmp_path, lane="simulation")
+    assert identity.lane == "simulation"
+    metadata = identity.metadata()
+    assert metadata["lane"] == "simulation" and metadata["physical_eligible"] is False
+    assert metadata["fixed_scene_motion_eligible"] is False
+    assert metadata["simulation_motion_eligible"] is True
+    with pytest.raises(ValueError, match="not eligible"):
+        CheckpointIdentity.load(identity.checkpoint, receipt, registry)
+    (tmp_path / "physical").mkdir()
+    physical, receipt, registry = fixture(tmp_path / "physical")
+    assert physical.metadata()["lane"] == "physical"
+    assert physical.metadata()["physical_eligible"] is True
+    with pytest.raises(ValueError, match="simulation lane"):
+        CheckpointIdentity.load(physical.checkpoint, receipt, registry, "simulation")
+    manifest = json.loads((identity.checkpoint / "physical_policy_manifest.json").read_text())
+    manifest["lane"] = "physical"
+    (identity.checkpoint / "physical_policy_manifest.json").write_text(json.dumps(manifest))
+    record = json.loads(receipt.read_text())
+    record.update(manifest)
+    record["checkpoint_content_sha256"] = strict_content_hash(identity.checkpoint)
+    receipt.write_text(json.dumps(record))
+    with pytest.raises(ValueError):
+        CheckpointIdentity.load(identity.checkpoint, receipt, registry, "simulation")
 
 
 def payload(identity: CheckpointIdentity, *, reset: bool = False) -> dict[str, Any]:

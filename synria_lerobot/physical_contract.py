@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass, field, replace
 from enum import Enum
 from typing import Any, TypedDict
@@ -12,6 +13,7 @@ from synria_lerobot.task_registry import (
     EPISODE_WINDOW_KEYS as EPISODE_WINDOW_KEYS,
 )
 from synria_lerobot.task_registry import (
+    SIMULATION,
     TASK_SOURCES,
     TaskDefinition,
     is_library_task_id,
@@ -44,6 +46,26 @@ ACTION_TIMING_KEYS = (
     "action_lookahead_steps", "effective_action_lookahead_steps",
     "nominal_action_lookahead_s", "requested_rate_hz",
 )
+# Training and serving lanes. The physical lane takes qualifying datasets only and is the
+# only lane whose checkpoints may ever be physical evidence. The simulation lane takes
+# simulation datasets only, for policies that run in the Isaac scene; its checkpoints,
+# ledger rows and evaluations are never physical evidence.
+PHYSICAL_LANE = "physical"
+SIMULATION_LANE = "simulation"
+TRAINING_LANES = (PHYSICAL_LANE, SIMULATION_LANE)
+
+
+def training_lane(config: Mapping[str, Any]) -> str:
+    """The lane a training configuration, probe set or checkpoint manifest belongs to.
+
+    A record without a lane field predates the simulation lane and is physical.
+    """
+    lane = config.get("lane", PHYSICAL_LANE)
+    if lane not in TRAINING_LANES:
+        raise ValueError("lane must be physical or simulation")
+    return str(lane)
+
+
 DIRECT_JOINT_COMMAND_TOPIC = "/joint_commands"
 DEFAULT_COMMAND_TOPICS = (DIRECT_JOINT_COMMAND_TOPIC, "/policy_joint_targets")
 STATE_SOURCE_KINDS = ("standalone_driver", "ros2_control", "isaac_simulation")
@@ -259,6 +281,20 @@ class PhysicalDatasetContract:
                 "disposable smoke, synthetic demo or simulation is not eligible for training "
                 "or physical evaluation"
             )
+
+    def require_lane(self, lane: str) -> None:
+        """Refuse a dataset outside the named training lane.
+
+        The physical lane trains and serves qualifying datasets only. The simulation lane
+        trains and serves simulation datasets only, and nothing it produces is physical
+        evidence.
+        """
+        if lane not in TRAINING_LANES:
+            raise ValueError("lane must be physical or simulation")
+        if lane == PHYSICAL_LANE:
+            self.require_qualifying()
+        elif self.recording_purpose != SIMULATION:
+            raise ValueError("the simulation lane trains and serves simulation datasets only")
 
     @classmethod
     def from_dict(cls, payload: dict[str, Any]) -> PhysicalDatasetContract:

@@ -143,6 +143,41 @@ Dataset, contract, split/probe hash, step, recipe, seed, host, git SHA and
 upstream version are recorded. A full content hash is checked again after each
 evaluation; hashing and training performance are unmeasured.
 
+## Simulation lane
+
+Takes recorded by the simulation console carry the `simulation` purpose, and the
+physical lane above refuses them. A policy for the Isaac scene trains in the
+simulation lane instead: set `"lane": "simulation"` in the training
+configuration and `"lane": "simulation"` in the probe set. The lane changes four
+things and nothing else:
+
+- the dataset contract must carry the `simulation` purpose, and a qualifying
+  dataset is refused, so the two lanes can never be mixed by mistake;
+- the probe set holds out episodes but carries no physical trials
+  (`physical_trials` is `[]`); closed-loop trials in the scene are the
+  simulation runner's business;
+- curated exclusions are kept: an excluded take is left out of training (it may
+  not be held out), and `training_episode_limit` may name how many of the
+  remaining takes to train on, in recording order, so each larger subset
+  contains every smaller one. Every omitted index is listed in the run and
+  checkpoint manifests as `omitted_episode_indices`; nothing goes unused silently;
+- the policy ledger must be the [simulation ledger](SIM_POLICY_LEDGER.md), whose
+  first line names the lane. Rows carry `lane=simulation` and
+  `N of M episodes trained`.
+
+Every manifest, checkpoint record and evaluation record from this lane says
+`"lane": "simulation"`, `"physical_eligible": false`,
+`"fixed_scene_motion_eligible": false` and `"simulation_motion_eligible": true`.
+The policy server loads such a checkpoint only with `--lane simulation`, and a
+physical server refuses it; the physical probe runner refuses simulation probes.
+A configuration or probe set without a `lane` field is physical.
+
+The data-scaling study trains the same dataset at several
+`training_episode_limit` values with the same held-out set, seed and step count,
+and compares the held-out action error per checkpoint (and, once the simulation
+runner exists, the closed-loop success rate in the scene) against the trained
+episode count.
+
 ## Failures and evidence
 
 Review the evidence directory's start/run manifests, checkpoint records and

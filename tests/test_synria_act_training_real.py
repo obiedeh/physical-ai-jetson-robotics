@@ -16,9 +16,12 @@ from test_lerobot_dataset_writer import synthetic_episode, writer_config
 from test_synria_act_training import settings
 from test_synria_checkpoint_eval import commit, fixed_probe_trial
 
-from synria_lerobot.act_training import train
+from synria_lerobot.act_training import train, validate_config
 from synria_lerobot.checkpoint_eval import register_probes, strict_content_hash
+from synria_lerobot.exclusions import append_exclusion
+from synria_lerobot.physical_contract import PhysicalDatasetContract
 from synria_lerobot.recorder import LeRobotDatasetWriter
+from synria_lerobot.task_registry import SIMULATION
 
 
 def training_fixture(
@@ -27,7 +30,9 @@ def training_fixture(
     *,
     episode_values: tuple[float, ...] = (0.01, 0.03, 0.9),
     record_dataset: Callable[[Path, tuple[float, ...]], None] | None = None,
+    simulation: bool = False,
 ) -> tuple[dict, Path]:
+    """A tiny committed-probe training setup; with simulation, a sim-lane dataset and probes."""
     monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")
     monkeypatch.setenv("HF_HUB_OFFLINE", "1")
     monkeypatch.setenv("WANDB_MODE", "disabled")
@@ -45,12 +50,15 @@ def training_fixture(
     if record_dataset is not None:
         record_dataset(dataset, episode_values)
     else:
-        writer = LeRobotDatasetWriter(
-            replace(writer_config(dataset), image_width=32, image_height=32)
-        )
+        base = writer_config(dataset)
+        if simulation:
+            base = replace(base, contract=replace(base.contract, recording_purpose=SIMULATION))
+        writer = LeRobotDatasetWriter(replace(base, image_width=32, image_height=32))
         try:
             for index, value in enumerate(episode_values):
                 episode = synthetic_episode(index, width=32, height=32)
+                if simulation:
+                    episode = replace(episode, declared_recording_purpose=SIMULATION)
                 episode.frames[:] = [
                     replace(
                         frame,
@@ -65,11 +73,18 @@ def training_fixture(
         finally:
             writer.finalize()
     config, contract = settings(tmp_path)
+    if simulation:
+        contract = replace(
+            PhysicalDatasetContract.from_dict(contract), recording_purpose=SIMULATION,
+        ).as_dict(fps=15)
+        config.update(expected_contract=contract, lane="simulation")
     assert json.loads((dataset / "physical_contract.json").read_text()) == contract
     repository = Path(config["repository"])
     repository.mkdir()
     subprocess.run(["git", "init", "-q", str(repository)], check=True)
-    (repository / "POLICY_LEDGER.md").write_text("# Synthetic ledger\n")
+    (repository / "POLICY_LEDGER.md").write_text(
+        "# Simulation policy ledger\n" if simulation else "# Synthetic ledger\n"
+    )
     probe = repository / "probes.json"
     values = json.loads(Path("config/synria_checkpoint_probes.json").read_text())
     values.update(
@@ -81,8 +96,9 @@ def training_fixture(
         physical_contract=contract,
         held_out_episodes=[len(episode_values) - 1],
         held_out_frame_counts={str(len(episode_values) - 1): 3},
-        physical_trials=[fixed_probe_trial("a")],
+        physical_trials=[] if simulation else [fixed_probe_trial("a")],
         capture=dict(fps=15, max_duration_s=10, shutdown_timeout_s=1),
+        lane="simulation" if simulation else "physical",
     )
     probe.write_text(json.dumps(values))
     config["probe_sha256"] = register_probes(probe)
@@ -213,6 +229,60 @@ def test_real_two_cpu_updates_save_each_checkpoint_evaluate_and_reload(
         worker.join(timeout=3)
         server.server_close()
     assert not worker.is_alive()
+
+
+def test_real_simulation_lane_trains_a_subset_and_marks_nothing_physical(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Four sim takes, one held out, one excluded, limit one: the lane is stamped everywhere."""
+    config, dataset = training_fixture(
+        tmp_path, monkeypatch, episode_values=(0.01, 0.03, 0.05, 0.9), simulation=True,
+    )
+    append_exclusion(dataset, 1, action="exclude", reason_code="operator_interruption",
+                     note="cancelled take", operator="fixture")
+    config["training_episode_limit"] = 1
+    contract = json.loads((dataset / "physical_contract.json").read_text())
+    with pytest.raises(ValueError, match="not eligible"):
+        validate_config({**config, "lane": "physical"}, contract)
+    manifest = train(
+        dataset, dataset / "physical_contract.json", tmp_path / "raw-training", 7, 1, config
+    )
+    assert manifest["status"] == "completed" and manifest["completed_steps"] == 1
+    assert manifest["lane"] == "simulation" and manifest["physical_eligible"] is False
+    assert manifest["fixed_scene_motion_eligible"] is False
+    assert manifest["simulation_motion_eligible"] is True
+    assert manifest["training_episode_indices"] == (0,)
+    assert manifest["omitted_episode_indices"] == (1, 2)
+    assert manifest["excluded_episode_ids"] == [1] and manifest["training_episode_limit"] == 1
+    assert manifest["held_out_episodes"] == [3]
+    repository = Path(config["repository"])
+    [evaluation] = (repository / config["evidence_directory"] / "evaluations").glob("*.json")
+    record = json.loads(evaluation.read_text())
+    assert record["lane"] == "simulation" and record["omitted_episode_indices"] == [1, 2]
+    assert record["status"] == "evaluated"
+    ledger = (repository / config["policy_ledger"]).read_text()
+    [row] = [line for line in ledger.splitlines() if line.startswith("|")]
+    assert "lane=simulation" in row and "1 of 4 episodes trained" in row
+    assert "never physical evidence" in row
+    for entry in manifest["checkpoints"]:
+        saved = json.loads((Path(entry["path"]) / "physical_policy_manifest.json").read_text())
+        assert saved["lane"] == "simulation" and saved["physical_eligible"] is False
+
+
+def test_simulation_lane_needs_its_own_ledger_and_a_limit_within_the_data(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A physical ledger refuses sim rows before anything is written; the limit is bounded."""
+    config, dataset = training_fixture(tmp_path, monkeypatch, simulation=True)
+    repository = Path(config["repository"])
+    (repository / "POLICY_LEDGER.md").write_text("# Policy ledger\n")
+    with pytest.raises(ValueError, match="names the simulation lane"):
+        train(dataset, dataset / "physical_contract.json", tmp_path / "out-a", 1, 1, config)
+    (repository / "POLICY_LEDGER.md").write_text("# Simulation policy ledger\n")
+    config["training_episode_limit"] = 3
+    with pytest.raises(ValueError, match="exceeds the episodes available"):
+        train(dataset, dataset / "physical_contract.json", tmp_path / "out-b", 1, 1, config)
+    assert not (repository / config["evidence_directory"]).exists()
 
 
 @pytest.mark.parametrize(

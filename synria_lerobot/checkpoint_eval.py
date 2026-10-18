@@ -22,7 +22,13 @@ import numpy as np
 
 from .embodiment import SynriaObservation
 from .evaluation import committed_bytes
-from .physical_contract import DRIVER_JOINT_NAMES, PhysicalDatasetContract
+from .physical_contract import (
+    DRIVER_JOINT_NAMES,
+    PHYSICAL_LANE,
+    SIMULATION_LANE,
+    PhysicalDatasetContract,
+    training_lane,
+)
 from .policy_client import GuardedCommandPath, PolicyClient, PolicyTransport
 from .quality_gates import OBJECT_SUCCESS_LIMITATION, load_limits
 from .task_registry import validate_fixed_scene_schedule
@@ -158,10 +164,17 @@ def validate_probes(config: dict[str, Any]) -> None:
     if type(physical) is not dict or type(physical.get("state_has_velocity")) is not bool:
         raise ValueError("complete typed physical contract required for frozen probes")
     contract = PhysicalDatasetContract.from_dict(physical)
-    contract.require_qualifying()
+    lane = training_lane(config)
+    contract.require_lane(lane)
     if config.get("task_id") != contract.task_id:
         raise ValueError("probe task must match its frozen physical contract")
-    validate_fixed_scene_schedule(config.get("physical_trials"), contract.task_id)
+    if lane == SIMULATION_LANE:
+        # Simulation probes hold out episodes only; closed-loop trials in the scene are
+        # declared by the simulation runner, never as physical trials.
+        if config.get("physical_trials") != []:
+            raise ValueError("simulation probes carry no physical trials")
+    else:
+        validate_fixed_scene_schedule(config.get("physical_trials"), contract.task_id)
     capture = config.get("capture")
     if not isinstance(capture, dict):
         raise ValueError("explicit fixed probe capture settings required")
@@ -278,12 +291,30 @@ class CheckpointEvaluator:
         training_episode_indices: tuple[int, ...],
         *,
         metadata_reader: Callable[[Path], dict[int, int]] = read_episode_metadata,
+        lane: str = PHYSICAL_LANE,
+        omitted_episode_indices: tuple[int, ...] = (),
     ) -> None:
+        """Freeze the partition for one lane.
+
+        Physical training uses every episode outside the held-out set. The simulation
+        lane may omit episodes (curated exclusions and the data-scaling subsets); the
+        omitted indices are named here, so training plus omitted plus held out still
+        covers the whole dataset and nothing goes unused silently.
+        """
         self.probe_path, self.repository, self.probe_hash = probes, repository, expected_probe_hash
         self.probes = load_probes(probes, repository, expected_probe_hash)
+        self.lane = training_lane({"lane": lane})
+        if training_lane(self.probes) != self.lane:
+            raise ValueError("probe set lane differs from the training lane")
         self.training_ids = _episode_ids(training_episode_indices)
-        if set(self.training_ids) & set(self.probes["held_out_episodes"]):
-            raise ValueError("training and frozen held-out episodes must be disjoint")
+        self.omitted_ids = tuple(sorted({int(index) for index in omitted_episode_indices}))
+        if self.omitted_ids and self.lane != SIMULATION_LANE:
+            raise ValueError("omitted episodes are a simulation-lane study setting")
+        if any(type(index) is not int or index < 0 for index in omitted_episode_indices):
+            raise ValueError("omitted episode indices must be nonnegative integers")
+        held = set(self.probes["held_out_episodes"])
+        if set(self.training_ids) & held or set(self.omitted_ids) & (held | set(self.training_ids)):
+            raise ValueError("training, omitted and frozen held-out episodes must be disjoint")
         self.dataset_root = dataset_root
         self.dataset_hash = strict_content_hash(dataset_root)
         if self.dataset_hash != self.probes["dataset_content_sha256"]:
@@ -292,7 +323,9 @@ class CheckpointEvaluator:
         held_out = {int(key): value for key, value in self.probes["held_out_frame_counts"].items()}
         if (
             not self.episode_lengths
-            or set(self.training_ids) != set(self.episode_lengths) - set(held_out)
+            or set(self.training_ids) | set(self.omitted_ids) != (
+                set(self.episode_lengths) - set(held_out)
+            )
             or any(self.episode_lengths.get(index) != count for index, count in held_out.items())
         ):
             raise ValueError(
@@ -302,7 +335,7 @@ class CheckpointEvaluator:
             (dataset_root / "physical_contract.json").read_text(encoding="utf-8")
         )
         contract = PhysicalDatasetContract.from_dict(self.contract)
-        contract.require_qualifying()
+        contract.require_lane(self.lane)
         if self.probes["physical_contract"] != self.contract:
             raise ValueError("frozen probe task/contract differs from the dataset")
         if contract.as_dict(fps=self.contract["requested_rate_hz"]) != self.contract:
@@ -341,7 +374,9 @@ class CheckpointEvaluator:
             "probe_sha256": self.probe_hash,
             "probe_set_id": self.probes["probe_set_id"],
             "physical_contract": self.contract,
+            "lane": self.lane,
             "training_episode_indices": self.training_ids,
+            "omitted_episode_indices": self.omitted_ids,
             "held_out_episodes": self.probes["held_out_episodes"],
             "held_out_frame_counts": self.probes["held_out_frame_counts"],
             "checkpoint_path": str(checkpoint.resolve()),
@@ -630,6 +665,8 @@ def run_physical_probes(
     from .turn_executor import FixedSkillExecutor
 
     probes = load_probes(probe_path, repository, expected_probe_hash)
+    if training_lane(probes) != PHYSICAL_LANE:
+        raise ValueError("physical probes refuse the simulation lane")
     saved = json.loads(checkpoint_record.read_text(encoding="utf-8"))
     if (
         saved.get("purpose") != DIAGNOSTIC_PURPOSE

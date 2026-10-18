@@ -148,6 +148,47 @@ def test_training_refuses_disposable_contract_even_when_expected_matches(
         validate_config(config, contract)
 
 
+def simulation_contract(task_id: str = "die_into_cup") -> dict[str, Any]:
+    """A dataset contract recorded in the Isaac scene, as the simulation console writes it."""
+    return PhysicalDatasetContract(
+        "50mm", ActionSource.NEXT_STATE, False, task_id=task_id,
+        task_definition=synthetic_task(0.1, 1), recording_purpose="simulation",
+    ).as_dict(fps=15)
+
+
+def test_each_lane_accepts_only_its_own_datasets(tmp_path: Path) -> None:
+    """Physical trains qualifying data only; simulation trains simulation data only."""
+    config, physical = settings(tmp_path)
+    simulated = simulation_contract()
+    assert validate_config(config, physical)["command_stride_steps"] == 6
+    with pytest.raises(ValueError, match="not eligible"):
+        validate_config({**config, "expected_contract": simulated}, simulated)
+    sim_config = {**config, "lane": "simulation", "expected_contract": simulated}
+    assert validate_config(sim_config, simulated)["command_stride_steps"] == 6
+    with pytest.raises(ValueError, match="simulation lane"):
+        validate_config({**sim_config, "expected_contract": physical}, physical)
+    with pytest.raises(ValueError, match="lane must be"):
+        validate_config({**config, "lane": "bench"}, physical)
+
+
+@pytest.mark.parametrize("limit", [0, True, 2.0, "2"])
+def test_episode_limit_must_be_a_positive_integer(tmp_path: Path, limit: Any) -> None:
+    """The data-scaling subset size is validated like every other hyperparameter."""
+    config, _ = settings(tmp_path)
+    simulated = simulation_contract()
+    sim_config = {**config, "lane": "simulation", "expected_contract": simulated,
+                  "training_episode_limit": limit}
+    with pytest.raises(ValueError, match="training_episode_limit"):
+        validate_config(sim_config, simulated)
+
+
+def test_episode_limit_is_refused_outside_the_simulation_lane(tmp_path: Path) -> None:
+    """Physical training always uses every episode outside the held-out set."""
+    config, physical = settings(tmp_path)
+    with pytest.raises(ValueError, match="simulation-lane study setting"):
+        validate_config({**config, "training_episode_limit": 5}, physical)
+
+
 @pytest.mark.parametrize(
     "key,value",
     [

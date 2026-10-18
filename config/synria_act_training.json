@@ -2,6 +2,8 @@
   "version": "synria_act_training_v1",
   "policy_id": "",
   "dataset_repo_id": "",
+  "lane": "physical",
+  "training_episode_limit": null,
   "expected_contract": null,
   "repository": "",
   "probe_set": "",

@@ -28,8 +28,13 @@ from .checkpoint_eval import (
     strict_content_hash,
 )
 from .evaluation import append_policy_row
-from .exclusions import require_training_exclusions, require_unchanged_exclusions
-from .physical_contract import PhysicalDatasetContract
+from .exclusions import read_exclusions, require_training_exclusions, require_unchanged_exclusions
+from .physical_contract import (
+    PHYSICAL_LANE,
+    SIMULATION_LANE,
+    PhysicalDatasetContract,
+    training_lane,
+)
 
 TRAINING_VERSION = "synria_act_training_v1"
 CADENCE_SEMANTICS = (
@@ -121,7 +126,16 @@ def validate_config(config: dict[str, Any], contract: dict[str, Any]) -> dict[st
     for key in ("requested_rate_hz", "nominal_action_lookahead_s"):
         _number(contract.get(key), key, allow_zero=key != "requested_rate_hz")
     physical = PhysicalDatasetContract.from_dict(contract)
-    physical.require_qualifying()
+    lane = training_lane(config)
+    physical.require_lane(lane)
+    limit = config.get("training_episode_limit")
+    if limit is not None:
+        _integer(limit, "training_episode_limit")
+        if lane != SIMULATION_LANE:
+            raise ValueError(
+                "training_episode_limit is a simulation-lane study setting; "
+                "physical training uses every episode outside the frozen held-out set"
+            )
     if physical.as_dict(fps=contract["requested_rate_hz"]) != contract:
         raise ValueError("inconsistent physical contract metadata")
     period = _number(config.get("command_period_s"), "command_period_s")
@@ -333,6 +347,13 @@ def train(
     ):
         raise ValueError("training output must not contain inputs or evidence destinations")
     ledger_text = ledger.read_text(encoding="utf-8")
+    lane = training_lane(config)
+    heading = ledger_text.splitlines()[0].lower() if ledger_text.strip() else ""
+    if (lane == SIMULATION_LANE) != ("simulation" in heading):
+        raise ValueError(
+            "the policy ledger's first line names the simulation lane exactly when training "
+            "in it; physical and simulation rows never share a ledger"
+        )
     if any(
         line.startswith("|")
         and len(line.split("|")) > 3
@@ -341,13 +362,32 @@ def train(
     ):
         raise ValueError("policy id already recorded")
     frozen = load_probes(probes, repository, config["probe_sha256"])
-    exclusions = require_training_exclusions(dataset_root, frozen["held_out_episodes"])
+    if lane == SIMULATION_LANE:
+        # A simulation dataset keeps its curated exclusions: excluded takes are left out
+        # of training and may not be held out. The exclusion log hash is recorded below
+        # and checked unchanged at every save, so the partition stays reproducible.
+        exclusions = read_exclusions(dataset_root)
+        conflict = set(exclusions.excluded_ids) & set(frozen["held_out_episodes"])
+        if conflict:
+            raise ValueError(f"frozen held-out probe episodes are excluded: {sorted(conflict)}")
+    else:
+        exclusions = require_training_exclusions(dataset_root, frozen["held_out_episodes"])
     metadata = read_episode_metadata(dataset_root)
     if set(exclusions.entries) - set(metadata):
         raise ValueError("exclusion log references episodes missing from the training dataset")
-    training_ids = tuple(sorted(set(metadata) - set(frozen["held_out_episodes"])))
+    available = tuple(sorted(
+        set(metadata) - set(frozen["held_out_episodes"]) - set(exclusions.excluded_ids)
+    ))
+    limit = config.get("training_episode_limit")
+    if limit is not None and limit > len(available):
+        raise ValueError("training_episode_limit exceeds the episodes available for training")
+    # The study subsets are the first N episodes in recording order, so each larger
+    # subset contains every smaller one.
+    training_ids = available if limit is None else available[:limit]
+    omitted = tuple(sorted(set(metadata) - set(frozen["held_out_episodes"]) - set(training_ids)))
     evaluator = CheckpointEvaluator(
-        probes, repository, config["probe_sha256"], dataset_root, training_ids
+        probes, repository, config["probe_sha256"], dataset_root, training_ids,
+        lane=lane, omitted_episode_indices=omitted,
     )
     if evaluator.contract != contract:
         raise ValueError("frozen dataset contract differs from requested contract")
@@ -465,6 +505,10 @@ def train(
         "probe_set": str(probes.resolve()),
         "training_episode_indices": training_ids,
         "held_out_episodes": frozen["held_out_episodes"],
+        "lane": lane,
+        "physical_eligible": lane == PHYSICAL_LANE,
+        "training_episode_limit": limit,
+        "omitted_episode_indices": omitted,
         "cadence": cadence,
         "configuration": config,
         "seed": seed,
@@ -481,7 +525,8 @@ def train(
         },
         "visual_goal_cue_declared": False,
         "varying_target_motion_eligible": False,
-        "fixed_scene_motion_eligible": True,
+        "fixed_scene_motion_eligible": lane == PHYSICAL_LANE,
+        "simulation_motion_eligible": lane == SIMULATION_LANE,
         "eligible_task_ids": [contract["task_id"]],
         "training_stats": _plain_stats(stats),
         "pretrained_backbone_weights": None,
@@ -629,12 +674,16 @@ def train(
             fields = [
                 manifest["utc"],
                 config["policy_id"],
-                f"{config['dataset_repo_id']}; {len(metadata)} episodes; {evaluator.dataset_hash}",
-                f"ACT; seed={seed}; steps={steps}; config={evidence / 'training_run.json'}",
+                f"{config['dataset_repo_id']}; {len(training_ids)} of {len(metadata)} episodes "
+                f"trained; {evaluator.dataset_hash}",
+                f"ACT; lane={lane}; seed={seed}; steps={steps}; "
+                f"config={evidence / 'training_run.json'}",
                 latest["checkpoint_content_sha256"] if latest else "N/A (no finalized checkpoint)",
                 str(evidence / "training_run.json"),
                 f"{manifest['status']}; {manifest['completed_steps']} completed steps",
-                "Diagnostic only; no D2 policy selection or physical result",
+                ("Simulation lane; diagnostic only; never physical evidence"
+                 if lane == SIMULATION_LANE
+                 else "Diagnostic only; no D2 policy selection or physical result"),
             ]
             try:
                 append_policy_row(
