@@ -68,6 +68,19 @@ def validate_image_transforms(value: Any) -> dict[str, Any] | None:
     return value
 
 
+def validate_dataloader_workers(value: Any) -> int:
+    """Check the optional count of training data loader worker processes; absent means 0.
+
+    With 0 every frame is decoded and augmented in the training process itself, which
+    starves the GPU once image transforms are enabled. Workers decode and augment in
+    parallel; the batch order still follows the seeded sampler, so a run stays
+    reproducible for a given worker count. Held-out evaluation always uses 0.
+    """
+    if value is None:
+        return 0
+    return _integer(value, "dataloader_workers", minimum=0)
+
+
 def validate_temporal_ensemble(value: Any) -> float | None:
     """Check the optional server-side temporal ensembling coefficient; None disables it."""
     if value is None:
@@ -191,6 +204,7 @@ def validate_config(config: dict[str, Any], contract: dict[str, Any]) -> dict[st
         raise ValueError("explicit cpu/cuda device and local pyav video backend required")
     validate_image_transforms(config.get("image_transforms"))
     validate_temporal_ensemble(config.get("temporal_ensemble_coeff"))
+    validate_dataloader_workers(config.get("dataloader_workers"))
     architecture = config.get("architecture")
     keys = {
         "dim_model",
@@ -518,11 +532,13 @@ def train(
     optimizer = optimizer_config.build(policy.get_optim_params())
     preprocessor, postprocessor = make_act_pre_post_processors(policy_config, dataset_stats=stats)
     policy, optimizer = accelerator.prepare(policy, optimizer)
+    workers = validate_dataloader_workers(config.get("dataloader_workers"))
     loader = torch.utils.data.DataLoader(
         training,
         batch_size=config["batch_size"],
         shuffle=True,
-        num_workers=0,
+        num_workers=workers,
+        persistent_workers=workers > 0,
         generator=torch.Generator().manual_seed(seed),
     )
     held_loader = torch.utils.data.DataLoader(
@@ -543,7 +559,7 @@ def train(
         seed=seed,
         batch_size=config["batch_size"],
         steps=steps,
-        num_workers=0,
+        num_workers=workers,
         env=None,
         env_eval_freq=0,
         eval_steps=0,
