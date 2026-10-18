@@ -1980,12 +1980,17 @@ def build_recording_session(
     args: argparse.Namespace, *, synthetic_demo: bool = False, simulation: bool = False,
     clock: Callable[[], float] | None = None,
     preflight: Callable[[str, dict[str, Any]], None] | None = None,
+    injected_action_source: ActionSource | None = None,
 ) -> Iterator[PhysicalEpisodeRecorder]:
     """Own the single recording construction path and close partial startups safely.
 
     Physical construction always measures callbacks, validates state fields and
     queries the command graph before opening the writer or cameras. Explicit
     demo construction can only generate a nonqualifying synthetic dataset.
+    ``injected_action_source`` replaces the leader or next-state source with a
+    caller's own, which the simulation demonstration engine uses to record the
+    staged executor's commands as leader-type actions; it is refused outside the
+    simulation lane so no physical dataset can carry a synthetic action.
     """
     @contextmanager
     def checked(name: str, **details: Any) -> Iterator[None]:
@@ -2063,7 +2068,12 @@ def build_recording_session(
             with checked("dataset_lock_and_recovery", dataset_path=str(config.dataset_path)):
                 writer = LeRobotDatasetWriter(config)
             startup_cleanup.callback(_close_all, writer.finalize)
-            if contract.action_source is ActionSourceKind.LEADER:
+            action_source: ActionSource
+            if injected_action_source is not None:
+                if not simulation:
+                    raise ValueError("an injected action source is simulation-lane only")
+                action_source = injected_action_source
+            elif contract.action_source is ActionSourceKind.LEADER:
                 leader_state: StateSource
                 if synthetic_demo:
                     leader_state = SyntheticStateSource(config, clock=source_clock)
@@ -2074,7 +2084,7 @@ def build_recording_session(
                         first_sample_timeout_s=args.state_startup_timeout_s,
                     )
                 startup_cleanup.callback(_close_all, leader_state.close)
-                action_source: ActionSource = LeaderActionSource(leader_state)
+                action_source = LeaderActionSource(leader_state)
             else:
                 action_source = NextStateActionSource()
             wrist: FrameSource
