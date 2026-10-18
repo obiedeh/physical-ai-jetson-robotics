@@ -110,6 +110,61 @@ def validate_episode_weights(value: Any) -> dict[int, float] | None:
     return weights
 
 
+def validate_state_noise(value: Any) -> dict[str, float] | None:
+    """Check the optional training-time joint state perturbation; None leaves the state alone.
+
+    ``joint_rad`` and ``gripper_m`` are the standard deviations of Gaussian noise added to
+    every training sample's state, in driver units; ``drop_probability`` is the share of
+    samples whose state is replaced by the training mean, so the model cannot read the
+    grasp timing off its own joints and has to look at the cameras.
+    """
+    if value is None:
+        return None
+    if type(value) is not dict or set(value) != {"joint_rad", "gripper_m", "drop_probability"}:
+        raise ValueError("state_noise needs joint_rad, gripper_m and drop_probability")
+    for key in ("joint_rad", "gripper_m"):
+        _number(value[key], key, allow_zero=True)
+    probability = _number(value["drop_probability"], "drop_probability", allow_zero=True)
+    if probability >= 1:
+        raise ValueError("drop_probability must be below one")
+    if value["joint_rad"] == 0 and value["gripper_m"] == 0 and probability == 0:
+        raise ValueError("state_noise with every value zero should be null")
+    return {key: float(value[key]) for key in ("joint_rad", "gripper_m", "drop_probability")}
+
+
+def validate_action_smoothing(value: Any) -> int | None:
+    """Check the optional odd window of the moving average over joint actions; None is off."""
+    if value is None:
+        return None
+    window = _integer(value, "action_smoothing_window", minimum=3)
+    if window % 2 == 0:
+        raise ValueError("action_smoothing_window must be odd")
+    return window
+
+
+def validate_grasp_phase(value: Any) -> dict[str, float] | None:
+    """Check the optional oversampling of the frames around each take's final close.
+
+    The final close is the frame after the last one whose gripper action is below
+    ``close_above_m`` (driver units, 0 open). Frames from ``seconds_before_close`` before
+    it to ``seconds_after_close`` after it are drawn ``weight`` times as often. A take
+    that never closes, or ends open, gets no weighted frames.
+    """
+    if value is None:
+        return None
+    keys = {"seconds_before_close", "seconds_after_close", "close_above_m", "weight"}
+    if type(value) is not dict or set(value) != keys:
+        raise ValueError("grasp_phase needs seconds_before_close, seconds_after_close, "
+                         "close_above_m and weight")
+    _number(value["seconds_before_close"], "seconds_before_close", allow_zero=True)
+    _number(value["seconds_after_close"], "seconds_after_close", allow_zero=True)
+    _number(value["close_above_m"], "close_above_m")
+    weight = _number(value["weight"], "weight")
+    if weight == 1:
+        raise ValueError("grasp_phase weight of one should be null")
+    return {key: float(value[key]) for key in sorted(keys)}
+
+
 def validate_temporal_ensemble(value: Any) -> float | None:
     """Check the optional server-side temporal ensembling coefficient; None disables it."""
     if value is None:
@@ -235,6 +290,9 @@ def validate_config(config: dict[str, Any], contract: dict[str, Any]) -> dict[st
     validate_temporal_ensemble(config.get("temporal_ensemble_coeff"))
     validate_dataloader_workers(config.get("dataloader_workers"))
     validate_episode_weights(config.get("episode_weights"))
+    validate_state_noise(config.get("state_noise"))
+    validate_action_smoothing(config.get("action_smoothing_window"))
+    validate_grasp_phase(config.get("grasp_phase"))
     architecture = config.get("architecture")
     keys = {
         "dim_model",
@@ -378,6 +436,64 @@ def _image_transforms(transforms_config: Any) -> Any:
     from lerobot.transforms.transforms import ImageTransforms
 
     return ImageTransforms(transforms_config)
+
+
+def grasp_phase_frame_weights(
+    episodes: list[int], frames: list[int], grippers: list[float], fps: float,
+    phase: dict[str, float],
+) -> tuple[list[float], int]:
+    """Per-frame weights around each take's final close, and how many frames were weighted.
+
+    The inputs list every training frame once, in any order; the result lines up with
+    them. See :func:`validate_grasp_phase` for the rule.
+    """
+    by_episode: dict[int, list[tuple[int, int, float]]] = {}
+    for position, (episode, frame, gripper) in enumerate(zip(episodes, frames, grippers,
+                                                             strict=True)):
+        by_episode.setdefault(episode, []).append((frame, position, gripper))
+    weights = [1.0] * len(episodes)
+    before = round(phase["seconds_before_close"] * fps)
+    after = round(phase["seconds_after_close"] * fps)
+    count = 0
+    for items in by_episode.values():
+        items.sort()
+        values = [gripper for _, _, gripper in items]
+        below = [index for index, value in enumerate(values) if value < phase["close_above_m"]]
+        if not below or below[-1] == len(values) - 1:
+            continue
+        close = below[-1] + 1
+        for index in range(max(0, close - before), min(len(values), close + after + 1)):
+            weights[items[index][1]] = phase["weight"]
+            count += 1
+    return weights, count
+
+
+def smooth_actions(actions: Any, window: int) -> Any:
+    """A centred moving average over the chunk axis of the six joint actions; gripper kept.
+
+    ``actions`` is a (batch, chunk, 7) tensor; the ends of the chunk are padded by
+    repeating the edge value so the average never reaches outside the chunk.
+    """
+    import torch
+    import torch.nn.functional as functional
+
+    half = window // 2
+    joints = actions[..., :6].transpose(1, 2)
+    padded = functional.pad(joints, (half, half), mode="replicate")
+    smoothed = functional.avg_pool1d(padded, kernel_size=window, stride=1).transpose(1, 2)
+    return torch.cat([smoothed, actions[..., 6:]], dim=-1)
+
+
+def perturb_state(state: Any, noise: dict[str, float], mean: Any, generator: Any) -> Any:
+    """The (batch, 7) state tensor with Gaussian noise added and some rows set to the mean."""
+    import torch
+
+    scale = torch.tensor([noise["joint_rad"]] * 6 + [noise["gripper_m"]], dtype=state.dtype)
+    perturbed = state + torch.randn(state.shape, generator=generator, dtype=state.dtype) * scale
+    if noise["drop_probability"] > 0:
+        dropped = torch.rand(state.shape[0], generator=generator) < noise["drop_probability"]
+        perturbed[dropped] = mean.to(state.dtype)
+    return perturbed
 
 
 def _evaluation_batches(loader: Any) -> Iterator[PredictionBatch]:
@@ -564,19 +680,35 @@ def train(
     policy, optimizer = accelerator.prepare(policy, optimizer)
     workers = validate_dataloader_workers(config.get("dataloader_workers"))
     weights = validate_episode_weights(config.get("episode_weights"))
+    phase = validate_grasp_phase(config.get("grasp_phase"))
     applied_weights: dict[str, float] | None = None
+    phase_frames: int | None = None
     sampler = None
-    if weights is not None:
-        # Frames are drawn with replacement in proportion to their episode's weight; an
-        # episode outside the training set contributes nothing, and the record says which
-        # weights took effect.
+    if weights is not None or phase is not None:
+        # Frames are drawn with replacement in proportion to their episode's weight times
+        # their grasp-phase weight; an episode outside the training set contributes
+        # nothing, and the record says which weights took effect.
         frame_episodes = [int(index) for index in training.hf_dataset["episode_index"]]
-        applied_weights = {str(index): weights.get(index, 1.0) for index in training_ids}
-        frame_weights = [weights.get(index, 1.0) for index in frame_episodes]
+        frame_weights = [1.0] * len(frame_episodes)
+        if weights is not None:
+            applied_weights = {str(index): weights.get(index, 1.0) for index in training_ids}
+            frame_weights = [weights.get(index, 1.0) for index in frame_episodes]
+        if phase is not None:
+            frame_indices = [int(index) for index in training.hf_dataset["frame_index"]]
+            grippers = [float(action[6]) for action in training.hf_dataset["action"]]
+            phase_weights, phase_frames = grasp_phase_frame_weights(
+                frame_episodes, frame_indices, grippers, float(contract["requested_rate_hz"]),
+                phase,
+            )
+            frame_weights = [a * b for a, b in zip(frame_weights, phase_weights, strict=True)]
         sampler = torch.utils.data.WeightedRandomSampler(
             frame_weights, num_samples=len(frame_weights), replacement=True,
             generator=torch.Generator().manual_seed(seed),
         )
+    state_noise = validate_state_noise(config.get("state_noise"))
+    smoothing = validate_action_smoothing(config.get("action_smoothing_window"))
+    state_mean = torch.as_tensor(np.asarray(stats["observation.state"]["mean"])).reshape(-1)
+    noise_generator = torch.Generator().manual_seed(seed + 1)
     loader = torch.utils.data.DataLoader(
         training,
         batch_size=config["batch_size"],
@@ -634,8 +766,13 @@ def train(
         "training_episode_limit": limit,
         "omitted_episode_indices": omitted,
         "episode_weights": applied_weights,
-        "frame_sampling": ("uniform over training frames" if applied_weights is None
-                           else "with replacement, in proportion to the episode weights"),
+        "grasp_phase": phase,
+        "grasp_phase_frames": phase_frames,
+        "frame_sampling": ("uniform over training frames" if sampler is None
+                           else "with replacement, in proportion to the episode weights "
+                                "times the grasp-phase weights"),
+        "state_noise": state_noise,
+        "action_smoothing_window": smoothing,
         "cadence": cadence,
         "configuration": config,
         "seed": seed,
@@ -695,6 +832,12 @@ def train(
             except StopIteration:
                 iterator = iter(loader)
                 batch = next(iterator)
+            if state_noise is not None:
+                batch["observation.state"] = perturb_state(
+                    batch["observation.state"], state_noise, state_mean, noise_generator,
+                )
+            if smoothing is not None:
+                batch["action"] = smooth_actions(batch["action"], smoothing)
             optimization_started = True
             metrics, _ = update_policy(
                 metrics,

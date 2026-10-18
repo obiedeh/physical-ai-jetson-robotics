@@ -332,6 +332,8 @@ class TrialRecord:
     min_cup_target_distance_m: float | None
     final_cup_target_distance_m: float | None
     placement_seed: int | None
+    # Steps on which the client's gripper guard kept the gripper where it was.
+    guarded_steps: int
 
 
 class SimulationTrialRunner:
@@ -425,6 +427,7 @@ class SimulationTrialRunner:
         holds: Counter[str] = Counter()
         steps = 0
         recoveries = 0
+        guarded = 0
         min_distance: float | None = None
         final_distance: float | None = None
         last_state: tuple[float, ...] = ()
@@ -438,6 +441,7 @@ class SimulationTrialRunner:
                 decision = self.client.step(observation, reset=first)
                 first = False
                 steps += 1
+                guarded += decision.gripper_guard is not None
                 if decision.hold or decision.action is None:
                     holds[decision.reason] += 1
                     if decision.reason in RECOVERABLE_HOLDS:
@@ -485,7 +489,7 @@ class SimulationTrialRunner:
                                        if isinstance(scorer, PlaceScorer) else None),
             final_cup_target_distance_m=(scorer.final_target_distance_m
                                          if isinstance(scorer, PlaceScorer) else None),
-            placement_seed=seed,
+            placement_seed=seed, guarded_steps=guarded,
         )
         verdict = "success" if success else "failure"
         closest = "" if min_distance is None else f", closest {min_distance * 100:.1f} cm"
@@ -493,7 +497,7 @@ class SimulationTrialRunner:
         if isinstance(scorer, PlaceScorer) and scorer.final_target_distance_m is not None:
             placed = f", cup ended {scorer.final_target_distance_m * 100:.1f} cm from the mark"
         self.log(f"trial {index}: {verdict} after {duration:.1f} s, {steps} steps, "
-                 f"{record.holds} holds, {recoveries} recoveries, "
+                 f"{record.holds} holds, {recoveries} recoveries, {guarded} guarded, "
                  f"max lift {scorer.max_lift_m * 100:.1f} cm{closest}{placed}")
         return record
 
@@ -529,6 +533,7 @@ class SimulationTrialRunner:
                 "probe_sha256", "lane",
             )},
             "config": asdict(self.config),
+            "safety": asdict(self.client.config),
             "score": self.config.score,
             "score_rule": self.score_rule(),
             "recovery_rule": ("a hold for a state past an operator bound publishes the state "
