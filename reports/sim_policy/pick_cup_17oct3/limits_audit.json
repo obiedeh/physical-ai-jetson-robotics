@@ -1,0 +1,4376 @@
+{
+  "dataset_root": "/home/oedeh/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
+  "episode_count": 50,
+  "episodes": {
+    "0": {
+      "beyond_tolerance": 0,
+      "frames": 708,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.019175000488758087,
+          "action_min": 4.999999873689376e-05,
+          "beyond_tolerance": 0,
+          "lower": 6,
+          "outside": 0,
+          "pressing": 6,
+          "state_max": 0.015697628259658813,
+          "state_min": 0.0,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.058291271328926086,
+          "action_min": -0.00920388475060463,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.05824249982833862,
+          "state_min": -0.006190119311213493,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.5355147123336792,
+          "action_min": -0.48166996240615845,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.5285999774932861,
+          "state_min": -0.49009761214256287,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": -0.19941750168800354,
+          "action_min": -0.5951845645904541,
+          "beyond_tolerance": 0,
+          "lower": 23,
+          "outside": 8,
+          "pressing": 23,
+          "state_max": -0.20989729464054108,
+          "state_min": -0.6127660274505615,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": -0.032213594764471054,
+          "action_min": -0.03681553900241852,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.022616224363446236,
+          "state_min": -0.036970045417547226,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.0154953002929688,
+          "action_min": -0.5829126834869385,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.0155131816864014,
+          "state_min": -0.583000659942627,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.019941750913858414,
+          "action_min": 0.00920388475060463,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.019943078979849815,
+          "state_min": -0.0030843026470392942,
+          "upper": 0
+        }
+      },
+      "outside": 8,
+      "pressing": 29
+    },
+    "1": {
+      "beyond_tolerance": 0,
+      "frames": 563,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 2.499999936844688e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.017722636461257935,
+          "state_min": 0.0002941893180832267,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.05215534567832947,
+          "action_min": -0.10124272853136063,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.05206935107707977,
+          "state_min": -0.10066857933998108,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.538582682609558,
+          "action_min": -0.558368980884552,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.5333038568496704,
+          "state_min": -0.5688315033912659,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": -0.09664078801870346,
+          "action_min": -0.5691068768501282,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.09617119282484055,
+          "state_min": -0.5725738406181335,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": -0.026077672839164734,
+          "action_min": -0.03374757617712021,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.02521040476858616,
+          "state_min": -0.03281201049685478,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.147417664527893,
+          "action_min": -0.5890486240386963,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.1475063562393188,
+          "state_min": -0.5887267589569092,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.02147573046386242,
+          "action_min": 0.01073786523193121,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.021476957947015762,
+          "state_min": 0.011350858956575394,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 0
+    },
+    "10": {
+      "beyond_tolerance": 0,
+      "frames": 426,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.02329999953508377,
+          "action_min": 4.999999873689376e-05,
+          "beyond_tolerance": 0,
+          "lower": 2,
+          "outside": 0,
+          "pressing": 2,
+          "state_max": 0.004612981807440519,
+          "state_min": 0.0,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.0613592304289341,
+          "action_min": -0.05215534567832947,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.062085531651973724,
+          "state_min": -0.05218200013041496,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7594759464263916,
+          "action_min": -0.4080388844013214,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 125,
+          "pressing": 126,
+          "state_max": 1.753503441810608,
+          "state_min": -0.41673022508621216,
+          "upper": 126
+        },
+        "Joint3": {
+          "action_max": 0.251572847366333,
+          "action_min": -0.5997864603996277,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.2406303733587265,
+          "state_min": -0.5999994874000549,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": -0.007669903803616762,
+          "action_min": -0.016873788088560104,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.005447018891572952,
+          "state_min": -0.015287489630281925,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.7623884677886963,
+          "action_min": -0.9710098505020142,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.7624927163124084,
+          "state_min": -0.9710566401481628,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.02147573046386242,
+          "action_min": -0.029145635664463043,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.022171268239617348,
+          "state_min": -0.02914438396692276,
+          "upper": 0
+        }
+      },
+      "outside": 125,
+      "pressing": 128
+    },
+    "11": {
+      "beyond_tolerance": 0,
+      "frames": 528,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.02202500030398369,
+          "action_min": 4.999999873689376e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.022222356870770454,
+          "state_min": 0.0003304357815068215,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.07363107800483704,
+          "action_min": -0.05368932709097862,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.07376542687416077,
+          "state_min": -0.05370179936289787,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7533400058746338,
+          "action_min": -0.4157087802886963,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 58,
+          "pressing": 61,
+          "state_max": 1.7479747533798218,
+          "state_min": -0.42483171820640564,
+          "upper": 61
+        },
+        "Joint3": {
+          "action_max": 0.24236896634101868,
+          "action_min": -0.5997864603996277,
+          "beyond_tolerance": 0,
+          "lower": 29,
+          "outside": 12,
+          "pressing": 29,
+          "state_max": 0.23720762133598328,
+          "state_min": -0.6164277195930481,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": -0.004601942375302315,
+          "action_min": -0.07209710031747818,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.005340420641005039,
+          "state_min": -0.07513196021318436,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.8344855308532715,
+          "action_min": -1.2317866086959839,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.8344802856445312,
+          "state_min": -1.2310866117477417,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.0951068103313446,
+          "action_min": -0.02454369328916073,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.09510977566242218,
+          "state_min": -0.024542279541492462,
+          "upper": 0
+        }
+      },
+      "outside": 70,
+      "pressing": 90
+    },
+    "12": {
+      "beyond_tolerance": 0,
+      "frames": 452,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 4.999999873689376e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.02182537503540516,
+          "state_min": 1.8478185666026548e-05,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.2178252786397934,
+          "action_min": -0.06442718952894211,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.217649906873703,
+          "state_min": -0.06448914855718613,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.6428934335708618,
+          "action_min": -0.5614369511604309,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.6372390985488892,
+          "state_min": -0.5719192028045654,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.5675728917121887,
+          "action_min": -0.6013204455375671,
+          "beyond_tolerance": 0,
+          "lower": 43,
+          "outside": 12,
+          "pressing": 43,
+          "state_max": 0.5537235736846924,
+          "state_min": -0.6200461983680725,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": -0.06289321184158325,
+          "action_min": -0.07209710031747818,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.05347369983792305,
+          "state_min": -0.07969574630260468,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.1443496942520142,
+          "action_min": -1.2363885641098022,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.1443651914596558,
+          "state_min": -1.2347863912582397,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.09817477315664291,
+          "action_min": 0.08897088468074799,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.0981777086853981,
+          "state_min": 0.08969680964946747,
+          "upper": 0
+        }
+      },
+      "outside": 12,
+      "pressing": 43
+    },
+    "13": {
+      "beyond_tolerance": 0,
+      "frames": 405,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.024901028722524643,
+          "state_min": 4.1084771510213614e-05,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.11504855751991272,
+          "action_min": -0.06289321184158325,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.11476760357618332,
+          "state_min": -0.06300979107618332,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7027186155319214,
+          "action_min": -0.6412039399147034,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.6956430673599243,
+          "state_min": -0.6512052416801453,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.7347767949104309,
+          "action_min": -0.6028544306755066,
+          "beyond_tolerance": 0,
+          "lower": 39,
+          "outside": 17,
+          "pressing": 39,
+          "state_max": 0.7231676578521729,
+          "state_min": -0.6178908944129944,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": -0.0613592304289341,
+          "action_min": -0.07209710031747818,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.053947318345308304,
+          "state_min": -0.06963983178138733,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.1612234115600586,
+          "action_min": -1.2471263408660889,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.1626944541931152,
+          "state_min": -1.247115135192871,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.0951068103313446,
+          "action_min": 0.08897088468074799,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.0951094701886177,
+          "state_min": 0.06159985437989235,
+          "upper": 0
+        }
+      },
+      "outside": 17,
+      "pressing": 39
+    },
+    "14": {
+      "beyond_tolerance": 0,
+      "frames": 322,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 0.0,
+          "beyond_tolerance": 0,
+          "lower": 135,
+          "outside": 0,
+          "pressing": 135,
+          "state_max": 0.02467639558017254,
+          "state_min": 1.40907005174995e-07,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.12425244599580765,
+          "action_min": -0.04295146092772484,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.1240413561463356,
+          "state_min": -0.043055176734924316,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.699650764465332,
+          "action_min": -0.41264083981513977,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.6940016746520996,
+          "state_min": -0.42154332995414734,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.5000777244567871,
+          "action_min": -0.598252534866333,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.48308128118515015,
+          "state_min": -0.5984818935394287,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": -0.06442718952894211,
+          "action_min": -0.07056311517953873,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.05832419544458389,
+          "state_min": -0.06943818181753159,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.7761942744255066,
+          "action_min": -1.0293011665344238,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.7761352062225342,
+          "state_min": -1.0293402671813965,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.200951486825943,
+          "action_min": 0.0951068103313446,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.20099475979804993,
+          "state_min": 0.09510833770036697,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 135
+    },
+    "15": {
+      "beyond_tolerance": 0,
+      "frames": 459,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.021275000646710396,
+          "action_min": 4.999999873689376e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.006482979282736778,
+          "state_min": 0.0001621303235879168,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": -0.02761165425181389,
+          "action_min": -0.0920388475060463,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.004476427100598812,
+          "state_min": -0.09203191101551056,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.6889128684997559,
+          "action_min": 0.0613592304289341,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.684267520904541,
+          "state_min": 0.06533677130937576,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.7976700067520142,
+          "action_min": -0.604388415813446,
+          "beyond_tolerance": 0,
+          "lower": 100,
+          "outside": 31,
+          "pressing": 100,
+          "state_max": 0.7748106122016907,
+          "state_min": -0.6201758980751038,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": -0.06596117466688156,
+          "action_min": -0.06749515235424042,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.058783479034900665,
+          "state_min": -0.09054934978485107,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.48780590295791626,
+          "action_min": -1.2517282962799072,
+          "beyond_tolerance": 0,
+          "lower": 17,
+          "outside": 0,
+          "pressing": 17,
+          "state_max": 0.48779359459877014,
+          "state_min": -1.2518105506896973,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.20248545706272125,
+          "action_min": 0.19941750168800354,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.20248804986476898,
+          "state_min": 0.20020082592964172,
+          "upper": 0
+        }
+      },
+      "outside": 31,
+      "pressing": 117
+    },
+    "16": {
+      "beyond_tolerance": 0,
+      "frames": 451,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 2.499999936844688e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.018608860671520233,
+          "state_min": 0.0004292188386898488,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.17487381398677826,
+          "action_min": -0.06442718952894211,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.17418347299098969,
+          "state_min": -0.06449320167303085,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.6873788833618164,
+          "action_min": -0.6243301630020142,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.682782530784607,
+          "state_min": -0.6340203881263733,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.15033011138439178,
+          "action_min": -0.5921165943145752,
+          "beyond_tolerance": 0,
+          "lower": 8,
+          "outside": 0,
+          "pressing": 8,
+          "state_max": 0.13589608669281006,
+          "state_min": -0.6063985228538513,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": -0.0613592304289341,
+          "action_min": -0.07056311517953873,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.06005335971713066,
+          "state_min": -0.07251893728971481,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.1688933372497559,
+          "action_min": -1.104466199874878,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.168873906135559,
+          "state_min": -1.1044739484786987,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.2040194422006607,
+          "action_min": 0.19941750168800354,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.20402556657791138,
+          "state_min": 0.20000877976417542,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 8
+    },
+    "17": {
+      "beyond_tolerance": 0,
+      "frames": 433,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 2,
+          "outside": 0,
+          "pressing": 2,
+          "state_max": 0.02465919777750969,
+          "state_min": 0.0,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.10277671366930008,
+          "action_min": -0.07669904083013535,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.10274229943752289,
+          "state_min": -0.07675237953662872,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.728796362876892,
+          "action_min": -0.6519418358802795,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.7222089767456055,
+          "state_min": -0.6622384786605835,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.6734175682067871,
+          "action_min": -0.5967185497283936,
+          "beyond_tolerance": 0,
+          "lower": 14,
+          "outside": 0,
+          "pressing": 14,
+          "state_max": 0.6633529663085938,
+          "state_min": -0.6086644530296326,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": -0.06289321184158325,
+          "action_min": -0.07209710031747818,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.05994519963860512,
+          "state_min": -0.0722903162240982,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.1673593521118164,
+          "action_min": -1.2517282962799072,
+          "beyond_tolerance": 0,
+          "lower": 9,
+          "outside": 0,
+          "pressing": 9,
+          "state_max": 1.1673388481140137,
+          "state_min": -1.2501389980316162,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.2040194422006607,
+          "action_min": 0.19941750168800354,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.20402464270591736,
+          "state_min": 0.17738664150238037,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 25
+    },
+    "18": {
+      "beyond_tolerance": 0,
+      "frames": 566,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.024911198765039444,
+          "state_min": 0.00021762501273769885,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.16260196268558502,
+          "action_min": -0.0951068103313446,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.1624869704246521,
+          "state_min": -0.09347864240407944,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7257283926010132,
+          "action_min": -0.5921165943145752,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.7199482917785645,
+          "state_min": -0.6026660799980164,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 1.150485634803772,
+          "action_min": -0.598252534866333,
+          "beyond_tolerance": 0,
+          "lower": 25,
+          "outside": 15,
+          "pressing": 25,
+          "state_max": 1.1371936798095703,
+          "state_min": -0.6168358325958252,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": -0.06749515235424042,
+          "action_min": -0.1227184608578682,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.06714659184217453,
+          "state_min": -0.1284233182668686,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.162757396697998,
+          "action_min": -1.2425243854522705,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.162756323814392,
+          "state_min": -1.24252188205719,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.200951486825943,
+          "action_min": -0.006135923322290182,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.20095349848270416,
+          "state_min": -0.0057818274945020676,
+          "upper": 0
+        }
+      },
+      "outside": 15,
+      "pressing": 25
+    },
+    "19": {
+      "beyond_tolerance": 0,
+      "frames": 585,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 5,
+          "outside": 0,
+          "pressing": 5,
+          "state_max": 0.02480081282556057,
+          "state_min": 0.0,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.08590292185544968,
+          "action_min": -0.1089126393198967,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.10376293957233429,
+          "state_min": -0.10886773467063904,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7548739910125732,
+          "action_min": -0.6718835830688477,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 66,
+          "pressing": 67,
+          "state_max": 1.7492233514785767,
+          "state_min": -0.6815957427024841,
+          "upper": 67
+        },
+        "Joint3": {
+          "action_max": 1.7947574853897095,
+          "action_min": -0.5997864603996277,
+          "beyond_tolerance": 0,
+          "lower": 60,
+          "outside": 3,
+          "pressing": 60,
+          "state_max": 1.760874629020691,
+          "state_min": -0.6142710447311401,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": -0.10431069135665894,
+          "action_min": -0.11351457983255386,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.09872687608003616,
+          "state_min": -0.12416892498731613,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.1320778131484985,
+          "action_min": -1.2547962665557861,
+          "beyond_tolerance": 0,
+          "lower": 13,
+          "outside": 0,
+          "pressing": 13,
+          "state_max": 1.132064700126648,
+          "state_min": -1.25491464138031,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.14419420063495636,
+          "action_min": 0.1365242898464203,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.144198939204216,
+          "state_min": 0.0587502084672451,
+          "upper": 0
+        }
+      },
+      "outside": 69,
+      "pressing": 145
+    },
+    "2": {
+      "beyond_tolerance": 0,
+      "frames": 388,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.024599146097898483,
+          "state_min": 0.00029673162498511374,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.006135923322290182,
+          "action_min": -0.06749515235424042,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.006078296806663275,
+          "state_min": -0.06749753654003143,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.5079030990600586,
+          "action_min": -0.5138835906982422,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.502132534980774,
+          "state_min": -0.5237131118774414,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": -0.13192234933376312,
+          "action_min": -0.5721748471260071,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.13355237245559692,
+          "state_min": -0.5740563869476318,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": -0.02454369328916073,
+          "action_min": -0.026077672839164734,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.021786509081721306,
+          "state_min": -0.02591927908360958,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.0538448095321655,
+          "action_min": -0.6089903712272644,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.0538872480392456,
+          "state_min": -0.6090649366378784,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.01840776950120926,
+          "action_min": 0.013805827125906944,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.018417963758111,
+          "state_min": 0.015298332087695599,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 0
+    },
+    "20": {
+      "beyond_tolerance": 0,
+      "frames": 322,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.006159954704344273,
+          "state_min": 1.1898692719114479e-05,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.12425244599580765,
+          "action_min": -0.07209710031747818,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.125920832157135,
+          "state_min": -0.07225577533245087,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7594759464263916,
+          "action_min": -0.5169515013694763,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 44,
+          "pressing": 44,
+          "state_max": 1.753905177116394,
+          "state_min": -0.5264655947685242,
+          "upper": 44
+        },
+        "Joint3": {
+          "action_max": 1.4035924673080444,
+          "action_min": -0.6013204455375671,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.3820878267288208,
+          "state_min": -0.6017550826072693,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": -0.10737865418195724,
+          "action_min": -0.11658254265785217,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.10432564467191696,
+          "state_min": -0.11990532279014587,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.04157292842865,
+          "action_min": -1.2547962665557861,
+          "beyond_tolerance": 0,
+          "lower": 11,
+          "outside": 0,
+          "pressing": 11,
+          "state_max": 1.041515827178955,
+          "state_min": -1.2546935081481934,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.14419420063495636,
+          "action_min": 0.139592245221138,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.1441950649023056,
+          "state_min": 0.1182030513882637,
+          "upper": 0
+        }
+      },
+      "outside": 44,
+      "pressing": 55
+    },
+    "21": {
+      "beyond_tolerance": 0,
+      "frames": 297,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 0.0,
+          "beyond_tolerance": 0,
+          "lower": 145,
+          "outside": 0,
+          "pressing": 145,
+          "state_max": 0.02452705428004265,
+          "state_min": 6.3034276536200196e-06,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.11198059469461441,
+          "action_min": -0.06596117466688156,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.1119549497961998,
+          "state_min": -0.06607826799154282,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7241944074630737,
+          "action_min": -0.4632622003555298,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.7125091552734375,
+          "state_min": -0.47246429324150085,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 1.3284273147583008,
+          "action_min": -0.6013204455375671,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.3049582242965698,
+          "state_min": -0.6017860174179077,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.007669903803616762,
+          "action_min": -0.11198059469461441,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.007848737761378288,
+          "state_min": -0.11148905009031296,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.9249904155731201,
+          "action_min": -1.2501943111419678,
+          "beyond_tolerance": 0,
+          "lower": 13,
+          "outside": 0,
+          "pressing": 13,
+          "state_max": 0.9249463081359863,
+          "state_min": -1.2504414319992065,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.14419420063495636,
+          "action_min": 0.13805827498435974,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.1441958248615265,
+          "state_min": 0.1397499442100525,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 158
+    },
+    "22": {
+      "beyond_tolerance": 0,
+      "frames": 358,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.02500000037252903,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 120,
+          "state_max": 0.0248356182128191,
+          "state_min": 0.00019407174841035157,
+          "upper": 120
+        },
+        "Joint1": {
+          "action_max": 0.003067961661145091,
+          "action_min": -0.11044661700725555,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.0030110173393040895,
+          "state_min": -0.11026929318904877,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7395342588424683,
+          "action_min": -0.452524334192276,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 5,
+          "state_max": 1.7319083213806152,
+          "state_min": -0.46177980303764343,
+          "upper": 5
+        },
+        "Joint3": {
+          "action_max": 1.0277671813964844,
+          "action_min": -0.6013204455375671,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.0108911991119385,
+          "state_min": -0.601466178894043,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.007669903803616762,
+          "action_min": -0.058291271328926086,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.007899213582277298,
+          "state_min": -0.05672074481844902,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.8774369955062866,
+          "action_min": -1.2501943111419678,
+          "beyond_tolerance": 0,
+          "lower": 8,
+          "outside": 0,
+          "pressing": 8,
+          "state_max": 0.8774815797805786,
+          "state_min": -1.2501462697982788,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.14419420063495636,
+          "action_min": 0.016873788088560104,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.14419665932655334,
+          "state_min": 0.01715126633644104,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 120
+    },
+    "23": {
+      "beyond_tolerance": 0,
+      "frames": 392,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.02500000037252903,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 24,
+          "state_max": 0.024996791034936905,
+          "state_min": 9.336986840935424e-05,
+          "upper": 24
+        },
+        "Joint1": {
+          "action_max": 0.013805827125906944,
+          "action_min": -0.05675728991627693,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.013807998970150948,
+          "state_min": -0.05678201839327812,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7380002737045288,
+          "action_min": -0.5614369511604309,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 24,
+          "state_max": 1.7320773601531982,
+          "state_min": -0.571829080581665,
+          "upper": 24
+        },
+        "Joint3": {
+          "action_max": 0.6028544306755066,
+          "action_min": -0.5997864603996277,
+          "beyond_tolerance": 0,
+          "lower": 19,
+          "outside": 0,
+          "pressing": 19,
+          "state_max": 0.5841257572174072,
+          "state_min": -0.6106677651405334,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.023009711876511574,
+          "action_min": -0.05675728991627693,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.02321338653564453,
+          "state_min": -0.06240897998213768,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.1259418725967407,
+          "action_min": -1.196505069732666,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.1259069442749023,
+          "state_min": -1.1965727806091309,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.02454369328916073,
+          "action_min": 0.019941750913858414,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.024548880755901337,
+          "state_min": 0.0202268585562706,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 67
+    },
+    "24": {
+      "beyond_tolerance": 0,
+      "frames": 395,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.024629652500152588,
+          "state_min": 0.0005720226909033954,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.058291271328926086,
+          "action_min": -0.07363107800483704,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.05826443433761597,
+          "state_min": -0.07351843267679214,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.6428934335708618,
+          "action_min": -0.4218447208404541,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.6374341249465942,
+          "state_min": -0.4317045211791992,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.8375535011291504,
+          "action_min": -0.6013204455375671,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.8206103444099426,
+          "state_min": -0.6018105149269104,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.05522330850362778,
+          "action_min": 0.02147573046386242,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.054218392819166183,
+          "state_min": 0.021054549142718315,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.8252816796302795,
+          "action_min": -1.2072428464889526,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.8252536654472351,
+          "state_min": -1.20698881149292,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.026077672839164734,
+          "action_min": 0.01840776950120926,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.024545077234506607,
+          "state_min": 0.019751034677028656,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 0
+    },
+    "25": {
+      "beyond_tolerance": 0,
+      "frames": 402,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.010614639148116112,
+          "state_min": 0.0003155834856443107,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.08283495903015137,
+          "action_min": -0.08590292185544968,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.08275090157985687,
+          "state_min": -0.08606808632612228,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.6122138500213623,
+          "action_min": -0.32520392537117004,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.6062899827957153,
+          "state_min": -0.3332887291908264,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 1.293145775794983,
+          "action_min": -0.6013204455375671,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.2751747369766235,
+          "state_min": -0.6018444299697876,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.11351457983255386,
+          "action_min": 0.10431069135665894,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.11951184272766113,
+          "state_min": 0.09542510658502579,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.6580777764320374,
+          "action_min": -1.2486603260040283,
+          "beyond_tolerance": 0,
+          "lower": 1,
+          "outside": 0,
+          "pressing": 1,
+          "state_max": 0.6580467224121094,
+          "state_min": -1.2474716901779175,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.10124272853136063,
+          "action_min": -0.11044661700725555,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.1012408658862114,
+          "state_min": -0.10943666845560074,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 1
+    },
+    "26": {
+      "beyond_tolerance": 0,
+      "frames": 461,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 0.0,
+          "beyond_tolerance": 0,
+          "lower": 307,
+          "outside": 0,
+          "pressing": 307,
+          "state_max": 0.005603112280368805,
+          "state_min": 0.0,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.08283495903015137,
+          "action_min": -0.15493206679821014,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.08157142996788025,
+          "state_min": -0.15479731559753418,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.5800001621246338,
+          "action_min": -0.4908738434314728,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.574174165725708,
+          "state_min": -0.5003200173377991,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.9802137017250061,
+          "action_min": -0.6013204455375671,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.964972972869873,
+          "state_min": -0.6018089652061462,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.11351457983255386,
+          "action_min": 0.01840776950120926,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.11597054451704025,
+          "state_min": 0.01863201893866062,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.8252816796302795,
+          "action_min": -1.24405837059021,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.8252660632133484,
+          "state_min": -1.2424672842025757,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.09664078801870346,
+          "action_min": -0.1089126393198967,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.09042961150407791,
+          "state_min": -0.10888107866048813,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 307
+    },
+    "27": {
+      "beyond_tolerance": 0,
+      "frames": 434,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024924999102950096,
+          "action_min": 0.0,
+          "beyond_tolerance": 0,
+          "lower": 272,
+          "outside": 0,
+          "pressing": 272,
+          "state_max": 0.01983148604631424,
+          "state_min": 0.0,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.06902913749217987,
+          "action_min": -0.07516505569219589,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.06786816567182541,
+          "state_min": -0.07525920867919922,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.5186409950256348,
+          "action_min": -0.6902913451194763,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.511788249015808,
+          "state_min": -0.6645147800445557,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.03681553900241852,
+          "action_min": -0.6028544306755066,
+          "beyond_tolerance": 0,
+          "lower": 58,
+          "outside": 0,
+          "pressing": 58,
+          "state_max": 0.021875226870179176,
+          "state_min": -0.6033729910850525,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.14112623035907745,
+          "action_min": 0.01073786523193121,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.1418660283088684,
+          "state_min": 0.006028006784617901,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.162757396697998,
+          "action_min": -0.7255728840827942,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.1686828136444092,
+          "state_min": -0.7255905866622925,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.09664078801870346,
+          "action_min": -0.11044661700725555,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.043794192373752594,
+          "state_min": -0.1058436930179596,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 313
+    },
+    "28": {
+      "beyond_tolerance": 0,
+      "frames": 390,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 4.999999873689376e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.004595460370182991,
+          "state_min": 0.0001881176431197673,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.13038836419582367,
+          "action_min": -0.21322332322597504,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.12964080274105072,
+          "state_min": -0.21297624707221985,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.492563247680664,
+          "action_min": -0.5675728917121887,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.4866997003555298,
+          "state_min": -0.5780536532402039,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 1.0293011665344238,
+          "action_min": -0.6028544306755066,
+          "beyond_tolerance": 0,
+          "lower": 162,
+          "outside": 0,
+          "pressing": 162,
+          "state_max": 1.0088472366333008,
+          "state_min": -0.6033273339271545,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.14726215600967407,
+          "action_min": 0.07363107800483704,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.14796610176563263,
+          "state_min": 0.0741591602563858,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.977145791053772,
+          "action_min": -1.2179807424545288,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.9770812392234802,
+          "state_min": -1.217956304550171,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.10124272853136063,
+          "action_min": -0.14572817087173462,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.10124503076076508,
+          "state_min": -0.14412827789783478,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 162
+    },
+    "29": {
+      "beyond_tolerance": 0,
+      "frames": 338,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 0.0,
+          "beyond_tolerance": 0,
+          "lower": 218,
+          "outside": 0,
+          "pressing": 218,
+          "state_max": 0.004918301478028297,
+          "state_min": 0.00018541760800871998,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.02454369328916073,
+          "action_min": -0.15800002217292786,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.024524187669157982,
+          "state_min": -0.16632935404777527,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7257283926010132,
+          "action_min": -0.42337870597839355,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.7196913957595825,
+          "state_min": -0.43177488446235657,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.37889325618743896,
+          "action_min": -0.6028544306755066,
+          "beyond_tolerance": 0,
+          "lower": 35,
+          "outside": 0,
+          "pressing": 35,
+          "state_max": 0.3620331883430481,
+          "state_min": -0.6031235456466675,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.08590292185544968,
+          "action_min": 0.07363107800483704,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.08812966197729111,
+          "state_min": 0.06929508596658707,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.7347767949104309,
+          "action_min": -0.8989127278327942,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.7347829341888428,
+          "state_min": -0.8989366888999939,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.13499030470848083,
+          "action_min": -0.14572817087173462,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.12467346340417862,
+          "state_min": -0.1450626403093338,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 218
+    },
+    "3": {
+      "beyond_tolerance": 0,
+      "frames": 470,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.01850000023841858,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 2,
+          "outside": 0,
+          "pressing": 2,
+          "state_max": 0.005272476933896542,
+          "state_min": 0.0,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.07669904083013535,
+          "action_min": -0.1533980816602707,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.07695639133453369,
+          "state_min": -0.1533442735671997,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.4511457681655884,
+          "action_min": -0.6657476425170898,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.4453952312469482,
+          "state_min": -0.66000896692276,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": -0.016873788088560104,
+          "action_min": -0.5997864603996277,
+          "beyond_tolerance": 0,
+          "lower": 31,
+          "outside": 0,
+          "pressing": 31,
+          "state_max": -0.019663166254758835,
+          "state_min": -0.6034778952598572,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.2454369217157364,
+          "action_min": 0.04908738657832146,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.2479109913110733,
+          "state_min": 0.0475534088909626,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.0737864971160889,
+          "action_min": -0.47860199213027954,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.0756182670593262,
+          "state_min": -0.47868701815605164,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.14572817087173462,
+          "action_min": -0.21935924887657166,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.115434929728508,
+          "state_min": -0.21860916912555695,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 33
+    },
+    "30": {
+      "beyond_tolerance": 0,
+      "frames": 319,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 0.0,
+          "beyond_tolerance": 0,
+          "lower": 200,
+          "outside": 0,
+          "pressing": 200,
+          "state_max": 0.007946138270199299,
+          "state_min": 8.848688594298437e-05,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.029145635664463043,
+          "action_min": -0.08436894416809082,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.029121924191713333,
+          "state_min": -0.08569274842739105,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7594759464263916,
+          "action_min": -0.3298058807849884,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 56,
+          "pressing": 57,
+          "state_max": 1.7541356086730957,
+          "state_min": -0.33836713433265686,
+          "upper": 57
+        },
+        "Joint3": {
+          "action_max": 0.5154175162315369,
+          "action_min": -0.5997864603996277,
+          "beyond_tolerance": 0,
+          "lower": 6,
+          "outside": 0,
+          "pressing": 6,
+          "state_max": 0.5015626549720764,
+          "state_min": -0.6072742342948914,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.08590292185544968,
+          "action_min": 0.0782330185174942,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.09392759203910828,
+          "state_min": 0.06972935795783997,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.699495255947113,
+          "action_min": -1.104466199874878,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.6994906067848206,
+          "state_min": -1.1045225858688354,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.1365242898464203,
+          "action_min": -0.14419420063495636,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.1365181803703308,
+          "state_min": -0.14421454071998596,
+          "upper": 0
+        }
+      },
+      "outside": 56,
+      "pressing": 257
+    },
+    "31": {
+      "beyond_tolerance": 0,
+      "frames": 372,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.005452536977827549,
+          "state_min": 0.00019446888472884893,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.03681553900241852,
+          "action_min": -0.37582528591156006,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.036807071417570114,
+          "state_min": -0.37551170587539673,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7594759464263916,
+          "action_min": -0.25310683250427246,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 43,
+          "pressing": 43,
+          "state_max": 1.7542155981063843,
+          "state_min": -0.2555914521217346,
+          "upper": 43
+        },
+        "Joint3": {
+          "action_max": 0.49854376912117004,
+          "action_min": -0.5967185497283936,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.48454999923706055,
+          "state_min": -0.5967684984207153,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.08743690699338913,
+          "action_min": 0.0782330185174942,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.09567923843860626,
+          "state_min": 0.07836348563432693,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.12425244599580765,
+          "action_min": -1.0078253746032715,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.12432950735092163,
+          "state_min": -1.0078275203704834,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.1365242898464203,
+          "action_min": -0.14572817087173462,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.1365218311548233,
+          "state_min": -0.1453631967306137,
+          "upper": 0
+        }
+      },
+      "outside": 43,
+      "pressing": 43
+    },
+    "32": {
+      "beyond_tolerance": 0,
+      "frames": 511,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 1,
+          "outside": 0,
+          "pressing": 1,
+          "state_max": 0.01431791391223669,
+          "state_min": 0.0,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.058291271328926086,
+          "action_min": -0.42337870597839355,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.05790772661566734,
+          "state_min": -0.4228660464286804,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7518060207366943,
+          "action_min": -0.3850291669368744,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 88,
+          "pressing": 88,
+          "state_max": 1.7460421323776245,
+          "state_min": -0.3918028771877289,
+          "upper": 88
+        },
+        "Joint3": {
+          "action_max": 0.8314175605773926,
+          "action_min": -0.598252534866333,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.8191149234771729,
+          "state_min": -0.5982685685157776,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.08743690699338913,
+          "action_min": 0.0782330185174942,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.09080001711845398,
+          "state_min": 0.07836578786373138,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.5476311445236206,
+          "action_min": -1.2072428464889526,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.5476279258728027,
+          "state_min": -1.207282304763794,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.13192234933376312,
+          "action_min": -0.14726215600967407,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.1319192796945572,
+          "state_min": -0.14637212455272675,
+          "upper": 0
+        }
+      },
+      "outside": 88,
+      "pressing": 89
+    },
+    "33": {
+      "beyond_tolerance": 0,
+      "frames": 406,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 0.0,
+          "beyond_tolerance": 0,
+          "lower": 240,
+          "outside": 0,
+          "pressing": 240,
+          "state_max": 0.0245965663343668,
+          "state_min": 2.994480837514857e-06,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.429514616727829,
+          "action_min": -0.032213594764471054,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.4295417070388794,
+          "state_min": -0.032210055738687515,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7564079761505127,
+          "action_min": -0.3957670331001282,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 99,
+          "pressing": 101,
+          "state_max": 1.7507253885269165,
+          "state_min": -0.4024105668067932,
+          "upper": 101
+        },
+        "Joint3": {
+          "action_max": 0.6197282671928406,
+          "action_min": -0.5967185497283936,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.6090158820152283,
+          "state_min": -0.5966713428497314,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.08897088468074799,
+          "action_min": 0.07976700365543365,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.09237433969974518,
+          "state_min": 0.07986042648553848,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.5353593230247498,
+          "action_min": -1.119805932044983,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.5353268384933472,
+          "state_min": -1.1196138858795166,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.13345633447170258,
+          "action_min": -0.14726215600967407,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.13344548642635345,
+          "state_min": -0.1472707837820053,
+          "upper": 0
+        }
+      },
+      "outside": 99,
+      "pressing": 313
+    },
+    "34": {
+      "beyond_tolerance": 0,
+      "frames": 512,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.005460127256810665,
+          "state_min": 3.996125741423384e-08,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.4970097839832306,
+          "action_min": -0.0475534051656723,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.4967769384384155,
+          "state_min": -0.047522928565740585,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.761009931564331,
+          "action_min": -0.5936505794525146,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 75,
+          "pressing": 79,
+          "state_max": 1.7553675174713135,
+          "state_min": -0.6037126779556274,
+          "upper": 79
+        },
+        "Joint3": {
+          "action_max": 0.7669904232025146,
+          "action_min": -0.5951845645904541,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.7460188269615173,
+          "state_min": -0.5950509905815125,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.08897088468074799,
+          "action_min": 0.07669904083013535,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.08903729915618896,
+          "state_min": 0.07671201229095459,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.1351457834243774,
+          "action_min": -1.116737961769104,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.1352180242538452,
+          "state_min": -1.1167396306991577,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.13345633447170258,
+          "action_min": -0.14572817087173462,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.13345487415790558,
+          "state_min": -0.14573173224925995,
+          "upper": 0
+        }
+      },
+      "outside": 75,
+      "pressing": 79
+    },
+    "35": {
+      "beyond_tolerance": 0,
+      "frames": 320,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 0.0,
+          "beyond_tolerance": 0,
+          "lower": 110,
+          "outside": 0,
+          "pressing": 110,
+          "state_max": 0.024896349757909775,
+          "state_min": 1.8852057110052556e-05,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.05215534567832947,
+          "action_min": -0.2653786838054657,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.05206175148487091,
+          "state_min": -0.2651480436325073,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.761009931564331,
+          "action_min": -0.5307573676109314,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 60,
+          "pressing": 140,
+          "state_max": 1.7558168172836304,
+          "state_min": -0.5343331694602966,
+          "upper": 140
+        },
+        "Joint3": {
+          "action_max": 1.04157292842865,
+          "action_min": -0.5967185497283936,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.0243955850601196,
+          "state_min": -0.5967199802398682,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.08283495903015137,
+          "action_min": 0.07363107800483704,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.09131675958633423,
+          "state_min": 0.07321272045373917,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.23009711503982544,
+          "action_min": -1.24405837059021,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.23008903861045837,
+          "state_min": -1.2440677881240845,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.12732040882110596,
+          "action_min": -0.13805827498435974,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.1273217648267746,
+          "state_min": -0.13805685937404633,
+          "upper": 0
+        }
+      },
+      "outside": 60,
+      "pressing": 242
+    },
+    "36": {
+      "beyond_tolerance": 0,
+      "frames": 334,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 0.0,
+          "beyond_tolerance": 0,
+          "lower": 197,
+          "outside": 0,
+          "pressing": 197,
+          "state_max": 0.010723154991865158,
+          "state_min": 6.742773985024542e-05,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.19328157603740692,
+          "action_min": -0.03988350182771683,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.19322003424167633,
+          "state_min": -0.039869990199804306,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7487380504608154,
+          "action_min": -0.5338253378868103,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 3,
+          "pressing": 100,
+          "state_max": 1.7410026788711548,
+          "state_min": -0.537813663482666,
+          "upper": 100
+        },
+        "Joint3": {
+          "action_max": 0.9480001330375671,
+          "action_min": -0.6013204455375671,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.9327540993690491,
+          "state_min": -0.5997949838638306,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.07669904083013535,
+          "action_min": 0.06902913749217987,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.08732500672340393,
+          "state_min": 0.06919939070940018,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.2883884012699127,
+          "action_min": -1.21491277217865,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.2883513569831848,
+          "state_min": -1.2123364210128784,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.12425244599580765,
+          "action_min": -0.13805827498435974,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.12423793226480484,
+          "state_min": -0.13667620718479156,
+          "upper": 0
+        }
+      },
+      "outside": 3,
+      "pressing": 254
+    },
+    "37": {
+      "beyond_tolerance": 0,
+      "frames": 527,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 14,
+          "outside": 0,
+          "pressing": 14,
+          "state_max": 0.008812256157398224,
+          "state_min": 0.0,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.058291271328926086,
+          "action_min": -0.5553010702133179,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.05826979875564575,
+          "state_min": -0.5552735924720764,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7502720355987549,
+          "action_min": -0.40036898851394653,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 23,
+          "pressing": 34,
+          "state_max": 1.7445441484451294,
+          "state_min": -0.40045544505119324,
+          "upper": 34
+        },
+        "Joint3": {
+          "action_max": 0.48473793268203735,
+          "action_min": -0.6013204455375671,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.47047820687294006,
+          "state_min": -0.6013347506523132,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.07669904083013535,
+          "action_min": 0.06749515235424042,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.24686621129512787,
+          "state_min": 0.06271296739578247,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.03988350182771683,
+          "action_min": -1.1382137537002563,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.03992091864347458,
+          "state_min": -1.1382654905319214,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.12885437905788422,
+          "action_min": -0.13805827498435974,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.12882305681705475,
+          "state_min": -0.1380573809146881,
+          "upper": 0
+        }
+      },
+      "outside": 23,
+      "pressing": 48
+    },
+    "38": {
+      "beyond_tolerance": 0,
+      "frames": 647,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.024845363572239876,
+          "state_min": 0.00034235420753248036,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.38656315207481384,
+          "action_min": 0.006135923322290182,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.3864378035068512,
+          "state_min": 0.0061189825646579266,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.6812429428100586,
+          "action_min": -0.7271068692207336,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.674984335899353,
+          "state_min": -0.7370249032974243,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.7040972113609314,
+          "action_min": -0.5997864603996277,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.6878429651260376,
+          "state_min": -0.6002508997917175,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.07209710031747818,
+          "action_min": 0.00920388475060463,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.0755113959312439,
+          "state_min": 0.010006263852119446,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.1719613075256348,
+          "action_min": -1.0707186460494995,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.1720424890518188,
+          "state_min": -1.0707480907440186,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.12425244599580765,
+          "action_min": -0.139592245221138,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.12425001710653305,
+          "state_min": -0.13959167897701263,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 0
+    },
+    "39": {
+      "beyond_tolerance": 0,
+      "frames": 285,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.019108202308416367,
+          "state_min": 1.623195203137584e-06,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.1564660370349884,
+          "action_min": 0.006135923322290182,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.1564217358827591,
+          "state_min": 0.0061079030856490135,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.5692623853683472,
+          "action_min": -0.5046796798706055,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.5602463483810425,
+          "state_min": -0.5099995732307434,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.9188544750213623,
+          "action_min": -0.5997864603996277,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.902508556842804,
+          "state_min": -0.6003792881965637,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.02454369328916073,
+          "action_min": 0.01840776950120926,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.026821117848157883,
+          "state_min": 0.019413810223340988,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.575242817401886,
+          "action_min": -1.24405837059021,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.5751968622207642,
+          "state_min": -1.2436562776565552,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.1257864236831665,
+          "action_min": -0.139592245221138,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.12637369334697723,
+          "state_min": -0.13959099352359772,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 0
+    },
+    "4": {
+      "beyond_tolerance": 0,
+      "frames": 487,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 1,
+          "outside": 0,
+          "pressing": 1,
+          "state_max": 0.018099455162882805,
+          "state_min": 0.0,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.09050486981868744,
+          "action_min": -0.1089126393198967,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.0904470831155777,
+          "state_min": -0.1121283769607544,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.6551653146743774,
+          "action_min": -0.6089903712272644,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.6482517719268799,
+          "state_min": -0.6193273067474365,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": -0.058291271328926086,
+          "action_min": -0.5798447132110596,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.05771838128566742,
+          "state_min": -0.5855157375335693,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.13345633447170258,
+          "action_min": 0.1227184608578682,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.13520294427871704,
+          "state_min": 0.11964891105890274,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.1673593521118164,
+          "action_min": -0.8620972037315369,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.16741144657135,
+          "state_min": -0.8621459007263184,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.14726215600967407,
+          "action_min": -0.15493206679821014,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.13007020950317383,
+          "state_min": -0.15488575398921967,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 1
+    },
+    "40": {
+      "beyond_tolerance": 0,
+      "frames": 466,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.02500000037252903,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 13,
+          "state_max": 0.02454015240073204,
+          "state_min": 4.6375291276490316e-05,
+          "upper": 13
+        },
+        "Joint1": {
+          "action_max": 0.019941750913858414,
+          "action_min": -0.4141748249530792,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.01991344802081585,
+          "state_min": -0.41379016637802124,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.572330355644226,
+          "action_min": -0.27458256483078003,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.5664204359054565,
+          "state_min": -0.2786112427711487,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.7056311368942261,
+          "action_min": -0.6013204455375671,
+          "beyond_tolerance": 0,
+          "lower": 55,
+          "outside": 0,
+          "pressing": 55,
+          "state_max": 0.6931190490722656,
+          "state_min": -0.6034597158432007,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.02454369328916073,
+          "action_min": 0.01840776950120926,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.03088345192372799,
+          "state_min": 0.018707076087594032,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.29145634174346924,
+          "action_min": -1.1121361255645752,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.2914751470088959,
+          "state_min": -1.1121528148651123,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.12732040882110596,
+          "action_min": -0.1365242898464203,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.1279684454202652,
+          "state_min": -0.13652431964874268,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 68
+    },
+    "41": {
+      "beyond_tolerance": 0,
+      "frames": 479,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.004440805874764919,
+          "state_min": 2.6664551114663482e-05,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.2853204309940338,
+          "action_min": -0.004601942375302315,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.285302072763443,
+          "state_min": -0.004633347038179636,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.761009931564331,
+          "action_min": -0.7731263041496277,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 58,
+          "pressing": 58,
+          "state_max": 1.7556893825531006,
+          "state_min": -0.7754104137420654,
+          "upper": 58
+        },
+        "Joint3": {
+          "action_max": 0.5445631742477417,
+          "action_min": -0.6013204455375671,
+          "beyond_tolerance": 0,
+          "lower": 5,
+          "outside": 0,
+          "pressing": 5,
+          "state_max": 0.5238192677497864,
+          "state_min": -0.6025022864341736,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.02761165425181389,
+          "action_min": 0.016873788088560104,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.028917022049427032,
+          "state_min": 0.01812191680073738,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.1596894264221191,
+          "action_min": -1.009359359741211,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.1598048210144043,
+          "state_min": -1.009406566619873,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.1257864236831665,
+          "action_min": -0.139592245221138,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.11060072481632233,
+          "state_min": -0.13957908749580383,
+          "upper": 0
+        }
+      },
+      "outside": 58,
+      "pressing": 63
+    },
+    "42": {
+      "beyond_tolerance": 0,
+      "frames": 334,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.024940870702266693,
+          "state_min": 6.108406523708254e-06,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.03374757617712021,
+          "action_min": -0.23009711503982544,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.0337371826171875,
+          "state_min": -0.2290392816066742,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.761009931564331,
+          "action_min": -0.4111068546772003,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 43,
+          "pressing": 43,
+          "state_max": 1.7558332681655884,
+          "state_min": -0.41377145051956177,
+          "upper": 43
+        },
+        "Joint3": {
+          "action_max": 1.0477088689804077,
+          "action_min": -0.6028544306755066,
+          "beyond_tolerance": 0,
+          "lower": 94,
+          "outside": 0,
+          "pressing": 94,
+          "state_max": 1.036982536315918,
+          "state_min": -0.6041892170906067,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.032213594764471054,
+          "action_min": 0.019941750913858414,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.05640843138098717,
+          "state_min": 0.02080088108778,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.13805827498435974,
+          "action_min": -1.2394565343856812,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.13807575404644012,
+          "state_min": -1.236924409866333,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.1257864236831665,
+          "action_min": -0.13345633447170258,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.12591837346553802,
+          "state_min": -0.13403940200805664,
+          "upper": 0
+        }
+      },
+      "outside": 43,
+      "pressing": 137
+    },
+    "43": {
+      "beyond_tolerance": 0,
+      "frames": 366,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 0.0,
+          "beyond_tolerance": 0,
+          "lower": 191,
+          "outside": 0,
+          "pressing": 191,
+          "state_max": 0.024491993710398674,
+          "state_min": 0.00031280011171475053,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.016873788088560104,
+          "action_min": -0.3098641335964203,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.01686597801744938,
+          "state_min": -0.30706968903541565,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.61988365650177,
+          "action_min": -0.3206019699573517,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.6145821809768677,
+          "state_min": -0.32278645038604736,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.6335340738296509,
+          "action_min": -0.6028544306755066,
+          "beyond_tolerance": 0,
+          "lower": 42,
+          "outside": 0,
+          "pressing": 42,
+          "state_max": 0.6242643594741821,
+          "state_min": -0.6042352318763733,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.03067961521446705,
+          "action_min": 0.02454369328916073,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.03908398374915123,
+          "state_min": 0.024966269731521606,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.07669904083013535,
+          "action_min": -1.2317866086959839,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.07673848420381546,
+          "state_min": -1.2308852672576904,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.1257864236831665,
+          "action_min": -0.13345633447170258,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.12579964101314545,
+          "state_min": -0.13345341384410858,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 233
+    },
+    "44": {
+      "beyond_tolerance": 0,
+      "frames": 396,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 0.0,
+          "beyond_tolerance": 0,
+          "lower": 256,
+          "outside": 0,
+          "pressing": 256,
+          "state_max": 0.02479231171309948,
+          "state_min": 0.0,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.37889325618743896,
+          "action_min": 0.012271846644580364,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.3787083625793457,
+          "state_min": 0.01222553662955761,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.6214176416397095,
+          "action_min": -0.5322913527488708,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.616235375404358,
+          "state_min": -0.5423229932785034,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.49547579884529114,
+          "action_min": -0.5997864603996277,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.4749513864517212,
+          "state_min": -0.6009080410003662,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.10431069135665894,
+          "action_min": 0.02454369328916073,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.10558588057756424,
+          "state_min": 0.023978356271982193,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 1.1320778131484985,
+          "action_min": -0.9203884601593018,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.1320427656173706,
+          "state_min": -0.9203143119812012,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.12425244599580765,
+          "action_min": -0.13345633447170258,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.12558211386203766,
+          "state_min": -0.13345491886138916,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 256
+    },
+    "45": {
+      "beyond_tolerance": 0,
+      "frames": 587,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.02470003254711628,
+          "state_min": 0.0003626240650191903,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.09664078801870346,
+          "action_min": -0.302194207906723,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.09663978964090347,
+          "state_min": -0.30199065804481506,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.4864274263381958,
+          "action_min": -0.5537670850753784,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.4804784059524536,
+          "state_min": -0.5584179162979126,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.7823302149772644,
+          "action_min": -0.6028544306755066,
+          "beyond_tolerance": 0,
+          "lower": 75,
+          "outside": 0,
+          "pressing": 75,
+          "state_max": 0.7651456594467163,
+          "state_min": -0.6038938164710999,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.10431069135665894,
+          "action_min": 0.09817477315664291,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.1098724752664566,
+          "state_min": 0.0975576862692833,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.3574175238609314,
+          "action_min": -1.1842331886291504,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.35738465189933777,
+          "state_min": -1.1842106580734253,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.12425244599580765,
+          "action_min": -0.1365242898464203,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.12425043433904648,
+          "state_min": -0.13509517908096313,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 75
+    },
+    "46": {
+      "beyond_tolerance": 0,
+      "frames": 331,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 0.0,
+          "beyond_tolerance": 0,
+          "lower": 191,
+          "outside": 0,
+          "pressing": 191,
+          "state_max": 0.02464991994202137,
+          "state_min": 9.599100849300157e-06,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.04295146092772484,
+          "action_min": -0.14419420063495636,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.042921554297208786,
+          "state_min": -0.14421963691711426,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.6014759540557861,
+          "action_min": -0.5384272336959839,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.5941832065582275,
+          "state_min": -0.5472552180290222,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.5338253378868103,
+          "action_min": -0.6028544306755066,
+          "beyond_tolerance": 0,
+          "lower": 29,
+          "outside": 0,
+          "pressing": 29,
+          "state_max": 0.5160307884216309,
+          "state_min": -0.6042415499687195,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.10737865418195724,
+          "action_min": 0.09817477315664291,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.11222849041223526,
+          "state_min": 0.08684653043746948,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.8314175605773926,
+          "action_min": -0.7992039918899536,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.8313828706741333,
+          "state_min": -0.7992610931396484,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.12425244599580765,
+          "action_min": -0.1365242898464203,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.12425068765878677,
+          "state_min": -0.13652324676513672,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 214
+    },
+    "47": {
+      "beyond_tolerance": 0,
+      "frames": 458,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 0.0,
+          "beyond_tolerance": 0,
+          "lower": 171,
+          "outside": 0,
+          "pressing": 171,
+          "state_max": 0.024599643424153328,
+          "state_min": 0.0,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.04601942375302315,
+          "action_min": -0.3604854941368103,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.04603154957294464,
+          "state_min": -0.3585606813430786,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7195924520492554,
+          "action_min": -0.4264466464519501,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.709574818611145,
+          "state_min": -0.43100202083587646,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.5506991147994995,
+          "action_min": -0.5997864603996277,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.5367874503135681,
+          "state_min": -0.6000208258628845,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.10584467649459839,
+          "action_min": 0.09817477315664291,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.11176224797964096,
+          "state_min": 0.0970221683382988,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.3574175238609314,
+          "action_min": -0.9556700587272644,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.3573777973651886,
+          "state_min": -0.9557085037231445,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.12425244599580765,
+          "action_min": -0.13499030470848083,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.12413351982831955,
+          "state_min": -0.13595913350582123,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 171
+    },
+    "48": {
+      "beyond_tolerance": 0,
+      "frames": 982,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 0.0,
+          "beyond_tolerance": 0,
+          "lower": 205,
+          "outside": 0,
+          "pressing": 205,
+          "state_max": 0.024748291820287704,
+          "state_min": 0.00024049766943790019,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.2653786838054657,
+          "action_min": -0.5660389065742493,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.26521390676498413,
+          "state_min": -0.5655080080032349,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7257283926010132,
+          "action_min": -0.5000777244567871,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.720354437828064,
+          "state_min": -0.506725549697876,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.6227961778640747,
+          "action_min": -0.6013204455375671,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.6055671572685242,
+          "state_min": -0.6021179556846619,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.10431069135665894,
+          "action_min": -0.041417479515075684,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.10736614465713501,
+          "state_min": -0.03969219699501991,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.8973787426948547,
+          "action_min": -0.9572039842605591,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.8973305225372314,
+          "state_min": -0.9572086334228516,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.029145635664463043,
+          "action_min": -0.1365242898464203,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.028474759310483932,
+          "state_min": -0.13599811494350433,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 205
+    },
+    "49": {
+      "beyond_tolerance": 0,
+      "frames": 331,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.02490614540874958,
+          "state_min": 0.0001214889925904572,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.05522330850362778,
+          "action_min": -0.01073786523193121,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.05495166406035423,
+          "state_min": -0.010785292834043503,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.6106798648834229,
+          "action_min": -0.5997864603996277,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.6036198139190674,
+          "state_min": -0.6080960035324097,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": 0.7301748394966125,
+          "action_min": -0.6013204455375671,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.7144973278045654,
+          "state_min": -0.6020997762680054,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.03681553900241852,
+          "action_min": 0.02761165425181389,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.040154654532670975,
+          "state_min": 0.02692495658993721,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.7608544826507568,
+          "action_min": -1.1873011589050293,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.7608564496040344,
+          "state_min": -1.1872799396514893,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": 0.019941750913858414,
+          "action_min": -0.03067961521446705,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.019943779334425926,
+          "state_min": -0.030677922070026398,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 0
+    },
+    "5": {
+      "beyond_tolerance": 0,
+      "frames": 36,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024775000289082527,
+          "action_min": 0.024775000289082527,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.003992387093603611,
+          "state_min": 0.003991924226284027,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.03374757617712021,
+          "action_min": 0.03374757617712021,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.033752407878637314,
+          "state_min": 0.033752359449863434,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.653631329536438,
+          "action_min": 1.653631329536438,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.6482517719268799,
+          "state_min": 1.6482515335083008,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": -0.552233099937439,
+          "action_min": -0.552233099937439,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.5524669885635376,
+          "state_min": -0.5524671673774719,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.1227184608578682,
+          "action_min": 0.1227184608578682,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.12266506999731064,
+          "state_min": 0.12266501784324646,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": -0.8620972037315369,
+          "action_min": -0.8620972037315369,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.8621257543563843,
+          "state_min": -0.8621257543563843,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.15033011138439178,
+          "action_min": -0.15033011138439178,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.1503286063671112,
+          "state_min": -0.1503286361694336,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 0
+    },
+    "6": {
+      "beyond_tolerance": 0,
+      "frames": 362,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 4.999999873689376e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.02489999495446682,
+          "state_min": 8.963319123722613e-05,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.03374757617712021,
+          "action_min": -0.11044661700725555,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.033808544278144836,
+          "state_min": -0.11187076568603516,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.656699299812317,
+          "action_min": -0.5215534567832947,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.6498775482177734,
+          "state_min": -0.5309940576553345,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": -0.09357282519340515,
+          "action_min": -0.5553010702133179,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.10113002359867096,
+          "state_min": -0.555214524269104,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.1257864236831665,
+          "action_min": 0.1227184608578682,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.1289699673652649,
+          "state_min": 0.11946147680282593,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.9955535531044006,
+          "action_min": -0.9219224452972412,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.9955004453659058,
+          "state_min": -0.921951174736023,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.14726215600967407,
+          "action_min": -0.15493206679821014,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.14726050198078156,
+          "state_min": -0.15491406619548798,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 0
+    },
+    "7": {
+      "beyond_tolerance": 0,
+      "frames": 382,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 0.0,
+          "beyond_tolerance": 0,
+          "lower": 196,
+          "outside": 0,
+          "pressing": 196,
+          "state_max": 0.024876590818166733,
+          "state_min": 0.0001864616060629487,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.0951068103313446,
+          "action_min": -0.21629129350185394,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.09515253454446793,
+          "state_min": -0.21605020761489868,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.718058466911316,
+          "action_min": -0.46172821521759033,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.7126667499542236,
+          "state_min": -0.4710991680622101,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": -0.026077672839164734,
+          "action_min": -0.581378698348999,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.03385040909051895,
+          "state_min": -0.5813738107681274,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.13499030470848083,
+          "action_min": 0.12118448317050934,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.13925552368164062,
+          "state_min": 0.109859898686409,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.9526020884513855,
+          "action_min": -0.9219224452972412,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.9525808691978455,
+          "state_min": -0.9219520092010498,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.1365242898464203,
+          "action_min": -0.14879614114761353,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.13652120530605316,
+          "state_min": -0.14879439771175385,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 196
+    },
+    "8": {
+      "beyond_tolerance": 0,
+      "frames": 508,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.024974999949336052,
+          "action_min": 9.999999747378752e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.02472560666501522,
+          "state_min": 3.041304080397822e-05,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.07056311517953873,
+          "action_min": -0.13038836419582367,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.0705680251121521,
+          "state_min": -0.1329706907272339,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7211264371871948,
+          "action_min": -0.43411657214164734,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 1.715739369392395,
+          "state_min": -0.44358059763908386,
+          "upper": 0
+        },
+        "Joint3": {
+          "action_max": -0.06902913749217987,
+          "action_min": -0.5921165943145752,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.07844734936952591,
+          "state_min": -0.5921759009361267,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.13499030470848083,
+          "action_min": 0.019941750913858414,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.13829666376113892,
+          "state_min": 0.020125970244407654,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.9265244007110596,
+          "action_min": -0.9096506237983704,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.926473081111908,
+          "state_min": -0.9096750020980835,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.13499030470848083,
+          "action_min": -0.14726215600967407,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.13589607179164886,
+          "state_min": -0.14613309502601624,
+          "upper": 0
+        }
+      },
+      "outside": 0,
+      "pressing": 0
+    },
+    "9": {
+      "beyond_tolerance": 0,
+      "frames": 463,
+      "joints": {
+        "Gripper": {
+          "action_max": 0.02462499961256981,
+          "action_min": 4.999999873689376e-05,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.023764586076140404,
+          "state_min": 1.0630229496655375e-07,
+          "upper": 0
+        },
+        "Joint1": {
+          "action_max": 0.06596117466688156,
+          "action_min": -0.09050486981868744,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.06593060493469238,
+          "state_min": -0.09046513587236404,
+          "upper": 0
+        },
+        "Joint2": {
+          "action_max": 1.7502720355987549,
+          "action_min": -0.3328738212585449,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 71,
+          "pressing": 71,
+          "state_max": 1.7450417280197144,
+          "state_min": -0.34218528866767883,
+          "upper": 71
+        },
+        "Joint3": {
+          "action_max": -0.04448544234037399,
+          "action_min": -0.5921165943145752,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.05368902534246445,
+          "state_min": -0.5921619534492493,
+          "upper": 0
+        },
+        "Joint4": {
+          "action_max": 0.029145635664463043,
+          "action_min": 0.015339807607233524,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.03234879672527313,
+          "state_min": 0.01553072314709425,
+          "upper": 0
+        },
+        "Joint5": {
+          "action_max": 0.8406214714050293,
+          "action_min": -0.977145791053772,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": 0.8405752778053284,
+          "state_min": -0.9771888256072998,
+          "upper": 0
+        },
+        "Joint6": {
+          "action_max": -0.1365242898464203,
+          "action_min": -0.14419420063495636,
+          "beyond_tolerance": 0,
+          "lower": 0,
+          "outside": 0,
+          "pressing": 0,
+          "state_max": -0.1375901699066162,
+          "state_min": -0.14277799427509308,
+          "upper": 0
+        }
+      },
+      "outside": 71,
+      "pressing": 71
+    }
+  },
+  "episodes_pressing": 41,
+  "frames": 21746,
+  "frames_beyond_tolerance": 0,
+  "frames_outside": 1010,
+  "frames_pressing": 5233,
+  "gripper_type": "50mm",
+  "joints": {
+    "Gripper": {
+      "action_max": 0.02500000037252903,
+      "action_min": 0.0,
+      "episodes_pressing": 26,
+      "frames_beyond_tolerance": 0,
+      "frames_outside": 0,
+      "frames_pressing": 3224,
+      "lower": 0.0,
+      "lower_presses": 3067,
+      "state_max": 0.024996791034936905,
+      "state_min": 0.0,
+      "upper": 0.025,
+      "upper_presses": 157
+    },
+    "Joint1": {
+      "action_max": 0.4970097839832306,
+      "action_min": -0.5660389065742493,
+      "episodes_pressing": 0,
+      "frames_beyond_tolerance": 0,
+      "frames_outside": 0,
+      "frames_pressing": 0,
+      "lower": -2.705260340591211,
+      "lower_presses": 0,
+      "state_max": 0.4967769384384155,
+      "state_min": -0.5655080080032349,
+      "upper": 2.5132741228718345,
+      "upper_presses": 0
+    },
+    "Joint2": {
+      "action_max": 1.761009931564331,
+      "action_min": -0.7731263041496277,
+      "episodes_pressing": 17,
+      "frames_beyond_tolerance": 0,
+      "frames_outside": 912,
+      "frames_pressing": 1141,
+      "lower": -1.5184364492350666,
+      "lower_presses": 0,
+      "state_max": 1.7558332681655884,
+      "state_min": -0.7754104137420654,
+      "upper": 1.7453292519943295,
+      "upper_presses": 1141
+    },
+    "Joint3": {
+      "action_max": 1.7947574853897095,
+      "action_min": -0.604388415813446,
+      "episodes_pressing": 21,
+      "frames_beyond_tolerance": 0,
+      "frames_outside": 98,
+      "frames_pressing": 952,
+      "lower": -0.6108652381980153,
+      "lower_presses": 952,
+      "state_max": 1.760874629020691,
+      "state_min": -0.6201758980751038,
+      "upper": 2.356194490192345,
+      "upper_presses": 0
+    },
+    "Joint4": {
+      "action_max": 0.2454369217157364,
+      "action_min": -0.1227184608578682,
+      "episodes_pressing": 0,
+      "frames_beyond_tolerance": 0,
+      "frames_outside": 0,
+      "frames_pressing": 0,
+      "lower": -1.9547687622336491,
+      "lower_presses": 0,
+      "state_max": 0.2479109913110733,
+      "state_min": -0.1284233182668686,
+      "upper": 1.53588974175501,
+      "upper_presses": 0
+    },
+    "Joint5": {
+      "action_max": 1.1719613075256348,
+      "action_min": -1.2547962665557861,
+      "episodes_pressing": 7,
+      "frames_beyond_tolerance": 0,
+      "frames_outside": 0,
+      "frames_pressing": 72,
+      "lower": -1.2566370614359172,
+      "lower_presses": 72,
+      "state_max": 1.1720424890518188,
+      "state_min": -1.25491464138031,
+      "upper": 1.1868238913561442,
+      "upper_presses": 0
+    },
+    "Joint6": {
+      "action_max": 0.2040194422006607,
+      "action_min": -0.21935924887657166,
+      "episodes_pressing": 0,
+      "frames_beyond_tolerance": 0,
+      "frames_outside": 0,
+      "frames_pressing": 0,
+      "lower": -2.9845130209103035,
+      "lower_presses": 0,
+      "state_max": 0.20402556657791138,
+      "state_min": -0.21860916912555695,
+      "upper": 3.07177948351002,
+      "upper_presses": 0
+    }
+  },
+  "kind": "dataset_limits_audit",
+  "limits": {
+    "recording_tolerance_deg": 1.0,
+    "verified_by": "Obinna Edeh",
+    "verified_on": "2026-10-17"
+  },
+  "note": "Counts from the dataset's own frames against the operator limits; the policy client clamps commands to the exact bounds and holds on an observed state outside them, with no recording tolerance.",
+  "press_deg": 0.5,
+  "rules": {
+    "beyond_tolerance": "past the bound by more than the recording tolerance; what the recording quality gate rejects",
+    "outside": "a commanded or observed value past the exact operator bound, beyond the 1e-06 storage slack of 32-bit floats",
+    "pressing": "a commanded or observed joint within 0.5 deg of an operator bound, on either side; the gripper only at its stroke"
+  },
+  "utc": "2026-10-18T18:39:29.754095+00:00"
+}

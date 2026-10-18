@@ -68,7 +68,13 @@ def classify_trial(trial: dict[str, Any], lift_m: float, *, place_radius_m: floa
 
 def summarize_report(report: dict[str, Any], *, nudge_m: float = NUDGE_M,
                      reach_m: float = REACH_M) -> dict[str, Any]:
-    """Mode counts for one campaign report, with the rule values that sorted them."""
+    """Mode counts for one campaign report, with the rule values that sorted them.
+
+    The share of steps the safety client held is reported beside the modes: a hold
+    short of half a trial does not make a mode, but a policy that spends a sixth of
+    every trial pulled back from a joint bound is pressing the operator limits, and
+    the share says so even when the trial is sorted by what the cup did.
+    """
     if report.get("kind") != REPORT_KIND or report.get("lane") != "simulation":
         raise ValueError("not a simulation trial report")
     config = report["config"]
@@ -76,6 +82,8 @@ def summarize_report(report: dict[str, Any], *, nudge_m: float = NUDGE_M,
     modes = [classify_trial(trial, float(config["lift_m"]), place_radius_m=place_radius,
                             nudge_m=nudge_m, reach_m=reach_m) for trial in report["trials"]]
     counts = Counter(modes)
+    holds = sum(int(trial.get("holds", 0)) for trial in report["trials"])
+    steps = sum(int(trial.get("steps", 0)) for trial in report["trials"])
     recorded_reach = any(trial.get("min_gripper_cup_distance_m") is not None
                          for trial in report["trials"])
     return {
@@ -90,6 +98,9 @@ def summarize_report(report: dict[str, Any], *, nudge_m: float = NUDGE_M,
         "modes": {mode: counts.get(mode, 0) for mode in MODES},
         "reach_recorded": recorded_reach,
         "recoveries": sum(int(trial.get("recoveries", 0)) for trial in report["trials"]),
+        "holds": holds,
+        "steps": steps,
+        "held_share": holds / steps if steps else 0.0,
         "rules": {"lift_m": config["lift_m"], "nudge_m": nudge_m, "reach_m": reach_m,
                   "place_radius_m": place_radius},
     }
@@ -149,18 +160,20 @@ def render_markdown(summary: dict[str, Any]) -> str:
         f"rise above {NUDGE_M * 1000:.0f} mm; a reach is the gripper centre within "
         f"{REACH_M * 100:.0f} cm of the cup's",
         "centre, known only for campaigns that recorded the gripper pose; a hold is a",
-        "trial the safety client refused for more than half its steps. A campaign a",
+        "trial the safety client refused for more than half its steps; the last column",
+        "is the share of all steps the client held, whatever the mode. A campaign a",
         "study reran under a changed rule is marked superseded and left out of the totals.",
         "",
-        "| policy | step | trials | " + " | ".join(used) + " |",
-        "|---|---|---|" + "---|" * len(used),
+        "| policy | step | trials | " + " | ".join(used) + " | steps held |",
+        "|---|---|---|" + "---|" * (len(used) + 1),
     ]
     for row in summary["rows"]:
         cells = " | ".join(str(row["modes"][mode]) for mode in used)
         name = row["policy_id"] + (" (superseded)" if row.get("superseded") else "")
-        lines.append(f"| {name} | {row['step']} | {row['trials']} | {cells} |")
+        held = f"{100 * row.get('held_share', 0.0):.1f}%"
+        lines.append(f"| {name} | {row['step']} | {row['trials']} | {cells} | {held} |")
     totals = " | ".join(str(summary["totals"][mode]) for mode in used)
-    lines.append(f"| all current | | {summary['trials']} | {totals} |")
+    lines.append(f"| all current | | {summary['trials']} | {totals} | |")
     lines.append("")
     return "\n".join(lines)
 

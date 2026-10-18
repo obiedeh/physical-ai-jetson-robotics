@@ -95,3 +95,26 @@ def test_summary_counts_every_mode_and_totals_over_reports(tmp_path: Path) -> No
         summarize_report({**first, "lane": "physical"})
     with pytest.raises(ValueError, match="no trial reports"):
         summarize_reports([])
+
+
+def test_held_share_is_reported_beside_the_modes() -> None:
+    """Holds short of half a trial still show up as a share of all steps."""
+    summary = summarize_report(report([trial(holds=30, steps=150), trial(holds=0, steps=150),
+                                       trial(holds=15, steps=100)]))
+    assert summary["holds"] == 45 and summary["steps"] == 400
+    assert summary["held_share"] == pytest.approx(45 / 400)
+    text = render_markdown(summarize_reports_from([summary]))
+    assert "| steps held |" in text
+    assert "| p | 20000 | 3 |" in text and "| 11.2% |" in text
+
+
+def summarize_reports_from(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """A summary record around already summarized rows, as the writer would see it."""
+    from collections import Counter
+
+    totals: Counter[str] = Counter()
+    for row in rows:
+        totals.update(row["modes"])
+    return {"rows": [{"report": "r", "superseded": False, **row} for row in rows],
+            "totals": {mode: totals.get(mode, 0) for mode in MODES},
+            "trials": sum(row["trials"] for row in rows)}
