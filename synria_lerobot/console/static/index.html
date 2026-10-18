@@ -57,7 +57,7 @@
 <li><strong>Start every take a little off the folded rest pose.</strong> At the fold Joint2 sits within a degree of its recording bound; a take that starts there can fail the limits gate or clip a bound in sim.</li>
 <li><strong>Show recoveries, not only clean picks.</strong> In about one take in five, start the grasp slightly off, back off and re-grasp. A model shown only perfect approaches has no idea what to do after a 2 cm miss, and that was the common failure.</li>
 <li><strong>Close, settle, then lift.</strong> Hold the gripper closed for a beat before lifting. Early lifts with a loose grasp recorded as success teach the model to lift early and drop.</li>
-<li><strong>Finish with the cup held clear of the table.</strong> The scene scores a lift as held 3 cm up for one second; end your takes the same way so the data and the score agree.</li>
+<li><strong>Finish the way the scene scores it.</strong> For pick_cup, end with the cup held clear of the table; the scene scores a lift as held 3 cm up for one second. For cup_pick_and_place, end with the cup released upright inside the mark and the gripper backed away; the scene scores a placement as the cup at rest within 3 cm of the mark's centre with the gripper 6 cm clear, for one second. End your takes the same way so the data and the score agree.</li>
 <li><strong>Keep the pace steady and the camera framing unchanged.</strong> Do not touch camera defaults between takes of one session; the model sees the images, not the scene.</li>
 <li><strong>Label honestly.</strong> A take you did not attempt is Aborted, throw away. A real failure of the task is saved as failure; it still teaches the approach.</li>
 <li><strong>Aim for 50 or more takes per session, in one session.</strong> One dataset keeps the nested subsets and the held-out takes simple for the study.</li></ol>
@@ -76,6 +76,7 @@
 <h4>Fixed-scene roll skills</h4><ul>
 <li><strong>die_into_cup:</strong> release the die inside the cup at its fixed mark.</li>
 <li><strong>pick_cup:</strong> pick up the cup and hold on to it; the take ends with the cup lifted and held clear of the table.</li>
+<li><strong>cup_pick_and_place:</strong> pick up the cup, carry it to the yellow mark and release it upright inside the mark, then back the gripper away; the take ends with the cup at rest inside the mark and the gripper clear.</li>
 <li><strong>roll_and_dump:</strong> with the cup already in hand, contain and agitate the die in the cup, then dump it into the fixed landing tray; pass only when the die is at rest in the tray and the cup remains upright.</li>
 <li><strong>cup_return:</strong> return the cup upright to its marked home and retract.</li>
 <li><strong>Bounded table toss:</strong> a later, low-energy release into a contained landing tray—not an unrestricted throw. Require a reviewed safe release envelope and tray containment before enabling it.</li></ul>

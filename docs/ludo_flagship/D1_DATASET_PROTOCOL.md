@@ -19,6 +19,13 @@ Use one skill per dataset:
 | `roll_and_dump` | [Roll and dump](ROLL_AND_DUMP_PROTOCOL.md) | Die at rest on the tray; cup was not dropped. |
 | `cup_return` | [Cup return](CUP_RETURN_PROTOCOL.md) | Cup upright on its mark. |
 
+The registry also carries two object-control tasks outside the roll chain,
+`pick_cup` (lift the cup and hold it clear of the table) and
+`cup_pick_and_place` (carry the cup to the marked target and release it upright
+inside the mark, then back the gripper away). They are recorded under the same
+rules and in simulation sessions today; the scene scores them from its published
+poses (see the ACT training runbook).
+
 Each registry task needs operator timing and a prospective configured window;
 all real windows are currently unset. The recorder requires `--task-id` and
 selects the exact instruction and window from `--task-registry` (default
@@ -91,8 +98,11 @@ rules above stay as pre-registered for the physical D1 skills.
 - In about one take in five, show a recovery: start the grasp slightly off, back
   off and re-grasp. The common closed-loop failure was a miss of a few
   centimetres with no idea what to do next.
-- Close the gripper, settle for a beat, then lift; end the take with the cup
-  held clear of the table, which is how the scene scores a lift (3 cm for 1 s).
+- Close the gripper, settle for a beat, then lift; end a `pick_cup` take with
+  the cup held clear of the table, which is how the scene scores a lift (3 cm
+  for 1 s). End a `cup_pick_and_place` take with the cup released upright inside
+  the mark and the gripper backed away: the scene scores a placement as the cup
+  at rest within 3 cm of the mark's centre with the gripper 6 cm clear, for 1 s.
 - Keep the pace and the camera framing unchanged within a session; label a take
   you did not attempt as aborted; aim for 50 or more takes in one session so the
   nested subsets and the held-out takes of a study stay simple.

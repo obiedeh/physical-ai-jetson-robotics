@@ -1,4 +1,4 @@
-"""Closed-loop policy trials in the Isaac scene, scored by the cup's own height.
+"""Closed-loop policy trials in the Isaac scene, scored from the scene's object poses.
 
 The runner is the simulation lane's counterpart of the physical probe runner. It reads
 the sim arm state and the two recorded camera views from the scene's sim topics, asks a
@@ -6,10 +6,12 @@ policy server started with ``--lane simulation`` for actions through the ordinar
 :class:`~synria_lerobot.policy_client.PolicyClient`, and publishes seven-value joint
 targets on a sim-only topic that the scene's policy launch mode mirrors. Every trial
 starts with a randomized object reset, an approach from wherever the arm is to a fixed
-start pose, and a policy reset; it ends when the cup has been held ``lift_m`` above its
-rest height for ``hold_s`` without a break, or at the trial time limit. The score comes
-from the scene's published cup pose, not from an operator label, so a data-scaling
-study can compare runs on the same rule.
+start pose, and a policy reset; it ends when the task's score has been met for
+``hold_s`` without a break, or at the trial time limit. ``pick_cup`` scores a lift: the
+cup held ``lift_m`` above its rest height. ``cup_pick_and_place`` scores a placement:
+the cup lifted at least once, then at rest inside the scene's mark with the gripper
+backed clear. Both come from the scene's published poses, not from an operator label,
+so a data-scaling study can compare runs on the same rule.
 
 A hold is not a dead end here. When the client holds because the sim state sits a
 fraction past an operator bound (the physics drive overshoots a clamped target, or the
@@ -57,6 +59,11 @@ SIM_TARGET_TOPIC = "/isaac/policy_joint_targets"
 SIM_RANDOMIZE_TOPIC = "/pick_objects_randomize"
 SIM_CUP_POSE_TOPIC = "/isaac/pick_objects/cup/pose"
 SIM_GRIPPER_POSE_TOPIC = "/isaac/pick_objects/gripper/pose"
+SIM_PLACE_TARGET_POSE_TOPIC = "/isaac/pick_objects/place_target/pose"
+LIFT_SCORE = "lift"
+PLACE_SCORE = "place"
+# How each recordable task is scored in the scene; a task not named here runs no trials.
+SCORE_BY_TASK = {"pick_cup": LIFT_SCORE, "cup_pick_and_place": PLACE_SCORE}
 # The real arm's command topics, its feedback topic and the deployment bridge's own name.
 REAL_ARM_TOPICS = frozenset({*DEFAULT_COMMAND_TOPICS, "/joint_states", "/policy_arm"})
 REPORT_KIND = "simulation_policy_trials"
@@ -124,16 +131,24 @@ class TrialConfig:
     approach_s: float = 2.0
     recovery_margin_rad: float = math.radians(0.5)
     recovery_gripper_margin_m: float = 0.001
+    # The score the task is judged by, and the placement rule's radii (place score only).
+    score: str = LIFT_SCORE
+    place_radius_m: float = 0.03
+    place_height_m: float = 0.01
+    gripper_clear_m: float = 0.06
 
     def __post_init__(self) -> None:
         """Reject a campaign that could not be scored or replayed."""
         if type(self.trials) is not int or self.trials < 1:
             raise ValueError("trials must be a positive integer")
         for name in ("command_period_s", "max_trial_s", "lift_m", "hold_s", "settle_s",
-                     "approach_s", "recovery_margin_rad", "recovery_gripper_margin_m"):
+                     "approach_s", "recovery_margin_rad", "recovery_gripper_margin_m",
+                     "place_radius_m", "place_height_m", "gripper_clear_m"):
             value = getattr(self, name)
             if type(value) not in (int, float) or not math.isfinite(value) or value <= 0:
                 raise ValueError(f"{name} must be a positive finite number")
+        if self.score not in (LIFT_SCORE, PLACE_SCORE):
+            raise ValueError(f"score must be {LIFT_SCORE} or {PLACE_SCORE}")
         pose = tuple(float(value) for value in self.start_pose)
         if len(pose) != 7 or any(not math.isfinite(value) for value in pose) or pose[6] < 0:
             raise ValueError("start_pose needs six joint angles in radians and a gripper width")
@@ -167,6 +182,57 @@ class LiftScorer:
                 self.success_at_s = now_s
         else:
             self._lifted_since = None
+        return self.success_at_s is not None
+
+
+class PlaceScorer:
+    """Success when the cup, lifted at least once, rests inside the mark with the gripper clear.
+
+    Inside the mark means the cup's ground-plane distance to the mark's centre is at most
+    ``radius_m``. At rest means the cup's height is within ``height_m`` of its rest height,
+    so a cup held above the mark, or dropped onto it and still bouncing, does not count.
+    Clear means the gripper centre is at least ``clear_m`` from the cup. The cup must have
+    risen ``lift_m`` at some earlier sample, so a cup nudged along the floor into the mark
+    is a failure. The hold restarts whenever any condition breaks, as the lift hold does.
+    """
+
+    def __init__(self, rest_z_m: float, target_xy_m: tuple[float, float], lift_m: float,
+                 radius_m: float, height_m: float, clear_m: float, hold_s: float) -> None:
+        """Remember the rest height and the mark measured before the trial started."""
+        values = (rest_z_m, *target_xy_m, lift_m, radius_m, height_m, clear_m, hold_s)
+        if len(target_xy_m) != 2 or not all(math.isfinite(value) for value in values):
+            raise ValueError("scorer heights, mark, radii and hold time must be finite")
+        self.rest_z_m = float(rest_z_m)
+        self.target_xy_m = (float(target_xy_m[0]), float(target_xy_m[1]))
+        self.lift_m, self.radius_m = float(lift_m), float(radius_m)
+        self.height_m, self.clear_m, self.hold_s = float(height_m), float(clear_m), float(hold_s)
+        self.max_lift_m = 0.0
+        self.lifted = False
+        self.min_target_distance_m: float | None = None
+        self.final_target_distance_m: float | None = None
+        self.success_at_s: float | None = None
+        self._placed_since: float | None = None
+
+    def feed(self, cup_m: tuple[float, float, float],
+             gripper_m: tuple[float, float, float] | None, now_s: float) -> bool:
+        """Record one cup and gripper sample; True once the placement hold has been met."""
+        lift = float(cup_m[2]) - self.rest_z_m
+        self.max_lift_m = max(self.max_lift_m, lift)
+        self.lifted = self.lifted or lift >= self.lift_m
+        distance = math.dist((float(cup_m[0]), float(cup_m[1])), self.target_xy_m)
+        self.final_target_distance_m = distance
+        self.min_target_distance_m = (distance if self.min_target_distance_m is None
+                                      else min(self.min_target_distance_m, distance))
+        clear = gripper_m is not None and math.dist(gripper_m, cup_m) >= self.clear_m
+        placed = (self.lifted and distance <= self.radius_m and abs(lift) <= self.height_m
+                  and clear)
+        if placed:
+            if self._placed_since is None:
+                self._placed_since = now_s
+            elif self.success_at_s is None and now_s - self._placed_since >= self.hold_s:
+                self.success_at_s = now_s
+        else:
+            self._placed_since = None
         return self.success_at_s is not None
 
 
@@ -241,6 +307,12 @@ class TrialRecord:
     min_gripper_cup_distance_m: float | None
     final_gripper_cup_distance_m: float | None
     final_state: tuple[float, ...]
+    # Where the cup stood after the reset, and for the place score, the mark and how
+    # close the cup came to it; the lift score records the cup's start only.
+    cup_start_xy_m: tuple[float, float]
+    target_xy_m: tuple[float, float] | None
+    min_cup_target_distance_m: float | None
+    final_cup_target_distance_m: float | None
 
 
 class SimulationTrialRunner:
@@ -261,22 +333,35 @@ class SimulationTrialRunner:
         sleep: Callable[[float], None] = time.sleep,
         log: Callable[[str], None] = print,
         gripper_source: PoseSource | None = None,
+        target_source: PoseSource | None = None,
     ) -> None:
         """Refuse anything but a simulation contract whose command period matches the config.
 
-        ``gripper_source`` is optional: with it every trial records how close the gripper
-        came to the cup and where it ended, which tells a near miss from a far one.
+        The config's score must be the one :data:`SCORE_BY_TASK` names for the contract's
+        task. ``gripper_source`` is optional for the lift score: with it every trial
+        records how close the gripper came to the cup and where it ended, which tells a
+        near miss from a far one. The place score needs it and ``target_source``, the
+        scene's mark pose.
         """
-        client.embodiment.contract.require_lane(SIMULATION_LANE)
+        contract = client.embodiment.contract
+        contract.require_lane(SIMULATION_LANE)
         client.config.require_command_period(config.command_period_s)
+        expected = SCORE_BY_TASK.get(contract.task_id)
+        if expected is None:
+            raise ValueError(f"task {contract.task_id} has no scene score; trials run for "
+                             f"{sorted(SCORE_BY_TASK)}")
+        if config.score != expected:
+            raise ValueError(f"task {contract.task_id} is scored by {expected}, not {config.score}")
+        if config.score == PLACE_SCORE and (gripper_source is None or target_source is None):
+            raise ValueError("the place score needs the gripper pose and the mark pose")
         self.client, self.sink, self.config = client, sink, config
         self.state_source, self.wrist_source, self.front_source = (
             state_source, wrist_source, front_source,
         )
         self.cup_source, self.randomize = cup_source, randomize
-        self.gripper_source = gripper_source
+        self.gripper_source, self.target_source = gripper_source, target_source
         self.clock, self.sleep, self.log = clock, sleep, log
-        self.task = client.embodiment.contract.task_text
+        self.task = contract.task_text
 
     def observe(self) -> SynriaObservation:
         """The newest sample of every source, with the trained instruction."""
@@ -298,14 +383,24 @@ class SimulationTrialRunner:
         return len(targets)
 
     def run_trial(self, index: int) -> TrialRecord:
-        """One trial: randomized reset, approach, policy reset, steps to a lift or the limit."""
+        """One trial: randomized reset, approach, policy reset, steps to the score or the limit."""
         config = self.config
         self.randomize()
         self.sleep(config.settle_s)
         approach_steps = self.approach()
         self.sleep(config.settle_s / 2)
-        rest_z = self.cup_source.read().position_m[2]
-        scorer = LiftScorer(rest_z, config.lift_m, config.hold_s)
+        cup_start = self.cup_source.read().position_m
+        rest_z = cup_start[2]
+        scorer: LiftScorer | PlaceScorer
+        target_xy: tuple[float, float] | None = None
+        if config.score == PLACE_SCORE:
+            assert self.target_source is not None
+            mark = self.target_source.read().position_m
+            target_xy = (mark[0], mark[1])
+            scorer = PlaceScorer(rest_z, target_xy, config.lift_m, config.place_radius_m,
+                                 config.place_height_m, config.gripper_clear_m, config.hold_s)
+        else:
+            scorer = LiftScorer(rest_z, config.lift_m, config.hold_s)
         holds: Counter[str] = Counter()
         steps = 0
         recoveries = 0
@@ -336,12 +431,17 @@ class SimulationTrialRunner:
                 else:
                     self.sink.offer(decision.action)
                 cup = self.cup_source.read()
+                gripper: tuple[float, float, float] | None = None
                 if self.gripper_source is not None:
                     gripper = self.gripper_source.read().position_m
                     final_distance = math.dist(gripper, cup.position_m)
                     min_distance = (final_distance if min_distance is None
                                     else min(min_distance, final_distance))
-                if scorer.feed(cup.position_m[2], self.clock()):
+                if isinstance(scorer, PlaceScorer):
+                    done = scorer.feed(cup.position_m, gripper, self.clock())
+                else:
+                    done = scorer.feed(cup.position_m[2], self.clock())
+                if done:
                     break
                 remaining = config.command_period_s - (self.clock() - tick)
                 if remaining > 0:
@@ -359,13 +459,34 @@ class SimulationTrialRunner:
             cup_rest_z_m=rest_z, approach_steps=approach_steps, recoveries=recoveries,
             min_gripper_cup_distance_m=min_distance, final_gripper_cup_distance_m=final_distance,
             final_state=last_state,
+            cup_start_xy_m=(cup_start[0], cup_start[1]), target_xy_m=target_xy,
+            min_cup_target_distance_m=(scorer.min_target_distance_m
+                                       if isinstance(scorer, PlaceScorer) else None),
+            final_cup_target_distance_m=(scorer.final_target_distance_m
+                                         if isinstance(scorer, PlaceScorer) else None),
         )
         verdict = "success" if success else "failure"
         closest = "" if min_distance is None else f", closest {min_distance * 100:.1f} cm"
+        placed = ""
+        if isinstance(scorer, PlaceScorer) and scorer.final_target_distance_m is not None:
+            placed = f", cup ended {scorer.final_target_distance_m * 100:.1f} cm from the mark"
         self.log(f"trial {index}: {verdict} after {duration:.1f} s, {steps} steps, "
                  f"{record.holds} holds, {recoveries} recoveries, "
-                 f"max lift {scorer.max_lift_m * 100:.1f} cm{closest}")
+                 f"max lift {scorer.max_lift_m * 100:.1f} cm{closest}{placed}")
         return record
+
+    def score_rule(self) -> str:
+        """The scoring rule in words, as written into the report."""
+        config = self.config
+        if config.score == PLACE_SCORE:
+            return (f"cup lifted {config.lift_m * 100:.1f} cm at least once, then at rest within "
+                    f"{config.place_radius_m * 100:.1f} cm of the mark's centre and within "
+                    f"{config.place_height_m * 100:.1f} cm of its rest height with the gripper "
+                    f"centre at least {config.gripper_clear_m * 100:.1f} cm from the cup, for "
+                    f"{config.hold_s:.1f} s without a break, from the scene's published cup, "
+                    f"mark and gripper poses")
+        return (f"cup {config.lift_m * 100:.1f} cm above its rest height for "
+                f"{config.hold_s:.1f} s without a break, from the scene's published cup pose")
 
     def run(self, policy: dict[str, Any]) -> dict[str, Any]:
         """Run every trial and return the campaign report; the server must be in the sim lane."""
@@ -386,9 +507,8 @@ class SimulationTrialRunner:
                 "probe_sha256", "lane",
             )},
             "config": asdict(self.config),
-            "score_rule": (f"cup {self.config.lift_m * 100:.1f} cm above its rest height for "
-                           f"{self.config.hold_s:.1f} s without a break, from the scene's "
-                           f"published cup pose"),
+            "score": self.config.score,
+            "score_rule": self.score_rule(),
             "recovery_rule": ("a hold for a state past an operator bound publishes the state "
                               "clamped just inside the bounds, simulation lane only"),
             "trials": [asdict(trial) for trial in trials],

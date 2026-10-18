@@ -32,7 +32,7 @@ def synthetic_registry(path: Path, minimum: float, maximum: float) -> Path:
     return path
 
 
-def test_registry_is_exactly_the_four_unconfigured_fixed_scene_tasks() -> None:
+def test_registry_is_exactly_the_five_unconfigured_fixed_scene_tasks() -> None:
     tasks = load_task_registry(REGISTRY)
     assert tuple(tasks) == TASK_IDS
     for name, task in tasks.items():
@@ -76,7 +76,7 @@ def test_registry_requires_exact_task_set(tmp_path: Path, change: str) -> None:
         payload["tasks"].append(copy.deepcopy(payload["tasks"][0]))
     path = tmp_path / "registry.json"
     path.write_text(json.dumps(payload))
-    with pytest.raises(ValueError, match="exactly the four"):
+    with pytest.raises(ValueError, match="exactly the five"):
         load_task_registry(path)
 
 
