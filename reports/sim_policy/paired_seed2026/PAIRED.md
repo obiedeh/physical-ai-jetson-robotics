@@ -29,6 +29,9 @@ trial into a mode. "avg4" is the average of the last four checkpoints.
 | w3, avg4 | 12 | 24% [14, 37] | 5.2 cm |
 | approach recipe (w3 weighting, grasp-phase oversampling, state noise, action smoothing), 45 takes, step 15000, 20000 and avg4 | 0, 0, 0 | 0% [0, 7] | 20 cm |
 | plain 45 takes, step 20000, gripper guard off, `reports/sim_policy/paired_seed2026_noguard` | 35 | 70% [56, 81] | at the cup |
+| v2 final, served with temporal ensembling off, `reports/sim_policy/paired_seed2026_noensemble` | 0 | 0% [0, 7] | 40 never reached |
+| plain 45 takes, step 20000, placement seed 2027, guard on, `reports/sim_policy/paired_seed2027` | 23 | 46% [33, 60] | at the cup |
+| goal-conditioned ACT on the executor's corpus, 50, 100 and 131 takes, step 20000, place score, `reports/sim_policy/staged_place_01` | 0, 0, 0 | 0% [0, 7] | 100 takes: moved the cup without a lift in 42 |
 | staged executor (scripted what-where-how-plan-execute, ground-truth poses), `reports/sim_policy/staged_seed2026` | 50 | 100% [93, 100] | at the cup |
 | staged executor, `cup_pick_and_place` on the same placements (place score, 3 cm) | 50 | 100% [93, 100] | final distance median 0.4 cm, p90 0.7 cm |
 
@@ -66,6 +69,19 @@ What the pairing shows, with the caveat that one seed is one draw of placements:
   does not explain the plain run's 28: with the guard off the same checkpoint on
   the same placements scores 35, inside one interval of 28, so the guard is at
   best neutral for a policy that already closes correctly.
+- Recovery chain, 2026-10-19: serving v2 without temporal ensembling changes
+  nothing (0 of 50, 40 never reached), so v2's collapse is in its training, with
+  the affine transform the remaining suspect; the plain checkpoint on a second
+  placement seed scores 23, so the plain recipe's rate is 23 to 35 across seeds
+  and guard settings, near one in two. The first goal-conditioned policies trained
+  on the executor's corpus score 0 of 50 at 50, 100 and 131 takes on the place
+  task while their held-out joint error falls to 0.027 rad, the lowest of any run:
+  the 100-take policy reaches and nudges the cup in 42 trials and never lifts, the
+  others mostly never reach. A scripted expert's commands are a smooth function of
+  the state, so the open-loop fit is easy and says nothing about closed-loop
+  behaviour; the next step is to measure whether the served chunks carry the
+  demonstrations' motion or collapse toward the current state, before changing
+  the corpus or the recipe.
 - The staged executor, with the scene's own poses as its where, lifts the cup on
   every one of the same placements with no holds and no stalls, in about eight
   seconds a trial. That is the ceiling of the staged design and the measure of
