@@ -41,18 +41,62 @@
       "task_id": "pick_cup",
       "trials": 50,
       "utc": "2026-10-19T10:47:42.190739+00:00"
+    },
+    {
+      "held_share": 0.08506666666666667,
+      "holds": 638,
+      "modes": {
+        "cup untouched, reach not recorded": 0,
+        "held by the safety client most of the trial": 5,
+        "lifted, then dropped": 2,
+        "moved the cup, no lift": 14,
+        "never reached the cup": 16,
+        "reached the cup, no grasp": 13,
+        "reached the mark, not held there": 0,
+        "success": 0
+      },
+      "placement": {
+        "lifted": 2,
+        "median_m": 0.07637267961198517,
+        "p90_m": 0.07637267961198517,
+        "radius_m": 0.03,
+        "within_radius": 0
+      },
+      "policy_id": "simplace01_n131",
+      "reach_recorded": true,
+      "recoveries": 638,
+      "report": "reports/sim_policy/paired_seed2026_noguard/trials_simplace01_n131_step-000020000_20261019T140410Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": 0.03,
+        "reach_m": 0.03
+      },
+      "score": "place",
+      "step": 20000,
+      "steps": 7500,
+      "success_interval": [
+        0.0,
+        0.07135003417431873
+      ],
+      "success_rate": 0.0,
+      "successes": 0,
+      "superseded": false,
+      "task_id": "cup_pick_and_place",
+      "trials": 50,
+      "utc": "2026-10-19T14:33:27.406522+00:00"
     }
   ],
   "totals": {
     "cup untouched, reach not recorded": 0,
-    "held by the safety client most of the trial": 0,
-    "lifted, then dropped": 0,
-    "moved the cup, no lift": 9,
-    "never reached the cup": 6,
-    "reached the cup, no grasp": 0,
+    "held by the safety client most of the trial": 5,
+    "lifted, then dropped": 2,
+    "moved the cup, no lift": 23,
+    "never reached the cup": 22,
+    "reached the cup, no grasp": 13,
     "reached the mark, not held there": 0,
     "success": 35
   },
-  "trials": 50,
-  "utc": "2026-10-19T10:53:57.797591+00:00"
+  "trials": 100,
+  "utc": "2026-10-19T14:34:58.882022+00:00"
 }
