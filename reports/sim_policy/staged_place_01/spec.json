@@ -10,7 +10,7 @@
   "subset_sizes": [
     50,
     100,
-    200
+    131
   ],
   "training_config": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_config.json",
   "version": "synria_sim_data_scaling_v1"

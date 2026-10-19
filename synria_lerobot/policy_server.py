@@ -128,7 +128,10 @@ class CheckpointIdentity:
             or list(manifest.get("goal_channels", [])) != list(contract.goal_channels)
         ):
             raise ValueError("checkpoint is not eligible for its single fixed-scene task")
-        cadence = validate_config(manifest["configuration"], manifest["physical_contract"])
+        # A checkpoint trained before the geometric-transform ban is served from its
+        # historical manifest; serving applies no transform.
+        cadence = validate_config(manifest["configuration"], manifest["physical_contract"],
+                                  allow_geometric=True)
         if type(manifest.get("cadence")) is not dict or _canonical(
             manifest["cadence"]
         ) != _canonical(cadence):

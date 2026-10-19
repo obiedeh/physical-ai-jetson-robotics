@@ -437,3 +437,13 @@ def test_geometric_image_transforms_are_refused(tmp_path: Path) -> None:
         validate_config({**config, "image_transforms": {**AUGMENTATION,
                                                         "transforms": ["brightness", "affine"]}},
                         physical)
+
+
+def test_a_server_may_read_a_historical_manifest_with_an_affine_transform(tmp_path: Path) -> None:
+    """Serving tolerates the banned transform in a checkpoint's record; training does not."""
+    config, physical = settings(tmp_path)
+    historical = {**config, "image_transforms": {**AUGMENTATION,
+                                                 "transforms": ["brightness", "affine"]}}
+    assert validate_config(historical, physical, allow_geometric=True)
+    with pytest.raises(ValueError, match="geometric image transforms"):
+        validate_config(historical, physical)

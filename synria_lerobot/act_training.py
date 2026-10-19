@@ -57,12 +57,15 @@ IMAGE_TRANSFORM_NAMES = ("brightness", "contrast", "saturation", "hue", "sharpne
 GEOMETRIC_TRANSFORM_NAMES = ("affine",)
 
 
-def validate_image_transforms(value: Any) -> dict[str, Any] | None:
+def validate_image_transforms(value: Any, *, allow_geometric: bool = False,
+                              ) -> dict[str, Any] | None:
     """Check an optional image augmentation block; None means no augmentation.
 
     The block names upstream transforms (:data:`IMAGE_TRANSFORM_NAMES`) applied to
     training frames only, never to held-out frames, with their upstream default ranges.
-    Geometric transforms (:data:`GEOMETRIC_TRANSFORM_NAMES`) are refused.
+    Geometric transforms (:data:`GEOMETRIC_TRANSFORM_NAMES`) are refused for training;
+    ``allow_geometric`` lets a server read the manifest of a checkpoint trained before
+    the ban, since serving applies no transform and the record is historical evidence.
     """
     if value is None:
         return None
@@ -78,7 +81,7 @@ def validate_image_transforms(value: Any) -> dict[str, Any] | None:
             or any(name not in IMAGE_TRANSFORM_NAMES for name in names)):
         raise ValueError(f"image transforms must be distinct names from {IMAGE_TRANSFORM_NAMES}")
     geometric = [name for name in names if name in GEOMETRIC_TRANSFORM_NAMES]
-    if geometric:
+    if geometric and not allow_geometric:
         raise ValueError(f"geometric image transforms {geometric} move the object in a fixed "
                          "camera's image without moving the action label; use colour "
                          "transforms only")
@@ -253,7 +256,8 @@ def _path(value: Any, repository: Path) -> Path:
     return path if path.is_absolute() else repository / path
 
 
-def validate_config(config: dict[str, Any], contract: dict[str, Any]) -> dict[str, Any]:
+def validate_config(config: dict[str, Any], contract: dict[str, Any], *,
+                    allow_geometric: bool = False) -> dict[str, Any]:
     """Validate physical eligibility, exact contract identity and explicit ACT cadence."""
     if config.get("version") != TRAINING_VERSION:
         raise ValueError("unsupported training configuration")
@@ -303,7 +307,7 @@ def validate_config(config: dict[str, Any], contract: dict[str, Any]) -> dict[st
     _number(config.get("weight_decay"), "weight_decay", allow_zero=True)
     if config.get("device") not in {"cpu", "cuda"} or config.get("video_backend") != "pyav":
         raise ValueError("explicit cpu/cuda device and local pyav video backend required")
-    validate_image_transforms(config.get("image_transforms"))
+    validate_image_transforms(config.get("image_transforms"), allow_geometric=allow_geometric)
     validate_temporal_ensemble(config.get("temporal_ensemble_coeff"))
     validate_dataloader_workers(config.get("dataloader_workers"))
     validate_episode_weights(config.get("episode_weights"))

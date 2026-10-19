@@ -12,6 +12,9 @@ study reran under a changed rule is marked superseded and left out of the totals
 
 | policy | step | trials | success rate [95% interval] | success | lifted, then dropped | moved the cup, no lift | reached the cup, no grasp | never reached the cup | held by the safety client most of the trial | steps held |
 |---|---|---|---|---|---|---|---|---|---|---|
+| simcup17oct3appr_n045 | 20000 | 50 | 0% [0, 7] | 0 | 0 | 3 | 0 | 40 | 7 | 10.2% |
+| simcup17oct3appr_n045 | 15000 | 50 | 0% [0, 7] | 0 | 0 | 2 | 1 | 44 | 3 | 5.7% |
+| simcup17oct3appr_n045 | 20000 | 50 | 0% [0, 7] | 0 | 0 | 3 | 0 | 43 | 4 | 7.8% |
 | simcup17oct3long_n045 | 60000 | 50 | 50% [37, 63] | 25 | 0 | 13 | 0 | 12 | 0 | 0.1% |
 | simcup17oct3long_n045 | 20000 | 50 | 42% [29, 56] | 21 | 0 | 18 | 5 | 6 | 0 | 1.1% |
 | simcup17oct3long_n045 | 40000 | 50 | 58% [44, 71] | 29 | 0 | 5 | 1 | 15 | 0 | 0.0% |
@@ -30,4 +33,4 @@ study reran under a changed rule is marked superseded and left out of the totals
 | simcup17oct3v2_n045 | 20000 | 50 | 0% [0, 7] | 0 | 0 | 0 | 0 | 50 | 0 | 16.0% |
 | simcup17oct3w3_n045 | 20000 | 50 | 24% [14, 37] | 12 | 0 | 3 | 5 | 30 | 0 | 0.9% |
 | simcup17oct3w3_n045 | 20000 | 50 | 22% [13, 35] | 11 | 0 | 7 | 2 | 30 | 0 | 0.5% |
-| all current | | 900 | | 206 | 6 | 171 | 44 | 468 | 5 | |
+| all current | | 1050 | | 206 | 6 | 179 | 45 | 595 | 19 | |
