@@ -27,6 +27,8 @@ trial into a mode. "avg4" is the average of the last four checkpoints.
 | 60000-step run, avg4 of 45000 to 60000 | 25 | 50% [37, 63] | 3.8 cm |
 | randomized takes weighted 3 to 1 (w3), 45 takes, step 20000 | 11 | 22% [13, 35] | 5.1 cm |
 | w3, avg4 | 12 | 24% [14, 37] | 5.2 cm |
+| approach recipe (w3 weighting, grasp-phase oversampling, state noise, action smoothing), 45 takes, step 15000, 20000 and avg4 | 0, 0, 0 | 0% [0, 7] | 20 cm |
+| plain 45 takes, step 20000, gripper guard off, `reports/sim_policy/paired_seed2026_noguard` | 35 | 70% [56, 81] | at the cup |
 | staged executor (scripted what-where-how-plan-execute, ground-truth poses), `reports/sim_policy/staged_seed2026` | 50 | 100% [93, 100] | at the cup |
 | staged executor, `cup_pick_and_place` on the same placements (place score, 3 cm) | 50 | 100% [93, 100] | final distance median 0.4 cm, p90 0.7 cm |
 
@@ -56,6 +58,14 @@ What the pairing shows, with the caveat that one seed is one draw of placements:
   against 26) and harmful on the plain run (9 against 28). At 45 takes the plain
   recipe sits near one lift in two, and no training lever tried so far lifts it;
   the levers left are data and the goal channels.
+- Chain 2 and the first ablation, 2026-10-19: the combined approach recipe (all
+  four data levers on the 45-take row) scores 0 of 50 at every checkpoint with
+  the gripper 20 cm from the cup and the client holding 6 to 10 percent of steps,
+  the same collapse as v2; the levers were bundled, so which one breaks the
+  policy is unknown, and the next step is one lever at a time. The gripper guard
+  does not explain the plain run's 28: with the guard off the same checkpoint on
+  the same placements scores 35, inside one interval of 28, so the guard is at
+  best neutral for a policy that already closes correctly.
 - The staged executor, with the scene's own poses as its where, lifts the cup on
   every one of the same placements with no holds and no stalls, in about eight
   seconds a trial. That is the ceiling of the staged design and the measure of

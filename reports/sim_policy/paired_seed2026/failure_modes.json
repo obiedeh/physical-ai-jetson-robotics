@@ -5,6 +5,120 @@
   "physical_evidence": false,
   "rows": [
     {
+      "held_share": 0.10173333333333333,
+      "holds": 763,
+      "modes": {
+        "cup untouched, reach not recorded": 0,
+        "held by the safety client most of the trial": 7,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 3,
+        "never reached the cup": 40,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 0
+      },
+      "placement": null,
+      "policy_id": "simcup17oct3appr_n045",
+      "reach_recorded": true,
+      "recoveries": 763,
+      "report": "reports/sim_policy/paired_seed2026/trials_simcup17oct3appr_n045_averaged-last4-step-000020000_20261019T092449Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "steps": 7500,
+      "success_interval": [
+        0.0,
+        0.07135003417431873
+      ],
+      "success_rate": 0.0,
+      "successes": 0,
+      "superseded": false,
+      "task_id": "pick_cup",
+      "trials": 50,
+      "utc": "2026-10-19T09:54:11.414854+00:00"
+    },
+    {
+      "held_share": 0.05653333333333333,
+      "holds": 424,
+      "modes": {
+        "cup untouched, reach not recorded": 0,
+        "held by the safety client most of the trial": 3,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 2,
+        "never reached the cup": 44,
+        "reached the cup, no grasp": 1,
+        "reached the mark, not held there": 0,
+        "success": 0
+      },
+      "placement": null,
+      "policy_id": "simcup17oct3appr_n045",
+      "reach_recorded": true,
+      "recoveries": 424,
+      "report": "reports/sim_policy/paired_seed2026/trials_simcup17oct3appr_n045_step-000015000_20261019T095411Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 15000,
+      "steps": 7500,
+      "success_interval": [
+        0.0,
+        0.07135003417431873
+      ],
+      "success_rate": 0.0,
+      "successes": 0,
+      "superseded": false,
+      "task_id": "pick_cup",
+      "trials": 50,
+      "utc": "2026-10-19T10:23:34.574769+00:00"
+    },
+    {
+      "held_share": 0.0784,
+      "holds": 588,
+      "modes": {
+        "cup untouched, reach not recorded": 0,
+        "held by the safety client most of the trial": 4,
+        "lifted, then dropped": 0,
+        "moved the cup, no lift": 3,
+        "never reached the cup": 43,
+        "reached the cup, no grasp": 0,
+        "reached the mark, not held there": 0,
+        "success": 0
+      },
+      "placement": null,
+      "policy_id": "simcup17oct3appr_n045",
+      "reach_recorded": true,
+      "recoveries": 588,
+      "report": "reports/sim_policy/paired_seed2026/trials_simcup17oct3appr_n045_step-000020000_20261019T085529Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": null,
+        "reach_m": 0.03
+      },
+      "score": "lift",
+      "step": 20000,
+      "steps": 7500,
+      "success_interval": [
+        0.0,
+        0.07135003417431873
+      ],
+      "success_rate": 0.0,
+      "successes": 0,
+      "superseded": false,
+      "task_id": "pick_cup",
+      "trials": 50,
+      "utc": "2026-10-19T09:24:49.518317+00:00"
+    },
+    {
       "held_share": 0.0006552006552006552,
       "holds": 4,
       "modes": {
@@ -691,14 +805,14 @@
   ],
   "totals": {
     "cup untouched, reach not recorded": 0,
-    "held by the safety client most of the trial": 5,
+    "held by the safety client most of the trial": 19,
     "lifted, then dropped": 6,
-    "moved the cup, no lift": 171,
-    "never reached the cup": 468,
-    "reached the cup, no grasp": 44,
+    "moved the cup, no lift": 179,
+    "never reached the cup": 595,
+    "reached the cup, no grasp": 45,
     "reached the mark, not held there": 0,
     "success": 206
   },
-  "trials": 900,
-  "utc": "2026-10-19T08:12:39.226175+00:00"
+  "trials": 1050,
+  "utc": "2026-10-19T10:53:57.971949+00:00"
 }
