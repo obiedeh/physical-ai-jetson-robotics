@@ -32,6 +32,7 @@ trial into a mode. "avg4" is the average of the last four checkpoints.
 | v2 final, served with temporal ensembling off, `reports/sim_policy/paired_seed2026_noensemble` | 0 | 0% [0, 7] | 40 never reached |
 | plain 45 takes, step 20000, placement seed 2027, guard on, `reports/sim_policy/paired_seed2027` | 23 | 46% [33, 60] | at the cup |
 | goal-conditioned ACT on the executor's corpus, 50, 100 and 131 takes, step 20000, place score, `reports/sim_policy/staged_place_01` | 0, 0, 0 | 0% [0, 7] | 100 takes: moved the cup without a lift in 42 |
+| corpus policy, 131 takes, gripper guard off, `reports/sim_policy/paired_seed2026_noguard` | 0 | 0% [0, 7] | 3.3 cm; 2 lifted and dropped, 13 reached without a grasp, 14 nudged |
 | staged executor (scripted what-where-how-plan-execute, ground-truth poses), `reports/sim_policy/staged_seed2026` | 50 | 100% [93, 100] | at the cup |
 | staged executor, `cup_pick_and_place` on the same placements (place score, 3 cm) | 50 | 100% [93, 100] | final distance median 0.4 cm, p90 0.7 cm |
 
@@ -82,6 +83,16 @@ What the pairing shows, with the caveat that one seed is one draw of placements:
   behaviour; the next step is to measure whether the served chunks carry the
   demonstrations' motion or collapse toward the current state, before changing
   the corpus or the recipe.
+- The guard is not the corpus policy's blocker either: with it off the 131-take
+  policy still scores 0 of 50, now reaching within 3.3 cm at the median, lifting
+  and dropping twice, reaching without a grasp in 13 trials and nudging the cup in
+  14, with the client holding 638 steps for a state past a bound. The failure sits
+  in the last centimetres and the squeeze, and in a reach that presses the joint
+  bounds, which the corpus audit showed the executor's own takes doing on Joint3.
+  Open questions for the next session: whether a scripted expert's identical,
+  recovery-free approaches teach a policy anything it can use once it is a few
+  centimetres off, and whether the corpus should be recorded with the executor's
+  margin raised so no take presses a bound.
 - The staged executor, with the scene's own poses as its where, lifts the cup on
   every one of the same placements with no holds and no stalls, in about eight
   seconds a trial. That is the ceiling of the staged design and the measure of
