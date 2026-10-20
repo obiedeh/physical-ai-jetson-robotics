@@ -155,3 +155,14 @@ Change Report:
    committed and accepted Phase 0B evidence, explicit operator motion authority,
    per-step confirmations, deadman/rate limits and controlled stop/hold. Phase A
    contains no physical executor or controller publication path.
+
+### Hosted command-agent validation
+
+The dedicated gate workflow passed 93 tests, lint and typing on Python 3.10 and
+3.12 at c4db228. Evidence: reports/agents/command_agent/ci_checks.json. Broader
+matrix CI has failures in unchanged recorder NumPy array-shape typing and Windows
+POSIX-attribute typing; remaining jobs were still running at capture. No broad
+CI success is claimed. Change Report: added hosted evidence and updated validation
+and integrity hashes; inspected completed job logs; no source changed. Live
+simulation, Phase B measurements and physical tests remain unrun for the recorded
+reasons. The hardware safety review requirement is unchanged.
