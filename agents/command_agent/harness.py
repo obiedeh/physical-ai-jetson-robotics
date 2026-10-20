@@ -8,6 +8,8 @@ publisher, trajectory execution action, or physical executor in this module.
 
 from __future__ import annotations
 
+import hashlib
+import importlib.util
 import json
 import math
 import os
@@ -26,12 +28,15 @@ from agents.command_agent.planners import Planner, validate_proposal
 from agents.command_agent.schema import (
     MAX_STEPS,
     MAX_TEXT,
+    ArtifactRef,
+    CampaignProfile,
     CommandPlan,
     ContextData,
     Contract,
     Decision,
     GateResult,
     SkillCall,
+    SkillQualification,
     parse_json,
     plan_digest,
 )
@@ -49,6 +54,25 @@ from arm_control.safety import (
 from arm_control.trajectory import JOINT_NAMES
 
 PHASE_0B = "reports/synria/first_safe_motion.md"
+CAMPAIGN_SOURCE_PATHS = (
+    "agents/command_agent/__init__.py",
+    "agents/command_agent/schema.py",
+    "agents/command_agent/planners.py",
+    "agents/command_agent/harness.py",
+    "agents/command_agent/cli.py",
+    "arm_control/safety.py",
+    "arm_control/kinematics.py",
+    "arm_control/trajectory.py",
+    "synria_lerobot/task_registry.py",
+    "synria_lerobot/task_planner/schema.py",
+    "synria_lerobot/sim_policy_runner.py",
+    "synria_lerobot/policy_client.py",
+    "synria_lerobot/quality_gates.py",
+    "synria_lerobot/physical_contract.py",
+    "synria_lerobot/arm_kinematics.py",
+    "config/synria_kinematics.json",
+    "config/synria_limits.yaml",
+)
 
 
 class KeepOut(Contract):
@@ -691,6 +715,13 @@ def host_provenance() -> dict[str, Any]:
         "l4t_release": None,
         "power_mode": None,
     }
+    governor = Path("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor")
+    result["cpu_configuration"] = {
+        "logical_cpu_count": os.cpu_count(),
+        "affinity": sorted(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else None,
+        "scaling_governor": governor.read_text().strip() if governor.exists() else "unavailable",
+        "omp_num_threads": os.environ.get("OMP_NUM_THREADS"),
+    }
     release = Path("/etc/nv_tegra_release")
     if release.exists():
         result["l4t_release"] = release.read_text().strip()
@@ -709,3 +740,250 @@ def host_provenance() -> dict[str, Any]:
             except (OSError, subprocess.SubprocessError):
                 result[key] = "unavailable (not inferred)"
     return result
+
+
+def _campaign_artifact(root: Path, reference: ArtifactRef, *, committed: bool) -> bytes:
+    """Check bytes and, for small evidence, require an unchanged ordinary file at HEAD."""
+    path = Path(reference.path)
+    path = path if path.is_absolute() else root / path
+    if path.is_symlink() or not path.is_file():
+        raise ValueError(f"missing ordinary campaign input: {reference.path}")
+    data = path.read_bytes()
+    if hashlib.sha256(data).hexdigest() != reference.sha256:
+        raise ValueError(f"campaign input hash mismatch: {reference.path}")
+    if committed:
+        relative = path.resolve().relative_to(root.resolve()).as_posix()
+        stored = subprocess.run(
+            ["git", "show", f"HEAD:{relative}"],
+            cwd=root,
+            check=True,
+            capture_output=True,
+            timeout=5,
+        ).stdout
+        if data != stored:
+            raise ValueError(f"campaign evidence differs from HEAD: {reference.path}")
+    return data
+
+
+def campaign_schedule(suite: Any) -> list[dict[str, Any]]:
+    """Expand the frozen case/seed order without invoking a planner, simulator or scorer."""
+    if type(suite) is not dict or suite.get("schema_version") != "command_redteam_suite_v1":
+        raise ValueError("unsupported red-team suite")
+    if suite.get("planner") != "deterministic" or suite.get("monitor") != "deterministic":
+        raise ValueError("this pre-registration requires deterministic planner and monitor")
+    if suite.get("case_order") != "listed order, then seed order":
+        raise ValueError("unsupported campaign order")
+    seeds, cases = suite.get("seeds"), suite.get("cases")
+    if (
+        type(seeds) is not list
+        or not seeds
+        or any(type(seed) is not int or seed < 0 for seed in seeds)
+        or len(set(seeds)) != len(seeds)
+        or type(cases) is not list
+        or not cases
+    ):
+        raise ValueError("unique nonnegative seeds and nonempty case list required")
+    rows: list[dict[str, Any]] = []
+    identifiers: set[str] = set()
+    for case in cases:
+        if type(case) is not dict:
+            raise ValueError("suite case must be an object")
+        identifier, group = case.get("id"), case.get("group")
+        if (
+            type(identifier) is not str
+            or not identifier
+            or identifier in identifiers
+            or group not in ("benign", "camera_text", "poisoned_note", "planner_side_objective")
+        ):
+            raise ValueError("unique case IDs and registered attack groups required")
+        identifiers.add(identifier)
+        expected = "dry_run_only" if group == "benign" else "blocked"
+        if case.get("expected_decision") != expected:
+            raise ValueError("case group differs from the pre-registered decision")
+        for seed in seeds:
+            rows.append(
+                {
+                    "trial_index": len(rows),
+                    "case_id": identifier,
+                    "group": group,
+                    "seed": seed,
+                    "expected_decision": expected,
+                }
+            )
+    return rows
+
+
+def campaign_preflight(
+    profile_path: Path,
+    *,
+    root: Path = Path("."),
+    confirm_5090_released: bool = False,
+    provenance: dict[str, Any] | None = None,
+    ros_available: bool | None = None,
+) -> dict[str, Any]:
+    """Inspect a frozen Phase B profile without connecting to or executing any simulator.
+
+    A ready result means the declared inputs passed static preflight. It does not
+    authorize hardware, establish object success or replace live twin verification.
+    Missing release, bindings, scorers or committed evidence remain explicit blockers.
+    """
+    from synria_lerobot.sim_policy_runner import SCORE_BY_TASK
+
+    root = root.resolve()
+    blockers: list[str] = []
+    schedule: list[dict[str, Any]] = []
+    profile = None
+    checks: list[str] = []
+    metadata = provenance if provenance is not None else host_provenance()
+
+    def check(label: str, operation: Callable[[], Any]) -> Any:
+        """Keep every prerequisite failure instead of turning infrastructure errors into blocks."""
+        try:
+            value = operation()
+            checks.append(label)
+            return value
+        except Exception as error:
+            detail = str(error) if isinstance(error, ValueError) else type(error).__name__
+            blockers.append(f"{label}: {detail[:500]}")
+            return None
+
+    def required(condition: bool, message: str) -> None:
+        """Keep readiness assertions separate from the simulator's measured outcomes."""
+        if not condition:
+            blockers.append(message)
+
+    path = profile_path if profile_path.is_absolute() else root / profile_path
+    try:
+        raw = path.read_bytes()
+        profile = CampaignProfile.model_validate(parse_json(raw))
+        pin = ArtifactRef(path=str(path), sha256=hashlib.sha256(raw).hexdigest())
+        check("profile committed unchanged", lambda: _campaign_artifact(root, pin, committed=True))
+        required(profile.status == "planned", "profile is still scaffold; freeze it before trials")
+        required(confirm_5090_released is True, "operator has not explicitly released the RTX 5090")
+        suite_bytes = check(
+            "suite committed and hash-matched",
+            lambda: _campaign_artifact(root, profile.suite, committed=True),
+        )
+        if suite_bytes is not None:
+
+            def frozen_suite() -> list[dict[str, Any]]:
+                """Bind the schedule to the prospectively committed suite, never a later edit."""
+                committed = subprocess.run(
+                    ["git", "show", f"{profile.preregistration_commit}:{profile.suite.path}"],
+                    cwd=root,
+                    check=True,
+                    capture_output=True,
+                    timeout=5,
+                ).stdout
+                if committed != suite_bytes:
+                    raise ValueError("suite differs from its pre-registration commit")
+                return campaign_schedule(parse_json(suite_bytes))
+
+            schedule = check("suite pre-registration and order", frozen_suite) or []
+
+        required(profile.harness_commit is not None, "harness commit has not been frozen")
+        if profile.harness_commit is not None:
+
+            def frozen_source() -> None:
+                """Detect source drift even when HEAD contains only later report commits."""
+                for relative in CAMPAIGN_SOURCE_PATHS:
+                    data = subprocess.run(
+                        ["git", "show", f"{profile.harness_commit}:{relative}"],
+                        cwd=root,
+                        check=True,
+                        capture_output=True,
+                        timeout=5,
+                    ).stdout
+                    if data != (root / relative).read_bytes():
+                        raise ValueError(f"runtime source differs from frozen commit: {relative}")
+
+            check("harness source frozen", frozen_source)
+
+        required(profile.isaac_version is not None, "Isaac version is unknown")
+        required(
+            profile.simulation_domain_id is not None, "isolated ROS simulation domain is unset"
+        )
+        for name in ("scene", "skill_library", "simulator_adapter", "host_configuration"):
+            reference = getattr(profile, name)
+            required(reference is not None, f"{name} is not configured")
+            if reference is not None:
+
+                def load_reference(ref: ArtifactRef = reference, role: str = name) -> bytes:
+                    """Bind each role before checking its committed-evidence requirement."""
+                    return _campaign_artifact(
+                        root,
+                        ref,
+                        committed=role in ("simulator_adapter", "host_configuration"),
+                    )
+
+                data = check(name, load_reference)
+                if name == "host_configuration" and data is not None:
+
+                    def matching_host(host_bytes: bytes = data) -> None:
+                        """A host or power change needs a new prospectively frozen run profile."""
+                        configured = parse_json(host_bytes)
+                        for field in (
+                            "device",
+                            "python_version",
+                            "jetpack_version",
+                            "power_mode",
+                            "cpu_configuration",
+                        ):
+                            if field not in configured or configured[field] != metadata.get(field):
+                                raise ValueError(f"host configuration differs: {field}")
+                        if metadata.get("device") == "jetsonthor" and any(
+                            not metadata.get(field)
+                            or str(metadata[field]).startswith("unavailable")
+                            for field in ("jetpack_version", "power_mode")
+                        ):
+                            raise ValueError("Thor JetPack and power mode must be observed")
+
+                    check("host configuration matches", matching_host)
+        for skill_id, reference in profile.qualifications.items():
+            if reference is None:
+                blockers.append(
+                    f"{skill_id}: resolver/reset/object-success qualification is missing"
+                )
+                continue
+
+            def qualified(ref: ArtifactRef = reference, skill: str = skill_id) -> None:
+                """Bind each skill's integration evidence to the frozen deployment."""
+                data = _campaign_artifact(root, ref, committed=True)
+                q = SkillQualification.model_validate(parse_json(data))
+                if q.skill_id != skill or q.harness_commit != profile.harness_commit:
+                    raise ValueError("qualification skill or harness differs")
+                for field, expected in (
+                    ("scene_sha256", profile.scene),
+                    ("library_sha256", profile.skill_library),
+                    ("adapter_sha256", profile.simulator_adapter),
+                ):
+                    if expected is None or getattr(q, field) != expected.sha256:
+                        raise ValueError("qualification deployment hashes differ")
+                _campaign_artifact(root, q.trace, committed=True)
+
+            check(f"{skill_id} qualification", qualified)
+        if ros_available is None:
+            ros_available = importlib.util.find_spec("rclpy") is not None
+        required(
+            ros_available is True, "ROS client runtime is unavailable; no simulator was contacted"
+        )
+    except Exception as error:
+        detail = str(error) if isinstance(error, ValueError) else type(error).__name__
+        blockers.append(f"profile load: {detail[:1000]}")
+    return {
+        "schema_version": "command_campaign_preflight_v1",
+        "status": "implemented, unmeasured",
+        "checked_at": datetime.now(timezone.utc).isoformat(),
+        "ready": not blockers,
+        "ready_for": "live simulator preflight only",
+        "existing_score_candidates": dict(SCORE_BY_TASK),
+        "campaign_id": profile.campaign_id if profile else None,
+        "provenance": metadata,
+        "checks_passed": checks,
+        "blockers": blockers,
+        "schedule": schedule,
+        "scheduled_trials": len(schedule),
+        "simulator_contacted": False,
+        "trials_run": 0,
+        "phase_c": "parked",
+    }

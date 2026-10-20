@@ -1,0 +1,84 @@
+{
+  "status": "implemented, unmeasured",
+  "phase": "B static preparation only",
+  "phase_a_merge": "d13216a91e194050898e9cc6c9a10fa2723fb76f",
+  "core_only_tests": {
+    "tests": 132,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "repository_lint": "passed",
+  "repository_typecheck": "passed: 87 files",
+  "package_typecheck": "passed: 5 files; Linux and Windows platform stubs",
+  "full_regression": {
+    "status": "running; result will be retained before delivery"
+  },
+  "hosted_ci": "pending",
+  "provenance": {
+    "device": "jetsonthor",
+    "architecture": "aarch64",
+    "python_version": "3.12.3",
+    "jetpack_version": "nvidia-jetpack\t7.1-b112",
+    "l4t_release": "# R38 (release), REVISION: 4.0, GCID: 43443517, BOARD: generic, EABI: aarch64, DATE: Wed Dec 31 00:15:19 UTC 2025\n# KERNEL_VARIANT: oot\nTARGET_USERSPACE_LIB_DIR=nvidia\nTARGET_USERSPACE_LIB_DIR_PATH=usr/lib/aarch64-linux-gnu/nvidia\nINSTALL_TYPE=openrm",
+    "power_mode": "NV Power Mode: 120W\n1",
+    "cpu_configuration": {
+      "logical_cpu_count": 14,
+      "affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      "scaling_governor": "schedutil",
+      "omp_num_threads": null
+    }
+  },
+  "source_sha256": {
+    "agents/command_agent/__init__.py": "99efc5a7470cd56529d14abdacd97f99939a9886264ccaf785f3224c94b7d7f5",
+    "agents/command_agent/schema.py": "4eb907f87029f7369bcc9fee61b06ad789d1321d1809fc12f29338ef5342956a",
+    "agents/command_agent/planners.py": "5a43c5aa1dfd22708bd57c7acc2a6bb42ab05cb0b3e2a629d28c9242db8da10e",
+    "agents/command_agent/harness.py": "251f520afaa6151a80bf90984e8bfa6dd09a0c5827269ce9a0d75038674235f4",
+    "agents/command_agent/cli.py": "517ba20d0df6629bf70e1ee4f81b5edf4d667246b70392f40beac1a5a652a942",
+    "arm_control/safety.py": "71d82701d34992789f17ba692591b3688f9ea8e2d492723294c8491227d7b1e0",
+    "arm_control/kinematics.py": "7b77bcbea21beecaee7ab28b3f960468bb230fde84213601b7fc709944b37c9a",
+    "arm_control/trajectory.py": "622b6c78e3bd9047005b06410d61689a5418ebe75830825b3a63b3be634300ff",
+    "synria_lerobot/task_registry.py": "4d664a7e44bd584ee8d95fd5cc40a1ef9f4da405afa734de9d564a8de006ef8b",
+    "synria_lerobot/task_planner/schema.py": "e88487416cf3ed0f7b53d9e70244f74797e0901dcc5f64fd67c7b9341838b8b2",
+    "synria_lerobot/sim_policy_runner.py": "9723f404a958c25422a0e23c9beb924b27ea7265b2e9cdc0d709c67aa26ed84f",
+    "synria_lerobot/policy_client.py": "34369883b08f45329e5ab74099941683da1c1839b9e11037954a0fdd36fed2a8",
+    "synria_lerobot/quality_gates.py": "0a787dd017b85b3d0f408aa757b8b28c343cd945495538f0565e23493501fef7",
+    "synria_lerobot/physical_contract.py": "6b7d06074c98289a5a38a4e6ce6cea4a55568716bbd70aea34d596a637df0e89",
+    "synria_lerobot/arm_kinematics.py": "88a4ee1732a9890063a4c22f596b08b7e4760e84b4897ec7cd130c3e4b235bc1",
+    "config/synria_kinematics.json": "8a41db34b99ff3424b467925c0cfe7067151601096e749fc44cb265686247172",
+    "config/synria_limits.yaml": "738e04b5f62b94ab973003e42c397ae58d32d9196ec1968651a0e43fb574016f",
+    "tests/test_command_agent.py": "0706bede2d980618d50c9dfc08a4340139a81294dd8fd5bcc111c90b94ab2c0a",
+    "tests/test_command_agent_campaign.py": "7e9fa10f920d77506ea4d355d00a65c6ffbc54ec60dd7179e5142d98de6fbbff",
+    ".github/workflows/command-agent.yml": "aab87f55385168a1a00d32268214466da678e797555fc714d4619f968928486b"
+  },
+  "suite_sha256": "94fcf6ec4a7137c686d97eae8e17aeff10f1af512d8e60e654ccc43f27728dde",
+  "trials_run": 0,
+  "simulator_contacted": false,
+  "not_run": [
+    "live Isaac",
+    "5090 benchmark",
+    "motion",
+    "live object-success qualification"
+  ],
+  "operator_5090_release": "not received; async question remains pending",
+  "known_existing_score_candidates": {
+    "pick_cup": "lift",
+    "cup_pick_and_place": "place"
+  },
+  "remaining": "Qualified live bindings, task-specific reset/scorer evidence, frozen planned profile and explicit release; full campaign executor is not implemented by static preflight."
+}

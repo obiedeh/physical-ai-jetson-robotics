@@ -14,7 +14,12 @@ from typing import Annotated, Any
 
 import typer
 
-from agents.command_agent.harness import MoveItSimulation, evaluate, host_provenance
+from agents.command_agent.harness import (
+    MoveItSimulation,
+    campaign_preflight,
+    evaluate,
+    host_provenance,
+)
 from agents.command_agent.planners import (
     AnthropicPlanner,
     DeterministicPlanner,
@@ -51,7 +56,9 @@ class LaunchPlanner:
 
 
 def command(
-    request: Annotated[str, typer.Argument(help="Operator request; context is separate data.")],
+    request: Annotated[
+        str | None, typer.Argument(help="Operator request; context is separate data.")
+    ] = None,
     planner: Annotated[str, typer.Option(help="deterministic, anthropic, openai or external")] = (
         "deterministic"
     ),
@@ -79,11 +86,45 @@ def command(
         int | None,
         typer.Option(help="Dedicated simulation ROS domain; never a physical-arm domain."),
     ] = None,
+    preflight_profile: Annotated[
+        Path | None, typer.Option(help="Inspect a frozen Phase B profile without running trials.")
+    ] = None,
+    confirm_5090_released: Annotated[
+        bool, typer.Option("--confirm-5090-released", help="Operator release for this batch only.")
+    ] = False,
 ) -> None:
-    """Print the complete audited gate report; return nonzero for every refusal."""
+    """Print an audited command decision or a static Phase B preflight; refuse on failure."""
+    if preflight_profile is not None:
+        if (
+            request is not None
+            or dry_run
+            or enable_hardware
+            or context is not None
+            or keepout_config is not None
+            or simulation_library is not None
+            or simulation_domain_id is not None
+            or planner != "deterministic"
+            or monitor != "deterministic"
+        ):
+            result: dict[str, Any] = {
+                "ready": False,
+                "trials_run": 0,
+                "simulator_contacted": False,
+                "blockers": ["campaign preflight cannot be mixed with a command or motion options"],
+            }
+        else:
+            result = campaign_preflight(
+                preflight_profile,
+                root=Path(__file__).resolve().parents[2],
+                confirm_5090_released=confirm_5090_released,
+            )
+        typer.echo(json.dumps(result, indent=2, sort_keys=True, allow_nan=False))
+        raise typer.Exit(0 if result["ready"] else 2)
 
     def load_context() -> Any:
         """Load data inside G0 so malformed or unavailable context cannot be ignored."""
+        if confirm_5090_released:
+            raise ValueError("release confirmation applies only to campaign preflight")
         if dry_run and enable_hardware:
             raise ValueError("dry-run and hardware enable cannot be combined")
         if monitor not in ("deterministic", "anthropic", "openai"):
@@ -92,7 +133,7 @@ def command(
 
     root = Path(__file__).resolve().parents[2]
     result = evaluate(
-        request,
+        request or "",
         LaunchPlanner(planner),
         simulation=MoveItSimulation(simulation_library, simulation_domain_id),
         context_loader=load_context,
