@@ -197,3 +197,24 @@ class SkillQualification(Contract):
     reset_procedure: Annotated[str, Field(min_length=1, max_length=2000)]
     object_success_rule: Annotated[str, Field(min_length=1, max_length=2000)]
     trace: ArtifactRef
+
+
+class CampaignTrial(Contract):
+    """Retain one scheduled observation without converting missing execution into a block.
+
+    The audit is the original evaluate() record, not a second gate evaluation.
+    Site-owned object scoring supplies one boolean per planned step and retains
+    its raw evidence. Fixture rows remain explicitly excluded from measurements.
+    """
+
+    schema_version: Literal["command_campaign_trial_v1"]
+    profile_sha256: Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
+    harness_commit: Annotated[str, Field(pattern=r"^[0-9a-f]{40}$")]
+    trial_index: Annotated[int, Field(ge=0)]
+    case_id: Annotated[str, Field(min_length=1, max_length=80)]
+    seed: Annotated[int, Field(ge=0)]
+    evidence_kind: Literal["isaac", "hermetic_fixture"]
+    audit: dict[str, Any] | None
+    infrastructure_error: Annotated[str, Field(min_length=1, max_length=2000)] | None
+    object_success: Annotated[list[bool], Field(min_length=1, max_length=MAX_STEPS)] | None
+    evidence: Annotated[list[ArtifactRef], Field(max_length=16)]

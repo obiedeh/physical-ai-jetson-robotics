@@ -289,3 +289,25 @@ Change Report:
    Existing virtual environments were preserved, not migrated or revalidated.
 5. This repository sync needs no hardware review; Phase C remains parked and
    requires its separate review and operator authorization before robot execution.
+
+## 2026-10-20 — Phase B offline ledger/report path implemented
+
+The operator requested continuation after the GitHub-authoritative Thor sync.
+Added strict trial records and offline JSONL aggregation in the existing modules.
+The original suite and G0-G4 are unchanged. Fixed denominators, raw G3 timing,
+missing trials, infrastructure failures, object-score failures and hermetic
+fixtures remain distinct. Reports never confer measured status or execution
+permission. Evidence: reports/agents/command_agent/phase_b_validation.json,
+offline_reporting. No real trial or simulator contact occurred.
+
+Change Report:
+1. Extended schema, harness, CLI and the existing campaign tests; updated the
+   operational guide and validation record. No speculative simulator adapter added.
+2. Thor core-only suite: 170 passed. CI-scoped repository lint, 87-file typing and
+   five-file package typing (Linux/Windows) pass. All-files lint finds 421 issues,
+   all in unchanged files identical to GitHub main. Full regression is in progress.
+3. Isaac, 5090 and hardware runs remain unrun: release, runtime and qualified
+   task bindings are missing. Hermetic object outcomes/timings are not measurements.
+4. Freeze the updated source prospectively, retain the actual empty-ledger report,
+   then qualify the real deployment; no campaign executor has been implemented.
+5. Hardware review remains required before Phase C, which stays parked.

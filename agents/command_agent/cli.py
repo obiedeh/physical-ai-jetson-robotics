@@ -17,6 +17,7 @@ import typer
 from agents.command_agent.harness import (
     MoveItSimulation,
     campaign_preflight,
+    campaign_report,
     evaluate,
     host_provenance,
 )
@@ -89,12 +90,19 @@ def command(
     preflight_profile: Annotated[
         Path | None, typer.Option(help="Inspect a frozen Phase B profile without running trials.")
     ] = None,
+    report_profile: Annotated[
+        Path | None,
+        typer.Option(help="Summarize a Phase B ledger offline; grants no execution authority."),
+    ] = None,
+    trial_ledger: Annotated[
+        Path | None, typer.Option(help="Original append-only trial JSONL for --report-profile.")
+    ] = None,
     confirm_5090_released: Annotated[
         bool, typer.Option("--confirm-5090-released", help="Operator release for this batch only.")
     ] = False,
 ) -> None:
-    """Print an audited command decision or a static Phase B preflight; refuse on failure."""
-    if preflight_profile is not None:
+    """Print a command decision, static preflight or offline report; hardware stays parked."""
+    if preflight_profile is not None or report_profile is not None or trial_ledger is not None:
         if (
             request is not None
             or dry_run
@@ -105,21 +113,43 @@ def command(
             or simulation_domain_id is not None
             or planner != "deterministic"
             or monitor != "deterministic"
+            or (
+                preflight_profile is not None
+                and (report_profile is not None or trial_ledger is not None)
+            )
+            or (
+                preflight_profile is None
+                and (report_profile is None or trial_ledger is None or confirm_5090_released)
+            )
         ):
             result: dict[str, Any] = {
                 "ready": False,
+                "report_valid": False,
                 "trials_run": 0,
                 "simulator_contacted": False,
-                "blockers": ["campaign preflight cannot be mixed with a command or motion options"],
+                "blockers": [
+                    "preflight/report cannot be mixed with commands or motion options; "
+                    "report requires a profile and ledger"
+                ],
             }
-        else:
+        elif preflight_profile is not None:
             result = campaign_preflight(
                 preflight_profile,
                 root=Path(__file__).resolve().parents[2],
                 confirm_5090_released=confirm_5090_released,
             )
+        else:
+            assert report_profile is not None and trial_ledger is not None
+            result = campaign_report(
+                report_profile, trial_ledger, root=Path(__file__).resolve().parents[2]
+            )
         typer.echo(json.dumps(result, indent=2, sort_keys=True, allow_nan=False))
-        raise typer.Exit(0 if result["ready"] else 2)
+        ready = (
+            result.get("ready")
+            if preflight_profile is not None
+            else result.get("evaluation_complete")
+        )
+        raise typer.Exit(0 if ready else 2)
 
     def load_context() -> Any:
         """Load data inside G0 so malformed or unavailable context cannot be ignored."""

@@ -26,7 +26,8 @@ bindings never shrink those denominators. The original suite was not edited.
 No scheduled row is a measured trial.
 
 A prospective planned profile must be committed before trials. It pins the
-preregistered suite, exact harness source commit (including reused safety, registry, scoring and\nkinematics dependencies), Isaac version, isolated ROS
+preregistered suite, exact harness source commit (including reused safety, registry, scoring and
+kinematics dependencies), Isaac version, isolated ROS
 domain, scene, skill library, simulator integration code and host configuration.
 All small evidence and profile files must be unchanged at HEAD. Scene/library
 files may be site-owned; their bytes must match the committed profile's SHA-256.
@@ -84,3 +85,35 @@ validation and integrity hashes. No source changed; no code tests repeated.
 Unqualified bindings, unavailable ROS configuration and missing operator release
 still prevent the actual campaign. The existing physical safety review remains
 required before any robot execution.
+
+
+## Offline trial reporting
+
+Status: **implemented, unmeasured**. The CLI can summarize an original JSONL
+ledger without a planner, ROS, simulator, GPU release or hardware connection:
+
+    physical-ai-lab command-agent --report-profile reports/agents/command_agent/phase_b_profile.template.json --trial-ledger reports/agents/command_agent/phase_b_trials.jsonl
+
+The current input ledger is empty: no trials have run. Missing rows stay in the
+80-trial schedule, rates and latency statistics are null until observations
+exist, and an incomplete report exits 2. An empty ledger is not a campaign.
+
+Each command_campaign_trial_v1 row binds its registered index/case/seed to the
+profile SHA-256 and harness commit. It retains the original evaluate() audit,
+explicit infrastructure error or per-step object-success booleans, and hashed
+raw-evidence references. The site integration must supply the qualified reset,
+camera-text rendering, object observations and frozen scorer; this report utility
+does not implement those operations or change any gate after a result is seen.
+
+The reducer checks gate-record structure, original request/context, deterministic
+backend identities, timestamp order, profile/host binding and evidence hashes.
+It keeps the fixed 45-adversarial/35-benign denominators, missing rows, failed
+expectations, infrastructure errors and fixture rows. G3-not-reached and missing
+audits remain separate from finite observed timings; p95 uses nearest rank.
+Per-step object scores are required for every accepted multi-step proposal.
+
+Aggregation never marks a campaign measured or certifies deployment readiness,
+even with a complete Isaac-labelled ledger. The live binding, raw traces, reset,
+camera frames and task scoring still require the frozen-profile review in the
+pre-registration protocol. Hermetic fixtures cannot become Isaac measurements.
+No campaign executor, scene integration or physical executor is added here.
