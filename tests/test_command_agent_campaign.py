@@ -10,15 +10,20 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from test_command_agent import FixtureSimulation
 from typer.testing import CliRunner
 
 from agents.command_agent import cli
 from agents.command_agent.harness import (
     CAMPAIGN_SOURCE_PATHS,
     campaign_preflight,
+    campaign_report,
     campaign_schedule,
+    evaluate,
+    summarize_campaign,
 )
-from agents.command_agent.schema import SKILL_IDS
+from agents.command_agent.planners import DeterministicPlanner
+from agents.command_agent.schema import SKILL_IDS, skill_call
 
 SUITE_PATH = "reports/agents/command_agent/command_suite.json"
 HOST = {
@@ -324,3 +329,286 @@ def test_cli_preflight_cannot_be_mixed_with_commands(extra: list[str]) -> None:
     result = CliRunner().invoke(cli.app, ["--preflight-profile", "profile.json", *extra])
     assert result.exit_code == 2
     assert "cannot be mixed" in json.loads(result.stdout)["blockers"][0]
+
+
+class RegisteredFaultPlanner(DeterministicPlanner):
+    """Inject exactly the frozen fault into a test proposal; never run a real campaign."""
+
+    def __init__(self, intervention: Any) -> None:
+        self.intervention = intervention
+
+    def plan(self, utterance: str, context: Any) -> Any:
+        value = super().plan(utterance, context)
+        fault = self.intervention
+        if fault is None:
+            return value
+        if fault["operation"] == "append_registered_skill":
+            value["steps"].append(skill_call(fault["skill_id"]))
+        elif fault["operation"] == "substitute_zone":
+            value["steps"][fault["step_index"]]["args"]["zone"] = fault["zone"]
+        else:
+            value["steps"][0][fault["field"]] = fault["value"]
+        return value
+
+
+def trial_row(campaign: Any, index: int, *, dry_result: bool = True) -> dict[str, Any]:
+    """Create an explicitly hermetic audit and synthetic object scores for reducer tests."""
+    root = campaign["root"]
+    suite = json.loads((root / SUITE_PATH).read_text())
+    row = campaign_schedule(suite)[index]
+    case = next(c for c in suite["cases"] if c["id"] == row["case_id"])
+    audit = evaluate(
+        case["utterance"],
+        RegisteredFaultPlanner(case["planner_intervention"]),
+        simulation=FixtureSimulation(dry_result=dry_result),
+        context_loader=lambda: case["context_data"],
+        root=root,
+        provenance=HOST,
+    )
+    # These are declared artificial values, never retained as measured timings.
+    if audit["monitor_latency_ms"] is not None:
+        audit["monitor_latency_ms"] = 2.0
+    success = (
+        [True] * len(audit["plan"]["steps"])
+        if audit["decision"]["outcome"] == "dry_run_only"
+        else None
+    )
+    return {
+        "schema_version": "command_campaign_trial_v1",
+        "profile_sha256": hashlib.sha256((root / "profile.json").read_bytes()).hexdigest(),
+        "harness_commit": campaign["profile"]["harness_commit"],
+        "trial_index": index,
+        "case_id": row["case_id"],
+        "seed": row["seed"],
+        "evidence_kind": "hermetic_fixture",
+        "audit": audit,
+        "infrastructure_error": None,
+        "object_success": success,
+        "evidence": [],
+    }
+
+
+def suite_for(campaign: Any) -> Any:
+    """Use the unchanged registered cases in each temporary test repository."""
+    return json.loads((campaign["root"] / SUITE_PATH).read_text())
+
+
+def test_report_all_fixture_trials_never_become_measurements(campaign: Any) -> None:
+    rows = [trial_row(campaign, i) for i in range(80)]
+    report = summarize_campaign(suite_for(campaign), rows)
+    assert report["coverage_complete"] and not report["evaluation_complete"]
+    assert report["fixture_trials"] == 80 and not report["measurement_claim_authorized"]
+    assert report["status"] == "implemented, unmeasured"
+    assert report["adversarial_block_rate"] == {"blocked": 45, "scheduled": 45, "rate": 1.0}
+    assert report["benign_false_block_rate"]["blocked"] == 0
+    assert report["task_completion"] == {"completed": 35, "scheduled": 35, "rate": 1.0}
+    assert report["monitor_latency_ms"]["count"] == 70
+    assert report["monitor_latency_ms"]["g3_not_reached"] == 10
+    assert report["failures"] == report["infrastructure_failures"] == []
+
+
+def test_missing_and_infrastructure_trials_keep_original_denominators(campaign: Any) -> None:
+    row = trial_row(campaign, 35)
+    row.update(audit=None, infrastructure_error="Isaac scene unavailable", object_success=None)
+    report = summarize_campaign(suite_for(campaign), [row])
+    assert len(report["missing_trials"]) == 79
+    assert report["adversarial_block_rate"] == {"blocked": 0, "scheduled": 45, "rate": 0.0}
+    assert report["benign_false_block_rate"]["scheduled"] == 35
+    assert len(report["infrastructure_failures"]) == 1
+    assert report["monitor_latency_ms"]["count"] == 0
+    assert report["monitor_latency_ms"]["median"] is None
+    assert report["monitor_latency_ms"]["audit_unavailable"] == 1
+
+
+def test_latency_uses_reached_g3_only_and_nearest_rank_p95(campaign: Any) -> None:
+    rows = [trial_row(campaign, i) for i in [0, 1, 2, 70, 75]]
+    for row, latency in zip(rows, [1.0, 2.0, 100.0], strict=False):
+        row["audit"]["monitor_latency_ms"] = latency
+    report = summarize_campaign(suite_for(campaign), rows)
+    assert report["monitor_latency_ms"] == {
+        "count": 3,
+        "median": 2.0,
+        "p95_nearest_rank": 100.0,
+        "maximum": 100.0,
+        "g3_not_reached": 2,
+        "audit_unavailable": 0,
+        "raw_in_trial_order": [1.0, 2.0, 100.0],
+    }
+
+
+def test_report_retains_benign_refusals_and_object_failures(campaign: Any) -> None:
+    rows = [trial_row(campaign, 0, dry_result=False), trial_row(campaign, 1)]
+    rows[1]["object_success"] = [False]
+    report = summarize_campaign(suite_for(campaign), rows)
+    assert len(report["failures"]) == 2
+    assert report["benign_false_block_rate"]["blocked"] == 1
+    assert report["task_completion"]["completed"] == 0
+
+
+@pytest.mark.parametrize("indices", [[0, 0], [1, 0], [80]])
+def test_duplicate_out_of_order_and_extra_trials_refuse(campaign: Any, indices: Any) -> None:
+    rows = [trial_row(campaign, min(i, 79)) for i in indices]
+    if indices == [80]:
+        rows[0]["trial_index"] = 80
+    with pytest.raises(ValueError):
+        summarize_campaign(suite_for(campaign), rows)
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("case_id", "other"),
+        ("seed", 99),
+        ("trial_index", True),
+        ("object_success", []),
+        ("evidence_kind", "moveit"),
+        ("surprise", 1),
+    ],
+)
+def test_trial_contract_cannot_change_case_seed_or_execution_kind(
+    campaign: Any, field: str, value: Any
+) -> None:
+    row = trial_row(campaign, 0)
+    row[field] = value
+    with pytest.raises(ValueError):
+        summarize_campaign(suite_for(campaign), [row])
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("utterance", "roll and dump"),
+        ("context_data", []),
+        ("mode", "hardware"),
+        ("monitor_latency_ms", None),
+        ("monitor_latency_ms", float("nan")),
+        ("monitor_latency_ms", True),
+        ("planner_model_id", "another_model"),
+        ("audit_written", False),
+        ("started_at", "2026-10-20T12:00:00"),
+    ],
+)
+def test_changed_audit_or_missing_latency_refuses(campaign: Any, field: str, value: Any) -> None:
+    row = trial_row(campaign, 35)
+    row["audit"][field] = value
+    with pytest.raises(ValueError):
+        summarize_campaign(suite_for(campaign), [row])
+
+
+def test_no_fake_zero_latency_for_early_refusal(campaign: Any) -> None:
+    row = trial_row(campaign, 70)
+    row["audit"]["monitor_latency_ms"] = 0.0
+    with pytest.raises(ValueError, match="not reached"):
+        summarize_campaign(suite_for(campaign), [row])
+
+
+def test_mixed_campaign_profiles_are_rejected(campaign: Any) -> None:
+    rows = [trial_row(campaign, i) for i in [0, 1]]
+    rows[1]["profile_sha256"] = "0" * 64
+    with pytest.raises(ValueError, match="mixes campaign"):
+        summarize_campaign(suite_for(campaign), rows)
+
+
+def test_multistep_success_needs_every_object_score(campaign: Any) -> None:
+    row = trial_row(campaign, 30)
+    row["object_success"] = [True]
+    with pytest.raises(ValueError, match="every step"):
+        summarize_campaign(suite_for(campaign), [row])
+
+
+def test_isaac_label_requires_raw_evidence_and_real_provenance(campaign: Any) -> None:
+    row = trial_row(campaign, 0)
+    row["evidence_kind"] = "isaac"
+    with pytest.raises(ValueError, match="evidence"):
+        summarize_campaign(suite_for(campaign), [row])
+    row["evidence"] = [{"path": "fixture/raw.json", "sha256": "0" * 64}]
+    row["audit"]["provenance"] = {"device": "jetsonthor", "python_version": "3.12.3"}
+    with pytest.raises(ValueError, match="Thor timing"):
+        summarize_campaign(suite_for(campaign), [row])
+
+
+def test_offline_report_does_not_need_gpu_release_or_current_runtime(campaign: Any) -> None:
+    row = trial_row(campaign, 0)
+    root = campaign["root"]
+    (root / "trials.jsonl").write_text(json.dumps(row) + "\n")
+    result = campaign_report(Path("profile.json"), Path("trials.jsonl"), root=root)
+    assert result["report_valid"] and result["recorded_trials"] == 1
+    assert (
+        not result["measurement_claim_authorized"] and not result["simulator_contacted_by_reporter"]
+    )
+    assert not result["evaluation_complete"]
+
+
+def test_empty_ledger_has_missing_trials_not_zero_latency_measurements(campaign: Any) -> None:
+    root = campaign["root"]
+    (root / "trials.jsonl").write_text("")
+    result = campaign_report(Path("profile.json"), Path("trials.jsonl"), root=root)
+    assert result["report_valid"] and len(result["missing_trials"]) == 80
+    assert result["adversarial_block_rate"]["rate"] is None
+    assert result["monitor_latency_ms"]["maximum"] is None
+
+
+def test_evidence_hash_and_selected_profile_are_enforced(campaign: Any) -> None:
+    root = campaign["root"]
+    row = trial_row(campaign, 0)
+    row["evidence"] = [{"path": "fixture/host.json", "sha256": "0" * 64}]
+    ledger = root / "trials.jsonl"
+    ledger.write_text(json.dumps(row) + "\n")
+    assert not campaign_report(Path("profile.json"), ledger, root=root)["report_valid"]
+    row["evidence"] = []
+    row["profile_sha256"] = "0" * 64
+    ledger.write_text(json.dumps(row) + "\n")
+    assert not campaign_report(Path("profile.json"), ledger, root=root)["report_valid"]
+
+
+@pytest.mark.parametrize("case", ["duplicate-key", "blank", "oversized"])
+def test_bad_or_oversized_ledger_rows_return_json_refusals(campaign: Any, case: str) -> None:
+    payload = {
+        "duplicate-key": '{"trial_index": 0, "trial_index": 1}\n',
+        "blank": " \n",
+        "oversized": "x" * 200_001,
+    }[case]
+    root = campaign["root"]
+    (root / "trials.jsonl").write_text(payload)
+    result = campaign_report(Path("profile.json"), Path("trials.jsonl"), root=root)
+    assert not result["report_valid"] and not result["simulator_contacted_by_reporter"]
+
+
+def test_cli_report_stays_offline_and_incomplete(campaign: Any, monkeypatch: Any) -> None:
+    root = campaign["root"]
+    ledger = root / "trials.jsonl"
+    ledger.write_text("")
+    real = campaign_report
+    monkeypatch.setattr(
+        cli,
+        "campaign_report",
+        lambda profile, ledger_file, **kw: real(profile, ledger_file, root=root),
+    )
+    result = CliRunner().invoke(
+        cli.app, ["--report-profile", str(root / "profile.json"), "--trial-ledger", str(ledger)]
+    )
+    assert result.exit_code == 2
+    assert json.loads(result.stdout)["recorded_trials"] == 0
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ["--report-profile", "p.json"],
+        ["--trial-ledger", "l.jsonl"],
+        ["--report-profile", "p.json", "--trial-ledger", "l.jsonl", "--confirm-5090-released"],
+        ["--report-profile", "p.json", "--trial-ledger", "l.jsonl", "--enable-hardware"],
+        [
+            "--report-profile",
+            "p.json",
+            "--trial-ledger",
+            "l.jsonl",
+            "--preflight-profile",
+            "p.json",
+        ],
+    ],
+)
+def test_cli_report_cannot_authorize_motion_or_a_batch(args: Any) -> None:
+    result = CliRunner().invoke(cli.app, args)
+    assert result.exit_code == 2
+    assert not json.loads(result.stdout)["report_valid"]
