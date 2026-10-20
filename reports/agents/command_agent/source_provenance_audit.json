@@ -109,5 +109,41 @@
     "Audit covers committed trees at the exact recorded refs; later changes need another scope check.",
     "Local push settings do not prevent a deliberately explicit push to another ref.",
     "No runtime, simulation or hardware evidence is produced by this source audit."
-  ]
+  ],
+  "github_authoritative_sync": {
+    "utc": "2026-10-20T20:13:17.727093+00:00",
+    "operator_instruction": "Update Thor with GitHub; GitHub leads.",
+    "checkout": "/home/oedeh/github/physical-ai-jetson-robotics",
+    "before_head": "575a2a99c4510e74fc2c74ce35d69f86320e6e2f",
+    "after_head": "d13216a91e194050898e9cc6c9a10fa2723fb76f",
+    "after_tree": "b52cf162dc840a9781852262bb646c7f4a0aa7d1",
+    "history_handling": "The old history is unrelated to GitHub main. Verified a complete local-only bundle of old main, then reset the clean main checkout to fetched origin/main. No histories merged; nothing from old history pushed.",
+    "local_only_backup_bundle": "/home/oedeh/repo_backups/physical-ai-jetson-robotics/20261020T201135Z/old-main.bundle",
+    "backup_bundle_bytes": 709342084,
+    "backup_verified": true,
+    "tracked_tree_matches_github": true,
+    "working_tree_clean": true,
+    "uncommitted_tracked_changes_before_update": false,
+    "untracked_or_ignored_files_deleted": false,
+    "training_dataset_preserved_in_place": {
+      "files": 4192,
+      "bytes": 3540146122,
+      "path_size_mtime_sha256": "2540914f0b66f144f54209a344f341da3c648df3e0688ca4ba6e11120333bc2d",
+      "fingerprint_matches_before_and_after": true,
+      "ignored_by_current_github_rules": true
+    },
+    "local_virtual_environment_and_ignored_data": "Preserved; no git clean or dependency/environment replacement.",
+    "checkout_controls": {
+      "fetch_url": "https://github.com/obiedeh/physical-ai-jetson-robotics.git",
+      "push_url": "disabled://github-is-authoritative",
+      "pull_ff": "only",
+      "push_default": "nothing",
+      "push_follow_tags": false,
+      "mirror": false,
+      "bare_and_explicit_push_dry_runs_blocked": true
+    },
+    "isolated_command_agent_branch": "Remains separate; origin/main refreshed without changing the branch.",
+    "runtime_tests": "Not repeated for a checkout synchronization; no environment migration, simulation, model or hardware action performed.",
+    "capability_status": "No change: Phase A implemented, unmeasured; Phase B measurements planned; Phase C parked."
+  }
 }

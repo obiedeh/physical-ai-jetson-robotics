@@ -264,3 +264,28 @@ Change Report:
    Phase B measurements remain planned and the 5090 remains unreleased.
 5. This audit needs no hardware review; Phase C still requires its safety review
    and separate operator authorization before any robot execution.
+
+## 2026-10-20 — Thor synchronized to authoritative GitHub main
+
+The operator directed that GitHub leads. The old Thor checkout had unrelated
+history, so it was not pulled into or merged with the GitHub history. Its entire
+old main history was saved to a verified local-only bundle outside the repository.
+Thor main now matches GitHub main d13216a exactly and is clean. The 4192-file,
+3540146122-byte training dataset remains in place with the same path/size/mtime
+fingerprint and is ignored by current GitHub rules. Local environments and other
+ignored data remain in place; no git clean was used. The checkout now fetches
+GitHub over HTTPS, allows only fast-forward pulls and refuses outbound pushes.
+The command-agent development branch remains isolated. Evidence:
+reports/agents/command_agent/source_provenance_audit.json (github_authoritative_sync).
+
+Change Report:
+1. Updated the existing provenance record, integrity manifest and activity entry;
+   synchronized Thor main and configured its local pull-only safeguards.
+2. Verified the backup bundle, exact remote/main commit and tree, clean checkout,
+   unchanged dataset fingerprint and refusal of bare and explicit push dry-runs.
+3. Runtime tests were not repeated for this checkout synchronization. Dependencies,
+   simulation, the 5090 and physical hardware were not used or changed.
+4. Old history stays only in a local backup; it must never be merged or pushed.
+   Existing virtual environments were preserved, not migrated or revalidated.
+5. This repository sync needs no hardware review; Phase C remains parked and
+   requires its separate review and operator authorization before robot execution.
