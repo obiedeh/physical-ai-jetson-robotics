@@ -16,7 +16,7 @@
     "ROS client runtime is unavailable; no simulator was contacted"
   ],
   "campaign_id": "command_agent_isaac_20261020",
-  "checked_at": "2026-10-20T19:59:05.101523+00:00",
+  "checked_at": "2026-10-20T20:24:55.262803+00:00",
   "checks_passed": [
     "profile committed unchanged",
     "suite committed and hash-matched",

@@ -311,3 +311,19 @@ Change Report:
 4. Freeze the updated source prospectively, retain the actual empty-ledger report,
    then qualify the real deployment; no campaign executor has been implemented.
 5. Hardware review remains required before Phase C, which stays parked.
+
+### Updated source pinned; real offline report and preflight retained
+
+Source 958ed60 is prospectively pinned by scaffold e805cc9. Actual CLI reporting
+of the committed empty ledger retains 80 missing trials, zero G3 timings and null
+rates; it exits 2 and authorizes no measurement. The actual static preflight also
+exits 2, with its updated source pin passing and all real deployment/release
+blockers retained. Full regression: 2104 passed, 83 skipped, the same 20 baseline
+failures, no new failed IDs. No real simulator was contacted.
+
+Change Report: retained phase_b_summary.json, refreshed preflight/validation and
+integrity hashes; verified suite unchanged and raw observations still empty.
+The 170 core-only tests and full regression are complete; source was unchanged
+since those checks. Live evaluation remains unrun for the recorded missing
+runtime, qualification and GPU-release reasons. Phase C's review and separate
+motion authorization remain mandatory.
