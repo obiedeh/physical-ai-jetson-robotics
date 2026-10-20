@@ -12,7 +12,94 @@
   "repository_typecheck": "passed: 87 files",
   "package_typecheck": "passed: 5 files; Linux and Windows platform stubs",
   "full_regression": {
-    "status": "running; result will be retained before delivery"
+    "tests": 2169,
+    "failures": 20,
+    "errors": 0,
+    "skipped": 83,
+    "passed": 2066,
+    "same_failed_test_set_as_phase_a_baseline": true,
+    "failure_ledger": [
+      {
+        "test": "tests.test_checkpoint_average.test_average_state_dicts_means_floats_and_keeps_the_newest_integers",
+        "message": "ModuleNotFoundError: No module named 'torch'"
+      },
+      {
+        "test": "tests.test_console_isaac.test_readiness_waits_for_detected_isaac_record_mode",
+        "message": "AssertionError: assert ([] == ['opened']\n  \n  Right contains one more item: 'opened'\n  Use -v to get more diff)"
+      },
+      {
+        "test": "tests.test_console_readiness.test_synthetic_alignment_verdict_is_stable_across_phases[0.001-0.0]",
+        "message": "RuntimeError: LeRobot dataset dependency is unavailable"
+      },
+      {
+        "test": "tests.test_console_readiness.test_synthetic_alignment_verdict_is_stable_across_phases[0.001-0.0301]",
+        "message": "RuntimeError: LeRobot dataset dependency is unavailable"
+      },
+      {
+        "test": "tests.test_console_readiness.test_synthetic_alignment_verdict_is_stable_across_phases[0.001-0.0499]",
+        "message": "RuntimeError: LeRobot dataset dependency is unavailable"
+      },
+      {
+        "test": "tests.test_console_readiness.test_synthetic_alignment_verdict_is_stable_across_phases[0.001-0.0666]",
+        "message": "RuntimeError: LeRobot dataset dependency is unavailable"
+      },
+      {
+        "test": "tests.test_console_readiness.test_synthetic_alignment_verdict_is_stable_across_phases[0.001-0.1234]",
+        "message": "RuntimeError: LeRobot dataset dependency is unavailable"
+      },
+      {
+        "test": "tests.test_console_readiness.test_synthetic_alignment_verdict_is_stable_across_phases[0.001-0.9999]",
+        "message": "RuntimeError: LeRobot dataset dependency is unavailable"
+      },
+      {
+        "test": "tests.test_console_readiness.test_synthetic_alignment_verdict_is_stable_across_phases[0.004-0.0]",
+        "message": "RuntimeError: LeRobot dataset dependency is unavailable"
+      },
+      {
+        "test": "tests.test_console_readiness.test_synthetic_alignment_verdict_is_stable_across_phases[0.004-0.0301]",
+        "message": "RuntimeError: LeRobot dataset dependency is unavailable"
+      },
+      {
+        "test": "tests.test_console_readiness.test_synthetic_alignment_verdict_is_stable_across_phases[0.004-0.0499]",
+        "message": "RuntimeError: LeRobot dataset dependency is unavailable"
+      },
+      {
+        "test": "tests.test_console_readiness.test_synthetic_alignment_verdict_is_stable_across_phases[0.004-0.0666]",
+        "message": "RuntimeError: LeRobot dataset dependency is unavailable"
+      },
+      {
+        "test": "tests.test_console_readiness.test_synthetic_alignment_verdict_is_stable_across_phases[0.004-0.1234]",
+        "message": "RuntimeError: LeRobot dataset dependency is unavailable"
+      },
+      {
+        "test": "tests.test_console_readiness.test_synthetic_alignment_verdict_is_stable_across_phases[0.004-0.9999]",
+        "message": "RuntimeError: LeRobot dataset dependency is unavailable"
+      },
+      {
+        "test": "tests.test_console_service.test_finish_marks_a_session_finished_and_open_reverses_it",
+        "message": "RuntimeError: LeRobot dataset dependency is unavailable"
+      },
+      {
+        "test": "tests.test_console_simulation.test_simulation_readiness_marks_real_arm_facts_not_applicable_and_names_isaac",
+        "message": "AssertionError: assert 'Not run' == 'Isaac record...y themselves.'\n  \n  - Isaac record mode is not running. Press Start Isaac record mode above and wait for Running; the checks then run by themselves.\n  + Not run"
+      },
+      {
+        "test": "tests.test_console_task_library.test_service_plans_saves_groups_exports_and_records_a_library_session",
+        "message": "RuntimeError: LeRobot dataset dependency is unavailable"
+      },
+      {
+        "test": "tests.test_dataset_limits.test_refuses_bad_inputs",
+        "message": "ModuleNotFoundError: No module named 'pyarrow'"
+      },
+      {
+        "test": "tests.test_goal_channels.test_writer_declares_and_stores_the_environment_state_feature",
+        "message": "RuntimeError: LeRobot dataset dependency is unavailable"
+      },
+      {
+        "test": "tests.test_prepare_sim_study.test_prepare_writes_registered_probes_configuration_and_spec",
+        "message": "RuntimeError: LeRobot dataset dependency is unavailable"
+      }
+    ]
   },
   "hosted_ci": "pending",
   "provenance": {
@@ -80,5 +167,7 @@
     "pick_cup": "lift",
     "cup_pick_and_place": "place"
   },
-  "remaining": "Qualified live bindings, task-specific reset/scorer evidence, frozen planned profile and explicit release; full campaign executor is not implemented by static preflight."
+  "remaining": "Qualified live bindings, task-specific reset/scorer evidence, frozen planned profile and explicit release; full campaign executor is not implemented by static preflight.",
+  "implementation_commit": "8133ecd65d51cbdc03e39c3566e621241a0c9153",
+  "preflight_profile": "reports/agents/command_agent/phase_b_profile.template.json"
 }
