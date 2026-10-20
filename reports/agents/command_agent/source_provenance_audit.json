@@ -1,0 +1,113 @@
+{
+  "audit_utc": "2026-10-20T20:09:01.624988+00:00",
+  "result": "pass",
+  "repository": "obiedeh/physical-ai-jetson-robotics",
+  "method": "Compare every tracked path, blob ID and file mode using git ls-tree -r; assert changed paths match individually reviewed exact file lists. Inspect small shared-file patches. Verify published heads with git ls-remote.",
+  "clean_github_base": "548f3a9f2f24eb1191f78765bce457f96ec1fd64",
+  "phase_a_merged": "d13216a91e194050898e9cc6c9a10fa2723fb76f",
+  "audited_published_head": "b4dc9140349ea6d5818c6723601985d44f2a19b3",
+  "old_thor_checkout": {
+    "path": "/home/oedeh/github/physical-ai-jetson-robotics",
+    "head": "575a2a99c4510e74fc2c74ce35d69f86320e6e2f",
+    "status": [
+      "?? reports/training/synria_e46_lerobot_v21/"
+    ],
+    "modified_by_audit": false
+  },
+  "isolated_thor_checkout": {
+    "path": "/home/oedeh/github/physical-ai-command-agent",
+    "branch": "command-agent",
+    "independent_object_database": true,
+    "clean_before_audit": true
+  },
+  "remote_refs": {
+    "refs/heads/command-agent": "b4dc9140349ea6d5818c6723601985d44f2a19b3",
+    "refs/heads/main": "d13216a91e194050898e9cc6c9a10fa2723fb76f"
+  },
+  "tree_ids": {
+    "548f3a9f2f24eb1191f78765bce457f96ec1fd64": "503cdda64ede74cb224e1eb89639975d971d78d9",
+    "d13216a91e194050898e9cc6c9a10fa2723fb76f": "b52cf162dc840a9781852262bb646c7f4a0aa7d1",
+    "b4dc9140349ea6d5818c6723601985d44f2a19b3": "9ea12178f8727d523a59562012f4179a6a0e35f3",
+    "575a2a99c4510e74fc2c74ce35d69f86320e6e2f": "8a328d340c431b939f00ddd03e3c15485250fa72"
+  },
+  "phase_a": {
+    "changed_paths": [
+      ".github/workflows/command-agent.yml",
+      "AGENTS.md",
+      "agents/command_agent/__init__.py",
+      "agents/command_agent/cli.py",
+      "agents/command_agent/harness.py",
+      "agents/command_agent/planners.py",
+      "agents/command_agent/schema.py",
+      "docs/ludo_flagship/ACTIVITY_LOG.md",
+      "docs/ludo_flagship/DECISIONS.md",
+      "physical_ai_lab/cli.py",
+      "pyproject.toml",
+      "reports/agents/command_agent/audit.jsonl",
+      "reports/agents/command_agent/ci_checks.json",
+      "reports/agents/command_agent/command_suite.json",
+      "reports/agents/command_agent/manifest.sha256.json",
+      "reports/agents/command_agent/phase_a.md",
+      "reports/agents/command_agent/phase_b_protocol.md",
+      "reports/agents/command_agent/regression_failures.json",
+      "reports/agents/command_agent/sample_gate_report.json",
+      "reports/agents/command_agent/sample_plan.json",
+      "reports/agents/command_agent/thor_cli_refusal.json",
+      "reports/agents/command_agent/thor_provenance.json",
+      "reports/agents/command_agent/validation.json",
+      "tests/test_command_agent.py"
+    ],
+    "unexpected_paths": [],
+    "unchanged_paths": 4412,
+    "deleted_paths": [],
+    "approved_paths_only": true
+  },
+  "phase_b": {
+    "changed_paths": [
+      ".github/workflows/command-agent.yml",
+      "agents/command_agent/cli.py",
+      "agents/command_agent/harness.py",
+      "agents/command_agent/schema.py",
+      "docs/ludo_flagship/ACTIVITY_LOG.md",
+      "reports/agents/command_agent/manifest.sha256.json",
+      "reports/agents/command_agent/phase_a.md",
+      "reports/agents/command_agent/phase_b_ci.json",
+      "reports/agents/command_agent/phase_b_host_configuration.json",
+      "reports/agents/command_agent/phase_b_preflight.json",
+      "reports/agents/command_agent/phase_b_preflight.md",
+      "reports/agents/command_agent/phase_b_profile.template.json",
+      "reports/agents/command_agent/phase_b_validation.json",
+      "tests/test_command_agent_campaign.py"
+    ],
+    "unexpected_paths": [],
+    "unchanged_paths": 4429,
+    "deleted_paths": [],
+    "approved_paths_only": true
+  },
+  "old_to_clean_base_differing_paths": 1251,
+  "stale_differing_paths_outside_work_order_preserved_from_clean_base": 1246,
+  "training_directory_tracked_in_published_trees": false,
+  "shared_file_review": {
+    "files": [
+      "AGENTS.md",
+      "physical_ai_lab/cli.py",
+      "pyproject.toml",
+      "docs/ludo_flagship/DECISIONS.md"
+    ],
+    "result": "Only requested CLI registration, optional dependency, agent structure line and append-only Focus Rule decision; newer base content retained.",
+    "patch_sha256": "7baa62b441f04187e7de4bb3e2a7d0cea5ff471dcb0060431ca0e4d173389c38"
+  },
+  "publishing_controls": {
+    "scope": "Isolated Thor clone and local temporary publishing clone only; original checkouts unchanged.",
+    "push_default": "nothing",
+    "push_follow_tags": false,
+    "mirror": false,
+    "bare_push_dry_run": "Refused locally with exit 128: no explicit refspec.",
+    "procedure": "Stage named paths only; compare full tree before each explicit command-agent:command-agent push. No --all, --mirror, --force or tag push."
+  },
+  "limitations": [
+    "Audit covers committed trees at the exact recorded refs; later changes need another scope check.",
+    "Local push settings do not prevent a deliberately explicit push to another ref.",
+    "No runtime, simulation or hardware evidence is produced by this source audit."
+  ]
+}

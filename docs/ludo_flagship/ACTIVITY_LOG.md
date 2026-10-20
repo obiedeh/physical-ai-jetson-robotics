@@ -239,3 +239,28 @@ Change Report: retained hosted results and updated validation/integrity hashes;
 verified unchanged source. No source tests repeated and no simulator/robot run
 was made. Phase B measurements remain planned; hardware review is still required
 before any physical execution.
+
+## 2026-10-20 — Old Thor source excluded from publishing
+
+The operator requested verification that Thor's older repository structure and
+files are not pushed. Source provenance audit passed at published head b4dc914.
+Phase A changes only its 24 reviewed paths; Phase B changes only its 14 reviewed
+paths. All 1246 paths that differ between old Thor and the clean GitHub base,
+outside the work-order scope, retain the clean base content. Neither published
+tree contains the old checkout's untracked training directory. The original
+checkout and its training data remain untouched. Evidence:
+reports/agents/command_agent/source_provenance_audit.json.
+
+Change Report:
+1. Retained the tree/blob audit, updated evidence hashes and this activity record.
+   Disabled bare pushes and automatic tag/mirror publishing in the isolated Thor
+   and temporary publishing clones; explicit branch refspecs are required.
+2. Verified all tracked blobs and modes against the exact GitHub base and remote
+   heads, reviewed shared-file patches and confirmed bare push dry-runs refuse.
+3. Source tests were not repeated because no application code changed. No
+   simulation or hardware tests apply to this repository-content audit.
+4. Future commits require another scoped tree check before an explicit push;
+   local configuration cannot prohibit a deliberate explicit push elsewhere.
+   Phase B measurements remain planned and the 5090 remains unreleased.
+5. This audit needs no hardware review; Phase C still requires its safety review
+   and separate operator authorization before any robot execution.
