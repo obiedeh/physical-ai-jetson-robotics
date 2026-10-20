@@ -1,0 +1,277 @@
+{
+  "captured_at": "2026-10-20T19:31:57.515716+00:00",
+  "command_agent_workflow": {
+    "conclusion": "success",
+    "databaseId": 39483821813,
+    "headSha": "c4db22834bf179707f5258a3ee0365cb0d508e62",
+    "jobs": [
+      {
+        "completedAt": "2026-10-20T19:29:40Z",
+        "conclusion": "success",
+        "databaseId": 118838978746,
+        "name": "gates (3.10)",
+        "startedAt": "2026-10-20T19:29:00Z",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-python@v5",
+            "number": 3,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install core and test tools without provider or robot extras",
+            "number": 4,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Lint command agent",
+            "number": 5,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Type check command agent",
+            "number": 6,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Exercise all gates with injected clients and simulators",
+            "number": 7,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-python@v5",
+            "number": 13,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 14,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 15,
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39483821813/job/118838978746"
+      },
+      {
+        "completedAt": "2026-10-20T19:29:41Z",
+        "conclusion": "success",
+        "databaseId": 118838979110,
+        "name": "gates (3.12)",
+        "startedAt": "2026-10-20T19:29:01Z",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-python@v5",
+            "number": 3,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Install core and test tools without provider or robot extras",
+            "number": 4,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Lint command agent",
+            "number": 5,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Type check command agent",
+            "number": 6,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Exercise all gates with injected clients and simulators",
+            "number": 7,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-python@v5",
+            "number": 13,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 14,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 15,
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39483821813/job/118838979110"
+      }
+    ],
+    "name": "Command agent hermetic gates",
+    "status": "completed",
+    "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39483821813"
+  },
+  "verified_tests_per_python": {
+    "3.10": 93,
+    "3.12": 93
+  },
+  "broader_ci": {
+    "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39483886252",
+    "status_at_capture": "in_progress with completed failing matrix jobs",
+    "observed_completed_failures": [
+      {
+        "job": "Python 3.10 on ubuntu-latest",
+        "stage": "typecheck",
+        "paths": [
+          "synria_lerobot/recorder.py:756",
+          "synria_lerobot/recorder.py:757"
+        ],
+        "reason": "NumPy array-shape assignment typing under the runner dependency versions",
+        "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39483886252/job/118839194909"
+      },
+      {
+        "job": "Python 3.10 on windows-latest",
+        "stage": "typecheck",
+        "paths": [
+          "synria_lerobot/recorder.py",
+          "synria_lerobot/console/isaac.py",
+          "synria_lerobot/console/app.py"
+        ],
+        "reason": "Array-shape typing and POSIX-only os/signal attributes under Windows stubs",
+        "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39483886252/job/118839194801"
+      }
+    ],
+    "scope_note": "These files are unchanged from the base commit. This is not a claim that the whole repository CI is green."
+  },
+  "completed_followup": {
+    "captured_at": "2026-10-20T19:44:20.510384+00:00",
+    "command_agent_workflow": {
+      "databaseId": 39484411645,
+      "name": "Command agent hermetic gates",
+      "headSha": "cb29a0a7cfe27bef863474763556d445035118c0",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484411645",
+      "jobs": [
+        {
+          "name": "gates (3.12)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484411645/job/118840986806"
+        },
+        {
+          "name": "gates (3.10)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484411645/job/118840987236"
+        }
+      ]
+    },
+    "broader_workflow": {
+      "databaseId": 39484421184,
+      "name": "CI",
+      "headSha": "cb29a0a7cfe27bef863474763556d445035118c0",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184",
+      "jobs": [
+        {
+          "name": "Synria CPU acceptance on released LeRobot 0.6.1",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841018614"
+        },
+        {
+          "name": "Python 3.12 on ubuntu-latest",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841018774"
+        },
+        {
+          "name": "Python 3.11 on ubuntu-latest",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841018886"
+        },
+        {
+          "name": "Python 3.10 on windows-latest",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841018933"
+        },
+        {
+          "name": "Python 3.11 on windows-latest",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841018936"
+        },
+        {
+          "name": "Python 3.10 on ubuntu-latest",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841018949"
+        },
+        {
+          "name": "ROS 2 description package build",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841018956"
+        },
+        {
+          "name": "Python 3.12 on windows-latest",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841019115"
+        }
+      ]
+    },
+    "ubuntu_python311_tests": {
+      "passed": 2027,
+      "skipped": 83,
+      "failed": 20,
+      "failure_scope": "Same 20 baseline failures reproduced on Thor; missing optional ML dependencies and two existing console assertions.",
+      "job_url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841018886"
+    }
+  }
+}

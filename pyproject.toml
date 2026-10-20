@@ -51,7 +51,8 @@ robot-learning = [
   "lerobot[training]>=0.6,<0.7; python_version >= '3.12'"
 ]
 llm = [
-  "anthropic>=0.34"
+  "anthropic>=0.34",
+  "openai>=1.66"
 ]
 
 [project.scripts]
