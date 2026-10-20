@@ -1,0 +1,231 @@
+{
+  "schema_version": "command_audit_v1",
+  "started_at": "2026-10-20T19:24:48.534751+00:00",
+  "completed_at": "2026-10-20T19:24:48.536343+00:00",
+  "status": "implemented, unmeasured",
+  "utterance": "put the die in the cup and roll it",
+  "planner_name": "deterministic",
+  "planner_provider": "deterministic",
+  "planner_model_id": "keyword_rules_v1",
+  "monitor_name": "deterministic",
+  "monitor_model_id": "intent_rules_v1",
+  "monitor_latency_ms": 0.64451,
+  "provenance": {
+    "device": "jetsonthor",
+    "architecture": "aarch64",
+    "python_version": "3.12.3",
+    "jetpack_version": "nvidia-jetpack\t7.1-b112",
+    "l4t_release": "# R38 (release), REVISION: 4.0, GCID: 43443517, BOARD: generic, EABI: aarch64, DATE: Wed Dec 31 00:15:19 UTC 2025\n# KERNEL_VARIANT: oot\nTARGET_USERSPACE_LIB_DIR=nvidia\nTARGET_USERSPACE_LIB_DIR_PATH=usr/lib/aarch64-linux-gnu/nvidia\nINSTALL_TYPE=openrm",
+    "power_mode": "NV Power Mode: 120W\n1"
+  },
+  "context_data": [],
+  "plan": {
+    "schema_version": "command_plan_v1",
+    "utterance": "put the die in the cup and roll it",
+    "planner_name": "deterministic",
+    "steps": [
+      {
+        "skill_id": "die_into_cup",
+        "args": {
+          "object": "die",
+          "zone": "cup",
+          "board_square": null
+        }
+      },
+      {
+        "skill_id": "roll_and_dump",
+        "args": {
+          "object": "cup",
+          "zone": "landing_tray",
+          "board_square": null
+        }
+      }
+    ],
+    "rationale": "Explicit keyword matches; subject to every safety gate."
+  },
+  "proposal": {
+    "schema_version": "command_plan_v1",
+    "utterance": "put the die in the cup and roll it",
+    "planner_name": "deterministic",
+    "steps": [
+      {
+        "skill_id": "die_into_cup",
+        "args": {
+          "object": "die",
+          "zone": "cup",
+          "board_square": null
+        }
+      },
+      {
+        "skill_id": "roll_and_dump",
+        "args": {
+          "object": "cup",
+          "zone": "landing_tray",
+          "board_square": null
+        }
+      }
+    ],
+    "rationale": "Explicit keyword matches; subject to every safety gate."
+  },
+  "monitor_rules_version": "intent_rules_v1",
+  "simulation": {
+    "plan_sha256": "1235277b47d08005b08937e2c421cbebef4d84c21b2345c365eb270fb8482327",
+    "backend": "hermetic_fixture",
+    "steps": [
+      {
+        "call": {
+          "skill_id": "die_into_cup",
+          "args": {
+            "object": "die",
+            "zone": "cup",
+            "board_square": null
+          }
+        },
+        "waypoints": [
+          {
+            "positions": {
+              "joint_1": 0.0,
+              "joint_2": 0.0,
+              "joint_3": 0.0,
+              "joint_4": 0.0,
+              "joint_5": 0.0,
+              "joint_6": 0.0
+            },
+            "velocities": {
+              "joint_1": 0.0,
+              "joint_2": 0.0,
+              "joint_3": 0.0,
+              "joint_4": 0.0,
+              "joint_5": 0.0,
+              "joint_6": 0.0
+            },
+            "xyz": [
+              0.2,
+              0.0,
+              0.2
+            ],
+            "time_s": 0.0
+          },
+          {
+            "positions": {
+              "joint_1": 0.0,
+              "joint_2": 0.0,
+              "joint_3": 0.0,
+              "joint_4": 0.0,
+              "joint_5": 0.0,
+              "joint_6": 0.0
+            },
+            "velocities": {
+              "joint_1": 0.0,
+              "joint_2": 0.0,
+              "joint_3": 0.0,
+              "joint_4": 0.0,
+              "joint_5": 0.0,
+              "joint_6": 0.0
+            },
+            "xyz": [
+              0.2,
+              0.0,
+              0.2
+            ],
+            "time_s": 1.0
+          }
+        ]
+      },
+      {
+        "call": {
+          "skill_id": "roll_and_dump",
+          "args": {
+            "object": "cup",
+            "zone": "landing_tray",
+            "board_square": null
+          }
+        },
+        "waypoints": [
+          {
+            "positions": {
+              "joint_1": 0.0,
+              "joint_2": 0.0,
+              "joint_3": 0.0,
+              "joint_4": 0.0,
+              "joint_5": 0.0,
+              "joint_6": 0.0
+            },
+            "velocities": {
+              "joint_1": 0.0,
+              "joint_2": 0.0,
+              "joint_3": 0.0,
+              "joint_4": 0.0,
+              "joint_5": 0.0,
+              "joint_6": 0.0
+            },
+            "xyz": [
+              0.2,
+              0.0,
+              0.2
+            ],
+            "time_s": 0.0
+          },
+          {
+            "positions": {
+              "joint_1": 0.0,
+              "joint_2": 0.0,
+              "joint_3": 0.0,
+              "joint_4": 0.0,
+              "joint_5": 0.0,
+              "joint_6": 0.0
+            },
+            "velocities": {
+              "joint_1": 0.0,
+              "joint_2": 0.0,
+              "joint_3": 0.0,
+              "joint_4": 0.0,
+              "joint_5": 0.0,
+              "joint_6": 0.0
+            },
+            "xyz": [
+              0.2,
+              0.0,
+              0.2
+            ],
+            "time_s": 1.0
+          }
+        ]
+      }
+    ]
+  },
+  "gates": [
+    {
+      "gate": "G0",
+      "passed": true,
+      "reason": "bounded input; labelled data loaded"
+    },
+    {
+      "gate": "G1",
+      "passed": true,
+      "reason": "strict registry schema and identity"
+    },
+    {
+      "gate": "G2",
+      "passed": true,
+      "reason": "every waypoint passed deterministic limits"
+    },
+    {
+      "gate": "G3",
+      "passed": true,
+      "reason": "whole-request intent and context checks"
+    },
+    {
+      "gate": "G4",
+      "passed": true,
+      "reason": "complete simulation dry run passed"
+    }
+  ],
+  "decision": {
+    "outcome": "dry_run_only",
+    "gate": "G4",
+    "escalate_to_human": false
+  },
+  "mode": "dry_run",
+  "audit_written": true
+}

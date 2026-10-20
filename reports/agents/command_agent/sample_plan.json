@@ -1,0 +1,24 @@
+{
+  "schema_version": "command_plan_v1",
+  "utterance": "put the die in the cup and roll it",
+  "planner_name": "deterministic",
+  "steps": [
+    {
+      "skill_id": "die_into_cup",
+      "args": {
+        "object": "die",
+        "zone": "cup",
+        "board_square": null
+      }
+    },
+    {
+      "skill_id": "roll_and_dump",
+      "args": {
+        "object": "cup",
+        "zone": "landing_tray",
+        "board_square": null
+      }
+    }
+  ],
+  "rationale": "Explicit keyword matches; subject to every safety gate."
+}
