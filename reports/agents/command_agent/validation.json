@@ -62,7 +62,18 @@
       "3.12"
     ],
     "tests_per_job": 93,
-    "broader_ci": "Failing matrix jobs in untouched recorder/console type checks; see ci_checks.json."
+    "broader_ci": "Failing matrix jobs in untouched recorder/console type checks; see ci_checks.json.",
+    "completed_followup": {
+      "tested_commit": "cb29a0a7cfe27bef863474763556d445035118c0",
+      "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484411645",
+      "conclusion": "success",
+      "tests_per_job": 93,
+      "broader_ci_url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184",
+      "broader_ci_conclusion": "failure",
+      "cpu_acceptance": "success",
+      "ros2_description_build": "success",
+      "matrix_note": "Six failed baseline matrix jobs: Python 3.10/Windows typing and existing general-suite failures."
+    }
   },
   "environment": {
     "pytest": "9.1.1",
@@ -90,5 +101,16 @@
     "agent_structure": "7b5bfcb"
   },
   "phase_b_preregistration_commit": "f3005f7da51cb382b8b4a35cce51a06c92c6402a",
-  "phase_b_suite_sha256": "94fcf6ec4a7137c686d97eae8e17aeff10f1af512d8e60e654ccc43f27728dde"
+  "phase_b_suite_sha256": "94fcf6ec4a7137c686d97eae8e17aeff10f1af512d8e60e654ccc43f27728dde",
+  "merge_authorization": {
+    "date": "2026-10-20",
+    "source": "operator explicitly requested document, push and merge, then proceed to next step",
+    "limitations_retained": [
+      "implemented, unmeasured",
+      "broader CI not green",
+      "no Isaac results",
+      "no 5090 release",
+      "Phase C parked"
+    ]
+  }
 }
