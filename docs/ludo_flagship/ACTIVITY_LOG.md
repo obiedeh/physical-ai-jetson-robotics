@@ -227,3 +227,15 @@ Change Report: retained the actual static refusal and updated validation/integri
 hashes; checked committed inputs and source pins. No code tests repeated because
 source was unchanged. Live simulation and physical tests remain unrun for the
 recorded reasons. Hardware safety review remains required before robot execution.
+
+### Phase B static-preflight hosted checks passed
+
+Draft PR #7 contains the next-stage preparation. At source 194f083, dedicated
+Python 3.10 and 3.12 jobs passed 132 tests plus lint/typing. The verified job
+evidence is reports/agents/command_agent/phase_b_ci.json. The actual Thor
+preflight remains ready=false with zero trials. No 5090 release was received.
+
+Change Report: retained hosted results and updated validation/integrity hashes;
+verified unchanged source. No source tests repeated and no simulator/robot run
+was made. Phase B measurements remain planned; hardware review is still required
+before any physical execution.

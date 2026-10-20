@@ -1,0 +1,31 @@
+{
+  "captured_at": "2026-10-20T20:03:26.570059+00:00",
+  "workflow": {
+    "databaseId": 39488287864,
+    "name": "Command agent hermetic gates",
+    "headSha": "194f08398eef7f7197bcc9af405e08f81009a0aa",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39488287864",
+    "jobs": [
+      {
+        "name": "gates (3.10)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39488287864/job/118854364495"
+      },
+      {
+        "name": "gates (3.12)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39488287864/job/118854365069"
+      }
+    ]
+  },
+  "verified_tests_per_job": 132,
+  "python_versions": [
+    "3.10",
+    "3.12"
+  ],
+  "scope": "Hermetic command gates and static campaign preflight only; no live simulator or performance measurement."
+}
