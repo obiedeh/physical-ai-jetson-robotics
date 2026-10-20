@@ -19,7 +19,7 @@ edge_ai/           Jetson inference and benchmarking (ONNX, camera inference)
 slam/              SLAM measurement harness and metrics
 game_core/         Game adapters (Ludo, chess) and dice
 ludo_engine/       Ludo rules engine
-agents/            Operations copilot over robot telemetry
+agents/            Telemetry operations copilot and fail-closed command skill planning
 scripts/           Platform bootstrap and evidence collection (jetson/, linux_rtx/, windows/)
 reports/           Committed evidence: benchmarks, sessions, corrections
 docs/              Architecture, hardware, deployment and flagship ledgers
