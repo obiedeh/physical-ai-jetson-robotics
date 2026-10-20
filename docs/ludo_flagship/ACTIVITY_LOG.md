@@ -118,3 +118,40 @@ event. Links to artifacts, never claims without them.
 Operator authorized Phase A and Phase B on Thor in an isolated command-agent checkout. Base: 548f3a9f2f24eb1191f78765bce457f96ec1fd64 (committed console-synria-presets flagship state). Existing Thor main and local flagship checkouts remain untouched. Phase C stays parked; no hardware authority is granted.
 
 Change Report: changed DECISIONS.md to record the Focus Rule exception and this activity ledger for isolation provenance. Tests: documentation diff inspected. Not run: code, simulator and hardware tests (no code changed). Follow-up: implement A, pre-register B; wait for operator release before 5090 simulation. Hardware safety review is required before any future physical execution.
+
+## 2026-10-20 — Command-agent Phase A and Phase B pre-registration
+
+Status: **implemented, unmeasured** for Phase A; **planned** for the Isaac
+campaign and physical Phase C. Work ran in Thor's separate
+/home/oedeh/github/physical-ai-command-agent checkout, branch command-agent.
+First commit 56d6570 records the operator-approved Focus Rule exception.
+Implementation: bee11ea; independent shared-file commits: CLI 220b883,
+llm extra 692e657, AGENTS structure 7b5bfcb. Phase B suite and scoring
+were committed before evaluation in f3005f7; no Isaac trials were run.
+
+Change Report:
+1. Added four operational command modules, strict registry contracts, ordered
+   G0–G4 gates, simulation-only MoveIt service resolution, provider/external
+   planners without fallback, durable audit, gate/client/adapter tests and a
+   core-only CI workflow. Added the implemented-unmeasured sample plan/gate
+   report, actual Thor G2 refusal, provenance, validation and baseline-failure
+   ledger under reports/agents/command_agent/. Shared-file edits are separate.
+2. Thor: 93 targeted tests pass with dev/vision installed and in a fresh core-only
+   environment without provider/robot extras. Repository lint passes. Type checks
+   pass for 87 repository source files and all 5 command package files. Final full
+   regression: 2026 passed, 83 skipped, 20 failed; all 20 failing tests reproduced
+   against unchanged base 548f3a9. The full run contained 92 command tests; the
+   additional main-CLI integration check passed in both 93-test targeted runs.
+3. Live providers, live MoveIt, Isaac and 5090 latency tests were not run: no
+   qualified skill library/twin binding or operator 5090 release. Physical tests
+   remain parked. Hosted CI is tracked in the validation artifact after publication.
+4. Baseline failures include missing Torch/LeRobot/PyArrow and two existing console
+   assertions. They are retained, not repaired in this scope. Real simulation
+   bindings and the prospective Phase B run profile remain necessary. Rebase the
+   three shared-file commits onto the flagship before merge. No agent run advances
+   D1–D5; diagnostic sample timings are not the Phase B benchmark. Thor main's
+   training artifacts and the local flagship checkout were left untouched.
+5. Hardware safety review is required before robot execution, together with
+   committed and accepted Phase 0B evidence, explicit operator motion authority,
+   per-step confirmations, deadman/rate limits and controlled stop/hold. Phase A
+   contains no physical executor or controller publication path.
