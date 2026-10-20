@@ -1,0 +1,96 @@
+{
+  "audit_written": true,
+  "completed_at": "2026-10-20T19:24:48.874533+00:00",
+  "context_data": [],
+  "decision": {
+    "escalate_to_human": true,
+    "gate": "G2",
+    "outcome": "blocked"
+  },
+  "gates": [
+    {
+      "gate": "G0",
+      "passed": true,
+      "reason": "bounded input; labelled data loaded"
+    },
+    {
+      "gate": "G1",
+      "passed": true,
+      "reason": "strict registry schema and identity"
+    },
+    {
+      "gate": "G2",
+      "passed": false,
+      "reason": "MoveIt requires a trusted skill library and isolated simulation domain"
+    }
+  ],
+  "mode": "dry_run",
+  "monitor_latency_ms": null,
+  "monitor_model_id": "intent_rules_v1",
+  "monitor_name": "deterministic",
+  "monitor_rules_version": "intent_rules_v1",
+  "plan": {
+    "planner_name": "deterministic",
+    "rationale": "Explicit keyword matches; subject to every safety gate.",
+    "schema_version": "command_plan_v1",
+    "steps": [
+      {
+        "args": {
+          "board_square": null,
+          "object": "die",
+          "zone": "cup"
+        },
+        "skill_id": "die_into_cup"
+      },
+      {
+        "args": {
+          "board_square": null,
+          "object": "cup",
+          "zone": "landing_tray"
+        },
+        "skill_id": "roll_and_dump"
+      }
+    ],
+    "utterance": "put the die in the cup and roll it"
+  },
+  "planner_model_id": "keyword_rules_v1",
+  "planner_name": "deterministic",
+  "planner_provider": "deterministic",
+  "proposal": {
+    "planner_name": "deterministic",
+    "rationale": "Explicit keyword matches; subject to every safety gate.",
+    "schema_version": "command_plan_v1",
+    "steps": [
+      {
+        "args": {
+          "board_square": null,
+          "object": "die",
+          "zone": "cup"
+        },
+        "skill_id": "die_into_cup"
+      },
+      {
+        "args": {
+          "board_square": null,
+          "object": "cup",
+          "zone": "landing_tray"
+        },
+        "skill_id": "roll_and_dump"
+      }
+    ],
+    "utterance": "put the die in the cup and roll it"
+  },
+  "provenance": {
+    "architecture": "aarch64",
+    "device": "jetsonthor",
+    "jetpack_version": "nvidia-jetpack\t7.1-b112",
+    "l4t_release": "# R38 (release), REVISION: 4.0, GCID: 43443517, BOARD: generic, EABI: aarch64, DATE: Wed Dec 31 00:15:19 UTC 2025\n# KERNEL_VARIANT: oot\nTARGET_USERSPACE_LIB_DIR=nvidia\nTARGET_USERSPACE_LIB_DIR_PATH=usr/lib/aarch64-linux-gnu/nvidia\nINSTALL_TYPE=openrm",
+    "power_mode": "NV Power Mode: 120W\n1",
+    "python_version": "3.12.3"
+  },
+  "schema_version": "command_audit_v1",
+  "simulation": null,
+  "started_at": "2026-10-20T19:24:48.873922+00:00",
+  "status": "implemented, unmeasured",
+  "utterance": "put the die in the cup and roll it"
+}

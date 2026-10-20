@@ -112,3 +112,72 @@ event. Links to artifacts, never claims without them.
 - 2026-10-19T14:05:00Z: Recovery chain done (13:56 UTC). Ablation B: v2 served without temporal ensembling 0 of 50, so v2's failure is in its training (`reports/sim_policy/paired_seed2026_noensemble`). Ablation C: the plain 45-take checkpoint at placement seed 2027 scores 23 of 50 (`reports/sim_policy/paired_seed2027`). Corpus study (`reports/sim_policy/staged_place_01`): goal-conditioned ACT on the executor's demonstrations at 50, 100 and 131 takes scores 0 of 50 each on the place task with held-out joint error 0.066, 0.034 and 0.027 rad; the 100-take policy reaches and nudges the cup in 42 trials without lifting. Measured in simulation; never physical evidence. Open-loop fit of a scripted expert's commands is not evidence of closed-loop behaviour; a chunk-motion diagnostic follows.
 - 2026-10-19T14:20:00Z: Chunk-motion diagnostic on held-out frames: the 131-take corpus policy predicts chunks whose motion matches the demonstrations (median 0.475 rad against 0.467 per 30-step chunk, first action 0.040 rad from the state, squeeze commanded at 0.0225 m), so it has not collapsed toward the current state; the plain 45-take teleop policy predicts 0.113 against 0.052. The corpus policies' closed-loop failure is therefore not an open-loop regression to the state; the next session traces served actions step by step in the scene before changing the corpus or the recipe. Simulation only.
 - 2026-10-19T14:40:00Z: The 131-take corpus policy with the gripper guard off scores 0 of 50 at seed 2026 (`reports/sim_policy/paired_seed2026_noguard`): closest approach 3.3 cm at the median, 2 lifted and dropped, 13 reached without a grasp, 14 nudged, 16 never reached, 638 holds for a state past a bound. The guard is not the blocker; the failure is in the squeeze and the last centimetres, and in reaching that presses the joint bounds. Measured in simulation; never physical evidence. No chain is running.
+
+## 2026-10-20 — Command-agent work order opened
+
+Operator authorized Phase A and Phase B on Thor in an isolated command-agent checkout. Base: 548f3a9f2f24eb1191f78765bce457f96ec1fd64 (committed console-synria-presets flagship state). Existing Thor main and local flagship checkouts remain untouched. Phase C stays parked; no hardware authority is granted.
+
+Change Report: changed DECISIONS.md to record the Focus Rule exception and this activity ledger for isolation provenance. Tests: documentation diff inspected. Not run: code, simulator and hardware tests (no code changed). Follow-up: implement A, pre-register B; wait for operator release before 5090 simulation. Hardware safety review is required before any future physical execution.
+
+## 2026-10-20 — Command-agent Phase A and Phase B pre-registration
+
+Status: **implemented, unmeasured** for Phase A; **planned** for the Isaac
+campaign and physical Phase C. Work ran in Thor's separate
+/home/oedeh/github/physical-ai-command-agent checkout, branch command-agent.
+First commit 56d6570 records the operator-approved Focus Rule exception.
+Implementation: bee11ea; independent shared-file commits: CLI 220b883,
+llm extra 692e657, AGENTS structure 7b5bfcb. Phase B suite and scoring
+were committed before evaluation in f3005f7; no Isaac trials were run.
+
+Change Report:
+1. Added four operational command modules, strict registry contracts, ordered
+   G0–G4 gates, simulation-only MoveIt service resolution, provider/external
+   planners without fallback, durable audit, gate/client/adapter tests and a
+   core-only CI workflow. Added the implemented-unmeasured sample plan/gate
+   report, actual Thor G2 refusal, provenance, validation and baseline-failure
+   ledger under reports/agents/command_agent/. Shared-file edits are separate.
+2. Thor: 93 targeted tests pass with dev/vision installed and in a fresh core-only
+   environment without provider/robot extras. Repository lint passes. Type checks
+   pass for 87 repository source files and all 5 command package files. Final full
+   regression: 2026 passed, 83 skipped, 20 failed; all 20 failing tests reproduced
+   against unchanged base 548f3a9. The full run contained 92 command tests; the
+   additional main-CLI integration check passed in both 93-test targeted runs.
+3. Live providers, live MoveIt, Isaac and 5090 latency tests were not run: no
+   qualified skill library/twin binding or operator 5090 release. Physical tests
+   remain parked. Hosted CI is tracked in the validation artifact after publication.
+4. Baseline failures include missing Torch/LeRobot/PyArrow and two existing console
+   assertions. They are retained, not repaired in this scope. Real simulation
+   bindings and the prospective Phase B run profile remain necessary. Rebase the
+   three shared-file commits onto the flagship before merge. No agent run advances
+   D1–D5; diagnostic sample timings are not the Phase B benchmark. Thor main's
+   training artifacts and the local flagship checkout were left untouched.
+5. Hardware safety review is required before robot execution, together with
+   committed and accepted Phase 0B evidence, explicit operator motion authority,
+   per-step confirmations, deadman/rate limits and controlled stop/hold. Phase A
+   contains no physical executor or controller publication path.
+
+### Hosted command-agent validation
+
+The dedicated gate workflow passed 93 tests, lint and typing on Python 3.10 and
+3.12 at c4db228. Evidence: reports/agents/command_agent/ci_checks.json. Broader
+matrix CI has failures in unchanged recorder NumPy array-shape typing and Windows
+POSIX-attribute typing; remaining jobs were still running at capture. No broad
+CI success is claimed. Change Report: added hosted evidence and updated validation
+and integrity hashes; inspected completed job logs; no source changed. Live
+simulation, Phase B measurements and physical tests remain unrun for the recorded
+reasons. The hardware safety review requirement is unchanged.
+
+## 2026-10-20 — Operator requests command-agent merge and next step
+
+The operator explicitly requested: document results, push and merge, then move
+to the next step. Final hosted gate checks on cb29a0a pass on Python 3.10/3.12;
+CPU acceptance and ROS description build pass; broad CI retains six failed
+baseline matrix jobs. The 20 general-suite failures remain ledgered, with 2027
+passing and 83 skipped in the completed hosted Ubuntu 3.11 job.
+
+Change Report: updated final results and committed CI evidence; verified exact
+source hashes and documentation hygiene. No source changed, so code tests were
+not repeated. Existing CI failures, missing qualified twin bindings and the
+unreleased 5090 remain limitations. Next: Phase B preflight and frozen-suite
+runner preparation on Thor. Phase C stays parked and needs hardware safety review
+and its separate authorization before any robot execution.

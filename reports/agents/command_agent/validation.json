@@ -1,0 +1,116 @@
+{
+  "status": "implemented, unmeasured",
+  "date": "2026-10-20",
+  "provenance": {
+    "device": "jetsonthor",
+    "architecture": "aarch64",
+    "python_version": "3.12.3",
+    "jetpack_version": "nvidia-jetpack\t7.1-b112",
+    "l4t_release": "# R38 (release), REVISION: 4.0, GCID: 43443517, BOARD: generic, EABI: aarch64, DATE: Wed Dec 31 00:15:19 UTC 2025\n# KERNEL_VARIANT: oot\nTARGET_USERSPACE_LIB_DIR=nvidia\nTARGET_USERSPACE_LIB_DIR_PATH=usr/lib/aarch64-linux-gnu/nvidia\nINSTALL_TYPE=openrm",
+    "power_mode": "NV Power Mode: 120W\n1"
+  },
+  "base_commit": "548f3a9f2f24eb1191f78765bce457f96ec1fd64",
+  "first_work_order_commit": "56d65703f1da3bd26857f23afbdc390d92578851",
+  "source_sha256": {
+    "agents/command_agent/__init__.py": "99efc5a7470cd56529d14abdacd97f99939a9886264ccaf785f3224c94b7d7f5",
+    "agents/command_agent/schema.py": "61e9ed6698743e75ed297e197b1c19c1a42c8a4a05152931a4439dabb90d6bce",
+    "agents/command_agent/planners.py": "5a43c5aa1dfd22708bd57c7acc2a6bb42ab05cb0b3e2a629d28c9242db8da10e",
+    "agents/command_agent/harness.py": "4924cf6e95dec5e56f884b0ef199b08067b6b30f23e4ad660be4ea41e415006b",
+    "agents/command_agent/cli.py": "28e8875139ef288f2824b6d1cad2cdb652514458d399a3f85180c54969218048",
+    "tests/test_command_agent.py": "0706bede2d980618d50c9dfc08a4340139a81294dd8fd5bcc111c90b94ab2c0a",
+    "physical_ai_lab/cli.py": "238f2356e9abf2610acd9103b31a142f907e75984e5fd9638166437b38e9c705",
+    "pyproject.toml": "155756884259f8d820b89e33df8904aee72ddb62cb3c999a1f3aa66e4b5afba0",
+    "AGENTS.md": "5b32509af3e88d96410e0dc7d592380d0934b3be0314522423b33a45260bd9af",
+    ".github/workflows/command-agent.yml": "39d08dc366a94426d65027cd51cf8aaab01e829fda5a2addbe268b34c11782a8"
+  },
+  "targeted_tests": {
+    "tests": 93,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "core_only_tests": {
+    "tests": 93,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "full_regression": {
+    "tests": 2129,
+    "failures": 20,
+    "errors": 0,
+    "skipped": 83
+  },
+  "baseline_failed_test_reproduction": {
+    "tests": 20,
+    "failures": 20,
+    "errors": 0,
+    "skipped": 0
+  },
+  "full_suite_note": "Full run collected 92 command-agent tests; the subsequent standalone main-CLI integration test is included in both 93-test targeted runs.",
+  "repository_lint": "passed",
+  "repository_typecheck": "passed: 87 source files",
+  "command_agent_typecheck": "passed: 5 source files",
+  "repository_hygiene": "passed",
+  "hosted_ci": {
+    "workflow": "Command agent hermetic gates",
+    "conclusion": "success",
+    "tested_commit": "c4db22834bf179707f5258a3ee0365cb0d508e62",
+    "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39483821813",
+    "python_versions": [
+      "3.10",
+      "3.12"
+    ],
+    "tests_per_job": 93,
+    "broader_ci": "Failing matrix jobs in untouched recorder/console type checks; see ci_checks.json.",
+    "completed_followup": {
+      "tested_commit": "cb29a0a7cfe27bef863474763556d445035118c0",
+      "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484411645",
+      "conclusion": "success",
+      "tests_per_job": 93,
+      "broader_ci_url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184",
+      "broader_ci_conclusion": "failure",
+      "cpu_acceptance": "success",
+      "ros2_description_build": "success",
+      "matrix_note": "Six failed baseline matrix jobs: Python 3.10/Windows typing and existing general-suite failures."
+    }
+  },
+  "environment": {
+    "pytest": "9.1.1",
+    "pydantic": "2.14.1",
+    "numpy": "2.5.4",
+    "typer": "0.27.3",
+    "click": "8.5.0",
+    "ruff": "0.17.1",
+    "mypy": "2.4.0",
+    "opencv-python": "5.0.0.93"
+  },
+  "not_run": [
+    "live provider API",
+    "live MoveIt",
+    "Isaac twin",
+    "RTX 5090 benchmarks",
+    "physical arm"
+  ],
+  "phase_b": "planned: frozen 16-case suite; 5 seeds per case; no trials performed",
+  "phase_c": "planned: parked; no physical executor",
+  "implementation_commit": "bee11ea0751d4b7965164b48a5ddd7746cfe8d06",
+  "shared_commits": {
+    "cli": "220b883",
+    "llm_extra": "692e657",
+    "agent_structure": "7b5bfcb"
+  },
+  "phase_b_preregistration_commit": "f3005f7da51cb382b8b4a35cce51a06c92c6402a",
+  "phase_b_suite_sha256": "94fcf6ec4a7137c686d97eae8e17aeff10f1af512d8e60e654ccc43f27728dde",
+  "merge_authorization": {
+    "date": "2026-10-20",
+    "source": "operator explicitly requested document, push and merge, then proceed to next step",
+    "limitations_retained": [
+      "implemented, unmeasured",
+      "broader CI not green",
+      "no Isaac results",
+      "no 5090 release",
+      "Phase C parked"
+    ]
+  }
+}
