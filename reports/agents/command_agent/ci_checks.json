@@ -183,5 +183,95 @@
       }
     ],
     "scope_note": "These files are unchanged from the base commit. This is not a claim that the whole repository CI is green."
+  },
+  "completed_followup": {
+    "captured_at": "2026-10-20T19:44:20.510384+00:00",
+    "command_agent_workflow": {
+      "databaseId": 39484411645,
+      "name": "Command agent hermetic gates",
+      "headSha": "cb29a0a7cfe27bef863474763556d445035118c0",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484411645",
+      "jobs": [
+        {
+          "name": "gates (3.12)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484411645/job/118840986806"
+        },
+        {
+          "name": "gates (3.10)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484411645/job/118840987236"
+        }
+      ]
+    },
+    "broader_workflow": {
+      "databaseId": 39484421184,
+      "name": "CI",
+      "headSha": "cb29a0a7cfe27bef863474763556d445035118c0",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184",
+      "jobs": [
+        {
+          "name": "Synria CPU acceptance on released LeRobot 0.6.1",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841018614"
+        },
+        {
+          "name": "Python 3.12 on ubuntu-latest",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841018774"
+        },
+        {
+          "name": "Python 3.11 on ubuntu-latest",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841018886"
+        },
+        {
+          "name": "Python 3.10 on windows-latest",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841018933"
+        },
+        {
+          "name": "Python 3.11 on windows-latest",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841018936"
+        },
+        {
+          "name": "Python 3.10 on ubuntu-latest",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841018949"
+        },
+        {
+          "name": "ROS 2 description package build",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841018956"
+        },
+        {
+          "name": "Python 3.12 on windows-latest",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841019115"
+        }
+      ]
+    },
+    "ubuntu_python311_tests": {
+      "passed": 2027,
+      "skipped": 83,
+      "failed": 20,
+      "failure_scope": "Same 20 baseline failures reproduced on Thor; missing optional ML dependencies and two existing console assertions.",
+      "job_url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39484421184/job/118841018886"
+    }
   }
 }

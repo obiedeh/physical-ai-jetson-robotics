@@ -107,3 +107,28 @@ manifest to retain verified gate-job results. No source changed; source hashes
 remain identical to the passing jobs. Broader CI, real simulation and physical
 work remain open as documented. Hardware safety review is still required before
 robot execution.
+
+## Final results and operator merge instruction
+
+The final source commit cb29a0a passed both dedicated gate jobs (93 tests each,
+Python 3.10 and 3.12). The broader workflow is now complete: the Synria CPU
+acceptance and ROS 2 description build passed; six general matrix jobs failed
+in the previously recorded typing/dependency/console issues. The Ubuntu 3.11
+general suite ran the extra CLI test: 2027 passed, 83 skipped and the same
+20 existing failures remained. Completed job evidence is in ci_checks.json.
+
+The operator explicitly instructed documenting, pushing and merging this work
+on 2026-10-20. This records merge authorization, not a change to status labels
+or a waiver of any robot or simulator gate. Phase B preparation proceeds on
+Thor; the pre-registered command suite is unchanged, the 5090 still requires
+separate release, and Phase C remains parked.
+
+Change Report:
+1. Updated final CI results, validation, this report and the evidence manifest.
+2. Inspected completed hosted jobs; verified source hashes against the passing
+   source and checked documentation integrity/hygiene.
+3. No code tests repeated: source did not change. Live simulation and physical
+   work remain unrun for the recorded binding/authorization reasons.
+4. Existing broad-CI failures remain visible; proceed to Phase B preflight and
+   suite execution preparation without fabricating simulator success.
+5. Hardware safety review is required before any robot execution.

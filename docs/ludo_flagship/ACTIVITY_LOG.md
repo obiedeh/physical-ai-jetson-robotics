@@ -166,3 +166,18 @@ CI success is claimed. Change Report: added hosted evidence and updated validati
 and integrity hashes; inspected completed job logs; no source changed. Live
 simulation, Phase B measurements and physical tests remain unrun for the recorded
 reasons. The hardware safety review requirement is unchanged.
+
+## 2026-10-20 — Operator requests command-agent merge and next step
+
+The operator explicitly requested: document results, push and merge, then move
+to the next step. Final hosted gate checks on cb29a0a pass on Python 3.10/3.12;
+CPU acceptance and ROS description build pass; broad CI retains six failed
+baseline matrix jobs. The 20 general-suite failures remain ledgered, with 2027
+passing and 83 skipped in the completed hosted Ubuntu 3.11 job.
+
+Change Report: updated final results and committed CI evidence; verified exact
+source hashes and documentation hygiene. No source changed, so code tests were
+not repeated. Existing CI failures, missing qualified twin bindings and the
+unreleased 5090 remain limitations. Next: Phase B preflight and frozen-suite
+runner preparation on Thor. Phase C stays parked and needs hardware safety review
+and its separate authorization before any robot execution.
