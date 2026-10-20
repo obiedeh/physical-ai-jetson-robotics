@@ -9,6 +9,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+from agents.command_agent.cli import command as _command_agent_command
 from physical_ai_lab.config import ComputeTarget, LabProfile, RobotPlatform
 from physical_ai_lab.inventory import write_inventory
 from physical_ai_lab.ops_copilot import triage_telemetry
@@ -77,6 +78,7 @@ except ImportError:  # pragma: no cover
     _GR00T_AVAILABLE = False
 
 app = typer.Typer(help="Physical AI Jetson Robotics Lab CLI")
+app.command("command-agent")(_command_agent_command)
 console = Console()
 DEFAULT_INVENTORY_OUTPUT = Path("reports/inventory/latest_inventory.json")
 
