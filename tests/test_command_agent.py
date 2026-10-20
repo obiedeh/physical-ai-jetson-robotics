@@ -790,3 +790,22 @@ def test_invalid_proposal_remains_in_audit(tmp_path: Path) -> None:
     assert result["proposal"]["steps"][1]["skill_id"] == "unsafe_skill"
     row = json.loads((tmp_path / "reports/agents/command_agent/audit.jsonl").read_text())
     assert row["proposal"] == result["proposal"]
+
+
+def test_main_cli_registers_command_agent(tmp_path: Path, monkeypatch: Any) -> None:
+    """The shared CLI invokes the same gated implementation, with JSON refusals."""
+    from physical_ai_lab.cli import app as lab_app
+
+    real = evaluate
+    monkeypatch.setattr(
+        cli,
+        "evaluate",
+        lambda *a, **kw: real(
+            *a,
+            **{**kw, "root": tmp_path},
+        ),
+    )
+    monkeypatch.setattr(cli, "host_provenance", lambda: {"device": "test_fixture"})
+    result = CliRunner().invoke(lab_app, ["command-agent", REQUEST, "--dry-run"])
+    assert result.exit_code == 2, result.output
+    blocked(json.loads(result.stdout), "G2")
