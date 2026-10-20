@@ -73,3 +73,14 @@ Change Report:
    ready preflight does not itself run or score the registered campaign.
 5. A hardware safety review and the existing Phase 0B/operator requirements
    remain mandatory before any physical Phase C execution.
+
+Hosted validation: all 132 command-agent gate/preflight tests, lint and typing
+passed on Python 3.10 and 3.12 at 194f083. The small job record is retained in
+phase_b_ci.json. This checks static preparation only and adds no Isaac trial or
+latency result. Source hashes match the validated snapshot.
+
+Change Report (CI evidence): added the completed hosted job record and updated
+validation and integrity hashes. No source changed; no code tests repeated.
+Unqualified bindings, unavailable ROS configuration and missing operator release
+still prevent the actual campaign. The existing physical safety review remains
+required before any robot execution.

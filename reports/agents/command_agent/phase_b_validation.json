@@ -101,7 +101,17 @@
       }
     ]
   },
-  "hosted_ci": "pending",
+  "hosted_ci": {
+    "conclusion": "success",
+    "tested_commit": "194f08398eef7f7197bcc9af405e08f81009a0aa",
+    "tests_per_job": 132,
+    "python_versions": [
+      "3.10",
+      "3.12"
+    ],
+    "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39488287864",
+    "evidence": "reports/agents/command_agent/phase_b_ci.json"
+  },
   "provenance": {
     "device": "jetsonthor",
     "architecture": "aarch64",
