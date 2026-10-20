@@ -77,7 +77,7 @@ thor_provenance.json records Python, JetPack, L4T and queried power mode alongsi
 the sample diagnostic timings. Those timings are not the pre-registered Phase B
 latency experiment.
 
-validation.json and regression_failures.json retain test results and the baseline
+validation.json, ci_checks.json and regression_failures.json retain test results and the baseline
 comparison. Phase B's fixed command suite and protocol are committed separately
 before any evaluation. Isaac task completion and monitor benchmark measurements
 remain **planned**. The RTX 5090 was not used or interrupted. No ROS service,
@@ -95,3 +95,15 @@ Change Report:
    Rebase the three shared-file commits onto the flagship before merging.
 5. A separate hardware safety review, accepted Phase 0B and explicit operator
    authorization are required before any future physical execution.
+
+Hosted command-agent CI passed all 93 tests on Python 3.10 and 3.12, including
+lint and typing, at source commit c4db228. The broader repository workflow has
+completed failures in unchanged recorder/console typing checks; other jobs were
+still running at capture. This is not a green full-repository CI claim. The
+small CI record preserves job links and the inspected causes.
+
+Change Report (hosted validation): updated CI evidence, validation and the evidence
+manifest to retain verified gate-job results. No source changed; source hashes
+remain identical to the passing jobs. Broader CI, real simulation and physical
+work remain open as documented. Hardware safety review is still required before
+robot execution.

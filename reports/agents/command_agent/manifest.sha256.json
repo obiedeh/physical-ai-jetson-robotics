@@ -1,12 +1,13 @@
 {
   "reports/agents/command_agent/audit.jsonl": "200e81f01ce229d66336f6e5c7b73713a95c027801cdd8a3b5e36c66302ef33e",
+  "reports/agents/command_agent/ci_checks.json": "a7e6b6e432994257e6b294a6965067e7c1f506b9890ca0f7efac3cd096878a7f",
   "reports/agents/command_agent/command_suite.json": "94fcf6ec4a7137c686d97eae8e17aeff10f1af512d8e60e654ccc43f27728dde",
-  "reports/agents/command_agent/phase_a.md": "966e52f11cfabab839a56495bd6014df10fb28e0acc863b6b0304ce8b206f6e5",
+  "reports/agents/command_agent/phase_a.md": "2807ecf6c1fe6b8f02d7b2ead248c5978e137db2a23116cd594eb659c84d9110",
   "reports/agents/command_agent/phase_b_protocol.md": "4a172fa2ecddf1c6c8d4a0f89ff945aa19b6eda6485177031e38c3d625862d40",
   "reports/agents/command_agent/regression_failures.json": "f142a49c51fbec0eab1f1c074ce28d7bd88ea605a5582724e66955b8279caf9a",
   "reports/agents/command_agent/sample_gate_report.json": "696123dfbd416f7143e62b44de69f99875857636fc0dce6870da4d4a8355cb46",
   "reports/agents/command_agent/sample_plan.json": "a49e7c1502a587d4285363c5f5235c3f7ee7e2b26624e40009691b0be2a81e34",
   "reports/agents/command_agent/thor_cli_refusal.json": "1928990784615af8504e25d39cb31d62b9ede3ebb942de72dfbe91c17791dde9",
   "reports/agents/command_agent/thor_provenance.json": "e41879a3a6b5118fd349ce126b5346645505c4c76b9afaea9eea6df6ac660977",
-  "reports/agents/command_agent/validation.json": "761299332559d3b0469c99359f8d7bc7ae4b89aca5485f8b79a610db107dbe67"
+  "reports/agents/command_agent/validation.json": "e596a0bb0f2d45dee6e6a9a4bbf05a8cd5890cf4ec91a31fb0869090e48040bd"
 }

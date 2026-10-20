@@ -52,7 +52,18 @@
   "repository_typecheck": "passed: 87 source files",
   "command_agent_typecheck": "passed: 5 source files",
   "repository_hygiene": "passed",
-  "hosted_ci": "pending publication",
+  "hosted_ci": {
+    "workflow": "Command agent hermetic gates",
+    "conclusion": "success",
+    "tested_commit": "c4db22834bf179707f5258a3ee0365cb0d508e62",
+    "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39483821813",
+    "python_versions": [
+      "3.10",
+      "3.12"
+    ],
+    "tests_per_job": 93,
+    "broader_ci": "Failing matrix jobs in untouched recorder/console type checks; see ci_checks.json."
+  },
   "environment": {
     "pytest": "9.1.1",
     "pydantic": "2.14.1",
