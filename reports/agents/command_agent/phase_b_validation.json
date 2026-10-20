@@ -169,5 +169,30 @@
   },
   "remaining": "Qualified live bindings, task-specific reset/scorer evidence, frozen planned profile and explicit release; full campaign executor is not implemented by static preflight.",
   "implementation_commit": "8133ecd65d51cbdc03e39c3566e621241a0c9153",
-  "preflight_profile": "reports/agents/command_agent/phase_b_profile.template.json"
+  "preflight_profile": "reports/agents/command_agent/phase_b_profile.template.json",
+  "actual_preflight": {
+    "report": "reports/agents/command_agent/phase_b_preflight.json",
+    "ready": false,
+    "scheduled_trials": 80,
+    "trials_run": 0,
+    "simulator_contacted": false,
+    "exit_code": 2,
+    "blockers": [
+      "profile is still scaffold; freeze it before trials",
+      "operator has not explicitly released the RTX 5090",
+      "Isaac version is unknown",
+      "isolated ROS simulation domain is unset",
+      "scene is not configured",
+      "skill_library is not configured",
+      "simulator_adapter is not configured",
+      "die_into_cup: resolver/reset/object-success qualification is missing",
+      "pick_cup: resolver/reset/object-success qualification is missing",
+      "cup_pick_and_place: resolver/reset/object-success qualification is missing",
+      "roll_and_dump: resolver/reset/object-success qualification is missing",
+      "cup_return: resolver/reset/object-success qualification is missing",
+      "return_to_ready: resolver/reset/object-success qualification is missing",
+      "ROS client runtime is unavailable; no simulator was contacted"
+    ]
+  },
+  "profile_commit": "6509262be1f8a5f275910a0d7ecce2e513fb1b77"
 }
