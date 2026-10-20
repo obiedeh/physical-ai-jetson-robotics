@@ -214,3 +214,16 @@ Live simulation/5090 and physical tests remain unrun because release, frozen
 deployment facts and skill qualifications are missing. Next is the real static
 preflight invocation, not a campaign run. Hardware review is still required
 before any physical robot execution.
+
+### Actual Phase B static preflight retained
+
+The real CLI inspected the committed scaffold on Thor and returned exit code 2,
+ready=false, 80 scheduled rows and zero trials; no simulator was contacted. Source,
+suite and host pins passed. Missing release, deployment facts, all six task
+qualifications and the ROS client runtime remain blockers. The original suite was
+not changed. Evidence: reports/agents/command_agent/phase_b_preflight.json.
+
+Change Report: retained the actual static refusal and updated validation/integrity
+hashes; checked committed inputs and source pins. No code tests repeated because
+source was unchanged. Live simulation and physical tests remain unrun for the
+recorded reasons. Hardware safety review remains required before robot execution.
