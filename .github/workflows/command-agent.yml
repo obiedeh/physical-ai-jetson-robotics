@@ -6,7 +6,7 @@ on:
   pull_request:
     paths:
       - "agents/command_agent/**"
-      - "tests/test_command_agent.py"
+      - "tests/test_command_agent*.py"
       - "physical_ai_lab/cli.py"
       - "pyproject.toml"
       - ".github/workflows/command-agent.yml"
@@ -29,8 +29,8 @@ jobs:
       - name: Install core and test tools without provider or robot extras
         run: python -m pip install -e . pytest ruff mypy
       - name: Lint command agent
-        run: ruff check agents/command_agent tests/test_command_agent.py
+        run: ruff check agents/command_agent tests/test_command_agent.py tests/test_command_agent_campaign.py
       - name: Type check command agent
         run: mypy agents/command_agent --follow-imports=silent
       - name: Exercise all gates with injected clients and simulators
-        run: python -m pytest tests/test_command_agent.py -q
+        run: python -m pytest tests/test_command_agent.py tests/test_command_agent_campaign.py -q

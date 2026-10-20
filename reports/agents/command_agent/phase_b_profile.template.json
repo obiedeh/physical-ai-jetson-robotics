@@ -1,0 +1,28 @@
+{
+  "schema_version": "command_campaign_profile_v1",
+  "status": "scaffold",
+  "campaign_id": "command_agent_isaac_20261020",
+  "preregistration_commit": "f3005f7da51cb382b8b4a35cce51a06c92c6402a",
+  "suite": {
+    "path": "reports/agents/command_agent/command_suite.json",
+    "sha256": "94fcf6ec4a7137c686d97eae8e17aeff10f1af512d8e60e654ccc43f27728dde"
+  },
+  "harness_commit": "958ed6062ba17c0118019587b797cd5a760caa99",
+  "isaac_version": null,
+  "simulation_domain_id": null,
+  "scene": null,
+  "skill_library": null,
+  "simulator_adapter": null,
+  "host_configuration": {
+    "path": "reports/agents/command_agent/phase_b_host_configuration.json",
+    "sha256": "acfbe91dd8b9ed8db1d492c77b04d38970de2544c15b2a84ada1a188e13f1bf7"
+  },
+  "qualifications": {
+    "die_into_cup": null,
+    "pick_cup": null,
+    "cup_pick_and_place": null,
+    "roll_and_dump": null,
+    "cup_return": null,
+    "return_to_ready": null
+  }
+}
