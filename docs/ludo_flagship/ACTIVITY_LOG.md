@@ -181,3 +181,22 @@ not repeated. Existing CI failures, missing qualified twin bindings and the
 unreleased 5090 remain limitations. Next: Phase B preflight and frozen-suite
 runner preparation on Thor. Phase C stays parked and needs hardware safety review
 and its separate authorization before any robot execution.
+
+## 2026-10-20 — Phase A merged; Phase B static preflight implemented
+
+PR #6 merged at d13216a91e194050898e9cc6c9a10fa2723fb76f after the operator
+requested documentation, push, merge and next-step work. The isolated Thor branch
+was fast-forwarded to that merge; original flagship working trees remain untouched.
+
+Change Report:
+1. Added typed campaign/qualification metadata, committed-input and safety-source
+   pins, fixed case/seed scheduling and a static preflight path in the existing
+   command-agent CLI. Added profile scaffold, observed host configuration, guide,
+   preflight tests and CI coverage. The original registered suite is unchanged.
+2. Thor core-only command-agent suite: 132 passed. Repository lint/type checks and
+   package checks pass; the full regression is running and will be recorded.
+3. No live Isaac, 5090, object qualification or robot run: release and qualified
+   bindings remain missing. Static tests and scheduled rows are not measurements.
+4. The profile stays scaffold; all six skills need task-specific reset/scoring
+   evidence. Static preflight does not implement the full campaign executor.
+5. Hardware safety review remains mandatory before robot execution; Phase C is parked.
