@@ -327,3 +327,17 @@ The 170 core-only tests and full regression are complete; source was unchanged
 since those checks. Live evaluation remains unrun for the recorded missing
 runtime, qualification and GPU-release reasons. Phase C's review and separate
 motion authorization remain mandatory.
+
+### Hosted reporting-stage gates verified
+
+Hosted run 39491862956 at 07b372f passes all 170 command-agent tests, lint and
+typing on Python 3.10/3.12. Exact test counts were verified in completed job logs.
+Evidence: reports/agents/command_agent/phase_b_ci.json, offline_reporting.
+The operator's request to document, push, merge and proceed covers this completed
+preparation stage. The actual measured campaign remains planned and blocked.
+
+Change Report: retained hosted results and refreshed validation/integrity hashes;
+source and registered suite unchanged. No source tests repeated after this
+evidence-only change. The known baseline full-suite/typing failures remain
+separate from green dedicated gates. No release or physical authorization was
+inferred. The existing Phase C hardware review requirement remains in force.

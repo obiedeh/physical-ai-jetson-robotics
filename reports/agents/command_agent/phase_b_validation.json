@@ -399,6 +399,16 @@
       "same_failed_test_set_as_phase_a_baseline": true
     },
     "actual_empty_ledger_report": "reports/agents/command_agent/phase_b_summary.json",
-    "hosted_ci": "Pending on the new reporting source; previous preflight CI evidence remains historical."
+    "hosted_ci": {
+      "path": "reports/agents/command_agent/phase_b_ci.json",
+      "head": "07b372f1facd6b3d146987a20d0a4bf16651b3dc",
+      "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39491862956",
+      "tests_per_job": 170,
+      "python_versions": [
+        "3.10",
+        "3.12"
+      ],
+      "conclusion": "success"
+    }
   }
 }
