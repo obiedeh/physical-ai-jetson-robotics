@@ -200,3 +200,17 @@ Change Report:
 4. The profile stays scaffold; all six skills need task-specific reset/scoring
    evidence. Static preflight does not implement the full campaign executor.
 5. Hardware safety review remains mandatory before robot execution; Phase C is parked.
+
+### Phase B preflight source pinned and regressions retained
+
+Preflight source commit: 8133ecd65d51cbdc03e39c3566e621241a0c9153. The scaffold
+pins that source without claiming a qualified deployment. Thor full regression:
+2066 passed, 83 skipped and the same 20 Phase A baseline failures; no new failed
+test IDs. The core-only gate/preflight suite remains 132 passed.
+
+Change Report: updated profile and validation with the exact code commit and
+completed regression ledger; source hashes verified and no source changed.
+Live simulation/5090 and physical tests remain unrun because release, frozen
+deployment facts and skill qualifications are missing. Next is the real static
+preflight invocation, not a campaign run. Hardware review is still required
+before any physical robot execution.
