@@ -7,7 +7,7 @@
     "path": "reports/agents/command_agent/command_suite.json",
     "sha256": "94fcf6ec4a7137c686d97eae8e17aeff10f1af512d8e60e654ccc43f27728dde"
   },
-  "harness_commit": "8133ecd65d51cbdc03e39c3566e621241a0c9153",
+  "harness_commit": "958ed6062ba17c0118019587b797cd5a760caa99",
   "isaac_version": null,
   "simulation_domain_id": null,
   "scene": null,
