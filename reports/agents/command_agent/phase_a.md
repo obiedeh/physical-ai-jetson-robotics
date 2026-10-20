@@ -132,3 +132,8 @@ Change Report:
 4. Existing broad-CI failures remain visible; proceed to Phase B preflight and
    suite execution preparation without fabricating simulator success.
 5. Hardware safety review is required before any robot execution.
+
+Merge confirmed: PR #6 was merged on the operator's instruction at
+d13216a91e194050898e9cc6c9a10fa2723fb76f. The recorded baseline CI failures and
+implemented-unmeasured status are retained. Phase B preparation continues in the
+isolated Thor checkout; original flagship working trees are not updated here.

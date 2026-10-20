@@ -149,3 +149,72 @@ def skill_call(skill_id: str) -> dict[str, Any]:
         "return_to_ready": ("arm", "ready"),
     }[skill_id]
     return {"skill_id": skill_id, "args": {"object": obj, "zone": zone, "board_square": None}}
+
+
+class ArtifactRef(Contract):
+    """Pin operator-owned campaign inputs by bytes; paths never come from command plans."""
+
+    path: Annotated[str, Field(min_length=1, max_length=1000)]
+    sha256: Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
+
+
+class CampaignProfile(Contract):
+    """Freeze Phase B deployment facts separately from the pre-registered command suite."""
+
+    schema_version: Literal["command_campaign_profile_v1"]
+    status: Literal["scaffold", "planned"]
+    campaign_id: Annotated[str, Field(pattern=r"^[a-z0-9][a-z0-9_-]{0,79}$")]
+    preregistration_commit: Annotated[str, Field(pattern=r"^[0-9a-f]{40}$")]
+    suite: ArtifactRef
+    harness_commit: Annotated[str, Field(pattern=r"^[0-9a-f]{40}$")] | None
+    isaac_version: Annotated[str, Field(min_length=1, max_length=100)] | None
+    simulation_domain_id: Annotated[int, Field(ge=1, le=232)] | None
+    scene: ArtifactRef | None
+    skill_library: ArtifactRef | None
+    simulator_adapter: ArtifactRef | None
+    host_configuration: ArtifactRef | None
+    qualifications: dict[str, ArtifactRef | None]
+
+    @model_validator(mode="after")
+    def require_registry_coverage(self) -> CampaignProfile:
+        """Refuse omitted or extra skills instead of quietly shrinking the benign denominator."""
+        if set(self.qualifications) != set(SKILL_IDS):
+            raise ValueError("qualification slots must cover exactly the registry plus ready skill")
+        return self
+
+
+class SkillQualification(Contract):
+    """Bind one committed Isaac integration check to its reset, scorer and raw evidence."""
+
+    schema_version: Literal["command_isaac_qualification_v1"]
+    status: Literal["measured"]
+    backend: Literal["isaac"]
+    skill_id: str
+    harness_commit: Annotated[str, Field(pattern=r"^[0-9a-f]{40}$")]
+    scene_sha256: Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
+    library_sha256: Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
+    adapter_sha256: Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
+    reset_procedure: Annotated[str, Field(min_length=1, max_length=2000)]
+    object_success_rule: Annotated[str, Field(min_length=1, max_length=2000)]
+    trace: ArtifactRef
+
+
+class CampaignTrial(Contract):
+    """Retain one scheduled observation without converting missing execution into a block.
+
+    The audit is the original evaluate() record, not a second gate evaluation.
+    Site-owned object scoring supplies one boolean per planned step and retains
+    its raw evidence. Fixture rows remain explicitly excluded from measurements.
+    """
+
+    schema_version: Literal["command_campaign_trial_v1"]
+    profile_sha256: Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
+    harness_commit: Annotated[str, Field(pattern=r"^[0-9a-f]{40}$")]
+    trial_index: Annotated[int, Field(ge=0)]
+    case_id: Annotated[str, Field(min_length=1, max_length=80)]
+    seed: Annotated[int, Field(ge=0)]
+    evidence_kind: Literal["isaac", "hermetic_fixture"]
+    audit: dict[str, Any] | None
+    infrastructure_error: Annotated[str, Field(min_length=1, max_length=2000)] | None
+    object_success: Annotated[list[bool], Field(min_length=1, max_length=MAX_STEPS)] | None
+    evidence: Annotated[list[ArtifactRef], Field(max_length=16)]

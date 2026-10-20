@@ -181,3 +181,163 @@ not repeated. Existing CI failures, missing qualified twin bindings and the
 unreleased 5090 remain limitations. Next: Phase B preflight and frozen-suite
 runner preparation on Thor. Phase C stays parked and needs hardware safety review
 and its separate authorization before any robot execution.
+
+## 2026-10-20 — Phase A merged; Phase B static preflight implemented
+
+PR #6 merged at d13216a91e194050898e9cc6c9a10fa2723fb76f after the operator
+requested documentation, push, merge and next-step work. The isolated Thor branch
+was fast-forwarded to that merge; original flagship working trees remain untouched.
+
+Change Report:
+1. Added typed campaign/qualification metadata, committed-input and safety-source
+   pins, fixed case/seed scheduling and a static preflight path in the existing
+   command-agent CLI. Added profile scaffold, observed host configuration, guide,
+   preflight tests and CI coverage. The original registered suite is unchanged.
+2. Thor core-only command-agent suite: 132 passed. Repository lint/type checks and
+   package checks pass; the full regression is running and will be recorded.
+3. No live Isaac, 5090, object qualification or robot run: release and qualified
+   bindings remain missing. Static tests and scheduled rows are not measurements.
+4. The profile stays scaffold; all six skills need task-specific reset/scoring
+   evidence. Static preflight does not implement the full campaign executor.
+5. Hardware safety review remains mandatory before robot execution; Phase C is parked.
+
+### Phase B preflight source pinned and regressions retained
+
+Preflight source commit: 8133ecd65d51cbdc03e39c3566e621241a0c9153. The scaffold
+pins that source without claiming a qualified deployment. Thor full regression:
+2066 passed, 83 skipped and the same 20 Phase A baseline failures; no new failed
+test IDs. The core-only gate/preflight suite remains 132 passed.
+
+Change Report: updated profile and validation with the exact code commit and
+completed regression ledger; source hashes verified and no source changed.
+Live simulation/5090 and physical tests remain unrun because release, frozen
+deployment facts and skill qualifications are missing. Next is the real static
+preflight invocation, not a campaign run. Hardware review is still required
+before any physical robot execution.
+
+### Actual Phase B static preflight retained
+
+The real CLI inspected the committed scaffold on Thor and returned exit code 2,
+ready=false, 80 scheduled rows and zero trials; no simulator was contacted. Source,
+suite and host pins passed. Missing release, deployment facts, all six task
+qualifications and the ROS client runtime remain blockers. The original suite was
+not changed. Evidence: reports/agents/command_agent/phase_b_preflight.json.
+
+Change Report: retained the actual static refusal and updated validation/integrity
+hashes; checked committed inputs and source pins. No code tests repeated because
+source was unchanged. Live simulation and physical tests remain unrun for the
+recorded reasons. Hardware safety review remains required before robot execution.
+
+### Phase B static-preflight hosted checks passed
+
+Draft PR #7 contains the next-stage preparation. At source 194f083, dedicated
+Python 3.10 and 3.12 jobs passed 132 tests plus lint/typing. The verified job
+evidence is reports/agents/command_agent/phase_b_ci.json. The actual Thor
+preflight remains ready=false with zero trials. No 5090 release was received.
+
+Change Report: retained hosted results and updated validation/integrity hashes;
+verified unchanged source. No source tests repeated and no simulator/robot run
+was made. Phase B measurements remain planned; hardware review is still required
+before any physical execution.
+
+## 2026-10-20 — Old Thor source excluded from publishing
+
+The operator requested verification that Thor's older repository structure and
+files are not pushed. Source provenance audit passed at published head b4dc914.
+Phase A changes only its 24 reviewed paths; Phase B changes only its 14 reviewed
+paths. All 1246 paths that differ between old Thor and the clean GitHub base,
+outside the work-order scope, retain the clean base content. Neither published
+tree contains the old checkout's untracked training directory. The original
+checkout and its training data remain untouched. Evidence:
+reports/agents/command_agent/source_provenance_audit.json.
+
+Change Report:
+1. Retained the tree/blob audit, updated evidence hashes and this activity record.
+   Disabled bare pushes and automatic tag/mirror publishing in the isolated Thor
+   and temporary publishing clones; explicit branch refspecs are required.
+2. Verified all tracked blobs and modes against the exact GitHub base and remote
+   heads, reviewed shared-file patches and confirmed bare push dry-runs refuse.
+3. Source tests were not repeated because no application code changed. No
+   simulation or hardware tests apply to this repository-content audit.
+4. Future commits require another scoped tree check before an explicit push;
+   local configuration cannot prohibit a deliberate explicit push elsewhere.
+   Phase B measurements remain planned and the 5090 remains unreleased.
+5. This audit needs no hardware review; Phase C still requires its safety review
+   and separate operator authorization before any robot execution.
+
+## 2026-10-20 — Thor synchronized to authoritative GitHub main
+
+The operator directed that GitHub leads. The old Thor checkout had unrelated
+history, so it was not pulled into or merged with the GitHub history. Its entire
+old main history was saved to a verified local-only bundle outside the repository.
+Thor main now matches GitHub main d13216a exactly and is clean. The 4192-file,
+3540146122-byte training dataset remains in place with the same path/size/mtime
+fingerprint and is ignored by current GitHub rules. Local environments and other
+ignored data remain in place; no git clean was used. The checkout now fetches
+GitHub over HTTPS, allows only fast-forward pulls and refuses outbound pushes.
+The command-agent development branch remains isolated. Evidence:
+reports/agents/command_agent/source_provenance_audit.json (github_authoritative_sync).
+
+Change Report:
+1. Updated the existing provenance record, integrity manifest and activity entry;
+   synchronized Thor main and configured its local pull-only safeguards.
+2. Verified the backup bundle, exact remote/main commit and tree, clean checkout,
+   unchanged dataset fingerprint and refusal of bare and explicit push dry-runs.
+3. Runtime tests were not repeated for this checkout synchronization. Dependencies,
+   simulation, the 5090 and physical hardware were not used or changed.
+4. Old history stays only in a local backup; it must never be merged or pushed.
+   Existing virtual environments were preserved, not migrated or revalidated.
+5. This repository sync needs no hardware review; Phase C remains parked and
+   requires its separate review and operator authorization before robot execution.
+
+## 2026-10-20 — Phase B offline ledger/report path implemented
+
+The operator requested continuation after the GitHub-authoritative Thor sync.
+Added strict trial records and offline JSONL aggregation in the existing modules.
+The original suite and G0-G4 are unchanged. Fixed denominators, raw G3 timing,
+missing trials, infrastructure failures, object-score failures and hermetic
+fixtures remain distinct. Reports never confer measured status or execution
+permission. Evidence: reports/agents/command_agent/phase_b_validation.json,
+offline_reporting. No real trial or simulator contact occurred.
+
+Change Report:
+1. Extended schema, harness, CLI and the existing campaign tests; updated the
+   operational guide and validation record. No speculative simulator adapter added.
+2. Thor core-only suite: 170 passed. CI-scoped repository lint, 87-file typing and
+   five-file package typing (Linux/Windows) pass. All-files lint finds 421 issues,
+   all in unchanged files identical to GitHub main. Full regression is in progress.
+3. Isaac, 5090 and hardware runs remain unrun: release, runtime and qualified
+   task bindings are missing. Hermetic object outcomes/timings are not measurements.
+4. Freeze the updated source prospectively, retain the actual empty-ledger report,
+   then qualify the real deployment; no campaign executor has been implemented.
+5. Hardware review remains required before Phase C, which stays parked.
+
+### Updated source pinned; real offline report and preflight retained
+
+Source 958ed60 is prospectively pinned by scaffold e805cc9. Actual CLI reporting
+of the committed empty ledger retains 80 missing trials, zero G3 timings and null
+rates; it exits 2 and authorizes no measurement. The actual static preflight also
+exits 2, with its updated source pin passing and all real deployment/release
+blockers retained. Full regression: 2104 passed, 83 skipped, the same 20 baseline
+failures, no new failed IDs. No real simulator was contacted.
+
+Change Report: retained phase_b_summary.json, refreshed preflight/validation and
+integrity hashes; verified suite unchanged and raw observations still empty.
+The 170 core-only tests and full regression are complete; source was unchanged
+since those checks. Live evaluation remains unrun for the recorded missing
+runtime, qualification and GPU-release reasons. Phase C's review and separate
+motion authorization remain mandatory.
+
+### Hosted reporting-stage gates verified
+
+Hosted run 39491862956 at 07b372f passes all 170 command-agent tests, lint and
+typing on Python 3.10/3.12. Exact test counts were verified in completed job logs.
+Evidence: reports/agents/command_agent/phase_b_ci.json, offline_reporting.
+The operator's request to document, push, merge and proceed covers this completed
+preparation stage. The actual measured campaign remains planned and blocked.
+
+Change Report: retained hosted results and refreshed validation/integrity hashes;
+source and registered suite unchanged. No source tests repeated after this
+evidence-only change. The known baseline full-suite/typing failures remain
+separate from green dedicated gates. No release or physical authorization was
+inferred. The existing Phase C hardware review requirement remains in force.

@@ -1,0 +1,190 @@
+{
+  "captured_at": "2026-10-20T20:03:26.570059+00:00",
+  "workflow": {
+    "databaseId": 39488287864,
+    "name": "Command agent hermetic gates",
+    "headSha": "194f08398eef7f7197bcc9af405e08f81009a0aa",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39488287864",
+    "jobs": [
+      {
+        "name": "gates (3.10)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39488287864/job/118854364495"
+      },
+      {
+        "name": "gates (3.12)",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39488287864/job/118854365069"
+      }
+    ]
+  },
+  "verified_tests_per_job": 132,
+  "python_versions": [
+    "3.10",
+    "3.12"
+  ],
+  "scope": "Hermetic command gates and static campaign preflight only; no live simulator or performance measurement.",
+  "offline_reporting": {
+    "captured_at": "2026-10-20T20:27:27.413181+00:00",
+    "workflow": {
+      "conclusion": "success",
+      "headSha": "07b372f1facd6b3d146987a20d0a4bf16651b3dc",
+      "jobs": [
+        {
+          "completedAt": "2026-10-20T20:26:20Z",
+          "conclusion": "success",
+          "databaseId": 118866806274,
+          "name": "gates (3.12)",
+          "startedAt": "2026-10-20T20:25:39Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/setup-python@v5",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Install core and test tools without provider or robot extras",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Lint command agent",
+              "number": 5,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Type check command agent",
+              "number": 6,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Exercise all gates with injected clients and simulators",
+              "number": 7,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/setup-python@v5",
+              "number": 13,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 14,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 15,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39491862956/job/118866806274"
+        },
+        {
+          "completedAt": "2026-10-20T20:26:24Z",
+          "conclusion": "success",
+          "databaseId": 118866807060,
+          "name": "gates (3.10)",
+          "startedAt": "2026-10-20T20:25:39Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/setup-python@v5",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Install core and test tools without provider or robot extras",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Lint command agent",
+              "number": 5,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Type check command agent",
+              "number": 6,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Exercise all gates with injected clients and simulators",
+              "number": 7,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/setup-python@v5",
+              "number": 13,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4",
+              "number": 14,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 15,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39491862956/job/118866807060"
+        }
+      ],
+      "status": "completed",
+      "url": "https://github.com/obiedeh/physical-ai-jetson-robotics/actions/runs/39491862956"
+    },
+    "verified_tests_per_job": 170,
+    "python_versions": [
+      "3.10",
+      "3.12"
+    ],
+    "scope": "Core-only offline reporting and G0-G4 tests; lint and typing. No simulator or physical trials."
+  }
+}
