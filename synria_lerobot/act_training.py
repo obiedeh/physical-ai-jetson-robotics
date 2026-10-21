@@ -37,8 +37,16 @@ from .physical_contract import (
     PhysicalDatasetContract,
     training_lane,
 )
+from .quality_gates import PhysicalLimits, load_limits
 
 TRAINING_VERSION = "synria_act_training_v1"
+# The operator limits every command the policy client offers is clamped to; a training
+# target pulled inside them by a margin stops the policy aiming at a stop it can never
+# reach, which the first dataset's 41 bound-pressing takes taught it to do.
+LIMITS_FILE = Path("config") / "synria_limits.yaml"
+# A margin wider than this reshapes the demonstrations rather than keeping them clear of
+# the stops; the sim arm sagged at most 0.6 degrees past a bound on the first dataset.
+MAX_ACTION_LIMIT_MARGIN_DEG = 10.0
 CADENCE_SEMANTICS = (
     "absolute target offered now and held until the next command tick; "
     "chunk slots 0,q,2q preserve recorded lookahead; physical cadence is unmeasured"
@@ -185,6 +193,49 @@ def validate_grasp_phase(value: Any) -> dict[str, float] | None:
     return {key: float(value[key]) for key in sorted(keys)}
 
 
+def validate_action_limit_margin(value: Any) -> float | None:
+    """Check the optional margin, in degrees, that training joint targets keep inside the bounds.
+
+    Every joint action of every training sample is clamped to the operator bound pulled
+    in by this margin, so the policy learns targets the client never clips and the sim
+    arm never sags past a stop; the gripper, whose bound is its stroke, is left alone.
+    None leaves the recorded targets as they are.
+    """
+    if value is None:
+        return None
+    margin = _number(value, "action_limit_margin_deg")
+    if margin > MAX_ACTION_LIMIT_MARGIN_DEG:
+        raise ValueError(
+            f"action_limit_margin_deg above {MAX_ACTION_LIMIT_MARGIN_DEG:g} reshapes the "
+            "demonstrations instead of keeping them clear of the stops"
+        )
+    return float(margin)
+
+
+def action_bounds(limits: PhysicalLimits, margin_deg: float,
+                  state_names: list[str] | tuple[str, ...]) -> list[tuple[float, float]]:
+    """Each joint's operator bounds pulled in by the margin, in the dataset's joint order."""
+    if tuple(state_names[:6]) != tuple(limits.joint_names):
+        raise ValueError("the dataset's joint order differs from the operator limits file")
+    margin = math.radians(margin_deg)
+    bounds = []
+    for name, (lower, upper) in zip(limits.joint_names, limits.joint_limits_rad, strict=True):
+        if upper - lower <= 2 * margin:
+            raise ValueError(f"action_limit_margin_deg leaves {name} no range")
+        bounds.append((lower + margin, upper - margin))
+    return bounds
+
+
+def clamp_actions(actions: Any, bounds: list[tuple[float, float]]) -> Any:
+    """The (batch, chunk, 7) action tensor, six joints held inside ``bounds``; gripper kept."""
+    import torch
+
+    lower = torch.tensor([b[0] for b in bounds], dtype=actions.dtype, device=actions.device)
+    upper = torch.tensor([b[1] for b in bounds], dtype=actions.dtype, device=actions.device)
+    joints = torch.minimum(torch.maximum(actions[..., :6], lower), upper)
+    return torch.cat([joints, actions[..., 6:]], dim=-1)
+
+
 def validate_temporal_ensemble(value: Any) -> float | None:
     """Check the optional server-side temporal ensembling coefficient; None disables it."""
     if value is None:
@@ -313,6 +364,7 @@ def validate_config(config: dict[str, Any], contract: dict[str, Any], *,
     validate_episode_weights(config.get("episode_weights"))
     validate_state_noise(config.get("state_noise"))
     validate_action_smoothing(config.get("action_smoothing_window"))
+    validate_action_limit_margin(config.get("action_limit_margin_deg"))
     validate_grasp_phase(config.get("grasp_phase"))
     architecture = config.get("architecture")
     keys = {
@@ -749,6 +801,22 @@ def train(
         )
     state_noise = validate_state_noise(config.get("state_noise"))
     smoothing = validate_action_smoothing(config.get("action_smoothing_window"))
+    margin = validate_action_limit_margin(config.get("action_limit_margin_deg"))
+    bounds: list[tuple[float, float]] | None = None
+    limits_record: dict[str, Any] | None = None
+    if margin is not None:
+        # Only operator-verified bounds may shape a training target; the record names
+        # the file and its signature so the policy's clamp can be traced to a sweep.
+        limits = load_limits(repository / LIMITS_FILE)
+        if not limits.verified:
+            raise ValueError("action_limit_margin_deg needs operator-verified limits")
+        bounds = action_bounds(limits, margin, contract["state_names"])
+        limits_record = {
+            "path": str(LIMITS_FILE), "verified_by": limits.verified_by,
+            "verified_on": limits.verified_on,
+            "bounds_rad": {name: list(bound)
+                           for name, bound in zip(limits.joint_names, bounds, strict=True)},
+        }
     state_mean = torch.as_tensor(np.asarray(stats["observation.state"]["mean"])).reshape(-1)
     noise_generator = torch.Generator().manual_seed(seed + 1)
     loader = torch.utils.data.DataLoader(
@@ -815,6 +883,8 @@ def train(
                                 "times the grasp-phase weights"),
         "state_noise": state_noise,
         "action_smoothing_window": smoothing,
+        "action_limit_margin_deg": margin,
+        "action_limit_bounds": limits_record,
         "cadence": cadence,
         "configuration": config,
         "seed": seed,
@@ -881,6 +951,8 @@ def train(
                 )
             if smoothing is not None:
                 batch["action"] = smooth_actions(batch["action"], smoothing)
+            if bounds is not None:
+                batch["action"] = clamp_actions(batch["action"], bounds)
             optimization_started = True
             metrics, _ = update_policy(
                 metrics,

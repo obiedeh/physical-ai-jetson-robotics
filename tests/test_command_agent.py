@@ -341,7 +341,8 @@ def test_phase0b_requires_head_artifact_and_unchanged_bytes(tmp_path: Path) -> N
     subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
     p = tmp_path / PHASE_0B
     p.parent.mkdir(parents=True)
-    p.write_text("test fixture, not physical evidence\n")
+    # Bytes, not text: Windows text mode would write CRLF while git stores LF.
+    p.write_bytes(b"test fixture, not physical evidence\n")
     assert not tracked_phase_0b(tmp_path)
     subprocess.run(["git", "add", PHASE_0B], cwd=tmp_path, check=True)
     assert not tracked_phase_0b(tmp_path)
@@ -367,7 +368,7 @@ def test_phase0b_requires_head_artifact_and_unchanged_bytes(tmp_path: Path) -> N
     result = run(tmp_path, simulation=sim, mode="hardware", enable_hardware=True)
     blocked(result, "G4")
     assert "Phase C parked" in result["gates"][-1]["reason"]
-    p.write_text("changed")
+    p.write_bytes(b"changed")
     assert not tracked_phase_0b(tmp_path)
 
 

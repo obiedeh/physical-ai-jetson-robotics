@@ -691,6 +691,7 @@ def test_synthetic_alignment_verdict_is_stable_across_phases(
     The synthetic cameras tick at 30 Hz and the arm feed at 50 Hz, independent of the
     15 Hz recording rate, so the worst straddle stays under the unchanged 0.050 s gate.
     """
+    pytest.importorskip("lerobot")  # the readiness path and the writer need it
     from synria_lerobot import recorder as recorder_module
     from synria_lerobot.task_registry import SYNTHETIC_DEMO
 

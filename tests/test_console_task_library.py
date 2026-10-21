@@ -119,6 +119,7 @@ def test_service_plans_saves_groups_exports_and_records_a_library_session(
     tmp_path: Path,
 ) -> None:
     """Plan, save, see the grouped dropdown, export a fragment, create and open a session."""
+    pytest.importorskip("lerobot")  # the readiness path and the writer need it
     with ConsoleFixture(tmp_path, demo=True) as service:
         before = service.read(["tasks"], {})
         assert [task["task_source"] for task in before] == ["registry"] * 5

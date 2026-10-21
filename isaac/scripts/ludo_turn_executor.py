@@ -105,6 +105,12 @@ def _write_provenance(args) -> None:
         "cuda_runtime": _cmd("nvcc --version | grep release || true"),
         "seed": args.seed,
         "checkpoint": str(args.checkpoint),
+        # The checkpoint above is the approach policy every lane loads; a served
+        # policy (GR00T lane) lives behind the server and is named by its own
+        # records, so say which is which here instead of leaving it to be inferred.
+        "checkpoint_role": "PPO approach policy loaded by the executor in every lane",
+        "policy_server": (f"{args.policy_host}:{args.policy_port}"
+                          if args.policy_port > 0 else None),
         "argv": _sys.argv,
         "control_hz": 30,
         "data_kind": "simulated (Isaac Sim; kinematic attach glue + "
@@ -134,6 +140,9 @@ def _write_provenance(args) -> None:
     # capture the diff so the run is reproducible, not merely flagged.
     if prov["git_dirty"]:
         import hashlib as _hl
+        # Untracked files make the tree dirty but never reach the diff, so keep
+        # the status too; otherwise an empty patch looks like a lost one.
+        prov["git_status"] = _cmd("git status --porcelain").splitlines()
         diff = _cmd("git diff HEAD")
         patch = args.out / "uncommitted.patch"
         i = 1

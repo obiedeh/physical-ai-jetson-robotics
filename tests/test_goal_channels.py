@@ -146,6 +146,7 @@ def test_recorder_requires_and_reads_a_goal_source_exactly_when_declared(tmp_pat
 
 def test_writer_declares_and_stores_the_environment_state_feature(tmp_path: Path) -> None:
     """A dataset with channels carries the feature and its values; without, no feature."""
+    pytest.importorskip("lerobot")  # the readiness path and the writer need it
     config = replace(writer_config(tmp_path / "with"), image_width=32, image_height=32)
     config = replace(config, contract=replace(config.contract, goal_channels=("object", "target"),
                                               recording_purpose=SIMULATION))

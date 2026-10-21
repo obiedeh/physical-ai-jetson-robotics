@@ -83,7 +83,7 @@ def run_config(spec: dict[str, Any], base: dict[str, Any], size: int, total: int
         **base,
         "policy_id": f"{spec['policy_prefix']}_{tag}",
         "training_episode_limit": None if size == total else size,
-        "evidence_directory": str(Path(spec["evidence_root"]) / f"train_{tag}"),
+        "evidence_directory": (Path(spec["evidence_root"]) / f"train_{tag}").as_posix(),
     }
 
 
@@ -100,7 +100,7 @@ def held_out_summary(evidence: Path, manifest: dict[str, Any]) -> dict[str, Any]
         "step": latest["step"],
         "checkpoint_path": latest["path"],
         "checkpoint_content_sha256": latest["checkpoint_content_sha256"],
-        "checkpoint_record": str(evidence / f"checkpoint-step-{latest['step']:09d}.json"),
+        "checkpoint_record": (evidence / f"checkpoint-step-{latest['step']:09d}.json").as_posix(),
         "evaluation_record": str(record_path),
         "evaluation_status": record.get("status"),
         "held_out_frames": metrics.get("held_out_frames"),
@@ -161,7 +161,7 @@ def run_study(
                 "training_episode_indices": list(manifest["training_episode_indices"]),
                 "omitted_episode_indices": list(manifest["omitted_episode_indices"]),
                 "training_status": manifest["status"],
-                "evidence_directory": str(evidence),
+                "evidence_directory": evidence.as_posix(),
                 **held_out_summary(evidence, manifest),
                 "trials": None,
             }
