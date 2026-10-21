@@ -5,6 +5,7 @@ from __future__ import annotations
 import http.client
 import io
 import json
+import os
 import shutil
 import subprocess
 import threading
@@ -343,4 +344,5 @@ def test_lan_host_must_be_a_private_address_and_the_link_file_is_owner_only(tmp_
     target = tmp_path / "links" / "lan.txt"
     write_private_link(target, "http://192.168.1.235:8765/#token=abc")
     assert target.read_text() == "http://192.168.1.235:8765/#token=abc\n"
-    assert (target.stat().st_mode & 0o777) == 0o600
+    if os.name == "posix":  # Windows keeps no owner-only mode bits
+        assert (target.stat().st_mode & 0o777) == 0o600
