@@ -260,6 +260,17 @@ a stop before the descent; it was withdrawn because a pause in a demonstration i
 an ambiguous state the model imitates as a stall, and a top-down descent hides the
 cup from the wrist camera in the last centimetres.
 
+### Step trace of a campaign
+
+`scripts/run_sim_policy_trials.py --trace <file.jsonl>` writes one row per policy
+step of every trial: the state the policy saw, the action it offered (or the hold
+and its reason, and whether the gripper guard held the gripper), the inference
+time, and the cup and gripper poses the scene published after the step, with the
+cup's lift and the gripper-to-cup distance. The campaign report names the file and
+its row count. This is the record the corpus policies of 2026-10-19 lacked: they
+reached the cup and failed in the last centimetres, and the trace shows, step by
+step, what they asked for there. The file is written once and never appended to.
+
 ### Failure modes of the campaigns
 
 `scripts/summarize_sim_trial_failures.py --study <study directory>` sorts every

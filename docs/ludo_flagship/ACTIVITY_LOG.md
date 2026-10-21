@@ -433,3 +433,24 @@ Change Report:
 3. Not run: the Windows matrix itself; it runs on the PR.
 4. Risks: none to behaviour on Linux.
 5. Hardware safety review: not needed.
+
+## 2026-10-21 — Step trace for simulation campaigns
+
+PR #8 merged (6d9bc0e), CI green on every job. Next open item from the review:
+the step-by-step trace of the corpus policy's served actions, which the entry of
+2026-10-19T14:20 named as the next session's first task and which never ran.
+
+Change Report:
+1. `synria_lerobot/sim_policy_runner.py`: optional `trace_path`; the runner
+   writes one JSON Lines row per policy step (state, offered action or hold
+   with reason, gripper guard, recovery, inference time, cup and gripper poses,
+   cup lift, gripper-to-cup distance) and the report records the file and row
+   count. `scripts/run_sim_policy_trials.py --trace`. Runbook section added.
+   Default off; every recorded campaign is unchanged.
+2. Tests run: `tests/test_sim_policy_runner.py` with a new trace test over the
+   fake scene; `ruff` and `mypy` over the package pass.
+3. Not run: a traced campaign in the Isaac scene (desktop host). The first
+   target is the 131-take corpus policy at seed 2026 with the guard off, the
+   0 of 50 campaign of 2026-10-19T14:40.
+4. Risks: none to behaviour; a 50-trial trace is a few thousand rows.
+5. Hardware safety review: not needed. Simulation only.
