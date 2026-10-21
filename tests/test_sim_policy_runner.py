@@ -383,15 +383,15 @@ def test_trace_records_every_policy_step_with_what_was_offered(tmp_path: Path) -
     assert [row["trial"] for row in rows] == sorted(row["trial"] for row in rows)
     first = rows[0]
     assert first["step"] == 1 and first["t_s"] == 0.0 and len(first["state"]) == 7
-    # The guard holds the gripper open for the first two close requests; the trace
-    # shows the offered action, guard and all, then the close once the guard lets go.
+    # The trace shows the action as offered: the client's per-step limit lets the
+    # gripper travel only part of the way on the first step, all the way on the next.
     assert first["action"][:6] == list(closing[:6]) and first["hold"] is False
-    assert first["gripper_guard"] is not None and first["action"][6] > 0.0
-    assert rows[2]["action"] == list(closing) and rows[2]["gripper_guard"] is None
-    assert first["recovery"] is False
+    assert 0.0 < first["action"][6] < START[6] and rows[1]["action"] == list(closing)
+    assert first["recovery"] is False and first["gripper_guard"] is None
     assert len(first["cup_m"]) == 3 and len(first["gripper_m"]) == 3
     assert rows[-1]["cup_lift_m"] == pytest.approx(0.05)
-    assert all(row["gripper_cup_distance_m"] == pytest.approx(0.0) for row in rows)
+    assert min(row["gripper_cup_distance_m"] for row in rows) == pytest.approx(0.0)
+    assert rows[-1]["gripper_cup_distance_m"] == pytest.approx(0.0)
     with pytest.raises(FileExistsError):
         run.run({"lane": "simulation"})
     assert runner(Scene(FakeClock()), FakeClock(), closing, trials=1).run(
