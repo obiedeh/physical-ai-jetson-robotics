@@ -86,6 +86,13 @@ jobs:
           tests/test_synria_act_training_real.py
           tests/test_synria_roll_acceptance_real.py
           tests/test_console_acceptance_real.py
+          tests/test_console_isaac.py
+          tests/test_console_readiness.py
+          tests/test_console_service.py
+          tests/test_console_simulation.py
+          tests/test_console_task_library.py
+          tests/test_goal_channels.py
+          tests/test_prepare_sim_study.py
 
   ros2-lint:
     name: ROS 2 description package build

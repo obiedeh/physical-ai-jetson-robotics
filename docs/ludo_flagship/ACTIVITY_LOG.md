@@ -341,3 +341,95 @@ source and registered suite unchanged. No source tests repeated after this
 evidence-only change. The known baseline full-suite/typing failures remain
 separate from green dedicated gates. No release or physical authorization was
 inferred. The existing Phase C hardware review requirement remains in force.
+
+## 2026-10-21 — Review of the 18-19 October simulation runs; limit-margin lever; GR00T provenance correction
+
+The operator asked what went wrong across the archived 15-20 October desktop
+session before continuing. Read from the entries above and the committed
+reports, worst first: (1) 41 of 50 first-dataset takes press an operator bound
+and the policy learns to aim there, so the client clips and holds (16 percent
+of steps for v2, 638 holds for the 131-take corpus policy); (2) lower held-out
+error with worse closed-loop results (v2 0.039 rad and 0 of 50 against the
+plain recipe's 0.059 rad and 28 of 50; the approach recipe 0 of 50), the
+same open-loop-fit trap the GR00T ledgers record; (3) goal-conditioned ACT on
+the staged executor's 131 takes 0 of 50 with the step-by-step action trace
+still unrun; (4) the withdrawn hover-then-descend rule predates the frozen
+dataset; (5) 20 of 50 takes randomized, run-to-run noise about seven of
+fifty; (6) the bench-weekend lines above remain PENDING, so no physical
+evidence exists; (7) both GR00T Ludo provenance records name the PPO approach
+checkpoint and carry an empty patch. Items 1 and 7 are addressed here; the
+rest stay open in this order.
+
+Change Report:
+1. `synria_lerobot/act_training.py`: optional `action_limit_margin_deg` clamps
+   the six joint actions of every training sample inside the operator bounds of
+   `config/synria_limits.yaml` by that margin; the file must carry its operator
+   signature and match the dataset's joint order; the manifest records the
+   margin, file, signature and bounds. Default null; every recorded run is
+   unchanged. `reports/sim_policy/pick_cup_17oct3_margin/` holds the prepared
+   45-take retrain spec at 1.0 degree (planned, unrun). Runbook updated.
+   `isaac/scripts/ludo_turn_executor.py` provenance now records the
+   checkpoint's role, the policy server address and `git status` when dirty.
+   Both GR00T eval provenance files gain a `correction` block naming the served
+   policy and explaining the empty patch; no original field changed. README
+   corrections list gains the entry.
+2. Tests run: `tests/test_synria_act_training.py` (new validation, bounds and
+   clamp test; the clamp half skips without torch) and `tests/test_dataset_limits.py`.
+3. Not run: the real-trainer test (`test_synria_act_training_real.py`, needs
+   the upstream trainer and torch), the retrain itself and its paired campaign
+   (RTX 5090 and the Isaac scene; both on the desktop host). The pre-existing
+   `test_refuses_bad_inputs` failure here is a missing `pyarrow` in this
+   container, not a code fault.
+4. Risks: a clamped target changes the demonstrations near the stops by up to
+   one degree; held-out error is still measured against the raw actions, so a
+   small bias at the bounds is expected and should be read against the
+   closed-loop result, not alone. The lever treats the symptom in a frozen
+   dataset; the next recording batch still keeps cups inside the reach.
+5. Hardware safety review: not needed for this change; nothing here runs on the
+   arm. Simulation only; never physical evidence.
+
+### Baseline CI failures fixed on the same branch
+
+The operator asked for the red CI (main since run 76, 2026-10-18) to be fixed
+wherever convenient; fixed on this branch so the PR goes green in one place.
+
+Change Report:
+1. `synria_lerobot/recorder.py`: the decoded image is typed loosely, which the
+   numpy 2.2 stubs on Python 3.10 need. `console/isaac.py`, `console/app.py`:
+   the four POSIX-only calls (`getuid`, `sysconf`, `SIGKILL`, `fchmod`) carry
+   `type: ignore[attr-defined]` for the Windows stubs; behaviour unchanged.
+   `synria_lerobot/dataset_limits.py`: an empty dataset is refused before
+   pyarrow is imported. Seven tests that need LeRobot through the readiness
+   path or the dataset writer now skip without it, and `ci.yml` runs those
+   seven files in the acceptance job, which installs LeRobot, so they still run
+   in CI. `tests/test_checkpoint_average.py` skips its tensor test without torch.
+2. Tests run here: full suite 2098 passed, 105 skipped, 0 failed (one
+   collection error from `chess` not building on this container's Python
+   3.13; CI installs it); `ruff`, `mypy` over the CI scope and
+   `check_repo_hygiene.py` pass.
+3. Not run: the Windows matrix and the acceptance job; both run on the PR.
+4. Risks: none to behaviour; the type ignores are no-ops on Linux.
+5. Hardware safety review: not needed.
+
+### Windows matrix: first test run surfaced seven platform faults
+
+With mypy passing on Windows for the first time, the Windows test stage ran and
+failed seven tests; the acceptance job failed the two simulation readiness tests
+because that path checks for ROS (`rclpy`) before opening sources.
+
+Change Report:
+1. `console/isaac.py`: the kill signal falls back to `SIGTERM` where `SIGKILL`
+   does not exist, so the module imports everywhere; the supervisor stays
+   Linux-only. `console/app.py`: the link file is secured with `os.chmod` by
+   path, available on every platform. `sim_data_scaling.py`: study records
+   keep posix path separators on every platform, as committed JSON should.
+   Tests: the launcher fixture writes its path through `json.dumps`
+   (backslashes were invalid JSON escapes); the Phase 0B fixture writes bytes
+   so Windows text mode cannot add CRLF; the owner-only mode assertion applies
+   on POSIX; the two supervisor signalling tests skip on Windows; the two
+   simulation readiness tests also skip without `rclpy`.
+2. Tests run here: the five touched files, 140 passed, 3 skipped; `ruff` and
+   `mypy` over the CI scope pass.
+3. Not run: the Windows matrix itself; it runs on the PR.
+4. Risks: none to behaviour on Linux.
+5. Hardware safety review: not needed.

@@ -372,6 +372,7 @@ def test_failed_browser_launch_releases_workspace_and_server(
 
 def test_finish_marks_a_session_finished_and_open_reverses_it(tmp_path: Path) -> None:
     """Finish is a status the operator can read; it is not a lock and never deletes anything."""
+    pytest.importorskip("lerobot")  # the readiness path and the writer need it
     with ConsoleFixture(tmp_path, demo=True) as service:
         session = service.create_session(values())
         service.mutate(["session", session["id"], "open"], {})

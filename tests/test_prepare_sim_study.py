@@ -28,6 +28,7 @@ def test_held_out_takes_are_spread_and_bounded() -> None:
 
 def test_prepare_writes_registered_probes_configuration_and_spec(tmp_path: Path) -> None:
     """The probe set spans the non-excluded takes and the configuration binds to it."""
+    pytest.importorskip("lerobot")  # the readiness path and the writer need it
     dataset = tmp_path / "corpus" / "dataset"
     config = replace(writer_config(dataset), image_width=32, image_height=32)
     config = replace(config, contract=replace(config.contract, recording_purpose=SIMULATION))
