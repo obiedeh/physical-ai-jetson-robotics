@@ -410,3 +410,26 @@ Change Report:
 3. Not run: the Windows matrix and the acceptance job; both run on the PR.
 4. Risks: none to behaviour; the type ignores are no-ops on Linux.
 5. Hardware safety review: not needed.
+
+### Windows matrix: first test run surfaced seven platform faults
+
+With mypy passing on Windows for the first time, the Windows test stage ran and
+failed seven tests; the acceptance job failed the two simulation readiness tests
+because that path checks for ROS (`rclpy`) before opening sources.
+
+Change Report:
+1. `console/isaac.py`: the kill signal falls back to `SIGTERM` where `SIGKILL`
+   does not exist, so the module imports everywhere; the supervisor stays
+   Linux-only. `console/app.py`: the link file is secured with `os.chmod` by
+   path, available on every platform. `sim_data_scaling.py`: study records
+   keep posix path separators on every platform, as committed JSON should.
+   Tests: the launcher fixture writes its path through `json.dumps`
+   (backslashes were invalid JSON escapes); the Phase 0B fixture writes bytes
+   so Windows text mode cannot add CRLF; the owner-only mode assertion applies
+   on POSIX; the two supervisor signalling tests skip on Windows; the two
+   simulation readiness tests also skip without `rclpy`.
+2. Tests run here: the five touched files, 140 passed, 3 skipped; `ruff` and
+   `mypy` over the CI scope pass.
+3. Not run: the Windows matrix itself; it runs on the PR.
+4. Risks: none to behaviour on Linux.
+5. Hardware safety review: not needed.
