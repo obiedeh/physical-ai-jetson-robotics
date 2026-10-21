@@ -237,6 +237,7 @@ def test_read_only_driver_start_is_fixed_and_only_when_no_driver_runs(tmp_path: 
 
 def test_readiness_waits_for_detected_isaac_record_mode(tmp_path: Path) -> None:
     """With a launcher configured, the check refuses in operator words until record mode is seen."""
+    pytest.importorskip("lerobot")  # the readiness path and the writer need it
     from contextlib import contextmanager
     registry = synthetic_registry(tmp_path / "tasks.json", 4, 40)
     opened: list[str] = []
