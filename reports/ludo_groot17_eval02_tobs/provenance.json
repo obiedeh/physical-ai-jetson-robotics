@@ -30,5 +30,15 @@
   "torch_version": "2.7.0+cu128",
   "onnxruntime_available_providers": null,
   "uncommitted_patch": "uncommitted.patch",
-  "uncommitted_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  "uncommitted_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "correction": {
+    "utc": "2026-10-21",
+    "reason": "Record correction after review; every field above is as the executor wrote it at run time.",
+    "checkpoint": "names the PPO approach policy ludo_turn_executor.py loads in every lane (--checkpoint); it is not the policy this run evaluated. The 20 turns ran in the groot17 lane (session_summary.json lane_counts), served by ludo_groot17_v2_tobs (GR00T N1.7, the v1 recipe on the target-observable corpus; instruction names the place square) through isaac/scripts/serve_groot17.py on the port in argv. The executor now records the server address and the checkpoint's role itself.",
+    "uncommitted_patch": "empty by construction, not lost: git_dirty is true whenever `git status --porcelain` prints anything, including untracked files, while the patch holds `git diff HEAD`, which covers tracked files only. An empty diff means every tracked file matched git_sha; the sha256 is that of the empty string.",
+    "sources": [
+      "docs/notes/groot17_eval01_findings_2026-08-20.md",
+      "docs/SYNRIA_EXPERIMENT_LEDGER.md (GR00T-1.7 closed-loop eval01 and eval02)"
+    ]
+  }
 }

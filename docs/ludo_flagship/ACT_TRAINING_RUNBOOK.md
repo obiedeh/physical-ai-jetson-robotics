@@ -243,6 +243,14 @@ manifest or the campaign report.
   never touched. `config/synria_sim_policy.json` carries 0.016 m and 3 steps (0.6 s
   at the 0.2 s period); the physical file carries none. Every trial record counts
   its guarded steps and the report carries the safety settings.
+- `action_limit_margin_deg` clamps the six joint actions of every training sample
+  to the operator bound of `config/synria_limits.yaml` pulled in by that many
+  degrees; the gripper is untouched. The limits file must carry its operator
+  signature, the dataset's joint order must match it, and the manifest records
+  the margin, the file, its signature and the bounds applied. Held-out error is
+  still measured against the raw actions. This is the training-side answer to
+  the bound-pressing takes below: the policy learns a target it can reach instead
+  of one the client clips and the sim arm sags past.
 
 The Help page's recording rules ask for a continuous approach from any direction
 that suits the cup, the gripper fully open until the cup is between the fingers,
@@ -376,7 +384,10 @@ them Joint2's upper stop on the far reach and 21 of them Joint3's lower stop,
 and 1010 frames are past a bound without any past the tolerance. A take that
 presses a bound teaches a target the client will clip, so the next recording
 batch keeps cups inside the reach the limits allow, and the audit is run before
-a dataset is frozen.
+a dataset is frozen. For a dataset already frozen, `action_limit_margin_deg`
+(above) trains on targets pulled inside the bounds; the prepared
+`reports/sim_policy/pick_cup_17oct3_margin` spec retrains the 45-take row that
+way with a one degree margin, which covers the 0.6 degree sag the audit observed.
 
 ### Augmentation, temporal ensembling and checkpoint averaging
 
