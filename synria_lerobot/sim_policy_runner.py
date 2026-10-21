@@ -355,6 +355,7 @@ class SimulationTrialRunner:
         log: Callable[[str], None] = print,
         gripper_source: PoseSource | None = None,
         target_source: PoseSource | None = None,
+        trace_path: Path | None = None,
     ) -> None:
         """Refuse anything but a simulation contract whose command period matches the config.
 
@@ -363,7 +364,11 @@ class SimulationTrialRunner:
         records how close the gripper came to the cup and where it ended, which tells a
         near miss from a far one. The place score needs it and ``target_source``, the
         scene's mark pose. ``randomize`` takes the trial's seed (None when the config has
-        no placement seed) and the Randomize scale.
+        no placement seed) and the Randomize scale. ``trace_path`` names a JSON Lines
+        file that receives one row per policy step of every trial: the observed state,
+        the action offered or the hold and its reason, and the cup and gripper poses
+        the scene published after it. The corpus policies of 2026-10-19 failed in the
+        last centimetres with no record of what they asked for; the trace is that record.
         """
         contract = client.embodiment.contract
         contract.require_lane(SIMULATION_LANE)
@@ -384,6 +389,9 @@ class SimulationTrialRunner:
         self.gripper_source, self.target_source = gripper_source, target_source
         self.clock, self.sleep, self.log = clock, sleep, log
         self.task = contract.task_text
+        self.trace_path = trace_path
+        self._trace: Any = None
+        self.trace_rows = 0
 
     def observe(self) -> SynriaObservation:
         """The newest sample of every source, with the trained instruction and the goal.
@@ -483,6 +491,21 @@ class SimulationTrialRunner:
                     done = scorer.feed(cup.position_m, gripper, self.clock())
                 else:
                     done = scorer.feed(cup.position_m[2], self.clock())
+                if self._trace is not None:
+                    self._write_trace({
+                        "trial": index, "step": steps, "t_s": round(tick - started, 4),
+                        "state": list(last_state),
+                        "action": (None if decision.hold or decision.action is None
+                                   else list(decision.action)),
+                        "hold": bool(decision.hold or decision.action is None),
+                        "reason": decision.reason, "gripper_guard": decision.gripper_guard,
+                        "recovery": bool((decision.hold or decision.action is None)
+                                         and decision.reason in RECOVERABLE_HOLDS),
+                        "inference_s": decision.inference_s,
+                        "cup_m": list(cup.position_m), "cup_lift_m": cup.position_m[2] - rest_z,
+                        "gripper_m": None if gripper is None else list(gripper),
+                        "gripper_cup_distance_m": final_distance,
+                    })
                 if done:
                     break
                 remaining = config.command_period_s - (self.clock() - tick)
@@ -518,6 +541,11 @@ class SimulationTrialRunner:
                  f"max lift {scorer.max_lift_m * 100:.1f} cm{closest}{placed}")
         return record
 
+    def _write_trace(self, row: dict[str, Any]) -> None:
+        """One JSON Lines row; the file is opened by :meth:`run` and never appended to."""
+        self._trace.write(json.dumps(row, allow_nan=False) + "\n")
+        self.trace_rows += 1
+
     def score_rule(self) -> str:
         """The scoring rule in words, as written into the report."""
         config = self.config
@@ -536,7 +564,15 @@ class SimulationTrialRunner:
         if training_lane(policy) != SIMULATION_LANE:
             raise ValueError("the policy server is not serving the simulation lane")
         contract = self.client.embodiment.contract
-        trials = [self.run_trial(index) for index in range(self.config.trials)]
+        if self.trace_path is not None:
+            self.trace_path.parent.mkdir(parents=True, exist_ok=True)
+            self._trace = self.trace_path.open("x", encoding="utf-8")
+        try:
+            trials = [self.run_trial(index) for index in range(self.config.trials)]
+        finally:
+            if self._trace is not None:
+                self._trace.close()
+                self._trace = None
         successes = sum(1 for trial in trials if trial.success)
         return {
             "kind": REPORT_KIND,
@@ -562,6 +598,11 @@ class SimulationTrialRunner:
                                   if self.config.placement_seed is not None else
                                   " from the scene's own unseeded draws")),
             "trials": [asdict(trial) for trial in trials],
+            "trace": (None if self.trace_path is None else
+                      {"path": str(self.trace_path), "rows": self.trace_rows,
+                       "row": "one per policy step: trial, step, t_s, state, action or "
+                              "hold with reason, gripper_guard, recovery, inference_s, "
+                              "cup_m, cup_lift_m, gripper_m, gripper_cup_distance_m"}),
             "successes": successes,
             "success_rate": successes / len(trials),
             "note": "Simulation lane; scored in the Isaac scene; never physical evidence.",
