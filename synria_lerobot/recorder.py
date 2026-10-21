@@ -751,7 +751,9 @@ def decode_image_message(
     if step < width * 3 or len(data) < step * height:
         raise ValueError("image payload is shorter than its declared size")
     rows = np.frombuffer(data, dtype=np.uint8, count=step * height).reshape(height, step)
-    native = rows[:, : width * 3].reshape(height, width, 3)
+    # Typed loosely on purpose: numpy 2.2's stubs (the last for Python 3.10) type the
+    # reversed slice below as a rank-free array and reject the reassignment.
+    native: Any = rows[:, : width * 3].reshape(height, width, 3)
     if encoding == "bgr8":
         native = native[:, :, ::-1]
     native = np.ascontiguousarray(native)
