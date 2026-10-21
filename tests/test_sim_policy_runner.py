@@ -367,6 +367,37 @@ def test_runner_scores_a_lift_and_a_timeout_and_reports_both(tmp_path: Path) -> 
         write_report(report, path)
 
 
+def test_trace_records_every_policy_step_with_what_was_offered(tmp_path: Path) -> None:
+    """One row per step: the state seen, the action offered or the hold, and the scene after."""
+    clock = FakeClock()
+    scene = Scene(clock)
+    closing = (*START[:6], 0.0)
+    trace = tmp_path / "trace" / "steps.jsonl"
+    run = runner(scene, clock, closing)
+    run.trace_path = trace
+    report = run.run({"lane": "simulation", "policy_id": "p"})
+    rows = [json.loads(line) for line in trace.read_text().splitlines()]
+    assert report["trace"] == {"path": str(trace), "rows": len(rows),
+                               "row": report["trace"]["row"]}
+    assert len(rows) == sum(trial["steps"] for trial in report["trials"])
+    assert [row["trial"] for row in rows] == sorted(row["trial"] for row in rows)
+    first = rows[0]
+    assert first["step"] == 1 and first["t_s"] == 0.0 and len(first["state"]) == 7
+    # The trace shows the action as offered: the client's per-step limit lets the
+    # gripper travel only part of the way on the first step, all the way on the next.
+    assert first["action"][:6] == list(closing[:6]) and first["hold"] is False
+    assert 0.0 < first["action"][6] < START[6] and rows[1]["action"] == list(closing)
+    assert first["recovery"] is False and first["gripper_guard"] is None
+    assert len(first["cup_m"]) == 3 and len(first["gripper_m"]) == 3
+    assert rows[-1]["cup_lift_m"] == pytest.approx(0.05)
+    assert min(row["gripper_cup_distance_m"] for row in rows) == pytest.approx(0.0)
+    assert rows[-1]["gripper_cup_distance_m"] == pytest.approx(0.0)
+    with pytest.raises(FileExistsError):
+        run.run({"lane": "simulation"})
+    assert runner(Scene(FakeClock()), FakeClock(), closing, trials=1).run(
+        {"lane": "simulation"})["trace"] is None
+
+
 def test_policy_holds_are_counted_and_the_sink_holds(tmp_path: Path) -> None:
     """A stale observation makes the client hold; the runner records why and holds the sink."""
     clock = FakeClock()

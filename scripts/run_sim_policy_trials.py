@@ -112,6 +112,8 @@ def build_parser() -> argparse.ArgumentParser:
                         help="Place score: the gripper centre at least this far from the cup.")
     parser.add_argument("--target-topic", default=SIM_TARGET_TOPIC)
     parser.add_argument("--image-size", type=int, default=224)
+    parser.add_argument("--trace", type=Path, default=None,
+                        help="JSON Lines file for one row per policy step of every trial.")
     return parser
 
 
@@ -180,7 +182,7 @@ def main(argv: list[str] | None = None) -> int:
             )))
         runner = SimulationTrialRunner(
             client, publisher, state, wrist, front, cup, publisher.request_randomize, config,
-            gripper_source=gripper, target_source=target,
+            gripper_source=gripper, target_source=target, trace_path=args.trace,
         )
         report = runner.run(metadata)
     report["endpoint"] = args.endpoint
