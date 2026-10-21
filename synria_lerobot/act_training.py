@@ -227,7 +227,7 @@ def action_bounds(limits: PhysicalLimits, margin_deg: float,
 
 
 def clamp_actions(actions: Any, bounds: list[tuple[float, float]]) -> Any:
-    """The (batch, chunk, 7) action tensor with the six joints held inside ``bounds``; gripper kept."""
+    """The (batch, chunk, 7) action tensor, six joints held inside ``bounds``; gripper kept."""
     import torch
 
     lower = torch.tensor([b[0] for b in bounds], dtype=actions.dtype, device=actions.device)
