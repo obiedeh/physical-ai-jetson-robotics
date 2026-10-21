@@ -13,7 +13,7 @@ from synria_lerobot.checkpoint_average import average_checkpoints, average_state
 
 def test_average_state_dicts_means_floats_and_keeps_the_newest_integers() -> None:
     """Float tensors are averaged in double precision; integer buffers come from the last."""
-    import torch
+    torch = pytest.importorskip("torch")
 
     a = {"w": torch.tensor([1.0, 3.0]), "n": torch.tensor([1, 1])}
     b = {"w": torch.tensor([3.0, 5.0]), "n": torch.tensor([7, 7])}

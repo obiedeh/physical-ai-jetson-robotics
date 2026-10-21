@@ -136,6 +136,7 @@ def test_simulation_readiness_marks_real_arm_facts_not_applicable_and_names_isaa
     tmp_path: Path,
 ) -> None:
     """Serial, power and limit verification are not applicable; a missing Isaac feed is named."""
+    pytest.importorskip("lerobot")  # the readiness path and the writer need it
     registry = synthetic_registry(tmp_path / "tasks.json", 4, 40)
     seen: dict[str, Any] = {}
 

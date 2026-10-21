@@ -118,11 +118,12 @@ def masked(cmdline: str, limit: int = 120) -> str:
 
 def read_proc_processes(uid: int | None = None) -> list[ProcessInfo]:
     """This user's processes from /proc with their command lines and start times."""
-    uid = os.getuid() if uid is None else uid
+    # POSIX only, like /proc itself; the Windows stubs lack getuid and sysconf.
+    uid = os.getuid() if uid is None else uid  # type: ignore[attr-defined]
     try:
         with open("/proc/stat", encoding="utf-8") as handle:
             btime = next(int(line.split()[1]) for line in handle if line.startswith("btime"))
-        ticks = os.sysconf("SC_CLK_TCK")
+        ticks = os.sysconf("SC_CLK_TCK")  # type: ignore[attr-defined]
     except (OSError, StopIteration, ValueError):
         btime, ticks = 0, 100
     out: list[ProcessInfo] = []
@@ -688,7 +689,8 @@ class IsaacSupervisor:
             pending = [row for row in pending if self._alive(row["pid"])]
         for row in pending:
             try:
-                self._signal(row["pid"], signal.SIGKILL)
+                # POSIX only; the Windows stubs lack SIGKILL.
+                self._signal(row["pid"], signal.SIGKILL)  # type: ignore[attr-defined]
                 row["result"] = "killed after timeout"
             except ProcessLookupError:
                 row["result"] = "terminated"

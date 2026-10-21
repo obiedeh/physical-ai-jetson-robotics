@@ -387,3 +387,26 @@ Change Report:
    dataset; the next recording batch still keeps cups inside the reach.
 5. Hardware safety review: not needed for this change; nothing here runs on the
    arm. Simulation only; never physical evidence.
+
+### Baseline CI failures fixed on the same branch
+
+The operator asked for the red CI (main since run 76, 2026-10-18) to be fixed
+wherever convenient; fixed on this branch so the PR goes green in one place.
+
+Change Report:
+1. `synria_lerobot/recorder.py`: the decoded image is typed loosely, which the
+   numpy 2.2 stubs on Python 3.10 need. `console/isaac.py`, `console/app.py`:
+   the four POSIX-only calls (`getuid`, `sysconf`, `SIGKILL`, `fchmod`) carry
+   `type: ignore[attr-defined]` for the Windows stubs; behaviour unchanged.
+   `synria_lerobot/dataset_limits.py`: an empty dataset is refused before
+   pyarrow is imported. Seven tests that need LeRobot through the readiness
+   path or the dataset writer now skip without it, and `ci.yml` runs those
+   seven files in the acceptance job, which installs LeRobot, so they still run
+   in CI. `tests/test_checkpoint_average.py` skips its tensor test without torch.
+2. Tests run here: full suite 2098 passed, 105 skipped, 0 failed (one
+   collection error from `chess` not building on this container's Python
+   3.13; CI installs it); `ruff`, `mypy` over the CI scope and
+   `check_repo_hygiene.py` pass.
+3. Not run: the Windows matrix and the acceptance job; both run on the PR.
+4. Risks: none to behaviour; the type ignores are no-ops on Linux.
+5. Hardware safety review: not needed.
