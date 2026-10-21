@@ -136,6 +136,10 @@ def test_simulation_readiness_marks_real_arm_facts_not_applicable_and_names_isaa
     tmp_path: Path,
 ) -> None:
     """Serial, power and limit verification are not applicable; a missing Isaac feed is named."""
+    # The simulation readiness path checks for LeRobot and ROS before it opens the
+    # sources, so the injected builder is only reached where both are installed.
+    pytest.importorskip("lerobot")
+    pytest.importorskip("rclpy")
     registry = synthetic_registry(tmp_path / "tasks.json", 4, 40)
     seen: dict[str, Any] = {}
 

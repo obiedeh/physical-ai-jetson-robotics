@@ -89,6 +89,7 @@ Thor GPU temperature peaked at **42.0 C**, with no throttling observed over the 
 
 - **The 128 ms / 7.8 Hz TensorRT attribution is retracted.** It was a torch.compile baseline. The TensorRT stage failed on a missing `matplotlib` import. The first successful recovered TensorRT benchmark is the 101.6 ms / 9.8 Hz run above. [Correction record](docs/notes/instrumentation_pass_2026-08-19.md)
 - **GR00T Ludo eval01 is 0/20, not 1/20.** The apparent success never touched the cup; adjacent targets allowed the untouched cup to satisfy the geometric scoring rule. The raw artifact remains, with a [corrected sidecar](reports/ludo_groot17_eval01/session_summary_corrected.json).
+- **The `checkpoint` field in both GR00T Ludo provenance records names the PPO approach policy, not the GR00T policy.** The executor loads that checkpoint in every lane; the served GR00T checkpoint is named in the findings note and the ledger. Their empty `uncommitted.patch` files are empty by construction: untracked files set `git_dirty` but never reach `git diff HEAD`. A `correction` block in each [provenance record](reports/ludo_groot17_eval01/provenance.json) says so; the raw fields are unchanged.
 - **That target-blind GR00T run is not a fair goal-conditioned comparison.** Its placement goal was neither visible nor encoded in the constant instruction. It cannot establish goal-conditioned placement ability. [Analysis](docs/notes/groot17_eval01_findings_2026-08-20.md)
 
 [NOT_CLAIMED](reports/NOT_CLAIMED.md) records the limits of these results.

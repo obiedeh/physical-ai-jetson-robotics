@@ -37,11 +37,12 @@ EPISODE_KEY = "episode_index"
 
 def _rows(root: Path) -> Iterable[tuple[int, list[float], list[float]]]:
     """Yield (episode index, state, action) for every frame of every data file, in order."""
-    from pyarrow import parquet
-
     files = sorted((root / "data").rglob("*.parquet"))
     if not files:
         raise ValueError("dataset has no data files")
+    # Imported after the file check so an empty dataset is refused without pyarrow.
+    from pyarrow import parquet
+
     for path in files:
         table = parquet.read_table(path, columns=[EPISODE_KEY, STATE_KEY, ACTION_KEY])
         for row in table.to_pylist():

@@ -12,11 +12,15 @@ import pytest
 from test_task_registry import synthetic_task
 
 from synria_lerobot.act_training import (
+    LIMITS_FILE,
     _save_upstream_checkpoint,
+    action_bounds,
+    clamp_actions,
     grasp_phase_frame_weights,
     perturb_state,
     smooth_actions,
     train,
+    validate_action_limit_margin,
     validate_action_smoothing,
     validate_config,
     validate_dataloader_workers,
@@ -251,6 +255,57 @@ def test_approach_levers_are_validated(tmp_path: Path) -> None:
                 {**PHASE, "seconds_before_close": -1}):
         with pytest.raises(ValueError, match="grasp_phase|weight|close_above_m|seconds_before"):
             validate_config({**config, "grasp_phase": bad}, physical)
+
+
+def test_action_limit_margin_is_validated_and_pulls_the_bounds_in(tmp_path: Path) -> None:
+    """Absent means off; a margin in degrees narrows the operator bounds, joints only."""
+    import math
+
+    from synria_lerobot.quality_gates import load_limits
+
+    config, physical = settings(tmp_path)
+    assert validate_action_limit_margin(None) is None
+    assert validate_action_limit_margin(1) == 1.0
+    assert validate_config({**config, "action_limit_margin_deg": 0.5}, physical)
+    for bad in (0, -1, True, "1", float("nan"), 10.5):
+        with pytest.raises(ValueError, match="action_limit_margin_deg"):
+            validate_config({**config, "action_limit_margin_deg": bad}, physical)
+    limits = load_limits(Path(__file__).resolve().parents[1] / LIMITS_FILE)
+    assert limits.verified
+    names = [*limits.joint_names, "Gripper"]
+    bounds = action_bounds(limits, 1.0, names)
+    assert len(bounds) == 6
+    for (lower, upper), (raw_lower, raw_upper) in zip(bounds, limits.joint_limits_rad,
+                                                      strict=True):
+        assert lower == pytest.approx(raw_lower + math.radians(1.0))
+        assert upper == pytest.approx(raw_upper - math.radians(1.0))
+    with pytest.raises(ValueError, match="joint order"):
+        action_bounds(limits, 1.0, names[::-1])
+    from dataclasses import replace
+
+    narrow = replace(limits, joint_limits_rad=(
+        *limits.joint_limits_rad[:4], (-0.01, 0.01), limits.joint_limits_rad[5]))
+    with pytest.raises(ValueError, match="Joint5 no range"):
+        action_bounds(narrow, 1.0, names[:6])
+
+
+def test_clamp_holds_joints_inside_the_bounds_and_keeps_the_gripper() -> None:
+    """Joints past a pulled-in bound land on it; joints inside and the gripper are untouched."""
+    import math
+
+    from synria_lerobot.quality_gates import load_limits
+
+    torch = pytest.importorskip("torch")
+    limits = load_limits(Path(__file__).resolve().parents[1] / LIMITS_FILE)
+    bounds = action_bounds(limits, 1.0, limits.joint_names)
+    actions = torch.zeros((1, 2, 7))
+    actions[0, 0, 1] = math.radians(100.9)  # Joint2 past its 100 degree stop
+    actions[0, 1, 2] = math.radians(-35.5)  # Joint3 past its -35 degree stop
+    actions[0, :, 6] = 0.025  # the gripper fully open, on its stroke
+    clamped = clamp_actions(actions, bounds)
+    assert clamped[0, 0, 1].item() == pytest.approx(math.radians(99.0))
+    assert clamped[0, 1, 2].item() == pytest.approx(math.radians(-34.0))
+    assert clamped[0, 1, 1].item() == 0.0 and clamped[0, :, 6].tolist() == [0.025, 0.025]
 
 
 def test_grasp_phase_weights_surround_the_final_close_only() -> None:

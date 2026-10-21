@@ -1,7 +1,9 @@
 """Verify Isaac record mode supervision with fake process lists, signals and a fake launcher."""
 from __future__ import annotations
 
+import json
 import signal
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -134,6 +136,7 @@ def test_states_not_running_running_other_and_starting(tmp_path: Path) -> None:
     assert up_not_publishing.state()["status"] == "starting"
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="the supervisor signals Linux processes")
 def test_start_closes_only_this_users_isaac_then_launches_detached_without_the_driver(
     tmp_path: Path,
 ) -> None:
@@ -163,6 +166,7 @@ def test_start_closes_only_this_users_isaac_then_launches_detached_without_the_d
     assert sup2.state()["status"] == "running"
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="the supervisor signals Linux processes")
 def test_stop_closes_scene_instances_only(tmp_path: Path) -> None:
     """Stop Isaac terminates teleop scene processes, never the driver or an unrelated process."""
     fakes = Fakes([proc(101, RECORD), proc(9, DRIVER), proc(55, "/usr/bin/python3 other.py")])
@@ -180,7 +184,7 @@ def test_launcher_path_comes_from_environment_or_workspace_and_is_validated(tmp_
     good.parent.mkdir(parents=True)
     good.write_text("#!/bin/bash\n")
     assert launcher_from_config(workspace, {isaac.LAUNCHER_ENV: str(good)}) == good
-    (workspace / isaac.LAUNCHER_FILE).write_text(f'{{"launcher": "{good}"}}')
+    (workspace / isaac.LAUNCHER_FILE).write_text(json.dumps({"launcher": str(good)}))
     assert launcher_from_config(workspace, {}) == good
     with pytest.raises(ValueError, match="absolute path"):
         launcher_from_config(workspace, {isaac.LAUNCHER_ENV: "scripts/run_alicia_stack.sh"})
@@ -237,6 +241,10 @@ def test_read_only_driver_start_is_fixed_and_only_when_no_driver_runs(tmp_path: 
 
 def test_readiness_waits_for_detected_isaac_record_mode(tmp_path: Path) -> None:
     """With a launcher configured, the check refuses in operator words until record mode is seen."""
+    # The simulation readiness path checks for LeRobot and ROS before it opens the
+    # sources, so the injected builder is only reached where both are installed.
+    pytest.importorskip("lerobot")
+    pytest.importorskip("rclpy")
     from contextlib import contextmanager
     registry = synthetic_registry(tmp_path / "tasks.json", 4, 40)
     opened: list[str] = []
