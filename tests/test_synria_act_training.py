@@ -287,7 +287,17 @@ def test_action_limit_margin_is_validated_and_pulls_the_bounds_in(tmp_path: Path
         *limits.joint_limits_rad[:4], (-0.01, 0.01), limits.joint_limits_rad[5]))
     with pytest.raises(ValueError, match="Joint5 no range"):
         action_bounds(narrow, 1.0, names[:6])
+
+
+def test_clamp_holds_joints_inside_the_bounds_and_keeps_the_gripper() -> None:
+    """Joints past a pulled-in bound land on it; joints inside and the gripper are untouched."""
+    import math
+
+    from synria_lerobot.quality_gates import load_limits
+
     torch = pytest.importorskip("torch")
+    limits = load_limits(Path(__file__).resolve().parents[1] / LIMITS_FILE)
+    bounds = action_bounds(limits, 1.0, limits.joint_names)
     actions = torch.zeros((1, 2, 7))
     actions[0, 0, 1] = math.radians(100.9)  # Joint2 past its 100 degree stop
     actions[0, 1, 2] = math.radians(-35.5)  # Joint3 past its -35 degree stop
