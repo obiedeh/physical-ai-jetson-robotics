@@ -26,6 +26,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+# SIGKILL has no Windows equivalent; the supervisor is Linux-only (it reads /proc), but
+# the module must import and type-check on every platform the suite runs on.
+_KILL = getattr(signal, "SIGKILL", signal.SIGTERM)
+
 LAUNCHER_ENV = "SYNRIA_ISAAC_LAUNCHER"
 LAUNCHER_FILE = "isaac_launcher.json"
 LAUNCHER_NAME = "run_alicia_stack.sh"
@@ -689,8 +693,7 @@ class IsaacSupervisor:
             pending = [row for row in pending if self._alive(row["pid"])]
         for row in pending:
             try:
-                # POSIX only; the Windows stubs lack SIGKILL.
-                self._signal(row["pid"], signal.SIGKILL)  # type: ignore[attr-defined]
+                self._signal(row["pid"], _KILL)
                 row["result"] = "killed after timeout"
             except ProcessLookupError:
                 row["result"] = "terminated"

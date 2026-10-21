@@ -1354,7 +1354,7 @@ def write_private_link(path: Path, line: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     handle = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     try:
-        os.fchmod(handle, 0o600)  # type: ignore[attr-defined]  # POSIX only, like the console
+        os.chmod(path, 0o600)
         os.write(handle, (line + "\n").encode("utf-8"))
     finally:
         os.close(handle)
