@@ -488,3 +488,30 @@ mode with the real-arm driver skipped. Simulation lane; never physical evidence.
    how much of the failure is the early close; then near-miss demonstrations
    that hold the gripper open, correct and close, which teach the position cue
    and a retry.
+
+## 2026-10-22: Seated-grasp corpus campaign
+
+Simulation lane; never physical evidence. Isaac scene in policy launch mode,
+real-arm driver skipped, placement seed 2026, place score, guard off.
+
+1. Corpus `staged_place_02`: 150 staged-executor takes recorded with a wrist-view
+   look at the pre-grasp, a push-in seat check (centred within 6 mm, 8 mm past
+   the cup's axis or a depth plateau), open-gripper corrections from seeded
+   arrival offsets (112 offset takes), start-pose jitter and a squeeze held
+   until the gripper width settles; 130 succeed, 122 record a correction, the
+   20 failures are excluded. Study frozen with 8 held-out takes.
+2. `simplace02_n122` (seed 17, 20000 steps, staged_place_01 recipe): held-out
+   joint MAE 0.0375 rad mean, 0.0466 max, gripper 0.0010 m.
+3. Campaign: 16 of 50 (32% [21, 46]) against the 131-take corpus policy's 0 of
+   50 on the same placements; paired 16 new only, 0 old only, exact McNemar p
+   3e-5. Lifted 3 cm in 38 of 50 against 2 (p 3e-11). Modes: 16 success, 11
+   lifted and dropped, 11 reached the mark and not held there, 4 moved the cup
+   without a lift, 4 reached without a grasp, 4 never reached; 34 failures run
+   to the 30 s limit; 0.1% of steps held.
+4. Finding: demonstrations that show a position-cued close, a correction and a
+   firm squeeze move the learned policy from no grasps to lifting in three
+   trials of four. The remaining gap is the carry and release: the policy
+   reaches the mark and drifts or lets go away from it.
+5. Next: inspect the 22 lifted failures' carry and release in the step trace,
+   and compare against the executor's lower and release phases.
+

@@ -36,6 +36,7 @@ trial into a mode. "avg4" is the average of the last four checkpoints.
 | staged executor (scripted what-where-how-plan-execute, ground-truth poses), `reports/sim_policy/staged_seed2026` | 50 | 100% [93, 100] | at the cup |
 | staged executor, `cup_pick_and_place` on the same placements (place score, 3 cm) | 50 | 100% [93, 100] | final distance median 0.4 cm, p90 0.7 cm |
 | plain 45 takes retrained with a 1 degree action-limit margin, step 20000, `reports/sim_policy/pick_cup_17oct3_margin` | 24 | 48% [35, 61] | 2.2 cm |
+| goal-conditioned ACT on the seated-grasp corpus (look, push-in seat check, corrections, settled squeeze), 122 takes, step 20000, place score, guard off, `reports/sim_policy/staged_place_02` | 16 | 32% [21, 46] | 38 lifted 3 cm; 11 reached the mark and were not held there, 11 lifted and dropped |
 
 What the pairing shows, with the caveat that one seed is one draw of placements:
 
@@ -113,3 +114,13 @@ What the pairing shows, with the caveat that one seed is one draw of placements:
   and squeeze modes (10 moved the cup without a lift, 5 reached without a grasp,
   10 never reached, 1 lifted and dropped). The margin is safe to keep and does not
   move the success rate.
+- Seated-grasp corpus, 2026-10-22: goal-conditioned ACT trained on 122 takes of
+  the staged executor recorded with a wrist-view look, a push-in seat check,
+  open-gripper corrections from seeded arrival offsets and a squeeze held until
+  the gripper width settles, scores 16 of 50 on the place score against the
+  131-take corpus policy's 0 of 50 on the same placements (paired: 16 new only,
+  0 old only, exact McNemar p 3e-5). On the 3 cm lift alone it reaches 38 of 50
+  against 2 (p 3e-11). The grasp is no longer the main failure; the place is:
+  of the 38 lifts, 18 end within 3 cm of the mark, 11 reach it and are not held
+  there, 11 lift and drop, and 34 failures run to the 30 s limit. Held-out joint
+  error 0.0375 rad mean, 0.0466 max, gripper 0.0010 m.
