@@ -317,3 +317,54 @@ def test_a_cup_out_of_the_wrist_view_is_looked_for_again_before_any_descent() ->
     views = [entry["view"] for entry in executor.record.phases if "view" in entry]
     assert views[0]["found"] is False and views[0]["angle_deg"] > 35
     assert views[-1]["found"] is True and views[-1]["angle_deg"] <= 35
+
+
+def test_a_cup_that_stops_getting_deeper_is_gripped_where_it_stopped() -> None:
+    """Centred, 6 mm in and no deeper after a correction: the plateau counts as seated."""
+    cup = (-0.32, -0.06)
+    arm = FakeArm(START, cup_xy=cup)
+
+    def sliding() -> ObjectPose:
+        """The cup slides ahead of the jaws, staying 6 mm short of the seat."""
+        centre = CHAIN.position(tuple(arm.state[:6]), "simulation")
+        heading = np.array(cup) / math.hypot(*cup)
+        depth = float((np.array(centre[:2]) - np.array(cup)) @ heading)
+        if depth > 0.006:
+            moved = np.array(centre[:2]) - 0.006 * heading
+            arm.cup_xy = (float(moved[0]), float(moved[1]))
+        return arm.cup()
+
+    executor = StagedExecutor(CHAIN, "simulation", LIMITS, "50mm", CUP_SIDE_PITCHED, LIFT_SCORE,
+                              sliding, None, max_step_rad=MAX_STEP, max_gripper_step_m=0.008,
+                              margin_rad=math.radians(3))
+    phases = run(executor, arm, cup, steps=600)
+    seats = [entry["seat"] for entry in executor.record.phases if "seat" in entry]
+    assert seats[0]["seated"] is False and seats[-1]["plateau"] is True
+    assert seats[-1]["depth_mm"] < 8
+    assert "squeeze" in phases and "infeasible" not in phases
+
+
+def test_the_lift_waits_until_the_fingers_have_stopped_closing() -> None:
+    """A slow-closing gripper holds the arm in the squeeze until its width settles."""
+    cup = (-0.32, -0.06)
+    arm = FakeArm(START, cup_xy=cup)
+    executor = StagedExecutor(CHAIN, "simulation", LIMITS, "50mm", CUP_SIDE_PITCHED, LIFT_SCORE,
+                              arm.cup, None, max_step_rad=MAX_STEP, max_gripper_step_m=0.008,
+                              margin_rad=math.radians(3))
+    state = tuple(arm.state)
+    squeeze_widths: list[float] = []
+    for _ in range(600):
+        action, phase = executor.step(state)
+        centre = CHAIN.position(state[:6], "simulation")
+        at_cup = seat_offset(centre, cup) < 0.012 and centre[2] < 0.06 + arm.cup_z
+        if phase == "squeeze":
+            # The fingers creep 0.4 mm a step, pressing home on the cup after 12 steps.
+            limited = min(action[6], 0.0004 * (len(squeeze_widths) + 1))
+            action = (*action[:6], limited)
+            squeeze_widths.append(limited)
+        state = arm.apply(action, at_cup)
+        if phase in ("done", "infeasible"):
+            break
+    grip = next(entry["grip"] for entry in executor.record.phases if "grip" in entry)
+    assert grip["firm"] is True and grip["steps"] > CUP_SIDE_PITCHED.squeeze_steps
+    assert executor.record.final_phase == "done" and arm.holding

@@ -63,6 +63,12 @@ CARTESIAN_STEP_M = 0.01
 # wall, and lifted only from 11 to 14 mm.
 SEAT_SIDEWAYS_M = 0.006
 SEAT_MIN_DEPTH_M = 0.008
+# A cup that slides ahead of the push stops getting deeper: once a correction gains less
+# than SEAT_PLATEAU_GAIN_M with the cup centred, in the height band and at least
+# SEAT_PLATEAU_DEPTH_M past its axis, it is as far in as it will go and counts as seated.
+# The fourth pilot's one failure held 6.5 to 7.9 mm through three corrections.
+SEAT_PLATEAU_DEPTH_M = 0.005
+SEAT_PLATEAU_GAIN_M = 0.001
 SEAT_HEIGHT_M = (0.015, 0.05)
 # The scene cup's height is 69.9 mm; the wrist view aims at its middle.
 CUP_MID_HEIGHT_M = 0.035
@@ -81,6 +87,14 @@ WRIST_CAMERA_TILT_DEG = 38.0
 LOOK_CONE_DEG = 35.0
 # Re-approaches allowed when the cup is not in the wrist view at the pre-grasp.
 MAX_LOOKS = 3
+# The squeeze holds the arm still until the measured gripper width has moved less than
+# GRIP_SETTLE_M a step for GRIP_SETTLE_STEPS steps running, the fingers pressed on the
+# cup, then lifts; GRIP_BUDGET_STEPS caps the wait and the lift check catches a slip.
+# A fixed count started the lift while the fingers were still closing in the fourth
+# pilot, a grip that looked lazy and let go.
+GRIP_SETTLE_M = 0.0003
+GRIP_SETTLE_STEPS = 5
+GRIP_BUDGET_STEPS = 45
 # Once the gripper centre has risen this far above the grasp, the cup must have risen at
 # least LIFT_CONFIRM_M off its rest, or the grasp missed and the executor re-grasps.
 LIFT_CHECK_M = 0.03
@@ -247,6 +261,9 @@ class StagedExecutor:
         self._corrections = 0
         self._regrasps = 0
         self._looks = 0
+        self._last_depth: float | None = None
+        self._last_width: float | None = None
+        self._still_steps = 0
         self._pick_pitch: float | None = None
         self._cup_rest_z: float | None = None
         self._grasp_z: float | None = None
@@ -521,7 +538,17 @@ class StagedExecutor:
         if self.phase == "squeeze":
             self._gripper_command = strategy.closed_m
             joints = self._waypoints["here"].joints_rad
-            if self._phase_steps >= strategy.squeeze_steps:
+            width = state[6]
+            moved = (self._last_width is None
+                     or abs(width - self._last_width) >= GRIP_SETTLE_M)
+            self._still_steps = 0 if moved else self._still_steps + 1
+            self._last_width = width
+            firm = self._still_steps >= GRIP_SETTLE_STEPS
+            if self._phase_steps >= strategy.squeeze_steps and (
+                    firm or self._phase_steps >= GRIP_BUDGET_STEPS):
+                self.record.phases[-1]["grip"] = {
+                    "firm": firm, "steps": self._phase_steps,
+                    "width_mm": round(width * 1000, 2)}
                 path = self._line("here", "lift", "lift")
                 if path is None:
                     self._enter("infeasible", state)
@@ -638,9 +665,18 @@ class StagedExecutor:
         if self._phase_steps <= CHECK_STEPS:
             return (*state[:6], self._gripper_command), self.phase
         seated, measure = self._seated(state)
-        self.record.phases[-1]["seat"] = {"seated": seated, **measure}
+        depth = measure["depth_mm"] / 1000
+        plateau = (not seated and self._last_depth is not None
+                   and depth >= SEAT_PLATEAU_DEPTH_M
+                   and depth - self._last_depth < SEAT_PLATEAU_GAIN_M
+                   and abs(measure["across_mm"]) <= SEAT_SIDEWAYS_M * 1000
+                   and SEAT_HEIGHT_M[0] <= measure["height_mm"] / 1000 <= SEAT_HEIGHT_M[1])
+        seated = seated or plateau
+        self._last_depth = depth
+        self.record.phases[-1]["seat"] = {"seated": seated, "plateau": plateau, **measure}
         self._here(state)
         if seated:
+            self._last_width, self._still_steps = None, 0
             self._enter("squeeze", state)
             self._gripper_command = strategy.closed_m
             return (*state[:6], self._gripper_command), self.phase
@@ -671,6 +707,7 @@ class StagedExecutor:
             return self._give_up(state)
         self._regrasps += 1
         self._corrections = 0
+        self._last_depth = None
         self.record.stalls.append({"phase": "lift", "step": self.record.steps,
                                    "missed_grasp": self._regrasps})
         self._here(state)
