@@ -53,11 +53,14 @@ REACHED_RAD = math.radians(1.5)
 PHASE_STEP_BUDGET = 60
 CARTESIAN_STEP_M = 0.01
 # The cup counts as seated between the jaws when the gripper centre (FK on the observed
-# joints) is within this of the cup's vertical axis and inside the height band above its
-# base. The scene's cup is 41.3 mm across and the open jaws 51 mm apart, about 5 mm of
-# play a side; the traced corpus policy closed 17 to 34 mm off the axis, against the
-# cup's wall, and lifted only from 11 to 14 mm.
+# joints) is within SEAT_SIDEWAYS_M of the cup's axis across the jaws, has been pushed
+# past the axis to within SEAT_DEPTH_M of the strategy's push-in, and sits inside the
+# height band above the cup's base. The scene's cup is 41.3 mm across and the open jaws
+# 51 mm apart, about 5 mm of play a side, and the fingers run 70 mm back from their
+# tips; the traced corpus policy closed 17 to 34 mm off the axis, against the cup's
+# wall, and lifted only from 11 to 14 mm.
 SEAT_SIDEWAYS_M = 0.006
+SEAT_DEPTH_M = 0.006
 SEAT_HEIGHT_M = (0.015, 0.05)
 # Steps the arm dwells with the gripper open before judging the seat, so a demonstration
 # shows the open gripper held at an unseated pose, not only the move through it.
@@ -94,12 +97,17 @@ class GraspStrategy:
     release_steps: int
     posture_rad: tuple[float, ...]
     source: str
+    # How far past the object's axis the gripper centre is pushed, horizontally along the
+    # heading at the squeeze height, so the object sits deep between the fingers rather
+    # than at the fingertips. 0 grasps with the axis on the fingertip plane.
+    push_in_m: float = 0.0
 
     def __post_init__(self) -> None:
         """Refuse a strategy with nonsense geometry."""
         values = (self.centre_height_m, self.pitch_from_vertical_rad, self.pregrasp_back_m,
                   self.closed_m, self.open_m, self.lift_m)
-        if any(not math.isfinite(v) or v < 0 for v in values) or self.lift_m == 0:
+        if (any(not math.isfinite(v) or v < 0 for v in (*values, self.push_in_m))
+                or self.lift_m == 0):
             raise ValueError("grasp strategy distances must be finite and non-negative")
         if not 0 <= self.pitch_from_vertical_rad < math.pi / 2:
             raise ValueError("the approach pitch must lie between straight down and horizontal")
@@ -118,6 +126,7 @@ CUP_SIDE_PITCHED = GraspStrategy(
     open_m=0.0, lift_m=0.08, squeeze_steps=6, release_steps=4,
     posture_rad=tuple(math.radians(v) for v in (-0.6, -29.2, -3.7, 2.0, 48.2, -7.3)),
     source="medians of the 49 pick_cup takes of 2026-10-18 at the leader's final squeeze",
+    push_in_m=0.02,
 )
 STRATEGIES = {CUP_SIDE_PITCHED.object_name: CUP_SIDE_PITCHED}
 # Objects the registry tasks act on; the place target is the scene's mark.
@@ -309,11 +318,13 @@ class StagedExecutor:
         grasp keeps the pitch the first plan chose, so the approach does not swing.
         """
         strategy = self.strategy
-        grasp = objective + np.array([0.0, 0.0, strategy.centre_height_m])
+        heading = np.array([objective[0], objective[1], 0.0])
+        heading = heading / max(float(np.linalg.norm(heading)), 1e-9)
+        finger = np.array([-heading[1], heading[0], 0.0])
+        grasp = (objective + np.array([0.0, 0.0, strategy.centre_height_m])
+                 + strategy.push_in_m * heading)
         lifted = grasp + np.array([0.0, 0.0, strategy.lift_m])
         back, side = self.arrival_offset_m
-        finger = np.array([-objective[1], objective[0], 0.0])
-        finger = finger / max(float(np.linalg.norm(finger)), 1e-9)
         offset = with_arrival and (back > 0 or side != 0)
 
         def waypoints(axis: np.ndarray) -> list[tuple[str, np.ndarray]]:
@@ -331,14 +342,24 @@ class StagedExecutor:
         return result
 
     def _seated(self, state: tuple[float, ...]) -> tuple[bool, dict[str, float]]:
-        """Whether the cup sits between the jaws, judged on the cup's fresh pose."""
+        """Whether the cup sits centred and pushed all the way in, on the cup's fresh pose.
+
+        The gripper centre's offset from the cup's axis is split along the heading from
+        the base (depth: how far past the axis the jaws reach) and across it (between
+        the fingers); the squeeze waits until both and the height are inside the seat.
+        """
         centre = self.chain.position(state[:6], self.lane)
         cup = np.asarray(self.object_pose().position_m, dtype=float)
-        sideways = math.hypot(float(centre[0] - cup[0]), float(centre[1] - cup[1]))
+        heading = np.array([cup[0], cup[1]]) / max(float(np.hypot(cup[0], cup[1])), 1e-9)
+        offset = np.array([centre[0] - cup[0], centre[1] - cup[1]])
+        depth = float(offset @ heading)
+        across = float(offset @ np.array([-heading[1], heading[0]]))
         height = float(centre[2] - cup[2])
         low, high = SEAT_HEIGHT_M
-        seated = sideways <= SEAT_SIDEWAYS_M and low <= height <= high
-        return seated, {"sideways_mm": round(sideways * 1000, 1),
+        seated = (abs(across) <= SEAT_SIDEWAYS_M
+                  and depth >= self.strategy.push_in_m - SEAT_DEPTH_M
+                  and low <= height <= high)
+        return seated, {"depth_mm": round(depth * 1000, 1), "across_mm": round(across * 1000, 1),
                         "height_mm": round(height * 1000, 1)}
 
     def _here(self, state: tuple[float, ...]) -> None:

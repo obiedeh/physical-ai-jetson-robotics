@@ -72,6 +72,13 @@ class FakeArm:
         return tuple(self.state)
 
 
+def seat_offset(centre: np.ndarray, cup_xy: tuple[float, float]) -> float:
+    """Horizontal distance of the gripper centre from the pushed-in seat past the cup's axis."""
+    heading = np.array(cup_xy) / math.hypot(*cup_xy)
+    seat = np.array(cup_xy) + CUP_SIDE_PITCHED.push_in_m * heading
+    return math.hypot(float(centre[0] - seat[0]), float(centre[1] - seat[1]))
+
+
 def pose(x: float, y: float, z: float = 0.0) -> ObjectPose:
     return ObjectPose((x, y, z), 0.0)
 
@@ -86,7 +93,7 @@ def run(executor: StagedExecutor, arm: FakeArm, cup_xy: tuple[float, float],
         if not phases or phases[-1] != phase:
             phases.append(phase)
         centre = CHAIN.position(state[:6], "simulation")
-        at_cup = (math.hypot(centre[0] - cup_xy[0], centre[1] - cup_xy[1]) < 0.012
+        at_cup = (seat_offset(centre, cup_xy) < 0.012
                   and centre[2] < 0.06 + arm.cup_z)
         state = arm.apply(action, at_cup)
         if phase in ("done", "infeasible"):
@@ -110,7 +117,7 @@ def test_lift_trial_runs_every_phase_and_squeezes_at_the_cup() -> None:
     assert set(record.plan) >= {"pregrasp", "grasp", "lift"}
     squeeze = next(entry for entry in record.phases if entry["phase"] == "squeeze")
     centre = squeeze["gripper_centre_m"]
-    assert math.hypot(centre[0] - cup[0], centre[1] - cup[1]) < 0.02
+    assert seat_offset(np.asarray(centre), cup) < 0.012
     assert abs(centre[2] - 0.03) < 0.015
     assert arm.holding, "the gripper closed on the cup"
     final = CHAIN.position(arm.state[:6], "simulation")
@@ -239,7 +246,7 @@ def test_an_offset_arrival_stays_open_corrects_and_closes_only_when_seated() -> 
         action, phase = executor.step(state)
         commands.append((phase, action[6]))
         centre = CHAIN.position(state[:6], "simulation")
-        at_cup = (math.hypot(centre[0] - cup[0], centre[1] - cup[1]) < 0.012
+        at_cup = (seat_offset(centre, cup) < 0.012
                   and centre[2] < 0.06 + arm.cup_z)
         state = arm.apply(action, at_cup)
         if phase in ("done", "infeasible"):
@@ -249,7 +256,9 @@ def test_an_offset_arrival_stays_open_corrects_and_closes_only_when_seated() -> 
     assert phases == ["approach", "descend", "check", "correct", "check", "squeeze", "lift",
                       "done"]
     checks = [entry["seat"] for entry in executor.record.phases if "seat" in entry]
-    assert checks[0]["seated"] is False and checks[0]["sideways_mm"] > 6
+    assert checks[0]["seated"] is False
+    assert checks[0]["depth_mm"] < 1000 * CUP_SIDE_PITCHED.push_in_m - 6
+    assert checks[-1]["depth_mm"] >= 1000 * CUP_SIDE_PITCHED.push_in_m - 6
     assert checks[-1]["seated"] is True
     assert executor.record.how["arrival_offset_m"] == [0.025, 0.008]
     # Open through every phase before the squeeze; the close comes only once seated.
