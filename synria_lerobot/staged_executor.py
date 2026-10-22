@@ -263,6 +263,9 @@ class StagedExecutor:
         self._looks = 0
         self._last_depth: float | None = None
         self._last_width: float | None = None
+        # The arrival offset applies to the first descent only; a re-plan before it
+        # (a failed look) keeps it, one after it (a correction, a regrasp) drops it.
+        self._descended = False
         self._still_steps = 0
         self._pick_pitch: float | None = None
         self._cup_rest_z: float | None = None
@@ -645,7 +648,8 @@ class StagedExecutor:
                 return self._give_up(state)
             self._looks += 1
             objective = np.asarray(self.object_pose().position_m, dtype=float)
-            if self._solve_pick(objective, tuple(state[:6]), with_arrival=False) is None:
+            if self._solve_pick(objective, tuple(state[:6]),
+                                with_arrival=not self._descended) is None:
                 return self._give_up(state)
             self._enter("approach", state)
             return (*state[:6], self._gripper_command), self.phase
@@ -655,6 +659,7 @@ class StagedExecutor:
         if path is None:
             return self._give_up(state)
         self._path = path
+        self._descended = True
         self._enter("descend", state)
         return (*self._toward(state, path[0].joints_rad), self._gripper_command), self.phase
 
