@@ -134,8 +134,8 @@ def test_place_trial_carries_to_the_mark_releases_and_retreats() -> None:
                               arm.cup, lambda: pose(*mark), max_step_rad=MAX_STEP,
                               max_gripper_step_m=0.008, margin_rad=math.radians(3))
     phases = run(executor, arm, cup, steps=600)
-    assert phases == ["approach", "look", "descend", "check", "squeeze", "lift", "carry", "lower",
-                      "release", "retreat", "done"]
+    assert phases == ["approach", "look", "descend", "check", "squeeze", "lift", "secure", "carry",
+                      "lower", "release", "retreat", "done"]
     release = next(entry for entry in executor.record.phases if entry["phase"] == "release")
     centre = release["gripper_centre_m"]
     assert math.hypot(centre[0] - mark[0], centre[1] - mark[1]) < 0.02
@@ -202,7 +202,7 @@ def test_service_metadata_round_trips_and_logs_stages(tmp_path: Path) -> None:
         stage_log=log,
     )
     metadata = service.metadata()
-    assert metadata["lane"] == "simulation" and metadata["policy_id"] == "staged_expert_v1"
+    assert metadata["lane"] == "simulation" and metadata["policy_id"] == "staged_expert_v2"
     assert metadata["physical_eligible"] is False and metadata["checkpoint_content_sha256"] is None
     reloaded = PhysicalDatasetContract.from_dict(metadata["physical_contract"])
     assert reloaded.task_id == "pick_cup"
@@ -394,3 +394,87 @@ def test_a_failed_look_keeps_the_arrival_offset_for_the_first_descent() -> None:
     seats = [entry["seat"] for entry in executor.record.phases if "seat" in entry]
     assert seats[0]["seated"] is False and seats[-1]["seated"] is True
     assert phases[-1] == "done"
+
+
+def test_place_take_ends_back_at_the_rest_pose_open_and_still() -> None:
+    """With a rest pose the take retreats, walks back to it open and holds before done."""
+    cup, mark = (-0.33, -0.05), (-0.24, 0.07)
+    arm = FakeArm(START, cup_xy=cup)
+    executor = StagedExecutor(CHAIN, "simulation", LIMITS, "50mm", CUP_SIDE_PITCHED, PLACE_SCORE,
+                              arm.cup, lambda: pose(*mark), max_step_rad=MAX_STEP,
+                              max_gripper_step_m=0.008, margin_rad=math.radians(3),
+                              rest_joints_rad=START[:6])
+    phases = run(executor, arm, cup, steps=800)
+    assert phases[-3:] == ["retreat", "rest", "done"]
+    assert max(abs(a - b) for a, b in zip(arm.state[:6], START[:6], strict=True)) < 0.03
+    assert arm.state[6] == pytest.approx(CUP_SIDE_PITCHED.open_m)
+    rest = next(entry for entry in executor.record.phases if entry["phase"] == "rest")
+    done = executor.record.phases[-1]
+    assert done["step"] - rest["step"] >= 30
+
+
+def test_off_centre_seat_backs_out_and_comes_in_again() -> None:
+    """A fingertip that pushed the cup is not slid sideways: back out, look, re-descend."""
+    cup = (-0.32, -0.06)
+    arm = FakeArm(START, cup_xy=cup)
+    executor = StagedExecutor(CHAIN, "simulation", LIMITS, "50mm", CUP_SIDE_PITCHED, LIFT_SCORE,
+                              arm.cup, None, max_step_rad=MAX_STEP,
+                              max_gripper_step_m=0.008, margin_rad=math.radians(3),
+                              arrival_offset_m=(0.0, 0.016))
+    phases: list[str] = []
+    state = tuple(arm.state)
+    heading = np.array(cup) / math.hypot(*cup)
+    pushed = tuple(np.array(cup) + 0.014 * np.array([-heading[1], heading[0]]))
+    for _ in range(800):
+        action, phase = executor.step(state)
+        if not phases or phases[-1] != phase:
+            phases.append(phase)
+        centre = CHAIN.position(state[:6], "simulation")
+        if (phase == "descend" and arm.cup_xy == cup
+                and math.hypot(centre[0] - cup[0], centre[1] - cup[1]) < 0.03):
+            arm.cup_xy = pushed  # the leading fingertip shoved the cup on the way in
+        centre = CHAIN.position(state[:6], "simulation")
+        at_cup = seat_offset(centre, arm.cup_xy) < 0.012 and centre[2] < 0.06 + arm.cup_z
+        state = arm.apply(action, at_cup)
+        if phase in ("done", "infeasible"):
+            break
+    assert phases[:4] == ["approach", "look", "descend", "backoff"]
+    assert phases[4:7] == ["approach", "look", "descend"]
+    assert phases[-3:] == ["squeeze", "lift", "done"]
+    assert {"phase": "descend", "recentre": 1}.items() <= executor.record.stalls[0].items()
+    assert arm.holding
+
+
+def test_rest_pose_must_have_six_finite_joints() -> None:
+    arm = FakeArm(START)
+    with pytest.raises(ValueError, match="rest pose"):
+        StagedExecutor(CHAIN, "simulation", LIMITS, "50mm", CUP_SIDE_PITCHED, LIFT_SCORE,
+                       arm.cup, None, max_step_rad=MAX_STEP, max_gripper_step_m=0.008,
+                       margin_rad=0.05, rest_joints_rad=(0.0,) * 5)
+
+
+def test_a_cup_nudged_while_centred_is_not_backed_out_of() -> None:
+    """A sideways nudge that leaves the cup between the jaws carries on to the grasp."""
+    cup = (-0.32, -0.06)
+    arm = FakeArm(START, cup_xy=cup)
+    executor = StagedExecutor(CHAIN, "simulation", LIMITS, "50mm", CUP_SIDE_PITCHED, LIFT_SCORE,
+                              arm.cup, None, max_step_rad=MAX_STEP,
+                              max_gripper_step_m=0.008, margin_rad=math.radians(3))
+    heading = np.array(cup) / math.hypot(*cup)
+    nudged = tuple(np.array(cup) + 0.007 * np.array([-heading[1], heading[0]]))
+    phases: list[str] = []
+    state = tuple(arm.state)
+    for _ in range(600):
+        action, phase = executor.step(state)
+        if not phases or phases[-1] != phase:
+            phases.append(phase)
+        if phase == "descend" and arm.cup_xy == cup:
+            arm.cup_xy = nudged
+        centre = CHAIN.position(state[:6], "simulation")
+        at_cup = seat_offset(centre, arm.cup_xy) < 0.012 and centre[2] < 0.06 + arm.cup_z
+        state = arm.apply(action, at_cup)
+        if phase in ("done", "infeasible"):
+            break
+    assert "backoff" not in phases
+    assert phases[-1] == "done"
+    assert not any("recentre" in stall for stall in executor.record.stalls)
