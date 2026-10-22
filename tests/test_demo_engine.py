@@ -209,3 +209,22 @@ def test_action_source_needs_a_reset_and_config_refuses_nonsense(tmp_path: Path)
     with pytest.raises(ValueError, match="positive"):
         DemonstrationConfig(takes=1, fps=0, start_pose=START, score=LIFT_SCORE,
                             placement_seed=1)
+
+
+def test_start_jitter_is_seeded_per_take_and_bounded() -> None:
+    """Each take's start pose moves within its half-ranges and repeats for the same seed."""
+    jitter = (0.7, 0.0, 0.0, 0.2, 0.15, 0.0)
+    config = DemonstrationConfig(takes=3, fps=15, start_pose=START, score=LIFT_SCORE,
+                                 placement_seed=5026, start_jitter_rad=jitter)
+    poses = [config.take_start_pose(index) for index in range(3)]
+    assert poses[0] == config.take_start_pose(0) and poses[0] != poses[1]
+    for pose in poses:
+        assert pose[6] == START[6]
+        assert all(abs(a - b) <= half for a, b, half in zip(pose[:6], START[:6], jitter,
+                                                            strict=True))
+    plain = DemonstrationConfig(takes=1, fps=15, start_pose=START, score=LIFT_SCORE,
+                                placement_seed=1)
+    assert plain.take_start_pose(5) == START
+    with pytest.raises(ValueError, match="start jitter"):
+        DemonstrationConfig(takes=1, fps=15, start_pose=START, score=LIFT_SCORE,
+                            placement_seed=1, start_jitter_rad=(0.1,) * 5)

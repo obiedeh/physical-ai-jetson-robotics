@@ -43,7 +43,7 @@ from synria_lerobot.sim_policy_runner import LIFT_SCORE, PLACE_SCORE, SCORE_BY_T
 
 EXECUTOR_KIND = "staged_expert"
 EXECUTOR_VERSION = "staged_expert_v1"
-PHASES = ("plan", "approach", "descend", "check", "correct", "squeeze", "lift", "reopen",
+PHASES = ("plan", "approach", "look", "descend", "check", "correct", "squeeze", "lift", "reopen",
           "backoff", "carry", "lower", "release", "retreat", "done", "infeasible")
 # Reached when every joint is this close to its waypoint; the sim arm sags about half
 # a degree under load, so the tolerance must be wider than that.
@@ -54,17 +54,31 @@ PHASE_STEP_BUDGET = 60
 CARTESIAN_STEP_M = 0.01
 # The cup counts as seated between the jaws when the gripper centre (FK on the observed
 # joints) is within SEAT_SIDEWAYS_M of the cup's axis across the jaws, has been pushed
-# past the axis to within SEAT_DEPTH_M of the strategy's push-in, and sits inside the
-# height band above the cup's base. The scene's cup is 41.3 mm across and the open jaws
+# at least SEAT_MIN_DEPTH_M past the axis, and sits inside the height band above the
+# cup's base. The strategy aims deeper; in the scene the arm stops 11 to 14 mm past the
+# axis with the cup's widest section well inside the fingers, the second pilot's
+# measure, so the seat accepts 8 mm and up. The scene's cup is 41.3 mm across and the open jaws
 # 51 mm apart, about 5 mm of play a side, and the fingers run 70 mm back from their
 # tips; the traced corpus policy closed 17 to 34 mm off the axis, against the cup's
 # wall, and lifted only from 11 to 14 mm.
 SEAT_SIDEWAYS_M = 0.006
-SEAT_DEPTH_M = 0.006
+SEAT_MIN_DEPTH_M = 0.008
 SEAT_HEIGHT_M = (0.015, 0.05)
-# Steps the arm dwells with the gripper open before judging the seat, so a demonstration
-# shows the open gripper held at an unseated pose, not only the move through it.
-CHECK_STEPS = 3
+# The scene cup's height is 69.9 mm; the wrist view aims at its middle.
+CUP_MID_HEIGHT_M = 0.035
+# Steps the arm dwells with the gripper open before judging the seat (0.4 s at 15 fps),
+# so a demonstration shows the cup settling into the open jaws before the close.
+CHECK_STEPS = 6
+# The wrist camera in the tool frame (the gripper centre, axes as Link6): mounted on the
+# back of the gripper body and tilted 38 degrees from the approach axis toward +X, with
+# an 88 degree horizontal field (scripts/isaac_sim/teleop_cameras.py in the teleop
+# repository). The cup counts as found when its mid-height point lies within
+# LOOK_CONE_DEG of the optical axis, well inside the 44 degree half field.
+WRIST_CAMERA_TOOL_M = (-0.0452, 0.0, -0.05598)
+WRIST_CAMERA_TILT_DEG = 38.0
+LOOK_CONE_DEG = 25.0
+# Re-approaches allowed when the cup is not in the wrist view at the pre-grasp.
+MAX_LOOKS = 3
 # Once the gripper centre has risen this far above the grasp, the cup must have risen at
 # least LIFT_CONFIRM_M off its rest, or the grasp missed and the executor re-grasps.
 LIFT_CHECK_M = 0.03
@@ -123,7 +137,7 @@ class GraspStrategy:
 CUP_SIDE_PITCHED = GraspStrategy(
     name="cup_side_pitched", object_name="cup", centre_height_m=0.03,
     pitch_from_vertical_rad=math.radians(54.0), pregrasp_back_m=0.08, closed_m=0.022,
-    open_m=0.0, lift_m=0.08, squeeze_steps=6, release_steps=4,
+    open_m=0.0, lift_m=0.08, squeeze_steps=10, release_steps=4,
     posture_rad=tuple(math.radians(v) for v in (-0.6, -29.2, -3.7, 2.0, 48.2, -7.3)),
     source="medians of the 49 pick_cup takes of 2026-10-18 at the leader's final squeeze",
     push_in_m=0.02,
@@ -230,6 +244,7 @@ class StagedExecutor:
         self.max_corrections, self.max_regrasps = max_corrections, max_regrasps
         self._corrections = 0
         self._regrasps = 0
+        self._looks = 0
         self._pick_pitch: float | None = None
         self._cup_rest_z: float | None = None
         self._grasp_z: float | None = None
@@ -357,7 +372,7 @@ class StagedExecutor:
         height = float(centre[2] - cup[2])
         low, high = SEAT_HEIGHT_M
         seated = (abs(across) <= SEAT_SIDEWAYS_M
-                  and depth >= self.strategy.push_in_m - SEAT_DEPTH_M
+                  and depth >= SEAT_MIN_DEPTH_M
                   and low <= height <= high)
         return seated, {"depth_mm": round(depth * 1000, 1), "across_mm": round(across * 1000, 1),
                         "height_mm": round(height * 1000, 1)}
@@ -488,20 +503,13 @@ class StagedExecutor:
             return (*held[:6], self._gripper_command), self.phase
         if self.phase == "approach":
             target = self._waypoints["pregrasp"].joints_rad
-            if self._advance_or_stall(state, target):
-                end = "arrival" if "arrival" in self._waypoints else "grasp"
-                path = self._line("pregrasp", end, "descend")
-                if path is None:
-                    self._enter("infeasible", state)
-                    self._hold = state
-                    return (*state[:6], self._gripper_command), self.phase
-                self._path = path
-                self._enter("descend", state)
-                joints = self._toward(state, path[0].joints_rad)
-            else:
-                joints = self._toward(state, target)
             self._gripper_command = strategy.open_m
-            return (*joints, self._gripper_command), self.phase
+            if self._advance_or_stall(state, target):
+                self._enter("look", state)
+                return (*state[:6], self._gripper_command), self.phase
+            return (*self._toward(state, target), self._gripper_command), self.phase
+        if self.phase == "look":
+            return self._look(state)
         if self.phase in ("descend", "correct"):
             self._gripper_command = strategy.open_m
             joints = self._walk_path(state, "check")
@@ -578,6 +586,48 @@ class StagedExecutor:
         self._enter("infeasible", state)
         self._hold = state
         return (*state[:6], self._gripper_command), self.phase
+
+    def cup_view_angle_deg(self, state: tuple[float, ...]) -> float:
+        """Angle between the wrist camera's optical axis and the cup's mid-height point."""
+        frame = self.chain.forward(state[:6], self.lane)
+        rotation, origin = frame[:3, :3], frame[:3, 3]
+        camera = origin + rotation @ np.asarray(WRIST_CAMERA_TOOL_M)
+        tilt = math.radians(WRIST_CAMERA_TILT_DEG)
+        optical = rotation @ np.array([math.sin(tilt), 0.0, math.cos(tilt)])
+        cup = np.asarray(self.object_pose().position_m, dtype=float)
+        sight = cup + np.array([0.0, 0.0, CUP_MID_HEIGHT_M]) - camera
+        cosine = float(optical @ sight) / max(float(np.linalg.norm(sight)), 1e-9)
+        return math.degrees(math.acos(max(-1.0, min(1.0, cosine))))
+
+    def _look(self, state: tuple[float, ...]) -> tuple[tuple[float, ...], str]:
+        """Dwell open at the pre-grasp; descend once the cup is in the wrist view.
+
+        When it is not, the cup is re-located from its fresh pose and the arm
+        re-approaches, so a demonstration never moves on without the cup in view.
+        """
+        self._gripper_command = self.strategy.open_m
+        if self._phase_steps <= CHECK_STEPS:
+            return (*state[:6], self._gripper_command), self.phase
+        angle = self.cup_view_angle_deg(state)
+        found = angle <= LOOK_CONE_DEG
+        self.record.phases[-1]["view"] = {"found": found, "angle_deg": round(angle, 1)}
+        if not found:
+            if self._looks >= MAX_LOOKS:
+                return self._give_up(state)
+            self._looks += 1
+            objective = np.asarray(self.object_pose().position_m, dtype=float)
+            if self._solve_pick(objective, tuple(state[:6]), with_arrival=False) is None:
+                return self._give_up(state)
+            self._enter("approach", state)
+            return (*state[:6], self._gripper_command), self.phase
+        self._here(state)
+        end = "arrival" if "arrival" in self._waypoints else "grasp"
+        path = self._line("here", end, "descend")
+        if path is None:
+            return self._give_up(state)
+        self._path = path
+        self._enter("descend", state)
+        return (*self._toward(state, path[0].joints_rad), self._gripper_command), self.phase
 
     def _check(self, state: tuple[float, ...]) -> tuple[tuple[float, ...], str]:
         """Dwell open, then squeeze when seated or correct toward the cup's fresh pose."""
