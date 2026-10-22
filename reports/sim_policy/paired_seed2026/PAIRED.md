@@ -35,6 +35,7 @@ trial into a mode. "avg4" is the average of the last four checkpoints.
 | corpus policy, 131 takes, gripper guard off, `reports/sim_policy/paired_seed2026_noguard` | 0 | 0% [0, 7] | 3.3 cm; 2 lifted and dropped, 13 reached without a grasp, 14 nudged |
 | staged executor (scripted what-where-how-plan-execute, ground-truth poses), `reports/sim_policy/staged_seed2026` | 50 | 100% [93, 100] | at the cup |
 | staged executor, `cup_pick_and_place` on the same placements (place score, 3 cm) | 50 | 100% [93, 100] | final distance median 0.4 cm, p90 0.7 cm |
+| plain 45 takes retrained with a 1 degree action-limit margin, step 20000, `reports/sim_policy/pick_cup_17oct3_margin` | 24 | 48% [35, 61] | 2.2 cm |
 
 What the pairing shows, with the caveat that one seed is one draw of placements:
 
@@ -100,3 +101,15 @@ What the pairing shows, with the caveat that one seed is one draw of placements:
   does, and the squeeze, which the demonstrations show. It is scripted; it is not
   a learned policy and its where is ground truth, so the next measurement replaces
   the where with a camera locator.
+- Margin retrain, 2026-10-22: the plain 45-take row retrained with every training
+  joint target clamped 1 degree inside the operator bounds (verified 2026-10-17)
+  scores 24 of 50 against the plain run's 28 on the same placements, inside one
+  interval and inside the run-to-run noise of about seven trials. Paired trial by
+  trial, both succeed on 18, the margin run alone on 6 and the plain run alone on
+  10 (exact McNemar p 0.45). The margin does what it was built for: hold events
+  fall from 28 to 1 and the share of held steps from 0.5 to 0.0 percent. Its
+  held-out joint error is 0.057 rad mean, 0.113 max, against 0.059 and 0.123.
+  Holds were not what limited the plain recipe: its failures are the same reach
+  and squeeze modes (10 moved the cup without a lift, 5 reached without a grasp,
+  10 never reached, 1 lifted and dropped). The margin is safe to keep and does not
+  move the success rate.
