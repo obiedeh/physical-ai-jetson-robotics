@@ -315,5 +315,5 @@ def test_a_cup_out_of_the_wrist_view_is_looked_for_again_before_any_descent() ->
     assert phases[:5] == ["approach", "look", "approach", "look", "descend"]
     assert phases[-1] == "done" and arm.holding
     views = [entry["view"] for entry in executor.record.phases if "view" in entry]
-    assert views[0]["found"] is False and views[0]["angle_deg"] > 25
-    assert views[-1]["found"] is True and views[-1]["angle_deg"] <= 25
+    assert views[0]["found"] is False and views[0]["angle_deg"] > 35
+    assert views[-1]["found"] is True and views[-1]["angle_deg"] <= 35
