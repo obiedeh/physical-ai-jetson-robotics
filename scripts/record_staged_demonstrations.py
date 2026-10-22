@@ -92,6 +92,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-joint-speed-rad-s", type=float, default=1.0)
     parser.add_argument("--speed-fraction", type=float, default=0.8)
     parser.add_argument("--margin-deg", type=float, default=3.0)
+    parser.add_argument("--start-jitter-deg", type=float, nargs=6, default=None,
+                        metavar="D",
+                        help="Per-joint half-ranges of a seeded offset to each take's start pose.")
     parser.add_argument("--offset-fraction", type=float, default=0.0,
                         help="Share of takes whose first descent ends off the grasp.")
     parser.add_argument("--offset-back-m", type=float, nargs=2, default=(0.01, 0.03),
@@ -160,6 +163,8 @@ def main(argv: list[str] | None = None) -> int:
         takes=args.takes, fps=args.fps, start_pose=start_pose, score=score,
         placement_seed=args.placement_seed, randomize_scale=args.randomize_scale,
         max_take_s=args.max_take_s, place_radius_m=place_radius, max_step_rad=max_step,
+        start_jitter_rad=(() if args.start_jitter_deg is None
+                          else tuple(math.radians(v) for v in args.start_jitter_deg)),
     )
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     with ExitStack() as stack:
