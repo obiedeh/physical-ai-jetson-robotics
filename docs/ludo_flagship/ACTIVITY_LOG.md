@@ -454,3 +454,37 @@ Change Report:
    0 of 50 campaign of 2026-10-19T14:40.
 4. Risks: none to behaviour; a 50-trial trace is a few thousand rows.
 5. Hardware safety review: not needed. Simulation only.
+
+## 2026-10-22: Margin retrain and traced corpus campaign
+
+Two simulation campaigns at placement seed 2026, Isaac scene in policy launch
+mode with the real-arm driver skipped. Simulation lane; never physical evidence.
+
+1. Margin retrain (`reports/sim_policy/pick_cup_17oct3_margin`): the plain
+   45-take pick_cup row retrained with `action_limit_margin_deg` 1.0 (bounds
+   verified 2026-10-17) scores 24 of 50 against the plain run's 28, inside one
+   interval; paired, 18 both, 6 margin only, 10 plain only (exact McNemar p
+   0.45). Hold events fall from 28 to 1. Held-out joint MAE 0.0568 rad mean,
+   0.1132 max, gripper 0.0016 m. The margin removes the holds and does not move
+   the success rate.
+2. Traced corpus campaign (`reports/sim_policy/paired_seed2026_noguard`,
+   `trace_simplace01_n131_20261022T052654Z.jsonl`): the 131-take corpus policy,
+   guard off, place score, scores 0 of 50 again (2 lifted and dropped, 18 moved
+   the cup without a lift, 12 reached without a grasp, 13 never reached, 5
+   held most of the trial; 641 held steps). Finding from the trace: 46 of 50
+   trials command a full close (at or above 0.016 m), first at a median
+   gripper-to-cup centre distance of 3.1 cm (p10 2.5, p90 4.1). The staged
+   executor's grasps sit at 2.6 cm on the same measure. Of the 21 trials whose
+   closest approach is under 3 cm, 15 command a squeeze of at least 0.016 m in
+   the 2 s before it; the closest any trial gets is 2.3 cm. The squeeze is
+   commanded; it is timed on the approach rather than on the cup's position,
+   fires before the gripper is around the cup, and after a miss the policy
+   backs away and never retries. The executor closes only after reaching its
+   grasp pose (`synria_lerobot/staged_executor.py`, descend to squeeze), so
+   the cue the demonstrations carry is position, but every take arrives on time
+   and the policy cannot tell time from position.
+3. Next: a simulation-only diagnostic that refuses a close until the scene's
+   gripper-to-cup distance is within the executor's grasp distance, to measure
+   how much of the failure is the early close; then near-miss demonstrations
+   that hold the gripper open, correct and close, which teach the position cue
+   and a retry.
