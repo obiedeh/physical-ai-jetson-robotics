@@ -536,3 +536,35 @@ def test_close_gate_needs_a_positive_length_and_the_gripper_pose() -> None:
         SimulationTrialRunner(client, scene, Source(scene.read_state), Source(scene.read_image),
                               Source(scene.read_image), Source(scene.read_cup), scene.randomize,
                               config)
+
+
+def test_seated_gate_closes_only_with_the_cup_between_the_jaws() -> None:
+    """On the cup's axis inside the height band a close passes; off axis or too high it holds."""
+    closing = (*START[:6], 0.022)
+
+    def campaign(offset: tuple[float, float]) -> tuple[dict[str, Any], Scene]:
+        clock = FakeClock()
+
+        class Placed(Scene):
+            def read_gripper(self) -> ObjectPose:
+                return ObjectPose((0.3 + offset[0], 0.0, self.cup_z + offset[1]), self.clock())
+
+        scene = Placed(clock, liftable=False)
+        run = runner(scene, clock, closing, trials=1)
+        run.config = TrialConfig(**{**run.config.__dict__, "seat_sideways_m": 0.01,
+                                    "seat_height_m": (0.01, 0.05)})
+        return run.run({"lane": "simulation"}), scene
+
+    seated, scene = campaign((0.005, 0.02))
+    assert seated["trials"][0]["close_gated_steps"] == 0
+    assert scene.targets[-1][6] == pytest.approx(0.022)
+    assert "1.0 cm sideways" in seated["close_gate_rule"]
+    for offset in ((0.02, 0.02), (0.0, 0.08), (0.0, 0.0)):
+        report, scene = campaign(offset)
+        assert report["trials"][0]["close_gated_steps"] > 0
+        assert all(target[6] <= START[6] + 1e-9 for target in scene.targets)
+    with pytest.raises(ValueError, match="needs both"):
+        TrialConfig(trials=1, command_period_s=0.2, start_pose=START, seat_sideways_m=0.01)
+    with pytest.raises(ValueError, match="low below high"):
+        TrialConfig(trials=1, command_period_s=0.2, start_pose=START, seat_sideways_m=0.01,
+                    seat_height_m=(0.05, 0.01))
