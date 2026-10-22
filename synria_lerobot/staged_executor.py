@@ -73,10 +73,12 @@ CHECK_STEPS = 6
 # back of the gripper body and tilted 38 degrees from the approach axis toward +X, with
 # an 88 degree horizontal field (scripts/isaac_sim/teleop_cameras.py in the teleop
 # repository). The cup counts as found when its mid-height point lies within
-# LOOK_CONE_DEG of the optical axis, well inside the 44 degree half field.
+# LOOK_CONE_DEG of the optical axis, inside the 44 degree half field. The third pilot
+# measured 23 to 27 degrees at a reached pre-grasp and 36 to 50 from a stalled approach
+# out of a turned start, so 35 passes the first and sends the second round again.
 WRIST_CAMERA_TOOL_M = (-0.0452, 0.0, -0.05598)
 WRIST_CAMERA_TILT_DEG = 38.0
-LOOK_CONE_DEG = 25.0
+LOOK_CONE_DEG = 35.0
 # Re-approaches allowed when the cup is not in the wrist view at the pre-grasp.
 MAX_LOOKS = 3
 # Once the gripper centre has risen this far above the grasp, the cup must have risen at
