@@ -1,0 +1,1934 @@
+{
+  "close_gate_rule": null,
+  "config": {
+    "approach_s": 2.0,
+    "close_gate_m": null,
+    "command_period_s": 0.2,
+    "gripper_clear_m": 0.06,
+    "hold_s": 1.0,
+    "lift_m": 0.03,
+    "max_trial_s": 30.0,
+    "place_height_m": 0.01,
+    "place_radius_m": 0.03,
+    "placement_seed": 2026,
+    "randomize_scale": 1.0,
+    "recovery_gripper_margin_m": 0.001,
+    "recovery_margin_rad": 0.008726646259971648,
+    "score": "place",
+    "seat_height_m": null,
+    "seat_sideways_m": null,
+    "settle_s": 2.0,
+    "start_pose": [
+      -0.02085434872036179,
+      1.5861879642804464,
+      -0.5824478773276011,
+      0.004044607363563652,
+      -0.7861633419990539,
+      -0.049944500774145126,
+      0.014254585473487775
+    ],
+    "trials": 50
+  },
+  "endpoint": "http://127.0.0.1:8090",
+  "kind": "simulation_policy_trials",
+  "lane": "simulation",
+  "note": "Simulation lane; scored in the Isaac scene; never physical evidence.",
+  "physical_evidence": false,
+  "placement_rule": "the arm is walked to the start pose first, then the scene draws a Randomize layout at the configured scale, seeded with placement_seed plus the trial index so campaigns sharing the seed face the same placements",
+  "policy": {
+    "checkpoint_content_sha256": "4fadfcc87b88fb10a2879f87bedb5242b25d0b97585400b791786cbc5f844105",
+    "dataset_content_sha256": "eaaaa52bb64cf70bffb548fe87c93efd3e14586921ed39a2b0bba0329d69fc18",
+    "lane": "simulation",
+    "policy_id": "simplace02_n122",
+    "probe_sha256": "bb382c5a7f23bcde0340bab7a2287c09dc315e5c5d9ef4bfd3ee875d29f7e28a",
+    "step": 20000
+  },
+  "recovery_rule": "a hold for a state past an operator bound publishes the state clamped just inside the bounds, simulation lane only",
+  "safety": {
+    "command_period_s": 0.2,
+    "gripper_guard": {
+      "close_above_m": 0.016,
+      "consecutive_steps": 3
+    },
+    "max_gripper_speed_m_s": 0.05,
+    "max_joint_speed_rad_s": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "max_observation_age_s": 0.5,
+    "response_timeout_s": 0.5,
+    "verified_by": "",
+    "verified_on": ""
+  },
+  "score": "place",
+  "score_rule": "cup lifted 3.0 cm at least once, then at rest within 3.0 cm of the mark's centre and within 1.0 cm of its rest height with the gripper centre at least 6.0 cm from the cup, for 1.0 s without a break, from the scene's published cup, mark and gripper poses",
+  "start_pose_source": "/home/oedeh/synria-sim-datasets/staged_place_02/dataset",
+  "success_rate": 0.3,
+  "successes": 15,
+  "task_id": "cup_pick_and_place",
+  "task_text": "Pick up the cup from its marked location, carry it to the marked target and release it upright inside the target, then back the gripper away clear.",
+  "trace": {
+    "path": "reports/sim_policy/staged_place_02/trace_simplace02_n122_20261022T211224Z.jsonl",
+    "row": "one per policy step: trial, step, t_s, state, action offered or hold with reason, gripper_guard, recovery, close_gated, inference_s, cup_m, cup_lift_m, gripper_m, gripper_cup_distance_m",
+    "rows": 6649
+  },
+  "trials": [
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 4.842877388000488e-08,
+      "cup_start_xy_m": [
+        -0.3644489347934723,
+        0.11569395661354065
+      ],
+      "duration_s": 17.001236892974703,
+      "final_cup_target_distance_m": 0.02641108084666803,
+      "final_gripper_cup_distance_m": 0.09957910134816746,
+      "final_state": [
+        -0.7766498923301697,
+        -0.06503694577351751,
+        0.009882224710954096,
+        0.18169793486595154,
+        0.2863798439502716,
+        -0.21119007468223572,
+        0.0
+      ],
+      "guarded_steps": 1,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 0,
+      "max_lift_m": 0.08982712402939796,
+      "min_cup_target_distance_m": 0.019332634057037987,
+      "min_gripper_cup_distance_m": 0.013005231396798302,
+      "placement_seed": 2026,
+      "recoveries": 0,
+      "steps": 85,
+      "success": true,
+      "target_xy_m": [
+        -0.23724527657032013,
+        0.18589670956134796
+      ],
+      "time_to_success_s": 17.001176911988296
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 6.891787052154541e-08,
+      "cup_start_xy_m": [
+        -0.3270660638809204,
+        0.17193512618541718
+      ],
+      "duration_s": 30.01163194500259,
+      "final_cup_target_distance_m": 0.23182389000714007,
+      "final_gripper_cup_distance_m": 0.2239317103792813,
+      "final_state": [
+        0.028834545984864235,
+        -0.7174110717906111,
+        0.733504900696052,
+        0.006759042851626873,
+        0.2159397304058075,
+        -0.008889365009963512,
+        0.0006422622827813029
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 1,
+      "max_lift_m": 0.001395203173160553,
+      "min_cup_target_distance_m": 0.14528980190458995,
+      "min_gripper_cup_distance_m": 0.03850644573066868,
+      "placement_seed": 2027,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.18950745463371277,
+        0.21869832277297974
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 7.078051567077637e-08,
+      "cup_start_xy_m": [
+        -0.35933107137680054,
+        0.046146150678396225
+      ],
+      "duration_s": 30.012011868995614,
+      "final_cup_target_distance_m": 0.051519145319078946,
+      "final_gripper_cup_distance_m": 0.15031276401595262,
+      "final_state": [
+        -0.8002941012382507,
+        -0.640909642709648,
+        0.5030362699053416,
+        0.09580925852060318,
+        0.3536754250526428,
+        -0.1512276977300644,
+        0.0
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 2,
+      "max_lift_m": 0.090321134775877,
+      "min_cup_target_distance_m": 0.009463663915420122,
+      "min_gripper_cup_distance_m": 0.014875029149400155,
+      "placement_seed": 2028,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.2467201203107834,
+        0.13794998824596405
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 2.7939677238464355e-08,
+      "cup_start_xy_m": [
+        -0.28384825587272644,
+        -0.09336674213409424
+      ],
+      "duration_s": 30.012204760016175,
+      "final_cup_target_distance_m": 0.1657796399249093,
+      "final_gripper_cup_distance_m": 0.19233589923691355,
+      "final_state": [
+        0.2400960922241211,
+        -0.5970954008235091,
+        0.41762048936106055,
+        -0.017925214022397995,
+        0.4241468906402588,
+        0.03454595059156418,
+        2.384987984882514e-09
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 3,
+      "max_lift_m": 0.08810669369995594,
+      "min_cup_target_distance_m": 0.14174346893671258,
+      "min_gripper_cup_distance_m": 0.01566343629337113,
+      "placement_seed": 2029,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.1559218317270279,
+        -0.16224312782287598
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 11,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 7.264316082000732e-08,
+      "cup_start_xy_m": [
+        -0.3897169530391693,
+        0.04365645721554756
+      ],
+      "duration_s": 30.013544265006203,
+      "final_cup_target_distance_m": 0.02440784326986916,
+      "final_gripper_cup_distance_m": 0.16094538070449757,
+      "final_state": [
+        -0.3677788972854614,
+        -0.7214626379145735,
+        0.7087093088648447,
+        0.07078452408313751,
+        0.23291820287704468,
+        -0.10167331248521805,
+        0.000864243193063885
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 4,
+      "max_lift_m": 0.09177464433014393,
+      "min_cup_target_distance_m": 0.00819731296516302,
+      "min_gripper_cup_distance_m": 0.015490615023279763,
+      "placement_seed": 2030,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.2786049544811249,
+        0.1372688263654709
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 4.470348358154297e-08,
+      "cup_start_xy_m": [
+        -0.3504384160041809,
+        0.04632246494293213
+      ],
+      "duration_s": 17.810214497993,
+      "final_cup_target_distance_m": 0.014791834683378888,
+      "final_gripper_cup_distance_m": 0.09969272374920526,
+      "final_state": [
+        -0.6315372586250305,
+        0.13512653039559183,
+        -0.2364128138997427,
+        0.13616065680980682,
+        0.3527258634567261,
+        -0.15395528078079224,
+        2.4614757876406657e-07
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 5,
+      "max_lift_m": 0.09330188482999802,
+      "min_cup_target_distance_m": 0.006154670639977829,
+      "min_gripper_cup_distance_m": 0.01450706229701564,
+      "placement_seed": 2031,
+      "recoveries": 0,
+      "steps": 90,
+      "success": true,
+      "target_xy_m": [
+        -0.23748862743377686,
+        0.13770905137062073
+      ],
+      "time_to_success_s": 17.810149099008413
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.029141902923584e-08,
+      "cup_start_xy_m": [
+        -0.36313268542289734,
+        0.0028081804048269987
+      ],
+      "duration_s": 20.019905319990357,
+      "final_cup_target_distance_m": 0.0071965993479642856,
+      "final_gripper_cup_distance_m": 0.10020921987708463,
+      "final_state": [
+        -0.4289313852787018,
+        0.0855108305977231,
+        -0.18205197715543422,
+        0.09045226871967316,
+        0.36094751954078674,
+        -0.10259296000003815,
+        0.0003590488340705633
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 6,
+      "max_lift_m": 0.08447850681841373,
+      "min_cup_target_distance_m": 0.0067315784718162295,
+      "min_gripper_cup_distance_m": 0.01769117180009118,
+      "placement_seed": 2032,
+      "recoveries": 0,
+      "steps": 101,
+      "success": true,
+      "target_xy_m": [
+        -0.2623206079006195,
+        0.10743173211812973
+      ],
+      "time_to_success_s": 20.01977128701401
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.4016709327697754e-08,
+      "cup_start_xy_m": [
+        -0.36378422379493713,
+        -0.036001577973365784
+      ],
+      "duration_s": 30.009590107976692,
+      "final_cup_target_distance_m": 0.324870574601483,
+      "final_gripper_cup_distance_m": 0.015026443903495886,
+      "final_state": [
+        0.5838399529457092,
+        -0.590088338388359,
+        0.5415940079710612,
+        -0.09440649300813675,
+        0.2786312997341156,
+        0.13333827257156372,
+        0.004132268950343132
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 7,
+      "max_lift_m": 0.03571131266653538,
+      "min_cup_target_distance_m": 0.14528988566265555,
+      "min_gripper_cup_distance_m": 0.014584790692985685,
+      "placement_seed": 2033,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.2746503949165344,
+        0.07873430848121643
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 11,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.774199962615967e-08,
+      "cup_start_xy_m": [
+        -0.2789636254310608,
+        -0.08659873157739639
+      ],
+      "duration_s": 30.013866574008716,
+      "final_cup_target_distance_m": 0.1665410581903142,
+      "final_gripper_cup_distance_m": 0.10275153317902001,
+      "final_state": [
+        0.5510643720626831,
+        -0.7244988389147872,
+        0.7063266131899485,
+        -0.1206049770116806,
+        0.23667344450950623,
+        0.14006376266479492,
+        0.00047128027654252946
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 8,
+      "max_lift_m": 0.034682685509324074,
+      "min_cup_target_distance_m": 0.1452895850645441,
+      "min_gripper_cup_distance_m": 0.017723664484682308,
+      "placement_seed": 2034,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.15221117436885834,
+        -0.15761271119117737
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.029141902923584e-08,
+      "cup_start_xy_m": [
+        -0.28518572449684143,
+        -0.058423757553100586
+      ],
+      "duration_s": 30.012840779003454,
+      "final_cup_target_distance_m": 0.30437715396555587,
+      "final_gripper_cup_distance_m": 0.12425235817174012,
+      "final_state": [
+        0.33348172903060913,
+        -0.7262621231211775,
+        0.7223545405886301,
+        -0.05729386582970619,
+        0.22837360203266144,
+        0.07863756269216537,
+        0.0004743828612845391
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 9,
+      "max_lift_m": 0.021439015865325928,
+      "min_cup_target_distance_m": 0.1452896639494301,
+      "min_gripper_cup_distance_m": 0.031349554030756746,
+      "placement_seed": 2035,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.1660671830177307,
+        -0.14160993695259094
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 4.284083843231201e-08,
+      "cup_start_xy_m": [
+        -0.3370027244091034,
+        -0.15034863352775574
+      ],
+      "duration_s": 30.0112120359845,
+      "final_cup_target_distance_m": 0.21904282931874372,
+      "final_gripper_cup_distance_m": 0.037694756213725505,
+      "final_state": [
+        0.36036062240600586,
+        -0.7335037894381636,
+        0.7192453238985667,
+        -0.057610176503658295,
+        0.24576450884342194,
+        0.08165113627910614,
+        0.0006403554580174387
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 10,
+      "max_lift_m": 0.0017524901777505875,
+      "min_cup_target_distance_m": 0.14528980120324336,
+      "min_gripper_cup_distance_m": 0.03742128418444955,
+      "placement_seed": 2036,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.28862178325653076,
+        -0.013350660912692547
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 6.891787052154541e-08,
+      "cup_start_xy_m": [
+        -0.32333675026893616,
+        -0.1259298324584961
+      ],
+      "duration_s": 30.010395289980806,
+      "final_cup_target_distance_m": 0.2880582077279983,
+      "final_gripper_cup_distance_m": 0.016331568926230132,
+      "final_state": [
+        1.0563716888427734,
+        -0.25726252867118066,
+        -0.1375189032533041,
+        -0.0825623869895935,
+        0.6021711826324463,
+        0.13949505984783173,
+        0.0047925603576004505
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 11,
+      "max_lift_m": 0.06242896430194378,
+      "min_cup_target_distance_m": 0.14528983858583788,
+      "min_gripper_cup_distance_m": 0.015268798270860357,
+      "placement_seed": 2037,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.2684059143066406,
+        0.008575748652219772
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.21540641784668e-08,
+      "cup_start_xy_m": [
+        -0.27672338485717773,
+        0.09744401276111603
+      ],
+      "duration_s": 30.012983333988814,
+      "final_cup_target_distance_m": 0.05349063700177834,
+      "final_gripper_cup_distance_m": 0.22030565577102923,
+      "final_state": [
+        -1.2871993780136108,
+        -0.5571257777346724,
+        0.28008815086103767,
+        0.11163175851106644,
+        0.4693249762058258,
+        -0.180624321103096,
+        0.0
+      ],
+      "guarded_steps": 2,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 12,
+      "max_lift_m": 0.0891738161444664,
+      "min_cup_target_distance_m": 0.010735579120113558,
+      "min_gripper_cup_distance_m": 0.011584884302697523,
+      "placement_seed": 2038,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.14739248156547546,
+        0.1636459082365036
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 11,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.21540641784668e-08,
+      "cup_start_xy_m": [
+        -0.38835111260414124,
+        0.07219190150499344
+      ],
+      "duration_s": 18.409441337978933,
+      "final_cup_target_distance_m": 0.006066565861911247,
+      "final_gripper_cup_distance_m": 0.10878554271959445,
+      "final_state": [
+        -0.5736669301986694,
+        0.02243511142931339,
+        -0.034040367243515585,
+        0.1642589122056961,
+        0.2677444815635681,
+        -0.18062935769557953,
+        0.0
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 13,
+      "max_lift_m": 0.09614651650190353,
+      "min_cup_target_distance_m": 0.003234780263155739,
+      "min_gripper_cup_distance_m": 0.011426786582450346,
+      "placement_seed": 2039,
+      "recoveries": 0,
+      "steps": 93,
+      "success": true,
+      "target_xy_m": [
+        -0.2707720994949341,
+        0.15754052996635437
+      ],
+      "time_to_success_s": 18.409369023982435
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 6.146728992462158e-08,
+      "cup_start_xy_m": [
+        -0.3718939423561096,
+        -0.05420084670186043
+      ],
+      "duration_s": 30.015321748011047,
+      "final_cup_target_distance_m": 0.2587120635903462,
+      "final_gripper_cup_distance_m": 0.029798406985316484,
+      "final_state": [
+        0.2918720841407776,
+        -0.7372004099024886,
+        0.7144534084818491,
+        -0.03160518407821655,
+        0.26020094752311707,
+        0.051198117434978485,
+        3.2693188245502824e-07
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 14,
+      "max_lift_m": 0.0012882165610790253,
+      "min_cup_target_distance_m": 0.14528997667010574,
+      "min_gripper_cup_distance_m": 0.019312894601499892,
+      "placement_seed": 2040,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.28813982009887695,
+        0.06451912969350815
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 9.12696123123169e-08,
+      "cup_start_xy_m": [
+        -0.3966509997844696,
+        -0.017546430230140686
+      ],
+      "duration_s": 30.011383915989427,
+      "final_cup_target_distance_m": 0.37421269967154686,
+      "final_gripper_cup_distance_m": 0.024254616345602265,
+      "final_state": [
+        0.718054473400116,
+        -0.6215164370669478,
+        0.5785513613245615,
+        -0.12619346380233765,
+        0.2668573558330536,
+        0.17350204288959503,
+        0.004564245231449604
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 15,
+      "max_lift_m": 0.024314822629094124,
+      "min_cup_target_distance_m": 0.14528989745404303,
+      "min_gripper_cup_distance_m": 0.015181345987005084,
+      "placement_seed": 2041,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.3014065623283386,
+        0.0921698734164238
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 11,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.4016709327697754e-08,
+      "cup_start_xy_m": [
+        -0.31796738505363464,
+        -0.0038254056125879288
+      ],
+      "duration_s": 18.21101862101932,
+      "final_cup_target_distance_m": 0.0063033662239405045,
+      "final_gripper_cup_distance_m": 0.08670628848070407,
+      "final_state": [
+        -0.48401761054992676,
+        0.19139175044163523,
+        -0.4063992407300344,
+        0.07770583778619766,
+        0.4676094353199005,
+        -0.09041507542133331,
+        6.29376586402941e-08
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 16,
+      "max_lift_m": 0.09194174967706203,
+      "min_cup_target_distance_m": 0.006303340216072138,
+      "min_gripper_cup_distance_m": 0.014283471244229504,
+      "placement_seed": 2042,
+      "recoveries": 0,
+      "steps": 92,
+      "success": true,
+      "target_xy_m": [
+        -0.21924243867397308,
+        0.10276997834444046
+      ],
+      "time_to_success_s": 18.21095570200123
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 6.705522537231445e-08,
+      "cup_start_xy_m": [
+        -0.3353062868118286,
+        -0.10531948506832123
+      ],
+      "duration_s": 30.01287862600293,
+      "final_cup_target_distance_m": 0.03745756292531491,
+      "final_gripper_cup_distance_m": 0.09475368893150685,
+      "final_state": [
+        0.1431502103805542,
+        0.18079450653656778,
+        -0.2763507869222036,
+        0.05277590826153755,
+        0.22999854385852814,
+        -0.008282620459794998,
+        2.2080780581745785e-06
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 17,
+      "max_lift_m": 0.08597294241189957,
+      "min_cup_target_distance_m": 0.03191795031223447,
+      "min_gripper_cup_distance_m": 0.017541514704716862,
+      "placement_seed": 2043,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.27148646116256714,
+        0.02520330250263214
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 7.450580596923828e-08,
+      "cup_start_xy_m": [
+        -0.4002598822116852,
+        0.024625074118375778
+      ],
+      "duration_s": 30.013102126977174,
+      "final_cup_target_distance_m": 0.08690442186731447,
+      "final_gripper_cup_distance_m": 0.12674671434737625,
+      "final_state": [
+        -0.0824732854962349,
+        -0.7195933766497725,
+        0.720503101112617,
+        0.027319155633449554,
+        0.22966723144054413,
+        -0.037811506539583206,
+        0.0004909932613372803
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 18,
+      "max_lift_m": 0.07462064921855927,
+      "min_cup_target_distance_m": 0.03570564790547738,
+      "min_gripper_cup_distance_m": 0.01594044700687352,
+      "placement_seed": 2044,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.2939760982990265,
+        0.12368542701005936
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 7.636845111846924e-08,
+      "cup_start_xy_m": [
+        -0.3480212092399597,
+        -0.13095775246620178
+      ],
+      "duration_s": 30.012872021005023,
+      "final_cup_target_distance_m": 0.11325607959080357,
+      "final_gripper_cup_distance_m": 0.11144072789512526,
+      "final_state": [
+        0.515049159526825,
+        -0.4436599023474807,
+        0.32380119896150916,
+        0.024551352486014366,
+        0.3808136582374573,
+        0.09335888177156448,
+        0.0
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 19,
+      "max_lift_m": 0.08059274218976498,
+      "min_cup_target_distance_m": 0.09424176401290645,
+      "min_gripper_cup_distance_m": 0.016472724004919993,
+      "placement_seed": 2045,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.29154834151268005,
+        0.0029077238868921995
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 11,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 4.842877388000488e-08,
+      "cup_start_xy_m": [
+        -0.2806307077407837,
+        0.03222749009728432
+      ],
+      "duration_s": 30.011550018010894,
+      "final_cup_target_distance_m": 0.044124168184697436,
+      "final_gripper_cup_distance_m": 0.031859006704633056,
+      "final_state": [
+        -0.4305393099784851,
+        0.44400498198136146,
+        -0.5397664215543142,
+        0.6756340861320496,
+        0.005653648171573877,
+        -0.6678445935249329,
+        3.533057451932109e-06
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 20,
+      "max_lift_m": 0.08619773760437965,
+      "min_cup_target_distance_m": 0.011507051035423035,
+      "min_gripper_cup_distance_m": 0.012908492945637031,
+      "placement_seed": 2046,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.1692584902048111,
+        0.12553030252456665
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 6.705522537231445e-08,
+      "cup_start_xy_m": [
+        -0.35166481137275696,
+        0.012526449747383595
+      ],
+      "duration_s": 30.015679364005337,
+      "final_cup_target_distance_m": 0.05119584058004825,
+      "final_gripper_cup_distance_m": 0.15192396008100353,
+      "final_state": [
+        -0.7183773517608643,
+        -0.5319174833430403,
+        0.329855272533668,
+        0.06461738049983978,
+        0.4204518795013428,
+        -0.11615177989006042,
+        0.0
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 21,
+      "max_lift_m": 0.08759329468011856,
+      "min_cup_target_distance_m": 0.012411882758743787,
+      "min_gripper_cup_distance_m": 0.015378241191128463,
+      "placement_seed": 2047,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.24797607958316803,
+        0.11429984122514725
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 11,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.960464477539063e-08,
+      "cup_start_xy_m": [
+        -0.29133084416389465,
+        -0.15048812329769135
+      ],
+      "duration_s": 30.01441325401538,
+      "final_cup_target_distance_m": 0.3853662373130557,
+      "final_gripper_cup_distance_m": 0.010879464850310728,
+      "final_state": [
+        1.7074191570281982,
+        -0.23713281823531332,
+        -0.1647941079118124,
+        -0.2316027134656906,
+        0.5176441669464111,
+        0.29705339670181274,
+        0.004877246450632811
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 22,
+      "max_lift_m": 0.07199124246835709,
+      "min_cup_target_distance_m": 0.1452899100783572,
+      "min_gripper_cup_distance_m": 0.0108227741262787,
+      "placement_seed": 2048,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.25085654854774475,
+        -0.010949518531560898
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 7.078051567077637e-08,
+      "cup_start_xy_m": [
+        -0.337154746055603,
+        0.057034317404031754
+      ],
+      "duration_s": 18.020482252992224,
+      "final_cup_target_distance_m": 0.017362674290302978,
+      "final_gripper_cup_distance_m": 0.10133724896154307,
+      "final_state": [
+        -0.7107335925102234,
+        0.17250259147747812,
+        -0.264551123616921,
+        0.16002257168293,
+        0.3415808081626892,
+        -0.18085038661956787,
+        0.0
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 23,
+      "max_lift_m": 0.09435108676552773,
+      "min_cup_target_distance_m": 0.0017940065276343918,
+      "min_gripper_cup_distance_m": 0.011424544894460889,
+      "placement_seed": 2049,
+      "recoveries": 0,
+      "steps": 91,
+      "success": true,
+      "target_xy_m": [
+        -0.22097545862197876,
+        0.14427849650382996
+      ],
+      "time_to_success_s": 18.020361464004964
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 4.470348358154297e-08,
+      "cup_start_xy_m": [
+        -0.27728623151779175,
+        0.1565096080303192
+      ],
+      "duration_s": 30.011794488003943,
+      "final_cup_target_distance_m": 0.17044940980875006,
+      "final_gripper_cup_distance_m": 0.26721251136573504,
+      "final_state": [
+        0.051179368048906326,
+        -0.7154519863261336,
+        0.7315583918116221,
+        0.0030309450812637806,
+        0.2145136445760727,
+        -0.003526250831782818,
+        0.0005663516349159181
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 24,
+      "max_lift_m": 0.021418947726488113,
+      "min_cup_target_distance_m": 0.1452898818514824,
+      "min_gripper_cup_distance_m": 0.05049195980549958,
+      "placement_seed": 2050,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.138392373919487,
+        0.19914372265338898
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 4.0978193283081055e-08,
+      "cup_start_xy_m": [
+        -0.3174697458744049,
+        -0.014897205866873264
+      ],
+      "duration_s": 18.810973965009907,
+      "final_cup_target_distance_m": 0.0218029020959102,
+      "final_gripper_cup_distance_m": 0.07986913422293136,
+      "final_state": [
+        -0.45177680253982544,
+        0.1903636597262269,
+        -0.4916603472211233,
+        0.049006663262844086,
+        0.5612513422966003,
+        -0.06402812153100967,
+        0.0
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 25,
+      "max_lift_m": 0.08940945938229561,
+      "min_cup_target_distance_m": 0.012927178442009022,
+      "min_gripper_cup_distance_m": 0.015063444957955537,
+      "placement_seed": 2051,
+      "recoveries": 0,
+      "steps": 95,
+      "success": true,
+      "target_xy_m": [
+        -0.22252006828784943,
+        0.09507422149181366
+      ],
+      "time_to_success_s": 18.810918853007024
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 6.146728992462158e-08,
+      "cup_start_xy_m": [
+        -0.3736620843410492,
+        0.05029499903321266
+      ],
+      "duration_s": 17.40934872502112,
+      "final_cup_target_distance_m": 0.009218433016464194,
+      "final_gripper_cup_distance_m": 0.10745170204375326,
+      "final_state": [
+        -0.5949962139129639,
+        0.05054007211490926,
+        -0.08663257026456508,
+        0.15521009266376495,
+        0.29131463170051575,
+        -0.17114488780498505,
+        7.43883902032394e-07
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 26,
+      "max_lift_m": 0.09515414945781231,
+      "min_cup_target_distance_m": 0.002223915797049631,
+      "min_gripper_cup_distance_m": 0.012589086960384204,
+      "placement_seed": 2052,
+      "recoveries": 0,
+      "steps": 88,
+      "success": true,
+      "target_xy_m": [
+        -0.2604956328868866,
+        0.14141325652599335
+      ],
+      "time_to_success_s": 17.409283524000784
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.960464477539063e-08,
+      "cup_start_xy_m": [
+        -0.3769545257091522,
+        -0.07992103695869446
+      ],
+      "duration_s": 30.013828827010002,
+      "final_cup_target_distance_m": 0.21964049740728042,
+      "final_gripper_cup_distance_m": 0.035546052595333985,
+      "final_state": [
+        0.2346586138010025,
+        -0.7351783819331282,
+        0.7138323280832896,
+        -0.03136589378118515,
+        0.25772401690483093,
+        0.04694509133696556,
+        5.29306817043107e-07
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 27,
+      "max_lift_m": 0.0007337797433137894,
+      "min_cup_target_distance_m": 0.1452897098994789,
+      "min_gripper_cup_distance_m": 0.035200310502049144,
+      "placement_seed": 2053,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.3009900152683258,
+        0.04392774775624275
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 3.5390257835388184e-08,
+      "cup_start_xy_m": [
+        -0.3443965017795563,
+        0.006842832081019878
+      ],
+      "duration_s": 20.811281842994504,
+      "final_cup_target_distance_m": 0.018928881142009545,
+      "final_gripper_cup_distance_m": 0.08513781167211909,
+      "final_state": [
+        -0.5301321744918823,
+        0.061122271435106366,
+        -0.2755689825990072,
+        0.0741044208407402,
+        0.46169647574424744,
+        -0.09072299301624298,
+        0.0
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 28,
+      "max_lift_m": 0.09209715016186237,
+      "min_cup_target_distance_m": 0.004920911602990191,
+      "min_gripper_cup_distance_m": 0.014585181346281792,
+      "placement_seed": 2054,
+      "recoveries": 0,
+      "steps": 105,
+      "success": true,
+      "target_xy_m": [
+        -0.24232253432273865,
+        0.1102355420589447
+      ],
+      "time_to_success_s": 20.81114860199159
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.960464477539063e-08,
+      "cup_start_xy_m": [
+        -0.32556217908859253,
+        -0.07330969721078873
+      ],
+      "duration_s": 30.010490057989955,
+      "final_cup_target_distance_m": 0.036455189459561374,
+      "final_gripper_cup_distance_m": 0.08990858733909676,
+      "final_state": [
+        0.08306873589754105,
+        0.01775381548121032,
+        -0.2349218335130087,
+        0.033720191568136215,
+        0.40020811557769775,
+        -0.003912049345672131,
+        0.0007905194070190191
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 29,
+      "max_lift_m": 0.09068716317415237,
+      "min_cup_target_distance_m": 0.031141000988448856,
+      "min_gripper_cup_distance_m": 0.012679456943146624,
+      "placement_seed": 2055,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.25115883350372314,
+        0.05148346722126007
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.960464477539063e-08,
+      "cup_start_xy_m": [
+        -0.34941762685775757,
+        -0.10726502537727356
+      ],
+      "duration_s": 30.01212261899491,
+      "final_cup_target_distance_m": 0.3363771334504193,
+      "final_gripper_cup_distance_m": 0.02062039500496646,
+      "final_state": [
+        0.8001717329025269,
+        -0.6488508887423629,
+        0.5955574009440073,
+        -0.14615498483181,
+        0.26306915283203125,
+        0.19860249757766724,
+        0.004290720913559198
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 30,
+      "max_lift_m": 0.021922605112195015,
+      "min_cup_target_distance_m": 0.1452898547943502,
+      "min_gripper_cup_distance_m": 0.016560058371619408,
+      "placement_seed": 2056,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.2847519516944885,
+        0.02284081280231476
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 6.891787052154541e-08,
+      "cup_start_xy_m": [
+        -0.3257276713848114,
+        -0.14439450204372406
+      ],
+      "duration_s": 30.01154615401174,
+      "final_cup_target_distance_m": 0.2384601299868072,
+      "final_gripper_cup_distance_m": 0.02898656688900628,
+      "final_state": [
+        0.40944284200668335,
+        -0.7372023768557662,
+        0.7083545420191416,
+        -0.06025603041052818,
+        0.2653431296348572,
+        0.08722110837697983,
+        0.0005197872524149716
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 31,
+      "max_lift_m": 0.001542888581752777,
+      "min_cup_target_distance_m": 0.14528987855425265,
+      "min_gripper_cup_distance_m": 0.027594535323819565,
+      "placement_seed": 2057,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.2770223915576935,
+        -0.007511502131819725
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 4.470348358154297e-08,
+      "cup_start_xy_m": [
+        -0.316450297832489,
+        -0.023334700614213943
+      ],
+      "duration_s": 30.01618969597621,
+      "final_cup_target_distance_m": 0.11344736252387758,
+      "final_gripper_cup_distance_m": 0.17172467651785206,
+      "final_state": [
+        0.12055619806051254,
+        -0.7202614851130599,
+        0.7288020942232737,
+        -0.006002667360007763,
+        0.22275947034358978,
+        0.011768646538257599,
+        1.2677695337970363e-08
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 32,
+      "max_lift_m": 0.07223321497440338,
+      "min_cup_target_distance_m": 0.1021311164363381,
+      "min_gripper_cup_distance_m": 0.020543778278468806,
+      "placement_seed": 2058,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.2244720607995987,
+        0.0891338512301445
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 6.705522537231445e-08,
+      "cup_start_xy_m": [
+        -0.3448198735713959,
+        0.11306027323007584
+      ],
+      "duration_s": 30.01122751098592,
+      "final_cup_target_distance_m": 0.052725681981612406,
+      "final_gripper_cup_distance_m": 0.2143322633216288,
+      "final_state": [
+        -0.4520978033542633,
+        -0.7112632103098983,
+        0.7278503272555003,
+        0.08919554203748703,
+        0.1934998482465744,
+        -0.1276688575744629,
+        0.0011247548973187804
+      ],
+      "guarded_steps": 2,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 33,
+      "max_lift_m": 0.08846773952245712,
+      "min_cup_target_distance_m": 0.017338556588536568,
+      "min_gripper_cup_distance_m": 0.01827404425912773,
+      "placement_seed": 2059,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.2169586420059204,
+        0.18205785751342773
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.587935447692871e-08,
+      "cup_start_xy_m": [
+        -0.3196861743927002,
+        0.004858467262238264
+      ],
+      "duration_s": 17.81455957397702,
+      "final_cup_target_distance_m": 0.014430850118289346,
+      "final_gripper_cup_distance_m": 0.09325312348312437,
+      "final_state": [
+        -0.46896249055862427,
+        0.19244700597389994,
+        -0.3350322451569906,
+        0.08799867331981659,
+        0.3902144432067871,
+        -0.09952595084905624,
+        0.00038795938598923385
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 34,
+      "max_lift_m": 0.09212272241711617,
+      "min_cup_target_distance_m": 0.014362003050399946,
+      "min_gripper_cup_distance_m": 0.014724667200534525,
+      "placement_seed": 2060,
+      "recoveries": 0,
+      "steps": 90,
+      "success": true,
+      "target_xy_m": [
+        -0.21809612214565277,
+        0.10872668772935867
+      ],
+      "time_to_success_s": 17.81445763699594
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.960464477539063e-08,
+      "cup_start_xy_m": [
+        -0.3564184606075287,
+        -0.011618937365710735
+      ],
+      "duration_s": 22.026688243990066,
+      "final_cup_target_distance_m": 0.01586847334137889,
+      "final_gripper_cup_distance_m": 0.10472558386138386,
+      "final_state": [
+        -0.44304731488227844,
+        0.09865618424280939,
+        -0.16179597937844906,
+        0.09389656782150269,
+        0.32850614190101624,
+        -0.10622791200876236,
+        0.0
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 35,
+      "max_lift_m": 0.08521279692649841,
+      "min_cup_target_distance_m": 0.006395941795897891,
+      "min_gripper_cup_distance_m": 0.014241635553291271,
+      "placement_seed": 2061,
+      "recoveries": 0,
+      "steps": 111,
+      "success": true,
+      "target_xy_m": [
+        -0.2599053680896759,
+        0.09698335081338882
+      ],
+      "time_to_success_s": 22.026611843990395
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 8.195638656616211e-08,
+      "cup_start_xy_m": [
+        -0.3111603558063507,
+        -0.12094368040561676
+      ],
+      "duration_s": 30.014312059007352,
+      "final_cup_target_distance_m": 0.05836804161426337,
+      "final_gripper_cup_distance_m": 0.1896058443371532,
+      "final_state": [
+        0.3871089518070221,
+        -0.5561116643084639,
+        0.35483274793840736,
+        -0.03373965248465538,
+        0.4441627860069275,
+        0.06032533943653107,
+        4.920617158177265e-08
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 36,
+      "max_lift_m": 0.08989375084638596,
+      "min_cup_target_distance_m": 0.04537215664169935,
+      "min_gripper_cup_distance_m": 0.01389208835439131,
+      "placement_seed": 2062,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.25613805651664734,
+        0.013524560257792473
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 11,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 7.82310962677002e-08,
+      "cup_start_xy_m": [
+        -0.28371354937553406,
+        0.06734966486692429
+      ],
+      "duration_s": 30.019575946003897,
+      "final_cup_target_distance_m": 0.10130011886783438,
+      "final_gripper_cup_distance_m": 0.3076033127950498,
+      "final_state": [
+        -1.2431252002716064,
+        -0.5265264816416854,
+        0.22374535536981907,
+        0.09861887991428375,
+        0.5000507235527039,
+        -0.16452595591545105,
+        0.0
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 37,
+      "max_lift_m": 0.0885285995900631,
+      "min_cup_target_distance_m": 0.012196217078068197,
+      "min_gripper_cup_distance_m": 0.011133292000993061,
+      "placement_seed": 2063,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.16207322478294373,
+        0.14680297672748566
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 11,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.4016709327697754e-08,
+      "cup_start_xy_m": [
+        -0.36281755566596985,
+        0.041806552559137344
+      ],
+      "duration_s": 30.02309784098179,
+      "final_cup_target_distance_m": 0.06247184478081611,
+      "final_gripper_cup_distance_m": 0.20249707394990976,
+      "final_state": [
+        -0.5751123428344727,
+        -0.7155548639430159,
+        0.6861239168665537,
+        0.09953495115041733,
+        0.24353240430355072,
+        -0.14373661577701569,
+        0.0007991301827132702
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 38,
+      "max_lift_m": 0.08998044393956661,
+      "min_cup_target_distance_m": 0.012865556848101097,
+      "min_gripper_cup_distance_m": 0.015300093810193736,
+      "placement_seed": 2064,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.2514097988605499,
+        0.13506673276424408
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 6.146728992462158e-08,
+      "cup_start_xy_m": [
+        -0.3162609040737152,
+        -0.07646221667528152
+      ],
+      "duration_s": 30.018285539001226,
+      "final_cup_target_distance_m": 0.04609737336233399,
+      "final_gripper_cup_distance_m": 0.2267724444325553,
+      "final_state": [
+        0.17257939279079437,
+        -0.7129395313395613,
+        0.703547248604072,
+        -0.012836353853344917,
+        0.2472633719444275,
+        0.02311835251748562,
+        0.00030897933174856007
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 39,
+      "max_lift_m": 0.0898591186851263,
+      "min_cup_target_distance_m": 0.04325107977047322,
+      "min_gripper_cup_distance_m": 0.01565192676740505,
+      "placement_seed": 2065,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.2438301295042038,
+        0.04948601499199867
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.960464477539063e-08,
+      "cup_start_xy_m": [
+        -0.31554535031318665,
+        -0.08379251509904861
+      ],
+      "duration_s": 30.01219568599481,
+      "final_cup_target_distance_m": 0.04940555768192427,
+      "final_gripper_cup_distance_m": 0.21091914057062866,
+      "final_state": [
+        0.214104562997818,
+        -0.7209567732943648,
+        0.713407883407844,
+        -0.023247340694069862,
+        0.24286504089832306,
+        0.03695649281144142,
+        0.00028881028993055224
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 40,
+      "max_lift_m": 0.09025460481643677,
+      "min_cup_target_distance_m": 0.04883556429577153,
+      "min_gripper_cup_distance_m": 0.015355350079675522,
+      "placement_seed": 2066,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.24594612419605255,
+        0.04374232143163681
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.4016709327697754e-08,
+      "cup_start_xy_m": [
+        -0.36713331937789917,
+        -0.10268431156873703
+      ],
+      "duration_s": 30.01146475900896,
+      "final_cup_target_distance_m": 0.22949706327160305,
+      "final_gripper_cup_distance_m": 0.028507535781897617,
+      "final_state": [
+        0.32774874567985535,
+        -0.7387389845980757,
+        0.7053851578257212,
+        -0.04049162566661835,
+        0.27247166633605957,
+        0.06317473202943802,
+        8.607902373114484e-07
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 41,
+      "max_lift_m": 0.00017685070633888245,
+      "min_cup_target_distance_m": 0.1452897613669916,
+      "min_gripper_cup_distance_m": 0.027718301098436943,
+      "placement_seed": 2067,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.29921936988830566,
+        0.025755703449249268
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 8.009374141693115e-08,
+      "cup_start_xy_m": [
+        -0.3500763177871704,
+        -0.09053738415241241
+      ],
+      "duration_s": 30.013179350993596,
+      "final_cup_target_distance_m": 0.24248221314767496,
+      "final_gripper_cup_distance_m": 0.03326832407712977,
+      "final_state": [
+        0.28838565945625305,
+        -0.735117942823326,
+        0.7086404058954844,
+        -0.03868801146745682,
+        0.26271095871925354,
+        0.05860869958996773,
+        7.962893846524821e-07
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 42,
+      "max_lift_m": 0.0030060745775699615,
+      "min_cup_target_distance_m": 0.14528970269388997,
+      "min_gripper_cup_distance_m": 0.03214784253080999,
+      "placement_seed": 2068,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.27965205907821655,
+        0.036543671041727066
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 4.6566128730773926e-08,
+      "cup_start_xy_m": [
+        -0.3906156122684479,
+        0.07155122607946396
+      ],
+      "duration_s": 30.011179757973878,
+      "final_cup_target_distance_m": 0.04357846737969797,
+      "final_gripper_cup_distance_m": 0.18190490942165138,
+      "final_state": [
+        -0.40905383229255676,
+        -0.7224946923388594,
+        0.7099548671267161,
+        0.07736317068338394,
+        0.23034431040287018,
+        -0.11096105724573135,
+        0.000576585705857724
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 43,
+      "max_lift_m": 0.09105007909238338,
+      "min_cup_target_distance_m": 0.010919518554833809,
+      "min_gripper_cup_distance_m": 0.014459289969983781,
+      "placement_seed": 2069,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.2732614576816559,
+        0.15720853209495544
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 6.332993507385254e-08,
+      "cup_start_xy_m": [
+        -0.3738580644130707,
+        0.09156352281570435
+      ],
+      "duration_s": 17.41234703999362,
+      "final_cup_target_distance_m": 0.014285047090898412,
+      "final_gripper_cup_distance_m": 0.10911101870307796,
+      "final_state": [
+        -0.7084590196609497,
+        0.030912811139369577,
+        -0.0588499140121809,
+        0.18859033286571503,
+        0.2800164520740509,
+        -0.20842641592025757,
+        6.37253760942258e-05
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 44,
+      "max_lift_m": 0.09279963001608849,
+      "min_cup_target_distance_m": 0.0031010679502634967,
+      "min_gripper_cup_distance_m": 0.014795421191005768,
+      "placement_seed": 2070,
+      "recoveries": 0,
+      "steps": 88,
+      "success": true,
+      "target_xy_m": [
+        -0.251655638217926,
+        0.17014938592910767
+      ],
+      "time_to_success_s": 17.412288491002982
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 6.51925802230835e-08,
+      "cup_start_xy_m": [
+        -0.3400629460811615,
+        0.04633709415793419
+      ],
+      "duration_s": 17.609381479996955,
+      "final_cup_target_distance_m": 0.011190178234451774,
+      "final_gripper_cup_distance_m": 0.09967174117459601,
+      "final_state": [
+        -0.634058952331543,
+        0.13852295206650553,
+        -0.23417635822080288,
+        0.14419178664684296,
+        0.3434494435787201,
+        -0.15929657220840454,
+        2.8347753300295153e-07
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 45,
+      "max_lift_m": 0.09300939179956913,
+      "min_cup_target_distance_m": 0.002158001580185418,
+      "min_gripper_cup_distance_m": 0.01327127255717548,
+      "placement_seed": 2071,
+      "recoveries": 0,
+      "steps": 89,
+      "success": true,
+      "target_xy_m": [
+        -0.2267480492591858,
+        0.1372707188129425
+      ],
+      "time_to_success_s": 17.609260152006755
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.960464477539063e-08,
+      "cup_start_xy_m": [
+        -0.368068128824234,
+        0.07957489043474197
+      ],
+      "duration_s": 17.81207951201941,
+      "final_cup_target_distance_m": 0.007292767628825788,
+      "final_gripper_cup_distance_m": 0.10956005830200785,
+      "final_state": [
+        -0.6761670708656311,
+        0.06542901621922312,
+        -0.08703622782014522,
+        0.20411978662014008,
+        0.27246493101119995,
+        -0.22108787298202515,
+        0.0
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 46,
+      "max_lift_m": 0.09320846199989319,
+      "min_cup_target_distance_m": 0.0011598821333490576,
+      "min_gripper_cup_distance_m": 0.01483652798637333,
+      "placement_seed": 2072,
+      "recoveries": 0,
+      "steps": 90,
+      "success": true,
+      "target_xy_m": [
+        -0.24805375933647156,
+        0.16146330535411835
+      ],
+      "time_to_success_s": 17.812015479023103
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.587935447692871e-08,
+      "cup_start_xy_m": [
+        -0.2756708562374115,
+        0.0319526344537735
+      ],
+      "duration_s": 30.012979012011783,
+      "final_cup_target_distance_m": 0.037177285881791845,
+      "final_gripper_cup_distance_m": 0.06320716226155138,
+      "final_state": [
+        -0.8355945944786072,
+        0.2828398935662156,
+        -0.6112628486134878,
+        -0.057690851390361786,
+        0.05064010247588158,
+        0.2096736580133438,
+        3.540482430253178e-05
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {
+        "current state outside limits": 27
+      },
+      "holds": 27,
+      "index": 47,
+      "max_lift_m": 0.0843169055879116,
+      "min_cup_target_distance_m": 0.007306088730100389,
+      "min_gripper_cup_distance_m": 0.010998037547638794,
+      "placement_seed": 2073,
+      "recoveries": 27,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.16420026123523712,
+        0.12513792514801025
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 10,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 5.029141902923584e-08,
+      "cup_start_xy_m": [
+        -0.3360191285610199,
+        0.0589386448264122
+      ],
+      "duration_s": 30.01333261601394,
+      "final_cup_target_distance_m": 0.031669256817972245,
+      "final_gripper_cup_distance_m": 0.19616603288027895,
+      "final_state": [
+        -0.5637497305870056,
+        -0.7207147188319319,
+        0.7076500747225413,
+        0.10133114457130432,
+        0.2249632626771927,
+        -0.14479972422122955,
+        0.0009137990418821573
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 48,
+      "max_lift_m": 0.09350993670523167,
+      "min_cup_target_distance_m": 0.006025108864974372,
+      "min_gripper_cup_distance_m": 0.012839984549447788,
+      "placement_seed": 2074,
+      "recoveries": 0,
+      "steps": 150,
+      "success": false,
+      "target_xy_m": [
+        -0.2193133533000946,
+        0.1454772800207138
+      ],
+      "time_to_success_s": null
+    },
+    {
+      "approach_steps": 12,
+      "close_gated_steps": 0,
+      "cup_rest_z_m": 9.685754776000977e-08,
+      "cup_start_xy_m": [
+        -0.3137931227684021,
+        -0.03763255104422569
+      ],
+      "duration_s": 18.01685342201381,
+      "final_cup_target_distance_m": 0.024412806996666755,
+      "final_gripper_cup_distance_m": 0.09201806906852983,
+      "final_state": [
+        -0.2687806189060211,
+        0.2255201332436448,
+        -0.37670820021413476,
+        0.059435613453388214,
+        0.40952447056770325,
+        -0.062342580407857895,
+        0.0
+      ],
+      "guarded_steps": 0,
+      "hold_reasons": {},
+      "holds": 0,
+      "index": 49,
+      "max_lift_m": 0.0906234011054039,
+      "min_cup_target_distance_m": 0.024412781267775876,
+      "min_gripper_cup_distance_m": 0.014596954946585519,
+      "placement_seed": 2075,
+      "recoveries": 0,
+      "steps": 91,
+      "success": true,
+      "target_xy_m": [
+        -0.22705504298210144,
+        0.07892501354217529
+      ],
+      "time_to_success_s": 18.016791180998553
+    }
+  ],
+  "utc": "2026-10-22T21:38:59.614549+00:00"
+}

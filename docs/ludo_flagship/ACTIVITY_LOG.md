@@ -515,3 +515,36 @@ real-arm driver skipped, placement seed 2026, place score, guard off.
 5. Next: inspect the 22 lifted failures' carry and release in the step trace,
    and compare against the executor's lower and release phases.
 
+## 2026-10-22: Traced campaign of the seated-grasp policy; recovery executor
+
+Simulation lane; never physical evidence.
+
+1. Traced rerun of `simplace02_n122` on the same 50 placements
+   (`reports/sim_policy/staged_place_02/trials_simplace02_n122_traced_20261022T211224Z.json`,
+   trace beside it): 15 of 50 against 16 untraced. In 49 of 50 trials the cup
+   moves 3 mm before the lift with the open gripper about 2 cm short of the
+   cup's axis and 1.5 to 2.5 cm across it: the leading fingertip strikes the
+   wall. The offset is a constant world bias toward -y (mean 14.7 mm, sd
+   7.1); successes arrived 6 to 13 mm across, failures 15 to 30. In the
+   recordings the cup moves before the lift in 69 of 150 takes with the
+   gripper 6.5 mm across at the median, the push-in, never a fingertip.
+   The bias's cause is not established: the recordings cover the same cup
+   bearings, and the scene's gripper pose matches the kinematic centre.
+2. Failure modes of the 35: 11 pushed away and never lifted; 17 lifted and
+   released 3 to 6 cm from the mark (10 of them with the cup ending on its
+   side); 3 carried the cup away without placing it; 3 dropped it 10 to 18 cm
+   out; 1 other. No hover over 1 s. The operator, watching, saw the same
+   fingertip pushes, retries without backing off, and a policy that keeps
+   acting after a placement; the recordings end mid-retreat at the score and
+   contain no retry.
+3. Executor `staged_expert_v2`: backs out of a fingertip shove (cup moved 4 mm
+   sideways, gripper more than 10 mm across the cup's planned position),
+   holds after the lift to confirm the cup rose, and with `--finish-at-rest`
+   ends each take back at the start pose, open and held still. Pilots on seed
+   5026: pilot 7 (shove checked only at the seat) grasped shoved cups; pilot 9
+   (offset measured from the moved cup) never backed out; pilot 10, 10 of 10,
+   backed out once in each of the five brushing takes and in none of the
+   others, peak sideways shove 5.5 to 8.7 mm against 9.5 to 16 in pilot 9.
+4. Recording `staged_place_03`: 150 takes, seed 6026, offset fraction 0.7,
+   brush fraction 0.3, finish at rest.
+
