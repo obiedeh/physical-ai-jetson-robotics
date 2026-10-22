@@ -133,6 +133,9 @@ class DemonstrationConfig:
     # each take, drawn from the take's placement seed; empty keeps every take's start
     # the same. A turned base starts some takes with the cup outside the wrist view.
     start_jitter_rad: tuple[float, ...] = ()
+    # Keep a scored take recording until the executor is done (back at its rest pose,
+    # held still), so the demonstration shows how the task ends, not just the score.
+    finish_at_rest: bool = False
 
     def __post_init__(self) -> None:
         """Refuse nonsense counts and timing."""
@@ -269,7 +272,9 @@ class DemonstrationSession:
                 scored_at = now
             if executor.phase in ("done", "infeasible") and ended_at is None:
                 ended_at = now
-            if scored_at is not None and now - scored_at >= SCORED_TAIL_S:
+            finished = (not config.finish_at_rest
+                        or (ended_at is not None and now - ended_at >= SCORED_TAIL_S))
+            if scored_at is not None and now - scored_at >= SCORED_TAIL_S and finished:
                 break
             if ended_at is not None and now - ended_at >= UNSCORED_GRACE_S:
                 break

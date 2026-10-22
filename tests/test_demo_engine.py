@@ -116,7 +116,8 @@ class FakeGoal:
 
 
 def session(tmp_path: Path, cup_xy: tuple[float, float], takes: int = 1,
-            max_take_s: float = 20.0) -> tuple[DemonstrationSession, FakeScene, FakeWriter]:
+            max_take_s: float = 20.0, finish_at_rest: bool = False,
+            ) -> tuple[DemonstrationSession, FakeScene, FakeWriter]:
     clock = FakeClock()
     scene = FakeScene(cup_xy, clock)
     contract = PhysicalDatasetContract(
@@ -144,7 +145,7 @@ def session(tmp_path: Path, cup_xy: tuple[float, float], takes: int = 1,
         recorder, actions, scene, scene, scene.cup_pose, None, None, scene.randomize,
         DemonstrationConfig(takes=takes, fps=fps, start_pose=START, score=LIFT_SCORE,
                             placement_seed=3026, max_take_s=max_take_s, lift_m=0.03,
-                            hold_s=0.5),
+                            hold_s=0.5, finish_at_rest=finish_at_rest),
         dataset_root=dataset, clock=clock, sleep=clock.sleep, log=lambda line: None,
     )
     return demo, scene, writer
@@ -228,3 +229,13 @@ def test_start_jitter_is_seeded_per_take_and_bounded() -> None:
     with pytest.raises(ValueError, match="start jitter"):
         DemonstrationConfig(takes=1, fps=15, start_pose=START, score=LIFT_SCORE,
                             placement_seed=1, start_jitter_rad=(0.1,) * 5)
+
+
+def test_finish_at_rest_keeps_recording_until_the_executor_is_done(tmp_path: Path) -> None:
+    """A scored take with finish_at_rest records past the executor's done by the tail."""
+    demo, _, writer = session(tmp_path, (-0.32, -0.06), finish_at_rest=True)
+    demo.run()
+    take = demo.takes[0]
+    done = next(entry for entry in take.stage_record["phases"] if entry["phase"] == "done")
+    assert take.success
+    assert len(writer.episodes[0].frames) - done["step"] >= 15

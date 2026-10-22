@@ -102,6 +102,14 @@ def build_parser() -> argparse.ArgumentParser:
                         help="Range of the arrival's shortfall along the approach axis.")
     parser.add_argument("--offset-side-m", type=float, default=0.01,
                         help="Largest sideways arrival offset along the finger axis.")
+    parser.add_argument("--brush-fraction", type=float, default=0.0,
+                        help="Share of takes whose first descent arrives a fingertip-width "
+                             "sideways, so one finger meets the cup's wall first.")
+    parser.add_argument("--brush-side-m", type=float, nargs=2, default=(0.012, 0.02),
+                        metavar=("LOW", "HIGH"),
+                        help="Range of a brushing take's sideways offset; the side is seeded.")
+    parser.add_argument("--finish-at-rest", action="store_true",
+                        help="End every take back at the start pose, open and still.")
     return parser
 
 
@@ -122,6 +130,26 @@ def draw_offset(rng: random.Random | None, fraction: float, back_m: tuple[float,
     if rng is None or rng.random() >= fraction:
         return (0.0, 0.0)
     return (rng.uniform(*back_m), rng.uniform(-side_m, side_m))
+
+
+def brush_offsets(seed: int, fraction: float, side_m: tuple[float, float]) -> random.Random | None:
+    """The per-take brushing generator, separate from the arrival offsets so those keep
+    their draws; None when no take brushes."""
+    if not 0 <= fraction <= 1:
+        raise SystemExit("--brush-fraction must lie between 0 and 1")
+    low, high = side_m
+    if not 0 < low <= high <= 0.02:
+        raise SystemExit("--brush-side-m must be ordered and within 2 cm")
+    return None if fraction == 0 else random.Random(f"brush-{seed}")
+
+
+def draw_brush(rng: random.Random | None, fraction: float, side_m: tuple[float, float],
+               offset: tuple[float, float]) -> tuple[float, float]:
+    """A brushing take's arrival (no shortfall, a seeded side), else ``offset`` unchanged."""
+    if rng is None or rng.random() >= fraction:
+        return offset
+    side = rng.uniform(*side_m)
+    return (0.0, side if rng.random() < 0.5 else -side)
 
 
 def recorder_args(args: argparse.Namespace) -> argparse.Namespace:
@@ -165,6 +193,7 @@ def main(argv: list[str] | None = None) -> int:
         max_take_s=args.max_take_s, place_radius_m=place_radius, max_step_rad=max_step,
         start_jitter_rad=(() if args.start_jitter_deg is None
                           else tuple(math.radians(v) for v in args.start_jitter_deg)),
+        finish_at_rest=args.finish_at_rest,
     )
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     with ExitStack() as stack:
@@ -182,6 +211,8 @@ def main(argv: list[str] | None = None) -> int:
 
         offsets = arrival_offsets(args.placement_seed, args.offset_fraction,
                                   tuple(args.offset_back_m), args.offset_side_m)
+        brushes = brush_offsets(args.placement_seed, args.brush_fraction,
+                                tuple(args.brush_side_m))
 
         def factory() -> StagedExecutor:
             return StagedExecutor(
@@ -189,8 +220,11 @@ def main(argv: list[str] | None = None) -> int:
                 None if target is None else target.read, max_step_rad=max_step,
                 max_gripper_step_m=0.05 * period * args.speed_fraction,
                 margin_rad=math.radians(args.margin_deg),
-                arrival_offset_m=draw_offset(offsets, args.offset_fraction,
-                                             tuple(args.offset_back_m), args.offset_side_m),
+                arrival_offset_m=draw_brush(
+                    brushes, args.brush_fraction, tuple(args.brush_side_m),
+                    draw_offset(offsets, args.offset_fraction, tuple(args.offset_back_m),
+                                args.offset_side_m)),
+                rest_joints_rad=start_pose[:6] if args.finish_at_rest else None,
             )
 
         actions = ExecutorActionSource(
