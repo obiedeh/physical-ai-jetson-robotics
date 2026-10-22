@@ -1,0 +1,96 @@
+{
+  "action_smoothing_window": null,
+  "architecture": {
+    "dim_feedforward": 3200,
+    "dim_model": 512,
+    "dropout": 0.1,
+    "kl_weight": 10.0,
+    "latent_dim": 32,
+    "n_decoder_layers": 1,
+    "n_encoder_layers": 4,
+    "n_heads": 8,
+    "n_vae_encoder_layers": 4
+  },
+  "backbone_learning_rate": 1e-05,
+  "batch_size": 8,
+  "chunk_size": 30,
+  "command_period_s": 0.2,
+  "dataloader_workers": 2,
+  "dataset_repo_id": "local/staged_place_03_sim",
+  "device": "cuda",
+  "episode_weights": null,
+  "evidence_directory": "",
+  "expected_contract": {
+    "action_lookahead_steps": 1,
+    "action_source": "leader",
+    "contract_version": "synria_physical_v1",
+    "effective_action_lookahead_steps": 0,
+    "episode_window_override": {
+      "max_episode_s": 120.0,
+      "min_episode_s": 1.0,
+      "reason": "simulation; never qualifying as physical data"
+    },
+    "goal_channels": [
+      "object",
+      "target"
+    ],
+    "gripper_type": "50mm",
+    "image_keys": [
+      "observation.images.wrist",
+      "observation.images.front"
+    ],
+    "max_episode_s": 120.0,
+    "min_episode_s": 1.0,
+    "nominal_action_lookahead_s": 0.0,
+    "recording_purpose": "simulation",
+    "requested_rate_hz": 15.0,
+    "state_has_velocity": false,
+    "state_names": [
+      "Joint1",
+      "Joint2",
+      "Joint3",
+      "Joint4",
+      "Joint5",
+      "Joint6",
+      "Gripper"
+    ],
+    "task_definition": {
+      "declared_fixed_scene": true,
+      "episode_window": {
+        "max_episode_s": null,
+        "min_episode_s": null
+      },
+      "requires_unobserved_goal": false,
+      "scene_requirements": [
+        "The cup occupies its fixed marked location.",
+        "The target has a fixed visible mark, inside the arm's reach and clear of the other objects.",
+        "The cup, the target mark and the gripper remain visible during the trial."
+      ],
+      "success_rule": "The take ends with the cup upright and at rest inside the marked target and the gripper clear of it, confirmed by the operator and front-camera evidence; in simulation, the scene's cup pose at rest within the target radius with the gripper pose clear for one second.",
+      "task_id": "cup_pick_and_place",
+      "task_text": "Pick up the cup from its marked location, carry it to the marked target and release it upright inside the target, then back the gripper away clear."
+    },
+    "task_definition_sha256": "f099aa17195621d1a778df5404ce96e9e3cbaf147b88b043ad7f185ea1efc769",
+    "task_id": "cup_pick_and_place",
+    "task_text": "Pick up the cup from its marked location, carry it to the marked target and release it upright inside the target, then back the gripper away clear."
+  },
+  "grad_clip_norm": 10.0,
+  "grasp_phase": null,
+  "image_transforms": null,
+  "lane": "simulation",
+  "learning_rate": 1e-05,
+  "policy_id": "",
+  "policy_ledger": "docs/ludo_flagship/SIM_POLICY_LEDGER.md",
+  "probe_set": "reports/sim_policy/staged_place_03/probes.json",
+  "probe_sha256": "f77b707f2e4eb57358776370531277d5847deb352186b2e5a725ad06e9b129bd",
+  "repository": "/home/oedeh/github/physical-ai-jetson-robotics",
+  "response_timeout_s": 0.5,
+  "save_freq": 5000,
+  "state_noise": null,
+  "temporal_ensemble_coeff": null,
+  "timeline": "docs/ludo_flagship/timeline.jsonl",
+  "training_episode_limit": null,
+  "version": "synria_act_training_v1",
+  "video_backend": "pyav",
+  "weight_decay": 0.0001
+}
