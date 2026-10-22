@@ -43,8 +43,8 @@ from synria_lerobot.sim_policy_runner import LIFT_SCORE, PLACE_SCORE, SCORE_BY_T
 
 EXECUTOR_KIND = "staged_expert"
 EXECUTOR_VERSION = "staged_expert_v1"
-PHASES = ("plan", "approach", "descend", "squeeze", "lift", "carry", "lower", "release",
-          "retreat", "done", "infeasible")
+PHASES = ("plan", "approach", "descend", "check", "correct", "squeeze", "lift", "reopen",
+          "backoff", "carry", "lower", "release", "retreat", "done", "infeasible")
 # Reached when every joint is this close to its waypoint; the sim arm sags about half
 # a degree under load, so the tolerance must be wider than that.
 REACHED_RAD = math.radians(1.5)
@@ -52,6 +52,20 @@ REACHED_RAD = math.radians(1.5)
 # so a sagging joint cannot stall a trial; the stall is recorded.
 PHASE_STEP_BUDGET = 60
 CARTESIAN_STEP_M = 0.01
+# The cup counts as seated between the jaws when the gripper centre (FK on the observed
+# joints) is within this of the cup's vertical axis and inside the height band above its
+# base. The scene's cup is 41.3 mm across and the open jaws 51 mm apart, about 5 mm of
+# play a side; the traced corpus policy closed 17 to 34 mm off the axis, against the
+# cup's wall, and lifted only from 11 to 14 mm.
+SEAT_SIDEWAYS_M = 0.006
+SEAT_HEIGHT_M = (0.015, 0.05)
+# Steps the arm dwells with the gripper open before judging the seat, so a demonstration
+# shows the open gripper held at an unseated pose, not only the move through it.
+CHECK_STEPS = 3
+# Once the gripper centre has risen this far above the grasp, the cup must have risen at
+# least LIFT_CONFIRM_M off its rest, or the grasp missed and the executor re-grasps.
+LIFT_CHECK_M = 0.03
+LIFT_CONFIRM_M = 0.01
 # When a group of waypoints does not solve at the strategy's pitch, steeper approaches
 # are tried in this order; a mark close to the base needs the gripper more upright.
 FALLBACK_PITCHES_RAD = (math.radians(40.0), math.radians(25.0), math.radians(10.0))
@@ -162,8 +176,19 @@ class StagedExecutor:
         max_gripper_step_m: float,
         margin_rad: float,
         clock: Callable[[], float] = time.monotonic,
+        arrival_offset_m: tuple[float, float] = (0.0, 0.0),
+        max_corrections: int = 3,
+        max_regrasps: int = 2,
     ) -> None:
-        """Bind the scene's pose readers and the motion limits; nothing moves until step()."""
+        """Bind the scene's pose readers and the motion limits; nothing moves until step().
+
+        ``arrival_offset_m`` (back along the approach axis, sideways along the finger
+        axis) ends the first descent short of the grasp on purpose, so a demonstration
+        shows the open gripper arriving off the cup, the seat check failing, and the
+        correction that seats the cup before the close. Every descent ends in the seat
+        check; ``max_corrections`` bounds the corrections per descent and
+        ``max_regrasps`` the reopen-and-retry cycles after a lift that left the cup.
+        """
         if score not in (LIFT_SCORE, PLACE_SCORE):
             raise ValueError("the executor runs the lift or the place score")
         if score == PLACE_SCORE and target_pose is None:
@@ -172,6 +197,12 @@ class StagedExecutor:
             raise ValueError("step limits must be positive and finite")
         if gripper_type not in limits.gripper_limits_m:
             raise ValueError(f"unknown gripper type {gripper_type!r}")
+        back, side = (float(v) for v in arrival_offset_m)
+        if not (math.isfinite(back) and math.isfinite(side) and 0 <= back <= 0.05
+                and abs(side) <= 0.02):
+            raise ValueError("the arrival offset must lie within 5 cm back and 2 cm sideways")
+        if max_corrections < 1 or max_regrasps < 0:
+            raise ValueError("corrections must be positive and regrasps non-negative")
         self.chain, self.lane, self.limits, self.strategy = chain, lane, limits, strategy
         self.score, self.object_pose, self.target_pose = score, object_pose, target_pose
         self.max_step_rad, self.max_gripper_step_m = max_step_rad, max_gripper_step_m
@@ -186,6 +217,13 @@ class StagedExecutor:
         self._path_index = 0
         self._gripper_command = strategy.open_m
         self._hold: tuple[float, ...] | None = None
+        self.arrival_offset_m = (back, side)
+        self.max_corrections, self.max_regrasps = max_corrections, max_regrasps
+        self._corrections = 0
+        self._regrasps = 0
+        self._pick_pitch: float | None = None
+        self._cup_rest_z: float | None = None
+        self._grasp_z: float | None = None
 
     # Answers ---------------------------------------------------------------------
 
@@ -248,13 +286,9 @@ class StagedExecutor:
             "pitch_from_vertical_deg": round(math.degrees(strategy.pitch_from_vertical_rad), 1),
             "closed_m": strategy.closed_m, "lift_m": strategy.lift_m,
         }
-        grasp = objective + np.array([0.0, 0.0, strategy.centre_height_m])
-        lifted = grasp + np.array([0.0, 0.0, strategy.lift_m])
-        seed = self._solve_group(
-            "pick", objective, tuple(state[:6]),
-            lambda axis: [("pregrasp", grasp - strategy.pregrasp_back_m * axis),
-                          ("grasp", grasp), ("lift", lifted)],
-        )
+        self.record.how["arrival_offset_m"] = list(self.arrival_offset_m)
+        self._cup_rest_z = float(objective[2])
+        seed = self._solve_pick(objective, tuple(state[:6]), with_arrival=True)
         if seed is None:
             return False
         if target is not None:
@@ -267,16 +301,62 @@ class StagedExecutor:
                 return False
         return True
 
+    def _solve_pick(self, objective: np.ndarray, seed: tuple[float, ...], *,
+                    with_arrival: bool) -> tuple[float, ...] | None:
+        """Solve pregrasp, grasp and lift for a cup at ``objective``; the arrival when offset.
+
+        The first plan tries every pitch; a re-plan after a correction or a missed
+        grasp keeps the pitch the first plan chose, so the approach does not swing.
+        """
+        strategy = self.strategy
+        grasp = objective + np.array([0.0, 0.0, strategy.centre_height_m])
+        lifted = grasp + np.array([0.0, 0.0, strategy.lift_m])
+        back, side = self.arrival_offset_m
+        finger = np.array([-objective[1], objective[0], 0.0])
+        finger = finger / max(float(np.linalg.norm(finger)), 1e-9)
+        offset = with_arrival and (back > 0 or side != 0)
+
+        def waypoints(axis: np.ndarray) -> list[tuple[str, np.ndarray]]:
+            named = [("pregrasp", grasp - strategy.pregrasp_back_m * axis)]
+            if offset:
+                named.append(("arrival", grasp - back * axis + side * finger))
+            return [*named, ("grasp", grasp), ("lift", lifted)]
+
+        pitches = None if self._pick_pitch is None else (self._pick_pitch,)
+        result = self._solve_group("pick", objective, seed, waypoints, pitches=pitches)
+        if result is not None:
+            self._grasp_z = float(grasp[2])
+            if not offset:
+                self._waypoints.pop("arrival", None)
+        return result
+
+    def _seated(self, state: tuple[float, ...]) -> tuple[bool, dict[str, float]]:
+        """Whether the cup sits between the jaws, judged on the cup's fresh pose."""
+        centre = self.chain.position(state[:6], self.lane)
+        cup = np.asarray(self.object_pose().position_m, dtype=float)
+        sideways = math.hypot(float(centre[0] - cup[0]), float(centre[1] - cup[1]))
+        height = float(centre[2] - cup[2])
+        low, high = SEAT_HEIGHT_M
+        seated = sideways <= SEAT_SIDEWAYS_M and low <= height <= high
+        return seated, {"sideways_mm": round(sideways * 1000, 1),
+                        "height_mm": round(height * 1000, 1)}
+
+    def _here(self, state: tuple[float, ...]) -> None:
+        """The observed joints as the ``here`` waypoint, a start for a re-planned line."""
+        self._waypoints["here"] = Waypoint("here", tuple(state[:6]), 0.0, 0.0)
+
     def _solve_group(
         self, group: str, anchor: np.ndarray, seed: tuple[float, ...],
         waypoints: Callable[[np.ndarray], list[tuple[str, np.ndarray]]],
+        *, pitches: tuple[float, ...] | None = None,
     ) -> tuple[float, ...] | None:
         """Solve one group of waypoints at the strategy's pitch, then steeper fallbacks.
 
         The group's pitch is recorded under ``how``; the seed of the last waypoint is
         returned so the next group starts from it, or None when no pitch solves.
         """
-        pitches = (self.strategy.pitch_from_vertical_rad, *FALLBACK_PITCHES_RAD)
+        if pitches is None:
+            pitches = (self.strategy.pitch_from_vertical_rad, *FALLBACK_PITCHES_RAD)
         for pitch in pitches:
             try:
                 approach, finger = self._frame(anchor, pitch)
@@ -293,6 +373,8 @@ class StagedExecutor:
                 last = waypoint.joints_rad
             else:
                 self._waypoints.update(solved)
+                if group == "pick":
+                    self._pick_pitch = pitch
                 self.record.how[f"{group}_pitch_deg"] = round(math.degrees(pitch), 1)
                 self.record.how[f"{group}_approach_axis"] = approach.round(3).tolist()
                 return last
@@ -386,7 +468,8 @@ class StagedExecutor:
         if self.phase == "approach":
             target = self._waypoints["pregrasp"].joints_rad
             if self._advance_or_stall(state, target):
-                path = self._line("pregrasp", "grasp", "descend")
+                end = "arrival" if "arrival" in self._waypoints else "grasp"
+                path = self._line("pregrasp", end, "descend")
                 if path is None:
                     self._enter("infeasible", state)
                     self._hold = state
@@ -398,16 +481,17 @@ class StagedExecutor:
                 joints = self._toward(state, target)
             self._gripper_command = strategy.open_m
             return (*joints, self._gripper_command), self.phase
-        if self.phase == "descend":
-            joints = self._walk_path(state, "squeeze")
-            if self.phase == "squeeze":
-                self._gripper_command = strategy.closed_m
+        if self.phase in ("descend", "correct"):
+            self._gripper_command = strategy.open_m
+            joints = self._walk_path(state, "check")
             return (*joints, self._gripper_command), self.phase
+        if self.phase == "check":
+            return self._check(state)
         if self.phase == "squeeze":
             self._gripper_command = strategy.closed_m
-            joints = self._waypoints["grasp"].joints_rad
+            joints = self._waypoints["here"].joints_rad
             if self._phase_steps >= strategy.squeeze_steps:
-                path = self._line("grasp", "lift", "lift")
+                path = self._line("here", "lift", "lift")
                 if path is None:
                     self._enter("infeasible", state)
                     self._hold = state
@@ -416,10 +500,22 @@ class StagedExecutor:
                 self._enter("lift", state)
             return (*joints, self._gripper_command), self.phase
         if self.phase == "lift":
+            if self._missed(state):
+                return self._begin_regrasp(state)
             next_phase = "done" if self.score == LIFT_SCORE else "carry"
             joints = self._walk_path(state, next_phase)
             if self.phase == "done":
                 self._hold = (*self._waypoints["lift"].joints_rad, strategy.closed_m)
+            return (*joints, self._gripper_command), self.phase
+        if self.phase == "reopen":
+            self._gripper_command = strategy.open_m
+            joints = self._waypoints["here"].joints_rad
+            if self._phase_steps >= strategy.release_steps:
+                return self._backoff(state)
+            return (*joints, self._gripper_command), self.phase
+        if self.phase == "backoff":
+            self._gripper_command = strategy.open_m
+            joints = self._walk_path(state, "approach")
             return (*joints, self._gripper_command), self.phase
         if self.phase == "carry":
             target = self._waypoints["carry"].joints_rad
@@ -456,6 +552,72 @@ class StagedExecutor:
                 self._hold = (*self._waypoints["retreat"].joints_rad, strategy.open_m)
             return (*joints, self._gripper_command), self.phase
         raise RuntimeError(f"unknown phase {self.phase}")
+
+    def _give_up(self, state: tuple[float, ...]) -> tuple[tuple[float, ...], str]:
+        self._enter("infeasible", state)
+        self._hold = state
+        return (*state[:6], self._gripper_command), self.phase
+
+    def _check(self, state: tuple[float, ...]) -> tuple[tuple[float, ...], str]:
+        """Dwell open, then squeeze when seated or correct toward the cup's fresh pose."""
+        strategy = self.strategy
+        self._gripper_command = strategy.open_m
+        if self._phase_steps <= CHECK_STEPS:
+            return (*state[:6], self._gripper_command), self.phase
+        seated, measure = self._seated(state)
+        self.record.phases[-1]["seat"] = {"seated": seated, **measure}
+        self._here(state)
+        if seated:
+            self._enter("squeeze", state)
+            self._gripper_command = strategy.closed_m
+            return (*state[:6], self._gripper_command), self.phase
+        if self._corrections >= self.max_corrections:
+            return self._give_up(state)
+        self._corrections += 1
+        objective = np.asarray(self.object_pose().position_m, dtype=float)
+        if self._solve_pick(objective, tuple(state[:6]), with_arrival=False) is None:
+            return self._give_up(state)
+        path = self._line("here", "grasp", "correct")
+        if path is None:
+            return self._give_up(state)
+        self._path = path
+        self._enter("correct", state)
+        return (*self._toward(state, path[0].joints_rad), self._gripper_command), self.phase
+
+    def _missed(self, state: tuple[float, ...]) -> bool:
+        """True once the gripper has risen LIFT_CHECK_M while the cup stayed down."""
+        if self._grasp_z is None or self._cup_rest_z is None:
+            return False
+        risen = float(self.chain.position(state[:6], self.lane)[2]) - self._grasp_z
+        cup_rise = float(self.object_pose().position_m[2]) - self._cup_rest_z
+        return risen >= LIFT_CHECK_M and cup_rise < LIFT_CONFIRM_M
+
+    def _begin_regrasp(self, state: tuple[float, ...]) -> tuple[tuple[float, ...], str]:
+        """Open where the arm is; the backoff and new approach follow."""
+        if self._regrasps >= self.max_regrasps:
+            return self._give_up(state)
+        self._regrasps += 1
+        self._corrections = 0
+        self.record.stalls.append({"phase": "lift", "step": self.record.steps,
+                                   "missed_grasp": self._regrasps})
+        self._here(state)
+        self._enter("reopen", state)
+        self._gripper_command = self.strategy.open_m
+        return (*state[:6], self._gripper_command), self.phase
+
+    def _backoff(self, state: tuple[float, ...]) -> tuple[tuple[float, ...], str]:
+        """Re-plan from the cup's fresh pose and back out to the new pre-grasp."""
+        objective = np.asarray(self.object_pose().position_m, dtype=float)
+        self._cup_rest_z = float(objective[2])
+        if self._solve_pick(objective, tuple(state[:6]), with_arrival=False) is None:
+            return self._give_up(state)
+        self._here(state)
+        path = self._line("here", "pregrasp", "backoff")
+        if path is None:
+            return self._give_up(state)
+        self._path = path
+        self._enter("backoff", state)
+        return (*self._toward(state, path[0].joints_rad), self._gripper_command), self.phase
 
 
 class StagedPolicyService:

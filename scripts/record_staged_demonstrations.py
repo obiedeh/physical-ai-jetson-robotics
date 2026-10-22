@@ -13,8 +13,11 @@ then::
 The recorder samples the sim state, both cameras and the task's goal channels at
 ``--fps``; on every sample the staged executor plans or steps from the sampled state
 and its command is published on the sim-only target topic and stored as the frame's
-leader-type action. The scene's scorer labels each take; failures are labelled and
-appended to the dataset's exclusion log. Use a placement seed far from the
+leader-type action. With ``--offset-fraction`` that share of takes ends its first
+descent short of the grasp and to one side, drawn per take from the placement seed,
+so the corpus shows the open gripper arriving off the cup, the seat check failing and
+the correction that seats it before the close. The scene's scorer labels each take;
+failures are labelled and appended to the dataset's exclusion log. Use a placement seed far from the
 evaluation seeds (2026 and 2027) so no evaluation placement is in the training set.
 Simulation only; nothing here touches the physical arm.
 """
@@ -24,6 +27,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import random
 import sys
 from contextlib import ExitStack
 from datetime import datetime, timezone
@@ -88,7 +92,33 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-joint-speed-rad-s", type=float, default=1.0)
     parser.add_argument("--speed-fraction", type=float, default=0.8)
     parser.add_argument("--margin-deg", type=float, default=3.0)
+    parser.add_argument("--offset-fraction", type=float, default=0.0,
+                        help="Share of takes whose first descent ends off the grasp.")
+    parser.add_argument("--offset-back-m", type=float, nargs=2, default=(0.01, 0.03),
+                        metavar=("LOW", "HIGH"),
+                        help="Range of the arrival's shortfall along the approach axis.")
+    parser.add_argument("--offset-side-m", type=float, default=0.01,
+                        help="Largest sideways arrival offset along the finger axis.")
     return parser
+
+
+def arrival_offsets(seed: int, fraction: float, back_m: tuple[float, float],
+                    side_m: float) -> random.Random | None:
+    """The per-take offset generator, or None when no take is offset."""
+    if not 0 <= fraction <= 1:
+        raise SystemExit("--offset-fraction must lie between 0 and 1")
+    low, high = back_m
+    if not 0 <= low <= high or side_m < 0:
+        raise SystemExit("offset ranges must be non-negative and ordered")
+    return None if fraction == 0 else random.Random(seed)
+
+
+def draw_offset(rng: random.Random | None, fraction: float, back_m: tuple[float, float],
+                side_m: float) -> tuple[float, float]:
+    """One take's arrival offset: (back, sideways), or zero for an unperturbed take."""
+    if rng is None or rng.random() >= fraction:
+        return (0.0, 0.0)
+    return (rng.uniform(*back_m), rng.uniform(-side_m, side_m))
 
 
 def recorder_args(args: argparse.Namespace) -> argparse.Namespace:
@@ -145,12 +175,17 @@ def main(argv: list[str] | None = None) -> int:
             target = stack.enter_context(_closing(RosPoseSource(
                 SIM_PLACE_TARGET_POSE_TOPIC, node_name="synria_demo_mark")))
 
+        offsets = arrival_offsets(args.placement_seed, args.offset_fraction,
+                                  tuple(args.offset_back_m), args.offset_side_m)
+
         def factory() -> StagedExecutor:
             return StagedExecutor(
                 chain, "simulation", limits, args.gripper, strategy, score, cup.read,
                 None if target is None else target.read, max_step_rad=max_step,
                 max_gripper_step_m=0.05 * period * args.speed_fraction,
                 margin_rad=math.radians(args.margin_deg),
+                arrival_offset_m=draw_offset(offsets, args.offset_fraction,
+                                             tuple(args.offset_back_m), args.offset_side_m),
             )
 
         actions = ExecutorActionSource(
