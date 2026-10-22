@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import os
+import subprocess
 from pathlib import Path
 
 import pytest
 
-from scripts.check_repo_hygiene import find_violations
+from scripts.check_repo_hygiene import commit_violations, find_violations
 
 
 def test_rejects_handoff_filename(tmp_path: Path) -> None:
@@ -46,3 +48,27 @@ def test_accepts_ordinary_database_and_screen_pointer_code(tmp_path: Path, sourc
     path = Path("module.py")
     (tmp_path / path).write_text(source, encoding="utf-8")
     assert find_violations(tmp_path, [path]) == []
+
+
+def _git(root: Path, *args: str, name: str = "oedeh", email: str = "obiedeh@gmail.com") -> None:
+    """Run git in ``root`` with the given author and committer identity."""
+    env = {**os.environ, "GIT_AUTHOR_NAME": name, "GIT_AUTHOR_EMAIL": email,
+           "GIT_COMMITTER_NAME": name, "GIT_COMMITTER_EMAIL": email}
+    subprocess.run(["git", *args], cwd=root, check=True, capture_output=True, env=env)
+
+
+def test_commit_range_rejects_vendor_identities_and_trailers(tmp_path: Path) -> None:
+    """A clean commit passes; a vendor author, committer or trailer in the range fails."""
+    _git(tmp_path, "init", "-q")
+    _git(tmp_path, "commit", "-q", "--allow-empty", "-m", "Base")
+    _git(tmp_path, "commit", "-q", "--allow-empty", "-m", "Clean change")
+    assert commit_violations(tmp_path, "HEAD~1..HEAD") == []
+    tool = "Clau" + "de"
+    _git(tmp_path, "commit", "-q", "--allow-empty", "-m", "Change by a tool",
+         name=tool, email="noreply@" + "anthrop" + "ic.com")
+    _git(tmp_path, "commit", "-q", "--allow-empty", "-m",
+         "Change\n\nCo-Authored-By: " + tool + " <noreply@example.com>")
+    found = commit_violations(tmp_path, "HEAD~3..HEAD")
+    assert any("prohibited author" in item for item in found)
+    assert any("prohibited committer" in item for item in found)
+    assert sum("prohibited attribution in message" in item for item in found) == 1
