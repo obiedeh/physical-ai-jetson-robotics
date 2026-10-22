@@ -67,6 +67,18 @@ reason, never silently overwritten.
 
 ---
 
+## Commit Identity Rule
+
+Every commit is authored and committed by the repository owner, under the
+owner's own git identity. Before the first commit in any environment, set
+`git config user.name` and `git config user.email` to the owner's identity and
+check them. Never commit under a tool or vendor identity, and never add
+co-author, session or generated-by trailers to a commit message or a pull
+request description. CI rejects a pull request whose commits break this rule
+(`scripts/check_repo_hygiene.py --commits`).
+
+---
+
 ## Safety Rules
 
 Before any change that touches:
