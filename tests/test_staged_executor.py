@@ -31,23 +31,44 @@ MAX_STEP = 0.16
 
 
 class FakeArm:
-    """Tracks each command with a first-order lag; the gripper stops on a 41 mm cup."""
+    """Tracks each command with a first-order lag; the gripper stops on a 41 mm cup.
 
-    def __init__(self, state: tuple[float, ...], cup_contact_m: float = 0.005) -> None:
+    ``cup_xy`` places the cup; its pose rises with the gripper centre while held, so
+    the executor's lift check sees a cup that came along. ``grip`` False makes every
+    squeeze slip, as a missed grasp does.
+    """
+
+    def __init__(self, state: tuple[float, ...], cup_contact_m: float = 0.005,
+                 cup_xy: tuple[float, float] = (0.0, 0.0), grip: bool = True) -> None:
         self.state = list(state)
         self.cup_contact_m = cup_contact_m
         self.holding = False
+        self.cup_xy = cup_xy
+        self.grip = grip
+        self.cup_z = 0.0
+        self.grasp_z: float | None = None
+
+    def cup(self) -> ObjectPose:
+        """The cup's pose: at rest, or carried up with the gripper while held."""
+        return ObjectPose((*self.cup_xy, self.cup_z), 0.0)
 
     def apply(self, action: tuple[float, ...], at_cup: bool) -> tuple[float, ...]:
         for index in range(6):
             self.state[index] += 0.7 * (action[index] - self.state[index])
         gripper = max(0.0, min(0.025, action[6]))
-        if at_cup and gripper > self.cup_contact_m:
+        if at_cup and gripper > self.cup_contact_m and self.grip:
             gripper = self.cup_contact_m
             self.holding = True
         elif gripper < self.cup_contact_m:
             self.holding = False
         self.state[6] = gripper
+        centre_z = float(CHAIN.position(tuple(self.state[:6]), "simulation")[2])
+        if self.holding:
+            if self.grasp_z is None:
+                self.grasp_z = centre_z
+            self.cup_z = max(0.0, centre_z - self.grasp_z)
+        else:
+            self.grasp_z = None
         return tuple(self.state)
 
 
@@ -65,8 +86,8 @@ def run(executor: StagedExecutor, arm: FakeArm, cup_xy: tuple[float, float],
         if not phases or phases[-1] != phase:
             phases.append(phase)
         centre = CHAIN.position(state[:6], "simulation")
-        at_cup = (math.hypot(centre[0] - cup_xy[0], centre[1] - cup_xy[1]) < 0.03
-                  and centre[2] < 0.06)
+        at_cup = (math.hypot(centre[0] - cup_xy[0], centre[1] - cup_xy[1]) < 0.012
+                  and centre[2] < 0.06 + arm.cup_z)
         state = arm.apply(action, at_cup)
         if phase in ("done", "infeasible"):
             break
@@ -76,12 +97,12 @@ def run(executor: StagedExecutor, arm: FakeArm, cup_xy: tuple[float, float],
 def test_lift_trial_runs_every_phase_and_squeezes_at_the_cup() -> None:
     """Plan, approach, descend, squeeze, lift, done; the squeeze happens at the cup."""
     cup = (-0.32, -0.06)
+    arm = FakeArm(START, cup_xy=cup)
     executor = StagedExecutor(CHAIN, "simulation", LIMITS, "50mm", CUP_SIDE_PITCHED, LIFT_SCORE,
-                              lambda: pose(*cup), None, max_step_rad=MAX_STEP,
+                              arm.cup, None, max_step_rad=MAX_STEP,
                               max_gripper_step_m=0.008, margin_rad=math.radians(3))
-    arm = FakeArm(START)
     phases = run(executor, arm, cup)
-    assert phases == ["approach", "descend", "squeeze", "lift", "done"]
+    assert phases == ["approach", "descend", "check", "squeeze", "lift", "done"]
     record = executor.record
     assert record.feasible is True and record.final_phase == "done"
     assert record.what["object"] == "cup" and record.where["object_m"][:2] == list(cup)
@@ -101,13 +122,13 @@ def test_lift_trial_runs_every_phase_and_squeezes_at_the_cup() -> None:
 def test_place_trial_carries_to_the_mark_releases_and_retreats() -> None:
     """The place score adds carry, lower, release and retreat and ends open above the mark."""
     cup, mark = (-0.33, -0.05), (-0.24, 0.07)
+    arm = FakeArm(START, cup_xy=cup)
     executor = StagedExecutor(CHAIN, "simulation", LIMITS, "50mm", CUP_SIDE_PITCHED, PLACE_SCORE,
-                              lambda: pose(*cup), lambda: pose(*mark), max_step_rad=MAX_STEP,
+                              arm.cup, lambda: pose(*mark), max_step_rad=MAX_STEP,
                               max_gripper_step_m=0.008, margin_rad=math.radians(3))
-    arm = FakeArm(START)
     phases = run(executor, arm, cup, steps=600)
-    assert phases == ["approach", "descend", "squeeze", "lift", "carry", "lower", "release",
-                      "retreat", "done"]
+    assert phases == ["approach", "descend", "check", "squeeze", "lift", "carry", "lower",
+                      "release", "retreat", "done"]
     release = next(entry for entry in executor.record.phases if entry["phase"] == "release")
     centre = release["gripper_centre_m"]
     assert math.hypot(centre[0] - mark[0], centre[1] - mark[1]) < 0.02
@@ -203,3 +224,59 @@ def test_service_metadata_round_trips_and_logs_stages(tmp_path: Path) -> None:
         StagedPolicyService(contract("die_into_cup"), CHAIN, LIMITS, lambda: pose(-0.3, 0.0),
                             None, command_period_s=0.2, max_joint_speed_rad_s=1.0,
                             max_gripper_speed_m_s=0.05)
+
+
+def test_an_offset_arrival_stays_open_corrects_and_closes_only_when_seated() -> None:
+    """Short and to the side: the check fails open, the correction seats the cup, then squeeze."""
+    cup = (-0.32, -0.06)
+    arm = FakeArm(START, cup_xy=cup)
+    executor = StagedExecutor(CHAIN, "simulation", LIMITS, "50mm", CUP_SIDE_PITCHED, LIFT_SCORE,
+                              arm.cup, None, max_step_rad=MAX_STEP, max_gripper_step_m=0.008,
+                              margin_rad=math.radians(3), arrival_offset_m=(0.025, 0.008))
+    commands: list[tuple[str, float]] = []
+    state = tuple(arm.state)
+    for _ in range(500):
+        action, phase = executor.step(state)
+        commands.append((phase, action[6]))
+        centre = CHAIN.position(state[:6], "simulation")
+        at_cup = (math.hypot(centre[0] - cup[0], centre[1] - cup[1]) < 0.012
+                  and centre[2] < 0.06 + arm.cup_z)
+        state = arm.apply(action, at_cup)
+        if phase in ("done", "infeasible"):
+            break
+    phases = [phase for index, (phase, _) in enumerate(commands)
+              if index == 0 or commands[index - 1][0] != phase]
+    assert phases == ["approach", "descend", "check", "correct", "check", "squeeze", "lift",
+                      "done"]
+    checks = [entry["seat"] for entry in executor.record.phases if "seat" in entry]
+    assert checks[0]["seated"] is False and checks[0]["sideways_mm"] > 6
+    assert checks[-1]["seated"] is True
+    assert executor.record.how["arrival_offset_m"] == [0.025, 0.008]
+    # Open through every phase before the squeeze; the close comes only once seated.
+    first_squeeze = next(i for i, (phase, _) in enumerate(commands) if phase == "squeeze")
+    assert all(width == CUP_SIDE_PITCHED.open_m for _, width in commands[:first_squeeze])
+    assert arm.holding and arm.cup_z > 0.05
+
+
+def test_a_missed_grasp_reopens_backs_off_and_retries_then_gives_up() -> None:
+    """A squeeze that slips is caught on the lift; the executor retries, then holds."""
+    cup = (-0.32, -0.06)
+    arm = FakeArm(START, cup_xy=cup, grip=False)
+    executor = StagedExecutor(CHAIN, "simulation", LIMITS, "50mm", CUP_SIDE_PITCHED, LIFT_SCORE,
+                              arm.cup, None, max_step_rad=MAX_STEP, max_gripper_step_m=0.008,
+                              margin_rad=math.radians(3), max_regrasps=1)
+    phases = run(executor, arm, cup, steps=800)
+    assert phases == ["approach", "descend", "check", "squeeze", "lift", "reopen", "backoff",
+                      "approach", "descend", "check", "squeeze", "lift", "infeasible"]
+    assert [stall.get("missed_grasp") for stall in executor.record.stalls] == [1]
+
+
+def test_arrival_offset_and_retry_bounds_are_checked() -> None:
+    """An offset past the bounds or a zero correction budget is refused."""
+    for kwargs in ({"arrival_offset_m": (0.06, 0.0)}, {"arrival_offset_m": (0.01, 0.03)},
+                   {"arrival_offset_m": (-0.01, 0.0)}, {"max_corrections": 0},
+                   {"max_regrasps": -1}):
+        with pytest.raises(ValueError):
+            StagedExecutor(CHAIN, "simulation", LIMITS, "50mm", CUP_SIDE_PITCHED, LIFT_SCORE,
+                           lambda: pose(-0.3, 0.0), None, max_step_rad=MAX_STEP,
+                           max_gripper_step_m=0.008, margin_rad=0.05, **kwargs)
