@@ -568,4 +568,16 @@ Simulation lane; never physical evidence.
 4. Open: whether the place fails on the 30 s limit (the corpus's own p90 is
    over it) or on the rest-pose return moving a placed cup. Next, a traced
    rerun of the same checkpoint, and a rerun with a longer trial limit.
+5. Traced rerun of `simplace03_n130` with a 45 s trial limit on the same
+   placements (`reports/sim_policy/staged_place_03/trials_simplace03_n130_traced45_20261023T014919Z.json`,
+   trace beside it): 7 of 50 against 3 at 30 s, so the limit explains little.
+   20 lift the cup, carry it within 0.1 to 2.9 cm of the mark and set it down
+   elsewhere; 13 let go in mid-air, 12 of them after passing within 3.2 cm of
+   the mark; 2 still hold it at 45 s; 6 touch it without a lift; 2 never reach.
+   In 30 of 45 trials the cup slides 2 cm sideways before it is 6 cm up (median
+   1.7 cm), where the executor lifts straight up 8 cm. At every re-plan the arm
+   jumps (median 4.4 degrees, p90 7.7, against 3.6 and 5.6 for
+   `simplace02_n122`), with the joints stepping up at each new chunk and
+   drifting down through it: the chunks alternate between lowering the cup and
+   rising toward the rest pose.
 
