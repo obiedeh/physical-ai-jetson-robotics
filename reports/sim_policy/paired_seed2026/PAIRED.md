@@ -38,6 +38,7 @@ trial into a mode. "avg4" is the average of the last four checkpoints.
 | plain 45 takes retrained with a 1 degree action-limit margin, step 20000, `reports/sim_policy/pick_cup_17oct3_margin` | 24 | 48% [35, 61] | 2.2 cm |
 | goal-conditioned ACT on the seated-grasp corpus (look, push-in seat check, corrections, settled squeeze), 122 takes, step 20000, place score, guard on (fired on 10 steps), `reports/sim_policy/staged_place_02` | 16 | 32% [21, 46] | 38 lifted 3 cm; 11 reached the mark and were not held there, 11 lifted and dropped |
 | goal-conditioned ACT on the recovery-executor corpus (seated grasp plus fingertip back-out, secured hold, end at rest), 130 takes, step 20000, place score, guard on (fired on 3 steps), `reports/sim_policy/staged_place_03` | 3 | 6% [2, 16] | 1.5 cm; 40 lifted 3 cm, 32 of them brought within 3 cm of the mark, 47 ran to the 30 s limit |
+| the same 130 takes windowed from the last approach after any back-out to the top of the retreat (no back-out, no return to rest in the targets), step 20000, place score, guard on (fired on 10 steps), `reports/sim_policy/staged_place_03_trim` | 2 | 4% [1, 14] | 30 lifted 3 cm, 15 of them brought within 3 cm of the mark, 48 ran to the 30 s limit |
 
 What the pairing shows, with the caveat that one seed is one draw of placements:
 
@@ -139,3 +140,12 @@ What the pairing shows, with the caveat that one seed is one draw of placements:
   30 s trial, and the rest-pose return gives the policy a second motion near
   a placed cup. Which of the two moved the cups is not yet established; a
   traced rerun separates them.
+- Windowed retrain, 2026-10-22: training the same 130 takes only from the last
+  approach after any back-out to the top of the retreat, with every target past
+  the window masked, scores 2 of 50 against the unwindowed policy's 3 (paired 3
+  and 2, p 1) and the seated-grasp policy's 16 (14 and 0, p 1e-4), and lifts 30
+  against 40 and 38. Removing the back-outs and the return to rest from the
+  targets does not bring the place back, so the regression is in the takes the
+  windows keep: the brushing arrivals, the secured hold, the higher-variance
+  starts after a back-out, or the corpus draw itself, not in the segments cut.
+

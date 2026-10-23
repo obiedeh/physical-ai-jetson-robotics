@@ -580,4 +580,11 @@ Simulation lane; never physical evidence.
    `simplace02_n122`), with the joints stepping up at each new chunk and
    drifting down through it: the chunks alternate between lowering the cup and
    rising toward the rest pose.
+6. Windowed retrain `simplace03trim_n130` (`frame_windows` in the training
+   configuration; 36600 of 57077 frames): 2 of 50 placed, 30 lifted, against 3
+   and 40 unwindowed and 16 and 38 for `simplace02_n122`. The cut segments were
+   not the cause; the next corpus is recorded with the corrected planner
+   (approach budget, full release, higher retreat), without brushing arrivals
+   and without the return to rest, so it differs from staged_place_02 only in
+   the fixes.
 
