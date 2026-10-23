@@ -193,6 +193,51 @@ def validate_grasp_phase(value: Any) -> dict[str, float] | None:
     return {key: float(value[key]) for key in sorted(keys)}
 
 
+def validate_frame_windows(value: Any) -> dict[int, tuple[int, int]] | None:
+    """Check the optional per-take frame windows; None trains on every frame of every take.
+
+    The block maps episode indices, written as ``"31"``, to an inclusive ``[first, last]``
+    frame range. Only frames inside a listed take's window are drawn, and every action
+    target past ``last`` is masked as padding, so nothing after the window reaches the
+    loss; an unlisted take is used whole. The held-out frames are unchanged.
+    """
+    if value is None:
+        return None
+    if type(value) is not dict or not value:
+        raise ValueError("frame_windows must be a nonempty mapping of episode indices to ranges")
+    windows: dict[int, tuple[int, int]] = {}
+    for key, bounds in value.items():
+        if type(key) is not str or not re.fullmatch(r"\d+", key):
+            raise ValueError(f"frame_windows key {key!r} is not an episode index")
+        if (type(bounds) not in (list, tuple) or len(bounds) != 2
+                or any(type(v) is not int for v in bounds) or not 0 <= bounds[0] <= bounds[1]):
+            raise ValueError(f"frame_windows[{key!r}] must be [first, last] with 0 <= first <= last")
+        if int(key) in windows:
+            raise ValueError(f"episode {int(key)} is windowed twice")
+        windows[int(key)] = (bounds[0], bounds[1])
+    return windows
+
+
+def frame_window_weights(episodes: list[int], frames: list[int],
+                         windows: dict[int, tuple[int, int]]) -> tuple[list[float], int]:
+    """Weight 1 inside each listed take's window and 0 outside, and the frames kept."""
+    weights = []
+    for episode, frame in zip(episodes, frames, strict=True):
+        first, last = windows.get(episode, (0, frame))
+        weights.append(1.0 if first <= frame <= last else 0.0)
+    return weights, int(sum(weights))
+
+
+def frame_window_padding(episodes: list[int], frames: list[int], chunk: int,
+                         windows: dict[int, tuple[int, int]]) -> Any:
+    """A (batch, chunk) mask, True where a chunk's action lies past its take's window."""
+    padding = np.zeros((len(episodes), chunk), dtype=bool)
+    for row, (episode, frame) in enumerate(zip(episodes, frames, strict=True)):
+        if episode in windows:
+            padding[row, max(0, windows[episode][1] - frame + 1):] = True
+    return padding
+
+
 def validate_action_limit_margin(value: Any) -> float | None:
     """Check the optional margin, in degrees, that training joint targets keep inside the bounds.
 
@@ -366,6 +411,7 @@ def validate_config(config: dict[str, Any], contract: dict[str, Any], *,
     validate_action_smoothing(config.get("action_smoothing_window"))
     validate_action_limit_margin(config.get("action_limit_margin_deg"))
     validate_grasp_phase(config.get("grasp_phase"))
+    validate_frame_windows(config.get("frame_windows"))
     architecture = config.get("architecture")
     keys = {
         "dim_model",
@@ -775,10 +821,12 @@ def train(
     workers = validate_dataloader_workers(config.get("dataloader_workers"))
     weights = validate_episode_weights(config.get("episode_weights"))
     phase = validate_grasp_phase(config.get("grasp_phase"))
+    windows = validate_frame_windows(config.get("frame_windows"))
     applied_weights: dict[str, float] | None = None
     phase_frames: int | None = None
+    window_frames: int | None = None
     sampler = None
-    if weights is not None or phase is not None:
+    if weights is not None or phase is not None or windows is not None:
         # Frames are drawn with replacement in proportion to their episode's weight times
         # their grasp-phase weight; an episode outside the training set contributes
         # nothing, and the record says which weights took effect.
@@ -795,6 +843,14 @@ def train(
                 phase,
             )
             frame_weights = [a * b for a, b in zip(frame_weights, phase_weights, strict=True)]
+        if windows is not None:
+            window_weights, window_frames = frame_window_weights(
+                frame_episodes, [int(index) for index in training.hf_dataset["frame_index"]],
+                windows,
+            )
+            if window_frames == 0:
+                raise ValueError("frame_windows leave no training frame")
+            frame_weights = [a * b for a, b in zip(frame_weights, window_weights, strict=True)]
         sampler = torch.utils.data.WeightedRandomSampler(
             frame_weights, num_samples=len(frame_weights), replacement=True,
             generator=torch.Generator().manual_seed(seed),
@@ -878,9 +934,12 @@ def train(
         "episode_weights": applied_weights,
         "grasp_phase": phase,
         "grasp_phase_frames": phase_frames,
+        "frame_windows": (None if windows is None
+                          else {str(key): list(value) for key, value in sorted(windows.items())}),
+        "frame_window_frames": window_frames,
         "frame_sampling": ("uniform over training frames" if sampler is None
                            else "with replacement, in proportion to the episode weights "
-                                "times the grasp-phase weights"),
+                                "times the grasp-phase weights, inside the frame windows"),
         "state_noise": state_noise,
         "action_smoothing_window": smoothing,
         "action_limit_margin_deg": margin,
@@ -945,6 +1004,13 @@ def train(
             except StopIteration:
                 iterator = iter(loader)
                 batch = next(iterator)
+            if windows is not None:
+                past = torch.as_tensor(frame_window_padding(
+                    [int(v) for v in batch["episode_index"].reshape(-1).tolist()],
+                    [int(v) for v in batch["frame_index"].reshape(-1).tolist()],
+                    batch["action_is_pad"].shape[1], windows,
+                ))
+                batch["action_is_pad"] = batch["action_is_pad"] | past
             if state_noise is not None:
                 batch["observation.state"] = perturb_state(
                     batch["observation.state"], state_noise, state_mean, noise_generator,

@@ -16,6 +16,8 @@ from synria_lerobot.act_training import (
     _save_upstream_checkpoint,
     action_bounds,
     clamp_actions,
+    frame_window_padding,
+    frame_window_weights,
     grasp_phase_frame_weights,
     perturb_state,
     smooth_actions,
@@ -25,6 +27,7 @@ from synria_lerobot.act_training import (
     validate_config,
     validate_dataloader_workers,
     validate_episode_weights,
+    validate_frame_windows,
     validate_grasp_phase,
     validate_state_noise,
 )
@@ -329,6 +332,29 @@ def test_grasp_phase_weights_surround_the_final_close_only() -> None:
         5.0, PHASE,
     )
     assert shuffled == [weights[i] for i in order]
+
+
+def test_frame_windows_draw_only_inside_and_mask_targets_past_the_end() -> None:
+    """Frames outside a listed take's window are never drawn; its chunks stop at the end."""
+    windows = validate_frame_windows({"0": [2, 5], "2": [0, 3]})
+    assert windows == {0: (2, 5), 2: (0, 3)}
+    episodes = [0] * 8 + [1] * 3 + [2] * 5
+    frames = list(range(8)) + list(range(3)) + list(range(5))
+    weights, kept = frame_window_weights(episodes, frames, windows)
+    assert weights[:8] == [0, 0, 1, 1, 1, 1, 0, 0]
+    assert weights[8:11] == [1, 1, 1]  # an unlisted take is used whole
+    assert weights[11:] == [1, 1, 1, 1, 0]
+    assert kept == 4 + 3 + 4
+    padding = frame_window_padding([0, 0, 1, 2], [2, 5, 0, 3], 4, windows)
+    assert padding.tolist() == [[False, False, False, False], [False, True, True, True],
+                                [False, False, False, False], [False, True, True, True]]
+
+
+@pytest.mark.parametrize("value", [{}, {"a": [0, 1]}, {"1": [3, 2]}, {"1": [0]},
+                                   {"1": [-1, 2]}, {"1": [0.0, 2]}, [0, 1]])
+def test_frame_windows_refuse_nonsense(value: object) -> None:
+    with pytest.raises(ValueError):
+        validate_frame_windows(value)
 
 
 def test_smoothing_and_state_noise_act_on_the_batch_tensors() -> None:
