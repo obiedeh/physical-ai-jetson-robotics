@@ -36,8 +36,8 @@ trial into a mode. "avg4" is the average of the last four checkpoints.
 | staged executor (scripted what-where-how-plan-execute, ground-truth poses), `reports/sim_policy/staged_seed2026` | 50 | 100% [93, 100] | at the cup |
 | staged executor, `cup_pick_and_place` on the same placements (place score, 3 cm) | 50 | 100% [93, 100] | final distance median 0.4 cm, p90 0.7 cm |
 | plain 45 takes retrained with a 1 degree action-limit margin, step 20000, `reports/sim_policy/pick_cup_17oct3_margin` | 24 | 48% [35, 61] | 2.2 cm |
-| goal-conditioned ACT on the seated-grasp corpus (look, push-in seat check, corrections, settled squeeze), 122 takes, step 20000, place score, guard off, `reports/sim_policy/staged_place_02` | 16 | 32% [21, 46] | 38 lifted 3 cm; 11 reached the mark and were not held there, 11 lifted and dropped |
-| goal-conditioned ACT on the recovery-executor corpus (seated grasp plus fingertip back-out, secured hold, end at rest), 130 takes, step 20000, place score, guard off, `reports/sim_policy/staged_place_03` | 3 | 6% [2, 16] | 1.5 cm; 40 lifted 3 cm, 32 of them brought within 3 cm of the mark, 47 ran to the 30 s limit |
+| goal-conditioned ACT on the seated-grasp corpus (look, push-in seat check, corrections, settled squeeze), 122 takes, step 20000, place score, guard on (fired on 10 steps), `reports/sim_policy/staged_place_02` | 16 | 32% [21, 46] | 38 lifted 3 cm; 11 reached the mark and were not held there, 11 lifted and dropped |
+| goal-conditioned ACT on the recovery-executor corpus (seated grasp plus fingertip back-out, secured hold, end at rest), 130 takes, step 20000, place score, guard on (fired on 3 steps), `reports/sim_policy/staged_place_03` | 3 | 6% [2, 16] | 1.5 cm; 40 lifted 3 cm, 32 of them brought within 3 cm of the mark, 47 ran to the 30 s limit |
 
 What the pairing shows, with the caveat that one seed is one draw of placements:
 
