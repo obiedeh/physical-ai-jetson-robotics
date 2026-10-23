@@ -37,6 +37,7 @@ trial into a mode. "avg4" is the average of the last four checkpoints.
 | staged executor, `cup_pick_and_place` on the same placements (place score, 3 cm) | 50 | 100% [93, 100] | final distance median 0.4 cm, p90 0.7 cm |
 | plain 45 takes retrained with a 1 degree action-limit margin, step 20000, `reports/sim_policy/pick_cup_17oct3_margin` | 24 | 48% [35, 61] | 2.2 cm |
 | goal-conditioned ACT on the seated-grasp corpus (look, push-in seat check, corrections, settled squeeze), 122 takes, step 20000, place score, guard off, `reports/sim_policy/staged_place_02` | 16 | 32% [21, 46] | 38 lifted 3 cm; 11 reached the mark and were not held there, 11 lifted and dropped |
+| goal-conditioned ACT on the recovery-executor corpus (seated grasp plus fingertip back-out, secured hold, end at rest), 130 takes, step 20000, place score, guard off, `reports/sim_policy/staged_place_03` | 3 | 6% [2, 16] | 1.5 cm; 40 lifted 3 cm, 32 of them brought within 3 cm of the mark, 47 ran to the 30 s limit |
 
 What the pairing shows, with the caveat that one seed is one draw of placements:
 
@@ -124,3 +125,17 @@ What the pairing shows, with the caveat that one seed is one draw of placements:
   of the 38 lifts, 18 end within 3 cm of the mark, 11 reach it and are not held
   there, 11 lift and drop, and 34 failures run to the 30 s limit. Held-out joint
   error 0.0375 rad mean, 0.0466 max, gripper 0.0010 m.
+- Recovery-executor corpus, 2026-10-22: goal-conditioned ACT trained on 130
+  takes of `staged_expert_v2` (the seated grasp plus a back-out after a
+  fingertip shove, a secured hold after the lift and an ending at the rest
+  pose) scores 3 of 50 on the place score against the 122-take seated-grasp
+  policy's 16 on the same placements (paired: 15 old only, 2 new only, exact
+  McNemar p 0.002). The grasp holds: 40 lift 3 cm against 38 (9 new only, 7
+  old only, p 0.80), and 32 of the 40 bring the cup within 3 cm of the mark
+  at some point. The place collapses: 47 trials run to the 30 s limit, 35
+  failures end with the gripper clear of a cup 3 to 41 cm from the mark. The
+  corpus is slower than the one it replaces (median take 26.5 s, p90 30.9 s,
+  against 18.2 and 20.0), so its demonstrated place no longer fits inside the
+  30 s trial, and the rest-pose return gives the policy a second motion near
+  a placed cup. Which of the two moved the cups is not yet established; a
+  traced rerun separates them.
