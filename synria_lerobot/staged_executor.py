@@ -115,6 +115,15 @@ SECURE_STEPS = 6
 # At the rest pose after the retreat the arm holds still this many steps, so a
 # demonstration ends sitting back empty instead of mid-motion.
 REST_HOLD_STEPS = 30
+# The release holds the arm at the place until the gripper reads open and at least
+# RELEASE_DWELL_STEPS have passed, so the fingers are off the cup before it moves. The
+# retreat then rises straight up RETREAT_CLEARANCE_M above the carry height and holds
+# CLEAR_HOLD_STEPS there before the return to rest, so the swing cannot clip the cup.
+# Four release steps began the rise with the fingers still opening.
+RELEASE_DWELL_STEPS = 8
+RELEASE_OPEN_M = 0.002
+RETREAT_CLEARANCE_M = 0.05
+CLEAR_HOLD_STEPS = 5
 # When a group of waypoints does not solve at the strategy's pitch, steeper approaches
 # are tried in this order; a mark close to the base needs the gripper more upright.
 FALLBACK_PITCHES_RAD = (math.radians(40.0), math.radians(25.0), math.radians(10.0))
@@ -375,10 +384,16 @@ class StagedExecutor:
         if target is not None:
             place = target + np.array([0.0, 0.0, strategy.centre_height_m + PLACE_CLEARANCE_M])
             above = place + np.array([0.0, 0.0, strategy.lift_m])
-            if self._solve_group(
-                "place", target, seed,
-                lambda axis: [("carry", above), ("place", place), ("retreat", above)],
-            ) is None:
+            clear = above + np.array([0.0, 0.0, RETREAT_CLEARANCE_M])
+            # The higher retreat is tried at the strategy's pitch only; a mark it does not
+            # solve for retreats to the carry height with the usual pitch fallbacks, so
+            # the retreat never steepens the place.
+            def group(top: np.ndarray) -> Callable[[np.ndarray], list[tuple[str, np.ndarray]]]:
+                return lambda axis: [("carry", above), ("place", place), ("retreat", top)]
+
+            if (self._solve_group("place", target, seed, group(clear),
+                                  pitches=(strategy.pitch_from_vertical_rad,)) is None
+                    and self._solve_group("place", target, seed, group(above)) is None):
                 return False
         return True
 
@@ -647,7 +662,9 @@ class StagedExecutor:
         if self.phase == "release":
             self._gripper_command = strategy.open_m
             joints = self._waypoints["place"].joints_rad
-            if self._phase_steps >= strategy.release_steps:
+            opened = state[6] <= strategy.open_m + RELEASE_OPEN_M
+            if self._phase_steps >= max(strategy.release_steps, RELEASE_DWELL_STEPS) and (
+                    opened or self._phase_steps >= GRIP_BUDGET_STEPS):
                 path = self._line("place", "retreat", "retreat")
                 if path is None:
                     self._enter("done", state)
@@ -666,6 +683,8 @@ class StagedExecutor:
             return (*joints, self._gripper_command), self.phase
         if self.phase == "rest":
             assert self.rest_joints_rad is not None
+            if self._phase_steps <= CLEAR_HOLD_STEPS:
+                return (*self._waypoints["retreat"].joints_rad, self._gripper_command), self.phase
             target = self.rest_joints_rad
             if self._reached(state, target) or self._phase_steps >= PHASE_STEP_BUDGET:
                 self._still_steps += 1
