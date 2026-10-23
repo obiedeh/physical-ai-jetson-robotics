@@ -413,6 +413,24 @@ def test_place_take_ends_back_at_the_rest_pose_open_and_still() -> None:
     assert done["step"] - rest["step"] >= 30
 
 
+def test_release_waits_open_then_rises_clear_before_the_return() -> None:
+    """The fingers open fully and dwell, the rise is straight up past the carry height."""
+    cup, mark = (-0.33, -0.05), (-0.24, 0.07)
+    arm = FakeArm(START, cup_xy=cup)
+    executor = StagedExecutor(CHAIN, "simulation", LIMITS, "50mm", CUP_SIDE_PITCHED, PLACE_SCORE,
+                              arm.cup, lambda: pose(*mark), max_step_rad=MAX_STEP,
+                              max_gripper_step_m=0.008, margin_rad=math.radians(3),
+                              rest_joints_rad=START[:6])
+    run(executor, arm, cup, steps=800)
+    entries = {entry["phase"]: entry for entry in executor.record.phases}
+    assert entries["retreat"]["step"] - entries["release"]["step"] >= 8
+    place = np.array(entries["retreat"]["gripper_centre_m"])
+    top = np.array(entries["rest"]["gripper_centre_m"])
+    carry = CHAIN.position(executor._waypoints["carry"].joints_rad, "simulation")
+    assert top[2] - carry[2] == pytest.approx(0.05, abs=0.01)
+    assert math.hypot(*(top[:2] - place[:2])) < 0.01
+
+
 def test_off_centre_seat_backs_out_and_comes_in_again() -> None:
     """A fingertip that pushed the cup is not slid sideways: back out, look, re-descend."""
     cup = (-0.32, -0.06)
