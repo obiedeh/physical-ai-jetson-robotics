@@ -548,3 +548,24 @@ Simulation lane; never physical evidence.
 4. Recording `staged_place_03`: 150 takes, seed 6026, offset fraction 0.7,
    brush fraction 0.3, finish at rest.
 
+## 2026-10-22: Recovery-executor corpus and its campaign
+
+Simulation lane; never physical evidence.
+
+1. Corpus `staged_place_03`: 150 takes of `staged_expert_v2` at placement seed
+   6026 with `--brush-fraction 0.3 --finish-at-rest`; 138 succeed, 12 end
+   infeasible without a lift and are excluded. 49 successes back out after a
+   fingertip shove (45 of them brushing takes), 101 record a correction, and
+   all 138 hold after the lift and end at the rest pose. Median take 26.5 s,
+   p90 30.9 s (staged_place_02: 18.2 and 20.0).
+2. Study frozen with 8 held-out takes and one 130-take row on the
+   staged_place_02 recipe; trained 20000 steps.
+3. Campaign on placement seed 2026: 3 of 50 placed (6% [2, 16]) against 16
+   for `simplace02_n122`, paired exact McNemar p 0.002. Lifts are unchanged,
+   40 against 38 (p 0.80), and 32 of the 40 bring the cup within 3 cm of the
+   mark; 47 trials run to the 30 s limit. Recorded in
+   `reports/sim_policy/paired_seed2026/PAIRED.md`.
+4. Open: whether the place fails on the 30 s limit (the corpus's own p90 is
+   over it) or on the rest-pose return moving a placed cup. Next, a traced
+   rerun of the same checkpoint, and a rerun with a longer trial limit.
+
