@@ -431,6 +431,20 @@ def test_release_waits_open_then_rises_clear_before_the_return() -> None:
     assert math.hypot(*(top[:2] - place[:2])) < 0.01
 
 
+def test_a_long_approach_reaches_the_pregrasp_before_it_looks() -> None:
+    """An approach slower than the generic phase budget still looks once, from the pre-grasp."""
+    cup = (-0.33, -0.05)
+    arm = FakeArm(START, cup_xy=cup)
+    executor = StagedExecutor(CHAIN, "simulation", LIMITS, "50mm", CUP_SIDE_PITCHED, LIFT_SCORE,
+                              arm.cup, None, max_step_rad=0.02,
+                              max_gripper_step_m=0.008, margin_rad=math.radians(3))
+    phases = run(executor, arm, cup, steps=1200)
+    approach, look = executor.record.phases[0], executor.record.phases[1]
+    assert look["phase"] == "look" and look["step"] - approach["step"] > 60
+    assert phases[:3] == ["approach", "look", "descend"]
+    assert not [stall for stall in executor.record.stalls if stall["phase"] == "approach"]
+
+
 def test_off_centre_seat_backs_out_and_comes_in_again() -> None:
     """A fingertip that pushed the cup is not slid sideways: back out, look, re-descend."""
     cup = (-0.32, -0.06)

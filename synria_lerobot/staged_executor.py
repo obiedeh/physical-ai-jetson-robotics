@@ -52,6 +52,11 @@ REACHED_RAD = math.radians(1.5)
 # A phase that has not reached its waypoint after this many steps moves on anyway,
 # so a sagging joint cannot stall a trial; the stall is recorded.
 PHASE_STEP_BUDGET = 60
+# The approach from a turned start runs longer than any other phase: staged_place_03
+# spent the 60-step budget in every one of its 138 successful takes, 16 degrees short
+# of the pre-grasp at the median, so the look failed there and the arm came in again.
+# The approach keeps going to the pre-grasp until this budget, then looks as before.
+APPROACH_STEP_BUDGET = 180
 CARTESIAN_STEP_M = 0.01
 # The cup counts as seated between the jaws when the gripper centre (FK on the observed
 # joints) is within SEAT_SIDEWAYS_M of the cup's axis across the jaws, has been pushed
@@ -528,11 +533,12 @@ class StagedExecutor:
     def _reached(self, state: tuple[float, ...], target: tuple[float, ...]) -> bool:
         return bool(np.max(np.abs(np.asarray(state[:6]) - np.asarray(target[:6]))) <= REACHED_RAD)
 
-    def _advance_or_stall(self, state: tuple[float, ...], target: tuple[float, ...]) -> bool:
+    def _advance_or_stall(self, state: tuple[float, ...], target: tuple[float, ...], *,
+                          budget: int = PHASE_STEP_BUDGET) -> bool:
         """True when the waypoint is reached or the phase budget is spent (recorded)."""
         if self._reached(state, target):
             return True
-        if self._phase_steps >= PHASE_STEP_BUDGET:
+        if self._phase_steps >= budget:
             self.record.stalls.append({
                 "phase": self.phase, "step": self.record.steps,
                 "worst_joint_error_deg": round(math.degrees(float(np.max(np.abs(
@@ -577,7 +583,7 @@ class StagedExecutor:
         if self.phase == "approach":
             target = self._waypoints["pregrasp"].joints_rad
             self._gripper_command = strategy.open_m
-            if self._advance_or_stall(state, target):
+            if self._advance_or_stall(state, target, budget=APPROACH_STEP_BUDGET):
                 self._enter("look", state)
                 return (*state[:6], self._gripper_command), self.phase
             return (*self._toward(state, target), self._gripper_command), self.phase
