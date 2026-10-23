@@ -35,6 +35,10 @@ trial into a mode. "avg4" is the average of the last four checkpoints.
 | corpus policy, 131 takes, gripper guard off, `reports/sim_policy/paired_seed2026_noguard` | 0 | 0% [0, 7] | 3.3 cm; 2 lifted and dropped, 13 reached without a grasp, 14 nudged |
 | staged executor (scripted what-where-how-plan-execute, ground-truth poses), `reports/sim_policy/staged_seed2026` | 50 | 100% [93, 100] | at the cup |
 | staged executor, `cup_pick_and_place` on the same placements (place score, 3 cm) | 50 | 100% [93, 100] | final distance median 0.4 cm, p90 0.7 cm |
+| plain 45 takes retrained with a 1 degree action-limit margin, step 20000, `reports/sim_policy/pick_cup_17oct3_margin` | 24 | 48% [35, 61] | 2.2 cm |
+| goal-conditioned ACT on the seated-grasp corpus (look, push-in seat check, corrections, settled squeeze), 122 takes, step 20000, place score, guard on (fired on 10 steps), `reports/sim_policy/staged_place_02` | 16 | 32% [21, 46] | 38 lifted 3 cm; 11 reached the mark and were not held there, 11 lifted and dropped |
+| goal-conditioned ACT on the recovery-executor corpus (seated grasp plus fingertip back-out, secured hold, end at rest), 130 takes, step 20000, place score, guard on (fired on 3 steps), `reports/sim_policy/staged_place_03` | 3 | 6% [2, 16] | 1.5 cm; 40 lifted 3 cm, 32 of them brought within 3 cm of the mark, 47 ran to the 30 s limit |
+| the same 130 takes windowed from the last approach after any back-out to the top of the retreat (no back-out, no return to rest in the targets), step 20000, place score, guard on (fired on 10 steps), `reports/sim_policy/staged_place_03_trim` | 2 | 4% [1, 14] | 30 lifted 3 cm, 15 of them brought within 3 cm of the mark, 48 ran to the 30 s limit |
 
 What the pairing shows, with the caveat that one seed is one draw of placements:
 
@@ -100,3 +104,48 @@ What the pairing shows, with the caveat that one seed is one draw of placements:
   does, and the squeeze, which the demonstrations show. It is scripted; it is not
   a learned policy and its where is ground truth, so the next measurement replaces
   the where with a camera locator.
+- Margin retrain, 2026-10-22: the plain 45-take row retrained with every training
+  joint target clamped 1 degree inside the operator bounds (verified 2026-10-17)
+  scores 24 of 50 against the plain run's 28 on the same placements, inside one
+  interval and inside the run-to-run noise of about seven trials. Paired trial by
+  trial, both succeed on 18, the margin run alone on 6 and the plain run alone on
+  10 (exact McNemar p 0.45). The margin does what it was built for: hold events
+  fall from 28 to 1 and the share of held steps from 0.5 to 0.0 percent. Its
+  held-out joint error is 0.057 rad mean, 0.113 max, against 0.059 and 0.123.
+  Holds were not what limited the plain recipe: its failures are the same reach
+  and squeeze modes (10 moved the cup without a lift, 5 reached without a grasp,
+  10 never reached, 1 lifted and dropped). The margin is safe to keep and does not
+  move the success rate.
+- Seated-grasp corpus, 2026-10-22: goal-conditioned ACT trained on 122 takes of
+  the staged executor recorded with a wrist-view look, a push-in seat check,
+  open-gripper corrections from seeded arrival offsets and a squeeze held until
+  the gripper width settles, scores 16 of 50 on the place score against the
+  131-take corpus policy's 0 of 50 on the same placements (paired: 16 new only,
+  0 old only, exact McNemar p 3e-5). On the 3 cm lift alone it reaches 38 of 50
+  against 2 (p 3e-11). The grasp is no longer the main failure; the place is:
+  of the 38 lifts, 18 end within 3 cm of the mark, 11 reach it and are not held
+  there, 11 lift and drop, and 34 failures run to the 30 s limit. Held-out joint
+  error 0.0375 rad mean, 0.0466 max, gripper 0.0010 m.
+- Recovery-executor corpus, 2026-10-22: goal-conditioned ACT trained on 130
+  takes of `staged_expert_v2` (the seated grasp plus a back-out after a
+  fingertip shove, a secured hold after the lift and an ending at the rest
+  pose) scores 3 of 50 on the place score against the 122-take seated-grasp
+  policy's 16 on the same placements (paired: 15 old only, 2 new only, exact
+  McNemar p 0.002). The grasp holds: 40 lift 3 cm against 38 (9 new only, 7
+  old only, p 0.80), and 32 of the 40 bring the cup within 3 cm of the mark
+  at some point. The place collapses: 47 trials run to the 30 s limit, 35
+  failures end with the gripper clear of a cup 3 to 41 cm from the mark. The
+  corpus is slower than the one it replaces (median take 26.5 s, p90 30.9 s,
+  against 18.2 and 20.0), so its demonstrated place no longer fits inside the
+  30 s trial, and the rest-pose return gives the policy a second motion near
+  a placed cup. Which of the two moved the cups is not yet established; a
+  traced rerun separates them.
+- Windowed retrain, 2026-10-22: training the same 130 takes only from the last
+  approach after any back-out to the top of the retreat, with every target past
+  the window masked, scores 2 of 50 against the unwindowed policy's 3 (paired 3
+  and 2, p 1) and the seated-grasp policy's 16 (14 and 0, p 1e-4), and lifts 30
+  against 40 and 38. Removing the back-outs and the return to rest from the
+  targets does not bring the place back, so the regression is in the takes the
+  windows keep: the brushing arrivals, the secured hold, the higher-variance
+  starts after a back-out, or the corpus draw itself, not in the segments cut.
+

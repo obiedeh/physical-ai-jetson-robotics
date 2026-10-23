@@ -454,3 +454,137 @@ Change Report:
    0 of 50 campaign of 2026-10-19T14:40.
 4. Risks: none to behaviour; a 50-trial trace is a few thousand rows.
 5. Hardware safety review: not needed. Simulation only.
+
+## 2026-10-22: Margin retrain and traced corpus campaign
+
+Two simulation campaigns at placement seed 2026, Isaac scene in policy launch
+mode with the real-arm driver skipped. Simulation lane; never physical evidence.
+
+1. Margin retrain (`reports/sim_policy/pick_cup_17oct3_margin`): the plain
+   45-take pick_cup row retrained with `action_limit_margin_deg` 1.0 (bounds
+   verified 2026-10-17) scores 24 of 50 against the plain run's 28, inside one
+   interval; paired, 18 both, 6 margin only, 10 plain only (exact McNemar p
+   0.45). Hold events fall from 28 to 1. Held-out joint MAE 0.0568 rad mean,
+   0.1132 max, gripper 0.0016 m. The margin removes the holds and does not move
+   the success rate.
+2. Traced corpus campaign (`reports/sim_policy/paired_seed2026_noguard`,
+   `trace_simplace01_n131_20261022T052654Z.jsonl`): the 131-take corpus policy,
+   guard off, place score, scores 0 of 50 again (2 lifted and dropped, 18 moved
+   the cup without a lift, 12 reached without a grasp, 13 never reached, 5
+   held most of the trial; 641 held steps). Finding from the trace: 46 of 50
+   trials command a full close (at or above 0.016 m), first at a median
+   gripper-to-cup centre distance of 3.1 cm (p10 2.5, p90 4.1). The staged
+   executor's grasps sit at 2.6 cm on the same measure. Of the 21 trials whose
+   closest approach is under 3 cm, 15 command a squeeze of at least 0.016 m in
+   the 2 s before it; the closest any trial gets is 2.3 cm. The squeeze is
+   commanded; it is timed on the approach rather than on the cup's position,
+   fires before the gripper is around the cup, and after a miss the policy
+   backs away and never retries. The executor closes only after reaching its
+   grasp pose (`synria_lerobot/staged_executor.py`, descend to squeeze), so
+   the cue the demonstrations carry is position, but every take arrives on time
+   and the policy cannot tell time from position.
+3. Next: a simulation-only diagnostic that refuses a close until the scene's
+   gripper-to-cup distance is within the executor's grasp distance, to measure
+   how much of the failure is the early close; then near-miss demonstrations
+   that hold the gripper open, correct and close, which teach the position cue
+   and a retry.
+
+## 2026-10-22: Seated-grasp corpus campaign
+
+Simulation lane; never physical evidence. Isaac scene in policy launch mode,
+real-arm driver skipped, placement seed 2026, place score, guard off.
+
+1. Corpus `staged_place_02`: 150 staged-executor takes recorded with a wrist-view
+   look at the pre-grasp, a push-in seat check (centred within 6 mm, 8 mm past
+   the cup's axis or a depth plateau), open-gripper corrections from seeded
+   arrival offsets (112 offset takes), start-pose jitter and a squeeze held
+   until the gripper width settles; 130 succeed, 122 record a correction, the
+   20 failures are excluded. Study frozen with 8 held-out takes.
+2. `simplace02_n122` (seed 17, 20000 steps, staged_place_01 recipe): held-out
+   joint MAE 0.0375 rad mean, 0.0466 max, gripper 0.0010 m.
+3. Campaign: 16 of 50 (32% [21, 46]) against the 131-take corpus policy's 0 of
+   50 on the same placements; paired 16 new only, 0 old only, exact McNemar p
+   3e-5. Lifted 3 cm in 38 of 50 against 2 (p 3e-11). Modes: 16 success, 11
+   lifted and dropped, 11 reached the mark and not held there, 4 moved the cup
+   without a lift, 4 reached without a grasp, 4 never reached; 34 failures run
+   to the 30 s limit; 0.1% of steps held.
+4. Finding: demonstrations that show a position-cued close, a correction and a
+   firm squeeze move the learned policy from no grasps to lifting in three
+   trials of four. The remaining gap is the carry and release: the policy
+   reaches the mark and drifts or lets go away from it.
+5. Next: inspect the 22 lifted failures' carry and release in the step trace,
+   and compare against the executor's lower and release phases.
+
+## 2026-10-22: Traced campaign of the seated-grasp policy; recovery executor
+
+Simulation lane; never physical evidence.
+
+1. Traced rerun of `simplace02_n122` on the same 50 placements
+   (`reports/sim_policy/staged_place_02/trials_simplace02_n122_traced_20261022T211224Z.json`,
+   trace beside it): 15 of 50 against 16 untraced. In 49 of 50 trials the cup
+   moves 3 mm before the lift with the open gripper about 2 cm short of the
+   cup's axis and 1.5 to 2.5 cm across it: the leading fingertip strikes the
+   wall. The offset is a constant world bias toward -y (mean 14.7 mm, sd
+   7.1); successes arrived 6 to 13 mm across, failures 15 to 30. In the
+   recordings the cup moves before the lift in 69 of 150 takes with the
+   gripper 6.5 mm across at the median, the push-in, never a fingertip.
+   The bias's cause is not established: the recordings cover the same cup
+   bearings, and the scene's gripper pose matches the kinematic centre.
+2. Failure modes of the 35: 11 pushed away and never lifted; 17 lifted and
+   released 3 to 6 cm from the mark (10 of them with the cup ending on its
+   side); 3 carried the cup away without placing it; 3 dropped it 10 to 18 cm
+   out; 1 other. No hover over 1 s. The operator, watching, saw the same
+   fingertip pushes, retries without backing off, and a policy that keeps
+   acting after a placement; the recordings end mid-retreat at the score and
+   contain no retry.
+3. Executor `staged_expert_v2`: backs out of a fingertip shove (cup moved 4 mm
+   sideways, gripper more than 10 mm across the cup's planned position),
+   holds after the lift to confirm the cup rose, and with `--finish-at-rest`
+   ends each take back at the start pose, open and held still. Pilots on seed
+   5026: pilot 7 (shove checked only at the seat) grasped shoved cups; pilot 9
+   (offset measured from the moved cup) never backed out; pilot 10, 10 of 10,
+   backed out once in each of the five brushing takes and in none of the
+   others, peak sideways shove 5.5 to 8.7 mm against 9.5 to 16 in pilot 9.
+4. Recording `staged_place_03`: 150 takes, seed 6026, offset fraction 0.7,
+   brush fraction 0.3, finish at rest.
+
+## 2026-10-22: Recovery-executor corpus and its campaign
+
+Simulation lane; never physical evidence.
+
+1. Corpus `staged_place_03`: 150 takes of `staged_expert_v2` at placement seed
+   6026 with `--brush-fraction 0.3 --finish-at-rest`; 138 succeed, 12 end
+   infeasible without a lift and are excluded. 49 successes back out after a
+   fingertip shove (45 of them brushing takes), 101 record a correction, and
+   all 138 hold after the lift and end at the rest pose. Median take 26.5 s,
+   p90 30.9 s (staged_place_02: 18.2 and 20.0).
+2. Study frozen with 8 held-out takes and one 130-take row on the
+   staged_place_02 recipe; trained 20000 steps.
+3. Campaign on placement seed 2026: 3 of 50 placed (6% [2, 16]) against 16
+   for `simplace02_n122`, paired exact McNemar p 0.002. Lifts are unchanged,
+   40 against 38 (p 0.80), and 32 of the 40 bring the cup within 3 cm of the
+   mark; 47 trials run to the 30 s limit. Recorded in
+   `reports/sim_policy/paired_seed2026/PAIRED.md`.
+4. Open: whether the place fails on the 30 s limit (the corpus's own p90 is
+   over it) or on the rest-pose return moving a placed cup. Next, a traced
+   rerun of the same checkpoint, and a rerun with a longer trial limit.
+5. Traced rerun of `simplace03_n130` with a 45 s trial limit on the same
+   placements (`reports/sim_policy/staged_place_03/trials_simplace03_n130_traced45_20261023T014919Z.json`,
+   trace beside it): 7 of 50 against 3 at 30 s, so the limit explains little.
+   20 lift the cup, carry it within 0.1 to 2.9 cm of the mark and set it down
+   elsewhere; 13 let go in mid-air, 12 of them after passing within 3.2 cm of
+   the mark; 2 still hold it at 45 s; 6 touch it without a lift; 2 never reach.
+   In 30 of 45 trials the cup slides 2 cm sideways before it is 6 cm up (median
+   1.7 cm), where the executor lifts straight up 8 cm. At every re-plan the arm
+   jumps (median 4.4 degrees, p90 7.7, against 3.6 and 5.6 for
+   `simplace02_n122`), with the joints stepping up at each new chunk and
+   drifting down through it: the chunks alternate between lowering the cup and
+   rising toward the rest pose.
+6. Windowed retrain `simplace03trim_n130` (`frame_windows` in the training
+   configuration; 36600 of 57077 frames): 2 of 50 placed, 30 lifted, against 3
+   and 40 unwindowed and 16 and 38 for `simplace02_n122`. The cut segments were
+   not the cause; the next corpus is recorded with the corrected planner
+   (approach budget, full release, higher retreat), without brushing arrivals
+   and without the return to rest, so it differs from staged_place_02 only in
+   the fixes.
+

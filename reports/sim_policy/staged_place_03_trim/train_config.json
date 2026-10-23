@@ -1,0 +1,650 @@
+{
+  "action_smoothing_window": null,
+  "architecture": {
+    "dim_feedforward": 3200,
+    "dim_model": 512,
+    "dropout": 0.1,
+    "kl_weight": 10.0,
+    "latent_dim": 32,
+    "n_decoder_layers": 1,
+    "n_encoder_layers": 4,
+    "n_heads": 8,
+    "n_vae_encoder_layers": 4
+  },
+  "backbone_learning_rate": 1e-05,
+  "batch_size": 8,
+  "chunk_size": 30,
+  "command_period_s": 0.2,
+  "dataloader_workers": 2,
+  "dataset_repo_id": "local/staged_place_03_trim_sim",
+  "device": "cuda",
+  "episode_weights": null,
+  "evidence_directory": "",
+  "expected_contract": {
+    "action_lookahead_steps": 1,
+    "action_source": "leader",
+    "contract_version": "synria_physical_v1",
+    "effective_action_lookahead_steps": 0,
+    "episode_window_override": {
+      "max_episode_s": 120.0,
+      "min_episode_s": 1.0,
+      "reason": "simulation; never qualifying as physical data"
+    },
+    "goal_channels": [
+      "object",
+      "target"
+    ],
+    "gripper_type": "50mm",
+    "image_keys": [
+      "observation.images.wrist",
+      "observation.images.front"
+    ],
+    "max_episode_s": 120.0,
+    "min_episode_s": 1.0,
+    "nominal_action_lookahead_s": 0.0,
+    "recording_purpose": "simulation",
+    "requested_rate_hz": 15.0,
+    "state_has_velocity": false,
+    "state_names": [
+      "Joint1",
+      "Joint2",
+      "Joint3",
+      "Joint4",
+      "Joint5",
+      "Joint6",
+      "Gripper"
+    ],
+    "task_definition": {
+      "declared_fixed_scene": true,
+      "episode_window": {
+        "max_episode_s": null,
+        "min_episode_s": null
+      },
+      "requires_unobserved_goal": false,
+      "scene_requirements": [
+        "The cup occupies its fixed marked location.",
+        "The target has a fixed visible mark, inside the arm's reach and clear of the other objects.",
+        "The cup, the target mark and the gripper remain visible during the trial."
+      ],
+      "success_rule": "The take ends with the cup upright and at rest inside the marked target and the gripper clear of it, confirmed by the operator and front-camera evidence; in simulation, the scene's cup pose at rest within the target radius with the gripper pose clear for one second.",
+      "task_id": "cup_pick_and_place",
+      "task_text": "Pick up the cup from its marked location, carry it to the marked target and release it upright inside the target, then back the gripper away clear."
+    },
+    "task_definition_sha256": "f099aa17195621d1a778df5404ce96e9e3cbaf147b88b043ad7f185ea1efc769",
+    "task_id": "cup_pick_and_place",
+    "task_text": "Pick up the cup from its marked location, carry it to the marked target and release it upright inside the target, then back the gripper away clear."
+  },
+  "frame_windows": {
+    "0": [
+      0,
+      502
+    ],
+    "1": [
+      0,
+      282
+    ],
+    "10": [
+      119,
+      322
+    ],
+    "100": [
+      0,
+      274
+    ],
+    "101": [
+      0,
+      307
+    ],
+    "102": [
+      129,
+      507
+    ],
+    "103": [
+      0,
+      335
+    ],
+    "104": [
+      0,
+      257
+    ],
+    "105": [
+      0,
+      261
+    ],
+    "106": [
+      0,
+      278
+    ],
+    "107": [
+      0,
+      288
+    ],
+    "108": [
+      137,
+      351
+    ],
+    "109": [
+      0,
+      305
+    ],
+    "11": [
+      126,
+      322
+    ],
+    "110": [
+      129,
+      329
+    ],
+    "111": [
+      0,
+      278
+    ],
+    "112": [
+      0,
+      251
+    ],
+    "113": [
+      131,
+      514
+    ],
+    "115": [
+      0,
+      314
+    ],
+    "116": [
+      0,
+      286
+    ],
+    "117": [
+      0,
+      301
+    ],
+    "118": [
+      124,
+      302
+    ],
+    "119": [
+      0,
+      289
+    ],
+    "12": [
+      0,
+      268
+    ],
+    "120": [
+      0,
+      289
+    ],
+    "121": [
+      0,
+      425
+    ],
+    "123": [
+      142,
+      307
+    ],
+    "124": [
+      0,
+      277
+    ],
+    "125": [
+      139,
+      314
+    ],
+    "126": [
+      0,
+      304
+    ],
+    "127": [
+      127,
+      320
+    ],
+    "128": [
+      0,
+      294
+    ],
+    "129": [
+      0,
+      266
+    ],
+    "13": [
+      0,
+      336
+    ],
+    "130": [
+      128,
+      334
+    ],
+    "131": [
+      139,
+      313
+    ],
+    "132": [
+      128,
+      311
+    ],
+    "133": [
+      139,
+      342
+    ],
+    "134": [
+      0,
+      455
+    ],
+    "135": [
+      0,
+      322
+    ],
+    "136": [
+      0,
+      309
+    ],
+    "137": [
+      123,
+      484
+    ],
+    "138": [
+      0,
+      275
+    ],
+    "139": [
+      0,
+      278
+    ],
+    "14": [
+      0,
+      343
+    ],
+    "140": [
+      0,
+      259
+    ],
+    "141": [
+      0,
+      288
+    ],
+    "142": [
+      0,
+      292
+    ],
+    "143": [
+      0,
+      277
+    ],
+    "144": [
+      0,
+      286
+    ],
+    "145": [
+      0,
+      247
+    ],
+    "146": [
+      0,
+      268
+    ],
+    "147": [
+      135,
+      519
+    ],
+    "148": [
+      0,
+      279
+    ],
+    "149": [
+      132,
+      317
+    ],
+    "16": [
+      0,
+      247
+    ],
+    "17": [
+      0,
+      320
+    ],
+    "18": [
+      0,
+      270
+    ],
+    "19": [
+      0,
+      271
+    ],
+    "2": [
+      0,
+      284
+    ],
+    "20": [
+      0,
+      253
+    ],
+    "21": [
+      0,
+      269
+    ],
+    "22": [
+      0,
+      250
+    ],
+    "23": [
+      0,
+      285
+    ],
+    "24": [
+      0,
+      279
+    ],
+    "26": [
+      131,
+      307
+    ],
+    "27": [
+      128,
+      320
+    ],
+    "28": [
+      118,
+      329
+    ],
+    "29": [
+      0,
+      475
+    ],
+    "3": [
+      125,
+      328
+    ],
+    "31": [
+      0,
+      262
+    ],
+    "33": [
+      125,
+      325
+    ],
+    "34": [
+      118,
+      322
+    ],
+    "35": [
+      121,
+      299
+    ],
+    "36": [
+      0,
+      270
+    ],
+    "37": [
+      0,
+      437
+    ],
+    "38": [
+      0,
+      275
+    ],
+    "39": [
+      129,
+      320
+    ],
+    "4": [
+      0,
+      266
+    ],
+    "40": [
+      0,
+      251
+    ],
+    "41": [
+      116,
+      296
+    ],
+    "42": [
+      0,
+      268
+    ],
+    "43": [
+      116,
+      333
+    ],
+    "44": [
+      0,
+      276
+    ],
+    "45": [
+      0,
+      258
+    ],
+    "46": [
+      133,
+      360
+    ],
+    "48": [
+      0,
+      285
+    ],
+    "5": [
+      0,
+      266
+    ],
+    "50": [
+      110,
+      485
+    ],
+    "51": [
+      0,
+      275
+    ],
+    "52": [
+      117,
+      303
+    ],
+    "53": [
+      0,
+      263
+    ],
+    "54": [
+      117,
+      310
+    ],
+    "55": [
+      115,
+      315
+    ],
+    "56": [
+      130,
+      300
+    ],
+    "57": [
+      0,
+      253
+    ],
+    "58": [
+      116,
+      317
+    ],
+    "59": [
+      119,
+      299
+    ],
+    "6": [
+      0,
+      272
+    ],
+    "60": [
+      0,
+      248
+    ],
+    "61": [
+      0,
+      288
+    ],
+    "62": [
+      109,
+      300
+    ],
+    "63": [
+      0,
+      258
+    ],
+    "64": [
+      0,
+      259
+    ],
+    "65": [
+      113,
+      299
+    ],
+    "66": [
+      0,
+      259
+    ],
+    "68": [
+      0,
+      247
+    ],
+    "69": [
+      0,
+      465
+    ],
+    "7": [
+      0,
+      285
+    ],
+    "70": [
+      132,
+      318
+    ],
+    "71": [
+      135,
+      310
+    ],
+    "72": [
+      133,
+      296
+    ],
+    "73": [
+      0,
+      409
+    ],
+    "74": [
+      0,
+      261
+    ],
+    "75": [
+      124,
+      317
+    ],
+    "77": [
+      0,
+      285
+    ],
+    "78": [
+      0,
+      283
+    ],
+    "80": [
+      0,
+      252
+    ],
+    "81": [
+      0,
+      314
+    ],
+    "82": [
+      0,
+      259
+    ],
+    "83": [
+      0,
+      282
+    ],
+    "84": [
+      133,
+      351
+    ],
+    "85": [
+      0,
+      332
+    ],
+    "86": [
+      0,
+      307
+    ],
+    "87": [
+      0,
+      258
+    ],
+    "88": [
+      127,
+      370
+    ],
+    "89": [
+      135,
+      330
+    ],
+    "9": [
+      114,
+      331
+    ],
+    "90": [
+      0,
+      294
+    ],
+    "91": [
+      0,
+      288
+    ],
+    "92": [
+      0,
+      296
+    ],
+    "93": [
+      145,
+      354
+    ],
+    "94": [
+      0,
+      273
+    ],
+    "95": [
+      135,
+      291
+    ],
+    "96": [
+      0,
+      279
+    ],
+    "97": [
+      133,
+      325
+    ],
+    "98": [
+      0,
+      279
+    ],
+    "99": [
+      133,
+      321
+    ]
+  },
+  "grad_clip_norm": 10.0,
+  "grasp_phase": null,
+  "image_transforms": null,
+  "lane": "simulation",
+  "learning_rate": 1e-05,
+  "policy_id": "",
+  "policy_ledger": "docs/ludo_flagship/SIM_POLICY_LEDGER.md",
+  "probe_set": "reports/sim_policy/staged_place_03_trim/probes.json",
+  "probe_sha256": "f5c3302db0b33b389084843745a7e8dab431e1e0e0d418529d0e873ddd86175f",
+  "repository": "/home/oedeh/github/physical-ai-jetson-robotics",
+  "response_timeout_s": 0.5,
+  "save_freq": 5000,
+  "state_noise": null,
+  "temporal_ensemble_coeff": null,
+  "timeline": "docs/ludo_flagship/timeline.jsonl",
+  "training_episode_limit": null,
+  "version": "synria_act_training_v1",
+  "video_backend": "pyav",
+  "weight_decay": 0.0001
+}

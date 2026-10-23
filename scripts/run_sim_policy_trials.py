@@ -112,6 +112,15 @@ def build_parser() -> argparse.ArgumentParser:
                         help="Place score: the gripper centre at least this far from the cup.")
     parser.add_argument("--target-topic", default=SIM_TARGET_TOPIC)
     parser.add_argument("--image-size", type=int, default=224)
+    parser.add_argument("--close-gate-m", type=float, default=None,
+                        help="Diagnostic: refuse a closing gripper command while the scene's "
+                             "gripper centre is farther than this from the cup's centre.")
+    parser.add_argument("--seat-sideways-m", type=float, default=None,
+                        help="Diagnostic seated gate: refuse a closing gripper command until the "
+                             "gripper centre is within this of the cup's axis.")
+    parser.add_argument("--seat-height-m", type=float, nargs=2, default=None,
+                        metavar=("LOW", "HIGH"),
+                        help="Seated gate: the gripper centre's height band above the cup's base.")
     parser.add_argument("--trace", type=Path, default=None,
                         help="JSON Lines file for one row per policy step of every trial.")
     return parser
@@ -151,7 +160,9 @@ def main(argv: list[str] | None = None) -> int:
         settle_s=args.settle_s, approach_s=args.approach_s, score=score,
         place_radius_m=place_radius, place_height_m=args.place_height_m,
         gripper_clear_m=args.gripper_clear_m, randomize_scale=args.randomize_scale,
-        placement_seed=args.placement_seed,
+        placement_seed=args.placement_seed, close_gate_m=args.close_gate_m,
+        seat_sideways_m=args.seat_sideways_m,
+        seat_height_m=None if args.seat_height_m is None else tuple(args.seat_height_m),
     )
     with ExitStack() as stack:
         publisher = stack.enter_context(_closing(RosSimPublisher(

@@ -489,3 +489,82 @@ def test_recovery_pulls_a_clipped_joint_back_inside_and_the_policy_resumes() -> 
     assert trial["hold_reasons"] == {"current state outside limits": trial["holds"]}
     assert trial["success"], "after each recovery the policy acts again and closes the gripper"
     assert max(t[2] for t in scene.targets) >= -0.6108 + math.radians(0.5) - 1e-9
+
+
+def test_close_gate_holds_a_closing_gripper_until_the_cup_is_within_the_gate(
+        tmp_path: Path) -> None:
+    """Outside the gate a closing command keeps the current width; inside, it passes."""
+    clock = FakeClock()
+    scene = Scene(clock, liftable=False)
+    closing = (*START[:6], 0.022)
+    gated = runner(scene, clock, closing, trials=1)
+    gated.config = TrialConfig(**{**gated.config.__dict__, "close_gate_m": 0.05})
+    trace = tmp_path / "gated.jsonl"
+    gated.trace_path = trace
+    report = gated.run({"lane": "simulation"})
+    trial = report["trials"][0]
+    # The fake gripper sits 10 cm from the cup, outside a 5 cm gate: no step closes it.
+    assert 0 < trial["close_gated_steps"] <= trial["steps"]
+    assert all(target[6] <= START[6] + 1e-9 for target in scene.targets)
+    assert "5.0 cm" in report["close_gate_rule"]
+    rows = [json.loads(line) for line in trace.read_text().splitlines()]
+    assert all(row["action"][6] == row["state"][6] for row in rows)
+    assert sum(row["close_gated"] for row in rows) == trial["close_gated_steps"]
+    # A gate wider than the gap lets the same command through.
+    clock = FakeClock()
+    scene = Scene(clock, liftable=False)
+    passing = runner(scene, clock, closing, trials=1)
+    passing.config = TrialConfig(**{**passing.config.__dict__, "close_gate_m": 0.2})
+    report = passing.run({"lane": "simulation"})
+    assert report["trials"][0]["close_gated_steps"] == 0
+    assert scene.targets[-1][6] == pytest.approx(0.022)
+    assert runner(Scene(FakeClock()), FakeClock(), closing, trials=1).run(
+        {"lane": "simulation"})["close_gate_rule"] is None
+
+
+def test_close_gate_needs_a_positive_length_and_the_gripper_pose() -> None:
+    """A gate that cannot be measured is refused before any trial runs."""
+    for bad in (0.0, -0.01, math.inf):
+        with pytest.raises(ValueError, match="close_gate_m"):
+            TrialConfig(trials=1, command_period_s=0.2, start_pose=START, close_gate_m=bad)
+    clock = FakeClock()
+    scene = Scene(clock)
+    client = PolicyClient(SynriaEmbodiment(contract()), FakePolicy(START), load_limits(LIMITS),
+                          safety(0.2), clock=clock)
+    config = TrialConfig(trials=1, command_period_s=0.2, start_pose=START, close_gate_m=0.03)
+    with pytest.raises(ValueError, match="close gate needs the gripper pose"):
+        SimulationTrialRunner(client, scene, Source(scene.read_state), Source(scene.read_image),
+                              Source(scene.read_image), Source(scene.read_cup), scene.randomize,
+                              config)
+
+
+def test_seated_gate_closes_only_with_the_cup_between_the_jaws() -> None:
+    """On the cup's axis inside the height band a close passes; off axis or too high it holds."""
+    closing = (*START[:6], 0.022)
+
+    def campaign(offset: tuple[float, float]) -> tuple[dict[str, Any], Scene]:
+        clock = FakeClock()
+
+        class Placed(Scene):
+            def read_gripper(self) -> ObjectPose:
+                return ObjectPose((0.3 + offset[0], 0.0, self.cup_z + offset[1]), self.clock())
+
+        scene = Placed(clock, liftable=False)
+        run = runner(scene, clock, closing, trials=1)
+        run.config = TrialConfig(**{**run.config.__dict__, "seat_sideways_m": 0.01,
+                                    "seat_height_m": (0.01, 0.05)})
+        return run.run({"lane": "simulation"}), scene
+
+    seated, scene = campaign((0.005, 0.02))
+    assert seated["trials"][0]["close_gated_steps"] == 0
+    assert scene.targets[-1][6] == pytest.approx(0.022)
+    assert "1.0 cm sideways" in seated["close_gate_rule"]
+    for offset in ((0.02, 0.02), (0.0, 0.08), (0.0, 0.0)):
+        report, scene = campaign(offset)
+        assert report["trials"][0]["close_gated_steps"] > 0
+        assert all(target[6] <= START[6] + 1e-9 for target in scene.targets)
+    with pytest.raises(ValueError, match="needs both"):
+        TrialConfig(trials=1, command_period_s=0.2, start_pose=START, seat_sideways_m=0.01)
+    with pytest.raises(ValueError, match="low below high"):
+        TrialConfig(trials=1, command_period_s=0.2, start_pose=START, seat_sideways_m=0.01,
+                    seat_height_m=(0.05, 0.01))

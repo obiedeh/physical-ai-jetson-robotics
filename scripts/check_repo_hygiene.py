@@ -1,8 +1,14 @@
 #!/usr/bin/env python3
-"""Reject prohibited session files and coding-tool attribution."""
+"""Reject prohibited session files and coding-tool attribution.
+
+With ``--commits RANGE`` it also checks every commit in the range: an author or
+committer identity, or a message line, that names a coding tool or its vendor
+fails the check, so an attributed commit is stopped at the pull request.
+"""
 
 from __future__ import annotations
 
+import argparse
 import re
 import subprocess
 import sys
@@ -19,6 +25,9 @@ PROHIBITED_PATTERN = re.compile(
     + r")(?![A-Za-z0-9_])",
     re.IGNORECASE,
 )
+# Vendor domains whose addresses must never author or commit here.
+PROHIBITED_IDENTITY_PATTERN = re.compile(r"@(?:" + "anthrop" + r"ic\.com|openai\.com)",
+                                         re.IGNORECASE)
 CONTENT_ALLOWLIST = (
     Path("agents/ops_copilot"),
     Path("tests/test_agents_ops_copilot.py"),
@@ -62,9 +71,39 @@ def find_violations(root: Path, paths: list[Path] | None = None) -> list[str]:
     return violations
 
 
-def main() -> int:
+def commit_violations(root: Path, rev_range: str) -> list[str]:
+    """Return attribution violations in the authors, committers and messages of a range."""
+    result = subprocess.run(
+        ["git", "log", "--format=%H%x00%an <%ae>%x00%cn <%ce>%x00%B%x1e", rev_range],
+        cwd=root, check=True, capture_output=True,
+    )
+    violations: list[str] = []
+    for record in result.stdout.decode(errors="replace").split("\x1e"):
+        record = record.strip("\n")
+        if not record:
+            continue
+        sha, author, committer, message = record.split("\0", 3)
+        short = sha[:7]
+        for role, identity in (("author", author), ("committer", committer)):
+            if PROHIBITED_PATTERN.search(identity) or PROHIBITED_IDENTITY_PATTERN.search(identity):
+                violations.append(f"commit {short}: prohibited {role} {identity}")
+        for line in message.splitlines():
+            if PROHIBITED_PATTERN.search(line) or PROHIBITED_IDENTITY_PATTERN.search(line):
+                violations.append(f"commit {short}: prohibited attribution in message")
+                break
+    return violations
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Check the working tree, and the commits of ``--commits RANGE`` when given."""
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument("--commits", default=None,
+                        help="A revision range whose commits are checked, e.g. origin/main..HEAD.")
+    args = parser.parse_args(argv)
     root = Path(__file__).resolve().parents[1]
     violations = find_violations(root)
+    if args.commits:
+        violations += commit_violations(root, args.commits)
     if violations:
         print("Repository hygiene check failed:")
         for violation in violations:

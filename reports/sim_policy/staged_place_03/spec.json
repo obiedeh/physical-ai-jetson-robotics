@@ -1,0 +1,15 @@
+{
+  "contract": "/home/oedeh/synria-sim-datasets/staged_place_03/dataset/physical_contract.json",
+  "dataset_root": "/home/oedeh/synria-sim-datasets/staged_place_03/dataset",
+  "evidence_root": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_03",
+  "policy_prefix": "simplace03",
+  "raw_output_root": "/home/oedeh/synria-sim-training/staged_place_03",
+  "seed": 17,
+  "steps": 20000,
+  "study_id": "staged_place_03",
+  "subset_sizes": [
+    130
+  ],
+  "training_config": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_03/train_config.json",
+  "version": "synria_sim_data_scaling_v1"
+}
