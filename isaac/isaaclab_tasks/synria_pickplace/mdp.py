@@ -28,7 +28,7 @@ term function bodies are unreachable but the module still parses.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 try:
     import torch  # type: ignore[import-not-found]
@@ -1416,6 +1416,105 @@ def hold_staged_pieces(env: ManagerBasedRLEnv, env_ids: torch.Tensor) -> None:
     mgr.pin_steps = torch.where(  # type: ignore[attr-defined]
         active, mgr.pin_steps - 1, mgr.pin_steps
     )
+
+
+# ---------------------------------------------------------------------------
+# Visual randomization (reset events, opt-in through the env cfg)
+# ---------------------------------------------------------------------------
+#
+# The placement and scale randomization live in the scene reset; until now
+# nothing varied the appearance of the scene, so a policy that reads the
+# wrist and overhead cameras has only ever seen one light and one red cup.
+# These two terms change what the cameras see at every reset: the dome light's
+# intensity and colour (one light for the whole stage, so one draw per reset
+# call) and the diffuse colour of each resetting env's piece. The sampling is
+# in mdp_logic (pure Python, tested); this layer only writes USD attributes.
+# They are measured only when a campaign has run with them; see docs/ROADMAP.md.
+
+_VISUAL_RNG: torch.Generator | None = None
+
+
+def _visual_uniforms(env: ManagerBasedRLEnv, n: int) -> list[float]:
+    """Uniforms for the visual terms, seeded once from the env's seed when it has one."""
+    global _VISUAL_RNG
+    if _VISUAL_RNG is None:
+        _VISUAL_RNG = torch.Generator(device="cpu")
+        seed = getattr(getattr(env, "cfg", None), "seed", None)
+        if seed is not None:
+            _VISUAL_RNG.manual_seed(int(seed) + 7919)
+    return torch.rand(n, generator=_VISUAL_RNG).tolist()
+
+
+def _stage() -> Any:
+    import omni.usd  # type: ignore[import-not-found]
+
+    return omni.usd.get_context().get_stage()
+
+
+def randomize_dome_light(
+    env: ManagerBasedRLEnv,
+    env_ids: torch.Tensor,
+    intensity_range: tuple[float, float] = (800.0, 5000.0),
+    color_jitter: float = 0.15,
+    prim_path: str = "/World/DomeLight",
+) -> None:
+    """Reset event: redraw the dome light's intensity and colour (stage-wide)."""
+    if len(env_ids) == 0:
+        return
+    from pxr import Gf, UsdLux  # type: ignore[import-not-found]
+
+    from isaac.isaaclab_tasks.synria_pickplace.mdp_logic import sample_light_params
+
+    prim = _stage().GetPrimAtPath(prim_path)
+    if not prim.IsValid():
+        return
+    intensity, color = sample_light_params(_visual_uniforms(env, 4), intensity_range, color_jitter)
+    light = UsdLux.DomeLight(prim)
+    light.GetIntensityAttr().Set(float(intensity))
+    light.GetColorAttr().Set(Gf.Vec3f(*color))
+
+
+def randomize_piece_color(
+    env: ManagerBasedRLEnv,
+    env_ids: torch.Tensor,
+    base_color: tuple[float, float, float] = (0.85, 0.1, 0.1),
+    jitter: float = 0.35,
+    asset_name: str = "piece",
+) -> None:
+    """Reset event: give each resetting env's piece a new diffuse colour.
+
+    Finds the preview-surface shader under the env's piece prim (the spawner
+    puts the material under the prim) and writes ``inputs:diffuseColor``.
+    """
+    if len(env_ids) == 0:
+        return
+    from pxr import Gf, Sdf, UsdShade  # type: ignore[import-not-found]
+
+    from isaac.isaaclab_tasks.synria_pickplace.mdp_logic import sample_color
+
+    stage = _stage()
+    try:
+        template = env.scene[asset_name].cfg.prim_path  # e.g. "{ENV_REGEX_NS}/Piece"
+    except (KeyError, AttributeError):
+        return
+    uniforms = _visual_uniforms(env, 3 * len(env_ids))
+    for k, env_id in enumerate(env_ids.tolist()):
+        root = stage.GetPrimAtPath(template.replace("{ENV_REGEX_NS}", f"/World/envs/env_{env_id}"))
+        if not root.IsValid():
+            continue
+        color = sample_color(uniforms[3 * k:3 * k + 3], base_color, jitter)
+        for prim in Usd_PrimRange(root):
+            if prim.IsA(UsdShade.Shader):
+                attr = prim.GetAttribute("inputs:diffuseColor")
+                if not attr:
+                    attr = prim.CreateAttribute("inputs:diffuseColor", Sdf.ValueTypeNames.Color3f)
+                attr.Set(Gf.Vec3f(*color))
+
+
+def Usd_PrimRange(root: Any) -> Any:  # noqa: N802 - thin wrapper so the pxr import stays inside the event
+    from pxr import Usd  # type: ignore[import-not-found]
+
+    return Usd.PrimRange(root)
 
 
 def reset_trial_and_piece(env: ManagerBasedRLEnv, env_ids: torch.Tensor) -> None:

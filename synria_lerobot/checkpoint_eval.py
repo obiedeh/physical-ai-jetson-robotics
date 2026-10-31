@@ -20,6 +20,8 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
+from physical_ai_lab.portable import expand_path, portable_text
+
 from .embodiment import SynriaObservation
 from .evaluation import committed_bytes
 from .physical_contract import (
@@ -41,7 +43,7 @@ DIAGNOSTIC_PURPOSE = "diagnostic_only_no_policy_selection"
 
 
 def _json(payload: Any) -> str:
-    return json.dumps(payload, sort_keys=True, indent=2, allow_nan=False) + "\n"
+    return portable_text(json.dumps(payload, sort_keys=True, indent=2, allow_nan=False) + "\n")
 
 
 def _identifier(value: Any) -> str:
@@ -998,7 +1000,7 @@ def render_report(evaluations: list[Path], physical_runs: list[Path], destinatio
     for record in records:
         _artifact_destination(
             destination,
-            (Path(record["dataset_path"]), Path(record["checkpoint_path"])),
+            (expand_path(record["dataset_path"]), expand_path(record["checkpoint_path"])),
             tuple((*evaluations, *physical_runs)),
         )
         if (
@@ -1052,7 +1054,7 @@ def render_report(evaluations: list[Path], physical_runs: list[Path], destinatio
         ):
             raise ValueError("physical probe run does not match a displayed checkpoint")
         for reference in run["attempts"]:
-            path = Path(reference["path"])
+            path = expand_path(reference["path"])
             if _file_hash(path) != reference["sha256"]:
                 raise ValueError("physical trial record content changed")
             attempt = json.loads(path.read_text(encoding="utf-8"))
@@ -1075,7 +1077,7 @@ def render_report(evaluations: list[Path], physical_runs: list[Path], destinatio
             for name in ("wrist", "front"):
                 media = clips["views"][name] if clips else None
                 if media and media.get("sha256"):
-                    path = Path(media["path"])
+                    path = expand_path(media["path"])
                     if _file_hash(path) != media["sha256"]:
                         raise ValueError("external probe media content changed")
                     views[name] = {"url": path.as_uri(), "sha256": media["sha256"]}

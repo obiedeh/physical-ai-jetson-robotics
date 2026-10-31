@@ -15,7 +15,7 @@ CORPUS=~/github/physical-ai-jetson-robotics/reports/training/synria_e33v3_lerobo
 OUT=~/models/gr00t_synria/gr00t_synria_thor_v3_visonly_cont
 mkdir -p "$OUT"
 ~/.venv/gr00t/bin/python gr00t/experiment/launch_finetune.py \
-  --base-model-path <home>/models/gr00t_synria/gr00t_synria_thor_v2_visonly/gr00t_synria_thor_v2_visonly/checkpoint-10000 \
+  --base-model-path $HOME/models/gr00t_synria/gr00t_synria_thor_v2_visonly/gr00t_synria_thor_v2_visonly/checkpoint-10000 \
   --dataset-path "$CORPUS" \
   --embodiment-tag new_embodiment \
   --modality-config-path ~/github/physical-ai-jetson-robotics/isaac/scripts/gr00t_synria_config.py \

@@ -3,7 +3,7 @@
 LeRobot (>= 0.6.2) plugin for the **Yahboom ROSMASTER M3 Pro** (Jetson Orin NX
 8GB): 6-DOF bus-servo arm + mecanum base, driven through the vendor's
 micro-ROS bridge (`/arm6_joints`, `/cmd_vel`; `/odom_raw`, `/battery`).
-Installing the package is enough — LeRobot discovers `lerobot_robot_*`
+Installing the package is enough - LeRobot discovers `lerobot_robot_*`
 distributions and the types register themselves:
 
     --robot.type=rosmaster_m3pro
@@ -13,7 +13,7 @@ distributions and the types register themselves:
 - Arm command = absolute servo degrees x6 + `run_time` ms; the board
   interpolates. Servo 6 is the gripper. Vendor home: 90,150,12,20,90,0.
 - The board publishes **no joint feedback**. `observation.state` for the arm
-  is the last *commanded* pose (open loop, same as every vendor demo) — so the
+  is the last *commanded* pose (open loop, same as every vendor demo) - so the
   robot moves to a known pose on connect (`go_home_on_connect=True`).
 - The base has **no cmd_vel watchdog**: motion persists until an explicit zero.
   This class runs a deadman thread (zeros after `deadman_timeout_s` without a

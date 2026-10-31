@@ -322,7 +322,7 @@ the existing policy ID and frozen EvalLog/statistics. Preserve the original row.
 ```bash
 git add "reports/ludo_flagship/eval/${SESSION}-preflight" \
   "reports/ludo_flagship/eval/$SESSION" docs/ludo_flagship/DECISIONS.md \
-  docs/ludo_flagship/ACTIVITY_LOG.md docs/evidence/provenance/docs/ludo_flagship/timeline.public.jsonl
+  docs/ludo_flagship/ACTIVITY_LOG.md docs/ludo_flagship/timeline.jsonl
 git commit -m "Record Synria evaluation evidence"
 ```
 

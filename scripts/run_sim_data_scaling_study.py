@@ -27,6 +27,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from physical_ai_lab.portable import expand_json  # noqa: E402
 from typing import Any
 
 REPOSITORY = Path(__file__).resolve().parents[1]
@@ -126,13 +127,13 @@ def campaign_for(args: argparse.Namespace, spec: dict[str, Any]) -> Any:
 def main(argv: list[str] | None = None) -> int:
     """Run the study and write its record and table."""
     args = build_parser().parse_args(argv)
-    spec = json.loads(args.spec.read_text(encoding="utf-8"))
+    spec = expand_json(json.loads(args.spec.read_text(encoding="utf-8")))
     trial_fn = campaign_for(args, spec) if args.trials else None
     evidence = Path(spec["evidence_root"])
     if args.trials_only:
         if trial_fn is None:
             raise SystemExit("--trials-only needs --trials")
-        study = json.loads((evidence / "study.json").read_text(encoding="utf-8"))
+        study = expand_json(json.loads((evidence / "study.json").read_text(encoding="utf-8")))
         study = add_trials(study, trial_fn, write_to=evidence, replace=args.replace_trials)
     else:
         study = run_study(spec, trial_fn=trial_fn, write_to=evidence)

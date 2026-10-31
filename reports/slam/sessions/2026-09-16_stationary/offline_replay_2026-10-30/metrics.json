@@ -1,0 +1,127 @@
+{
+  "schema": "slam-offline-replay-v1",
+  "recorded_at": "2026-10-30T02:53:55-0500",
+  "wall_s": 308.0,
+  "device_model": "NVIDIA Jetson Orin NX Engineering Reference Developer Kit Super",
+  "board": "jetson-orin-nx",
+  "ros_distro": "humble",
+  "slam_toolbox_version": "2.6.10-1jammy.20260805.012523",
+  "bag": {
+    "dir": "bag",
+    "storage_files": [
+      {
+        "name": "bag_0.db3",
+        "bytes": 37060608,
+        "sha256": "1adcd5f8f074b7233fbc29604e955c527aeb1d9aee828093f5045161f7cae448"
+      }
+    ],
+    "metadata_sha256": "31d26da622d9fdd015cf6f4d35b8e349f0106bc7e9ac3c235c69878c005f3e37",
+    "duration_s": 299.056,
+    "topics_played": [
+      "/scan",
+      "/odom",
+      "/tf",
+      "/tf_static"
+    ],
+    "tf_remapped_to": "/tf_bag"
+  },
+  "params": {
+    "file": "slam_toolbox_replay_params.yaml",
+    "sha256": "2e0480511350abe45ef9db6439787ac99c901b1a0571c23ae455b75bb8c47a23"
+  },
+  "playback": {
+    "command": [
+      "ros2",
+      "bag",
+      "play",
+      "<repo>/reports/slam/sessions/2026-09-16_stationary/bag",
+      "--clock",
+      "..."
+    ],
+    "rate": 1.0,
+    "exit_code": 0,
+    "wall_s": 300.0
+  },
+  "tf_filter": {
+    "transforms_in": 64195,
+    "transforms_republished": 49335,
+    "map_parented_transforms_dropped_from_bag": 14860,
+    "map_parented_transforms_published_by_replayed_node": 15007
+  },
+  "map_messages_from_replayed_node": 100,
+  "first_map_after_playback_start_s": 4.9,
+  "replay_map": {
+    "resolution_m": 0.05000000074505806,
+    "width": 79,
+    "height": 68,
+    "origin": [
+      -3.549769960272695,
+      -2.016451928475909,
+      0.0
+    ],
+    "frame_id": "map",
+    "stamp_s": 1789607357.351,
+    "cells": 5372,
+    "occupied": 61,
+    "free": 482,
+    "unknown": 4829,
+    "uncertain": 0,
+    "known_area_m2": 1.358,
+    "pgm_sha256": "17a2f877439513f6e98d840990b159cc2c93b80b94165593085dab524101e34c",
+    "yaml": "map.yaml"
+  },
+  "session_map": {
+    "resolution_m": 0.05000000074505806,
+    "width": 81,
+    "height": 63,
+    "origin": [
+      -3.670416574165731,
+      -2.0220800913574792,
+      0.0
+    ],
+    "frame_id": "map",
+    "stamp_s": 1789607357.351,
+    "cells": 5103,
+    "occupied": 62,
+    "free": 477,
+    "unknown": 4564,
+    "uncertain": 0,
+    "known_area_m2": 1.348,
+    "pgm_sha256": "5493e4a4b217d77a9487f89389035f50efbd2368dad61820cf515ed119475cc5",
+    "yaml": "session_map.yaml",
+    "messages_in_bag": 101
+  },
+  "comparison": {
+    "comparable": true,
+    "occupied_cells_replay": 61,
+    "occupied_cells_session": 62,
+    "occupied_intersection": 1,
+    "occupied_union": 122,
+    "occupied_iou": 0.0082,
+    "note": "occupied cells compared in world coordinates at the shared resolution; the two maps may have different origins and extents",
+    "recomputed_from_saved_maps": true
+  },
+  "slam_toolbox_process": {
+    "pid_sampled": 603318,
+    "launcher_pid": 603301,
+    "rss_peak_mb": 36.3,
+    "cpu_s": 14.4,
+    "samples": 307,
+    "exit_code": 0
+  },
+  "power": {
+    "available": true,
+    "samples": 305,
+    "vdd_in_w_p50": 5.634,
+    "vdd_in_w_max": 6.213,
+    "tj_c_max": 56.781
+  },
+  "not_measured": [
+    "loop closure and drift: the session has no laps",
+    "localisation: no targets"
+  ],
+  "notes": [
+    "stationary session: one scan node expected (minimum_travel_distance 0.5 m); the map is one sweep's footprint",
+    "host name withheld"
+  ]
+}

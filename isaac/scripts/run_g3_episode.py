@@ -14,6 +14,7 @@ SEPARATE process (gemini repo) — the only contract is this directory:
 
 from __future__ import annotations
 
+import os
 import argparse
 import json
 import pickle
@@ -43,7 +44,7 @@ def recv_msg(conn):
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--host", type=str, default="<lan-address>")
+    parser.add_argument("--host", type=str, default=os.environ.get("THOR_ADDRESS", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=5599)
     parser.add_argument("--steps", type=int, default=1800)
     parser.add_argument("--seed", type=int, default=123)

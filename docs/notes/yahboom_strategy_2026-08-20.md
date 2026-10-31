@@ -1,4 +1,4 @@
-# Yahboom ROSMASTER M3 Pro — project strategy (2026-08-20)
+# Yahboom ROSMASTER M3 Pro - project strategy (2026-08-20)
 
 Record update, 2026-09-07: these are chronological bring-up notes. Later entries
 supersede earlier pending states, including keyboard recording verification in
@@ -41,7 +41,7 @@ clone. Yahboom's drivers are DEPENDENCIES we launch, not work we present.
   Jetson Orin NX 8GB mobile manipulator with provenance and percentiles.
 - Jetson AI Lab community winners are narrative + measured systems (VLA
   car on Thor, matcha bimanual, GPS-denied VSLAM drone, nvblox+Orbbec on
-  AGX Orin) — not feature checklists.
+  AGX Orin) - not feature checklists.
 - 8 GB is a real wall: nvblox + VSLAM + a camera wrapper already OOM an
   Orin Nano 8GB. A credible 8 GB project budgets memory explicitly.
 
@@ -51,33 +51,33 @@ clone. Yahboom's drivers are DEPENDENCIES we launch, not work we present.
    pre-registered bars, frozen stats, the one correct percentile, honest
    false-positive handling (eval01 G5), provenance-first artifacts.
 2. A three-machine lab: RTX 5090 trainer, AGX Thor (122 GB, TRT), Orin NX
-   8GB on wheels — the exact "train anywhere, serve on the robot,
+   8GB on wheels - the exact "train anywhere, serve on the robot,
    evaluate in sim and real" loop, already proven once (ACT on Thor).
 3. A LeRobot/GR00T/ACT data+training pipeline, Isaac Lab envs, and a
    vendor USD/URDF twin of the M3 Pro already in `isaac/usd/robots/`.
 4. Safety observability (`physical-ai-safety-observability`, ops copilot
-   node) — almost no hobby mobile-manipulation project has a runtime
+   node) - almost no hobby mobile-manipulation project has a runtime
    safety layer with structured events.
 5. Telecom/edge background: latency budgets, offload decisions, fleet
-   telemetry — the question "where should the policy run?" is native.
+   telemetry - the question "where should the policy run?" is native.
 
 ## 4. The flagship: "Audited Mobile Manipulation on 8 GB"
 
 One narrative, four legs, each a standalone artifact with its own evidence.
 
-### Leg A — Open eval embodiment (the differentiator)
-Register the ROSMASTER M3 Pro as an Inspect Robots embodiment — the first
-mobile manipulator there — plus its Isaac Lab twin as the sim embodiment
+### Leg A - Open eval embodiment (the differentiator)
+Register the ROSMASTER M3 Pro as an Inspect Robots embodiment - the first
+mobile manipulator there - plus its Isaac Lab twin as the sim embodiment
 of the SAME action contract. Tasks: (1) tabletop pick-place (the Ludo
 scorer, ported), (2) "mobile fetch": navigate to a marked station, pick,
 return, place. Policies under test: our GR00T-1.7 and ACT checkpoints,
-SmolVLA, and an LLM tool-calling agent (inspect-robots-agent) — the same
+SmolVLA, and an LLM tool-calling agent (inspect-robots-agent) - the same
 four scored on the same scenes, sim and real, with EvalLogs committed.
 Upstream the adapter package (`inspect-robots-rosmaster`, MIT). Output:
 a public leaderboard-style table nobody else has, and a merged OSS
 contribution with our name on it.
 
-### Leg B — On-device VLA evidence pack (the measurement)
+### Leg B - On-device VLA evidence pack (the measurement)
 LeRobot robot class for the M3 Pro arm+base (Rosmaster serial servos,
 like LeKiwi's class) -> record 100-200 real episodes of the fetch task ->
 fine-tune SmolVLA (and ACT as the floor) on the 5090 -> serve on the Orin
@@ -88,7 +88,7 @@ Same policy served from Thor over Wi-Fi as the comparison row (closes the
 Thor-parity TODO). The deliverable is the table "what actually runs on
 $500 of compute and what it costs in success rate".
 
-### Leg C — Safety-observed autonomy (the operator story)
+### Leg C - Safety-observed autonomy (the operator story)
 The fetch task runs with the safety platform in the loop: person-in-
 workspace events from the depth camera (NanoOWL/YOLO open-vocab),
 speed-envelope and stop-distance telemetry from the dual ToF LiDAR,
@@ -97,14 +97,14 @@ e-stop/arm-torque events, all as structured safety events to
 post-run triage. Measured: detection latency to motion-stop, false-stop
 rate. This is the leg hiring managers in industrial robotics notice.
 
-### Leg D — Sim-to-real gap ledger (the loop)
+### Leg D - Sim-to-real gap ledger (the loop)
 Isaac Lab env for the M3 Pro (USD exists; finish articulation + sensors),
 domain-randomized nav+grasp, the same scorer in sim and real (Leg A), and
 a standing "gap table": success sim vs real per task per policy, with
 the causes ledgered (the way E31/eval01 are). PolaRiS-style real-to-sim
 is the stretch reference.
 
-### Stretch — Fleet/offload
+### Stretch - Fleet/offload
 Two embodiments (M3 Pro + Synria/Thor) sharing a task queue; policy
 placement chosen by measured link latency; telemetry to the same safety
 platform. Only after A-C have evidence.
@@ -122,7 +122,7 @@ platform. Only after A-C have evidence.
 8 GB unified memory (budget per process, publish it); NVMe 89% full
 (models on external/USB or prune vendor Docker images: Dify stack ~5 GB);
 ROS 2 Humble / JetPack 6.2 / CUDA 12.6 / TRT 10.7; arm uses bus servos via
-the STM32 board (no torque sensing — safety events use current/position
+the STM32 board (no torque sensing - safety events use current/position
 limits); Wi-Fi only.
 
 ## 7. Sequence (evidence at every step, nothing speculative in README)
@@ -164,7 +164,7 @@ Then: upstream PR, write-up, video with the numbers on screen.
   pose `[90, 150, 12, 20, 90, 0]` (servo 6 = gripper). Msgs: `ArmJoint`
   {id, run_time, angle, joints[]}, `ArmJoints` int16 x6 + time, `CurJoints`.
 - CORRECTED (same day, robot powered on the stand): the M3 Pro is a
-  micro-ROS design — `Rosmaster_Lib` is legacy and not needed. The STM32
+  micro-ROS design - `Rosmaster_Lib` is legacy and not needed. The STM32
   board runs a micro-ROS client over `/dev/myserial` @ 2,000,000 baud; the
   Orin runs `micro_ros_agent` natively (`~jetson/mircoROS_agent/install`,
   autostarted by `start_agent.sh`, ROS_DOMAIN_ID=30) plus the joystick node.
@@ -188,12 +188,12 @@ Then: upstream PR, write-up, video with the numbers on screen.
   time ms), /arm_joint (ArmJoint: id, angle, run_time), /cmd_vel (Twist),
   /beep (UInt16), /rgb (ColorRGBA). Joint feedback is NOT published by
   the board; the vendor `arm_util/arm_status` node provides
-  /arm_status/arm_joint (source for joint_state_publisher) — inspect
+  /arm_status/arm_joint (source for joint_state_publisher) - inspect
   how it reads angles before the LeRobot class relies on it.
 - Direct serial config protocol (config_robot.py `MicroROS_Robot`,
   HEAD 0xFF, DEVICE 0xFC, 2 Mbaud): FIRMWARE_VERSION 0x51, REQUEST 0x50,
   ARM_TORQUE 0x22, ARM_OFFSET 0x24 (calibration), ARM_MID_VALUE 0x25,
-  DOMAIN_ID 0x41 — config only; motion goes over micro-ROS topics. Do
+  DOMAIN_ID 0x41 - config only; motion goes over micro-ROS topics. Do
   not open the serial port while the agent holds it.
 - Vendor code drop cached on the 5090 scratchpad (1.3 GB
   `ROSMASTER M3 PRO-Code.zip` from the public Annex Drive folder
@@ -209,17 +209,17 @@ Port the existing closed game loop (`ludo_engine` L4 + `game_core`
 PickPlaceCommands + the turn executor's scorer; chess/checkers scenes
 exist too) to the Yahboom arm. Stages:
 1. M3 Pro arm plays Ludo turns on a physical board via the Leg B LeRobot
-   class (scripted IK lane first — the 97.2% expert's discipline: scored
+   class (scripted IK lane first - the 97.2% expert's discipline: scored
    turns, ledgered misses), same `turns.jsonl`/`ludo_stats.py` artifacts.
 2. Same turns as Leg A tasks (Inspect Robots "ludo_turn" scorer already
-   written) — policies (ACT/GR00T/SmolVLA) play real turns and get scored.
-3. HEADLINE: two embodiments play each other — Synria arm (Thor) vs
-   M3 Pro (Orin) — one game engine, two robots, each moving its own
+   written) - policies (ACT/GR00T/SmolVLA) play real turns and get scored.
+3. HEADLINE: two embodiments play each other - Synria arm (Thor) vs
+   M3 Pro (Orin) - one game engine, two robots, each moving its own
    tokens; the mobile base can reposition to reach far squares (a real
    use of mobility). Telemetry + safety events (Leg C) from both.
 4. Chess/checkers reuse the same loop once Ludo is stable.
 Why it fits: real-hardware arm data for B, a public task for A, safety
-in the loop for C, the sim twin plays the same engine for D — and it is
+in the loop for C, the sim twin plays the same engine for D - and it is
 a demo people remember.
 
 ## 11. Preinstalled on the Orin (verified read-only 2026-08-20, factory image)
@@ -255,7 +255,7 @@ stack (12 containers dead since the flash + 10 images, ~5.7 GB) at the
 operator's request -> 14 GB free (85%). Kept: micro-ros-agent image, 17
 Docker volumes (242 MB Dify/open-webui data), ~/software/dify sources
 (372 MB), JEP 1.4G. The OpenClaw/Dify LLM layer is therefore not
-runnable on this box anymore (by design — see section 5); `docker compose
+runnable on this box anymore (by design - see section 5); `docker compose
 pull` in ~/software/dify restores it.
 DELETION RULE (operator, 2026-08-20): on the Orin remove only what we are
 sure we will not use AND can easily reinstall. Data volumes, vendor
@@ -269,53 +269,53 @@ camera), the eval embodiment, the safety layer, and the provenance.
 ## 12. First motion tests (2026-08-20, operator present, robot on the stand)
 Order and results (all via scripts/jetson/m3pro_pub.py, ROS_DOMAIN_ID=30,
 as `oedeh` with the UDP-only FastDDS profile; `m3pro_preflight` first):
-1. Zero-motion link: /beep 100->0 and /rgb blue->off — accepted (1
+1. Zero-motion link: /beep 100->0 and /rgb blue->off - accepted (1
    subscriber = /YB_Node), operator to confirm audible/visible.
-2. Base: /cmd_vel vx=0.10 m/s for 1.0 s then zero — /odom_raw went
+2. Base: /cmd_vel vx=0.10 m/s for 1.0 s then zero - /odom_raw went
    x 0 -> +57 mm (ramp-limited), y +20 mm, velocity ~0 after stop.
    Operator confirmed wheels spun and stopped.
-3. Arm: /arm6_joints -> vendor home [90,150,12,20,90,0] over 3000 ms —
+3. Arm: /arm6_joints -> vendor home [90,150,12,20,90,0] over 3000 ms -
    operator confirmed "arm raised". Then gripper (servo 6) 0->40->0 and
-   joint1 90->100->90 at 1500 ms each — accepted AND operator-confirmed
+   joint1 90->100->90 at 1500 ms each - accepted AND operator-confirmed
    (gripper opened/closed, joint 1 swung and returned); battery 12.08 ->
    11.99 V across the session. Operator also confirmed the wheels kept
    spinning after the crashed test until the manual stop (no watchdog).
 Facts established for the LeRobot class:
 - Command path: ArmJoints on /arm6_joints (int16 degrees x6 + run_time ms)
-  — absolute servo angles, board interpolates over run_time; ArmJoint on
+  - absolute servo angles, board interpolates over run_time; ArmJoint on
   /arm_joint for a single servo. Base: Twist on /cmd_vel (30 Hz-ish
-  re-publish; the board stops when commands stop? — NOT yet verified,
+  re-publish; the board stops when commands stop? - NOT yet verified,
   always send explicit zeros).
 - State path: the board publishes NO joint angles; vendor demos publish
   their own `Curjoints` (CurJoints int16[]) from the last command
   (open-loop). observation.state will be commanded angles until a
   firmware joint-state publisher exists (micro-ROS client sources at
-  ~jetson/uros_ws; STM32 flashing risk — later).
+  ~jetson/uros_ws; STM32 flashing risk - later).
 - Gotchas: `ros2 topic pub --once` hangs on shutdown against micro-ROS
-  (two stuck procs) — use m3pro_pub.py / rclpy; Wi-Fi power save is ON
+  (two stuck procs) - use m3pro_pub.py / rclpy; Wi-Fi power save is ON
   on wlP1p1s0 (caused 30% loss / 300 ms RTT mid-session). FIXED by the
   operator: `iw ... set power_save off` + nmcli profile powersave=disable
   (persistent) -> 40/40 pings, 0% loss, 3.4 ms avg, -46 dBm; a second Linux user needs the UDP-only profile
   (scripts/jetson/config/fastdds_no_shm.xml) to see the agent.
 SAFETY FINDING (m3pro_watchdog_test.py, 2026-08-20): the base firmware has
 NO /cmd_vel timeout. After 1 s of vx=0.10 and then silence, /odom_raw
-velocity stayed ~0.08 m/s for the full 4 s sample window — motion persists
+velocity stayed ~0.08 m/s for the full 4 s sample window - motion persists
 until an explicit zero Twist. Consequences (non-negotiable for Legs B/C):
-every base controller owns a deadman — zeros on exit, on exception (try/
+every base controller owns a deadman - zeros on exit, on exception (try/
 finally), and on heartbeat loss (>0.5 s without a fresh policy/teleop
 command => zero); a supervisor node republishes zeros when the controller
 process dies; the hardware e-stop is tested before any untethered run.
 Incident: an earlier quoting bug crashed a test script after its 1 s
-command and before its zero — wheels ran on the stand ~20-30 s until a
+command and before its zero - wheels ran on the stand ~20-30 s until a
 manual stop. This is the first Leg C safety event, recorded as such.
 
 ## 13. Leg B started (2026-08-20): LeRobot plugin written
-`robots/lerobot_robot_rosmaster_m3pro/` — pip-installable LeRobot 0.6.2
+`robots/lerobot_robot_rosmaster_m3pro/` - pip-installable LeRobot 0.6.2
 plugin (auto-discovered via the `lerobot_robot_*` distribution-name rule,
 so `lerobot-record/teleoperate --robot.type=rosmaster_m3pro` work
 unmodified). Robot: ArmJoints on /arm6_joints (absolute deg, run_time
 150 ms), Twist on /cmd_vel, Odometry + battery subscribers, OpenCV
-cameras; open-loop arm state (homes on connect — the only way to have a
+cameras; open-loop arm state (homes on connect - the only way to have a
 valid state), joint limits + max_relative_target (10 deg/cmd) clamps,
 base speed clamps, deadman thread (zeros after 0.5 s without an action),
 zeros on disconnect and on any send_action exception, board preflight
@@ -342,7 +342,7 @@ like LeRobot's own LeKiwi (host on the Pi, client on the workstation).
     (LeKiwi wire: cmd PULL+CONFLATE :5555, obs PUSH+SNDHWM2 :5556,
     watchdog 500 ms, JSON header + JPEG frames multipart).
   - 5090 CLIENT (lerobot 0.6.2, py3.12, venv lerobot17): a Robot subclass
-    `rosmaster_m3pro_client` (ZMQ to the Orin) — records LeRobotDataset,
+    `rosmaster_m3pro_client` (ZMQ to the Orin) - records LeRobotDataset,
     fine-tunes, serves policies. This IS the train-on-5090 / act-on-robot
     loop, now honest about the Python/torch split.
 REFACTOR: move the board I/O + safety out of robot.py into a lerobot-free
@@ -358,31 +358,31 @@ GR00T eval were delivered to the operator.
 
 ## 15. Leg B on-robot bring-up (2026-08-20): software done, blocked on link
 Software COMPLETE and committed: hardware.py (lerobot-free board I/O +
-safety), m3pro_host.py (Orin ZMQ host — now connects the board BEFORE
+safety), m3pro_host.py (Orin ZMQ host - now connects the board BEFORE
 cameras and treats camera-open as non-fatal with a bounded V4L2 timeout),
 client.py (5090 LeRobot client), scripts/jetson/m3pro_host.sh launcher
-(prepends the plugin to the ROS PYTHONPATH — a bare `PYTHONPATH=` drops
+(prepends the plugin to the ROS PYTHONPATH - a bare `PYTHONPATH=` drops
 rclpy), orin_ros_env.sh. All types register on lerobot 0.6.2; host imports
 without lerobot; system python3 on the Orin (ROS sourced) has rclpy+cv2+zmq.
 Board verified live (11.1 V charging), motions validated earlier.
 BLOCKED on the on-robot host<->client loop by the ENVIRONMENT, not code:
   1. Wi-Fi is intermittently dropping mid-command (0% loss one moment,
-     total drop the next) — background launches and multi-second commands
+     total drop the next) - background launches and multi-second commands
      get cut off, so the host can't be reliably started/verified over SSH.
-     FIX: wire the Orin to Ethernet (eno1) for data collection — removes the
+     FIX: wire the Orin to Ethernet (eno1) for data collection - removes the
      variable entirely. Recommended before the next on-robot session.
   2. cv2.VideoCapture(/dev/video0) hangs when a prior host was hard-killed
      and left the device locked (fixed in code: warn+skip+timeout; a clean
      robot reboot clears it).
   3. micro-ROS agent goes stale after an Orin reboot (STM32 keeps the old
-     session) — recover by resetting the MCU (config_robot.reboot_device,
+     session) - recover by resetting the MCU (config_robot.reboot_device,
      no motion) + relaunching the agent (serial must be free; verify with
      fuser /dev/ttyUSB0, NOT pgrep which matches our own ssh cmd string).
 NEXT SESSION (on Ethernet, robot rebooted clean): m3pro_host.sh --no-base
 -> 5090 client smoke (RosmasterM3ProClient connect, read obs incl. camera,
 send home) -> decide teleop scheme (vendor joystick observed vs keyboard)
 -> record 10 episodes with provenance.
-DECISION (operator): Orin left as-is (GUI + vendor stack) for now — 5.6 GB
+DECISION (operator): Orin left as-is (GUI + vendor stack) for now - 5.6 GB
 free is enough for recording; revisit headless when on-device policy
 serving needs the headroom.
 
@@ -409,7 +409,7 @@ connects the board first and treats the camera as non-fatal.
 Wired Ethernet (eno1 <lan-address>) is stable (0% loss, ~0.9 ms) and is
 now the alias/remote target; Wi-Fi (243) was a lesser factor than the two
 bugs above.
-BATTERY 10.9 V and dropping across the day (12.08 -> 10.88) — charge
+BATTERY 10.9 V and dropping across the day (12.08 -> 10.88) - charge
 before long recording; a low pack also risks servo brownouts.
 NEXT: pick the teleop scheme (vendor joystick observed via a teleoperator
 that subscribes to /arm6_joints + /cmd_vel, vs keyboard) and record the
@@ -449,20 +449,20 @@ OPS REMINDERS baked from today: ssh ControlMaster is in ~/.ssh/config
 self-matches the ssh cmd); host launcher prepends the ROS PYTHONPATH.
 
 RECORDER VALIDATED (2026-08-20, synthetic frames on the 5090): record.py
-dataset path works end to end — LeRobotDataset.create(video) + add_frame
+dataset path works end to end - LeRobotDataset.create(video) + add_frame
 (task-in-frame) + save_episode wrote 2 eps / 40 frames: data parquet, h264
 mp4 per camera, meta/info+stats+tasks. The charged recording session is
 de-risked; only the live joystick drive remains.
 
-## 18. Leg A STARTED — Inspect Robots embodiment conformant (2026-08-20)
+## 18. Leg A STARTED - Inspect Robots embodiment conformant (2026-08-20)
 Robocurve's Inspect Robots (real one, PyPI `inspect-robots` 0.57.1, homepage
-github.com/robocurve/inspect-robots — light base deps are correct, VLA
+github.com/robocurve/inspect-robots - light base deps are correct, VLA
 backends are extras) installed on the 5090; CubePick eval validated end to
 end (scripted policy 2/2, EvalLog written).
 Adapter `robots/inspect-robots-rosmaster/` written and PASSES conformance:
   `inspect-robots doctor --embodiment rosmaster_m3pro` -> "conformant (no
   issues)". v1 is arm-only (`joint_pos`, 6 abs joint degrees), front camera,
-  human reset (console poll), NO privileged success (real robot) — wraps our
+  human reset (console poll), NO privileged success (real robot) - wraps our
   `RosmasterM3ProClient` (active mode). Registered via the
   `inspect_robots.embodiments` entry point. Installed alongside lerobot 0.6.2
   in the lerobot17 venv (numpy 2.2.6, no conflicts).
@@ -502,7 +502,7 @@ A real eval is now one command once the robot is charged (host ACTIVE mode):
     --grader operator --instruction "pick up the cube and place it on the plate" \
     --policy scripted -E remote_ip=<lan-address>
 
-## 20. Leg C STARTED — safety-observability bridge (2026-08-20)
+## 20. Leg C STARTED - safety-observability bridge (2026-08-20)
 The M3 Pro now emits structured SafetyEvents into
 physical-ai-safety-observability (makes that repo's "Jetson runtime metrics"
 integration real). Built + verified END-TO-END (evaluated events POST to a
@@ -528,20 +528,20 @@ LIVE-only remaining: person detection (NanoOWL/YOLO on the front camera ->
 snapshot['person']) and detection-latency-to-stop timing; the wiring points
 are in place (snapshot['person'], snapshot['estop'/'deadman_fired']).
 
-## 21. Joystick teleop chain — gotchas (2026-08-20)
+## 21. Joystick teleop chain - gotchas (2026-08-20)
 Dongle plugged AFTER boot, so the vendor joy_node (started at boot) never
 bound /dev/input/js0. Restart needed. But headless restart hit walls:
   - the ROS `joy` driver is SDL-based and enumerates NO device headless on
-    this Orin (raw `cat /dev/input/js0` DOES stream — hardware fine);
+    this Orin (raw `cat /dev/input/js0` DOES stream - hardware fine);
   - the vendor `yahboomcar_joy_launch.py` pulls a Qt/GUI component that fails
     headless ("no Qt platform plugin"); it works only in the desktop session;
   - `joy_linux` (evdev, no SDL) is NOT installed.
-FIX shipped: `scripts/jetson/js0_joy.py` — reads /dev/input/js0 via the legacy
+FIX shipped: `scripts/jetson/js0_joy.py` - reads /dev/input/js0 via the legacy
 joystick API directly (no SDL/display/pkg) and publishes /joy; the vendor
 `yahboom_joy_M3Pro` maps /joy -> /arm6_joints. Must run as a user that can
 read js0 (jetson can; the removed jetson clone means copy it to /tmp) and
 that shares the mapper's DDS (run both as `jetson`, ROS_DOMAIN_ID=30).
-RELIABLE RUN (locally on the Orin — remote background-launch fought Wi-Fi):
+RELIABLE RUN (locally on the Orin - remote background-launch fought Wi-Fi):
   pkill -f js0_joy; pkill -f "joy/joy_node"
   source /opt/ros/humble/setup.bash && export ROS_DOMAIN_ID=30 && source ~/yahboomcar_ws/install/setup.bash
   python3 /tmp/js0_joy.py --dev /dev/input/js0 &
@@ -550,10 +550,10 @@ Then joystick -> arm. (Alternative if this stays painful: install
 ros-humble-joy-linux via apt, or use our keyboard teleop via the client in
 ACTIVE mode.) NOTE: the recurring remote-launch failures were the ssh
 connection storm (fixed for oedeh via ControlMaster; jetson@ has no mux) +
-Wi-Fi drops — run joystick bring-up on the Orin console, not over ssh.
+Wi-Fi drops - run joystick bring-up on the Orin console, not over ssh.
 
-## 22. Joystick BLOCKED on kernel (2026-08-20) — pivot to keyboard
-The bundled pad is an X-INPUT-only Xbox360 controller (USB 045e:028e, fixed —
+## 22. Joystick BLOCKED on kernel (2026-08-20) - pivot to keyboard
+The bundled pad is an X-INPUT-only Xbox360 controller (USB 045e:028e, fixed -
 no DirectInput/HID mode). The Jetson kernel (5.15.148-tegra) is stripped:
   - `# CONFIG_INPUT_UINPUT is not set` -> no /dev/uinput -> xboxdrv (userspace
     driver, installed, DETECTS the pad) cannot create a virtual joystick;
@@ -561,19 +561,19 @@ no DirectInput/HID mode). The Jetson kernel (5.15.148-tegra) is stripped:
   - joydev IS present (CONFIG_INPUT_JOYDEV=m) so a NATIVE HID joystick would
     work, but this pad exposes only X-input which needs xpad/uinput.
 => Using THIS controller needs a kernel rebuild (CONFIG_INPUT_UINPUT=y +
-optionally JOYSTICK_XPAD) — deferred, not worth it mid-session. Earlier "js0
+optionally JOYSTICK_XPAD) - deferred, not worth it mid-session. Earlier "js0
 with 184 bytes" was the MPI7003 HID display board, not the game pad.
 PIVOT for first-dataset recording: our keyboard teleoperator
 (`rosmaster_m3pro_keyboard`, already built) drives the arm via the client in
-ACTIVE mode from the 5090 — no Orin kernel change. Alternatives for later: a
+ACTIVE mode from the 5090 - no Orin kernel change. Alternatives for later: a
 DirectInput/generic-HID gamepad (joydev handles it natively, zero kernel
 work), or the kernel rebuild for the Xbox pad.
 
-## 23. Joystick SOLVED (2026-08-20) — PC mode + systemd services
+## 23. Joystick SOLVED (2026-08-20) - PC mode + systemd services
 THE FIX (operator was right that it ships working): the bundled pad has two
-modes. GREEN = X-BOX/X-input (USB 045e:028e) — needs uinput+xpad, which the
+modes. GREEN = X-BOX/X-input (USB 045e:028e) - needs uinput+xpad, which the
 Jetson kernel LACKS (CONFIG_INPUT_UINPUT not set), so it's dead on Jetson.
-RED = PC/PCS/DirectInput (USB 0079:181c DragonRise) — a generic HID pad that
+RED = PC/PCS/DirectInput (USB 0079:181c DragonRise) - a generic HID pad that
 the already-loaded joydev exposes as /dev/input/js0 with ZERO driver work.
 Switch: hold MODE ~15 s until RED, press START. (Per Yahboom's own "Handle
 control" doc: Jetson uses PC mode / red; RPi uses X-BOX / green.)
@@ -590,7 +590,7 @@ Files staged in <home> (persistent; /tmp clears on reboot):
 Install (operator sudo, one line each): cp unit to /etc/systemd/system,
 daemon-reload, enable --now. WHY services and not the vendor autostart: the
 autostart runs joy in the GUI session (SDL needs a display) and only binds
-js0 if the dongle was present at boot — brittle; systemd + js0_joy is
+js0 if the dongle was present at boot - brittle; systemd + js0_joy is
 headless and reconnect-proof.
 INFRA that finally made remote ops reliable: ssh ControlMaster mux for BOTH
 oedeh (jetsonorin) and jetson (orinjetson) aliases; wired Ethernet
@@ -598,15 +598,15 @@ oedeh (jetsonorin) and jetson (orinjetson) aliases; wired Ethernet
 with the anchored pattern, never `pkill -f m3pro_host`/`js0_joy` bare inside
 an ssh cmd (self-match -> 255).
 
-## 24. Joystick — REVERT to vendor stack (2026-08-20, operator's call)
+## 24. Joystick - REVERT to vendor stack (2026-08-20, operator's call)
 Correction: don't reinvent it. Yahboom SHIPS working joystick control
 (ros `joy` joy_node + yahboomcar_ctrl/yahboom_joy_M3Pro mapper), confirmed
 in their launch (package='joy', executable='joy_node') and Handle-control
 doc. Two real blockers, now understood:
-  1. pad was in X-BOX mode (green) — needs PC mode (red) on Jetson (done);
+  1. pad was in X-BOX mode (green) - needs PC mode (red) on Jetson (done);
   2. the vendor joy_node is SDL -> needs a DISPLAY, so it only runs in the
      DESKTOP session (their autostart uses gnome-terminal). Headless (ssh/
-     systemd) SDL enumerates nothing — which is why my headless js0_joy/
+     systemd) SDL enumerates nothing - which is why my headless js0_joy/
      js0_to_arm detour happened. That was over-engineering.
 PLAN: disable my custom services (js0-to-arm/js0-joy/joy-arm-teleop/
 yahboom-joy-mapper) + reboot -> the desktop autostart runs the vendor
@@ -621,7 +621,7 @@ jetsonorin ssh alias now -> jetson.
 
 WIFI ROOT-CAUSE FIX (2026-08-20): the Orin had a NetworkManager `Hotspot`
 connection with autoconnect=yes (+ stray Pi_Hot/Yahboom2/3/MIFI/DIRECT
-nets). At boot it could flip wlP1p1s0 to AP mode and knock rocagen off —
+nets). At boot it could flip wlP1p1s0 to AP mode and knock rocagen off -
 the likely source of the session-long Wi-Fi drops. Fixed: autoconnect=no
 on Hotspot + all strays, rocagen autoconnect=yes priority=100. Boots
 straight to rocagen (managed). Wired eno1 <lan-address> preferred when
@@ -632,7 +632,7 @@ vendor check_sensor autostart should re-run the agent.
 ## 25. Joystick WORKING via OEM stack (2026-08-20) + recorder ready
 After the clean reboot (pad in PC/DirectInput mode, Wi-Fi fix): the VENDOR
 joy_node publishes /joy WITH data (sticks to 1.0, buttons register) and the
-vendor yahboom_joy_M3Pro mapper drives the arm — operator confirmed the OEM
+vendor yahboom_joy_M3Pro mapper drives the arm - operator confirmed the OEM
 buttons control it. My earlier "SDL broken" call was pre-reboot state; the
 vendor stack works. Root issue was TWO teleop systems fighting (my
 js0-to-arm publishing /arm6_joints vs the OEM mapper publishing /arm_joint)
@@ -653,17 +653,17 @@ RUN RECIPE (once js0-to-arm/js0-joy disabled; Ethernet preferred):
     --task "pick up the cube and place it on the plate" --use-base
 NOTE: for robustness on this flaky-Wi-Fi robot, an on-Orin RAW recorder
 (rclpy+cv2, no lerobot, write states/actions/mp4 -> convert on the 5090)
-would avoid the live ZMQ dependency — build if Wi-Fi recording proves
+would avoid the live ZMQ dependency - build if Wi-Fi recording proves
 unreliable and Ethernet isn't available.
 
-## 26. Bundled controller is FAULTY/limited (2026-08-20) — arm teleop blocked
+## 26. Bundled controller is FAULTY/limited (2026-08-20) - arm teleop blocked
 After exhaustive debugging (PC mode, analog mode, service cleanup, calibration):
 the bundled DragonRise DirectInput pad only produces working analog on axes
-4/5 (ONE stick — drives the BASE via the vendor mapper, which works well).
+4/5 (ONE stick - drives the BASE via the vendor mapper, which works well).
 Axes 0-3 (second stick) and 6/7 (D-pad) are FLAT even when moved; buttons
 register unreliably (mostly index 0, an intermittent stuck one). => no working
 input remains for the ARM. Vendor arm control needs buttons[9]=START + A/B/X/Y
-which don't work on this pad. NOT a software issue — board/wifi/recorder/base
+which don't work on this pad. NOT a software issue - board/wifi/recorder/base
 all work. Time sink >> value here.
 DECISION PENDING (operator): (a) standard USB gamepad (2 sticks+buttons) ->
 works immediately; (b) keyboard teleop (rosmaster_m3pro_keyboard, from the
@@ -675,11 +675,11 @@ validated, Leg A embodiment+scorer conformant, Leg C safety bridge verified.
 
 ---
 
-## 27. Leg B — recording pipeline LIVE (end-to-end verified 2026-08-20 ~23:15)
+## 27. Leg B - recording pipeline LIVE (end-to-end verified 2026-08-20 ~23:15)
 
 **Status: joystick abandoned (faulty DragonRise pad); keyboard-from-5090 path
 is fully built, verified end-to-end, and push-button.** The only remaining step
-is a human driving the arm to record episodes — deferred (operator wrapped for
+is a human driving the arm to record episodes - deferred (operator wrapped for
 the day).
 
 What is live and verified:
@@ -688,7 +688,7 @@ What is live and verified:
   both ZMQ ports listening (`:5555` cmd, `:5556` obs), camera `front` streaming.
   Auto-starts on boot. This replaces held-SSH background tasks (those die 255).
 - **5090 client smoke PASSED**: connect 0.14s, camera (480,640,3) uint8,
-  battery 11.68V, home command landed `[90,150,12,20,90,90]` — gripper fix (90,
+  battery 11.68V, home command landed `[90,150,12,20,90,90]` - gripper fix (90,
   not 0) confirmed on hardware, no stall/twitch.
 - **`record_kbd.py`** (committed f156bfa): keyboard active-mode recorder. 5090
   drives arm+base via client→ZMQ→host→board and records
@@ -718,7 +718,7 @@ robot to relax them. js0-to-arm / vendor joy nodes killed; DragonRise unplugged.
 ## 28. 5090 + Thor autonomous session status (2026-08-20 late)
 
 **5090 (flagship GR00T-Ludo):**
-- corpus batch-2 top-up **complete** — `reports/ludo_corpus02b`, 127 eps / 183
+- corpus batch-2 top-up **complete** - `reports/ludo_corpus02b`, 127 eps / 183
   attempts (raw; constant-instruction, target-blind like corpus01).
 - GR00T-1.7 closed-loop **eval01 root-caused**: 1/20 (5%) = chance placement
   (1/46 squares); the place target was unobservable (constant instruction).
@@ -726,7 +726,7 @@ robot to relax them. js0-to-arm / vendor joy nodes killed; DragonRise unplugged.
 - **Fix committed** (575a2a9): corpus mode now renders target-observable
   `{pick}/{place}` instructions; verified end-to-end (ep0 manifest:
   `target_observable=True, place=track29, instr='...place it on track 29'`).
-- **Overnight experiment RUNNING**: `reports/ludo_corpus03_tobs` — 150 eps,
+- **Overnight experiment RUNNING**: `reports/ludo_corpus03_tobs` - 150 eps,
   seed 202, `--instruction "...place it on track {place}"`. A target-observable
   twin of corpus01 (only the instruction differs) for a controlled retrain +
   re-eval. ~12h; notifies on completion.
@@ -738,5 +738,5 @@ running. Two **stale idle policy servers** (0 clients): `serve_act_policy.py`
 (synria_act_v*) up ~9.7d and `run_gr00t_server.py`
 (gr00t_synria_thor_v5_vis40k) up ~6.6d, ~5GB RAM total. Safe to reap when
 Synria eval isn't needed: `pkill -f serve_act_policy; pkill -f run_gr00t_server`.
-Disk 94% used (62G free) — worth watching. `reports/training/synria_e46_lerobot_v21/`
+Disk 94% used (62G free) - worth watching. `reports/training/synria_e46_lerobot_v21/`
 is an untracked local LeRobot dataset (correctly out of git).

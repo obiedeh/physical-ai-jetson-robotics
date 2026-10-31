@@ -1,6 +1,9 @@
+"""Check committed simulation descriptions and wiring without launching a runtime."""
+
 from __future__ import annotations
 
 import ast
+import math
 import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -20,10 +23,12 @@ PACKAGE_DIRS = {
 
 
 def parse_xml(path: Path) -> ET.Element:
+    """Load a committed XML description for structural checks only."""
     return ET.parse(path).getroot()
 
 
 def test_expected_simulation_foundation_files_exist() -> None:
+    """Require the first-party descriptions, wrappers and operating contracts."""
     expected = [
         "docs/architecture.md",
         "docs/VENDOR_INTEGRATION_MAP.md",
@@ -33,6 +38,7 @@ def test_expected_simulation_foundation_files_exist() -> None:
         "ros2_ws/src/rosmaster_m3pro_description/launch/display.launch.py",
         "ros2_ws/src/rosmaster_m3pro_description/rviz/rosmaster_m3pro.rviz",
         "ros2_ws/src/synria_arm_description/urdf/synria_6dof_arm.urdf.xacro",
+        "ros2_ws/src/synria_arm_description/urdf/synria_6dof_arm.urdf",
         "ros2_ws/src/synria_arm_description/launch/display.launch.py",
         "ros2_ws/src/synria_arm_gazebo/config/ros2_controllers.yaml",
         "ros2_ws/src/synria_arm_gazebo/launch/control.launch.py",
@@ -52,6 +58,7 @@ def test_expected_simulation_foundation_files_exist() -> None:
 
 
 def test_ros_package_manifests_match_package_directories() -> None:
+    """Match package identifiers while leaving separately supplied assets optional."""
     required_packages = {
         "rosmaster_m3pro_description",
         "synria_arm_description",
@@ -72,6 +79,7 @@ def test_ros_package_manifests_match_package_directories() -> None:
 
 
 def test_xacro_files_are_well_formed_and_includes_resolve() -> None:
+    """Resolve committed wrapper includes without expanding or running a robot model."""
     xacro_files = sorted(ROS_SRC.glob("*/urdf/*.xacro"))
     assert xacro_files
 
@@ -106,6 +114,7 @@ def test_xacro_files_are_well_formed_and_includes_resolve() -> None:
 
 
 def test_mesh_references_resolve_to_repo_files() -> None:
+    """Reject broken references when optional local mesh inputs are installed."""
     unresolved: list[str] = []
     mesh_refs = 0
 
@@ -153,6 +162,7 @@ def test_mesh_references_resolve_to_repo_files() -> None:
     reason="Optional vendor assets: run scripts/fetch_vendor_assets.py yahboom",
 )
 def test_yahboom_description_structure_is_simulation_ready() -> None:
+    """Check the optional vendor model's expected arm, base and sensor structure."""
     yahboom = parse_xml(ROS_SRC / "yahboom_M3Pro_description" / "urdf" / "M3Pro.urdf")
 
     # --- Yahboom vendor URDF: 5-DOF arm + mecanum base + sensors ---
@@ -160,7 +170,7 @@ def test_yahboom_description_structure_is_simulation_ready() -> None:
     yahboom_joints = {joint.attrib["name"] for joint in yahboom.findall("joint")}
     yahboom_links = {link.attrib["name"] for link in yahboom.findall("link")}
 
-    # Arm joints: arm4_Joiint has the vendor double-'i' typo — preserved.
+    # Arm joints: arm4_Joiint preserves the vendor double-'i' spelling.
     expected_arm_joints = {
         "arm1_Joint", "arm2_Joint", "arm3_Joint", "arm4_Joiint", "arm5_Joint",
         "arm_base_Joint",
@@ -172,15 +182,11 @@ def test_yahboom_description_structure_is_simulation_ready() -> None:
 
 
 
-@pytest.mark.skipif(
-    not (ROS_SRC / "synria_arm_description/urdf/synria_6dof_arm.urdf").exists(),
-    reason="Optional vendor assets: run scripts/fetch_vendor_assets.py synria",
-)
 def test_synria_description_structure_is_simulation_ready() -> None:
+    """Require the shipped primitive model's joint chain, limits and collision bodies."""
     synria_urdf = parse_xml(ROS_SRC / "synria_arm_description/urdf/synria_6dof_arm.urdf")
-    # --- Synria vendor URDF (real, SolidWorks export) ---
-    # Robot name is the SolidWorks model name, not the ROS package name.
-    assert synria_urdf.attrib["name"] == "Alicia_D_v5_6_gripper_50mm"
+    # This public planning model is approximate, not the separately supplied vendor mesh.
+    assert synria_urdf.attrib["name"] == "synria_6dof_arm"
     urdf_joints = {j.attrib["name"] for j in synria_urdf.findall("joint")}
     urdf_links = {lnk.attrib["name"] for lnk in synria_urdf.findall("link")}
 
@@ -190,10 +196,45 @@ def test_synria_description_structure_is_simulation_ready() -> None:
     # Real link chain: base_link -> link1..link6 -> tool0, left_gripper, right_gripper
     assert {"base_link", "link1", "link2", "link3", "link4", "link5", "link6"} <= urdf_links
     assert {"tool0", "left_gripper", "right_gripper"} <= urdf_links
+    joints = {joint.attrib["name"]: joint for joint in synria_urdf.findall("joint")}
+    for index in range(1, 7):
+        joint = joints[f"Joint{index}"]
+        assert joint.attrib["type"] == "revolute"
+        parent = joint.find("parent")
+        child = joint.find("child")
+        assert parent is not None and child is not None
+        assert parent.attrib["link"] == ("base_link" if index == 1 else f"link{index - 1}")
+        assert child.attrib["link"] == f"link{index}"
+    for name in [*(f"Joint{index}" for index in range(1, 7)), "left_finger", "right_finger"]:
+        joint = joints[name]
+        if name.endswith("_finger"):
+            assert joint.attrib["type"] == "prismatic"
+        limit = joint.find("limit")
+        assert limit is not None
+        values = {key: float(limit.attrib[key]) for key in ("lower", "upper", "effort", "velocity")}
+        assert all(math.isfinite(value) for value in values.values())
+        assert values["lower"] < values["upper"]
+        assert values["effort"] > 0 and values["velocity"] > 0
+    solid_links = {"base_link", *(f"link{index}" for index in range(1, 7)),
+                   "left_gripper", "right_gripper"}
+    for link in synria_urdf.findall("link"):
+        if link.attrib["name"] not in solid_links:
+            continue
+        for kind in ("visual", "collision"):
+            geometry = link.find(f"{kind}/geometry")
+            assert geometry is not None and len(geometry) == 1
+            primitive = geometry[0]
+            assert primitive.tag in {"box", "cylinder"}
+            dimensions = [
+                float(value) for raw in primitive.attrib.values() for value in raw.split()
+            ]
+            assert dimensions and all(math.isfinite(value) and value > 0 for value in dimensions)
+    assert synria_urdf.find(".//mesh") is None
 
 
 
 def test_synria_xacro_wrapper_is_simulation_ready() -> None:
+    """Keep the wrapper's frame, camera and mock-controller contract intact."""
     synria_xacro = parse_xml(
         ROS_SRC / "synria_arm_description/urdf/synria_6dof_arm.urdf.xacro"
     )
@@ -220,6 +261,7 @@ def test_synria_xacro_wrapper_is_simulation_ready() -> None:
 
 
 def test_launch_files_are_python_syntax_valid_and_define_launch_descriptions() -> None:
+    """Parse launch descriptions without importing ROS or starting any process."""
     launch_files = sorted(ROS_SRC.glob("*/launch/*.launch.py"))
     assert launch_files
 
@@ -232,6 +274,7 @@ def test_launch_files_are_python_syntax_valid_and_define_launch_descriptions() -
 
 
 def test_moveit_and_controller_configs_reference_expected_synria_joints() -> None:
+    """Keep planning and controller configuration aligned with the described joint names."""
     # Real joint names from the vendor URDF (capital-J, SolidWorks export)
     joint_names = {"Joint1", "Joint2", "Joint3", "Joint4", "Joint5", "Joint6"}
     srdf = (ROS_SRC / "synria_arm_moveit_config" / "config" / "synria_arm.srdf").read_text(

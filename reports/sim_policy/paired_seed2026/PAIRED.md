@@ -39,6 +39,9 @@ trial into a mode. "avg4" is the average of the last four checkpoints.
 | goal-conditioned ACT on the seated-grasp corpus (look, push-in seat check, corrections, settled squeeze), 122 takes, step 20000, place score, guard on (fired on 10 steps), `reports/sim_policy/staged_place_02` | 16 | 32% [21, 46] | 38 lifted 3 cm; 11 reached the mark and were not held there, 11 lifted and dropped |
 | goal-conditioned ACT on the recovery-executor corpus (seated grasp plus fingertip back-out, secured hold, end at rest), 130 takes, step 20000, place score, guard on (fired on 3 steps), `reports/sim_policy/staged_place_03` | 3 | 6% [2, 16] | 1.5 cm; 40 lifted 3 cm, 32 of them brought within 3 cm of the mark, 47 ran to the 30 s limit |
 | the same 130 takes windowed from the last approach after any back-out to the top of the retreat (no back-out, no return to rest in the targets), step 20000, place score, guard on (fired on 10 steps), `reports/sim_policy/staged_place_03_trim` | 2 | 4% [1, 14] | 30 lifted 3 cm, 15 of them brought within 3 cm of the mark, 48 ran to the 30 s limit |
+| goal-conditioned ACT on the corrected-planner corpus (approach budget, full release, higher retreat; no brushing, no return to rest), 111 takes, step 20000, place score, guard on (fired on 25 steps), `reports/sim_policy/staged_place_04` | 3 | 6% [2, 16] | 29 lifted 3 cm, 22 of them brought within 3 cm of the mark, 3 stayed there; lifted trials set the cup down a median 11.8 cm from the mark; 21 never lifted, 15 of those never within 3 cm of the cup; 47 ran to the 30 s limit |
+| goal-conditioned ACT on the staged_place_02 recipe re-recorded at scale with the seat fallback (its code at `83c78c3` plus `4965bdd`: squeeze a centred cup when the corrections run out), first 122 of 291 trainable takes, step 20000, place score, guard on (fired on 39 steps), `reports/sim_policy/staged_place_05` | 15 | 30% [19, 44] | 36 lifted 3 cm, 22 of them brought within 3 cm of the mark, 15 stayed there; lifted trials ended a median 3.6 cm from the mark; 35 ran to the 30 s limit |
+| the same corpus, all 291 trainable takes, step 20000, place score, guard on (fired on 2 steps), `reports/sim_policy/staged_place_05` | 20 | 40% [28, 54] | 46 lifted 3 cm, 27 of them brought within 3 cm of the mark, 20 stayed there; lifted trials ended a median 5.4 cm from the mark; 30 ran to the 30 s limit |
 
 What the pairing shows, with the caveat that one seed is one draw of placements:
 
@@ -148,4 +151,34 @@ What the pairing shows, with the caveat that one seed is one draw of placements:
   targets does not bring the place back, so the regression is in the takes the
   windows keep: the brushing arrivals, the secured hold, the higher-variance
   starts after a back-out, or the corpus draw itself, not in the segments cut.
-
+- Corrected-planner corpus, 2026-10-29: `simplace04_n111` scores 3 of 50
+  against 16 for `simplace02_n122` on the same placements, exact McNemar
+  p 0.004 (3 new-only, 16 incumbent-only); the incumbent stays. The corpus
+  itself is the cleanest yet (119 of 150 succeed, median take 18.6 s, p90
+  26.2 s, held-out joint MAE 0.036 rad against 0.038 for staged_place_02),
+  so a cleaner corpus did not buy a better place: 22 of the 29 lifts bring
+  the cup within 3 cm of the mark and then move on, the same let-go-elsewhere
+  failure as staged_place_03. What the two later corpora share and
+  staged_place_02 lacks is the executor of the evening of 22 Oct (`a257ae0`):
+  the secured hold after the lift (in all 138 and all 119 successful takes,
+  in none of staged_place_02's 130) and its back-out logic (49 and 2
+  back-outs). Brushing arrivals were never part of staged_place_02: the
+  recorder gained `--brush-fraction` after that corpus was recorded, and only
+  staged_place_03 used it (45 takes). All three corpora carry the same
+  deliberate arrival offsets and corrections (97, 115 and 87 of their
+  successful takes at a 0.7 fraction), so the recoverable mistakes are not
+  what changed.
+- staged_place_02 recipe at scale, 2026-10-30: `staged_place_05` re-records the
+  staged_place_02 executor (its own code) with one change, a last-resort squeeze
+  when the three corrections are spent and the cup is still centred between the
+  jaws (within 6 mm, at least 5 mm deep, at least 12 mm up); the 19 of 20
+  abandoned staged_place_02 takes all met that test. 300 takes, 299 succeed, 1
+  abandoned, the fallback firing in 23 of the 299. Two nested rows on the same
+  50 placements: `simplace05_n122` 15 of 50 against the incumbent's 16 (11
+  new-only, 12 incumbent-only, exact McNemar p 1.0), so the 16 was the recipe,
+  not the corpus draw, and the fallback takes did not hurt it; `simplace05_n291`
+  20 of 50 (16 new-only, 12 incumbent-only, p 0.57), 46 lifted against 38, the
+  guard firing on 2 steps against 39 for its own 122-take row. Against each
+  other the rows are 6 and 1 discordant (p 0.125). A gap of 4 is inside the
+  register's tie band, so the incumbent stays unless the 291-take policy holds
+  on placement seed 2027 (`paired_seed2027`).

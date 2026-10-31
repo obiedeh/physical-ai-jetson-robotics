@@ -22,7 +22,7 @@ from pathlib import Path
 from pxr import Usd, UsdGeom
 
 ALICIA_SCENES_DIR = Path(
-    "<home>/github/Alicia-D-ROS2/scripts/isaac_sim/scenes"
+    os.path.expanduser("~/github/Alicia-D-ROS2/scripts/isaac_sim/scenes")
 )
 OUT_DIR = Path(__file__).resolve().parent
 # Each board is mirrored across table centre (world X = 0): a board centred at

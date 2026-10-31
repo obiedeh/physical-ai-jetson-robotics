@@ -11,6 +11,35 @@ const task = {task_id:"die_into_cup", task_text:"Synthetic fixture: put die into
 const sessionList = [];
 const libraryTasks = [];
 const timing = {running:false,polls:0,runs:[],proposed_window:null,phase:"not started"};
+
+/** Observe only the spawned browser, retaining its profile if bounded shutdown cannot finish.
+ * Node's close event follows process exit and stdio closure:
+ * https://nodejs.org/api/child_process.html#event-close
+ */
+function ownedBrowserShutdown(child) {
+  let closed = false;
+  const completion = new Promise(resolve => child.once("close", () => {
+    closed = true;
+    resolve(true);
+  }));
+  /** Wait for the owned process's close event within one bounded grace interval. */
+  function waitForClose(timeoutMs) {
+    if (closed) return Promise.resolve(true);
+    return new Promise(resolve => {
+      const timer = setTimeout(() => resolve(false), timeoutMs);
+      completion.then(() => { clearTimeout(timer); resolve(true); });
+    });
+  }
+  /** Escalate signals only for this child and never delete its profile while it is running. */
+  return async function stopOwnedBrowser(timeoutMs = 1000) {
+    if (await waitForClose(timeoutMs)) return;
+    child.kill("SIGTERM");
+    if (await waitForClose(timeoutMs)) return;
+    child.kill("SIGKILL");
+    if (await waitForClose(timeoutMs)) return;
+    throw Error("Owned browser did not close; isolated profile retained.");
+  };
+}
 /** A fixed breakdown the fake planner returns for any sentence. */
 function fakeBreakdown(sentence){const step=(name,start,end,kind)=>({name,instruction:`Do ${name.toLowerCase()} and return to ready.`,start_state:start,end_state:end,success_rule:`${name} is done.`,scene_before_take:["Gripper empty, arm at ready."],kind,objects_grasped:["die"],holds_at_start:false,holds_at_end:false,camera_can_confirm:true,suggested_takes:5,optional:false,primitives:["pick"]});
   return {schema_version:"synria_task_breakdown_v1",goal:{title:"Roll a die",sentence,rationale:"Two steps so the cycle can repeat."},sub_tasks:[step("Die into cup","Die in start zone, gripper empty, arm at ready","Die in cup, gripper empty, arm at ready","skill"),step("Die back to start","Die in cup, gripper empty, arm at ready","Die in start zone, gripper empty, arm at ready","reset")]};}
@@ -99,6 +128,7 @@ async function run() {
   const profile=fs.mkdtempSync(path.join(os.tmpdir(),"synria-guide-test-"));
   const child=spawn(browser,["--headless","--disable-gpu","--disable-background-networking","--no-first-run",
     "--no-default-browser-check",`--user-data-dir=${profile}`,"--remote-debugging-pipe"],{stdio:["ignore","ignore","pipe","pipe","pipe"]});
+  const stopOwnedBrowser = ownedBrowserShutdown(child);
   let sequence=0, buffer="", sessionId, browserError="", transportError=null, closing=false;
   const pending=new Map();
   child.stderr.on("data",chunk=>{browserError=(browserError+chunk.toString()).slice(-8000);});
@@ -522,11 +552,19 @@ async function run() {
     console.log("Guided browser: routes, refresh, breadcrumb, labels, wizard steps, inline fields, tiles, footer reasons, bench checks, state timeout, camera fault, recovery, stale settings, expiry, Back keeps inputs, start reruns a stale check, keyboard, save retries, network, reload and mobile checks passed.");
   } finally {
     closing=true;
-    try{await send("Browser.close",{},null);}catch{}
-    child.kill("SIGTERM");
-    for(const entry of pending.values())clearTimeout(entry.timer);
-    server.closeAllConnections();await new Promise(resolve=>server.close(resolve));
-    fs.rmSync(profile,{recursive:true,force:true});
+    try{await send("Browser.close",{},null,2000);}catch{}
+    try {
+      await stopOwnedBrowser();
+    } finally {
+      for(const entry of pending.values())clearTimeout(entry.timer);
+      server.closeAllConnections();await new Promise(resolve=>server.close(resolve));
+    }
+    // Retry only transient removal errors on this already closed browser's own profile.
+    // https://nodejs.org/api/fs.html#fsrmsyncpath-options
+    fs.rmSync(profile,{recursive:true,force:true,maxRetries:5,retryDelay:50});
   }
 }
-run().catch(error=>{console.error(error);if(exceptions.length)console.error("Browser exceptions:",JSON.stringify(exceptions.map(e=>e.exception?.description||e.text),null,1));server.closeAllConnections();server.close();process.exitCode=1;});
+module.exports = {ownedBrowserShutdown};
+if (require.main === module) {
+  run().catch(error=>{console.error(error);if(exceptions.length)console.error("Browser exceptions:",JSON.stringify(exceptions.map(e=>e.exception?.description||e.text),null,1));server.closeAllConnections();server.close();process.exitCode=1;});
+}

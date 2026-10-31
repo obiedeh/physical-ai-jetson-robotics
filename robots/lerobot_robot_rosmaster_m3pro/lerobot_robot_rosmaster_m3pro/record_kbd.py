@@ -14,6 +14,7 @@ Keys (focus the terminal running this): q/a joint1  w/s joint2  e/d joint3
 """
 from __future__ import annotations
 
+import os
 import argparse
 import time
 
@@ -29,7 +30,7 @@ BASE = ("base.vx", "base.vy", "base.wz")
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--repo-id", required=True)
-    ap.add_argument("--remote-ip", default="<lan-address>")
+    ap.add_argument("--remote-ip", default=os.environ.get("ORIN_ADDRESS", "127.0.0.1"))
     ap.add_argument("--episodes", type=int, default=8)
     ap.add_argument("--episode-time-s", type=float, default=25.0)
     ap.add_argument("--reset-time-s", type=float, default=8.0)

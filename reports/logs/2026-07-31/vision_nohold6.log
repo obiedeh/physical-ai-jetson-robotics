@@ -182,7 +182,7 @@ Loading user config located at: '<home>/.venv/isaacsim5/lib/python3.11/site-pack
 [pick] step=180 stages=['DESCEND', 'CLOSE', 'DESCEND', 'DESCEND', 'DESCEND', 'APPROACH', 'DESCEND', 'DESCEND'] e0 tool=[-0.14442181587219238, 0.08051276206970215, 0.8466818928718567] cup=[-0.09883313626050949, 0.06894753873348236] dia=50mm piece_z-rest=-0.000
 [pick] CLOSE snapshot saved for env 1
 [pick] step=210 stages=['DESCEND', 'CLOSE', 'DESCEND', 'DESCEND', 'DESCEND', 'APPROACH', 'DESCEND', 'DESCEND'] e0 tool=[-0.12754130363464355, 0.08562231063842773, 0.8584591150283813] cup=[-0.09907817840576172, 0.06900449842214584] dia=50mm piece_z-rest=-0.000
-[pick] HOLD refused envs [1]: gc-cup dist [0.043] — retrying descent
+[pick] HOLD refused envs [1]: gc-cup dist [0.043] - retrying descent
 [pick] CLOSE-entry env6: grasp_centre=[-0.14939837157726288, 0.12327198684215546, 0.8121147155761719] cup_gt=[-0.13505911827087402, 0.10215562582015991, 0.810000479221344] delta=[-0.014, 0.021, 0.002]
 [pick] step=240 stages=['DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'APPROACH', 'CLOSE', 'DESCEND'] e0 tool=[-0.10735797882080078, 0.08619141578674316, 0.876671552658081] cup=[-0.09858733415603638, 0.0688408836722374] dia=50mm piece_z-rest=-0.000
 [pick] CLOSE snapshot saved for env 6
@@ -268,9 +268,9 @@ Loading user config located at: '<home>/.venv/isaacsim5/lib/python3.11/site-pack
 [pick] CLOSE snapshot saved for env 7
 [pick] step=1980 stages=['DESCEND', 'CLOSE', 'DESCEND', 'DESCEND', 'DESCEND', 'APPROACH', 'LIFT', 'CLOSE'] e0 tool=[-0.22876238822937012, -0.17993557453155518, 0.867046058177948] cup=[-0.07256738841533661, -0.20979568362236023] dia=50mm piece_z-rest=-0.005
 [pick] CLOSE snapshot saved for env 1
-[pick] HOLD refused envs [7]: gc-cup dist [0.091] — retrying descent
+[pick] HOLD refused envs [7]: gc-cup dist [0.091] - retrying descent
 [pick] step=2010 stages=['DESCEND', 'CLOSE', 'DESCEND', 'DESCEND', 'DESCEND', 'APPROACH', 'LIFT', 'DESCEND'] e0 tool=[-0.1831214427947998, -0.19813787937164307, 0.8339733481407166] cup=[-0.1400337517261505, -0.27652835845947266] dia=50mm piece_z-rest=-0.005
-[pick] HOLD refused envs [1]: gc-cup dist [0.049] — retrying descent
+[pick] HOLD refused envs [1]: gc-cup dist [0.049] - retrying descent
 [pick] step=2040 stages=['DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'APPROACH', 'LIFT', 'DESCEND'] e0 tool=[-0.21722817420959473, -0.25724172592163086, 0.8168706893920898] cup=[-0.1953968107700348, -0.32844316959381104] dia=50mm piece_z-rest=-0.005
 [pick] step=2070 stages=['DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'APPROACH', 'LIFT', 'DESCEND'] e0 tool=[-0.257479190826416, -0.333484411239624, 0.8056906461715698] cup=[-0.20527209341526031, -0.4061225950717926] dia=50mm piece_z-rest=-0.005
 [pick] step=2100 stages=['DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'APPROACH', 'LIFT', 'DESCEND'] e0 tool=[-0.22261333465576172, -0.4505276679992676, 0.8118701577186584] cup=[-0.24799618124961853, -0.4832850694656372] dia=32mm piece_z-rest=0.003

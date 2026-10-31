@@ -162,7 +162,7 @@ Critic MLP: MLP(
 [eval] step=1500 episodes_done=260
 [eval] ======== RESULT ========
 [eval] completed_episodes: 260
-[eval] TAKEOVER engaged in 204/260 episodes (0.785) — the scripted release can only be credited where it actually ran
+[eval] TAKEOVER engaged in 204/260 episodes (0.785) - the scripted release can only be credited where it actually ran
 [eval] stage reach: 260/260 = 1.000  95% CI [0.985, 1.000]
 [eval] stage align: 5/260 = 0.019  95% CI [0.008, 0.044]
 [eval] stage grasp: 205/260 = 0.788  95% CI [0.735, 0.834]

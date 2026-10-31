@@ -647,3 +647,40 @@ class TestBatchHelpers:
         assert len(batch_piece_in_zone(piece_xys, zone_xys)) == n
         assert len(batch_piece_returned(piece_xys, zone_xys)) == n
         assert len(batch_piece_dropped([0.5] * n)) == n
+
+
+# ---------------------------------------------------------------------------
+# Visual randomization sampling (mdp_logic.sample_light_params / sample_color)
+# ---------------------------------------------------------------------------
+from isaac.isaaclab_tasks.synria_pickplace.mdp_logic import (  # noqa: E402
+    sample_color,
+    sample_light_params,
+)
+
+
+def test_sample_light_params_spans_range_and_clamps() -> None:
+    lo, color = sample_light_params([0.0, 0.5, 0.5, 0.5], (800.0, 5000.0), 0.15)
+    assert lo == 800.0 and color == (0.95, 0.95, 0.95)
+    hi, color_hi = sample_light_params([1.0, 1.0, 1.0, 1.0], (800.0, 5000.0), 0.15)
+    assert hi == 5000.0 and color_hi == (1.0, 1.0, 1.0)          # clamped at white
+    _, color_lo = sample_light_params([0.2, 0.0, 0.0, 0.0], (800.0, 5000.0), 0.15)
+    assert color_lo == pytest.approx((0.8, 0.8, 0.8))
+    _, same = sample_light_params([0.3, 0.1, 0.9, 0.4], (800.0, 5000.0), 0.0)
+    assert same == (0.95, 0.95, 0.95)                            # jitter 0 is a no-op
+
+
+def test_sample_light_params_rejects_bad_input() -> None:
+    with pytest.raises(ValueError):
+        sample_light_params([0.1, 0.2], (800.0, 5000.0), 0.1)
+    with pytest.raises(ValueError):
+        sample_light_params([0.1, 0.2, 0.3, 0.4], (5000.0, 800.0), 0.1)
+
+
+def test_sample_color_stays_in_unit_cube() -> None:
+    base = (0.85, 0.1, 0.1)
+    assert sample_color([0.5, 0.5, 0.5], base, 0.35) == pytest.approx(base)
+    hi = sample_color([1.0, 1.0, 1.0], base, 0.35)
+    assert hi == pytest.approx((1.0, 0.45, 0.45))
+    lo = sample_color([0.0, 0.0, 0.0], base, 0.35)
+    assert lo == pytest.approx((0.5, 0.0, 0.0))
+    assert all(0.0 <= c <= 1.0 for c in sample_color([0.0, 1.0, 0.37], base, 1.0))

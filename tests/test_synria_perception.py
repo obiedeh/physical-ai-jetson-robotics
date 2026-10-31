@@ -1,3 +1,5 @@
+"""Check synthetic perception and evidence gates without using a camera or robot."""
+
 from __future__ import annotations
 
 import csv
@@ -23,6 +25,7 @@ CONFIG = Path("config/synria_perception.json")
 
 
 def render_board(colour: str = "red", missing: bool = False) -> np.ndarray:
+    """Render labelled marker and token pixels for an explicitly synthetic CPU fixture."""
     image = np.full((600, 600, 3), 230, np.uint8)
     dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
     for label, (x, y) in enumerate([(10, 10), (530, 10), (530, 530), (10, 530)]):
@@ -41,6 +44,7 @@ def render_board(colour: str = "red", missing: bool = False) -> np.ndarray:
 
 
 def render_die(value: int, offset: int = 0) -> np.ndarray:
+    """Draw a known synthetic die face with a bounded test-only displacement."""
     image = np.full((240, 240, 3), 60, np.uint8)
     cv2.rectangle(image, (30 + offset, 30), (210 + offset, 210), (230, 230, 230), -1)
     points = {
@@ -57,6 +61,7 @@ def render_die(value: int, offset: int = 0) -> np.ndarray:
 
 
 def synthetic_corpus(root: Path) -> dict[str, Path]:
+    """Write generated pixels and their declared synthetic truth in the test directory."""
     root.mkdir(parents=True, exist_ok=True)
     rows: dict[str, list] = {"board": [], "tokens": [], "die": []}
     for index in range(24):
@@ -98,6 +103,7 @@ def synthetic_corpus(root: Path) -> dict[str, Path]:
 
 
 def test_synthetic_accuracy_and_missing_markers(tmp_path: Path) -> None:
+    """Score generated fixtures and reject an unlocated board or an unreadable die."""
     corpus = synthetic_corpus(tmp_path)
     for component, truth in corpus.items():
         report = measure_accuracy(
@@ -117,7 +123,29 @@ def test_synthetic_accuracy_and_missing_markers(tmp_path: Path) -> None:
     assert detect_tokens(render_board("blue"), config) == {"A": "blue", "B": "empty"}
 
 
+@pytest.mark.parametrize("colour", ["red", "blue", "green", "yellow"])
+def test_token_masks_keep_uint8_and_colour_classification(
+    colour: str, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The OpenCV mask boundary remains unsigned-byte without altering synthetic labels."""
+    config = json.loads(CONFIG.read_text())
+    connected_components = cv2.connectedComponentsWithStats
+    observed = []
+
+    def observe_mask(mask: np.ndarray) -> tuple:
+        """Inspect the real component mask, then run the unchanged OpenCV classifier."""
+        assert mask.dtype == np.uint8
+        assert set(np.unique(mask)) <= {0, 255}
+        observed.append(mask.shape)
+        return connected_components(mask)
+
+    monkeypatch.setattr(cv2, "connectedComponentsWithStats", observe_mask)
+    assert detect_tokens(render_board(colour), config) == {"A": colour, "B": "empty"}
+    assert observed, "the classification must exercise the component-mask boundary"
+
+
 def test_accuracy_gate_requires_committed_matching_physical_report(tmp_path: Path) -> None:
+    """Require committed provenance and keep synthetic evidence outside the physical gate."""
     corpus = synthetic_corpus(tmp_path / "images")
     report_path = tmp_path / "accuracy.json"
     measure_accuracy(
@@ -153,6 +181,7 @@ def test_accuracy_gate_requires_committed_matching_physical_report(tmp_path: Pat
 
 
 def test_wrong_truth_is_counted_as_confusion(tmp_path: Path) -> None:
+    """A deliberately wrong synthetic label stays an error in the score record."""
     cv2.imwrite(str(tmp_path / "die.png"), render_die(2))
     truth = tmp_path / "truth.csv"
     truth.write_text("image,truth,conditions\ndie.png,6,synthetic deliberate wrong label\n")
@@ -164,6 +193,7 @@ def test_wrong_truth_is_counted_as_confusion(tmp_path: Path) -> None:
 
 @pytest.mark.parametrize("shape", [None, [240, 241, 3], [240, 240, True], [240, 240], "240x240"])
 def test_new_roll_shape_guard_refuses_missing_or_mismatched_evidence(shape: object) -> None:
+    """Reject a candidate image shape without matching measured-input dimensions."""
     # The loader's committed-hash/threshold checks are exercised separately above.
     perception = object.__new__(GatedPerception)
     perception.reports = {"die": {"inputs": [{"image": "synthetic.png", "image_shape_hwc": shape}]}}
@@ -172,6 +202,7 @@ def test_new_roll_shape_guard_refuses_missing_or_mismatched_evidence(shape: obje
 
 
 def test_new_roll_shape_guard_checks_every_measured_image() -> None:
+    """One matching input cannot hide another input with different dimensions."""
     perception = object.__new__(GatedPerception)
     perception.reports = {
         "die": {

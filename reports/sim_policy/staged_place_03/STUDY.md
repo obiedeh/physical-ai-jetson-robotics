@@ -6,14 +6,14 @@ subsets are nested by recording order, so each row contains every row above it.
 Held-out error is the trainer's own measure on the final checkpoint; the success
 rate is the closed-loop cup-lift score in the Isaac scene, when a campaign ran.
 
-- dataset: `~/synria-sim-datasets/staged_place_03/dataset`
+- dataset: `<home>/synria-sim-datasets/staged_place_03/dataset`
 - held-out episodes: [17, 36, 53, 69, 87, 102, 118, 135]
 - episodes available for training: 130
 - seed 17, 20000 steps per run, status completed
 
 | episodes trained | policy id | held-out joint MAE, mean (rad) | max (rad) | gripper MAE (m) | sim success | trials | campaign report |
 |---|---|---|---|---|---|---|---|
-| 130 | simplace03_n130 | 0.0454 | 0.0636 | 0.0009 | 6% | 50 | `~/github/physical-ai-jetson-robotics/docs/evidence/provenance/reports/sim_policy/staged_place_03/trials_simplace03_n130_20261023T011836Z.public.json` |
+| 130 | simplace03_n130 | 0.0454 | 0.0636 | 0.0009 | 6% | 50 | `<home>/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_03/trials_simplace03_n130_20261023T011836Z.json` |
 
 Caveats: recording order is not random, since the operator's picks improved
 across the session, so later episodes are not interchangeable with earlier ones;

@@ -39,20 +39,20 @@ STEPS=$(python3 -c "print(min(320000, int($FRAMES/8*5)))")   # ~5 epochs, capped
 echo "[e38] frames=$FRAMES -> steps=$STEPS (~5 epochs)"
 
 echo "[e38] rsync dataset to Thor"
-rsync -a $DS oedeh@<lan-address>:github/physical-ai-jetson-robotics/reports/training/
+rsync -a $DS ${THOR_SSH:?set THOR_SSH to user@address}:github/physical-ai-jetson-robotics/reports/training/
 echo "[e38] launching training on Thor ($(date -Is))"
-ssh -o BatchMode=yes oedeh@<lan-address> "
+ssh -o BatchMode=yes ${THOR_SSH:?set THOR_SSH to user@address} "
 cd ~/github/physical-ai-jetson-robotics
 rm -f /tmp/e38_train_done
 setsid nohup env HF_HUB_OFFLINE=1 bash -c '~/.venv/lerobot/bin/lerobot-train \
   --dataset.repo_id=synria_e33v3 \
-  --dataset.root=<home>/github/physical-ai-jetson-robotics/$DS \
+  --dataset.root=$HOME/github/physical-ai-jetson-robotics/$DS \
   --policy.type=act --policy.device=cuda --policy.push_to_hub=false \
-  --output_dir=<home>/github/physical-ai-jetson-robotics/reports/training/synria_act_v3 \
+  --output_dir=$HOME/github/physical-ai-jetson-robotics/reports/training/synria_act_v3 \
   --batch_size=8 --steps=$STEPS --wandb.enable=false \
   > /tmp/e38_train_thor.log 2>&1; touch /tmp/e38_train_done' > /dev/null 2>&1 < /dev/null &
 echo thor-launch-ok"
-until ssh -o BatchMode=yes oedeh@<lan-address> 'test -f /tmp/e38_train_done' 2>/dev/null; do
+until ssh -o BatchMode=yes ${THOR_SSH:?set THOR_SSH to user@address} 'test -f /tmp/e38_train_done' 2>/dev/null; do
   echo "[e38] waiting on Thor training $(date +%H:%M)"
   sleep 600
 done
@@ -60,10 +60,10 @@ echo "[e38] Thor training done $(date -Is)"
 
 echo "[e38] serve + sweep + final eval"
 for CK in 100000 200000 last; do
-  ssh -o BatchMode=yes oedeh@<lan-address> "
+  ssh -o BatchMode=yes ${THOR_SSH:?set THOR_SSH to user@address} "
   OLD=\$(ss -tlnp 2>/dev/null | grep 5599 | grep -oP 'pid=\K[0-9]+' | head -1)
   [ -n \"\$OLD\" ] && kill \$OLD 2>/dev/null; sleep 5
-  D=<home>/github/physical-ai-jetson-robotics/reports/training/synria_act_v3/checkpoints/$CK/pretrained_model
+  D=$HOME/github/physical-ai-jetson-robotics/reports/training/synria_act_v3/checkpoints/$CK/pretrained_model
   [ -d \"\$D\" ] || exit 1
   cd ~/github/physical-ai-jetson-robotics
   setsid nohup env HF_HUB_OFFLINE=1 ~/.venv/lerobot/bin/python isaac/scripts/serve_act_policy.py \
@@ -72,7 +72,7 @@ for CK in 100000 200000 last; do
   EPS=10; OUT=reports/eval/e38_sweep_$CK.json
   [ "$CK" = "last" ] && EPS=40 && OUT=reports/eval/e38_act_v3_final.json
   ~/.venv/isaacsim5/bin/python isaac/scripts/eval_act_synria.py --headless --episodes $EPS \
-    --host <lan-address> --out $OUT > $LOG/e38_eval_$CK.log 2>&1
+    --host ${THOR_ADDRESS:?set THOR_ADDRESS} --out $OUT > $LOG/e38_eval_$CK.log 2>&1
   echo "[e38] eval $CK exited $?"
 done
 echo "E38DONE"

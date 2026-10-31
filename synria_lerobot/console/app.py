@@ -10,7 +10,6 @@ import os
 import secrets
 import shutil
 import signal
-import socket
 import subprocess
 import sys
 import tempfile
@@ -24,6 +23,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, TextIO
 
+from physical_ai_lab.portable import board_label
 from synria_lerobot.console.catalog import Catalog
 from synria_lerobot.console.controller import RecordingController
 from synria_lerobot.console.isaac import (
@@ -579,7 +579,7 @@ class ConsoleService:
                                "simulation" if self.simulation else "qualifying"),
             task_id=task.task_id, task_definition_sha256=task.sha256,
             settings=settings, target_episodes=int(payload.get("target_episodes", 100)),
-            git_sha=_git_sha(), host=socket.gethostname(),
+            git_sha=_git_sha(), host=board_label(),
             repo_id=("local/synria-sim-" if self.simulation else "local/synria-console-")
             + secrets.token_hex(8),
         )
@@ -710,7 +710,7 @@ class ConsoleService:
             )
             if not smoke:
                 refused_run = self.catalog.start_capture_run(
-                    session["id"], git_sha=_git_sha(), host=socket.gethostname(),
+                    session["id"], git_sha=_git_sha(), host=board_label(),
                     preflight=self._preflight,
                 )
                 self.catalog.end_capture_run(refused_run, f"preflight refused: {error}")
@@ -737,7 +737,7 @@ class ConsoleService:
                 self.catalog.set_busy(session["id"], True)
                 self.catalog.update_session(session["id"], status="active")
                 self._run_id = self.catalog.start_capture_run(
-                    session["id"], git_sha=_git_sha(), host=socket.gethostname(),
+                    session["id"], git_sha=_git_sha(), host=board_label(),
                     preflight=self._preflight,
                     measured_state_rate=measurement.rate_hz if measurement else None,
                     callback_count=measurement.message_count if measurement else None,
@@ -1033,7 +1033,7 @@ class ConsoleService:
                             if key in reusable and value not in (None, "")}
                 break
         return {
-            "host": socket.gethostname(), "account": getpass.getuser(),
+            "host": board_label(), "account": getpass.getuser(),
             "free_disk_bytes": shutil.disk_usage(self.workspace).free,
             "previous_operator_entries": previous,
             "known_follower_serials": (
@@ -1064,7 +1064,7 @@ class ConsoleService:
         if route == ["operator-guide"]:
             return {
                 "environment": {
-                    "python": sys.executable, "host": socket.gethostname(),
+                    "python": sys.executable, "host": board_label(),
                     "ros_domain": os.environ.get("ROS_DOMAIN_ID", "unset (default domain)"),
                     "ros_distribution": os.environ.get("ROS_DISTRO", "not sourced"),
                     "middleware": os.environ.get("RMW_IMPLEMENTATION", "distribution default"),
@@ -1212,6 +1212,8 @@ class ConsoleService:
                     return self.isaac.stop()
                 if route[1] == "start-driver":
                     return self.isaac.start_driver()
+                if route[1] == "resync":
+                    return self.isaac.resync()
             if route == ["library", "plan"]:
                 return self.plan_goal(payload)
             if route == ["library", "save"]:

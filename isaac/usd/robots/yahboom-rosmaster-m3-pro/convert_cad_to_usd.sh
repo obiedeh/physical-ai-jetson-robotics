@@ -3,7 +3,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ISAACSIM_DIR="<home>/isaacsim"
+ISAACSIM_DIR="$HOME/isaacsim"
 KIT_BIN="$ISAACSIM_DIR/kit/kit"
 EXTSCACHE="$ISAACSIM_DIR/extscache"
 

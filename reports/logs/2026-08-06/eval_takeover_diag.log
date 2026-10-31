@@ -163,7 +163,7 @@ Critic MLP: MLP(
 [eval] step=1500 episodes_done=260
 [eval] ======== RESULT ========
 [eval] completed_episodes: 260
-[eval] TAKEOVER engaged in 204/260 episodes (0.785) — the scripted release can only be credited where it actually ran
+[eval] TAKEOVER engaged in 204/260 episodes (0.785) - the scripted release can only be credited where it actually ran
 [diag] controller: steps_engaged=205135 drop_fired=855 envs_that_reached_tol=19 envs_that_opened=19
 [diag] closest cup-to-target distance reached (m): min=0.0033 p25=0.0367 median=0.0856 p75=0.4075 max=0.8370  (tol=0.012)
 [eval] stage reach: 260/260 = 1.000  95% CI [0.985, 1.000]

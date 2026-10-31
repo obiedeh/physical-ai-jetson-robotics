@@ -305,11 +305,13 @@ def test_clamp_holds_joints_inside_the_bounds_and_keeps_the_gripper() -> None:
     actions[0, 0, 1] = math.radians(100.9)  # Joint2 past its 100 degree stop
     actions[0, 1, 2] = math.radians(-35.5)  # Joint3 past its -35 degree stop
     actions[0, :, 6] = 0.025  # the gripper fully open, on its stroke
+    original = actions.clone()
     clamped = clamp_actions(actions, bounds)
     assert clamped[0, 0, 1].item() == pytest.approx(math.radians(99.0))
     assert clamped[0, 1, 2].item() == pytest.approx(math.radians(-34.0))
     assert clamped[0, 1, 1].item() == 0.0
-    assert torch.equal(clamped[..., 6], actions[..., 6])
+    assert torch.equal(clamped[..., 6], original[..., 6])
+    assert torch.equal(actions, original), "clamping must not mutate the caller's actions"
 
 
 def test_grasp_phase_weights_surround_the_final_close_only() -> None:

@@ -13,6 +13,7 @@ and deadman can be injected by the controller. Events are de-duplicated per
 """
 from __future__ import annotations
 
+import os
 import argparse
 import json
 import time
@@ -37,7 +38,7 @@ def _post(api: str, event: dict, timeout: float = 3.0) -> bool:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--remote-ip", default="<lan-address>")
+    ap.add_argument("--remote-ip", default=os.environ.get("ORIN_ADDRESS", "127.0.0.1"))
     ap.add_argument("--api", default="http://localhost:8000",
                     help="physical-ai-safety-observability base URL")
     ap.add_argument("--hz", type=float, default=5.0)
