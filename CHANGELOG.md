@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-10-30: Keep study Markdown portable and normalize metadata before JSON escaping.
+
 - 2026-10-30: Normalize native Windows home paths and keep fake process signals portable.
 
 - 2026-10-30: Validate visual RNG scalar return types when optional tensor-framework types are unavailable.

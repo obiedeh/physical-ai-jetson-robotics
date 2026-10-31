@@ -22,7 +22,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from physical_ai_lab.portable import expand_json, expand_path, portable_text
+from physical_ai_lab.portable import expand_json, expand_path, portable_json, portable_text
 
 from .act_training import train
 from .checkpoint_eval import read_episode_metadata
@@ -267,7 +267,7 @@ def render_markdown(study: dict[str, Any]) -> str:
         "about the physical arm.",
         "",
     ]
-    return "\n".join(lines)
+    return portable_text("\n".join(lines))
 
 
 def write_study(study: dict[str, Any], directory: Path) -> tuple[Path, Path]:
@@ -275,7 +275,7 @@ def write_study(study: dict[str, Any], directory: Path) -> tuple[Path, Path]:
     directory.mkdir(parents=True, exist_ok=True)
     record = directory / "study.json"
     record.write_text(portable_text(
-        json.dumps(study, indent=2, sort_keys=True, allow_nan=False) + "\n"),
+        json.dumps(portable_json(study), indent=2, sort_keys=True, allow_nan=False) + "\n"),
                       encoding="utf-8")
     table = directory / "STUDY.md"
     table.write_text(portable_text(render_markdown(study)), encoding="utf-8")
