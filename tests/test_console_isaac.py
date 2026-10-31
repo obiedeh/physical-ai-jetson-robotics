@@ -59,7 +59,7 @@ class Fakes:
         if sig == 0:
             return
         self.signals.append((pid, sig))
-        if sig == signal.SIGKILL or (sig == signal.SIGTERM and self.die_on_term):
+        if sig == getattr(signal, "SIGKILL", None) or (sig == signal.SIGTERM and self.die_on_term):
             self.processes = [p for p in self.processes if p.pid != pid]
 
     def spawn(self, argv: list[str], env: dict[str, str], log: Path, cwd: Path) -> int:
@@ -470,3 +470,20 @@ def test_monitor_sync_compares_arm_joints_only() -> None:
     assert sync["leader_age_s"] is not None and sync["leader_age_s"] < 1.0
     assert sync["leader_rate_hz"] > 0
     assert isaac.SimTopicMonitor(window_s=3.0).sync()["max_joint_diff_deg"] is None
+
+
+@pytest.mark.parametrize("die_on_term", [True, False])
+def test_fake_process_signals_work_when_hard_kill_is_unavailable(monkeypatch, die_on_term):
+    """Missing optional hard-kill signals do not break fake terminate or probe semantics."""
+    monkeypatch.delattr(signal, "SIGKILL", raising=False)
+    target = proc(42, "isaac-sim")
+    unrelated = proc(43, "unrelated")
+    fakes = Fakes([target, unrelated])
+    fakes.die_on_term = die_on_term
+    fakes.send_signal(42, 0)
+    assert fakes.processes == [target, unrelated]
+    fakes.send_signal(42, signal.SIGTERM)
+    assert fakes.processes == ([unrelated] if die_on_term else [target, unrelated])
+    assert fakes.signals[-1] == (42, signal.SIGTERM)
+    with pytest.raises(ProcessLookupError):
+        fakes.send_signal(99, 0)

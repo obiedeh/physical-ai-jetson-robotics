@@ -23,6 +23,11 @@ BOARD_LABELS = ("rtx-5090-workstation", "bench-thor", "field-orin")
 UNKNOWN_BOARD = "unknown-board"
 
 HOME_RE = re.compile(r"/home/[A-Za-z0-9_-]+")
+
+WINDOWS_HOME_RE = re.compile(
+    r"(?<![A-Za-z0-9])[A-Za-z]:[\\/]Users[\\/][^\\/\r\n`\'\"<>]+",
+    re.IGNORECASE,
+)
 PRIVATE_ADDRESS_RE = re.compile(
     r"(?<![0-9.])(?:10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"
     r"|172\.(?:1[6-9]|2[0-9]|3[01])\.[0-9]{1,3}\.[0-9]{1,3}"
@@ -70,7 +75,11 @@ def board_label(environ: dict[str, str] | None = None,
 
 
 def portable_text(text: str) -> str:
-    """Replace home-directory paths and private-range addresses with their tokens."""
+    """Normalize home metadata while retaining unrelated text and path semantics."""
+    if WINDOWS_HOME_RE.match(text):
+        text = WINDOWS_HOME_RE.sub(HOME_TOKEN, text, count=1).replace("\\", "/")
+    else:
+        text = WINDOWS_HOME_RE.sub(HOME_TOKEN, text)
     return PRIVATE_ADDRESS_RE.sub(LAN_TOKEN, HOME_RE.sub(HOME_TOKEN, text))
 
 
