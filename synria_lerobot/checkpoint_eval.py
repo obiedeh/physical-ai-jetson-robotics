@@ -644,6 +644,28 @@ class TrialClipCapture:
         return result
 
 
+def _probe_failure_diagnostic(stage: str, error: BaseException) -> dict[str, str | None]:
+    """Describe failure stages and exception classes without messages or paths."""
+    stages = {
+        "pre_trial", "camera_setup", "camera_startup", "scene_confirmation",
+        "motion_setup", "motion", "operator_grade", "hold", "camera_shutdown",
+        "media_evidence",
+    }
+    kinds = {
+        "TimeoutError", "OSError", "FileNotFoundError", "PermissionError",
+        "RuntimeError", "ValueError", "TypeError", "EOFError", "KeyboardInterrupt",
+        "ConnectionError", "AssertionError", "OperatorAbort",
+    }
+    error_type = type(error).__name__
+    cause = error.__cause__
+    cause_type = type(cause).__name__ if cause is not None else None
+    return {
+        "stage": stage if stage in stages else "UNKNOWN",
+        "error_type": error_type if error_type in kinds else "UNKNOWN",
+        "cause_type": cause_type if cause_type in kinds else ("UNKNOWN" if cause_type else None),
+    }
+
+
 def run_physical_probes(
     probe_path: Path,
     expected_probe_hash: str,
@@ -797,6 +819,7 @@ def run_physical_probes(
                         "operator_grade": None,
                         "clips": None,
                         "errors": [],
+                        "failure_diagnostics": [],
                         "purpose": DIAGNOSTIC_PURPOSE,
                         "object_success_limitation": OBJECT_SUCCESS_LIMITATION,
                         "policy_id": saved["policy_id"],
@@ -806,9 +829,11 @@ def run_physical_probes(
                     }
                     capture: TrialClipCapture | None = None
                     mover: FixedSkillExecutor | None = None
+                    stage = "pre_trial"
                     try:
                         if io.abort_pending():
                             raise OperatorAbort("operator aborted before trial capture")
+                        stage = "camera_setup"
                         capture = TrialClipCapture(
                             io.observe,
                             media_root / identifier,
@@ -820,8 +845,10 @@ def run_physical_probes(
                         )
                         captures.append(capture)
                         active_capture = capture
+                        stage = "camera_startup"
                         capture.start()
                         print(f"Frozen probe {trial['trial_id']}: {_json(trial['scene']).strip()}")
+                        stage = "scene_confirmation"
                         if io.confirm_skill(contract.task_definition) is not True:
                             raise OperatorAbort("operator declined the frozen probe scene")
                         attempt["scene_confirmed"] = True
@@ -833,6 +860,7 @@ def run_physical_probes(
                             recording.check()
                             return io.observe(task)
 
+                        stage = "motion_setup"
                         mover = FixedSkillExecutor(
                             path,
                             observe,
@@ -841,8 +869,10 @@ def run_physical_probes(
                             period_s=safety.command_period_s,
                         )
                         attempt["attempted"] = True
+                        stage = "motion"
                         mover.execute()
                         attempt["motion_completed"] = True
+                        stage = "operator_grade"
                         grade = io.grade_skill(contract.task_definition)
                         if grade.task_definition != contract.task_definition:
                             raise ValueError("probe grade differs from the frozen skill")
@@ -853,13 +883,22 @@ def run_physical_probes(
                         terminal_status = "aborted"
                         attempt["status"] = "aborted"
                         attempt["errors"].append(str(error) or type(error).__name__)
+                        attempt["failure_diagnostics"].append(
+                            _probe_failure_diagnostic(stage, error)
+                        )
                     except BaseException as error:
                         abort = True
                         terminal_status = "failed"
                         attempt["errors"].append(str(error) or type(error).__name__)
+                        attempt["failure_diagnostics"].append(
+                            _probe_failure_diagnostic(stage, error)
+                        )
                     finally:
                         attempt["steps"] = mover.offered_steps if mover is not None else 0
-                        for callback in (path.hold, capture.stop if capture else lambda: None):
+                        for phase, callback in (
+                            ("hold", path.hold),
+                            ("camera_shutdown", capture.stop if capture else lambda: None),
+                        ):
                             try:
                                 callback()
                             except BaseException as error:
@@ -867,6 +906,9 @@ def run_physical_probes(
                                 terminal_status = "failed"
                                 attempt["status"] = "failed"
                                 attempt["errors"].append(str(error) or type(error).__name__)
+                                attempt["failure_diagnostics"].append(
+                                    _probe_failure_diagnostic(phase, error)
+                                )
                         if capture is not None:
                             stamp = (
                                 attempt["operator_grade"]["still_timestamp_s"]
@@ -880,6 +922,9 @@ def run_physical_probes(
                                     terminal_status = attempt["status"] = "failed"
                                     attempt["errors"].append("both finalized camera clips required")
                             except BaseException as error:
+                                attempt["failure_diagnostics"].append(
+                                    _probe_failure_diagnostic("media_evidence", error)
+                                )
                                 abort = True
                                 terminal_status = attempt["status"] = "failed"
                                 attempt["missing_clips_reason"] = (

@@ -11,6 +11,9 @@ jobs:
   test:
     name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    env:
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
     strategy:
       fail-fast: false
       matrix:
