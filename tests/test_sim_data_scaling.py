@@ -59,7 +59,8 @@ def test_study_spec_requires_the_simulation_lane_and_an_open_limit(tmp_path: Pat
     assert run_config(spec, {}, 5, 5)["training_episode_limit"] is None
 
 
-def test_study_records_each_row_and_renders_the_curve(tmp_path: Path) -> None:
+@pytest.mark.parametrize("metadata_style", ["native", "windows-home"])
+def test_study_records_each_row_and_renders_the_curve(tmp_path: Path, metadata_style: str) -> None:
     """A fake trainer per subset; the record, table and per-row write are checked."""
     repository = tmp_path / "repo"
     repository.mkdir()
@@ -141,8 +142,49 @@ def test_study_records_each_row_and_renders_the_curve(tmp_path: Path) -> None:
     assert "synthetic training failure" in failed["error"]
     with pytest.raises(ValueError, match="exceeds"):
         subset_sizes([5], 4)
+    rows_before_render = json.dumps(study["rows"], sort_keys=True)
+    if metadata_style == "windows-home":
+        from pathlib import PureWindowsPath
+
+        synthetic_home = PureWindowsPath("C:/") / "Users" / "sample-user"
+        study["dataset_root"] = str(synthetic_home / "synthetic study")
+        study["metadata_probe"] = {
+            "literal": str(synthetic_home / "artifact"),
+            "nested": [{"embedded": "source=" + str(synthetic_home / "input")}],
+            "url": "https://example.invalid/report", "number": 0.125,
+            "label": "synthetic metadata", "flag": True, "empty": None,
+        }
     record, table_path = write_study(study, tmp_path / "again")
     assert record.exists() and table_path.read_text() == render_markdown(study)
+    assert json.dumps(study["rows"], sort_keys=True) == rows_before_render
+    from physical_ai_lab.portable import HOME_TOKEN, expand_path
+
+    parsed_study = json.loads(record.read_text())
+    home_prefixes = [str(Path.home()), Path.home().as_posix()]
+    if metadata_style == "windows-home":
+        home_prefixes.extend([str(synthetic_home), synthetic_home.as_posix()])
+
+    def stable_payload(value):
+        """Compare every non-home payload value independently of serialization details."""
+        if isinstance(value, dict):
+            return {key: stable_payload(item) for key, item in value.items()}
+        if isinstance(value, (list, tuple)):
+            return [stable_payload(item) for item in value]
+        if isinstance(value, str) and (
+            HOME_TOKEN in value or any(prefix in value for prefix in home_prefixes)
+        ):
+            return "<home-metadata>"
+        return value
+
+    assert stable_payload(parsed_study) == stable_payload(study)
+    if metadata_style == "windows-home":
+        assert HOME_TOKEN in table_path.read_text()
+        assert str(synthetic_home) not in table_path.read_text()
+        assert parsed_study["dataset_root"].startswith(HOME_TOKEN)
+        assert expand_path(parsed_study["dataset_root"]) == Path.home() / "synthetic study"
+        assert parsed_study["metadata_probe"]["literal"].startswith(HOME_TOKEN)
+        embedded = parsed_study["metadata_probe"]["nested"][0]["embedded"]
+        assert HOME_TOKEN in embedded and str(synthetic_home) not in embedded
 
 
 def test_real_tiny_study_trains_two_nested_subsets(
