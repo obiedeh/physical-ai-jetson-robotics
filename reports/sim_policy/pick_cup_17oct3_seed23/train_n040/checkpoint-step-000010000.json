@@ -27,7 +27,7 @@
     "command_period_s": 0.2,
     "dataset_repo_id": "local/pick_cup_17oct3_sim",
     "device": "cuda",
-    "evidence_directory": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3_seed23/train_n040",
+    "evidence_directory": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3_seed23/train_n040",
     "expected_contract": {
       "action_lookahead_steps": 1,
       "action_source": "leader",
@@ -84,7 +84,7 @@
     "policy_ledger": "docs/ludo_flagship/SIM_POLICY_LEDGER.md",
     "probe_set": "reports/sim_policy/pick_cup_17oct3/probes.json",
     "probe_sha256": "4300c43aa9a645d401235daaf9f108510cdd933fbb5ddac5e1a4d40a6ab082ef",
-    "repository": "/home/oedeh/github/physical-ai-jetson-robotics",
+    "repository": "<home>/github/physical-ai-jetson-robotics",
     "response_timeout_s": 0.5,
     "save_freq": 5000,
     "timeline": "docs/ludo_flagship/timeline.jsonl",
@@ -94,7 +94,7 @@
     "weight_decay": 0.0001
   },
   "dataset_content_sha256": "283517bcbb74bd6746bbc0968419e12ed7eb45166a8c51a2b8dacf4a659d6568",
-  "dataset_path": "/home/oedeh/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
+  "dataset_path": "<home>/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
   "declared_input_conditioning": [
     "observation.state",
     "observation.images.wrist",
@@ -121,7 +121,7 @@
     36,
     44
   ],
-  "host": "aimlstation",
+  "host": "rtx-5090-workstation",
   "lane": "simulation",
   "model_feature_shapes": {
     "action": [
@@ -150,7 +150,7 @@
     48,
     49
   ],
-  "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3_seed23/simcup17oct3s23_n040/checkpoints/step-000010000",
+  "path": "<home>/synria-sim-training/pick_cup_17oct3_seed23/simcup17oct3s23_n040/checkpoints/step-000010000",
   "physical_contract": {
     "action_lookahead_steps": 1,
     "action_source": "leader",
@@ -203,7 +203,7 @@
   "physical_eligible": false,
   "policy_id": "simcup17oct3s23_n040",
   "pretrained_backbone_weights": null,
-  "probe_set": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/probes.json",
+  "probe_set": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/probes.json",
   "probe_sha256": "4300c43aa9a645d401235daaf9f108510cdd933fbb5ddac5e1a4d40a6ab082ef",
   "requested_steps": 20000,
   "seed": 23,

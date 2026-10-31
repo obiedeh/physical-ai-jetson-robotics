@@ -1,11 +1,11 @@
-# Stack watchlist — tracked, not yet adopted
+# Stack watchlist - tracked, not yet adopted
 
 Additions require a measured gap they close; each entry names its
 adoption trigger.
 
 | item | what | trigger to adopt |
 |---|---|---|
-| [Newton](https://github.com/newton-physics/newton) | GPU physics engine (Disney/DeepMind/NVIDIA, Warp + MuJoCo-Warp, differentiable, OpenUSD; Linux Foundation) — announced future Isaac Lab backend | When Isaac Lab ships Newton as stable default: migrate with the framework, re-validate contact-sensitive numbers (grasp/release) before trusting old baselines. Differentiable-sim also = alternative lever for dock-skill refinement (see WAM future-work triggers). |
+| [Newton](https://github.com/newton-physics/newton) | GPU physics engine (Disney/DeepMind/NVIDIA, Warp + MuJoCo-Warp, differentiable, OpenUSD; Linux Foundation) - announced future Isaac Lab backend | When Isaac Lab ships Newton as stable default: migrate with the framework, re-validate contact-sensitive numbers (grasp/release) before trusting old baselines. Differentiable-sim also = alternative lever for dock-skill refinement (see WAM future-work triggers). |
 | Isaac Lab Mimic (MimicGen) | demo multiplication from few demonstrations | Next corpus-scaling need on Ludo-token task (P3) |
 | Isaac ROS 5.0 + FoundationPose | local 6-DoF object pose on Thor at camera rate; requires RGB-D, a detection box and a CAD mesh, so the current monocular C10 path is insufficient by itself | After D1/D2, and only after a measured depth path exists: isolated Thor benchmark on recorded and synthetic cup/die/token frames before any arm-control integration |
 | cuMotion (Isaac Manipulator) | collision-aware GPU motion planning | P4: physical arm over physical tokens (safety) |
@@ -29,22 +29,22 @@ adoption trigger.
 
 ## GR00T 1.7 migration (DECIDED 2026-08-19, in progress)
 Chosen: migrate to GR00T-N1.7-3B via LeRobot-native fine-tuning for
-the Ludo policy. Alternatives: stay on N1.5 (rejected — deprecated,
-unsupported since July 2026); wait for N2 (rejected — no date).
+the Ludo policy. Alternatives: stay on N1.5 (rejected - deprecated,
+unsupported since July 2026); wait for N2 (rejected - no date).
 Deciding constraint: training a NEW policy on a deprecated model
 wastes the corpus investment. Would reverse if: 1.7 fine-tune on our
 LeRobot v2.1 corpora underperforms the E48-class N1.5 baselines at
 matched steps. Consequences: Thor TRT pipeline rebuild required
 (Cosmos-Reason2/Qwen3-VL backbone); fresh venv (~/.venv/lerobot17,
-real HF LeRobot from git — PyPI 'lerobot' is a squatter package);
+real HF LeRobot from git - PyPI 'lerobot' is a squatter package);
 weights at ~/models/gr00t_n17_base.
-STATUS 2026-08-19: migration groundwork DONE — weights at
+STATUS 2026-08-19: migration groundwork DONE - weights at
 ~/models/gr00t_n17_base (6.5G); ~/.venv/lerobot17 has real LeRobot
 0.6.2 with GrootPolicy importable. The repository-local Synria data-contract
 package is `synria_lerobot/`, so it does not shadow the external library.
 
 BLOCKER 2026-08-19: GR00T 1.7 fine-tune reaches the training loop but
-the backbone processor loads from GATED nvidia/Cosmos-Reason2-2B —
+the backbone processor loads from GATED nvidia/Cosmos-Reason2-2B -
 requires the operator's HF account to accept the license (token
 verified 401). Working command (post-access): lerobot-train
 --policy.type=groot --policy.pretrained_path=~/models/gr00t_n17_base
@@ -52,13 +52,13 @@ verified 401). Working command (post-access): lerobot-train
 --policy.push_to_hub=false + v3.0 dataset at
 reports/training/ludo_corpus01_lerobot (run OUTSIDE the repo).
 Venv repair ledger: pip 'lerobot[dataset]' pulls the PyPI SQUATTER
-(0.1.0) and clobbers the git install — pin extras to the git URL;
+(0.1.0) and clobbers the git install - pin extras to the git URL;
 dependency churn left a stale libnccl (missing symbol despite correct
-pip metadata) — force-reinstall fixed; old diffusers needed upgrade;
+pip metadata) - force-reinstall fixed; old diffusers needed upgrade;
 v2.1 corpora need gen_episodes_stats_v21.py then the v21->v30
 migrator (local conversion succeeds; ignore its hub-push failure).
 RESOLVED 2026-08-19: the "gated repo" blocker was MISDIAGNOSED. Root
-cause: ~/.bashrc:124 exported HF_TOKEN=your_huggingface_token_here —
+cause: ~/.bashrc:124 exported HF_TOKEN=your_huggingface_token_here -
 a PLACEHOLDER (from a recent profile edit) that OVERRODE the valid
 token file (~/.cache/huggingface/token, account oedeh). With the env
 var removed, the account already had Cosmos-Reason2-2B access (the
@@ -71,7 +71,7 @@ exceeded the 1e-4 default by exactly 1e-4). GR00T-1.7 LoRA fine-tune
 (r=16, all-linear) now training: 20k steps, batch 8, ~2.3 steps/s,
 24.6GB VRAM, loss 1.101->1.082 by step 700.
 LESSON (goes in the E1 post family): an invalid credential in the
-ENVIRONMENT silently outranks a valid one on disk — same failure
+ENVIRONMENT silently outranks a valid one on disk - same failure
 shape as the silent CPU fallback; assert the identity you think you
 are using (whoami) before diagnosing permissions.
 2026-08-20 status: ludo_groot17_v1 trained (20k steps, LoRA r=16,
@@ -103,7 +103,7 @@ duration; check /proc/driver/nvidia/version == libcuda.so.1 version
 in the preflight of every launcher (run_groot17_eval.sh does the
 torch.cuda probe).
 CORPUS DESIGN GAP (found while wiring the eval): the place square is
-trial-manager state (mgr.zone_xy) — nothing renders it — and corpus-01
+trial-manager state (mgr.zone_xy) - nothing renders it - and corpus-01
 used a CONSTANT instruction. The policy had no observable placement
 goal; expect grasp/lift/release to be the meaningful funnel stages of
 eval01 and placement ~chance. Batch 2+ must encode the target
@@ -112,10 +112,10 @@ rendered marker) before the placement number means anything.
 ORIN ONBOARDED 2026-08-20 (Thor playbook, repeated): Yahboom ROSMASTER
 M3 Pro / Jetson Orin NX 8GB Super, hostname `jetsonorin` (renamed from
 vendor `yahboom` 2026-08-20 12:45 CDT; ssh alias `jetsonorin` ->
-jetson@192.168.1.243 in ~/.ssh/config on the 5090, `jetsonthor` likewise). L4T
+jetson@<lan-address> in ~/.ssh/config on the 5090, `bench-thor` likewise). L4T
 R36.4.4 / JetPack 6.2, Ubuntu 22.04, Python 3.10, CUDA 12.6, TensorRT
 10.7, torch 2.5.0 (nv24.08, CUDA ok), ROS 2 Humble, Docker (a Dify
-stack is resident), NVMe 89% full (11 GB free — keep clones sparse).
+stack is resident), NVMe 89% full (11 GB free - keep clones sparse).
 Repo: pushed over the LAN (5090 sshd is inactive, so 5090 -> Orin push,
 receive.denyCurrentBranch=updateInstead), sparse checkout excluding
 reports/* except reports/inventory + reports/jetson; origin =
@@ -123,25 +123,25 @@ git@github.com SSH (Orin's key `yahboom-orin-nx` awaiting addition at
 github.com/settings/keys; until then Orin commits flow Orin -> 5090
 (`git remote orin`) -> GitHub). Vendor leftovers fixed/flagged: git
 identity was jetson-nx@example.com (set); timezone was Asia/Shanghai
-(set to America/Chicago 2026-08-20; the day-one artifacts predate it —
+(set to America/Chicago 2026-08-20; the day-one artifacts predate it -
 their timestamp_utc fields are correct, only the `timezone` label reads CST+0800).
 GitHub SSH key `yahboom-orin-nx` added; main tracks origin/main directly.
 ACCOUNT 2026-08-20 12:50 CDT: work moved to a new sudo user `oedeh`
-(matches Thor) — NOT a rename of `jetson`: 6 vendor service/autostart
-files hardcode /home/jetson and the ROS workspaces live there, so
+(matches Thor) - NOT a rename of `jetson`: 6 vendor service/autostart
+files hardcode <home> and the ROS workspaces live there, so
 `jetson` stays untouched for the Yahboom stack. `oedeh` carries the
 same hardware groups (video, i2c, gpio, dialout, docker, jtop, ...),
-the same SSH keys, repo at /home/oedeh/github/physical-ai-jetson-robotics
+the same SSH keys, repo at <home>/github/physical-ai-jetson-robotics
 (sparse, tracks origin/main, .venv), and the 5090's `jetsonorin` alias
 + `orin` git remote point at oedeh@. The interim jetson-owned clone was
-removed (disk is 90% full: ~10 GB free — keep checkouts sparse).
+removed (disk is 90% full: ~10 GB free - keep checkouts sparse).
 Artifacts: reports/inventory/yahboom_orin_nx.json (Orbbec DaBai DCW2,
 2x V4L2), reports/jetson/yahboom_day_one/ (day_one_smoke.py: MAXN_SUPER,
 fp16 2048 matmul cold 173ms / warm p50 1.77ms p95 2.76 n=200 ~9.7
 TFLOPS, /dev/video0 640x480 60.0ms/frame = 16.7fps fixed, VDD_IN 5.4W
 idle -> 11.6W peak, 62C, no throttling).
 BUG FOUND on day one: scripts/jetson/collect_inventory.sh ran `python
--m physical_ai_lab.cli`, but cli.py had no __main__ guard — it exited 0
+-m physical_ai_lab.cli`, but cli.py had no __main__ guard - it exited 0
 silently and wrote nothing (fixed 890b24a). Any prior inventory
 "collected" through that script never existed; Thor's should be
 re-collected with the fixed CLI.

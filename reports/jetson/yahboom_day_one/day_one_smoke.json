@@ -1,5 +1,5 @@
 {
-  "host": "yahboom",
+  "host": "field-orin",
   "device_model": "NVIDIA Jetson Orin NX Engineering Reference Developer Kit Super",
   "provenance": "provenance.json",
   "probes": {

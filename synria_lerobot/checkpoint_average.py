@@ -19,6 +19,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from physical_ai_lab.portable import expand_path
+
 from .act_training import _evaluation_batches, _json
 from .checkpoint_eval import CheckpointEvaluator, PredictionBatch, strict_content_hash
 from .physical_contract import training_lane
@@ -87,7 +89,7 @@ def average_checkpoints(
     if len(evaluated) < last_k:
         raise ValueError(f"the run has {len(evaluated)} evaluated checkpoints, fewer than {last_k}")
     sources = evaluated[-last_k:]
-    paths = [Path(entry["path"]) for entry in sources]
+    paths = [expand_path(entry["path"]) for entry in sources]
     for entry, path in zip(sources, paths, strict=True):
         if strict_content_hash(path) != entry["checkpoint_content_sha256"]:
             raise ValueError(f"checkpoint {path} changed since the run")

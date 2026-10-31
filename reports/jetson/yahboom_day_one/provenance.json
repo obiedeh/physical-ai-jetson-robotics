@@ -2,7 +2,7 @@
   "timestamp_utc": "2026-08-20T17:34:59Z",
   "git_sha": "6842119da7e43b2b67efb6019a6a35401f3b517e",
   "git_dirty": false,
-  "host": "yahboom",
+  "host": "field-orin",
   "platform": "Linux-5.15.148-tegra-aarch64-with-glibc2.35",
   "python": "3.10.12",
   "argv": [
@@ -19,7 +19,7 @@
   "power_mode": "NV Power Mode: MAXN_SUPER\n0",
   "jetson_clocks": "SOC family:tegra234  Machine:NVIDIA Jetson Orin NX Engineering Reference Developer Kit Super\nError: Run this script(/usr/bin/jetson_clocks) as a root user",
   "cuda": "",
-  "tensorrt": "ii  libnvinfer10                                      10.7.0.23-1+cuda12.6                        arm64        TensorRT runtime libraries",
+  "tensorrt": "ii  libnvinfer10                                      <lan-address>-1+cuda12.6                        arm64        TensorRT runtime libraries",
   "seed": 0,
   "PYTHONHASHSEED": "0",
   "numpy_seeded": true,

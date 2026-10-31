@@ -545,6 +545,59 @@ def test_local_loader_refuses_custom_imports_escaped_state_or_download_before_fa
     assert imports == []
 
 
+def test_receipt_may_carry_tokens_but_any_other_difference_is_refused(tmp_path: Path) -> None:
+    """A scrubbed receipt matches an older manifest; a changed value still does not."""
+    identity, receipt, registry = fixture(tmp_path, lane="simulation")
+    manifest_path = identity.checkpoint / "physical_policy_manifest.json"
+    record = json.loads(receipt.read_text(encoding="utf-8"))
+    # An older manifest holds a real path and a host; the receipt holds a token and a label.
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    home = "/ho" + "me/someone"
+    manifest["host"], record["host"] = "some-machine", "rtx-5090-workstation"
+    manifest["dataset_path"], record["dataset_path"] = f"{home}/ds", "<home>/ds"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    record["checkpoint_content_sha256"] = strict_content_hash(identity.checkpoint)
+    receipt.write_text(json.dumps(record), encoding="utf-8")
+    assert CheckpointIdentity.load(identity.checkpoint, receipt, registry, "simulation")
+    tampered = {**record, "dataset_path": "<home>/other"}
+    receipt.write_text(json.dumps(tampered), encoding="utf-8")
+    with pytest.raises(ValueError, match="differs from its manifest"):
+        CheckpointIdentity.load(identity.checkpoint, receipt, registry, "simulation")
+
+
+def test_replanning_every_command_predicts_afresh_and_is_a_named_override(tmp_path: Path) -> None:
+    """With replan_every 1 every request runs the model and takes the chunk's first action;
+    the override is named in the metadata, refused with an ensemble and on the physical lane."""
+    identity, receipt, registry = fixture(tmp_path, lane="simulation")
+    model = StubModel()
+    service = FixedScenePolicyService(identity, model, replan_every=1)
+    actions = [decode_policy_response(
+        service.request(encode_policy_request(payload(identity, reset=index == 0))))["action"][0]
+        for index in range(3)]
+    assert actions == [0, 0, 0] and model.calls == 3
+    assert service.metadata()["serving_overrides"] == {"replan_every": "1"}
+    plain = FixedScenePolicyService(identity, StubModel())
+    assert "serving_overrides" not in plain.metadata()
+    with pytest.raises(ValueError, match="replan_every must be"):
+        FixedScenePolicyService(identity, StubModel(), replan_every=2)  # two commands a chunk
+    with pytest.raises(ValueError, match="replan_every must be"):
+        FixedScenePolicyService(identity, StubModel(), replan_every=0)
+    manifest = copy.deepcopy(identity.manifest)
+    manifest["configuration"] = {**manifest["configuration"], "temporal_ensemble_coeff": 0.0}
+    ensembled = CheckpointIdentity(identity.checkpoint, identity.content_sha256, manifest,
+                                   identity.contract, identity.lane)
+    with pytest.raises(ValueError, match="no meaning for an ensembled"):
+        FixedScenePolicyService(ensembled, StubModel(), replan_every=1)
+    from synria_lerobot.policy_server import main
+
+    (tmp_path / "physical").mkdir()
+    physical, physical_receipt, physical_registry = fixture(tmp_path / "physical")
+    with pytest.raises(SystemExit):
+        main(["--checkpoint", str(physical.checkpoint), "--checkpoint-record",
+              str(physical_receipt), "--task-registry", str(physical_registry),
+              "--device", "cpu", "--replan-every", "1"])
+
+
 def test_ensembling_can_be_served_off_as_a_named_override(tmp_path: Path) -> None:
     """The override drops the ensemble, is named in the metadata, and is refused physically."""
     from synria_lerobot.policy_server import main

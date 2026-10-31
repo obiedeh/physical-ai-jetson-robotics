@@ -7,7 +7,7 @@
 )
 
 def Xform "World" (
-    prepend references = @/home/oedeh/github/Alicia-D-ROS2/scripts/isaac_sim/scenes/chesstable_norobot.usda@</World>
+    prepend references = @<home>/github/Alicia-D-ROS2/scripts/isaac_sim/scenes/chesstable_norobot.usda@</World>
 )
 {
     over "Game"

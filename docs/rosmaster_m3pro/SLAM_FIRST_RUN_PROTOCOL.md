@@ -36,7 +36,7 @@ Done read-only on 2026-09-10 after the reflash: [orin_discovery_2026-09-10.md](o
 ```bash
 source scripts/jetson/orin_ros_env.sh
 ros2 pkg list | grep -i -E 'map|slam|laser|nav'
-ls /home/jetson/M3Pro_ws/install/*/share/*/launch/ 2>/dev/null
+ls <home>/M3Pro_ws/install/*/share/*/launch/ 2>/dev/null
 ros2 topic list; ros2 topic hz /scan0; ros2 topic hz /odom_raw
 df -h / ; free -m ; nvpmodel -q 2>/dev/null || cat /var/lib/nvpmodel/status
 ```

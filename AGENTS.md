@@ -1,5 +1,15 @@
 # AGENTS.md
 
+## Repository hygiene
+
+Read and follow the [Repository hygiene policy in obiedeh-brand/AGENTS.md](https://github.com/obiedeh/obiedeh-brand/blob/main/AGENTS.md#repository-hygiene-standing-every-repo), the single source of these rules.
+
+- Name boards only: `jetson-agx-thor`, `jetson-orin-nx`, `rtx-5090-workstation`.
+- No host names, home-directory paths or LAN addresses in tracked prose, logs, commit messages or branch names; write commands against `~`.
+- Never bypass or disable hooks, or change `core.hooksPath` to evade them. Check diffs and commit messages against `~/.config/git/private-terms.txt` without exposing its contents.
+- Never rewrite history, force push or move tags. Amend only commits that have never been pushed.
+- Keep handoff notes, reviews and plans outside repositories in `~/handoff_notes/`.
+
 Engineering rules for anyone, human or automated, changing this repository.
 This repo drives real robot hardware, so the rules favour evidence and safety
 over speed.
@@ -105,7 +115,8 @@ Do not create:
 - speculative simulation adapters before hardware gates are passed
 - vendor-specific configs or vendor assets in public paths
 - oversized READMEs or architecture essays in code comments
-- handoff, recap, or summary files; keep private notes outside this repository
+- handoff, recap, or summary files; session notes belong only in
+  `docs/ludo_flagship/ACTIVITY_LOG.md`
 
 Every new file must justify at least one of: operational necessity,
 reliability, observability, or deployment readiness.
@@ -121,3 +132,10 @@ Every change ends with:
 3. Tests not run and why
 4. Risks or follow-up work
 5. Whether a hardware safety review is needed before it runs on a robot
+
+## Private identifiers in tracked files
+
+- Evidence files, logs and scripts carry board labels (`rtx-5090-workstation`, `bench-thor`, `field-orin`), `<lan-address>` and `<home>`, never host names, addresses or home-directory paths.
+- Recorders use `physical_ai_lab.portable`: `board_label()` for the machine, `portable_text` or `portable_json` when writing evidence, `expand_path` or `expand_json` when reading a recorded path back.
+- Scripts take addresses from the environment (`THOR_ADDRESS`, `THOR_SSH`, `ORIN_ADDRESS`) or an untracked local config file, never a literal.
+- `scripts/check_repo_hygiene.py` enforces paths and addresses in CI and in `tests/test_repo_hygiene.py`. The global git hooks in `~/.config/git/hooks` refuse offending commits and pushes, including machine names kept in a private list outside the repository.

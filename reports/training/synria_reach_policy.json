@@ -6,7 +6,7 @@
   "device": "cuda:0",
   "seed": 44,
   "elapsed_s": 7465.1,
-  "final_checkpoint": "/home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_chess_pickplace_v6_e26_s44/model_final.pt",
+  "final_checkpoint": "<home>/github/physical-ai-jetson-robotics/reports/training/synria_chess_pickplace_v6_e26_s44/model_final.pt",
   "mean_reward_last_iter": 217.7047,
   "mean_episode_length_last_iter": 891.92,
   "last_iteration": 24997,
@@ -35,5 +35,5 @@
     "Episode_Termination/piece_out_of_bounds": 0.009135,
     "Episode_Termination/time_out": 0.990865
   },
-  "source_event_file": "events.out.tfevents.1785976849.aimlstation.2610993.0"
+  "source_event_file": "events.out.tfevents.1785976849.rtx-5090-workstation.2610993.0"
 }

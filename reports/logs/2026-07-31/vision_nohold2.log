@@ -1,8 +1,8 @@
-Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
-[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260730_020500.log
-2026-07-30T07:05:00Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
-2026-07-30T07:05:00Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
-2026-07-30T07:05:00Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+Loading user config located at: '<home>/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: <home>/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260730_020500.log
+2026-07-30T07:05:00Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '<home>/IsaacLab/source/isaaclab_newton' or '<home>/IsaacLab/source/isaaclab_newton/config'
+2026-07-30T07:05:00Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '<home>/IsaacLab/source/isaaclab_physx' or '<home>/IsaacLab/source/isaaclab_physx/config'
+2026-07-30T07:05:00Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '<home>/IsaacLab/source/isaaclab_ppisp' or '<home>/IsaacLab/source/isaaclab_ppisp/config'
 
 |---------------------------------------------------------------------------------------------|
 | Driver Version: 580.173.02    | Graphics API: Vulkan
@@ -35,7 +35,7 @@ Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site
 2026-07-30T07:05:06Z [6,405ms] [Warning] [omni.fabric.plugin] Warning: attribute viewportHandle not found for bucket id 7
 
 [INFO][AppLauncher]: Using device: cuda:0
-[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+[INFO][AppLauncher]: Loading experience file: <home>/IsaacLab/apps/isaaclab.python.headless.rendering.kit
 [INFO]: Parsing configuration from: <class 'isaac.isaaclab_tasks.synria_pickplace.env_cfg.SynriaChessPickPlaceEnvCfg'>
 
 [36m======================================================================================[0m
@@ -180,7 +180,7 @@ Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site
 [pick] step=120 stages=['APPROACH', 'APPROACH', 'DESCEND', 'DESCEND', 'CLOSE', 'DESCEND', 'DESCEND', 'DESCEND'] e0 tool=[-0.2336742877960205, 0.11627143621444702, 0.9980764985084534] cup=[-0.09891343861818314, 0.06914146989583969] dia=50mm piece_z-rest=-0.000
 [pick] CLOSE snapshot saved for env 4
 [pick] step=150 stages=['APPROACH', 'DESCEND', 'DESCEND', 'DESCEND', 'CLOSE', 'DESCEND', 'DESCEND', 'DESCEND'] e0 tool=[-0.1471092700958252, 0.059029996395111084, 0.9540772438049316] cup=[-0.09858347475528717, 0.06897285580635071] dia=50mm piece_z-rest=-0.000
-[pick] HOLD refused envs [4]: gc-cup dist [0.488] — retrying descent
+[pick] HOLD refused envs [4]: gc-cup dist [0.488] - retrying descent
 [pick] step=180 stages=['DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND'] e0 tool=[-0.14527535438537598, 0.03849095106124878, 0.8903990387916565] cup=[-0.09858733415603638, 0.0688408836722374] dia=50mm piece_z-rest=-0.000
 [pick] step=210 stages=['DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND'] e0 tool=[-0.11141633987426758, 0.029923081398010254, 0.909347414970398] cup=[-0.09858733415603638, 0.0688408836722374] dia=50mm piece_z-rest=-0.000
 [pick] step=240 stages=['DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND'] e0 tool=[-0.11222696304321289, 0.02171766757965088, 0.907503068447113] cup=[-0.09858733415603638, 0.0688408836722374] dia=50mm piece_z-rest=-0.000
@@ -220,13 +220,13 @@ Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site
 [pick] step=1050 stages=['APPROACH', 'DESCEND', 'APPROACH', 'APPROACH', 'DESCEND', 'APPROACH', 'CLOSE', 'APPROACH'] e0 tool=[-0.1560826301574707, -0.16575932502746582, 0.9335910677909851] cup=[-0.05673806369304657, -0.1235627755522728] dia=50mm piece_z-rest=-0.000
 [pick] CLOSE snapshot saved for env 6
 [pick] step=1080 stages=['DESCEND', 'DESCEND', 'APPROACH', 'APPROACH', 'DESCEND', 'APPROACH', 'CLOSE', 'DESCEND'] e0 tool=[-0.13966059684753418, -0.15086019039154053, 0.8433288931846619] cup=[-0.056867994368076324, -0.12412580847740173] dia=50mm piece_z-rest=-0.000
-[pick] HOLD refused envs [6]: gc-cup dist [0.086] — retrying descent
+[pick] HOLD refused envs [6]: gc-cup dist [0.086] - retrying descent
 [pick] step=1110 stages=['DESCEND', 'DESCEND', 'DESCEND', 'APPROACH', 'DESCEND', 'APPROACH', 'DESCEND', 'DESCEND'] e0 tool=[-0.14306259155273438, -0.11209619045257568, 0.8131071329116821] cup=[-0.056867994368076324, -0.12412580847740173] dia=50mm piece_z-rest=-0.000
 [pick] CLOSE-entry env0: grasp_centre=[-0.06278860569000244, -0.137558251619339, 0.8146474957466125] cup_gt=[-0.051868438720703125, -0.12141251564025879, 0.8149995803833008] delta=[-0.011, -0.016, -0.0]
 [pick] step=1140 stages=['CLOSE', 'DESCEND', 'DESCEND', 'APPROACH', 'DESCEND', 'APPROACH', 'DESCEND', 'DESCEND'] e0 tool=[-0.12047028541564941, -0.13205552101135254, 0.8349586725234985] cup=[-0.056867994368076324, -0.12412580847740173] dia=50mm piece_z-rest=-0.000
 [pick] CLOSE snapshot saved for env 0
 [pick] step=1170 stages=['CLOSE', 'DESCEND', 'DESCEND', 'APPROACH', 'DESCEND', 'APPROACH', 'DESCEND', 'DESCEND'] e0 tool=[-0.14668512344360352, -0.15721869468688965, 0.8039761185646057] cup=[-0.056867994368076324, -0.12412580847740173] dia=50mm piece_z-rest=-0.000
-[pick] HOLD refused envs [0]: gc-cup dist [0.039] — retrying descent
+[pick] HOLD refused envs [0]: gc-cup dist [0.039] - retrying descent
 [pick] step=1200 stages=['DESCEND', 'DESCEND', 'DESCEND', 'APPROACH', 'DESCEND', 'APPROACH', 'DESCEND', 'DESCEND'] e0 tool=[-0.11109614372253418, -0.10423612594604492, 0.8227034211158752] cup=[-0.056867994368076324, -0.12412580847740173] dia=50mm piece_z-rest=-0.000
 [pick] step=1230 stages=['DESCEND', 'DESCEND', 'DESCEND', 'FAIL', 'DESCEND', 'FAIL', 'DESCEND', 'DESCEND'] e0 tool=[-0.07273316383361816, -0.0711585283279419, 0.8640998005867004] cup=[-0.056867994368076324, -0.12412580847740173] dia=50mm piece_z-rest=-0.000
 [pick] step=1260 stages=['DESCEND', 'DESCEND', 'DESCEND', 'FAIL', 'DESCEND', 'FAIL', 'DESCEND', 'DESCEND'] e0 tool=[-0.05802273750305176, -0.032518982887268066, 0.9068870544433594] cup=[-0.056867994368076324, -0.12412580847740173] dia=50mm piece_z-rest=-0.000
@@ -262,7 +262,7 @@ Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site
 [pick] step=1920 stages=['DESCEND', 'APPROACH', 'APPROACH', 'DESCEND', 'APPROACH', 'APPROACH', 'CLOSE', 'DESCEND'] e0 tool=[-0.09368252754211426, -0.15456104278564453, 0.8895618915557861] cup=[-0.046958718448877335, -0.13028965890407562] dia=43mm piece_z-rest=-0.000
 [pick] CLOSE snapshot saved for env 6
 [pick] step=1950 stages=['DESCEND', 'APPROACH', 'APPROACH', 'DESCEND', 'APPROACH', 'APPROACH', 'CLOSE', 'DESCEND'] e0 tool=[-0.15752530097961426, -0.12783527374267578, 0.8211905360221863] cup=[-0.046958718448877335, -0.13028965890407562] dia=43mm piece_z-rest=-0.000
-[pick] HOLD refused envs [6]: gc-cup dist [0.039] — retrying descent
+[pick] HOLD refused envs [6]: gc-cup dist [0.039] - retrying descent
 [pick] step=1980 stages=['DESCEND', 'DESCEND', 'APPROACH', 'DESCEND', 'APPROACH', 'APPROACH', 'DESCEND', 'DESCEND'] e0 tool=[-0.1389296054840088, -0.2082841396331787, 0.870082676410675] cup=[-0.046958718448877335, -0.13028965890407562] dia=43mm piece_z-rest=-0.000
 [pick] step=2010 stages=['DESCEND', 'DESCEND', 'APPROACH', 'DESCEND', 'APPROACH', 'APPROACH', 'DESCEND', 'DESCEND'] e0 tool=[-0.15436697006225586, -0.20899581909179688, 0.8033653497695923] cup=[-0.046958718448877335, -0.13028965890407562] dia=43mm piece_z-rest=-0.005
 [pick] step=2040 stages=['DESCEND', 'DESCEND', 'APPROACH', 'DESCEND', 'APPROACH', 'APPROACH', 'DESCEND', 'DESCEND'] e0 tool=[-0.1193389892578125, -0.16857075691223145, 0.8145280480384827] cup=[-0.046958718448877335, -0.13028965890407562] dia=43mm piece_z-rest=-0.005

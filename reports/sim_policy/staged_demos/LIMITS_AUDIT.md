@@ -1,6 +1,6 @@
 # Dataset limits audit
 
-Dataset `/home/oedeh/synria-sim-datasets/staged_place_01/dataset`, gripper 50mm, against the
+Dataset `<home>/synria-sim-datasets/staged_place_01/dataset`, gripper 50mm, against the
 operator limits verified by Obinna Edeh on 2026-10-17.
 A frame presses a bound when a commanded or observed joint is within 0.5 deg of it;
 it is outside when past the exact bound; it is beyond tolerance when past the

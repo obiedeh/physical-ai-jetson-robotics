@@ -4,7 +4,7 @@ fallback when the API is unreachable. Runs on the 5090 against the Orin host.
 
   cd /tmp && ~/.venv/lerobot17/bin/python -m \
       lerobot_robot_rosmaster_m3pro.safety_bridge \
-      --remote-ip 192.168.1.243 --api http://localhost:8000 --hz 5
+      --remote-ip <lan-address> --api http://localhost:8000 --hz 5
 
 Telemetry sources (from the host obs stream): battery.v, base odom velocity,
 min_obstacle_m (LiDAR). Optional --person-source wires a detector later; e-stop
@@ -13,6 +13,7 @@ and deadman can be injected by the controller. Events are de-duplicated per
 """
 from __future__ import annotations
 
+import os
 import argparse
 import json
 import time
@@ -37,7 +38,7 @@ def _post(api: str, event: dict, timeout: float = 3.0) -> bool:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--remote-ip", default="192.168.1.243")
+    ap.add_argument("--remote-ip", default=os.environ.get("ORIN_ADDRESS", "127.0.0.1"))
     ap.add_argument("--api", default="http://localhost:8000",
                     help="physical-ai-safety-observability base URL")
     ap.add_argument("--hz", type=float, default=5.0)

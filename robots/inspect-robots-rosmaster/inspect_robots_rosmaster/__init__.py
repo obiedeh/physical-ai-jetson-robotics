@@ -6,6 +6,7 @@ Robots calls (kwargs come from ``-E key=value`` on the CLI).
 """
 from __future__ import annotations
 
+import os
 import time
 
 import numpy as np
@@ -34,7 +35,7 @@ class RosmasterM3ProEmbodiment:
     without any robot present.
     """
 
-    def __init__(self, *, remote_ip: str = "192.168.1.251", control_hz: float = 10.0,
+    def __init__(self, *, remote_ip: str = os.environ.get("ORIN_ADDRESS", "127.0.0.1"), control_hz: float = 10.0,
                  cam_h: int = 480, cam_w: int = 640,
                  joint_low: float = 0.0, joint_high: float = 180.0,
                  settle_s: float = 0.0):

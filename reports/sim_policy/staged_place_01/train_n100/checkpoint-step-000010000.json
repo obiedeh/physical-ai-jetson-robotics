@@ -30,7 +30,7 @@
     "dataset_repo_id": "local/staged_place_01_sim",
     "device": "cuda",
     "episode_weights": null,
-    "evidence_directory": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n100",
+    "evidence_directory": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n100",
     "expected_contract": {
       "action_lookahead_steps": 1,
       "action_source": "leader",
@@ -94,7 +94,7 @@
     "policy_ledger": "docs/ludo_flagship/SIM_POLICY_LEDGER.md",
     "probe_set": "reports/sim_policy/staged_place_01/probes.json",
     "probe_sha256": "23baf1168798998e88f7d6e23d77b537eeb7929e69edfaee2d31dbb677c1f312",
-    "repository": "/home/oedeh/github/physical-ai-jetson-robotics",
+    "repository": "<home>/github/physical-ai-jetson-robotics",
     "response_timeout_s": 0.5,
     "save_freq": 5000,
     "state_noise": null,
@@ -106,7 +106,7 @@
     "weight_decay": 0.0001
   },
   "dataset_content_sha256": "bb8c10ad153864b11dab310002cdeeec37621503e1ab6252d47c0568b05e66b1",
-  "dataset_path": "/home/oedeh/synria-sim-datasets/staged_place_01/dataset",
+  "dataset_path": "<home>/synria-sim-datasets/staged_place_01/dataset",
   "declared_input_conditioning": [
     "observation.state",
     "observation.images.wrist",
@@ -151,7 +151,7 @@
     114,
     132
   ],
-  "host": "aimlstation",
+  "host": "rtx-5090-workstation",
   "lane": "simulation",
   "model_feature_shapes": {
     "action": [
@@ -219,7 +219,7 @@
     148,
     149
   ],
-  "path": "/home/oedeh/synria-sim-training/staged_place_01/simplace01_n100/checkpoints/step-000010000",
+  "path": "<home>/synria-sim-training/staged_place_01/simplace01_n100/checkpoints/step-000010000",
   "physical_contract": {
     "action_lookahead_steps": 1,
     "action_source": "leader",
@@ -277,7 +277,7 @@
   "physical_eligible": false,
   "policy_id": "simplace01_n100",
   "pretrained_backbone_weights": null,
-  "probe_set": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/probes.json",
+  "probe_set": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/probes.json",
   "probe_sha256": "23baf1168798998e88f7d6e23d77b537eeb7929e69edfaee2d31dbb677c1f312",
   "requested_steps": 20000,
   "seed": 17,

@@ -20,11 +20,11 @@ echo "=== corpus landed $(date -Is)"
 V21=$R/reports/training/synria_e46_lerobot_old
 [ -d "$V21" ] || V21=$R/reports/training/synria_e46_lerobot   # not migrated case
 echo "v21 source: $V21"
-rsync -a "$V21/" oedeh@192.168.1.170:~/github/physical-ai-jetson-robotics/reports/training/synria_e46_lerobot_v21/
+rsync -a "$V21/" ${THOR_SSH:?set THOR_SSH to user@address}:~/github/physical-ai-jetson-robotics/reports/training/synria_e46_lerobot_v21/
 echo "rsync to Thor exited $? ($(date -Is))"
 
-scp -q $R/isaac/scripts/run_gr00t_e48_thor.sh oedeh@192.168.1.170:~/gr00t_e48.sh
-ssh -o BatchMode=yes oedeh@192.168.1.170 'chmod +x ~/gr00t_e48.sh; setsid nohup ~/gr00t_e48.sh > /dev/null 2>&1 < /dev/null & echo E48 launched'
+scp -q $R/isaac/scripts/run_gr00t_e48_thor.sh ${THOR_SSH:?set THOR_SSH to user@address}:~/gr00t_e48.sh
+ssh -o BatchMode=yes ${THOR_SSH:?set THOR_SSH to user@address} 'chmod +x ~/gr00t_e48.sh; setsid nohup ~/gr00t_e48.sh > /dev/null 2>&1 < /dev/null & echo E48 launched'
 
 echo "=== launching E47 (ACT on e46, baseline recipe) $(date -Is)"
 DS=$R/reports/training/synria_e46_lerobot

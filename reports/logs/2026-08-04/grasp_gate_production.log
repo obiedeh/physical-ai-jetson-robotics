@@ -1,5 +1,5 @@
 [INFO][AppLauncher]: Using device: cuda:0
-[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[INFO][AppLauncher]: Loading experience file: <home>/IsaacLab/apps/isaaclab.python.headless.kit
 [feas] asset: synria_6dof_arm.usd
 
 [36m======================================================================================[0m
@@ -53,4 +53,4 @@
 [feas] close-end geometry: left_frame=[144.6, -11.4, 0.0] right_frame=[158.3, 27.3, 0.0] cup=[151.4, 8.0, 25.0] (mm world)
 [feas] trial 9: {'trial': 9, 'descended': True, 'fits': True, 'contacted': True, 'symmetric': False, 'stall_left_mm': 2.3, 'stall_right_mm': 7.7, 'ejected': False, 'lifted': True, 'slipped_in_transport': False, 'success': True}
 [feas] ======== SUCCESS 10/10 (asset=production) ========
-[feas] wrote /home/oedeh/github/physical-ai-jetson-robotics/reports/synria_grasp_trials_production.json
+[feas] wrote <home>/github/physical-ai-jetson-robotics/reports/synria_grasp_trials_production.json

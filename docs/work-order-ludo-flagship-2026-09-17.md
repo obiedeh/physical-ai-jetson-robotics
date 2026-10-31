@@ -115,7 +115,7 @@ Non-flagship device state, 2026-09-16 (retained as background only):
   are fine. The `m3pro-host.service` from August is gone; the host must be
   started with `scripts/jetson/m3pro_host.sh` or re-created as a service.
   The micro-ROS agent autostarts only on a desktop login. Repo clone at
-  `~/github/physical-ai-jetson-robotics`. 8.7 GB disk free.
+  `<home>/github/physical-ai-jetson-robotics`. 8.7 GB disk free.
   Details: `docs/rosmaster_m3pro/orin_discovery_2026-09-10.md`.
 - RTX 5090: Isaac Sim venv `~/.venv/isaacsim5`, GR00T at `~/Isaac-GR00T`,
   lerobot client venv `~/.venv/lerobot17`, 454 GB free. This is a candidate
@@ -180,7 +180,7 @@ in the style of the existing ledgers (`docs/SYNRIA_GR00T_LEDGER.md`,
   and a `session_notes.md`; every evaluation writes an
   EvalLog and a frozen stats file through `ludo_stats.py` or the Inspect
   Robots scorer.
-- Playback: keep a `docs/evidence/provenance/docs/ludo_flagship/timeline.public.jsonl` with one JSON line
+- Playback: keep a `docs/ludo_flagship/timeline.jsonl` with one JSON line
   per milestone and per session (`t_utc`, `kind`, `title`, `artifact`,
   `numbers`) so a page or chart can be generated from it without reading
   prose. Small media that illustrates a milestone (one still, one short

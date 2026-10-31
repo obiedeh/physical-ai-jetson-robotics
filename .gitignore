@@ -45,7 +45,7 @@ Thumbs.db
 .idea/
 .vscode/
 
-# RL training outputs - regenerable artifacts kept on disk, not in git
+# RL training outputs — regenerable artifacts kept on disk, not in git
 # (checkpoints, tensorboard events, diagnostic run logs)
 logs/
 reports/diagnostics/
@@ -135,7 +135,11 @@ reports/slam/sessions/*/bag/*.db3
 reports/slam/sessions/*/bag/*.mcap
 reports/slam/sessions/*/bag_record.log
 
-# Private operator provenance is retained outside version control.
+# Owner-authored approximate arm model (primitive geometry, no vendor meshes); the vendor URDF rule above stays
+!ros2_ws/src/synria_arm_description/urdf/synria_6dof_arm.urdf
+
+# Guard untracked private artifact paths from the earlier publication manifest.
+# Canonical records already tracked at these paths remain tracked and unchanged.
 /docs/ludo_flagship/timeline.jsonl
 /reports/sim_policy/paired_seed2026_noguard/trials_simplace01_n131_traced_20261022T052654Z.json
 /reports/sim_policy/pick_cup_17oct3_margin/study.json

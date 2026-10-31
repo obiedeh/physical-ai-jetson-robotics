@@ -433,7 +433,7 @@ the aggregate and timeline after review:
 ```bash
 git add "reports/ludo_flagship/data/$SESSION" \
   reports/ludo_flagship/data/D1_dataset_summary.json \
-  docs/evidence/provenance/docs/ludo_flagship/timeline.public.jsonl
+  docs/ludo_flagship/timeline.jsonl
 git commit -m "Record Synria D1 session $SESSION"
 ```
 

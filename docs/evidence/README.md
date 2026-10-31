@@ -14,6 +14,7 @@ of them are implemented, unmeasured until that page links a report.
 | --- | --- | --- |
 | GR00T eager and TensorRT inference | AGX Thor 128GB, 120W, 2026-08-20 | BF16, batch 1, 100 iterations after 10 warmups; simulated dataset inputs. [Benchmark](../../reports/thor_trt_benchmark/thor_trt_benchmark.json) |
 | CUDA matmul, camera grab, thermal/power probe | Orin NX, MAXN_SUPER, 2026-08-20 | 9.9-second run. [Probe](../../reports/jetson/yahboom_day_one/day_one_smoke.json), [provenance](../../reports/jetson/yahboom_day_one/provenance.json) |
+| ACT policy, cup lift, data-scaling study | RTX 5090 / Isaac Sim 5.1, 2026-10-18 and 2026-10-19 | Simulation lane only. 45 teleoperated takes, 20,000 steps, 50 seeded placements: 28 of 50 lifts (seed 17), 25 of 50 (seed 23), 23 of 50 on a second placement seed; 0 of 50 at 35 takes, 4 of 50 at 40 takes; scripted executor 50 of 50. [45-take trials](../../reports/sim_policy/paired_seed2026/trials_simcup17oct3_n045_step-000020000_20261018T192549Z.json), [campaign table](../../reports/sim_policy/paired_seed2026/PAIRED.md), [study](../../reports/sim_policy/pick_cup_17oct3/study.json) |
 | Ludo executor placements | RTX 5090 / Isaac Sim; post-fix runs 2026-08-19, frozen aggregate 2026-08-20 | Scripted components, PPO policy, kinematic attach and release-hold. [Run](../../reports/ludo_soak_s10/provenance.json), [separate post-fix aggregate](../../reports/ludo_stats_frozen/stats_2026-08-20T050701Z_reports_ludo_soak_s1%5B012%5D.json) |
 
 ## Device Results
@@ -92,6 +93,36 @@ ran across 40 attempts), with successful-error p50 **19.2 mm** and p95
 scripted components and simulator attach/release interventions.
 [Executor](../../isaac/scripts/ludo_turn_executor.py),
 [limits](../../reports/NOT_CLAIMED.md).
+
+### MoveIt 2 planning for the Synria arm, simulation only
+
+`scripts/linux_rtx/moveit_planning_campaign.py` sends joint-space goals to
+`move_group` through the MoveGroup action with `plan_only` set, after each
+goal has passed `check_state_validity`. On 2026-10-29, with the headless
+launch and the approximate collision model: **50 of 50** goals planned
+(seed 2026, RRTConnect, 5 s budget), median planning time
+**11.6 ms**, p95 12.4 ms, max 12.6 ms; trajectories of
+11 to 28 points, median duration 1.95 s after time parameterization;
+5 sampled goals were in self-collision and resampled before planning. The collision
+model is owner-authored primitives around the arm's measured joint
+kinematics and limits (the vendor meshes are not in this repository), the
+scene is empty, and nothing moved: this is planner evidence, not motion
+evidence. The earlier smoke test, which passed on a timeout, is removed.
+[Campaign record](../../reports/simulation/synria_moveit_planning.json).
+
+### Learned policy: ACT on teleoperated takes, simulation only
+
+An ACT policy (LeRobot 0.6.1) trained on 45 teleoperated takes, recorded with
+the real leader arm driving the Isaac Sim follower, lifts the cup (3 cm for 1 s)
+on **28 of 50** seeded placements at 20,000 steps; a second training seed gives
+25 of 50 and a second placement seed 23 of 50. The same recipe on 35 and 40
+takes gives 0 of 50 and 4 of 50. The scripted staged executor lifts 50 of 50
+on the same placements. Every trial file carries `lane: simulation` and
+`physical_evidence: false`; no learned policy has run on the physical arm.
+[45-take trials](../../reports/sim_policy/paired_seed2026/trials_simcup17oct3_n045_step-000020000_20261018T192549Z.json),
+[scripted trials](../../reports/sim_policy/staged_seed2026/trials_staged_expert_pick_cup_20261018T221650Z.json),
+[campaign table](../../reports/sim_policy/paired_seed2026/PAIRED.md),
+[data-scaling study](../../reports/sim_policy/pick_cup_17oct3/study.json).
 
 ## What the Corrections Revealed
 
@@ -193,3 +224,7 @@ hashes are under `docs/evidence/figures/`.
 [Chart script](../../scripts/plot_evidence.py),
 [inventory script](../../scripts/inventory_evidence_media.py),
 [missing-data record](DATA_GAPS.md).
+
+## Provenance views
+
+Current canonical records remain at their reviewed paths. The historical [publication amendment manifest](provenance/provenance-amendments.json) identifies its earlier source commit and preserves read-only views of that source. Those views do not replace subsequent canonical records or their append-only journal.

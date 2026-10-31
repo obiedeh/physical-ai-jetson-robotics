@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import platform
 import sys
 import time
 from pathlib import Path
@@ -32,6 +31,7 @@ from physical_ai_lab.jetson_provenance import (
     latency_stats,
     write_provenance,
 )
+from physical_ai_lab.portable import board_label
 
 
 def _power_mode_nosudo() -> str:
@@ -116,7 +116,7 @@ def main() -> int:
     ap.add_argument("--size", type=int, default=2048)
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
-    host = platform.node()
+    host = board_label()
     out = args.out or Path("reports/jetson") / f"{host}_day_one"
     out.mkdir(parents=True, exist_ok=True)
     seed_rec = fix_seeds(args.seed)

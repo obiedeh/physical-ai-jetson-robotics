@@ -20,6 +20,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from physical_ai_lab.portable import expand_path, portable_text
+
 REPORT_KIND = "simulation_policy_trials"
 # A cup that rose less than this is counted as not moved: the physics drive settles by
 # about a millimetre after every reset.
@@ -155,7 +157,7 @@ def superseded_reports(study: Path) -> set[Path]:
     if not record.exists():
         return set()
     rows = json.loads(record.read_text(encoding="utf-8")).get("rows", [])
-    return {Path(entry["report"]).resolve() for row in rows
+    return {expand_path(entry["report"]).resolve() for row in rows
             for entry in row.get("superseded_trials") or []}
 
 
@@ -245,7 +247,8 @@ def write_summary(summary: dict[str, Any], directory: Path) -> tuple[Path, Path]
     directory.mkdir(parents=True, exist_ok=True)
     json_path = directory / "failure_modes.json"
     markdown_path = directory / "FAILURE_MODES.md"
-    json_path.write_text(json.dumps(summary, indent=2, sort_keys=True, allow_nan=False) + "\n",
+    json_path.write_text(portable_text(
+        json.dumps(summary, indent=2, sort_keys=True, allow_nan=False) + "\n"),
                          encoding="utf-8")
-    markdown_path.write_text(render_markdown(summary), encoding="utf-8")
+    markdown_path.write_text(portable_text(render_markdown(summary)), encoding="utf-8")
     return json_path, markdown_path

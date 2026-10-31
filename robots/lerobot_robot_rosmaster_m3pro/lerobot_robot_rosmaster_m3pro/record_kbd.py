@@ -5,7 +5,7 @@ observation.images.front / observation.state / action.
 
   cd /tmp && DISPLAY=:1 ~/.venv/lerobot17/bin/python -m \
       lerobot_robot_rosmaster_m3pro.record_kbd --repo-id oedeh/m3pro_kbd_v1 \
-      --remote-ip 192.168.1.251 --episodes 8 --episode-time-s 25 --use-base
+      --remote-ip <lan-address> --episodes 8 --episode-time-s 25 --use-base
 
 Keys (focus the terminal running this): q/a joint1  w/s joint2  e/d joint3
   r/f joint4  t/g joint5  y/h gripper(6)  i/k base vx  j/l base vy  u/o wz
@@ -14,6 +14,7 @@ Keys (focus the terminal running this): q/a joint1  w/s joint2  e/d joint3
 """
 from __future__ import annotations
 
+import os
 import argparse
 import time
 
@@ -29,7 +30,7 @@ BASE = ("base.vx", "base.vy", "base.wz")
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--repo-id", required=True)
-    ap.add_argument("--remote-ip", default="192.168.1.251")
+    ap.add_argument("--remote-ip", default=os.environ.get("ORIN_ADDRESS", "127.0.0.1"))
     ap.add_argument("--episodes", type=int, default=8)
     ap.add_argument("--episode-time-s", type=float, default=25.0)
     ap.add_argument("--reset-time-s", type=float, default=8.0)

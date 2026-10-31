@@ -8,7 +8,7 @@ vendor joystick. Runs on the 5090 (lerobot >= 0.6.2); the Orin host must run in
   # on the 5090:
   cd /tmp && ~/.venv/lerobot17/bin/python -m lerobot_robot_rosmaster_m3pro.record \
       --repo-id oedeh/m3pro_teleop_v1 --episodes 10 --episode-time-s 20 \
-      --remote-ip 192.168.1.251 --task "pick up the cube and place it on the plate"
+      --remote-ip <lan-address> --task "pick up the cube and place it on the plate"
 
 Dataset schema (vision-based imitation; the board publishes no joint feedback,
 so observation.state is the joystick's last arm command and the CAMERA is the
@@ -19,6 +19,7 @@ real state; action is the joystick command this frame):
 """
 from __future__ import annotations
 
+import os
 import argparse
 import time
 
@@ -33,7 +34,7 @@ BASE = ("base.vx", "base.vy", "base.wz")
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--repo-id", required=True, help="HF dataset id, e.g. oedeh/m3pro_teleop_v1")
-    ap.add_argument("--remote-ip", default="192.168.1.251")
+    ap.add_argument("--remote-ip", default=os.environ.get("ORIN_ADDRESS", "127.0.0.1"))
     ap.add_argument("--episodes", type=int, default=10)
     ap.add_argument("--episode-time-s", type=float, default=20.0)
     ap.add_argument("--reset-time-s", type=float, default=8.0)

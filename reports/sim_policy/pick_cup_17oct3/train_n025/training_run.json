@@ -10,25 +10,25 @@
     {
       "checkpoint_content_sha256": "f790a1a85a12e7adee66b75a454569d4735053b3baaaf65c45a8259b86a6793e",
       "evaluation_status": "evaluated",
-      "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3/simcup17oct3_n025/checkpoints/step-000005000",
+      "path": "<home>/synria-sim-training/pick_cup_17oct3/simcup17oct3_n025/checkpoints/step-000005000",
       "step": 5000
     },
     {
       "checkpoint_content_sha256": "6f8370d4082bb2a10111aae3e061338aa326b1699623d80d2ec387bdb1c8ea1f",
       "evaluation_status": "evaluated",
-      "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3/simcup17oct3_n025/checkpoints/step-000010000",
+      "path": "<home>/synria-sim-training/pick_cup_17oct3/simcup17oct3_n025/checkpoints/step-000010000",
       "step": 10000
     },
     {
       "checkpoint_content_sha256": "430f77c0787eaba3d9f83e559141fae1b57ccc6c226a7e0584960a37df9d22d6",
       "evaluation_status": "evaluated",
-      "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3/simcup17oct3_n025/checkpoints/step-000015000",
+      "path": "<home>/synria-sim-training/pick_cup_17oct3/simcup17oct3_n025/checkpoints/step-000015000",
       "step": 15000
     },
     {
       "checkpoint_content_sha256": "b05348385ac56e20e475b40d9cbfc5e801708268e9d8edd3a27d337a44c1c4ef",
       "evaluation_status": "evaluated",
-      "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3/simcup17oct3_n025/checkpoints/step-000020000",
+      "path": "<home>/synria-sim-training/pick_cup_17oct3/simcup17oct3_n025/checkpoints/step-000020000",
       "step": 20000
     }
   ],
@@ -51,7 +51,7 @@
     "command_period_s": 0.2,
     "dataset_repo_id": "local/pick_cup_17oct3_sim",
     "device": "cuda",
-    "evidence_directory": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/train_n025",
+    "evidence_directory": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/train_n025",
     "expected_contract": {
       "action_lookahead_steps": 1,
       "action_source": "leader",
@@ -108,7 +108,7 @@
     "policy_ledger": "docs/ludo_flagship/SIM_POLICY_LEDGER.md",
     "probe_set": "reports/sim_policy/pick_cup_17oct3/probes.json",
     "probe_sha256": "4300c43aa9a645d401235daaf9f108510cdd933fbb5ddac5e1a4d40a6ab082ef",
-    "repository": "/home/oedeh/github/physical-ai-jetson-robotics",
+    "repository": "<home>/github/physical-ai-jetson-robotics",
     "response_timeout_s": 0.5,
     "save_freq": 5000,
     "timeline": "docs/ludo_flagship/timeline.jsonl",
@@ -118,7 +118,7 @@
     "weight_decay": 0.0001
   },
   "dataset_content_sha256": "283517bcbb74bd6746bbc0968419e12ed7eb45166a8c51a2b8dacf4a659d6568",
-  "dataset_path": "/home/oedeh/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
+  "dataset_path": "<home>/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
   "declared_input_conditioning": [
     "observation.state",
     "observation.images.wrist",
@@ -140,7 +140,7 @@
     36,
     44
   ],
-  "host": "aimlstation",
+  "host": "rtx-5090-workstation",
   "lane": "simulation",
   "last_training_metrics": {
     "episodes": 358.03795202291445,
@@ -250,7 +250,7 @@
   "physical_eligible": false,
   "policy_id": "simcup17oct3_n025",
   "pretrained_backbone_weights": null,
-  "probe_set": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/probes.json",
+  "probe_set": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/probes.json",
   "probe_sha256": "4300c43aa9a645d401235daaf9f108510cdd933fbb5ddac5e1a4d40a6ab082ef",
   "requested_steps": 20000,
   "seed": 17,

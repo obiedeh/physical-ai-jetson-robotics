@@ -1,7 +1,7 @@
 {
   "base_commit": "548f3a9f2f24eb1191f78765bce457f96ec1fd64",
   "provenance": {
-    "device": "jetsonthor",
+    "device": "bench-thor",
     "architecture": "aarch64",
     "python_version": "3.12.3",
     "jetpack_version": "nvidia-jetpack\t7.1-b112",

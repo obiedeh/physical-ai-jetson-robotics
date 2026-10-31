@@ -31,7 +31,7 @@ The checkpoint is generated output and remains outside git under `runs/`.
 Run Synria MoveIt smoke evidence:
 
 ```bash
-bash scripts/linux_rtx/run_synria_moveit_smoke.sh
+scripts/linux_rtx/run_synria_moveit_planning.sh --requests 50   # headless move_group, real planning requests, JSON record
 ```
 
 ## One-Command RTX Suite

@@ -35,6 +35,7 @@ from synria_lerobot.checkpoint_eval import (  # noqa: E402
     strict_content_hash,
 )
 from synria_lerobot.exclusions import read_exclusions  # noqa: E402
+from physical_ai_lab.portable import portable_text  # noqa: E402
 from synria_lerobot.physical_contract import SIMULATION_LANE, PhysicalDatasetContract  # noqa: E402
 
 DEFAULT_TRAINING = REPOSITORY / "config" / "synria_act_training.json"
@@ -123,7 +124,8 @@ def prepare(args: argparse.Namespace) -> dict[str, Path]:
         device="cuda", save_freq=args.save_freq, dataloader_workers=args.dataloader_workers,
     )
     config_path = evidence / "train_config.json"
-    config_path.write_text(json.dumps(base, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    config_path.write_text(portable_text(json.dumps(base, indent=2, sort_keys=True) + "\n"),
+                           encoding="utf-8")
     spec = {
         "version": "synria_sim_data_scaling_v1",
         "study_id": args.study_id,
@@ -139,7 +141,8 @@ def prepare(args: argparse.Namespace) -> dict[str, Path]:
         "steps": args.steps,
     }
     spec_path = evidence / "spec.json"
-    spec_path.write_text(json.dumps(spec, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    spec_path.write_text(portable_text(json.dumps(spec, indent=2, sort_keys=True) + "\n"),
+                         encoding="utf-8")
     return {"probes": probes_path, "train_config": config_path, "spec": spec_path}
 
 

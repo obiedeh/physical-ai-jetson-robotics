@@ -29,6 +29,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from physical_ai_lab.portable import portable_text
 from synria_lerobot.exclusions import append_exclusion
 from synria_lerobot.physical_contract import ActionSource as ActionSourceKind
 from synria_lerobot.physical_contract import PhysicalState
@@ -328,4 +329,5 @@ def write_summary(summary: dict[str, Any], path: Path) -> None:
     """Write the session summary once; an existing file is never overwritten."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("x", encoding="utf-8") as stream:
-        stream.write(json.dumps(summary, indent=2, sort_keys=True, allow_nan=False) + "\n")
+        stream.write(portable_text(
+            json.dumps(summary, indent=2, sort_keys=True, allow_nan=False) + "\n"))

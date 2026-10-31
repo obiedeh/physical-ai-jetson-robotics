@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<!--
+  synria_6dof_arm.urdf
+  ====================
+  Owner-authored approximate description of the Synria Alicia-D 6DOF arm for
+  planning and simulation bring-up in this public repository.
+
+  What is real here: the joint names, the parent and child link names, the
+  joint origins, axes and position limits, which are the measured kinematic
+  parameters of the arm as the Isaac Lab actuator configuration and the
+  MoveIt SRDF use them. What is approximate: every link's visual and
+  collision body is a primitive (cylinder or box) spanning the segment from
+  one joint to the next, with rough masses and diagonal inertias. The
+  manufacturer's mesh files are not distributed with this repository, so a
+  planning result against this model is a result against a conservative
+  primitive collision model, not against the arm's true surfaces.
+
+  Provides: base_link, link1..link6, tool0, left_gripper, right_gripper,
+  Joint1..Joint6 (revolute), left_finger and right_finger (prismatic),
+  tool0_fixed_joint. The xacro wrapper adds the world frame, the C10 camera
+  and the ros2_control block.
+-->
+<robot name="synria_6dof_arm">
+
+  <material name="synria_dark"><color rgba="0.08 0.09 0.10 1.0"/></material>
+  <material name="synria_silver"><color rgba="0.70 0.72 0.69 1.0"/></material>
+  <material name="synria_blue"><color rgba="0.10 0.28 0.52 1.0"/></material>
+
+  <!-- base: cylinder up to the first joint, 0.1295 m above the mounting plane -->
+  <link name="base_link">
+    <visual><origin xyz="0 0 0.0648" rpy="0 0 0"/><geometry><cylinder radius="0.060" length="0.1295"/></geometry><material name="synria_dark"/></visual>
+    <collision><origin xyz="0 0 0.0648" rpy="0 0 0"/><geometry><cylinder radius="0.060" length="0.1295"/></geometry></collision>
+    <inertial><origin xyz="0 0 0.0648" rpy="0 0 0"/><mass value="1.0"/><inertia ixx="0.004" ixy="0" ixz="0" iyy="0.004" iyz="0" izz="0.002"/></inertial>
+  </link>
+
+  <!-- shoulder: short section between Joint1 and Joint2 -->
+  <link name="link1">
+    <visual><origin xyz="0 0 0.0214" rpy="0 0 0"/><geometry><cylinder radius="0.040" length="0.0428"/></geometry><material name="synria_silver"/></visual>
+    <collision><origin xyz="0 0 0.0214" rpy="0 0 0"/><geometry><cylinder radius="0.040" length="0.0428"/></geometry></collision>
+    <inertial><origin xyz="0 0 0.0214" rpy="0 0 0"/><mass value="0.40"/><inertia ixx="0.0003" ixy="0" ixz="0" iyy="0.0003" iyz="0" izz="0.0003"/></inertial>
+  </link>
+
+  <!-- upper arm: 0.224 m along the link's x axis to Joint3 -->
+  <link name="link2">
+    <visual><origin xyz="0.1118 0.0113 0" rpy="0 0 0"/><geometry><box size="0.2237 0.050 0.050"/></geometry><material name="synria_silver"/></visual>
+    <collision><origin xyz="0.1118 0.0113 0" rpy="0 0 0"/><geometry><box size="0.2237 0.050 0.050"/></geometry></collision>
+    <inertial><origin xyz="0.1118 0.0113 0" rpy="0 0 0"/><mass value="0.60"/><inertia ixx="0.0003" ixy="0" ixz="0" iyy="0.0026" iyz="0" izz="0.0026"/></inertial>
+  </link>
+
+  <!-- elbow: 0.099 m along the link's negative y axis to Joint4 -->
+  <link name="link3">
+    <visual><origin xyz="0.0011 -0.0495 0" rpy="0 0 0"/><geometry><box size="0.050 0.0990 0.050"/></geometry><material name="synria_silver"/></visual>
+    <collision><origin xyz="0.0011 -0.0495 0" rpy="0 0 0"/><geometry><box size="0.050 0.0990 0.050"/></geometry></collision>
+    <inertial><origin xyz="0.0011 -0.0495 0" rpy="0 0 0"/><mass value="0.35"/><inertia ixx="0.0004" ixy="0" ixz="0" iyy="0.0002" iyz="0" izz="0.0004"/></inertial>
+  </link>
+
+  <!-- forearm: 0.122 m along the link's z axis to Joint5 -->
+  <link name="link4">
+    <visual><origin xyz="0 -0.0003 0.0612" rpy="0 0 0"/><geometry><cylinder radius="0.030" length="0.1224"/></geometry><material name="synria_blue"/></visual>
+    <collision><origin xyz="0 -0.0003 0.0612" rpy="0 0 0"/><geometry><cylinder radius="0.030" length="0.1224"/></geometry></collision>
+    <inertial><origin xyz="0 -0.0003 0.0612" rpy="0 0 0"/><mass value="0.30"/><inertia ixx="0.0004" ixy="0" ixz="0" iyy="0.0004" iyz="0" izz="0.0001"/></inertial>
+  </link>
+
+  <!-- wrist: 0.0575 m along the link's y axis to Joint6 -->
+  <link name="link5">
+    <visual><origin xyz="-0.0019 0.0288 -0.0005" rpy="0 0 0"/><geometry><box size="0.050 0.0575 0.050"/></geometry><material name="synria_blue"/></visual>
+    <collision><origin xyz="-0.0019 0.0288 -0.0005" rpy="0 0 0"/><geometry><box size="0.050 0.0575 0.050"/></geometry></collision>
+    <inertial><origin xyz="-0.0019 0.0288 -0.0005" rpy="0 0 0"/><mass value="0.20"/><inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/></inertial>
+  </link>
+
+  <!-- wrist roll and gripper body: 0.131 m along the link's z axis to the finger plane -->
+  <link name="link6">
+    <visual><origin xyz="0.0001 0 0.0655" rpy="0 0 0"/><geometry><cylinder radius="0.025" length="0.1310"/></geometry><material name="synria_dark"/></visual>
+    <collision><origin xyz="0.0001 0 0.0655" rpy="0 0 0"/><geometry><cylinder radius="0.025" length="0.1310"/></geometry></collision>
+    <inertial><origin xyz="0.0001 0 0.0655" rpy="0 0 0"/><mass value="0.25"/><inertia ixx="0.0004" ixy="0" ixz="0" iyy="0.0004" iyz="0" izz="0.0001"/></inertial>
+  </link>
+
+  <!-- end-effector frame at the finger plane -->
+  <link name="tool0">
+    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0.01"/><inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001"/></inertial>
+  </link>
+
+  <link name="left_gripper">
+    <visual><origin xyz="0 0.012 0.020" rpy="0 0 0"/><geometry><box size="0.020 0.010 0.040"/></geometry><material name="synria_silver"/></visual>
+    <collision><origin xyz="0 0.012 0.020" rpy="0 0 0"/><geometry><box size="0.020 0.010 0.040"/></geometry></collision>
+    <inertial><origin xyz="0 0.012 0.020" rpy="0 0 0"/><mass value="0.03"/><inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001"/></inertial>
+  </link>
+  <link name="right_gripper">
+    <visual><origin xyz="0 -0.012 0.020" rpy="0 0 0"/><geometry><box size="0.020 0.010 0.040"/></geometry><material name="synria_silver"/></visual>
+    <collision><origin xyz="0 -0.012 0.020" rpy="0 0 0"/><geometry><box size="0.020 0.010 0.040"/></geometry></collision>
+    <inertial><origin xyz="0 -0.012 0.020" rpy="0 0 0"/><mass value="0.03"/><inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001"/></inertial>
+  </link>
+
+  <!-- arm joints: origins, axes and limits are the arm's kinematic parameters -->
+  <joint name="Joint1" type="revolute">
+    <parent link="base_link"/><child link="link1"/>
+    <origin xyz="0 0 0.1295" rpy="0 -0.0398 0"/>
+    <axis xyz="-0.0398 0 0.9992"/>
+    <limit lower="-2.749" upper="2.749" effort="5" velocity="12"/>
+  </joint>
+  <joint name="Joint2" type="revolute">
+    <parent link="link1"/><child link="link2"/>
+    <origin xyz="0.0017 0 0.0428" rpy="1.5708 -1.5708 0"/>
+    <axis xyz="0 0 -1"/>
+    <limit lower="-1.57" upper="1.57" effort="5" velocity="12"/>
+  </joint>
+  <joint name="Joint3" type="revolute">
+    <parent link="link2"/><child link="link3"/>
+    <origin xyz="0.2237 0.0227 -0.0001" rpy="0 0 -2.3562"/>
+    <axis xyz="0 0 -1"/>
+    <limit lower="-0.78" upper="3.14159" effort="5" velocity="12"/>
+  </joint>
+  <joint name="Joint4" type="revolute">
+    <parent link="link3"/><child link="link4"/>
+    <origin xyz="0.0021 -0.0990 -0.0002" rpy="1.5708 0 0"/>
+    <axis xyz="0 0 -1"/>
+    <limit lower="-2.7925" upper="2.7925" effort="5" velocity="12"/>
+  </joint>
+  <joint name="Joint5" type="revolute">
+    <parent link="link4"/><child link="link5"/>
+    <origin xyz="0 -0.0005 0.12235" rpy="1.5708 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="5" velocity="12"/>
+  </joint>
+  <joint name="Joint6" type="revolute">
+    <parent link="link5"/><child link="link6"/>
+    <origin xyz="-0.0039 0.0575 -0.0010" rpy="-1.5708 0 0"/>
+    <axis xyz="0 0 -1"/>
+    <limit lower="-3.14" upper="3.14" effort="5" velocity="12"/>
+  </joint>
+
+  <joint name="tool0_fixed_joint" type="fixed">
+    <parent link="link6"/><child link="tool0"/>
+    <origin xyz="0.0002 0 0.13098" rpy="0 0 0"/>
+  </joint>
+  <joint name="left_finger" type="prismatic">
+    <parent link="link6"/><child link="left_gripper"/>
+    <origin xyz="0.0002 0 0.13098" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="0" upper="0.025" effort="5" velocity="0.1"/>
+  </joint>
+  <joint name="right_finger" type="prismatic">
+    <parent link="link6"/><child link="right_gripper"/>
+    <origin xyz="0.0002 0 0.13098" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.025" upper="0" effort="5" velocity="0.1"/>
+  </joint>
+</robot>

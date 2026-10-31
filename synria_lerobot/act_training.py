@@ -8,7 +8,6 @@ import inspect
 import json
 import math
 import os
-import platform
 import random
 import re
 import subprocess
@@ -18,6 +17,8 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+
+from physical_ai_lab.portable import board_label, expand_json, portable_text
 
 from .checkpoint_eval import (
     CheckpointEvaluator,
@@ -336,7 +337,7 @@ def _number(value: Any, name: str, *, allow_zero: bool = False) -> float:
 
 def _json(value: Any) -> str:
     """Render deterministic strict JSON for contract comparison and evidence."""
-    return json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + "\n"
+    return portable_text(json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + "\n")
 
 
 def _write(path: Path, value: Any) -> None:
@@ -667,6 +668,7 @@ def train(
     config: dict[str, Any],
 ) -> dict[str, Any]:
     """Run local single-process training; never import robot drivers or publish commands."""
+    config = expand_json(config)
     _integer(seed, "seed", minimum=0)
     _integer(steps, "steps")
     if seed >= 2**32:
@@ -951,7 +953,7 @@ def train(
         "seed": seed,
         "requested_steps": steps,
         "git_sha": git_sha,
-        "host": platform.node(),
+        "host": board_label(),
         "upstream_version": installed,
         "torch_version": torch.__version__,
         "normalization": "training episodes only",

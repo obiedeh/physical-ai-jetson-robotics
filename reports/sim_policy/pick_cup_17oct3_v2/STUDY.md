@@ -6,7 +6,7 @@ subsets are nested by recording order, so each row contains every row above it.
 Held-out error is the trainer's own measure on the final checkpoint; the success
 rate is the closed-loop cup-lift score in the Isaac scene, when a campaign ran.
 
-- dataset: `/home/oedeh/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset`
+- dataset: `<home>/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset`
 - held-out episodes: [12, 24, 36, 44]
 - episodes available for training: 45
 - seed 17, 20000 steps per run, status completed

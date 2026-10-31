@@ -11,7 +11,7 @@
   "monitor_model_id": "intent_rules_v1",
   "monitor_latency_ms": 0.64451,
   "provenance": {
-    "device": "jetsonthor",
+    "device": "bench-thor",
     "architecture": "aarch64",
     "python_version": "3.12.3",
     "jetpack_version": "nvidia-jetpack\t7.1-b112",

@@ -50,9 +50,9 @@ cd ~/github/physical-ai-jetson-robotics
 echo "[v2] STAGE 4: train ACT v2 ($(date -Is))"
 cd ~ && HF_HUB_OFFLINE=1 $PY_LEROBOT ~/.venv/lerobot/bin/lerobot-train \
   --dataset.repo_id=synria_e33v2 \
-  --dataset.root=/home/oedeh/github/physical-ai-jetson-robotics/$DS \
+  --dataset.root=$HOME/github/physical-ai-jetson-robotics/$DS \
   --policy.type=act --policy.device=cuda --policy.push_to_hub=false \
-  --output_dir=/home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_act_v2 \
+  --output_dir=$HOME/github/physical-ai-jetson-robotics/reports/training/synria_act_v2 \
   --batch_size=8 --steps=100000 --wandb.enable=false \
   > ~/github/physical-ai-jetson-robotics/$LOG/e35_train.log 2>&1
 echo "[v2] train exited $? ($(date -Is))"

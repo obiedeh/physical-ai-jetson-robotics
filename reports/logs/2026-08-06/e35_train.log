@@ -16,7 +16,7 @@ WARNING:lerobot.utils.import_utils:Could not load libtorchcodec. Likely causes:
 [start of libtorchcodec loading traceback]
 FFmpeg version 8:
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
     ctypes.CDLL(path)
   File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
     self._handle = _dlopen(self._name, mode)
@@ -26,15 +26,15 @@ OSError: libavutil.so.60: cannot open shared object file: No such file or direct
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
     torch.ops.load_library(core_library_path)
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
     raise OSError(f"Could not load this library: {path}") from e
-OSError: Could not load this library: /home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core8.so
+OSError: Could not load this library: <home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core8.so
 
 FFmpeg version 7:
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
     ctypes.CDLL(path)
   File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
     self._handle = _dlopen(self._name, mode)
@@ -44,33 +44,33 @@ OSError: libavutil.so.59: cannot open shared object file: No such file or direct
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
     torch.ops.load_library(core_library_path)
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
     raise OSError(f"Could not load this library: {path}") from e
-OSError: Could not load this library: /home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core7.so
+OSError: Could not load this library: <home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core7.so
 
 FFmpeg version 6:
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
     ctypes.CDLL(path)
   File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
     self._handle = _dlopen(self._name, mode)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^
-OSError: /home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core6.so: undefined symbol: torch_dtype_float4_e2m1fn_x2
+OSError: <home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core6.so: undefined symbol: torch_dtype_float4_e2m1fn_x2
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
     torch.ops.load_library(core_library_path)
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
     raise OSError(f"Could not load this library: {path}") from e
-OSError: Could not load this library: /home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core6.so
+OSError: Could not load this library: <home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core6.so
 
 FFmpeg version 5:
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
     ctypes.CDLL(path)
   File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
     self._handle = _dlopen(self._name, mode)
@@ -80,15 +80,15 @@ OSError: libavutil.so.57: cannot open shared object file: No such file or direct
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
     torch.ops.load_library(core_library_path)
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
     raise OSError(f"Could not load this library: {path}") from e
-OSError: Could not load this library: /home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core5.so
+OSError: Could not load this library: <home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core5.so
 
 FFmpeg version 4:
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
     ctypes.CDLL(path)
   File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
     self._handle = _dlopen(self._name, mode)
@@ -98,11 +98,11 @@ OSError: libavutil.so.56: cannot open shared object file: No such file or direct
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
     torch.ops.load_library(core_library_path)
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
     raise OSError(f"Could not load this library: {path}") from e
-OSError: Could not load this library: /home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core4.so
+OSError: Could not load this library: <home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core4.so
 [end of libtorchcodec loading traceback].
 'torchcodec' is installed but cannot be loaded (see the error above). Falling back to 'pyav' as a default decoder.
 WARNING:lerobot.utils.import_utils:Could not load libtorchcodec. Likely causes:
@@ -123,7 +123,7 @@ WARNING:lerobot.utils.import_utils:Could not load libtorchcodec. Likely causes:
 [start of libtorchcodec loading traceback]
 FFmpeg version 8:
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
     ctypes.CDLL(path)
   File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
     self._handle = _dlopen(self._name, mode)
@@ -133,15 +133,15 @@ OSError: libavutil.so.60: cannot open shared object file: No such file or direct
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
     torch.ops.load_library(core_library_path)
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
     raise OSError(f"Could not load this library: {path}") from e
-OSError: Could not load this library: /home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core8.so
+OSError: Could not load this library: <home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core8.so
 
 FFmpeg version 7:
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
     ctypes.CDLL(path)
   File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
     self._handle = _dlopen(self._name, mode)
@@ -151,33 +151,33 @@ OSError: libavutil.so.59: cannot open shared object file: No such file or direct
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
     torch.ops.load_library(core_library_path)
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
     raise OSError(f"Could not load this library: {path}") from e
-OSError: Could not load this library: /home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core7.so
+OSError: Could not load this library: <home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core7.so
 
 FFmpeg version 6:
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
     ctypes.CDLL(path)
   File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
     self._handle = _dlopen(self._name, mode)
                    ^^^^^^^^^^^^^^^^^^^^^^^^^
-OSError: /home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core6.so: undefined symbol: torch_dtype_float4_e2m1fn_x2
+OSError: <home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core6.so: undefined symbol: torch_dtype_float4_e2m1fn_x2
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
     torch.ops.load_library(core_library_path)
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
     raise OSError(f"Could not load this library: {path}") from e
-OSError: Could not load this library: /home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core6.so
+OSError: Could not load this library: <home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core6.so
 
 FFmpeg version 5:
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
     ctypes.CDLL(path)
   File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
     self._handle = _dlopen(self._name, mode)
@@ -187,15 +187,15 @@ OSError: libavutil.so.57: cannot open shared object file: No such file or direct
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
     torch.ops.load_library(core_library_path)
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
     raise OSError(f"Could not load this library: {path}") from e
-OSError: Could not load this library: /home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core5.so
+OSError: Could not load this library: <home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core5.so
 
 FFmpeg version 4:
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1488, in load_library
     ctypes.CDLL(path)
   File "/usr/lib/python3.12/ctypes/__init__.py", line 379, in __init__
     self._handle = _dlopen(self._name, mode)
@@ -205,11 +205,11 @@ OSError: libavutil.so.56: cannot open shared object file: No such file or direct
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/_internally_replaced_utils.py", line 93, in load_torchcodec_shared_libraries
     torch.ops.load_library(core_library_path)
-  File "/home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
+  File "<home>/.venv/lerobot/lib/python3.12/site-packages/torch/_ops.py", line 1490, in load_library
     raise OSError(f"Could not load this library: {path}") from e
-OSError: Could not load this library: /home/oedeh/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core4.so
+OSError: Could not load this library: <home>/.venv/lerobot/lib/python3.12/site-packages/torchcodec/libtorchcodec_core4.so
 [end of libtorchcodec loading traceback].
 'torchcodec' is installed but cannot be loaded (see the error above). Falling back to 'pyav' as a default decoder.
 INFO 2026-08-09 04:45:51 ot_train.py:272 {'batch_size': 8,
@@ -252,7 +252,7 @@ INFO 2026-08-09 04:45:51 ot_train.py:272 {'batch_size': 8,
              'repo_type': 'dataset',
              'return_uint8': False,
              'revision': None,
-             'root': '/home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33v2_lerobot',
+             'root': '<home>/github/physical-ai-jetson-robotics/reports/training/synria_e33v2_lerobot',
              'streaming': False,
              'use_imagenet_stats': True,
              'video_backend': 'pyav'},
@@ -280,7 +280,7 @@ INFO 2026-08-09 04:45:51 ot_train.py:272 {'batch_size': 8,
                'lr': 1e-05,
                'type': 'adamw',
                'weight_decay': 0.0001},
- 'output_dir': '/home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_act_v2',
+ 'output_dir': '<home>/github/physical-ai-jetson-robotics/reports/training/synria_act_v2',
  'peft': None,
  'persistent_workers': True,
  'policy': {'chunk_size': 100,
@@ -346,7 +346,7 @@ INFO 2026-08-09 04:45:51 ot_train.py:280 Logs will be saved locally.
 INFO 2026-08-09 04:45:51 ot_train.py:298 Creating dataset
 INFO 2026-08-09 04:45:51 ot_train.py:324 Creating policy
 INFO 2026-08-09 04:45:51 ot_train.py:402 Creating optimizer and scheduler
-INFO 2026-08-09 04:45:51 ot_train.py:434 Output dir: /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_act_v2
+INFO 2026-08-09 04:45:51 ot_train.py:434 Output dir: <home>/github/physical-ai-jetson-robotics/reports/training/synria_act_v2
 INFO 2026-08-09 04:45:51 ot_train.py:441 cfg.steps=100000 (100K)
 INFO 2026-08-09 04:45:51 ot_train.py:442 dataset.num_frames=155690 (156K)
 INFO 2026-08-09 04:45:51 ot_train.py:443 dataset.num_episodes=300

@@ -2,7 +2,7 @@
   "timestamp_utc": "2026-08-28T03:05:18Z",
   "git_sha": "03dc8a2239067d429510043d91cf73dec1d07cca",
   "git_dirty": true,
-  "host": "aimlstation",
+  "host": "rtx-5090-workstation",
   "platform": "Linux-6.17.0-22-generic-x86_64-with-glibc2.39",
   "python": "3.11.13",
   "gpu": "NVIDIA GeForce RTX 5090, 580.178.04",

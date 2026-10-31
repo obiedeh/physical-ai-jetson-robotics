@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -97,7 +98,7 @@ def _write_provenance(args) -> None:
         "timestamp_utc": _time.strftime("%Y-%m-%dT%H:%M:%SZ", _time.gmtime()),
         "git_sha": _cmd("git rev-parse HEAD"),
         "git_dirty": bool(_cmd("git status --porcelain")),
-        "host": platform.node(),
+        "host": os.environ.get("PHYSICAL_AI_BOARD", "unknown-board"),
         "platform": platform.platform(),
         "python": _sys.version.split()[0],
         "gpu": _cmd("nvidia-smi --query-gpu=name,driver_version "

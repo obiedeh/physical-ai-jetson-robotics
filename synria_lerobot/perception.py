@@ -44,6 +44,7 @@ def locate_board(image: Any, config: dict[str, Any]) -> tuple[Any, Any] | None:
 
 
 def detect_tokens(image: Any, config: dict[str, Any]) -> dict[str, str]:
+    """Classify calibrated token regions using the unsigned-byte masks OpenCV specifies."""
     import cv2
 
     board = locate_board(image, config)

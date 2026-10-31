@@ -1,8 +1,8 @@
 {
   "checkpoint_content_sha256": "d32aa92e575cf4f6238a2b242a30938c663ad64f86909b760cacb0bc3a1b089d",
-  "checkpoint_path": "/home/oedeh/synria-sim-training/staged_place_01/simplace01_n131/checkpoints/step-000010000",
+  "checkpoint_path": "<home>/synria-sim-training/staged_place_01/simplace01_n131/checkpoints/step-000010000",
   "dataset_content_sha256": "bb8c10ad153864b11dab310002cdeeec37621503e1ab6252d47c0568b05e66b1",
-  "dataset_path": "/home/oedeh/synria-sim-datasets/staged_place_01/dataset",
+  "dataset_path": "<home>/synria-sim-datasets/staged_place_01/dataset",
   "held_out_episodes": [
     16,
     34,

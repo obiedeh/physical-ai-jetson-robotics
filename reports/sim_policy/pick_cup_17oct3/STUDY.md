@@ -6,22 +6,22 @@ subsets are nested by recording order, so each row contains every row above it.
 Held-out error is the trainer's own measure on the final checkpoint; the success
 rate is the closed-loop cup-lift score in the Isaac scene, when a campaign ran.
 
-- dataset: `/home/oedeh/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset`
+- dataset: `<home>/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset`
 - held-out episodes: [12, 24, 36, 44]
 - episodes available for training: 45
 - seed 17, 20000 steps per run, status completed
 
 | episodes trained | policy id | held-out joint MAE, mean (rad) | max (rad) | gripper MAE (m) | sim success | trials | campaign report |
 |---|---|---|---|---|---|---|---|
-| 5 | simcup17oct3_n005 | 0.1218 | 0.2482 | 0.0038 | 0% | 20 | `/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n005_20261018T105251Z.json` |
-| 10 | simcup17oct3_n010 | 0.1064 | 0.2083 | 0.0033 | 0% | 20 | `/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n010_20261018T110441Z.json` |
-| 15 | simcup17oct3_n015 | 0.0933 | 0.1843 | 0.0020 | 0% | 20 | `/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n015_20261018T111632Z.json` |
-| 20 | simcup17oct3_n020 | 0.0841 | 0.1679 | 0.0018 | 0% | 20 | `/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n020_20261018T112823Z.json` |
-| 25 | simcup17oct3_n025 | 0.0712 | 0.1442 | 0.0018 | 0% | 20 | `/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n025_20261018T114015Z.json` |
-| 30 | simcup17oct3_n030 | 0.0723 | 0.1469 | 0.0018 | 0% | 20 | `/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n030_20261018T115202Z.json` |
-| 35 | simcup17oct3_n035 | 0.0663 | 0.1377 | 0.0018 | 35% | 20 | `/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n035_20261018T120356Z.json` |
-| 40 | simcup17oct3_n040 | 0.0653 | 0.1391 | 0.0014 | 5% | 20 | `/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n040_20261018T121412Z.json` |
-| 45 | simcup17oct3_n045 | 0.0591 | 0.1232 | 0.0017 | 5% | 20 | `/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n045_20261018T122550Z.json` |
+| 5 | simcup17oct3_n005 | 0.1218 | 0.2482 | 0.0038 | 0% | 20 | `<home>/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n005_20261018T105251Z.json` |
+| 10 | simcup17oct3_n010 | 0.1064 | 0.2083 | 0.0033 | 0% | 20 | `<home>/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n010_20261018T110441Z.json` |
+| 15 | simcup17oct3_n015 | 0.0933 | 0.1843 | 0.0020 | 0% | 20 | `<home>/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n015_20261018T111632Z.json` |
+| 20 | simcup17oct3_n020 | 0.0841 | 0.1679 | 0.0018 | 0% | 20 | `<home>/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n020_20261018T112823Z.json` |
+| 25 | simcup17oct3_n025 | 0.0712 | 0.1442 | 0.0018 | 0% | 20 | `<home>/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n025_20261018T114015Z.json` |
+| 30 | simcup17oct3_n030 | 0.0723 | 0.1469 | 0.0018 | 0% | 20 | `<home>/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n030_20261018T115202Z.json` |
+| 35 | simcup17oct3_n035 | 0.0663 | 0.1377 | 0.0018 | 35% | 20 | `<home>/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n035_20261018T120356Z.json` |
+| 40 | simcup17oct3_n040 | 0.0653 | 0.1391 | 0.0014 | 5% | 20 | `<home>/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n040_20261018T121412Z.json` |
+| 45 | simcup17oct3_n045 | 0.0591 | 0.1232 | 0.0017 | 5% | 20 | `<home>/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/trials_simcup17oct3_n045_20261018T122550Z.json` |
 
 Caveats: recording order is not random, since the operator's picks improved
 across the session, so later episodes are not interchangeable with earlier ones;

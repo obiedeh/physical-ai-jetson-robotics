@@ -62,7 +62,7 @@
   },
   "score": "place",
   "score_rule": "cup lifted 3.0 cm at least once, then at rest within 3.0 cm of the mark's centre and within 1.0 cm of its rest height with the gripper centre at least 6.0 cm from the cup, for 1.0 s without a break, from the scene's published cup, mark and gripper poses",
-  "start_pose_source": "/home/oedeh/synria-sim-datasets/staged_place_01/dataset",
+  "start_pose_source": "<home>/synria-sim-datasets/staged_place_01/dataset",
   "success_rate": 0.0,
   "successes": 0,
   "task_id": "cup_pick_and_place",

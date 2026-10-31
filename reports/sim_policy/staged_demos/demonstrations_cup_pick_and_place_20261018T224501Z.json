@@ -78,7 +78,7 @@
     "task_id": "cup_pick_and_place",
     "task_text": "Pick up the cup from its marked location, carry it to the marked target and release it upright inside the target, then back the gripper away clear."
   },
-  "dataset_root": "/home/oedeh/synria-sim-datasets/staged_place_01/dataset",
+  "dataset_root": "<home>/synria-sim-datasets/staged_place_01/dataset",
   "failures_excluded": 0,
   "kind": "simulation_staged_demonstrations",
   "lane": "simulation",

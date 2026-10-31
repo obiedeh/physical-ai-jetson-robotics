@@ -21,6 +21,7 @@ time and the package surface is empty until import-time fix).
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 from isaac.isaaclab_tasks.synria_pickplace.task_geometry import (
@@ -544,6 +545,10 @@ class EventsCfg:
             mode="interval",
             interval_range_s=(0.03, 0.04),
         )
+        # Visual randomization terms, filled in by the env cfg's __post_init__
+        # when ``visual_randomization`` is on; the event manager skips None.
+        randomize_dome_light: EventTerm | None = None
+        randomize_piece_color: EventTerm | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -594,12 +599,37 @@ class SynriaTabletopPickPlaceEnvCfg(ManagerBasedRLEnvCfg):
         episode_length_s: float = 30.0
         decimation: int = 2
 
+    # Visual domain randomization (dome light intensity and colour, piece
+    # colour) at every reset. Off by default so existing campaigns keep their
+    # protocol; on with ``visual_randomization=True`` or the environment
+    # variable SYNRIA_VISUAL_RANDOMIZATION=1. Unmeasured until a campaign
+    # has run with it (docs/ROADMAP.md).
+    visual_randomization: bool = False
+    visual_light_intensity_range: tuple[float, float] = (800.0, 5000.0)
+    visual_light_color_jitter: float = 0.15
+    visual_piece_color_jitter: float = 0.35
+
     def __post_init__(self) -> None:
         if not _ISAACLAB_AVAILABLE:
             return
         # Per-subclass scene USD wired in by `_bind_scene` in the subclass.
         if hasattr(self, "_bind_scene"):
             self._bind_scene()
+        if self.visual_randomization or os.environ.get("SYNRIA_VISUAL_RANDOMIZATION") == "1":
+            self.visual_randomization = True
+            self.events.randomize_dome_light = EventTerm(
+                func=mdp.randomize_dome_light,
+                mode="reset",
+                params={
+                    "intensity_range": self.visual_light_intensity_range,
+                    "color_jitter": self.visual_light_color_jitter,
+                },
+            )
+            self.events.randomize_piece_color = EventTerm(
+                func=mdp.randomize_piece_color,
+                mode="reset",
+                params={"jitter": self.visual_piece_color_jitter},
+            )
 
 
 # ---------------------------------------------------------------------------

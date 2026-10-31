@@ -29,7 +29,7 @@ physical manipulation. Current evidence and exclusions: [README](../README.md).
 - First-party OpenUSD structure retained; vendor robot geometry now fetched locally
   ([vendor setup](VENDOR_INTEGRATION_MAP.md))
 - Isaac Lab reaching environment ✅ (`isaac/isaaclab_tasks/synria_pickplace/`)
-- domain randomization plan ✅ (env config in `env_cfg.py`)
+- domain randomization: placement and scale randomization in the scene reset (`--placement-seed`, `--randomize-scale`; target piece and spawn offsets in `mdp.py`); visual randomization (dome light intensity and colour, piece colour at every reset) is implemented in `env_cfg.py` behind `visual_randomization` / `SYNRIA_VISUAL_RANDOMIZATION=1` and unmeasured: no training run or placement campaign has used it yet, and the policy-trial scene in the teleop repository has its own reset, so a campaign with visual randomization needs the Isaac Lab path. No physics randomization.
 - real-arm calibration workflow (hardware-later)
 - Simulation training/evaluation reports and Thor inference benchmark recorded;
   autonomous physical-arm policy deployment remains unestablished
@@ -41,7 +41,7 @@ physical manipulation. Current evidence and exclusions: [README](../README.md).
   and pipeline defined; real calibration hardware-later)
 - LeRobot / ALOHA-style demonstration dataset workflow ✅
   (`synria_lerobot/schema.py`, `dataset.py`, `recorder.py`, `policy_eval.py`)
-- Synria upstream parity TODOs ✅ (all 8 RTX-Now items complete — see
+- Synria upstream parity TODOs ✅ (all 8 RTX-Now items complete - see
   `docs/SYNRIA_UPSTREAM_TODO.md`)
 - vendor robot-description audit ✅ (`docs/reports/synria_vendor_description_parity.md`)
 - ROS 2 Humble-to-Jazzy compatibility pass ✅ (`docs/reports/synria_ros2_jazzy_port.md`)
@@ -54,7 +54,7 @@ physical manipulation. Current evidence and exclusions: [README](../README.md).
 - simulated cameras and markers ✅ (USD scene structure, C10 camera xacro)
 - synthetic dataset generation ✅ (`synria_lerobot/dataset.py`, GR00T dataset adapter)
 - validation scenes for navigation and manipulation ✅ (Isaac USD scene builders)
-- Yahboom mobile base and 6DOF arm digital twin (RTX-gated — USD re-import from vendor
+- Yahboom mobile base and 6DOF arm digital twin (RTX-gated - USD re-import from vendor
   URDF needs Isaac Sim)
 
 ## Milestone 5: Edge Vision Runtime

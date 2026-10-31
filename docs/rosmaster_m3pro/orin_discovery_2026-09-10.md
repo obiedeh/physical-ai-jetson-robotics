@@ -1,10 +1,10 @@
 # Orin discovery record, 2026-09-10 (read-only)
 
 Protocol step 1 of [SLAM_FIRST_RUN_PROTOCOL.md](SLAM_FIRST_RUN_PROTOCOL.md),
-run over SSH as `jetson@yahboom` (192.168.1.251) after the operator restored
+run over SSH as `jetson@field-orin` (<lan-address>) after the operator restored
 key access. Nothing on the robot was launched, moved or configured. The one
 change made to the device is a clone of this repository at
-`/home/jetson/github/physical-ai-jetson-robotics` (commit `7bc20fb`).
+`<home>/github/physical-ai-jetson-robotics` (commit `7bc20fb`).
 
 ## Host
 
@@ -15,10 +15,10 @@ change made to the device is a clone of this repository at
 | Memory | 7619 MB total, 5351 MB available with the micro-ROS agent running |
 | Disk | 117 GB NVMe, 101 GB used, 11 GB free (91 %) |
 | Accounts | `jetson` only; the `oedeh` account and its venv from August no longer exist |
-| Wi-Fi | `wlP1p1s0`, power save **on** (reset by the reflash); 20/20 pings to the host at 192.168.1.235, 0 % loss, 6.9 ms mean |
+| Wi-Fi | `wlP1p1s0`, power save **on** (reset by the reflash); 20/20 pings to the host at <lan-address>, 0 % loss, 6.9 ms mean |
 | Sampling | `/usr/bin/tegrastats` present; INA3221 rails at `/sys/bus/i2c/drivers/ina3221/1-0040/hwmon/hwmon1` |
 | ROS tooling | `ros2bag`, `rosbag2_storage_default_plugins` (sqlite3), `tf2_tools`, `nav2_map_server` 1.1.20 |
-| Home permissions | `/home/jetson` was mode 777 after the reflash, which made sshd reject `authorized_keys`; the operator set it to 755 |
+| Home permissions | `<home>` was mode 777 after the reflash, which made sshd reject `authorized_keys`; the operator set it to 755 |
 
 ## Board contract, verified live (no motion sent)
 
@@ -88,7 +88,7 @@ is confirmed by `ros2 run tf2_tools view_frames` once the stack is up.
 
 ## Existing artefacts on the device
 
-`/home/jetson/yahboom_map.pbstream` (a cartographer map of an unknown room,
+`<home>/yahboom_map.pbstream` (a cartographer map of an unknown room,
 from the factory image). No slam_toolbox posegraph, no bags.
 
 ## Harness readiness
@@ -114,7 +114,7 @@ Humble; frames to pass are `--map-frame map --base-frame base_footprint`.
 The Orin was reflashed and restored to the OEM package after the rover
 repair. Nothing on it is to be removed, stopped or cleaned up: vendor
 workspaces, the Dify and LLM layers, example trees and services all stay.
-Our work adds files under `/home/jetson/github/` and writes session
+Our work adds files under `<home>/github/` and writes session
 directories; it does not subtract. This supersedes the August deletion
 rule, which permitted removals under conditions.
 

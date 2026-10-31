@@ -62,7 +62,7 @@
   },
   "score": "lift",
   "score_rule": "cup 3.0 cm above its rest height for 1.0 s without a break, from the scene's published cup pose",
-  "start_pose_source": "/home/oedeh/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
+  "start_pose_source": "<home>/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
   "success_rate": 1.0,
   "successes": 50,
   "task_id": "pick_cup",

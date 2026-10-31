@@ -1,0 +1,1048 @@
+{
+  "workload": "synria-moveit-planning-campaign",
+  "lane": "simulation",
+  "physical_evidence": false,
+  "note": "Planning only, in an empty scene with the SRDF self-collision model; no robot moved.",
+  "started_at": "2026-10-29T22:30:52-0500",
+  "finished_at": "2026-10-29T22:30:57-0500",
+  "protocol": {
+    "requests": 50,
+    "seed": 2026,
+    "group": "synria_arm",
+    "planner_id": "RRTConnectkConfigDefault",
+    "allowed_planning_time_s": 5.0,
+    "num_planning_attempts": 3,
+    "goal_sampling": "uniform in joint space inside the URDF position limits with a margin; goals rejected by check_state_validity are resampled and counted",
+    "margin": 0.05,
+    "goals_rejected": 5,
+    "goal_tolerance_rad": 0.001,
+    "start_state": "joint_state_publisher defaults (zeros)",
+    "success_rule": "error code SUCCESS and a trajectory with at least two points"
+  },
+  "joint_limits_rad": {
+    "Joint1": [
+      -2.749,
+      2.749
+    ],
+    "Joint2": [
+      -1.57,
+      1.57
+    ],
+    "Joint3": [
+      -0.78,
+      3.1416
+    ],
+    "Joint4": [
+      -2.7925,
+      2.7925
+    ],
+    "Joint5": [
+      -1.57,
+      1.57
+    ],
+    "Joint6": [
+      -3.14,
+      3.14
+    ]
+  },
+  "summary": {
+    "successes": 50,
+    "requests": 50,
+    "success_rate": 1.0,
+    "planning_time_s_median": 0.0116008095,
+    "planning_time_s_p95": 0.012373969,
+    "planning_time_s_max": 0.012621021000000001,
+    "trajectory_points_median": 21.0,
+    "trajectory_duration_s_median": 1.950436077,
+    "failures_by_code": {}
+  },
+  "requests_detail": [
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.001630226,
+      "trajectory_points": 22,
+      "trajectory_duration_s": 2.00644432,
+      "wall_s": 0.04271837800115463,
+      "success": true,
+      "request": 0,
+      "goal_rad": {
+        "Joint1": -1.8847,
+        "Joint2": 0.0071,
+        "Joint3": 1.2225,
+        "Joint4": 1.8095,
+        "Joint5": -1.1229,
+        "Joint6": -1.564
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011183645999999998,
+      "trajectory_points": 24,
+      "trajectory_duration_s": 2.20336374,
+      "wall_s": 0.10861831399961375,
+      "success": true,
+      "request": 1,
+      "goal_rad": {
+        "Joint1": 0.4999,
+        "Joint2": 0.1598,
+        "Joint3": 2.1809,
+        "Joint4": 0.2403,
+        "Joint5": 0.6515,
+        "Joint6": 1.5154
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011170761,
+      "trajectory_points": 17,
+      "trajectory_duration_s": 1.5777374339999999,
+      "wall_s": 0.09948576399983722,
+      "success": true,
+      "request": 2,
+      "goal_rad": {
+        "Joint1": 1.2421,
+        "Joint2": 0.2445,
+        "Joint3": 0.2629,
+        "Joint4": 0.574,
+        "Joint5": -1.1001,
+        "Joint6": 1.7903
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.01164415,
+      "trajectory_points": 21,
+      "trajectory_duration_s": 1.973095886,
+      "wall_s": 0.1005610610009171,
+      "success": true,
+      "request": 3,
+      "goal_rad": {
+        "Joint1": -0.2491,
+        "Joint2": 0.8895,
+        "Joint3": 1.8344,
+        "Joint4": 0.9017,
+        "Joint5": -0.8189,
+        "Joint6": -1.4044
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.012373969,
+      "trajectory_points": 25,
+      "trajectory_duration_s": 2.332771196,
+      "wall_s": 0.10144870300064213,
+      "success": true,
+      "request": 4,
+      "goal_rad": {
+        "Joint1": 2.3747,
+        "Joint2": 1.2133,
+        "Joint3": 2.2578,
+        "Joint4": 2.5115,
+        "Joint5": 0.0384,
+        "Joint6": -2.3946
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011601440000000001,
+      "trajectory_points": 14,
+      "trajectory_duration_s": 1.257455884,
+      "wall_s": 0.4255997860018397,
+      "success": true,
+      "request": 5,
+      "goal_rad": {
+        "Joint1": -0.7898,
+        "Joint2": 0.1624,
+        "Joint3": 0.4471,
+        "Joint4": -0.2139,
+        "Joint5": 1.0639,
+        "Joint6": 1.1529
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011187511,
+      "trajectory_points": 22,
+      "trajectory_duration_s": 2.033360532,
+      "wall_s": 0.07208809599978849,
+      "success": true,
+      "request": 6,
+      "goal_rad": {
+        "Joint1": 0.3831,
+        "Joint2": -1.3431,
+        "Joint3": 1.925,
+        "Joint4": -0.6859,
+        "Joint5": -0.2198,
+        "Joint6": -0.5721
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011348324,
+      "trajectory_points": 11,
+      "trajectory_duration_s": 0.97145283,
+      "wall_s": 0.0992715419997694,
+      "success": true,
+      "request": 7,
+      "goal_rad": {
+        "Joint1": 0.4241,
+        "Joint2": -0.0044,
+        "Joint3": -0.1729,
+        "Joint4": 0.032,
+        "Joint5": 0.7069,
+        "Joint6": 0.5661
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011609233,
+      "trajectory_points": 17,
+      "trajectory_duration_s": 1.5345116600000002,
+      "wall_s": 0.10079674600274302,
+      "success": true,
+      "request": 8,
+      "goal_rad": {
+        "Joint1": -0.0444,
+        "Joint2": 1.1777,
+        "Joint3": 0.3289,
+        "Joint4": -0.4023,
+        "Joint5": 1.2045,
+        "Joint6": -0.1176
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011925344000000001,
+      "trajectory_points": 18,
+      "trajectory_duration_s": 1.6511810960000002,
+      "wall_s": 0.10015097799987416,
+      "success": true,
+      "request": 9,
+      "goal_rad": {
+        "Joint1": 0.089,
+        "Joint2": -1.3413,
+        "Joint3": 0.2085,
+        "Joint4": -1.8648,
+        "Joint5": -1.2748,
+        "Joint6": 1.1568
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011601461,
+      "trajectory_points": 22,
+      "trajectory_duration_s": 2.025675707,
+      "wall_s": 0.09948016600174014,
+      "success": true,
+      "request": 10,
+      "goal_rad": {
+        "Joint1": 1.9141,
+        "Joint2": -1.1231,
+        "Joint3": 1.6125,
+        "Joint4": -0.1506,
+        "Joint5": -0.0505,
+        "Joint6": -1.5321
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.012115967,
+      "trajectory_points": 22,
+      "trajectory_duration_s": 2.023196019,
+      "wall_s": 0.10088469000038458,
+      "success": true,
+      "request": 11,
+      "goal_rad": {
+        "Joint1": 1.9096,
+        "Joint2": 0.358,
+        "Joint3": 1.0283,
+        "Joint4": -0.1538,
+        "Joint5": 1.2137,
+        "Joint6": 2.7538
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011418438999999999,
+      "trajectory_points": 21,
+      "trajectory_duration_s": 1.936455922,
+      "wall_s": 0.09867002399914782,
+      "success": true,
+      "request": 12,
+      "goal_rad": {
+        "Joint1": 0.2258,
+        "Joint2": 0.169,
+        "Joint3": 1.7799,
+        "Joint4": -0.967,
+        "Joint5": 0.8472,
+        "Joint6": 0.0107
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.001766031,
+      "trajectory_points": 19,
+      "trajectory_duration_s": 1.769587923,
+      "wall_s": 0.09022167600051034,
+      "success": true,
+      "request": 13,
+      "goal_rad": {
+        "Joint1": -0.1044,
+        "Joint2": 1.0865,
+        "Joint3": 0.9446,
+        "Joint4": -1.0336,
+        "Joint5": -0.6527,
+        "Joint6": -2.6389
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011453023,
+      "trajectory_points": 18,
+      "trajectory_duration_s": 1.667138832,
+      "wall_s": 0.1096090680002817,
+      "success": true,
+      "request": 14,
+      "goal_rad": {
+        "Joint1": 0.7702,
+        "Joint2": 0.2749,
+        "Joint3": 1.0334,
+        "Joint4": 0.1151,
+        "Joint5": -0.0296,
+        "Joint6": 2.3824
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011401106,
+      "trajectory_points": 17,
+      "trajectory_duration_s": 1.563863048,
+      "wall_s": 0.09984613199776504,
+      "success": true,
+      "request": 15,
+      "goal_rad": {
+        "Joint1": -1.187,
+        "Joint2": -0.0408,
+        "Joint3": 1.2206,
+        "Joint4": 1.6395,
+        "Joint5": 0.8703,
+        "Joint6": 0.3269
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011970656,
+      "trajectory_points": 22,
+      "trajectory_duration_s": 2.092949494,
+      "wall_s": 0.10120776899930206,
+      "success": true,
+      "request": 16,
+      "goal_rad": {
+        "Joint1": 2.0152,
+        "Joint2": 0.9365,
+        "Joint3": 0.5337,
+        "Joint4": 2.0951,
+        "Joint5": -1.135,
+        "Joint6": 1.0701
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011791774999999999,
+      "trajectory_points": 20,
+      "trajectory_duration_s": 1.83570867,
+      "wall_s": 0.09915435000220896,
+      "success": true,
+      "request": 17,
+      "goal_rad": {
+        "Joint1": 1.4107,
+        "Joint2": 0.0429,
+        "Joint3": 1.0146,
+        "Joint4": 2.3387,
+        "Joint5": 1.3205,
+        "Joint6": 1.9355
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011685297,
+      "trajectory_points": 17,
+      "trajectory_duration_s": 1.571162132,
+      "wall_s": 0.09907463000126882,
+      "success": true,
+      "request": 18,
+      "goal_rad": {
+        "Joint1": -0.1032,
+        "Joint2": -1.2313,
+        "Joint3": 0.3566,
+        "Joint4": -0.0079,
+        "Joint5": -1.1398,
+        "Joint6": 1.3992
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.012007015,
+      "trajectory_points": 23,
+      "trajectory_duration_s": 2.125354287,
+      "wall_s": 0.10143352399973082,
+      "success": true,
+      "request": 19,
+      "goal_rad": {
+        "Joint1": -2.0631,
+        "Joint2": 0.8302,
+        "Joint3": 0.2908,
+        "Joint4": 0.6086,
+        "Joint5": 0.7117,
+        "Joint6": 2.5794
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.0012299890000000001,
+      "trajectory_points": 15,
+      "trajectory_duration_s": 1.3197465400000001,
+      "wall_s": 0.08804977999898256,
+      "success": true,
+      "request": 20,
+      "goal_rad": {
+        "Joint1": 0.8337,
+        "Joint2": 0.3827,
+        "Joint3": -0.0377,
+        "Joint4": -0.9377,
+        "Joint5": 0.2347,
+        "Joint6": 1.5234
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.002016207,
+      "trajectory_points": 24,
+      "trajectory_duration_s": 2.23366952,
+      "wall_s": 0.10162960800153087,
+      "success": true,
+      "request": 21,
+      "goal_rad": {
+        "Joint1": 2.2264,
+        "Joint2": -0.0226,
+        "Joint3": 1.9589,
+        "Joint4": -1.8354,
+        "Joint5": -0.783,
+        "Joint6": 0.497
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.012621021000000001,
+      "trajectory_points": 24,
+      "trajectory_duration_s": 2.261183699,
+      "wall_s": 0.11103484100021888,
+      "success": true,
+      "request": 22,
+      "goal_rad": {
+        "Joint1": 2.2676,
+        "Joint2": 1.0626,
+        "Joint3": 1.1975,
+        "Joint4": -2.0888,
+        "Joint5": 0.4763,
+        "Joint6": 2.4589
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011600179,
+      "trajectory_points": 18,
+      "trajectory_duration_s": 1.684479529,
+      "wall_s": 0.09762538599898107,
+      "success": true,
+      "request": 23,
+      "goal_rad": {
+        "Joint1": 1.4025,
+        "Joint2": 1.1728,
+        "Joint3": 0.4961,
+        "Joint4": -0.4421,
+        "Joint5": 0.8704,
+        "Joint6": 0.1132
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.012172494,
+      "trajectory_points": 27,
+      "trajectory_duration_s": 2.592675886,
+      "wall_s": 0.10151197500090348,
+      "success": true,
+      "request": 24,
+      "goal_rad": {
+        "Joint1": -0.8608,
+        "Joint2": -1.07,
+        "Joint3": 2.7647,
+        "Joint4": 0.36,
+        "Joint5": 0.8618,
+        "Joint6": -1.9562
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011340171999999999,
+      "trajectory_points": 18,
+      "trajectory_duration_s": 1.687590073,
+      "wall_s": 0.09792104200096219,
+      "success": true,
+      "request": 25,
+      "goal_rad": {
+        "Joint1": 0.0971,
+        "Joint2": -0.1876,
+        "Joint3": 0.6034,
+        "Joint4": 0.4937,
+        "Joint5": 0.5044,
+        "Joint6": -2.4331
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.01229945,
+      "trajectory_points": 27,
+      "trajectory_duration_s": 2.528215551,
+      "wall_s": 0.1021586759998172,
+      "success": true,
+      "request": 26,
+      "goal_rad": {
+        "Joint1": -0.499,
+        "Joint2": -0.8605,
+        "Joint3": 2.6683,
+        "Joint4": -2.2859,
+        "Joint5": 0.1265,
+        "Joint6": 1.9159
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011855824,
+      "trajectory_points": 17,
+      "trajectory_duration_s": 1.552494606,
+      "wall_s": 0.09802177600067807,
+      "success": true,
+      "request": 27,
+      "goal_rad": {
+        "Joint1": -0.2384,
+        "Joint2": 0.7198,
+        "Joint3": 0.0815,
+        "Joint4": 1.0603,
+        "Joint5": 1.0677,
+        "Joint6": -2.0961
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011748189000000001,
+      "trajectory_points": 20,
+      "trajectory_duration_s": 1.814225466,
+      "wall_s": 0.10039669700199738,
+      "success": true,
+      "request": 28,
+      "goal_rad": {
+        "Joint1": 0.1481,
+        "Joint2": 0.8066,
+        "Joint3": 1.2403,
+        "Joint4": 2.295,
+        "Joint5": -0.9597,
+        "Joint6": 1.9464
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011509382,
+      "trajectory_points": 19,
+      "trajectory_duration_s": 1.7260261749999999,
+      "wall_s": 0.09985505800068495,
+      "success": true,
+      "request": 29,
+      "goal_rad": {
+        "Joint1": -0.5444,
+        "Joint2": -0.2109,
+        "Joint3": 0.8776,
+        "Joint4": -2.1179,
+        "Joint5": -0.5513,
+        "Joint6": -0.8813
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.01167385,
+      "trajectory_points": 23,
+      "trajectory_duration_s": 2.197056559,
+      "wall_s": 0.09940308400109643,
+      "success": true,
+      "request": 30,
+      "goal_rad": {
+        "Joint1": -1.1705,
+        "Joint2": -0.0068,
+        "Joint3": 2.1699,
+        "Joint4": -0.4235,
+        "Joint5": -0.0913,
+        "Joint6": -0.9846
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.012404970000000001,
+      "trajectory_points": 24,
+      "trajectory_duration_s": 2.234902692,
+      "wall_s": 0.10148990800007596,
+      "success": true,
+      "request": 31,
+      "goal_rad": {
+        "Joint1": -0.0888,
+        "Joint2": -1.0736,
+        "Joint3": 2.2276,
+        "Joint4": 1.4914,
+        "Joint5": 0.8934,
+        "Joint6": 1.9662
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011897268999999999,
+      "trajectory_points": 26,
+      "trajectory_duration_s": 2.427470573,
+      "wall_s": 0.09955857699969783,
+      "success": true,
+      "request": 32,
+      "goal_rad": {
+        "Joint1": -1.3294,
+        "Joint2": 1.2821,
+        "Joint3": 2.5171,
+        "Joint4": 0.7323,
+        "Joint5": -0.26,
+        "Joint6": 1.6013
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011183485,
+      "trajectory_points": 28,
+      "trajectory_duration_s": 2.621910152,
+      "wall_s": 0.09879354300210252,
+      "success": true,
+      "request": 33,
+      "goal_rad": {
+        "Joint1": 1.7294,
+        "Joint2": 0.4815,
+        "Joint3": 2.8086,
+        "Joint4": -0.7442,
+        "Joint5": -0.97,
+        "Joint6": 0.3504
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011622944999999999,
+      "trajectory_points": 14,
+      "trajectory_duration_s": 1.202847348,
+      "wall_s": 0.09920381999836536,
+      "success": true,
+      "request": 34,
+      "goal_rad": {
+        "Joint1": 0.3579,
+        "Joint2": 0.1085,
+        "Joint3": -0.1968,
+        "Joint4": 1.0858,
+        "Joint5": 0.1577,
+        "Joint6": 0.3846
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011220852,
+      "trajectory_points": 18,
+      "trajectory_duration_s": 1.692330096,
+      "wall_s": 0.09945738099850132,
+      "success": true,
+      "request": 35,
+      "goal_rad": {
+        "Joint1": -1.413,
+        "Joint2": -0.5802,
+        "Joint3": 0.3623,
+        "Joint4": 0.2801,
+        "Joint5": -1.1263,
+        "Joint6": -1.3355
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011896005,
+      "trajectory_points": 24,
+      "trajectory_duration_s": 2.249978001,
+      "wall_s": 0.10215416800201638,
+      "success": true,
+      "request": 36,
+      "goal_rad": {
+        "Joint1": 2.2508,
+        "Joint2": -0.929,
+        "Joint3": 1.8321,
+        "Joint4": 1.3024,
+        "Joint5": 0.6284,
+        "Joint6": -1.7776
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011231607,
+      "trajectory_points": 17,
+      "trajectory_duration_s": 1.514777228,
+      "wall_s": 0.09765358700315119,
+      "success": true,
+      "request": 37,
+      "goal_rad": {
+        "Joint1": 0.6437,
+        "Joint2": 0.0187,
+        "Joint3": 0.393,
+        "Joint4": 1.6959,
+        "Joint5": -0.5905,
+        "Joint6": -1.0479
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011528697,
+      "trajectory_points": 18,
+      "trajectory_duration_s": 1.666813262,
+      "wall_s": 0.1006052910015569,
+      "success": true,
+      "request": 38,
+      "goal_rad": {
+        "Joint1": -1.1833,
+        "Joint2": -1.2353,
+        "Joint3": 0.8689,
+        "Joint4": 2.0008,
+        "Joint5": 0.7822,
+        "Joint6": -0.4831
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011418454,
+      "trajectory_points": 23,
+      "trajectory_duration_s": 2.195418251,
+      "wall_s": 0.1000707870007318,
+      "success": true,
+      "request": 39,
+      "goal_rad": {
+        "Joint1": 2.158,
+        "Joint2": -0.423,
+        "Joint3": 2.1682,
+        "Joint4": 0.5391,
+        "Joint5": 0.4372,
+        "Joint6": 0.6508
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.01122101,
+      "trajectory_points": 23,
+      "trajectory_duration_s": 2.150537003,
+      "wall_s": 0.09974252300162334,
+      "success": true,
+      "request": 40,
+      "goal_rad": {
+        "Joint1": 2.1017,
+        "Joint2": -0.5198,
+        "Joint3": 0.1772,
+        "Joint4": -0.1876,
+        "Joint5": 1.354,
+        "Joint6": 2.1387
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011803806,
+      "trajectory_points": 21,
+      "trajectory_duration_s": 1.964416232,
+      "wall_s": 0.10078040899679763,
+      "success": true,
+      "request": 41,
+      "goal_rad": {
+        "Joint1": 0.9227,
+        "Joint2": 1.021,
+        "Joint3": 1.821,
+        "Joint4": 2.1299,
+        "Joint5": -0.3136,
+        "Joint6": 2.5268
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.012085904000000001,
+      "trajectory_points": 20,
+      "trajectory_duration_s": 1.863332666,
+      "wall_s": 0.09975761899841018,
+      "success": true,
+      "request": 42,
+      "goal_rad": {
+        "Joint1": -0.711,
+        "Joint2": 0.6652,
+        "Joint3": 0.9575,
+        "Joint4": -2.3943,
+        "Joint5": 0.5519,
+        "Joint6": -1.1894
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011930864,
+      "trajectory_points": 24,
+      "trajectory_duration_s": 2.261344392,
+      "wall_s": 0.10008286299853353,
+      "success": true,
+      "request": 43,
+      "goal_rad": {
+        "Joint1": 2.2677,
+        "Joint2": 0.8474,
+        "Joint3": -0.1522,
+        "Joint4": 1.3466,
+        "Joint5": -0.5118,
+        "Joint6": 2.2775
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011211778,
+      "trajectory_points": 18,
+      "trajectory_duration_s": 1.680640321,
+      "wall_s": 0.09772596000038902,
+      "success": true,
+      "request": 44,
+      "goal_rad": {
+        "Joint1": 0.2086,
+        "Joint2": -0.4451,
+        "Joint3": 1.3956,
+        "Joint4": 1.1143,
+        "Joint5": -1.0948,
+        "Joint6": 0.6724
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.012348014,
+      "trajectory_points": 22,
+      "trajectory_duration_s": 2.008616353,
+      "wall_s": 0.10225469700162648,
+      "success": true,
+      "request": 45,
+      "goal_rad": {
+        "Joint1": -1.8888,
+        "Joint2": -1.0578,
+        "Joint3": 0.6656,
+        "Joint4": 0.7434,
+        "Joint5": 0.4403,
+        "Joint6": -2.6633
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011164987999999999,
+      "trajectory_points": 15,
+      "trajectory_duration_s": 1.346172755,
+      "wall_s": 0.09761713099942426,
+      "success": true,
+      "request": 46,
+      "goal_rad": {
+        "Joint1": 0.3866,
+        "Joint2": -0.407,
+        "Joint3": 0.7718,
+        "Joint4": -1.3104,
+        "Joint5": -0.2233,
+        "Joint6": -1.585
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.001229126,
+      "trajectory_points": 21,
+      "trajectory_duration_s": 1.985809056,
+      "wall_s": 0.09066444899872295,
+      "success": true,
+      "request": 47,
+      "goal_rad": {
+        "Joint1": -1.8545,
+        "Joint2": 0.1213,
+        "Joint3": 1.751,
+        "Joint4": 2.1848,
+        "Joint5": 0.5193,
+        "Joint6": -0.583
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011252525000000001,
+      "trajectory_points": 19,
+      "trajectory_duration_s": 1.757111592,
+      "wall_s": 0.109681186000671,
+      "success": true,
+      "request": 48,
+      "goal_rad": {
+        "Joint1": -0.9167,
+        "Joint2": 1.2554,
+        "Joint3": 1.5113,
+        "Joint4": 1.7068,
+        "Joint5": 0.1497,
+        "Joint6": 0.849
+      }
+    },
+    {
+      "error_code": 1,
+      "error_name": "SUCCESS",
+      "planning_time_s": 0.011084018,
+      "trajectory_points": 24,
+      "trajectory_duration_s": 2.272275643,
+      "wall_s": 0.09981618600068032,
+      "success": true,
+      "request": 49,
+      "goal_rad": {
+        "Joint1": 2.2826,
+        "Joint2": 0.0397,
+        "Joint3": 0.3522,
+        "Joint4": 0.6686,
+        "Joint5": 0.7193,
+        "Joint6": -1.0315
+      }
+    }
+  ],
+  "rejected_goals": [
+    {
+      "goal_rad": {
+        "Joint1": -0.4389,
+        "Joint2": -0.143,
+        "Joint3": -0.5344,
+        "Joint4": -2.5122,
+        "Joint5": 0.2279,
+        "Joint6": 2.4427
+      },
+      "contacts": [
+        "base_link:link5",
+        "link6:base_link",
+        "link5:link1",
+        "link4:link2"
+      ]
+    },
+    {
+      "goal_rad": {
+        "Joint1": -1.5008,
+        "Joint2": -1.3731,
+        "Joint3": -0.2093,
+        "Joint4": 1.9491,
+        "Joint5": -1.2678,
+        "Joint6": -0.8647
+      },
+      "contacts": [
+        "base_link:link4",
+        "base_link:link5"
+      ]
+    },
+    {
+      "goal_rad": {
+        "Joint1": -0.7254,
+        "Joint2": 0.7617,
+        "Joint3": -0.4929,
+        "Joint4": 0.0522,
+        "Joint5": -0.4868,
+        "Joint6": -1.1096
+      },
+      "contacts": [
+        "link4:link2"
+      ]
+    },
+    {
+      "goal_rad": {
+        "Joint1": -2.3977,
+        "Joint2": -1.1404,
+        "Joint3": -0.5028,
+        "Joint4": -1.8949,
+        "Joint5": 0.5251,
+        "Joint6": 0.4323
+      },
+      "contacts": [
+        "base_link:link4",
+        "base_link:link5",
+        "link6:base_link",
+        "link4:link1",
+        "link5:link1",
+        "link4:link2"
+      ]
+    },
+    {
+      "goal_rad": {
+        "Joint1": -1.2124,
+        "Joint2": -0.9956,
+        "Joint3": -0.5015,
+        "Joint4": -1.1218,
+        "Joint5": -0.0598,
+        "Joint6": -1.3349
+      },
+      "contacts": [
+        "base_link:link4",
+        "base_link:link5",
+        "link6:base_link",
+        "link1:link4",
+        "link5:link1",
+        "link4:link2"
+      ]
+    }
+  ],
+  "provenance": {
+    "git_commit": "e68fda5af612a9ff887866a49c3bee1f7c7296a6",
+    "git_dirty": true,
+    "ros_distro": "jazzy",
+    "moveit_core_version": "2.12.4"
+  }
+}

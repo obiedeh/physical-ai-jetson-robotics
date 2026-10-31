@@ -409,3 +409,53 @@ def batch_piece_dropped(
 ) -> list[float]:
     """Vectorised ``rew_piece_dropped``."""
     return [rew_piece_dropped(z, drop_threshold_m) for z in piece_zs]
+
+
+# ---------------------------------------------------------------------------
+# Visual randomization sampling (pure Python; the USD writes live in mdp.py)
+# ---------------------------------------------------------------------------
+
+
+def clamp01(x: float) -> float:
+    return 0.0 if x < 0.0 else 1.0 if x > 1.0 else x
+
+
+def sample_light_params(
+    u: Sequence[float],
+    intensity_range: tuple[float, float],
+    color_jitter: float,
+    base_color: tuple[float, float, float] = (0.95, 0.95, 0.95),
+) -> tuple[float, tuple[float, float, float]]:
+    """Dome light intensity and colour from four uniforms in [0, 1).
+
+    ``u[0]`` picks the intensity linearly inside ``intensity_range``;
+    ``u[1:4]`` move each colour channel by up to ``color_jitter`` either way
+    from ``base_color``, clamped to [0, 1]. ``color_jitter`` of 0 returns the
+    base colour, so the term is a no-op when its range is collapsed.
+    """
+    if len(u) < 4:
+        raise ValueError("sample_light_params needs four uniforms")
+    lo, hi = intensity_range
+    if hi < lo:
+        raise ValueError("intensity_range must be (low, high)")
+    intensity = lo + (hi - lo) * clamp01(u[0])
+    color = tuple(
+        clamp01(c + (2.0 * clamp01(v) - 1.0) * color_jitter)
+        for c, v in zip(base_color, u[1:4], strict=True)
+    )
+    return intensity, (color[0], color[1], color[2])
+
+
+def sample_color(
+    u: Sequence[float],
+    base_color: tuple[float, float, float],
+    jitter: float,
+) -> tuple[float, float, float]:
+    """A colour within ``jitter`` of ``base_color`` per channel, from three uniforms."""
+    if len(u) < 3:
+        raise ValueError("sample_color needs three uniforms")
+    c = tuple(
+        clamp01(b + (2.0 * clamp01(v) - 1.0) * jitter)
+        for b, v in zip(base_color, u[:3], strict=True)
+    )
+    return c[0], c[1], c[2]
