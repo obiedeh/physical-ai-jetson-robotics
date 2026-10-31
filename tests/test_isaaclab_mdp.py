@@ -684,3 +684,62 @@ def test_sample_color_stays_in_unit_cube() -> None:
     lo = sample_color([0.0, 0.0, 0.0], base, 0.35)
     assert lo == pytest.approx((0.5, 0.0, 0.0))
     assert all(0.0 <= c <= 1.0 for c in sample_color([0.0, 1.0, 0.37], base, 1.0))
+
+
+@pytest.mark.parametrize("values", [[0, 0.25, 1], []])
+def test_visual_uniforms_normalizes_untyped_scalars_without_extra_draws(values: list) -> None:
+    """Untyped optional tensors retain seeded draws and yield primitive float lists."""
+    import __future__
+
+    import ast
+    from pathlib import Path
+    from types import SimpleNamespace
+
+    source = Path(__file__).resolve().parents[1] / "isaac/isaaclab_tasks/synria_pickplace/mdp.py"
+    module = ast.parse(source.read_text())
+    function = next(
+        node for node in module.body
+        if isinstance(node, ast.FunctionDef) and node.name == "_visual_uniforms"
+    )
+    calls = []
+    seeds = []
+    devices = []
+
+    class Generator:
+        """Record generator initialization without loading the tensor framework."""
+
+        def manual_seed(self, seed: int):
+            """Preserve the generator instance while recording its sole seed."""
+            seeds.append(seed)
+            return self
+
+    generator = Generator()
+
+    def make_generator(*, device: str) -> Generator:
+        """Record the requested CPU generator only once."""
+        devices.append(device)
+        return generator
+
+    def draw(n: int, *, generator: object) -> SimpleNamespace:
+        """Expose an untyped list boundary without invoking a simulator or model."""
+        calls.append((n, generator))
+        return SimpleNamespace(tolist=lambda: values)
+
+    namespace = {
+        "torch": SimpleNamespace(rand=draw, Generator=make_generator),
+        "_VISUAL_RNG": None,
+    }
+    isolated = ast.Module(body=[function], type_ignores=[])
+    exec(compile(isolated, "<visual-uniforms-contract>", "exec",
+                 flags=__future__.annotations.compiler_flag), namespace)
+    uniforms = namespace["_visual_uniforms"]
+    assert callable(uniforms)
+    env = SimpleNamespace(cfg=SimpleNamespace(seed=17))
+    first = uniforms(env, len(values))
+    second = uniforms(env, len(values))
+    assert first == second == [float(value) for value in values]
+    assert all(type(value) is float for value in first + second)
+    assert calls == [(len(values), generator), (len(values), generator)]
+    assert devices == ["cpu"]
+    assert seeds == [17 + 7919]
+    assert namespace["_VISUAL_RNG"] is generator

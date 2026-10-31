@@ -1442,7 +1442,7 @@ def _visual_uniforms(env: ManagerBasedRLEnv, n: int) -> list[float]:
         seed = getattr(getattr(env, "cfg", None), "seed", None)
         if seed is not None:
             _VISUAL_RNG.manual_seed(int(seed) + 7919)
-    return torch.rand(n, generator=_VISUAL_RNG).tolist()
+    return [float(value) for value in torch.rand(n, generator=_VISUAL_RNG).tolist()]
 
 
 def _stage() -> Any:

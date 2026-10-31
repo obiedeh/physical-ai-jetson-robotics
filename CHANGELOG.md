@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-10-30: Validate visual RNG scalar return types when optional tensor-framework types are unavailable.
+
 - 2026-10-30: Enforce repository prose hygiene and preserve camera-probe failure diagnostics with bounded CPU CI threads.
 
 ## Unreleased
