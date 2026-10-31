@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import json
 import math
+import random
 import time
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
@@ -128,6 +129,13 @@ class DemonstrationConfig:
     place_height_m: float = 0.01
     gripper_clear_m: float = 0.06
     max_step_rad: float = 0.05
+    # Per-joint half-ranges, in radians, of a uniform offset added to the start pose of
+    # each take, drawn from the take's placement seed; empty keeps every take's start
+    # the same. A turned base starts some takes with the cup outside the wrist view.
+    start_jitter_rad: tuple[float, ...] = ()
+    # Keep a scored take recording until the executor is done (back at its rest pose,
+    # held still), so the demonstration shows how the task ends, not just the score.
+    finish_at_rest: bool = False
 
     def __post_init__(self) -> None:
         """Refuse nonsense counts and timing."""
@@ -141,6 +149,21 @@ class DemonstrationConfig:
             value = getattr(self, name)
             if not math.isfinite(value) or value <= 0:
                 raise ValueError(f"{name} must be positive and finite")
+        jitter = tuple(float(value) for value in self.start_jitter_rad)
+        if jitter and (len(jitter) != 6
+                       or any(not math.isfinite(v) or not 0 <= v <= 1.0 for v in jitter)):
+            raise ValueError("start jitter needs six half-ranges between 0 and 1 rad")
+        object.__setattr__(self, "start_jitter_rad", jitter)
+
+    def take_start_pose(self, index: int) -> tuple[float, ...]:
+        """The start pose of take ``index``: the configured pose plus its seeded jitter."""
+        if not self.start_jitter_rad:
+            return self.start_pose
+        rng = random.Random(self.placement_seed + index)
+        joints = tuple(value + rng.uniform(-half, half)
+                       for value, half in zip(self.start_pose[:6], self.start_jitter_rad,
+                                              strict=True))
+        return (*joints, self.start_pose[6])
 
 
 @dataclass
@@ -191,14 +214,15 @@ class DemonstrationSession:
         self.clock, self.sleep, self.log = clock, sleep, log
         self.takes: list[TakeRecord] = []
 
-    def approach(self) -> None:
-        """Walk from wherever the arm is to the start pose at the executor's own step."""
+    def approach(self, index: int = 0) -> None:
+        """Walk from wherever the arm is to the take's start pose at the executor's own step."""
         state = self.state_source.read()
         current = (*state.joint_positions_rad, state.gripper_m)
         period = 1.0 / self.config.fps
         steps = max(1, round(self.config.approach_s * self.config.fps))
         limits = (*(self.config.max_step_rad,) * 6, 0.004)
-        for target in approach_targets(current, self.config.start_pose, limits, steps):
+        for target in approach_targets(current, self.config.take_start_pose(index), limits,
+                                       steps):
             self.sink.offer(target)
             self.sleep(period)
 
@@ -216,7 +240,7 @@ class DemonstrationSession:
     def run_take(self, index: int) -> TakeRecord:
         """One take: approach, seeded reset, settle, record to the score or the limit."""
         config = self.config
-        self.approach()
+        self.approach(index)
         self.sleep(config.settle_s / 2)
         seed = config.placement_seed + index
         self.randomize(seed, config.randomize_scale)
@@ -248,7 +272,9 @@ class DemonstrationSession:
                 scored_at = now
             if executor.phase in ("done", "infeasible") and ended_at is None:
                 ended_at = now
-            if scored_at is not None and now - scored_at >= SCORED_TAIL_S:
+            finished = (not config.finish_at_rest
+                        or (ended_at is not None and now - ended_at >= SCORED_TAIL_S))
+            if scored_at is not None and now - scored_at >= SCORED_TAIL_S and finished:
                 break
             if ended_at is not None and now - ended_at >= UNSCORED_GRACE_S:
                 break

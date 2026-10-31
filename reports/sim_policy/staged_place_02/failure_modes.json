@@ -1,0 +1,64 @@
+{
+  "kind": "simulation_trial_failure_modes",
+  "lane": "simulation",
+  "note": "Simulation lane; sorted from the campaign reports; superseded campaigns listed but not totalled; never physical evidence.",
+  "physical_evidence": false,
+  "rows": [
+    {
+      "held_share": 0.0006059687926071808,
+      "holds": 4,
+      "modes": {
+        "cup untouched, reach not recorded": 0,
+        "held by the safety client most of the trial": 0,
+        "lifted, then dropped": 11,
+        "moved the cup, no lift": 4,
+        "never reached the cup": 4,
+        "reached the cup, no grasp": 4,
+        "reached the mark, not held there": 11,
+        "success": 16
+      },
+      "placement": {
+        "lifted": 38,
+        "median_m": 0.042643157843068914,
+        "p90_m": 0.12972631785905814,
+        "radius_m": 0.03,
+        "within_radius": 18
+      },
+      "policy_id": "simplace02_n122",
+      "reach_recorded": true,
+      "recoveries": 4,
+      "report": "reports/sim_policy/staged_place_02/trials_simplace02_n122_20261022T091708Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": 0.03,
+        "reach_m": 0.03
+      },
+      "score": "place",
+      "step": 20000,
+      "steps": 6601,
+      "success_interval": [
+        0.20758044093999403,
+        0.45810557136276076
+      ],
+      "success_rate": 0.32,
+      "successes": 16,
+      "superseded": false,
+      "task_id": "cup_pick_and_place",
+      "trials": 50,
+      "utc": "2026-10-22T09:43:33.247652+00:00"
+    }
+  ],
+  "totals": {
+    "cup untouched, reach not recorded": 0,
+    "held by the safety client most of the trial": 0,
+    "lifted, then dropped": 11,
+    "moved the cup, no lift": 4,
+    "never reached the cup": 4,
+    "reached the cup, no grasp": 4,
+    "reached the mark, not held there": 11,
+    "success": 16
+  },
+  "trials": 50,
+  "utc": "2026-10-22T09:43:44.522884+00:00"
+}

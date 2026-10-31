@@ -147,6 +147,18 @@ class TrialConfig:
     # trial 0's layout draw; trial i draws from seed + i. None leaves the scene's own draws.
     randomize_scale: float = 1.0
     placement_seed: int | None = None
+    # Diagnostic close gate, simulation lane only: while the scene's gripper centre is
+    # farther than this from the cup's centre, a command that would close the gripper
+    # further is replaced by its current width. None leaves every command as offered.
+    # It reads the scene's true poses, so a gated campaign measures how much of a
+    # policy's failure is the timing of its close; it is never a deployable rule.
+    close_gate_m: float | None = None
+    # Seated gate, the same diagnostic judged against the cup's shape: a close passes
+    # only with the gripper centre within ``seat_sideways_m`` of the cup's vertical axis
+    # and between the two heights of ``seat_height_m`` above the cup's base, so the cup
+    # sits between the jaws rather than against one finger. Both gates apply when set.
+    seat_sideways_m: float | None = None
+    seat_height_m: tuple[float, float] | None = None
 
     def __post_init__(self) -> None:
         """Reject a campaign that could not be scored or replayed."""
@@ -167,6 +179,22 @@ class TrialConfig:
         if self.placement_seed is not None and (type(self.placement_seed) is not int
                                                 or self.placement_seed < 0):
             raise ValueError("placement_seed must be a nonnegative integer or None")
+        if self.close_gate_m is not None and (
+                type(self.close_gate_m) not in (int, float)
+                or not math.isfinite(self.close_gate_m) or self.close_gate_m <= 0):
+            raise ValueError("close_gate_m must be a positive finite length or None")
+        if (self.seat_sideways_m is None) != (self.seat_height_m is None):
+            raise ValueError("the seated gate needs both seat_sideways_m and seat_height_m")
+        if self.seat_sideways_m is not None:
+            assert self.seat_height_m is not None
+            band = tuple(float(value) for value in self.seat_height_m)
+            if (type(self.seat_sideways_m) not in (int, float)
+                    or not math.isfinite(self.seat_sideways_m) or self.seat_sideways_m <= 0):
+                raise ValueError("seat_sideways_m must be a positive finite length")
+            if (len(band) != 2 or not all(math.isfinite(value) for value in band)
+                    or not 0 <= band[0] < band[1]):
+                raise ValueError("seat_height_m must be two finite heights, low below high")
+            object.__setattr__(self, "seat_height_m", band)
         pose = tuple(float(value) for value in self.start_pose)
         if len(pose) != 7 or any(not math.isfinite(value) for value in pose) or pose[6] < 0:
             raise ValueError("start_pose needs six joint angles in radians and a gripper width")
@@ -334,6 +362,8 @@ class TrialRecord:
     placement_seed: int | None
     # Steps on which the client's gripper guard kept the gripper where it was.
     guarded_steps: int
+    # Steps on which the diagnostic close gate kept the gripper from closing further.
+    close_gated_steps: int = 0
 
 
 class SimulationTrialRunner:
@@ -381,6 +411,9 @@ class SimulationTrialRunner:
             raise ValueError(f"task {contract.task_id} is scored by {expected}, not {config.score}")
         if config.score == PLACE_SCORE and (gripper_source is None or target_source is None):
             raise ValueError("the place score needs the gripper pose and the mark pose")
+        if ((config.close_gate_m is not None or config.seat_sideways_m is not None)
+                and gripper_source is None):
+            raise ValueError("the close gate needs the gripper pose")
         self.client, self.sink, self.config = client, sink, config
         self.state_source, self.wrist_source, self.front_source = (
             state_source, wrist_source, front_source,
@@ -453,11 +486,14 @@ class SimulationTrialRunner:
         steps = 0
         recoveries = 0
         guarded = 0
+        gated = 0
         min_distance: float | None = None
         final_distance: float | None = None
         last_state: tuple[float, ...] = ()
         started = self.clock()
         first = True
+        offered: tuple[float, ...] | None = None
+        close_gated = False
         try:
             while self.clock() - started < config.max_trial_s:
                 tick = self.clock()
@@ -466,6 +502,7 @@ class SimulationTrialRunner:
                 decision = self.client.step(observation, reset=first)
                 first = False
                 steps += 1
+                offered, close_gated = None, False
                 guarded += decision.gripper_guard is not None
                 if decision.hold or decision.action is None:
                     holds[decision.reason] += 1
@@ -479,7 +516,10 @@ class SimulationTrialRunner:
                     else:
                         self.sink.hold()
                 else:
-                    self.sink.offer(decision.action)
+                    offered = self._gate_close(decision.action, observation.state.gripper_m)
+                    close_gated = offered != decision.action
+                    gated += close_gated
+                    self.sink.offer(offered)
                 cup = self.cup_source.read()
                 gripper: tuple[float, float, float] | None = None
                 if self.gripper_source is not None:
@@ -495,12 +535,12 @@ class SimulationTrialRunner:
                     self._write_trace({
                         "trial": index, "step": steps, "t_s": round(tick - started, 4),
                         "state": list(last_state),
-                        "action": (None if decision.hold or decision.action is None
-                                   else list(decision.action)),
+                        "action": None if offered is None else list(offered),
                         "hold": bool(decision.hold or decision.action is None),
                         "reason": decision.reason, "gripper_guard": decision.gripper_guard,
                         "recovery": bool((decision.hold or decision.action is None)
                                          and decision.reason in RECOVERABLE_HOLDS),
+                        "close_gated": close_gated,
                         "inference_s": decision.inference_s,
                         "cup_m": list(cup.position_m), "cup_lift_m": cup.position_m[2] - rest_z,
                         "gripper_m": None if gripper is None else list(gripper),
@@ -529,7 +569,7 @@ class SimulationTrialRunner:
                                        if isinstance(scorer, PlaceScorer) else None),
             final_cup_target_distance_m=(scorer.final_target_distance_m
                                          if isinstance(scorer, PlaceScorer) else None),
-            placement_seed=seed, guarded_steps=guarded,
+            placement_seed=seed, guarded_steps=guarded, close_gated_steps=gated,
         )
         verdict = "success" if success else "failure"
         closest = "" if min_distance is None else f", closest {min_distance * 100:.1f} cm"
@@ -538,13 +578,55 @@ class SimulationTrialRunner:
             placed = f", cup ended {scorer.final_target_distance_m * 100:.1f} cm from the mark"
         self.log(f"trial {index}: {verdict} after {duration:.1f} s, {steps} steps, "
                  f"{record.holds} holds, {recoveries} recoveries, {guarded} guarded, "
+                 f"{gated} close-gated, "
                  f"max lift {scorer.max_lift_m * 100:.1f} cm{closest}{placed}")
         return record
+
+    def _gate_close(self, action: tuple[float, ...], width_m: float) -> tuple[float, ...]:
+        """Keep the gripper from closing further while the cup is outside the close gates.
+
+        The gripper width grows as it closes (0 open, about 0.022 m shut). Joints and an
+        opening or steady gripper pass unchanged; a closing command outside a gate
+        becomes the current width, a step the client's speed bound already allows.
+        """
+        config = self.config
+        if (config.close_gate_m is None and config.seat_sideways_m is None) \
+                or action[6] <= width_m:
+            return action
+        assert self.gripper_source is not None
+        gripper = self.gripper_source.read().position_m
+        cup = self.cup_source.read().position_m
+        allowed = config.close_gate_m is None or math.dist(gripper, cup) <= config.close_gate_m
+        if config.seat_sideways_m is not None:
+            assert config.seat_height_m is not None
+            low, high = config.seat_height_m
+            sideways = math.hypot(gripper[0] - cup[0], gripper[1] - cup[1])
+            allowed = (allowed and sideways <= config.seat_sideways_m
+                       and low <= gripper[2] - cup[2] <= high)
+        return action if allowed else (*action[:6], width_m)
 
     def _write_trace(self, row: dict[str, Any]) -> None:
         """One JSON Lines row; the file is opened by :meth:`run` and never appended to."""
         self._trace.write(json.dumps(row, allow_nan=False) + "\n")
         self.trace_rows += 1
+
+    def close_gate_rule(self) -> str | None:
+        """The diagnostic close gates in words, as written into the report; None when off."""
+        config = self.config
+        parts = []
+        if config.close_gate_m is not None:
+            parts.append(f"the scene's gripper centre is more than "
+                         f"{config.close_gate_m * 100:.1f} cm from the cup's centre")
+        if config.seat_sideways_m is not None:
+            assert config.seat_height_m is not None
+            low, high = config.seat_height_m
+            parts.append(f"the gripper centre is more than {config.seat_sideways_m * 100:.1f} cm "
+                         f"sideways from the cup's axis or outside {low * 100:.1f} to "
+                         f"{high * 100:.1f} cm above the cup's base")
+        if not parts:
+            return None
+        return ("diagnostic, simulation only: a command closing the gripper further is "
+                "replaced by its current width while " + " or while ".join(parts))
 
     def score_rule(self) -> str:
         """The scoring rule in words, as written into the report."""
@@ -597,11 +679,13 @@ class SimulationTrialRunner:
                                   "campaigns sharing the seed face the same placements"
                                   if self.config.placement_seed is not None else
                                   " from the scene's own unseeded draws")),
+            "close_gate_rule": self.close_gate_rule(),
             "trials": [asdict(trial) for trial in trials],
             "trace": (None if self.trace_path is None else
                       {"path": str(self.trace_path), "rows": self.trace_rows,
-                       "row": "one per policy step: trial, step, t_s, state, action or "
-                              "hold with reason, gripper_guard, recovery, inference_s, "
+                       "row": "one per policy step: trial, step, t_s, state, action offered or "
+                              "hold with reason, gripper_guard, recovery, close_gated, "
+                              "inference_s, "
                               "cup_m, cup_lift_m, gripper_m, gripper_cup_distance_m"}),
             "successes": successes,
             "success_rate": successes / len(trials),

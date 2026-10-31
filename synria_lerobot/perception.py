@@ -59,7 +59,10 @@ def detect_tokens(image: Any, config: dict[str, Any]) -> dict[str, str]:
         for colour, ranges in config["colours"].items():
             mask = np.zeros(roi.shape[:2], np.uint8)
             for lower, upper in ranges:
-                mask |= cv2.inRange(roi, np.array(lower, np.uint8), np.array(upper, np.uint8))
+                range_mask = cv2.inRange(roi, np.array(lower, np.uint8), np.array(upper, np.uint8))
+                # inRange guarantees CV_8U; normalize its broad array type at this boundary.
+                # https://docs.opencv.org/4.x/d2/de8/group__core__array.html
+                mask |= np.asarray(range_mask, dtype=np.uint8)
             count, _, stats, _ = cv2.connectedComponentsWithStats(mask)
             area = max(stats[1:, cv2.CC_STAT_AREA], default=0) if count > 1 else 0
             if area >= width * height * config["token_min_fraction"]:
