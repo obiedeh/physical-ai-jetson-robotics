@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from physical_ai_lab import portable
 
 
@@ -52,3 +54,37 @@ def test_json_values_are_made_portable_recursively_and_paths_expand_back() -> No
     assert portable.expand_path("/opt/data") == Path("/opt/data")
     assert portable.expand_path(Path("<home>/x")) == Path.home() / "x"
     assert '"<home>/reports/a.json"' in portable.dumps(record)
+
+
+@pytest.mark.parametrize("drive", ["C:", "d:"])
+@pytest.mark.parametrize("separator_style", ["native", "posix"])
+def test_windows_home_paths_normalize_without_changing_unrelated_values(drive, separator_style):
+    """Synthetic Windows home paths retain components through recursive normalization."""
+    from pathlib import PureWindowsPath
+
+    home = PureWindowsPath(drive + "/") / "Users" / "sample-user"
+    path = home / "folder with spaces" / "frame.json"
+    spelling = str(path) if separator_style == "native" else path.as_posix()
+    outside = str(PureWindowsPath(drive + "/") / "UsersArchive" / "sample-user" / "frame.json")
+    ordinary = str(PureWindowsPath(drive + "/") / "datasets" / "frame.json")
+    source = {
+        "paths": [spelling, {"item": spelling}],
+        "outside": outside, "ordinary": ordinary,
+        "url": "https://example.invalid/a/b", "science": "gain=0.25;count=7",
+        "value": 0.25, "flag": True, "empty": None,
+    }
+    result = portable.portable_json(source)
+    expected = portable.HOME_TOKEN + "/folder with spaces/frame.json"
+    assert result["paths"] == [expected, {"item": expected}]
+    assert portable.expand_path(result["paths"][0]) == (
+        Path.home() / "folder with spaces" / "frame.json"
+    )
+    assert {key: result[key] for key in source if key != "paths"} == {
+        key: value for key, value in source.items() if key != "paths"
+    }
+    native = Path.home() / "folder with spaces" / "frame.json"
+    assert portable.expand_path(portable.portable_path(native)) == native
+    embedded = "load " + str(path) + " with option " + ordinary
+    normalized = portable.portable_text(embedded)
+    assert str(home) not in normalized
+    assert ordinary in normalized
