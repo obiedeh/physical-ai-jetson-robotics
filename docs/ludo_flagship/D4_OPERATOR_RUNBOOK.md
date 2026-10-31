@@ -98,7 +98,7 @@ entries and commit the small session artifacts with cited stills:
 
 ```bash
 git add "reports/ludo_flagship/rolls/$SESSION" \
-  docs/ludo_flagship/ACTIVITY_LOG.md docs/ludo_flagship/timeline.jsonl
+  docs/ludo_flagship/ACTIVITY_LOG.md docs/evidence/provenance/docs/ludo_flagship/timeline.public.jsonl
 git commit -m "Record Synria physical roll evidence"
 ```
 

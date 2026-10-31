@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="EmbodiedEdge">
+  <defs>
+    <linearGradient id="ee-bar" gradientUnits="userSpaceOnUse" x1="0" y1="121" x2="0" y2="389">
+      <stop offset="0" stop-color="#6CB8FE"/>
+      <stop offset="0.52" stop-color="#ECF1E2"/>
+      <stop offset="1" stop-color="#B8F34D"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="88" fill="#202224"/>
+  <rect x="121" y="121" width="56" height="268" rx="12" fill="url(#ee-bar)"/>
+  <rect x="196.5" y="129.5" width="191" height="60" rx="14" fill="none" stroke="#68B7FF" stroke-width="17"/>
+  <rect x="193" y="226" width="135" height="59" rx="11" fill="#EEF1E8"/>
+  <rect x="193" y="322" width="197" height="67" rx="12" fill="#B8F34D"/>
+</svg>

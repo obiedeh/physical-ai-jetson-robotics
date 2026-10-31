@@ -41,6 +41,12 @@ jobs:
       - name: Repository hygiene
         run: python scripts/check_repo_hygiene.py
 
+      - name: Commit attribution
+        if: github.event_name == 'pull_request' && matrix.os == 'ubuntu-latest'
+        run: |
+          git fetch --no-tags origin "${{ github.base_ref }}" "+${{ github.event.pull_request.head.sha }}"
+          python scripts/check_repo_hygiene.py --commits "origin/${{ github.base_ref }}..${{ github.event.pull_request.head.sha }}"
+
       - name: Test
         timeout-minutes: 10
         run: python -u -X faulthandler -m pytest -vv -o faulthandler_timeout=60 --durations=20
