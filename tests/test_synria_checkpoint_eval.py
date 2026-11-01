@@ -940,6 +940,7 @@ def test_silent_missing_camera_clip_fails_attempt_but_preserves_operator_label(
     )
     attempt = json.loads(Path(report["attempts"][0]["path"]).read_text())
     assert report["status"] == attempt["status"] == "failed"
+    assert attempt["operator_grade"] is not None, attempt["failure_diagnostics"]
     assert attempt["operator_grade"]["label"] == "success"
     assert not attempt["clips"]["complete"]
     assert attempt["clips"]["views"]["front"]["missing_reason"]
@@ -1124,3 +1125,61 @@ def test_playback_cannot_modify_hashed_inputs(
     with pytest.raises(ValueError, match="frozen inputs"):
         render_report([saved], [], root / "playback.html")
     assert strict_content_hash(root) == before
+
+
+def test_probe_failure_diagnostics_exclude_messages_and_unknown_classes(tmp_path: Path) -> None:
+    """Only fixed categories survive arbitrary synthetic exception detail."""
+    from synria_lerobot.checkpoint_eval import _probe_failure_diagnostic
+
+    class SyntheticSiteFailure(RuntimeError):
+        pass
+
+    private_message = str(tmp_path / "unpublished-input")
+    error = SyntheticSiteFailure(private_message)
+    error.__cause__ = FileNotFoundError(private_message)
+    diagnostic = _probe_failure_diagnostic("unregistered-stage", error)
+    assert diagnostic == {
+        "stage": "UNKNOWN", "error_type": "UNKNOWN", "cause_type": "FileNotFoundError",
+    }
+    assert private_message not in json.dumps(diagnostic)
+    assert "SyntheticSiteFailure" not in json.dumps(diagnostic)
+
+
+@pytest.mark.parametrize("fault", ["startup_timeout", "writer_error"])
+def test_probe_early_capture_failure_is_closed_and_ungraded(
+    probe_setup: Any, tmp_path: Path, monkeypatch: Any, fault: str
+) -> None:
+    """Controlled synthetic startup faults preserve admission and expose safe reasons."""
+    from synria_lerobot.checkpoint_eval import TrialClipCapture
+
+    config, saved, io = physical_setup(probe_setup, tmp_path)
+
+    class FailedWriter(FakeClipWriter):
+        def __init__(self, path: Path, fps: float, shape: tuple) -> None:
+            raise OSError("synthetic writer fault")
+
+    def fail_start(capture: Any) -> None:
+        if fault == "startup_timeout":
+            raise TimeoutError("synthetic startup timeout")
+        capture._run()
+        capture.check()
+
+    monkeypatch.setattr(TrialClipCapture, "start", fail_start)
+    report = run_physical_probes(
+        probe_setup.probe, probe_setup.digest, saved, probe_setup.dataset, config,
+        probe_setup.repository, tmp_path / "physical-probes", tmp_path / "raw-videos",
+        enable_motion=True, factory=lambda settings: io,
+        transport=probe_transport(config), writer_factory=FailedWriter,
+    )
+    attempt = json.loads(Path(report["attempts"][0]["path"]).read_text())
+    assert report["status"] == attempt["status"] == "failed"
+    assert attempt["operator_grade"] is None
+    assert not attempt["motion_completed"] and attempt["steps"] == 0
+    assert not io.offers
+    assert io.closed
+    expected = {
+        "stage": "camera_startup",
+        "error_type": "TimeoutError" if fault == "startup_timeout" else "RuntimeError",
+        "cause_type": None if fault == "startup_timeout" else "OSError",
+    }
+    assert attempt["failure_diagnostics"][0] == expected

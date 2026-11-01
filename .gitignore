@@ -45,7 +45,7 @@ Thumbs.db
 .idea/
 .vscode/
 
-# RL training outputs — regenerable artifacts kept on disk, not in git
+# RL training outputs - regenerable artifacts kept on disk, not in git
 # (checkpoints, tensorboard events, diagnostic run logs)
 logs/
 reports/diagnostics/
@@ -134,3 +134,65 @@ reports/phys_game_val*/
 reports/slam/sessions/*/bag/*.db3
 reports/slam/sessions/*/bag/*.mcap
 reports/slam/sessions/*/bag_record.log
+
+# Private operator provenance is retained outside version control.
+/docs/ludo_flagship/timeline.jsonl
+/reports/sim_policy/paired_seed2026_noguard/trials_simplace01_n131_traced_20261022T052654Z.json
+/reports/sim_policy/pick_cup_17oct3_margin/study.json
+/reports/sim_policy/pick_cup_17oct3_margin/train_n045/checkpoint-step-000005000.json
+/reports/sim_policy/pick_cup_17oct3_margin/train_n045/checkpoint-step-000010000.json
+/reports/sim_policy/pick_cup_17oct3_margin/train_n045/checkpoint-step-000015000.json
+/reports/sim_policy/pick_cup_17oct3_margin/train_n045/checkpoint-step-000020000.json
+/reports/sim_policy/pick_cup_17oct3_margin/train_n045/evaluations/simcup17oct3m1_n045-step-000005000.json
+/reports/sim_policy/pick_cup_17oct3_margin/train_n045/evaluations/simcup17oct3m1_n045-step-000010000.json
+/reports/sim_policy/pick_cup_17oct3_margin/train_n045/evaluations/simcup17oct3m1_n045-step-000015000.json
+/reports/sim_policy/pick_cup_17oct3_margin/train_n045/evaluations/simcup17oct3m1_n045-step-000020000.json
+/reports/sim_policy/pick_cup_17oct3_margin/train_n045/started.json
+/reports/sim_policy/pick_cup_17oct3_margin/train_n045/training_run.json
+/reports/sim_policy/pick_cup_17oct3_margin/trials_simcup17oct3m1_n045_20261022T045922Z.json
+/reports/sim_policy/staged_demos/demonstrations_cup_pick_and_place_20261022T065057Z.json
+/reports/sim_policy/staged_demos/demonstrations_cup_pick_and_place_20261022T222858Z.json
+/reports/sim_policy/staged_place_02/spec.json
+/reports/sim_policy/staged_place_02/study.json
+/reports/sim_policy/staged_place_02/train_config.json
+/reports/sim_policy/staged_place_02/train_n122/checkpoint-step-000005000.json
+/reports/sim_policy/staged_place_02/train_n122/checkpoint-step-000010000.json
+/reports/sim_policy/staged_place_02/train_n122/checkpoint-step-000015000.json
+/reports/sim_policy/staged_place_02/train_n122/checkpoint-step-000020000.json
+/reports/sim_policy/staged_place_02/train_n122/evaluations/simplace02_n122-step-000005000.json
+/reports/sim_policy/staged_place_02/train_n122/evaluations/simplace02_n122-step-000010000.json
+/reports/sim_policy/staged_place_02/train_n122/evaluations/simplace02_n122-step-000015000.json
+/reports/sim_policy/staged_place_02/train_n122/evaluations/simplace02_n122-step-000020000.json
+/reports/sim_policy/staged_place_02/train_n122/started.json
+/reports/sim_policy/staged_place_02/train_n122/training_run.json
+/reports/sim_policy/staged_place_02/trials_simplace02_n122_20261022T091708Z.json
+/reports/sim_policy/staged_place_02/trials_simplace02_n122_traced_20261022T211224Z.json
+/reports/sim_policy/staged_place_03/spec.json
+/reports/sim_policy/staged_place_03/study.json
+/reports/sim_policy/staged_place_03/train_config.json
+/reports/sim_policy/staged_place_03/train_n130/checkpoint-step-000005000.json
+/reports/sim_policy/staged_place_03/train_n130/checkpoint-step-000010000.json
+/reports/sim_policy/staged_place_03/train_n130/checkpoint-step-000015000.json
+/reports/sim_policy/staged_place_03/train_n130/checkpoint-step-000020000.json
+/reports/sim_policy/staged_place_03/train_n130/evaluations/simplace03_n130-step-000005000.json
+/reports/sim_policy/staged_place_03/train_n130/evaluations/simplace03_n130-step-000010000.json
+/reports/sim_policy/staged_place_03/train_n130/evaluations/simplace03_n130-step-000015000.json
+/reports/sim_policy/staged_place_03/train_n130/evaluations/simplace03_n130-step-000020000.json
+/reports/sim_policy/staged_place_03/train_n130/started.json
+/reports/sim_policy/staged_place_03/train_n130/training_run.json
+/reports/sim_policy/staged_place_03/trials_simplace03_n130_20261023T011836Z.json
+/reports/sim_policy/staged_place_03/trials_simplace03_n130_traced45_20261023T014919Z.json
+/reports/sim_policy/staged_place_03_trim/spec.json
+/reports/sim_policy/staged_place_03_trim/study.json
+/reports/sim_policy/staged_place_03_trim/train_config.json
+/reports/sim_policy/staged_place_03_trim/train_n130/checkpoint-step-000005000.json
+/reports/sim_policy/staged_place_03_trim/train_n130/checkpoint-step-000010000.json
+/reports/sim_policy/staged_place_03_trim/train_n130/checkpoint-step-000015000.json
+/reports/sim_policy/staged_place_03_trim/train_n130/checkpoint-step-000020000.json
+/reports/sim_policy/staged_place_03_trim/train_n130/evaluations/simplace03trim_n130-step-000005000.json
+/reports/sim_policy/staged_place_03_trim/train_n130/evaluations/simplace03trim_n130-step-000010000.json
+/reports/sim_policy/staged_place_03_trim/train_n130/evaluations/simplace03trim_n130-step-000015000.json
+/reports/sim_policy/staged_place_03_trim/train_n130/evaluations/simplace03trim_n130-step-000020000.json
+/reports/sim_policy/staged_place_03_trim/train_n130/started.json
+/reports/sim_policy/staged_place_03_trim/train_n130/training_run.json
+/reports/sim_policy/staged_place_03_trim/trials_simplace03trim_n130_20261023T032324Z.json

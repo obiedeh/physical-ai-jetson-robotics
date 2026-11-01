@@ -932,7 +932,7 @@ def campaign_preflight(
                         ):
                             if field not in configured or configured[field] != metadata.get(field):
                                 raise ValueError(f"host configuration differs: {field}")
-                        if metadata.get("device") == "bench-thor" and any(
+                        if metadata.get("device") == "rtx-5090-workstation" and any(
                             not metadata.get(field)
                             or str(metadata[field]).startswith("unavailable")
                             for field in ("jetpack_version", "power_mode")
@@ -1117,7 +1117,7 @@ def summarize_campaign(suite: Any, records: list[Any]) -> dict[str, Any]:
                 or not metadata.get("python_version")
             ):
                 raise ValueError("Isaac observations require host and Python provenance")
-            if metadata["device"] == "bench-thor" and any(
+            if metadata["device"] == "rtx-5090-workstation" and any(
                 not metadata.get(k) or str(metadata[k]).startswith("unavailable")
                 for k in ("jetpack_version", "power_mode", "cpu_configuration")
             ):
