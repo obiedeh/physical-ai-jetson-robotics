@@ -10,6 +10,10 @@
 
 ## Unreleased
 
+- 2026-10-30: Index committed simulation-planning and stationary SLAM evidence,
+  correct the saved-grid overlap summary, and distinguish exercised reset
+  variation from unmeasured visual event terms and absent physics randomization.
+
 - 2026-10-30: Link flagship instructions to the shared repository hygiene policy and summarize board labels, private identifiers, hooks, immutable history and external handoff notes.
 
 - 2026-10-30: Align simulation-description and action-clamp contract checks with the shipped model and exact tensor preservation. Normalize OpenCV region masks to their specified unsigned-byte type. Wait for owned browser shutdown before profile cleanup, with regression coverage for each contract.

@@ -15,7 +15,15 @@ of them are implemented, unmeasured until that page links a report.
 | GR00T eager and TensorRT inference | AGX Thor 128GB, 120W, 2026-08-20 | BF16, batch 1, 100 iterations after 10 warmups; simulated dataset inputs. [Benchmark](../../reports/thor_trt_benchmark/thor_trt_benchmark.json) |
 | CUDA matmul, camera grab, thermal/power probe | Orin NX, MAXN_SUPER, 2026-08-20 | 9.9-second run. [Probe](../../reports/jetson/yahboom_day_one/day_one_smoke.json), [provenance](../../reports/jetson/yahboom_day_one/provenance.json) |
 | ACT policy, cup lift, data-scaling study | RTX 5090 / Isaac Sim 5.1, 2026-10-18 and 2026-10-19 | Simulation lane only. 45 teleoperated takes, 20,000 steps, 50 seeded placements: 28 of 50 lifts (seed 17), 25 of 50 (seed 23), 23 of 50 on a second placement seed; 0 of 50 at 35 takes, 4 of 50 at 40 takes; scripted executor 50 of 50. [45-take trials](../../reports/sim_policy/paired_seed2026/trials_simcup17oct3_n045_step-000020000_20261018T192549Z.json), [campaign table](../../reports/sim_policy/paired_seed2026/PAIRED.md), [study](../../reports/sim_policy/pick_cup_17oct3/study.json) |
+| Synria arm planning through MoveIt | rtx-5090-workstation, 2026-10-29 | Simulation planning only, using an approximate collision model in an empty scene: 50 of 50 valid joint-space goals planned; planning time median 11.6 ms, p95 12.4 ms. No robot moved. [Campaign record](../../reports/simulation/synria_moveit_planning.json) |
+| Stationary SLAM resource recording | jetson-orin-nx, 2026-09-16 | Recorded device workload with the robot stationary: 300.7 s recording, board input power VDD_IN p50 11,060.7 mW during recording, slam_toolbox RSS peak 647.1 MB. No motion, drift, loop-closure or navigation result. [Session record](../../reports/slam/sessions/2026-09-16_stationary/session.json), [provenance](../../reports/slam/sessions/2026-09-16_stationary/provenance.json) |
+| Stationary SLAM bag replay | jetson-orin-nx, 2026-10-30 | Recorded-data replay, not a new driven session: 100 map updates; 61 occupied and 482 free cells in the final grid; slam_toolbox RSS peak 36.3 MB, CPU 14.4 s, board input power VDD_IN p50 5.634 W. Independent map frames and a stationary input do not establish aligned map accuracy or navigation performance. [Replay record](../../reports/slam/sessions/2026-09-16_stationary/offline_replay_2026-10-30/metrics.json) |
 | Ludo executor placements | RTX 5090 / Isaac Sim; post-fix runs 2026-08-19, frozen aggregate 2026-08-20 | Scripted components, PPO policy, kinematic attach and release-hold. [Run](../../reports/ludo_soak_s10/provenance.json), [separate post-fix aggregate](../../reports/ludo_stats_frozen/stats_2026-08-20T050701Z_reports_ludo_soak_s1%5B012%5D.json) |
+
+The [evidence-scope decision](../decisions/2026-10-30-measured-evidence-scope.md)
+keeps these planner, resource and simulation outcomes separate from physical skill
+acceptance. The ACT result above was already committed; these rows index existing
+records and add no new measurements.
 
 ## Device Results
 
