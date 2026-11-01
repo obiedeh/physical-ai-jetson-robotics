@@ -180,16 +180,16 @@ Creating window for environment.
 [pick] DISTURBED env1 at step=2045 stage=CLOSE t_in=7 disp=10mm
 [pick] CLOSE-entry env0: grasp_centre=[-0.12104848772287369, -0.11438044905662537, 0.8249364495277405] cup_gt=[-0.09680098295211792, -0.08968687057495117, 0.8149998188018799] delta=[-0.024, -0.025, 0.01]
 [pick] HOLD engaged for envs [1]
-[pick] HOLD refused envs [0]: gc-cup dist [0.142] — retrying descent
+[pick] HOLD refused envs [0]: gc-cup dist [0.142] - retrying descent
 [pick] CLOSE-entry env0: grasp_centre=[-0.09629680961370468, -0.0904633179306984, 0.841145932674408] cup_gt=[-0.09680110216140747, -0.08968698978424072, 0.8149998188018799] delta=[0.001, -0.001, 0.026]
-[pick] HOLD refused envs [0]: gc-cup dist [0.079] — retrying descent
+[pick] HOLD refused envs [0]: gc-cup dist [0.079] - retrying descent
 [pick] CLOSE-entry env0: grasp_centre=[-0.12866131961345673, -0.12581650912761688, 0.8121514916419983] cup_gt=[-0.09680110216140747, -0.08968698978424072, 0.8149998188018799] delta=[-0.032, -0.036, -0.003]
-[pick] HOLD refused envs [0]: gc-cup dist [0.084] — retrying descent
+[pick] HOLD refused envs [0]: gc-cup dist [0.084] - retrying descent
 [pick] PLACED: envs [1] completed pick-move-place
 [pick] CLOSE-entry env0: grasp_centre=[-0.09865783154964447, -0.07663934677839279, 0.8358670473098755] cup_gt=[-0.09680098295211792, -0.08968675136566162, 0.8149998784065247] delta=[-0.002, 0.013, 0.021]
-[pick] HOLD refused envs [0]: gc-cup dist [0.096] — retrying descent
+[pick] HOLD refused envs [0]: gc-cup dist [0.096] - retrying descent
 [pick] CLOSE-entry env0: grasp_centre=[-0.0948900580406189, -0.08180955052375793, 0.8415876030921936] cup_gt=[-0.0968010425567627, -0.08968687057495117, 0.8149998188018799] delta=[0.002, 0.008, 0.027]
-[pick] HOLD refused envs [0]: gc-cup dist [0.064] — retrying descent
+[pick] HOLD refused envs [0]: gc-cup dist [0.064] - retrying descent
 [pick] ======== RESULT: 2/4 solid lifts ========
 [pick] final stages: ['PIVOT', 'PIVOT', 'PIVOT', 'PIVOT']
 2026-07-29T18:05:13Z [10,070ms] [Warning] [omni.fabric.plugin] USD->Fabric: Unhandled array type string[]

@@ -258,7 +258,7 @@ Loading user config located at: '<home>/.venv/isaacsim5/lib/python3.11/site-pack
 [pick] step=2040 stages=['DESCEND', 'DESCEND', 'APPROACH', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'CLOSE'] e0 tool=[-0.1506366729736328, -0.14866673946380615, 0.7959620356559753] cup=[-0.05448202043771744, -0.15900000929832458] dia=50mm piece_z-rest=-0.005
 [pick] CLOSE snapshot saved for env 7
 [pick] step=2070 stages=['DESCEND', 'DESCEND', 'APPROACH', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'CLOSE'] e0 tool=[0.004231691360473633, -0.11034715175628662, 0.829098641872406] cup=[-0.025950592011213303, -0.1949632614850998] dia=33mm piece_z-rest=0.002
-[pick] HOLD refused envs [7]: gc-cup dist [0.12] — retrying descent
+[pick] HOLD refused envs [7]: gc-cup dist [0.12] - retrying descent
 [pick] DISTURBED env6 at step=2099 stage=DESCEND t_in=212 disp=9mm
 [pick] step=2100 stages=['DESCEND', 'DESCEND', 'APPROACH', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND'] e0 tool=[-0.13149809837341309, -0.10851132869720459, 0.809506356716156] cup=[0.009185798466205597, -0.21157391369342804] dia=50mm piece_z-rest=-0.005
 [pick] step=2130 stages=['DESCEND', 'DESCEND', 'FAIL', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND', 'DESCEND'] e0 tool=[0.06845927238464355, -0.31920361518859863, 0.8586581945419312] cup=[0.14956092834472656, -0.30449172854423523] dia=50mm piece_z-rest=-0.005

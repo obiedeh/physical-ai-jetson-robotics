@@ -18,6 +18,8 @@ from typing import Any, Protocol, cast
 
 import numpy as np
 
+from physical_ai_lab.portable import portable_json
+
 from .act_training import (
     TRAINING_VERSION,
     feature_keys,
@@ -59,6 +61,16 @@ def _finite(value: Any, label: str) -> float:
     return float(value)
 
 
+def _portable_receipt(record: dict[str, Any]) -> Any:
+    """A receipt or manifest as compared: home paths and addresses tokenized, the host left out.
+
+    A manifest inside a checkpoint is covered by the checkpoint's content hash and keeps what
+    was true when it was written; the repository's receipt carries tokens and a board label.
+    Everything else must still match exactly.
+    """
+    return portable_json({key: value for key, value in record.items() if key != "host"})
+
+
 @dataclass(frozen=True)
 class CheckpointIdentity:
     checkpoint: Path
@@ -82,7 +94,9 @@ class CheckpointIdentity:
             "path",
             "checkpoint_content_sha256",
             "evaluation_status",
-        } or _canonical({key: record[key] for key in manifest}) != (_canonical(manifest)):
+        } or _canonical(_portable_receipt({key: record[key] for key in manifest})) != (
+            _canonical(_portable_receipt(manifest))
+        ):
             raise ValueError("checkpoint completion receipt differs from its manifest")
         if record.get("evaluation_status") != "evaluated":
             raise ValueError("checkpoint requires a completed diagnostic evaluation receipt")
@@ -432,6 +446,7 @@ class FixedScenePolicyService:
         *,
         clock: Callable[[], float] = time.perf_counter,
         serve_ensemble: bool = True,
+        replan_every: int | None = None,
     ) -> None:
         identity.verify_content()
         if set(model.image_shapes) != set(IMAGE_KEYS):
@@ -454,6 +469,19 @@ class FixedScenePolicyService:
             identity.manifest["configuration"]["chunk_size"],
             identity.manifest["cadence"]["command_stride_steps"], coeff,
         )
+        # A chunk-by-chunk checkpoint normally hands out a whole chunk at the command stride
+        # before it looks again; ``replan_every`` keeps only that many actions of each chunk,
+        # so the model predicts afresh every N requests (1 is fully closed loop). It is a
+        # simulation-lane serving override, named in the metadata like the ensemble one.
+        if replan_every is not None:
+            commands = (identity.manifest["configuration"]["chunk_size"]
+                        // identity.manifest["cadence"]["command_stride_steps"])
+            if type(replan_every) is not int or not 1 <= replan_every < commands:
+                raise ValueError(f"replan_every must be an integer from 1 to {commands - 1}")
+            if self.ensemble is not None:
+                raise ValueError("replan_every has no meaning for an ensembled checkpoint")
+            self.serving_overrides["replan_every"] = str(replan_every)
+        self.replan_every = replan_every
 
     def metadata(self) -> dict[str, Any]:
         """The checkpoint's metadata, plus the serving overrides only when one is active.
@@ -557,7 +585,10 @@ class FixedScenePolicyService:
                         self._queue.append(self.ensemble.step(chunk))
                     else:
                         stride = self.identity.manifest["cadence"]["command_stride_steps"]
-                        self._queue.extend(chunk[::stride].astype(float).tolist())
+                        actions = chunk[::stride].astype(float).tolist()
+                        if self.replan_every is not None:
+                            actions = actions[:self.replan_every]
+                        self._queue.extend(actions)
                     inference_s = _finite(self.clock() - started, "inference latency")
                 action = self._queue.popleft()
                 return encode_policy_response(
@@ -650,13 +681,19 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--temporal-ensemble", choices=("manifest", "off"), default="manifest",
                         help="Serve a checkpoint trained for temporal ensembling without it "
                              "(simulation lane only; recorded in the metadata).")
+    parser.add_argument("--replan-every", type=int, default=None, metavar="N",
+                        help="Predict a fresh chunk every N commands instead of once per chunk "
+                             "(simulation lane only; recorded in the metadata).")
     args = parser.parse_args(argv)
     if args.temporal_ensemble == "off" and args.lane != SIMULATION_LANE:
         parser.error("--temporal-ensemble off is a simulation-lane ablation only")
+    if args.replan_every is not None and args.lane != SIMULATION_LANE:
+        parser.error("--replan-every is a simulation-lane ablation only")
     identity = CheckpointIdentity.load(
         args.checkpoint, args.checkpoint_record, args.task_registry, args.lane,
     )
     service = FixedScenePolicyService(identity, LocalACTModel(identity, args.device),
-                                      serve_ensemble=args.temporal_ensemble == "manifest")
+                                      serve_ensemble=args.temporal_ensemble == "manifest",
+                                      replan_every=args.replan_every)
     with make_http_server(service, args.host, args.port) as server:
         server.serve_forever()

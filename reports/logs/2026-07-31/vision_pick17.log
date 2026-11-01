@@ -176,7 +176,7 @@ Loading user config located at: '<home>/.venv/isaacsim5/lib/python3.11/site-pack
 [pick] step=180 stages=['DESCEND', 'CLOSE', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'DESCEND', 'APPROACH'] e0 tool=[-0.09694170951843262, 0.026087403297424316, 0.9569668769836426] cup=[-0.09814220666885376, 0.08484384417533875] dia=50mm piece_z-rest=-0.000
 [pick] CLOSE snapshot saved for env 1
 [pick] step=210 stages=['DESCEND', 'CLOSE', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'DESCEND', 'APPROACH'] e0 tool=[-0.1206521987915039, -0.012385368347167969, 0.872750997543335] cup=[-0.09814220666885376, 0.08484384417533875] dia=50mm piece_z-rest=-0.000
-[pick] HOLD refused envs [1]: gc-cup dist [0.054] — retrying descent
+[pick] HOLD refused envs [1]: gc-cup dist [0.054] - retrying descent
 [pick] step=240 stages=['DESCEND', 'DESCEND', 'APPROACH', 'APPROACH', 'APPROACH', 'APPROACH', 'DESCEND', 'APPROACH'] e0 tool=[-0.19004464149475098, 0.0852576494216919, 0.8466516137123108] cup=[-0.09814220666885376, 0.08484384417533875] dia=50mm piece_z-rest=-0.000
 [pick] step=270 stages=['DESCEND', 'DESCEND', 'DESCEND', 'APPROACH', 'APPROACH', 'APPROACH', 'DESCEND', 'APPROACH'] e0 tool=[-0.15216279029846191, 0.08337152004241943, 0.8071253895759583] cup=[-0.09814220666885376, 0.08484384417533875] dia=50mm piece_z-rest=-0.000
 [pick] CLOSE-entry env1: grasp_centre=[-0.09945640712976456, 0.09345093369483948, 0.8176668286323547] cup_gt=[-0.09111905097961426, 0.08273446559906006, 0.8149996399879456] delta=[-0.008, 0.011, 0.003]
@@ -189,7 +189,7 @@ Loading user config located at: '<home>/.venv/isaacsim5/lib/python3.11/site-pack
 [pick] DISTURBED env1 at step=335 stage=LIFT t_in=1 disp=24mm
 [pick] CLOSE snapshot saved for env 0
 [pick] step=360 stages=['CLOSE', 'DONE', 'DESCEND', 'FAIL', 'FAIL', 'FAIL', 'DESCEND', 'FAIL'] e0 tool=[-0.14837098121643066, 0.09249186515808105, 0.8233445286750793] cup=[-0.09814220666885376, 0.08484384417533875] dia=50mm piece_z-rest=-0.000
-[pick] HOLD refused envs [0]: gc-cup dist [0.064] — retrying descent
+[pick] HOLD refused envs [0]: gc-cup dist [0.064] - retrying descent
 [pick] step=390 stages=['DESCEND', 'DONE', 'DESCEND', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.18224000930786133, 0.12457489967346191, 0.8393531441688538] cup=[-0.09814220666885376, 0.08484384417533875] dia=50mm piece_z-rest=-0.000
 [pick] step=420 stages=['DESCEND', 'DONE', 'DESCEND', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.13945722579956055, 0.0919121503829956, 0.8695330619812012] cup=[-0.09814220666885376, 0.08484384417533875] dia=50mm piece_z-rest=-0.000
 [pick] step=450 stages=['DESCEND', 'DONE', 'DESCEND', 'FAIL', 'FAIL', 'FAIL', 'FAIL', 'FAIL'] e0 tool=[-0.20882201194763184, 0.1380000114440918, 0.8281217217445374] cup=[-0.09814220666885376, 0.08484384417533875] dia=50mm piece_z-rest=-0.000

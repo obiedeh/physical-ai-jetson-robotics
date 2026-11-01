@@ -30,7 +30,7 @@
   "power_mode": "NV Power Mode: MAXN_SUPER\n0",
   "jetson_clocks": "SOC family:tegra234  Machine:NVIDIA Jetson Orin NX Engineering Reference Developer Kit Super\nError: Run this script(/usr/bin/jetson_clocks) as a root user",
   "cuda": "",
-  "tensorrt": "ii  libnvinfer10                                      10.7.0.23-1+cuda12.6                             arm64        TensorRT runtime libraries",
+  "tensorrt": "ii  libnvinfer10                                      <lan-address>-1+cuda12.6                             arm64        TensorRT runtime libraries",
   "uncommitted_patch": "uncommitted.patch",
   "uncommitted_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "power_mode_nosudo": "< POWER_MODEL ID=0 NAME=MAXN_SUPER > (pmode:0000)",

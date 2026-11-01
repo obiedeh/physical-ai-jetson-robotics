@@ -35,7 +35,7 @@ Append activity and timeline entries, then commit the session and cited stills:
 
 ```bash
 git add "reports/ludo_flagship/games/$SESSION" \
-  docs/ludo_flagship/ACTIVITY_LOG.md docs/evidence/provenance/docs/ludo_flagship/timeline.public.jsonl
+  docs/ludo_flagship/ACTIVITY_LOG.md docs/ludo_flagship/timeline.jsonl
 git commit -m "Record Synria full-game evidence"
 ```
 

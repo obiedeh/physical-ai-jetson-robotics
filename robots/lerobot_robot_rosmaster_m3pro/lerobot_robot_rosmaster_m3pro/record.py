@@ -19,6 +19,7 @@ real state; action is the joystick command this frame):
 """
 from __future__ import annotations
 
+import os
 import argparse
 import time
 
@@ -33,7 +34,7 @@ BASE = ("base.vx", "base.vy", "base.wz")
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--repo-id", required=True, help="HF dataset id, e.g. oedeh/m3pro_teleop_v1")
-    ap.add_argument("--remote-ip", default="<lan-address>")
+    ap.add_argument("--remote-ip", default=os.environ.get("ORIN_ADDRESS", "127.0.0.1"))
     ap.add_argument("--episodes", type=int, default=10)
     ap.add_argument("--episode-time-s", type=float, default=20.0)
     ap.add_argument("--reset-time-s", type=float, default=8.0)

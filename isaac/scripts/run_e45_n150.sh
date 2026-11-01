@@ -5,8 +5,8 @@ set -u
 R=~/github/physical-ai-jetson-robotics
 LOG=$R/reports/logs/2026-08-06
 PY="$HOME/.venv/isaacsim5/bin/python"
-THOR=oedeh@<lan-address>
-CKROOT=<home>/models/gr00t_synria/gr00t_synria_thor_v5_vis40k/gr00t_synria_thor_v5_vis40k
+THOR=${THOR_SSH:?set THOR_SSH to user@address}
+CKROOT=$HOME/models/gr00t_synria/gr00t_synria_thor_v5_vis40k/gr00t_synria_thor_v5_vis40k
 rm -f $R/reports/e45_n150.DONE
 exec >> $LOG/e45_n150.log 2>&1
 echo "=== n150 start $(date -Is)"
@@ -15,7 +15,7 @@ run_one() {  # ckpt, staged_flag, tag
     cd ~/github/Isaac-GR00T && source scripts/activate_thor.sh > /dev/null 2>&1
     setsid nohup ~/.venv/gr00t/bin/python gr00t/eval/run_gr00t_server.py \
       --model-path $CKROOT/checkpoint-$1 \
-      --modality-config-path <home>/github/physical-ai-jetson-robotics/isaac/scripts/gr00t_synria_config.py \
+      --modality-config-path $HOME/github/physical-ai-jetson-robotics/isaac/scripts/gr00t_synria_config.py \
       --port 5594 > ~/gr00t_serve_e45n.log 2>&1 < /dev/null &
     echo \$! > ~/gr00t_serve_e45n.pid"
   UP=0
@@ -24,7 +24,7 @@ run_one() {  # ckpt, staged_flag, tag
   done
   [ $UP -ne 1 ] && { echo "server failed $3"; return 1; }
   ( cd $R && PYTHONUNBUFFERED=1 "$PY" -u isaac/scripts/eval_gr00t_sequence.py \
-      --host <lan-address> --port 5594 --num_envs 16 --steps 8500 $2 --headless \
+      --host ${THOR_ADDRESS:?set THOR_ADDRESS} --port 5594 --num_envs 16 --steps 8500 $2 --headless \
       > $LOG/e45_n150_$3.log 2>&1 )
   grep -E "grasp:|carry5s:|dock:|cycle:|episode-equiv" $LOG/e45_n150_$3.log | tail -5
   ssh -o BatchMode=yes $THOR 'kill $(cat ~/gr00t_serve_e45n.pid) 2>/dev/null; true'

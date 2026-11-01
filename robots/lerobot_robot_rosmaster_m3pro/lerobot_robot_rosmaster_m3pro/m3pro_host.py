@@ -13,7 +13,7 @@ firmware watchdog.
 
 Run (on the robot):
   source /opt/ros/humble/setup.bash
-  source <home>/yahboomcar_ws/install/setup.bash
+  source ~/yahboomcar_ws/install/setup.bash
   export FASTRTPS_DEFAULT_PROFILES_FILE=.../config/fastdds_no_shm.xml   # non-vendor user
   python3 -m lerobot_robot_rosmaster_m3pro.m3pro_host --cameras 0
 """

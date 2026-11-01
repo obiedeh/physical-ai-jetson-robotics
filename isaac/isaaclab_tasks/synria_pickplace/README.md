@@ -41,7 +41,7 @@ isaac/isaaclab_tasks/synria_pickplace/
 │                      #   actuator limits, ActionsCfg
 ├── mdp.py             # Isaac Lab-compatible term functions
 │                      #   (obs / reward / termination / action)
-├── mdp_logic.py       # Pure-Python MDP kernels — no torch, no GPU,
+├── mdp_logic.py       # Pure-Python MDP kernels - no torch, no GPU,
 │                      #   fully unit-testable on any machine
 ├── task_geometry.py   # Scene geometry constants and board helpers
 │                      #   (zone centres, piece positions, tolerances)
@@ -51,8 +51,8 @@ isaac/isaaclab_tasks/synria_pickplace/
 │   ├── __init__.py
 │   ├── embodiment.py  #   joint names, action dim, modality config
 │   ├── dataset.py     #   LeRobot dataset adapter + path conventions
-│   ├── finetune.py    #   CLI wrapper — python -m ...gr00t.finetune
-│   ├── inference.py   #   rollout eval — python -m ...gr00t.inference
+│   ├── finetune.py    #   CLI wrapper - python -m ...gr00t.finetune
+│   ├── inference.py   #   rollout eval - python -m ...gr00t.inference
 │   └── README.md
 └── README.md          # this file
 ```
@@ -72,7 +72,7 @@ mdp_logic.py (pure-Python kernels)
   │  imports constants from ↓
 task_geometry.py (geometry constants)
 
-trial_state.py (TrialStateManager — lives in env.extras["trial_state"])
+trial_state.py (TrialStateManager - lives in env.extras["trial_state"])
   │  queried every step by mdp.py wrappers
 ```
 
@@ -97,14 +97,14 @@ trial_state.py (TrialStateManager — lives in env.extras["trial_state"])
 
 | Term | Weight | Type |
 |---|---|---|
-| `ee_to_target_distance` | −0.5 | Dense — negative L2 to phase-dependent target |
-| `gripper_to_piece_when_grasping` | −0.3 | Dense — penalty when fingers close far from piece |
-| `action_norm_penalty` | −0.01 | Dense — discourages large joint jumps |
-| `grasp_confirmed` | +1.0 | Sparse — fires once on confirmation (3 consecutive steps) |
-| `piece_in_zone` | +5.0 | Sparse — piece centred on zone (±10 mm) |
-| `piece_returned` | +5.0 | Sparse — piece back at origin (±10 mm) |
-| `piece_dropped` | −2.0 | Sparse — piece below table surface |
-| `arm_collision` | −5.0 | Sparse — contact sensor detects unsafe collision |
+| `ee_to_target_distance` | −0.5 | Dense - negative L2 to phase-dependent target |
+| `gripper_to_piece_when_grasping` | −0.3 | Dense - penalty when fingers close far from piece |
+| `action_norm_penalty` | −0.01 | Dense - discourages large joint jumps |
+| `grasp_confirmed` | +1.0 | Sparse - fires once on confirmation (3 consecutive steps) |
+| `piece_in_zone` | +5.0 | Sparse - piece centred on zone (±10 mm) |
+| `piece_returned` | +5.0 | Sparse - piece back at origin (±10 mm) |
+| `piece_dropped` | −2.0 | Sparse - piece below table surface |
+| `arm_collision` | −5.0 | Sparse - contact sensor detects unsafe collision |
 
 ### Termination conditions
 
@@ -149,9 +149,9 @@ GRASP_CONFIRM_STEPS   = 1        # 1, not 3: airborne criteria are unfakeable
 
 These are checked against `task_geometry.py` by
 `tests/test_gripper_geometry.py::test_readme_constants_match_source`. Every
-number above was stale at some point — `GRIPPER_OPEN_M` carried 0.085 from a
+number above was stale at some point - `GRIPPER_OPEN_M` carried 0.085 from a
 servo datasheet that does not describe this arm, and the approach radius was
-listed as 0.020 while the code used 0.15 — so the table is now enforced rather
+listed as 0.020 while the code used 0.15 - so the table is now enforced rather
 than maintained by hand.
 
 The grasp reference point is the **pad centre**, not the wrist flange and not
@@ -197,13 +197,13 @@ with Synria-specific embodiment values.
 | Module | Purpose |
 |---|---|
 | `embodiment.py` | `SYNRIA_EMBODIMENT_TAG = "synria_6dof_v0"`, joint names, 8-DOF action dim, camera config, `synria_modality_config()` |
-| `dataset.py` | `lerobot_dataset(game, amplified)` — wraps GR00T's `LeRobotSingleDataset`; defines seed + GR00T-Mimic output paths |
-| `finetune.py` | `python -m ...gr00t.finetune --game chess --amplified` — wraps `gr00t/experiment/launch_finetune.py` |
-| `inference.py` | `python -m ...gr00t.inference --task Synria-Chess-PickPlace-v0 --checkpoint …` — rolls out inside Isaac Lab |
+| `dataset.py` | `lerobot_dataset(game, amplified)` - wraps GR00T's `LeRobotSingleDataset`; defines seed + GR00T-Mimic output paths |
+| `finetune.py` | `python -m ...gr00t.finetune --game chess --amplified` - wraps `gr00t/experiment/launch_finetune.py` |
+| `inference.py` | `python -m ...gr00t.inference --task Synria-Chess-PickPlace-v0 --checkpoint …` - rolls out inside Isaac Lab |
 
 Two integration paths:
-- **Path A** — fine-tune GR00T N1.7 directly on ~100 Synria seed demonstrations.
-- **Path C** — amplify seed → 100K+ synthetic trajectories via GR00T-Mimic, then fine-tune on the amplified set.
+- **Path A** - fine-tune GR00T N1.7 directly on ~100 Synria seed demonstrations.
+- **Path C** - amplify seed → 100K+ synthetic trajectories via GR00T-Mimic, then fine-tune on the amplified set.
 
 Full recipe: [`docs/SYNRIA_GR00T_FINETUNE.md`](../../../docs/SYNRIA_GR00T_FINETUNE.md)
 
@@ -238,12 +238,31 @@ python -m isaaclab.scripts.play \
 ```
 
 Before first run, verify on the RTX box:
-1. **Confirm joint names** against the loaded URDF — the config assumes `Joint1`..`Joint6` (capital J, matching the SolidWorks export) and `left_finger`/`right_finger` for the gripper.
-2. **Confirm body name** — the EE pose observation looks up `tool0`; check that name exists in the loaded USD.
-3. **Wire `piece_pos_w`** — the env's `__post_init__` must populate `env.extras["piece_pos_w"]` at reset and update it each step from the scene's tracked rigid-body.
-4. **Add cameras** — `OverheadBoardCamera` and wrist RGB observations are not yet wired in `ObservationsCfg`. Add `Camera` sensor configs to the scene and new `ObsTerm` entries when available.
+1. **Confirm joint names** against the loaded URDF - the config assumes `Joint1`..`Joint6` (capital J, matching the SolidWorks export) and `left_finger`/`right_finger` for the gripper.
+2. **Confirm body name** - the EE pose observation looks up `tool0`; check that name exists in the loaded USD.
+3. **Wire `piece_pos_w`** - the env's `__post_init__` must populate `env.extras["piece_pos_w"]` at reset and update it each step from the scene's tracked rigid-body.
+4. **Add cameras** - `OverheadBoardCamera` and wrist RGB observations are not yet wired in `ObservationsCfg`. Add `Camera` sensor configs to the scene and new `ObsTerm` entries when available.
 
 ---
+
+## Visual randomization (opt-in, unmeasured)
+
+Two reset events change what the cameras see, so a policy is not trained on
+one light and one red cup only. They are off by default; switch them on with
+`visual_randomization=True` on the env cfg or `SYNRIA_VISUAL_RANDOMIZATION=1`:
+
+| Term | What it writes | Default range |
+|---|---|---|
+| `randomize_dome_light` | `/World/DomeLight` intensity and colour (one light for the stage, one draw per reset call) | intensity 800 to 5000, colour jitter 0.15 per channel around (0.95, 0.95, 0.95) |
+| `randomize_piece_color` | `inputs:diffuseColor` of each resetting env's piece shader | jitter 0.35 per channel around (0.85, 0.1, 0.1) |
+
+The sampling is pure Python in `mdp_logic.py` (`sample_light_params`,
+`sample_color`, tested without Isaac Lab); `mdp.py` only writes the USD
+attributes. Draws come from one CPU generator seeded from the env seed plus a
+constant, so two runs with the same seed see the same lights and colours.
+Placement and scale randomization stay where they were (scene reset, `mdp.py`).
+No run has used these terms yet; until a training run or a placement campaign
+with them is recorded under `reports/`, they are implemented, not measured.
 
 ## Testing (no GPU required)
 
@@ -260,7 +279,7 @@ pytest tests/test_isaaclab_tasks_import.py -v  # 5 tests
 
 The package is import-safe on any environment without Isaac Lab:
 
-- `import isaac.isaaclab_tasks.synria_pickplace` — always succeeds
+- `import isaac.isaaclab_tasks.synria_pickplace` - always succeeds
 - Gym task IDs are NOT registered (no `gymnasium` installed in CI)
 - Instantiating any config class raises `RuntimeError("Isaac Lab is not available")`
 - All pure-Python helpers import and run normally on Windows, CI, and Jetson
@@ -269,8 +288,8 @@ The package is import-safe on any environment without Isaac Lab:
 
 ## What's out of scope until RTX first-run
 
-- **Training runs** — needs RTX 5090 and PPO convergence (~1–2 days compute)
-- **Imitation-learning data** — handled by the LeRobot track (`synria_lerobot/`)
-- **Camera observations** — needs `Camera` sensor config wired to the scene USD
-- **Sim-to-real transfer** — post-training, via Jetson AGX Thor deployment
-- **PPO hyperparameter sweep** — after first successful sim episode
+- **Training runs** - needs RTX 5090 and PPO convergence (~1–2 days compute)
+- **Imitation-learning data** - handled by the LeRobot track (`synria_lerobot/`)
+- **Camera observations** - needs `Camera` sensor config wired to the scene USD
+- **Sim-to-real transfer** - post-training, via Jetson AGX Thor deployment
+- **PPO hyperparameter sweep** - after first successful sim episode

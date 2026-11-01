@@ -67,7 +67,7 @@ Loading user config located at: '<home>/.venv/isaacsim5/lib/python3.11/site-pack
 2026-08-07T05:51:33Z [0ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash]   'totalSwapBareMetalMB' = '8191'
 2026-08-07T05:51:33Z [0ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash]   'totalSwapLimitedMB' = '8191'
 2026-08-07T05:51:33Z [0ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash]   'userId' = 'default'
-2026-08-07T05:51:33Z [0ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash]   'workingDirectory' = '/home/<username>/github/physical-ai-jetson-robotics'
+2026-08-07T05:51:33Z [0ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash]   'workingDirectory' = '~/github/physical-ai-jetson-robotics'
 2026-08-07T05:51:33Z [0ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash] Crash report files for upload:
 2026-08-07T05:51:33Z [0ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash]   'metadataFile' = '<home>/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/120eb0e3-fcc8-4618-45ab279a-3068a9fa.dmp.toml'
 2026-08-07T05:51:33Z [0ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash]   'upload_file_minidump' = '<home>/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/120eb0e3-fcc8-4618-45ab279a-3068a9fa.dmp'

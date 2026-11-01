@@ -104,7 +104,7 @@ class M3ProHardware:
         except ImportError as e:
             raise ImportError(
                 "ROS 2 Humble + vendor arm_msgs required: source /opt/ros/humble/"
-                "setup.bash and <home>/yahboomcar_ws/install/setup.bash "
+                "setup.bash and ~/yahboomcar_ws/install/setup.bash "
                 f"first ({e})") from e
         self._Twist, self._ArmJoints = Twist, ArmJoints
         if not rclpy.ok():

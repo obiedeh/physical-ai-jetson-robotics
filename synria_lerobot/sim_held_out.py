@@ -18,6 +18,8 @@ from typing import Any
 
 import numpy as np
 
+from physical_ai_lab.portable import expand_path, portable_text
+
 from .act_training import _evaluation_batches
 from .checkpoint_eval import PredictionBatch, prediction_metrics, strict_content_hash
 from .physical_contract import SIMULATION_LANE, training_lane
@@ -79,10 +81,10 @@ def held_out_by_take(
     if training_lane(study) != SIMULATION_LANE:
         raise ValueError("held-out split is a simulation-lane tool")
     factory = load_predictor if predictor_factory is None else predictor_factory
-    dataset_root = Path(study["dataset_root"])
+    dataset_root = expand_path(study["dataset_root"])
     rows = []
     for row in study["rows"]:
-        checkpoint = Path(row["checkpoint_path"])
+        checkpoint = expand_path(row["checkpoint_path"])
         if strict_content_hash(checkpoint) != row["checkpoint_content_sha256"]:
             raise ValueError(f"checkpoint for {row['policy_id']} changed since the study")
         predict = factory(checkpoint, device)
@@ -139,8 +141,9 @@ def write_result(result: dict[str, Any], directory: Path,
     """Write the JSON record and the Markdown table into the study directory."""
     directory.mkdir(parents=True, exist_ok=True)
     record = directory / "held_out_by_take.json"
-    record.write_text(json.dumps(result, indent=2, sort_keys=True, allow_nan=False) + "\n",
+    record.write_text(portable_text(
+        json.dumps(result, indent=2, sort_keys=True, allow_nan=False) + "\n"),
                       encoding="utf-8")
     table = directory / "HELD_OUT_BY_TAKE.md"
-    table.write_text(render_markdown(result, labels), encoding="utf-8")
+    table.write_text(portable_text(render_markdown(result, labels)), encoding="utf-8")
     return record, table

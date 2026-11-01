@@ -25,7 +25,6 @@ import argparse
 import hashlib
 import json
 import os
-import platform
 import re
 import signal
 import subprocess
@@ -43,6 +42,7 @@ from physical_ai_lab.jetson_provenance import (  # noqa: E402
     ThermalWatch,
     write_provenance,
 )
+from physical_ai_lab.portable import board_label  # noqa: E402
 from slam.metrics import compute_metrics, percentile  # noqa: E402
 
 DEFAULT_TOPICS = [
@@ -218,7 +218,7 @@ def cmd_start(args: argparse.Namespace) -> int:
     print(f"[slam-session] provenance -> {prov}", flush=True)
     session: dict = {
         "schema": "slam-session-v1",
-        "host": platform.node(),
+        "host": board_label(),
         "device_model": model,
         "provenance": prov.name,
         "slam_stack": args.stack,

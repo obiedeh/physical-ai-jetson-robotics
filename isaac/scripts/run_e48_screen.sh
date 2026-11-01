@@ -7,7 +7,7 @@ set -u
 R=~/github/physical-ai-jetson-robotics
 LOG=$R/reports/logs/2026-08-06/e48_screen.log
 PY="$HOME/.venv/isaacsim5/bin/python"
-THOR=oedeh@<lan-address>
+THOR=${THOR_SSH:?set THOR_SSH to user@address}
 CKROOT='~/models/gr00t_synria/gr00t_synria_thor_v6_merged40k/gr00t_synria_thor_v6_merged40k'
 rm -f $R/reports/e48_screen.DONE $R/reports/e48_screen.FAIL
 exec >> "$LOG" 2>&1
@@ -36,7 +36,7 @@ for N in $CKPTS; do
   fi
   echo "--- ckpt $N: server up, eval starting $(date -Is)"
   ( cd $R && PYTHONUNBUFFERED=1 "$PY" -u isaac/scripts/eval_gr00t_sequence.py \
-      --host <lan-address> --port 5594 --num_envs 16 --steps 3600 --headless \
+      --host ${THOR_ADDRESS:?set THOR_ADDRESS} --port 5594 --num_envs 16 --steps 3600 --headless \
       > $R/reports/logs/2026-08-06/e48_eval_ckpt$N.log 2>&1 )
   RC=$?
   tail -6 $R/reports/logs/2026-08-06/e48_eval_ckpt$N.log | grep -iE "grasp|carry|dock|cycle|total" || echo "ckpt $N eval rc=$RC (no summary line)"

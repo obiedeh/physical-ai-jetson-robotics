@@ -35,6 +35,8 @@ import threading
 import time
 from pathlib import Path
 
+from physical_ai_lab.portable import board_label
+
 
 def _cmd(c: str) -> str:
     try:
@@ -118,7 +120,7 @@ def write_provenance(out_dir: Path, *, data_kind: str, seed_record: dict,
         "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "git_sha": _cmd("git rev-parse HEAD"),
         "git_dirty": bool(_cmd("git status --porcelain")),
-        "host": platform.node(),
+        "host": board_label(),
         "platform": platform.platform(),
         "python": sys.version.split()[0],
         "argv": sys.argv,
