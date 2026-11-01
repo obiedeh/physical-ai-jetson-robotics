@@ -1,3 +1,4 @@
+"""Exercise checkpoint admission, synthetic camera faults and probe evidence contracts."""
 from __future__ import annotations
 
 import errno

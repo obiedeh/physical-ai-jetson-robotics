@@ -22,6 +22,7 @@ import sys
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
+from physical_ai_lab.portable import portable_text  # noqa: E402
 
 REPOSITORY = Path(__file__).resolve().parents[1]
 if str(REPOSITORY) not in sys.path:
@@ -119,7 +120,8 @@ def main(argv: list[str] | None = None) -> int:
     summary.update(report=str(report), successes=result["successes"],
                    success_rate=result["success_rate"])
     stages_path = args.output_dir / f"stages_{args.task_id}_{stamp}.json"
-    stages_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    stages_path.write_text(portable_text(json.dumps(summary, indent=2, sort_keys=True) + "\n"),
+                           encoding="utf-8")
     print(json.dumps(summary), flush=True)
     return 0
 

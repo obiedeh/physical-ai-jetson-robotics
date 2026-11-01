@@ -1,5 +1,5 @@
 [INFO][AppLauncher]: Using device: cuda:0
-[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[INFO][AppLauncher]: Loading experience file: <home>/IsaacLab/apps/isaaclab.python.headless.kit
 [feas] asset: synria_6dof_arm_padfix_l.usd
 
 [36m======================================================================================[0m
@@ -23,10 +23,10 @@
 [travel] cycle 8: tgt 0.0: L0.73 R0.0 | tgt 6.2: L3.55 R-5.69 | tgt 12.5: L6.68 R-11.83 | tgt 18.8: L9.6 R-17.98 | tgt 25.0: L12.22 R-24.16 | tgt 0.0: L12.28 R-0.0
 [travel] cycle 9: tgt 0.0: L0.73 R0.0 | tgt 6.2: L3.55 R-5.69 | tgt 12.5: L6.68 R-11.83 | tgt 18.8: L9.6 R-17.98 | tgt 25.0: L12.22 R-24.16 | tgt 0.0: L12.28 R-0.0
 [travel] ======== FULL TRAVEL FAIL (asset=padfix_l) ========
-[feas] wrote /home/oedeh/github/physical-ai-jetson-robotics-gr00t/reports/synria_travel_padfix_l.json
+[feas] wrote <home>/github/physical-ai-jetson-robotics-gr00t/reports/synria_travel_padfix_l.json
 EXIT_padfix_l=3
 [INFO][AppLauncher]: Using device: cuda:0
-[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[INFO][AppLauncher]: Loading experience file: <home>/IsaacLab/apps/isaaclab.python.headless.kit
 [feas] asset: synria_6dof_arm_padfix2.usd
 
 [36m======================================================================================[0m
@@ -50,10 +50,10 @@ EXIT_padfix_l=3
 [travel] cycle 8: tgt 0.0: L0.03 R0.0 | tgt 6.2: L0.15 R0.0 | tgt 12.5: L0.38 R0.0 | tgt 18.8: L0.71 R0.0 | tgt 25.0: L1.14 R-0.13 | tgt 0.0: L1.41 R0.0
 [travel] cycle 9: tgt 0.0: L0.03 R0.0 | tgt 6.2: L0.15 R0.0 | tgt 12.5: L0.38 R0.0 | tgt 18.8: L0.71 R0.0 | tgt 25.0: L1.14 R-0.13 | tgt 0.0: L1.41 R0.0
 [travel] ======== FULL TRAVEL FAIL (asset=padfix2) ========
-[feas] wrote /home/oedeh/github/physical-ai-jetson-robotics-gr00t/reports/synria_travel_padfix2.json
+[feas] wrote <home>/github/physical-ai-jetson-robotics-gr00t/reports/synria_travel_padfix2.json
 EXIT_padfix2=3
 [INFO][AppLauncher]: Using device: cuda:0
-[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[INFO][AppLauncher]: Loading experience file: <home>/IsaacLab/apps/isaaclab.python.headless.kit
 [feas] asset: synria_6dof_arm.usd
 
 [36m======================================================================================[0m

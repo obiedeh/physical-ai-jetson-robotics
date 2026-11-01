@@ -1,6 +1,6 @@
 {
   "available_episodes": 131,
-  "dataset_root": "/home/oedeh/synria-sim-datasets/staged_place_01/dataset",
+  "dataset_root": "<home>/synria-sim-datasets/staged_place_01/dataset",
   "ended_utc": "2026-10-19T12:27:15.356343+00:00",
   "held_out_episodes": [
     16,
@@ -17,12 +17,12 @@
   "rows": [
     {
       "checkpoint_content_sha256": "91464bc53174a4aba597bb930134ca6ea521025e5b6602961e26b3e503339752",
-      "checkpoint_path": "/home/oedeh/synria-sim-training/staged_place_01/simplace01_n050/checkpoints/step-000020000",
-      "checkpoint_record": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n050/checkpoint-step-000020000.json",
+      "checkpoint_path": "<home>/synria-sim-training/staged_place_01/simplace01_n050/checkpoints/step-000020000",
+      "checkpoint_record": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n050/checkpoint-step-000020000.json",
       "episodes_trained": 50,
-      "evaluation_record": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n050/evaluations/simplace01_n050-step-000020000.json",
+      "evaluation_record": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n050/evaluations/simplace01_n050-step-000020000.json",
       "evaluation_status": "evaluated",
-      "evidence_directory": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n050",
+      "evidence_directory": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n050",
       "gripper_mae_m": 0.002198867535234539,
       "held_out_frames": 2219,
       "joint_mae_rad_max": 0.08042579669185916,
@@ -177,7 +177,7 @@
       ],
       "training_status": "completed",
       "trials": {
-        "report": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/trials_simplace01_n050_20261019T122801Z.json",
+        "report": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/trials_simplace01_n050_20261019T122801Z.json",
         "success_rate": 0.0,
         "successes": 0,
         "trials": 50
@@ -185,12 +185,12 @@
     },
     {
       "checkpoint_content_sha256": "e34ab99d104c04a3b879dc88673acaa3e0d42aa4498e5260302c75957b09dcb7",
-      "checkpoint_path": "/home/oedeh/synria-sim-training/staged_place_01/simplace01_n100/checkpoints/step-000020000",
-      "checkpoint_record": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n100/checkpoint-step-000020000.json",
+      "checkpoint_path": "<home>/synria-sim-training/staged_place_01/simplace01_n100/checkpoints/step-000020000",
+      "checkpoint_record": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n100/checkpoint-step-000020000.json",
       "episodes_trained": 100,
-      "evaluation_record": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n100/evaluations/simplace01_n100-step-000020000.json",
+      "evaluation_record": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n100/evaluations/simplace01_n100-step-000020000.json",
       "evaluation_status": "evaluated",
-      "evidence_directory": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n100",
+      "evidence_directory": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n100",
       "gripper_mae_m": 0.00081665013467441,
       "held_out_frames": 2219,
       "joint_mae_rad_max": 0.04454561471746653,
@@ -345,7 +345,7 @@
       ],
       "training_status": "completed",
       "trials": {
-        "report": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/trials_simplace01_n100_20261019T125718Z.json",
+        "report": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/trials_simplace01_n100_20261019T125718Z.json",
         "success_rate": 0.0,
         "successes": 0,
         "trials": 50
@@ -353,12 +353,12 @@
     },
     {
       "checkpoint_content_sha256": "853fead5ce60d7453cd18f228e3f079af675a86dcde844abfbc569f9a2dfaf8b",
-      "checkpoint_path": "/home/oedeh/synria-sim-training/staged_place_01/simplace01_n131/checkpoints/step-000020000",
-      "checkpoint_record": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n131/checkpoint-step-000020000.json",
+      "checkpoint_path": "<home>/synria-sim-training/staged_place_01/simplace01_n131/checkpoints/step-000020000",
+      "checkpoint_record": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n131/checkpoint-step-000020000.json",
       "episodes_trained": 131,
-      "evaluation_record": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n131/evaluations/simplace01_n131-step-000020000.json",
+      "evaluation_record": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n131/evaluations/simplace01_n131-step-000020000.json",
       "evaluation_status": "evaluated",
-      "evidence_directory": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n131",
+      "evidence_directory": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/train_n131",
       "gripper_mae_m": 0.0007104948232560655,
       "held_out_frames": 2219,
       "joint_mae_rad_max": 0.03308076952744263,
@@ -513,7 +513,7 @@
       ],
       "training_status": "completed",
       "trials": {
-        "report": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/trials_simplace01_n131_20261019T132635Z.json",
+        "report": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/staged_place_01/trials_simplace01_n131_20261019T132635Z.json",
         "success_rate": 0.0,
         "successes": 0,
         "trials": 50

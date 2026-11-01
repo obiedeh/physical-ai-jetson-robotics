@@ -9,11 +9,12 @@ the GR00T arms. num_envs is fixed at 1 (ACT temporal ensembling is
 batch-global).
 
     ~/.venv/isaacsim5/bin/python isaac/scripts/eval_act_funnel.py \
-        --host 192.168.1.170 --port 5599 --steps 14400 --headless
+        --host <lan-address> --port 5599 --steps 14400 --headless
 """
 
 from __future__ import annotations
 
+import os
 import argparse
 import pickle
 import socket
@@ -41,7 +42,7 @@ def recv_msg(conn):
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--host", type=str, default="192.168.1.170")
+    parser.add_argument("--host", type=str, default=os.environ.get("THOR_ADDRESS", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=5599)
     parser.add_argument("--steps", type=int, default=14400)
     parser.add_argument("--seed", type=int, default=123)

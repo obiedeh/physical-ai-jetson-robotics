@@ -33,7 +33,7 @@ There is no physical executor. This work supplies no D1–D5 evidence.
 
 ## Inspect and use
 
-On Thor, checkout: /home/oedeh/github/physical-ai-command-agent, branch command-agent.
+On Thor, checkout: <home>/github/physical-ai-command-agent, branch command-agent.
 The first work-order commit records the operator's Focus Rule exception.
 
 Run the standalone package CLI or the registered physical-ai-lab command:

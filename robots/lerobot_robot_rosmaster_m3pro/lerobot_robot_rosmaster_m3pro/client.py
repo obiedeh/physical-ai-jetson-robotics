@@ -6,6 +6,7 @@ served on the Orin. Registered as robot type `rosmaster_m3pro_client`.
 """
 from __future__ import annotations
 
+import os
 import json
 import logging
 from dataclasses import dataclass, field
@@ -29,7 +30,7 @@ BASE_ACTIONS = ("base.vx", "base.vy", "base.wz")
 @RobotConfig.register_subclass("rosmaster_m3pro_client")
 @dataclass
 class RosmasterM3ProClientConfig(RobotConfig):
-    remote_ip: str = "192.168.1.243"
+    remote_ip: str = os.environ.get("ORIN_ADDRESS", "127.0.0.1")
     port_zmq_cmd: int = 5555
     port_zmq_observations: int = 5556
     connect_timeout_s: float = 10.0

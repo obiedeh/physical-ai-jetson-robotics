@@ -61,7 +61,7 @@ Later extensions:
 Activate the repo environment:
 
 ```bash
-cd /home/oedeh/physical-ai-jetson-robotics-lab
+cd <home>/physical-ai-jetson-robotics-lab
 source .venv/bin/activate
 ```
 

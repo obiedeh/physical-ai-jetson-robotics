@@ -1,8 +1,8 @@
 {
   "checkpoint_content_sha256": "fe2d02d7d1b7d30885ee1c9e155b243b90dc761120c6091b75869bc4e81d8e4a",
-  "checkpoint_path": "/home/oedeh/synria-sim-training/pick_cup_17oct3_seed23/simcup17oct3s23_n040/checkpoints/step-000005000",
+  "checkpoint_path": "<home>/synria-sim-training/pick_cup_17oct3_seed23/simcup17oct3s23_n040/checkpoints/step-000005000",
   "dataset_content_sha256": "283517bcbb74bd6746bbc0968419e12ed7eb45166a8c51a2b8dacf4a659d6568",
-  "dataset_path": "/home/oedeh/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
+  "dataset_path": "<home>/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
   "held_out_episodes": [
     12,
     24,

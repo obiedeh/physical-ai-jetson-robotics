@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import math
 import signal
 import sys
 from pathlib import Path
@@ -19,13 +20,13 @@ from synria_lerobot.console.isaac import (
     launcher_from_config,
 )
 
-KIT = "/home/user/isaacsim/kit/python/bin/python3"
-SCENE = "/home/user/github/teleop/scripts/isaac_sim/alicia_d_live_scene.py"
+KIT = "<home>/isaacsim/kit/python/bin/python3"
+SCENE = "<home>/github/teleop/scripts/isaac_sim/alicia_d_live_scene.py"
 RECORD = (f"{KIT} {SCENE} --no-obstacles --pick-objects --physics-drive --sim-cameras "
           "--record-cameras --publish-sim-topics")
 PHYSICS = f"{KIT} {SCENE} --no-obstacles --pick-objects --physics-drive --sim-cameras"
-APP = "/home/user/isaacsim/kit/kit /home/user/isaacsim/apps/isaacsim.exp.full.kit"
-LAB = "/home/user/IsaacLab/_isaac_sim/python.sh scripts/train.py --task Isaac-Lab-Thing"
+APP = "<home>/isaacsim/kit/kit <home>/isaacsim/apps/isaacsim.exp.full.kit"
+LAB = "<home>/IsaacLab/_isaac_sim/python.sh scripts/train.py --task Isaac-Lab-Thing"
 DRIVER = ("/opt/ros/jazzy/lib/alicia_d_driver/alicia_d_driver_node --ros-args "
           "-p port:=/dev/serial/by-id/usb-1a86_X-if00")
 
@@ -58,7 +59,7 @@ class Fakes:
         if sig == 0:
             return
         self.signals.append((pid, sig))
-        if sig == signal.SIGKILL or (sig == signal.SIGTERM and self.die_on_term):
+        if sig == getattr(signal, "SIGKILL", None) or (sig == signal.SIGTERM and self.die_on_term):
             self.processes = [p for p in self.processes if p.pid != pid]
 
     def spawn(self, argv: list[str], env: dict[str, str], log: Path, cwd: Path) -> int:
@@ -94,10 +95,10 @@ def test_classification_names_isaac_families_and_never_the_driver() -> None:
     assert classify(proc(1, RECORD)) == "teleop scene"
     assert classify(proc(2, APP)) == "Isaac Sim app"
     assert classify(proc(3, LAB)) == "Isaac Lab"
-    kit = proc(4, "/home/user/isaacsim/kit/python/bin/python3 -m something")
+    kit = proc(4, "<home>/isaacsim/kit/python/bin/python3 -m something")
     assert classify(kit) == "Kit process"
     assert classify(proc(5, DRIVER)) is None
-    assert classify(proc(6, "/bin/bash /home/user/isaacsim/python.sh " + SCENE)) is None
+    assert classify(proc(6, "/bin/bash <home>/isaacsim/python.sh " + SCENE)) is None
     assert classify(proc(7, "python -m synria_lerobot.console.app --simulation")) is None
     assert "<device>" in isaac.masked(DRIVER) and "by-id" not in isaac.masked(DRIVER)
 
@@ -407,3 +408,82 @@ def test_failure_tail_keeps_error_lines_without_prefixes_and_tolerates_missing_l
     assert tail[-3:] == ["e19", "out of memory", "Killed"]
     assert isaac.launch_facts(tmp_path / "nope.log") == {
         "isaac_pid": None, "isaac_log": None, "log_exists": False}
+
+
+def test_sync_check_names_the_silent_side_and_offers_the_one_action(tmp_path: Path) -> None:
+    """Leader silent asks for the read-only driver; sim not following offers re-sync; in sync
+    needs nothing; without record mode the check waits."""
+    ready = {101: {"commit": "abc1234", "scene_loaded": True, "topics_started": True}}
+
+    def build(probe: dict[str, Any] | None, processes: list[ProcessInfo]) -> IsaacSupervisor:
+        fakes = Fakes(processes, rate=15.2, markers=ready)
+        sup = supervisor(tmp_path, fakes)
+        sup._sync_probe = lambda: probe
+        sup._fakes = fakes  # type: ignore[attr-defined]
+        return sup
+
+    silent = build({"leader_rate_hz": 0.0, "leader_age_s": None, "sim_age_s": 0.03,
+                    "max_joint_diff_deg": None}, [proc(101, RECORD)])
+    sync = silent.state()["sync"]
+    assert sync["status"] == "leader_silent" and sync["action"] == "start-driver"
+    assert "read-only driver" in sync["label"]
+    with_driver = build({"leader_rate_hz": 0.0, "leader_age_s": 4.0, "sim_age_s": 0.03,
+                         "max_joint_diff_deg": None}, [proc(101, RECORD), proc(9, DRIVER)])
+    sync = with_driver.state()["sync"]
+    assert sync["status"] == "leader_silent" and sync["action"] is None
+    assert "although a driver runs" in sync["label"]
+    apart = build({"leader_rate_hz": 30.1, "leader_age_s": 0.02, "sim_age_s": 0.03,
+                   "max_joint_diff_deg": 12.4, "joint_diff_deg": {"Joint2": 12.4}},
+                  [proc(101, RECORD), proc(9, DRIVER)])
+    sync = apart.state()["sync"]
+    assert sync["status"] == "out_of_sync" and sync["action"] == "resync"
+    assert sync["max_joint_diff_deg"] == 12.4 and sync["tolerance_deg"] == 3.0
+    together = build({"leader_rate_hz": 30.1, "leader_age_s": 0.02, "sim_age_s": 0.03,
+                      "max_joint_diff_deg": 1.1, "joint_diff_deg": {"Joint2": 1.1}},
+                     [proc(101, RECORD), proc(9, DRIVER)])
+    sync = together.state()["sync"]
+    assert sync["status"] == "in_sync" and sync["action"] is None
+    waiting = build({"leader_rate_hz": 30.1, "leader_age_s": 0.02, "sim_age_s": 0.03,
+                     "max_joint_diff_deg": 1.1}, [proc(9, DRIVER)])
+    assert waiting.state()["sync"]["status"] == "no_sim"
+    # Re-sync closes the teleop scene, never the driver, then launches record mode again.
+    result = apart.resync()
+    fakes = apart._fakes  # type: ignore[attr-defined]
+    assert {pid for pid, _ in fakes.signals} == {101}
+    assert fakes.spawned and fakes.spawned[-1][0][-1] == "record"
+    assert result["reused"] is False
+
+
+def test_monitor_sync_compares_arm_joints_only() -> None:
+    """The monitor's sync reads the latest leader and sim joint states by name."""
+    monitor = isaac.SimTopicMonitor(window_s=3.0)
+
+    class Message:
+        def __init__(self, names: list[str], positions: list[float]) -> None:
+            self.name, self.position = names, positions
+
+    monitor._joint_state("leader", Message(["Joint1", "Joint2", "Gripper"], [0.0, 0.5, 0.01]))
+    monitor._joint_state("state", Message(["Joint1", "Joint2", "Gripper"], [0.01, 0.55, 0.9]))
+    sync = monitor.sync()
+    assert sync["max_joint_diff_deg"] == pytest.approx(math.degrees(0.05), abs=0.1)
+    assert set(sync["joint_diff_deg"]) == {"Joint1", "Joint2"}
+    assert sync["leader_age_s"] is not None and sync["leader_age_s"] < 1.0
+    assert sync["leader_rate_hz"] > 0
+    assert isaac.SimTopicMonitor(window_s=3.0).sync()["max_joint_diff_deg"] is None
+
+
+@pytest.mark.parametrize("die_on_term", [True, False])
+def test_fake_process_signals_work_when_hard_kill_is_unavailable(monkeypatch, die_on_term):
+    """Missing optional hard-kill signals do not break fake terminate or probe semantics."""
+    monkeypatch.delattr(signal, "SIGKILL", raising=False)
+    target = proc(42, "isaac-sim")
+    unrelated = proc(43, "unrelated")
+    fakes = Fakes([target, unrelated])
+    fakes.die_on_term = die_on_term
+    fakes.send_signal(42, 0)
+    assert fakes.processes == [target, unrelated]
+    fakes.send_signal(42, signal.SIGTERM)
+    assert fakes.processes == ([unrelated] if die_on_term else [target, unrelated])
+    assert fakes.signals[-1] == (42, signal.SIGTERM)
+    with pytest.raises(ProcessLookupError):
+        fakes.send_signal(99, 0)

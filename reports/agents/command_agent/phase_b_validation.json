@@ -113,7 +113,7 @@
     "evidence": "reports/agents/command_agent/phase_b_ci.json"
   },
   "provenance": {
-    "device": "jetsonthor",
+    "device": "bench-thor",
     "architecture": "aarch64",
     "python_version": "3.12.3",
     "jetpack_version": "nvidia-jetpack\t7.1-b112",
@@ -263,7 +263,7 @@
       "all_violation_files_identical_to_github_main": true
     },
     "provenance": {
-      "device": "jetsonthor",
+      "device": "bench-thor",
       "architecture": "aarch64",
       "python_version": "3.12.3",
       "jetpack_version": "nvidia-jetpack\t7.1-b112",

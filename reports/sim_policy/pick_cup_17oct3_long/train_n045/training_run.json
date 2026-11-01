@@ -11,73 +11,73 @@
     {
       "checkpoint_content_sha256": "10c914bc0677b5864c9434144d84c383eb4cdc901a9f83d86a9f7ed4b1ead41e",
       "evaluation_status": "evaluated",
-      "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000005000",
+      "path": "<home>/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000005000",
       "step": 5000
     },
     {
       "checkpoint_content_sha256": "9b1eb9a84f77a970131fd6f1f386564ce07f16330334147628e8449e89e62802",
       "evaluation_status": "evaluated",
-      "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000010000",
+      "path": "<home>/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000010000",
       "step": 10000
     },
     {
       "checkpoint_content_sha256": "a77bbf78dd75965fe84683dc21e4911366eb800d2e2f354208cfcdcdf8f5b7d6",
       "evaluation_status": "evaluated",
-      "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000015000",
+      "path": "<home>/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000015000",
       "step": 15000
     },
     {
       "checkpoint_content_sha256": "1e77a3f68053556bc5e4dd589d053d8f503317337a90e5ca41ad60da1bd72ce1",
       "evaluation_status": "evaluated",
-      "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000020000",
+      "path": "<home>/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000020000",
       "step": 20000
     },
     {
       "checkpoint_content_sha256": "a7849987dd555717ca570717facf44720be47185f80cb65133c7af073a7291d2",
       "evaluation_status": "evaluated",
-      "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000025000",
+      "path": "<home>/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000025000",
       "step": 25000
     },
     {
       "checkpoint_content_sha256": "f9c3d42b69aa4e01699614ca81de1b9839752723811664b03900eea5b781cd2f",
       "evaluation_status": "evaluated",
-      "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000030000",
+      "path": "<home>/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000030000",
       "step": 30000
     },
     {
       "checkpoint_content_sha256": "ec9a5c6957c4b3cd65f9b13f73cc03c7f53217725c2f94b11a3927c4fb60b8ca",
       "evaluation_status": "evaluated",
-      "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000035000",
+      "path": "<home>/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000035000",
       "step": 35000
     },
     {
       "checkpoint_content_sha256": "7c3ec27d42753253220299cce62a6db59c4bb284cc62b79e3d300b4ba4ba941b",
       "evaluation_status": "evaluated",
-      "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000040000",
+      "path": "<home>/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000040000",
       "step": 40000
     },
     {
       "checkpoint_content_sha256": "8f7194f42914dfcbd871e9d23346afc564c1df1825802f359fa11f60d6193b75",
       "evaluation_status": "evaluated",
-      "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000045000",
+      "path": "<home>/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000045000",
       "step": 45000
     },
     {
       "checkpoint_content_sha256": "174d86ad45754886a22199b68de02c550e3dec6c8d5ef9d737583a201ad67089",
       "evaluation_status": "evaluated",
-      "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000050000",
+      "path": "<home>/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000050000",
       "step": 50000
     },
     {
       "checkpoint_content_sha256": "e53f2dcbc171e6645a52b886eebd8ee52dc626f80749c33224bd1c37fb0b8c46",
       "evaluation_status": "evaluated",
-      "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000055000",
+      "path": "<home>/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000055000",
       "step": 55000
     },
     {
       "checkpoint_content_sha256": "bca9de2e6804a6a4e196289264bc8d553858e0302bbc799d919b4f01ccf05442",
       "evaluation_status": "evaluated",
-      "path": "/home/oedeh/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000060000",
+      "path": "<home>/synria-sim-training/pick_cup_17oct3_long/simcup17oct3long_n045/checkpoints/step-000060000",
       "step": 60000
     }
   ],
@@ -101,7 +101,7 @@
     "dataloader_workers": 0,
     "dataset_repo_id": "local/pick_cup_17oct3_sim",
     "device": "cuda",
-    "evidence_directory": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3_long/train_n045",
+    "evidence_directory": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3_long/train_n045",
     "expected_contract": {
       "action_lookahead_steps": 1,
       "action_source": "leader",
@@ -158,7 +158,7 @@
     "policy_ledger": "docs/ludo_flagship/SIM_POLICY_LEDGER.md",
     "probe_set": "reports/sim_policy/pick_cup_17oct3/probes.json",
     "probe_sha256": "4300c43aa9a645d401235daaf9f108510cdd933fbb5ddac5e1a4d40a6ab082ef",
-    "repository": "/home/oedeh/github/physical-ai-jetson-robotics",
+    "repository": "<home>/github/physical-ai-jetson-robotics",
     "response_timeout_s": 0.5,
     "save_freq": 5000,
     "timeline": "docs/ludo_flagship/timeline.jsonl",
@@ -168,7 +168,7 @@
     "weight_decay": 0.0001
   },
   "dataset_content_sha256": "283517bcbb74bd6746bbc0968419e12ed7eb45166a8c51a2b8dacf4a659d6568",
-  "dataset_path": "/home/oedeh/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
+  "dataset_path": "<home>/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
   "declared_input_conditioning": [
     "observation.state",
     "observation.images.wrist",
@@ -195,7 +195,7 @@
     36,
     44
   ],
-  "host": "aimlstation",
+  "host": "rtx-5090-workstation",
   "lane": "simulation",
   "last_training_metrics": {
     "episodes": 1072.8654447921324,
@@ -285,7 +285,7 @@
   "physical_eligible": false,
   "policy_id": "simcup17oct3long_n045",
   "pretrained_backbone_weights": null,
-  "probe_set": "/home/oedeh/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/probes.json",
+  "probe_set": "<home>/github/physical-ai-jetson-robotics/reports/sim_policy/pick_cup_17oct3/probes.json",
   "probe_sha256": "4300c43aa9a645d401235daaf9f108510cdd933fbb5ddac5e1a4d40a6ab082ef",
   "requested_steps": 60000,
   "seed": 17,

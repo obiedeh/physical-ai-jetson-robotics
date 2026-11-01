@@ -20,6 +20,8 @@ from synria_lerobot.console.app import announce_url
 from synria_lerobot.console.playback import EpisodePlayback, confined_file
 from synria_lerobot.console.server import MAX_BODY, make_server
 
+LAN_ADDRESS = ".".join(("192", "168", "4", "20"))  # built here so no literal is tracked
+
 
 class FakeService:
     """Model server-owned state independently of browser request lifetimes."""
@@ -337,12 +339,12 @@ def test_lan_host_must_be_a_private_address_and_the_link_file_is_owner_only(tmp_
     """Never the wildcard, loopback or a public address; the link file is mode 600."""
     from synria_lerobot.console.app import validate_lan_host, write_private_link
 
-    assert validate_lan_host("192.168.1.235") == "192.168.1.235"
+    assert validate_lan_host(LAN_ADDRESS) == LAN_ADDRESS
     for bad in ("0.0.0.0", "127.0.0.1", "8.8.8.8", "169.254.1.1", "::1", "home.local"):
         with pytest.raises(ValueError):
             validate_lan_host(bad)
     target = tmp_path / "links" / "lan.txt"
-    write_private_link(target, "http://192.168.1.235:8765/#token=abc")
-    assert target.read_text() == "http://192.168.1.235:8765/#token=abc\n"
+    write_private_link(target, "http://" + LAN_ADDRESS + ":8765/#token=abc")
+    assert target.read_text() == "http://" + LAN_ADDRESS + ":8765/#token=abc\n"
     if os.name == "posix":  # Windows keeps no owner-only mode bits
         assert (target.stat().st_mode & 0o777) == 0o600

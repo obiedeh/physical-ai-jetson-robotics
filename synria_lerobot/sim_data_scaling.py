@@ -22,6 +22,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from physical_ai_lab.portable import expand_json, expand_path, portable_json, portable_text
+
 from .act_training import train
 from .checkpoint_eval import read_episode_metadata
 from .exclusions import read_exclusions
@@ -68,7 +70,7 @@ def validate_study(spec: dict[str, Any]) -> dict[str, Any]:
             raise ValueError(f"study {key} must be a nonnegative integer")
     if not isinstance(spec.get("subset_sizes"), list):
         raise ValueError("study needs a list of subset sizes")
-    config = json.loads(Path(spec["training_config"]).read_text(encoding="utf-8"))
+    config = json.loads(expand_path(spec["training_config"]).read_text(encoding="utf-8"))
     if training_lane(config) != SIMULATION_LANE:
         raise ValueError("the study trains in the simulation lane only")
     if config.get("training_episode_limit") is not None:
@@ -122,9 +124,9 @@ def run_study(
     failed run leaves the rows so far on disk marked failed, never a partial curve
     passed off as complete.
     """
-    spec = validate_study(spec)
+    spec = expand_json(validate_study(spec))
     dataset_root = Path(spec["dataset_root"])
-    base = json.loads(Path(spec["training_config"]).read_text(encoding="utf-8"))
+    base = expand_json(json.loads(Path(spec["training_config"]).read_text(encoding="utf-8")))
     probes = json.loads(Path(base["probe_set"]).read_text(encoding="utf-8")) if Path(
         base["probe_set"]).is_absolute() else json.loads(
         (Path(base["repository"]) / base["probe_set"]).read_text(encoding="utf-8"))
@@ -265,15 +267,16 @@ def render_markdown(study: dict[str, Any]) -> str:
         "about the physical arm.",
         "",
     ]
-    return "\n".join(lines)
+    return portable_text("\n".join(lines))
 
 
 def write_study(study: dict[str, Any], directory: Path) -> tuple[Path, Path]:
     """Write ``study.json`` and ``STUDY.md`` into the study's evidence directory."""
     directory.mkdir(parents=True, exist_ok=True)
     record = directory / "study.json"
-    record.write_text(json.dumps(study, indent=2, sort_keys=True, allow_nan=False) + "\n",
+    record.write_text(portable_text(
+        json.dumps(portable_json(study), indent=2, sort_keys=True, allow_nan=False) + "\n"),
                       encoding="utf-8")
     table = directory / "STUDY.md"
-    table.write_text(render_markdown(study), encoding="utf-8")
+    table.write_text(portable_text(render_markdown(study)), encoding="utf-8")
     return record, table

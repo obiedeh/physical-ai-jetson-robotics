@@ -1,8 +1,8 @@
-Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
-[Info] [carb] Logging to file: /home/oedeh/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260810_115111.log
-2026-08-10T16:51:11Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_newton' or '/home/oedeh/IsaacLab/source/isaaclab_newton/config'
-2026-08-10T16:51:11Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_physx' or '/home/oedeh/IsaacLab/source/isaaclab_physx/config'
-2026-08-10T16:51:11Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '/home/oedeh/IsaacLab/source/isaaclab_ppisp' or '/home/oedeh/IsaacLab/source/isaaclab_ppisp/config'
+Loading user config located at: '<home>/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: <home>/.venv/isaacsim5/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260810_115111.log
+2026-08-10T16:51:11Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_newton] Extensions config 'extension.toml' doesn't exist '<home>/IsaacLab/source/isaaclab_newton' or '<home>/IsaacLab/source/isaaclab_newton/config'
+2026-08-10T16:51:11Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_physx] Extensions config 'extension.toml' doesn't exist '<home>/IsaacLab/source/isaaclab_physx' or '<home>/IsaacLab/source/isaaclab_physx/config'
+2026-08-10T16:51:11Z [4ms] [Warning] [omni.ext.plugin] [ext: isaaclab_ppisp] Extensions config 'extension.toml' doesn't exist '<home>/IsaacLab/source/isaaclab_ppisp' or '<home>/IsaacLab/source/isaaclab_ppisp/config'
 
 |---------------------------------------------------------------------------------------------|
 | Driver Version: 580.173.02    | Graphics API: Vulkan
@@ -35,7 +35,7 @@ Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site
 2026-08-10T16:51:17Z [6,026ms] [Warning] [omni.fabric.plugin] Warning: attribute viewportHandle not found for bucket id 7
 
 [INFO][AppLauncher]: Using device: cuda:0
-[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.rendering.kit
+[INFO][AppLauncher]: Loading experience file: <home>/IsaacLab/apps/isaaclab.python.headless.rendering.kit
 [INFO]: Parsing configuration from: <class 'isaac.isaaclab_tasks.synria_pickplace.env_cfg.SynriaChessPickPlaceEnvCfg'>
 
 [36m======================================================================================[0m
@@ -167,7 +167,7 @@ Loading user config located at: '/home/oedeh/.venv/isaacsim5/lib/python3.11/site
 +-----------+----------+
 
 [INFO]: Completed setting up the environment...
-[eval-act] connected to policy server 192.168.1.170:5599
+[eval-act] connected to policy server <lan-address>:5599
 [eval-act] 5/40 episodes | grasp=0 at_plate=0 place=0 full=0
 [eval-act] 10/40 episodes | grasp=0 at_plate=0 place=0 full=0
 [eval-act] 15/40 episodes | grasp=0 at_plate=0 place=0 full=0

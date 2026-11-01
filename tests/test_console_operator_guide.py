@@ -107,3 +107,16 @@ def test_browser_startup_failure_is_reported_without_unhandled_pipe_error(tmp_pa
     assert "Isolated browser transport failed" in result.stderr
     assert "Unhandled 'error' event" not in result.stderr
     assert not (tmp_path / "must-not-exist.png").exists()
+
+
+@pytest.mark.parametrize("scenario", [
+    "closed", "delayed_close", "exit_before_close", "signal_escalation", "stuck",
+])
+def test_browser_teardown_waits_for_owned_process_close(scenario: str) -> None:
+    """Profile cleanup follows process close, with bounded escalation on the owned child only."""
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("optional JavaScript runtime unavailable")
+    subprocess.run([
+        node, str(Path(__file__).with_name("console_guided_browser_lifecycle.cjs")), scenario,
+    ], check=True, capture_output=True, text=True, timeout=15)

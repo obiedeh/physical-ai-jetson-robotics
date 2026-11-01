@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reject prohibited session files and coding-tool attribution.
+"""Reject prohibited session files, coding-tool attribution and private identifiers.
 
 With ``--commits RANGE`` it also checks every commit in the range: an author or
 committer identity, or a message line, that names a coding tool or its vendor
@@ -28,6 +28,14 @@ PROHIBITED_PATTERN = re.compile(
 # Vendor domains whose addresses must never author or commit here.
 PROHIBITED_IDENTITY_PATTERN = re.compile(r"@(?:" + "anthrop" + r"ic\.com|openai\.com)",
                                          re.IGNORECASE)
+# Evidence, logs and scripts carry board labels, <lan-address> and <home>. No path or address
+# may appear literally; the names of machines live in a private list outside the repository.
+HOME_PATH_PATTERN = re.compile(r"/home/[A-Za-z0-9_-]+")
+PRIVATE_ADDRESS_PATTERN = re.compile(
+    r"(?<![0-9.])(?:10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"
+    r"|172\.(?:1[6-9]|2[0-9]|3[01])\.[0-9]{1,3}\.[0-9]{1,3}"
+    r"|192\.168\.[0-9]{1,3}\.[0-9]{1,3})(?![0-9.])"
+)
 CONTENT_ALLOWLIST = (
     Path("agents/ops_copilot"),
     Path("tests/test_agents_ops_copilot.py"),
@@ -58,16 +66,21 @@ def find_violations(root: Path, paths: list[Path] | None = None) -> list[str]:
             violations.append(f"{display_path}: prohibited handoff file")
 
         absolute = root / relative
-        if not absolute.is_file() or content_is_allowed(relative):
+        if not absolute.is_file() or absolute.is_symlink():
             continue
         data = absolute.read_bytes()
         if b"\0" in data:
             continue
+        tool_names_allowed = content_is_allowed(relative)
         for line_number, line in enumerate(data.decode(errors="replace").splitlines(), 1):
-            if PROHIBITED_PATTERN.search(line):
+            if not tool_names_allowed and PROHIBITED_PATTERN.search(line):
                 violations.append(
                     f"{display_path}:{line_number}: prohibited coding-tool name"
                 )
+            if HOME_PATH_PATTERN.search(line):
+                violations.append(f"{display_path}:{line_number}: home-directory path")
+            if PRIVATE_ADDRESS_PATTERN.search(line):
+                violations.append(f"{display_path}:{line_number}: private-range address")
     return violations
 
 

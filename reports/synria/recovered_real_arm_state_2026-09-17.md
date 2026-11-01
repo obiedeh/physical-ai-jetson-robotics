@@ -5,9 +5,9 @@ test, dataset artifact, safety acceptance or delivery-stage result.
 
 ## Source checkout and provenance
 
-- External checkout inspected: `/home/oedeh/github/Alicia-D-Isaac-Teleop`.
+- External checkout inspected: `<home>/github/Alicia-D-Isaac-Teleop`.
 - Checked-out HEAD: `ad203a91e05081c7e2a11d6a2b83a221d7538d07`.
-- `/home/oedeh/github/Alicia-D-ROS2` is a symbolic link to
+- `<home>/github/Alicia-D-ROS2` is a symbolic link to
   `Alicia-D-Isaac-Teleop`; it is not a separate checkout.
 - The external checkout is dirty. Tracked modifications are
   `debug_isaac/alicia_d_live_scene.usd`,

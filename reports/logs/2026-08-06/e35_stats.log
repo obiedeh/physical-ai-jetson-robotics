@@ -13,4 +13,4 @@
 [stats] episode 240/300
 [stats] episode 260/300
 [stats] episode 280/300
-[stats] wrote /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33v2_lerobot/meta/episodes_stats.jsonl (300 rows)
+[stats] wrote <home>/github/physical-ai-jetson-robotics/reports/training/synria_e33v2_lerobot/meta/episodes_stats.jsonl (300 rows)

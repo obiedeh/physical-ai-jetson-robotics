@@ -35,8 +35,8 @@ while true; do
   # --- 5090 GPU cross-check ----------------------------------------------
   GPU=$(nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits 2>/dev/null | head -1)
   # --- Thor: training log + policy server --------------------------------
-  THOR=$(ssh -o BatchMode=yes -o ConnectTimeout=10 oedeh@192.168.1.170 '
-    for f in /home/oedeh/gr00t_e*.log; do
+  THOR=$(ssh -o BatchMode=yes -o ConnectTimeout=10 ${THOR_SSH:?set THOR_SSH to user@address} '
+    for f in $HOME/gr00t_e*.log; do
       [ -f "$f" ] || continue
       b="${f%.log}"
       # finished or failed jobs are not stall candidates
@@ -50,7 +50,7 @@ while true; do
     ss -tln 2>/dev/null | grep -q 5599 && printf "serve:UP" || printf "serve:down"
   ' 2>/dev/null) || {
     sleep 30   # debounce: one transient ssh timeout is not an outage
-    THOR=$(ssh -o BatchMode=yes -o ConnectTimeout=10 oedeh@192.168.1.170 'echo retry-ok; ss -tln 2>/dev/null | grep -q 5599 && printf "serve:UP" || printf "serve:down"' 2>/dev/null) || THOR="THOR-UNREACHABLE"
+    THOR=$(ssh -o BatchMode=yes -o ConnectTimeout=10 ${THOR_SSH:?set THOR_SSH to user@address} 'echo retry-ok; ss -tln 2>/dev/null | grep -q 5599 && printf "serve:UP" || printf "serve:down"' 2>/dev/null) || THOR="THOR-UNREACHABLE"
   }
   case "$THOR" in *STALL*|*UNREACHABLE*) ISSUES="$ISSUES $THOR";; esac
   # --- one line per cycle -------------------------------------------------

@@ -43,6 +43,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Protocol
 
+from physical_ai_lab.portable import portable_text
+
 from .embodiment import SynriaObservation
 from .physical_contract import (
     DEFAULT_COMMAND_TOPICS,
@@ -697,7 +699,8 @@ def write_report(report: dict[str, Any], path: Path) -> None:
     """Write the campaign report once; an existing file is never overwritten."""
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("x", encoding="utf-8") as stream:
-        stream.write(json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + "\n")
+        stream.write(portable_text(
+            json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + "\n"))
 
 
 def load_placement_tolerance(path: Path, task_id: str) -> float:

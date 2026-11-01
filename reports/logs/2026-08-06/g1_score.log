@@ -62,5 +62,5 @@
 [g1] ======== PASS ========
 [g1] answered 60/60 (parse/API fails 0)
 [g1] median 2.6 mm | p90 4.5 mm | <=20mm on 57/60 (95%)
-[g1] report: /home/oedeh/github/physical-ai-jetson-robotics/reports/perception_bench/g1_report.json
+[g1] report: <home>/github/physical-ai-jetson-robotics/reports/perception_bench/g1_report.json
 G1DONE

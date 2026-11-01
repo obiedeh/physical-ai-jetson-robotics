@@ -1,6 +1,6 @@
 {
   "schema": "slam-session-v1",
-  "host": "yahboom",
+  "host": "field-orin",
   "device_model": "NVIDIA Jetson Orin NX Engineering Reference Developer Kit Super",
   "provenance": "provenance.json",
   "slam_stack": "vendor slam_mapping slam_toolbox.launch.py on M3Pro_ws: slam_toolbox 2.6.10 online_async (mapper_params_online_async.yaml), ira_laser_tools laserscan_multi_merger, yahboom_laser_filter, imu_filter_madgwick, robot_localization ekf",

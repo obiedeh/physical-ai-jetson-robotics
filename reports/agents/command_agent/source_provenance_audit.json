@@ -7,7 +7,7 @@
   "phase_a_merged": "d13216a91e194050898e9cc6c9a10fa2723fb76f",
   "audited_published_head": "b4dc9140349ea6d5818c6723601985d44f2a19b3",
   "old_thor_checkout": {
-    "path": "/home/oedeh/github/physical-ai-jetson-robotics",
+    "path": "<home>/github/physical-ai-jetson-robotics",
     "head": "575a2a99c4510e74fc2c74ce35d69f86320e6e2f",
     "status": [
       "?? reports/training/synria_e46_lerobot_v21/"
@@ -15,7 +15,7 @@
     "modified_by_audit": false
   },
   "isolated_thor_checkout": {
-    "path": "/home/oedeh/github/physical-ai-command-agent",
+    "path": "<home>/github/physical-ai-command-agent",
     "branch": "command-agent",
     "independent_object_database": true,
     "clean_before_audit": true
@@ -113,12 +113,12 @@
   "github_authoritative_sync": {
     "utc": "2026-10-20T20:13:17.727093+00:00",
     "operator_instruction": "Update Thor with GitHub; GitHub leads.",
-    "checkout": "/home/oedeh/github/physical-ai-jetson-robotics",
+    "checkout": "<home>/github/physical-ai-jetson-robotics",
     "before_head": "575a2a99c4510e74fc2c74ce35d69f86320e6e2f",
     "after_head": "d13216a91e194050898e9cc6c9a10fa2723fb76f",
     "after_tree": "b52cf162dc840a9781852262bb646c7f4a0aa7d1",
     "history_handling": "The old history is unrelated to GitHub main. Verified a complete local-only bundle of old main, then reset the clean main checkout to fetched origin/main. No histories merged; nothing from old history pushed.",
-    "local_only_backup_bundle": "/home/oedeh/repo_backups/physical-ai-jetson-robotics/20261020T201135Z/old-main.bundle",
+    "local_only_backup_bundle": "<home>/repo_backups/physical-ai-jetson-robotics/20261020T201135Z/old-main.bundle",
     "backup_bundle_bytes": 709342084,
     "backup_verified": true,
     "tracked_tree_matches_github": true,

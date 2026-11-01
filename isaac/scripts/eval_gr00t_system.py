@@ -23,12 +23,13 @@ S2 (--supervisor --gemini): S1 plus L3 phase gates. At phase boundaries
     "no verdict" (gate passes open — the L2 signatures still cover).
 
     ~/.venv/isaacsim5/bin/python isaac/scripts/eval_gr00t_system.py \
-        --host 192.168.1.170 --port 5594 --num_envs 16 --steps 8500 \
+        --host <lan-address> --port 5594 --num_envs 16 --steps 8500 \
         --staged --supervisor [--gemini] --headless
 """
 
 from __future__ import annotations
 
+import os
 import argparse
 import base64
 import json as _json
@@ -93,7 +94,7 @@ def _gemini_yes_no(png_bytes: bytes, prompt: str, key: str,
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--host", type=str, default="192.168.1.170")
+    parser.add_argument("--host", type=str, default=os.environ.get("THOR_ADDRESS", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=5594)
     parser.add_argument("--num_envs", type=int, default=16)
     parser.add_argument("--steps", type=int, default=8500)

@@ -1,5 +1,5 @@
 [INFO][AppLauncher]: Using device: cuda:0
-[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[INFO][AppLauncher]: Loading experience file: <home>/IsaacLab/apps/isaaclab.python.headless.kit
 [arm] USD colliders (with instance proxies): 11
 [arm]    ON  /Alicia_D_v5_6_gripper_50mm/base_link/collisions/base_link/node_STL_BINARY_
 [arm]    ON  /Alicia_D_v5_6_gripper_50mm/link1/collisions/link1/node_STL_BINARY_
@@ -30,4 +30,4 @@
 [arm] OBSTACLE (slab at measured link3 mid-sweep): Joint2 commanded +0.900 rad, reached +0.045 rad
 [arm] control +0.840 vs blocked +0.045 rad -> arm links STALLED on the obstacle
 [arm] ======== ARM COLLIDERS LIVE ========
-[arm] wrote /home/oedeh/github/physical-ai-jetson-robotics/reports/synria_arm_collider_probe.json
+[arm] wrote <home>/github/physical-ai-jetson-robotics/reports/synria_arm_collider_probe.json

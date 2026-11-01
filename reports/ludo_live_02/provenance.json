@@ -2,7 +2,7 @@
   "timestamp_utc": "2026-08-20T13:37:40Z",
   "git_sha": "e79c4b538fe250b6cef1033eac9690106fc98404",
   "git_dirty": true,
-  "host": "aimlstation",
+  "host": "rtx-5090-workstation",
   "platform": "Linux-6.17.0-22-generic-x86_64-with-glibc2.39",
   "python": "3.11.13",
   "gpu": "NVIDIA GeForce RTX 5090, 580.173.02",
@@ -14,7 +14,7 @@
     "--commands",
     "4",
     "--out",
-    "/home/oedeh/github/physical-ai-jetson-robotics/reports/ludo_live_02"
+    "<home>/github/physical-ai-jetson-robotics/reports/ludo_live_02"
   ],
   "control_hz": 30,
   "data_kind": "simulated (Isaac Sim; kinematic attach glue + release-hold sim-authority patches active \u2014 see ledger; NOT real-hardware data)",

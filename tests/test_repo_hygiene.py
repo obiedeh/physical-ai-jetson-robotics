@@ -1,5 +1,4 @@
-"""Verify repository content and commit attribution with isolated Git fixtures."""
-
+"""Verify tracked prose and commit attribution obey repository hygiene rules."""
 from __future__ import annotations
 
 import os
@@ -52,7 +51,7 @@ def test_accepts_ordinary_database_and_screen_pointer_code(tmp_path: Path, sourc
     assert find_violations(tmp_path, [path]) == []
 
 
-def _git(root: Path, *args: str, name: str = "obiedeh", email: str = "obiedeh@gmail.com") -> None:
+def _git(root: Path, *args: str, name: str = "oedeh", email: str = "obiedeh@gmail.com") -> None:
     """Run git in ``root`` with the given author and committer identity."""
     env = {**os.environ, "GIT_AUTHOR_NAME": name, "GIT_AUTHOR_EMAIL": email,
            "GIT_COMMITTER_NAME": name, "GIT_COMMITTER_EMAIL": email}
@@ -74,3 +73,28 @@ def test_commit_range_rejects_vendor_identities_and_trailers(tmp_path: Path) -> 
     assert any("prohibited author" in item for item in found)
     assert any("prohibited committer" in item for item in found)
     assert sum("prohibited attribution in message" in item for item in found) == 1
+
+
+@pytest.mark.parametrize(("line", "kind"), [
+    ("dataset: /ho" + "me/someone/data", "home-directory path"),
+    ("ssh user@" + ".".join(("192", "168", "1", "9")), "private-range address"),
+    ("--host " + ".".join(("10", "2", "3", "4")), "private-range address"),
+    ("peer " + ".".join(("172", "31", "0", "1")) + ":8090", "private-range address"),
+])
+def test_rejects_private_identifiers_even_in_allowlisted_paths(
+    tmp_path: Path, line: str, kind: str,
+) -> None:
+    path = Path("agents/ops_copilot/runtime.py")
+    (tmp_path / path).parent.mkdir(parents=True)
+    (tmp_path / path).write_text(line + "\n")
+    assert find_violations(tmp_path, [path]) == [f"{path.as_posix()}:1: {kind}"]
+
+
+@pytest.mark.parametrize("line", [
+    "dataset: <home>/data on <lan-address>", "public 8.8.8.8", "version 1.2.3.4",
+    "not private " + ".".join(("172", "32", "0", "1")), "/homeless/path",
+])
+def test_accepts_tokens_and_public_values(tmp_path: Path, line: str) -> None:
+    path = Path("evidence.json")
+    (tmp_path / path).write_text(line + "\n")
+    assert find_violations(tmp_path, [path]) == []

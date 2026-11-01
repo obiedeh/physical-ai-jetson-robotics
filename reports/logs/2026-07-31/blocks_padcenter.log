@@ -1,5 +1,5 @@
 [INFO][AppLauncher]: Using device: cuda:0
-[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[INFO][AppLauncher]: Loading experience file: <home>/IsaacLab/apps/isaaclab.python.headless.kit
 [feas] asset: synria_6dof_arm.usd
 
 [36m======================================================================================[0m
@@ -13,13 +13,13 @@
 [feas] teleport-to-20mm test: fingers now at 20.0 / -20.0 mm
 [feas] gripper bodies: ['left_gripper', 'right_gripper']
 Traceback (most recent call last):
-  File "/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/scripts/synria_grasp_feasibility.py", line 64, in main
+  File "<home>/github/physical-ai-jetson-robotics-gr00t/isaac/scripts/synria_grasp_feasibility.py", line 64, in main
     return _run(args)
            ^^^^^^^^^^
-  File "/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/scripts/synria_grasp_feasibility.py", line 300, in _run
+  File "<home>/github/physical-ai-jetson-robotics-gr00t/isaac/scripts/synria_grasp_feasibility.py", line 300, in _run
     mid = pad_center_world()
           ^^^^^^^^^^^^^^^^^^
-  File "/home/oedeh/github/physical-ai-jetson-robotics-gr00t/isaac/scripts/synria_grasp_feasibility.py", line 221, in pad_center_world
+  File "<home>/github/physical-ai-jetson-robotics-gr00t/isaac/scripts/synria_grasp_feasibility.py", line 221, in pad_center_world
     loc = torch.tensor(_PAD_LOCAL[side], device=dev).expand(n if False else 1, 3)
                                                 ^^^
 NameError: name 'dev' is not defined

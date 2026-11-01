@@ -1,4 +1,4 @@
-[INFO] [launch]: All log files can be found below /home/jetson/.ros/log/2026-09-17-09-00-55-435705-yahboom-1403487
+[INFO] [launch]: All log files can be found below <home>/.ros/log/2026-09-17-09-00-55-435705-yahboom-1403487
 [INFO] [launch]: Default logging verbosity is set to INFO
 [INFO] [joint_state_publisher-1]: process started with pid [1403654]
 [INFO] [robot_state_publisher-2]: process started with pid [1403656]
@@ -324,4 +324,4 @@
 [INFO] [ekf_node-6]: process has finished cleanly [pid 1403664]
 [ERROR] [joint_state_publisher-1]: process has died [pid 1403654, exit code 1, cmd '/opt/ros/humble/lib/joint_state_publisher/joint_state_publisher --ros-args'].
 [INFO] [rviz2-8]: process has finished cleanly [pid 1403683]
-[ERROR] [async_slam_toolbox_node-7]: process has died [pid 1403666, exit code -9, cmd '/opt/ros/humble/lib/slam_toolbox/async_slam_toolbox_node --ros-args -r __node:=slam_toolbox --params-file /home/jetson/M3Pro_ws/install/slam_mapping/share/slam_mapping/config/mapper_params_online_async.yaml --params-file /tmp/launch_params_vjw2p9or'].
+[ERROR] [async_slam_toolbox_node-7]: process has died [pid 1403666, exit code -9, cmd '/opt/ros/humble/lib/slam_toolbox/async_slam_toolbox_node --ros-args -r __node:=slam_toolbox --params-file <home>/M3Pro_ws/install/slam_mapping/share/slam_mapping/config/mapper_params_online_async.yaml --params-file /tmp/launch_params_vjw2p9or'].

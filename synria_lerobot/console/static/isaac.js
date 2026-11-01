@@ -27,6 +27,32 @@
       `Sim topics publishing: ${tick(progress.topics_started)} (${rate}, needs 15 Hz)`];
   }
 
+  /** Words and the one button for the leader-to-sim sync check. */
+  function syncLine(sync) {
+    if (!sync) return {badge: "Sync not checked", level: "demo", words: "", action: null};
+    const level = sync.status === "in_sync" ? "" : sync.status === "no_sim" ? "demo" : "danger";
+    const badge = {in_sync: "In sync", out_of_sync: "Out of sync", leader_silent: "Leader silent",
+      sim_silent: "Sim silent", no_sim: "Sync pending", unknown: "Sync unknown"}[sync.status] || "Sync unknown";
+    return {badge, level, words: sync.label || "", action: sync.action || null};
+  }
+
+  /** Draw the sync badge, words and button; the driver button already covers start-driver. */
+  function renderSync(sync, driver) {
+    const badge = document.getElementById("isaac-sync-badge");
+    const words = document.getElementById("isaac-sync-words");
+    const button = document.getElementById("isaac-sync-action");
+    if (!badge || !words || !button) return;
+    const line = syncLine(sync);
+    badge.textContent = line.badge; badge.className = `badge ${line.level}`;
+    words.textContent = line.words;
+    button.hidden = line.action !== "resync";
+    button.disabled = busy;
+    if (line.action === "start-driver") {
+      const driverStart = document.getElementById("isaac-driver-start");
+      if (driverStart) driverStart.hidden = Boolean(driver && driver.running);
+    }
+  }
+
   /** Draw the panel from a state object; pure DOM, no requests. */
   function render(isaac) {
     last = isaac;
@@ -47,6 +73,7 @@
       : `Arm driver is not running. The button starts only the read-only form: ${driver.read_only_command || ""}`;
     const driverStart = document.getElementById("isaac-driver-start");
     driverStart.hidden = Boolean(driver.running); driverStart.disabled = busy || !driver.can_start;
+    renderSync(isaac.sync || null, driver);
     const closes = document.getElementById("isaac-closes");
     const willClose = (isaac.button && isaac.button.closes) || [];
     closes.hidden = willClose.length === 0;
@@ -94,12 +121,13 @@
   /** The phase the wizard footer should name: start, waiting or ready. */
   function phase() { if (!last || last.status === "not_running" || last.status === "other_running") return "start"; return last.status === "starting" ? "waiting" : "ready"; }
 
-  window.SynriaIsaac = {last: lastState, render, progressLines, instanceLine, running, phase, start: () => act("start")};
+  window.SynriaIsaac = {last: lastState, render, progressLines, instanceLine, syncLine, running, phase, start: () => act("start")};
   if (typeof window !== "undefined" && typeof document !== "undefined") {
     window.addEventListener("console-ready", () => {
       document.getElementById("isaac-action").onclick = () => safe(() => act("start"));
       document.getElementById("isaac-stop").onclick = () => safe(async () => { if (confirm("Stop Isaac record mode? Takes already saved are kept.")) await act("stop"); });
       document.getElementById("isaac-driver-start").onclick = () => safe(() => act("start-driver"));
+      document.getElementById("isaac-sync-action").onclick = () => safe(async () => { if (confirm("Restart Isaac record mode so the sim arm follows the leader? Takes already saved are kept.")) await act("resync"); });
       timer = setInterval(() => safe(poll), 2000); safe(poll);
     });
   }

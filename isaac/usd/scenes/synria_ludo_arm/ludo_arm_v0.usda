@@ -6,7 +6,7 @@
 )
 
 def Xform "World" (
-    prepend references = @/home/oedeh/github/physical-ai-jetson-robotics/isaac/usd/scenes/synria_mirrored/ludotable_norobot_left.usda@</World>
+    prepend references = @<home>/github/physical-ai-jetson-robotics/isaac/usd/scenes/synria_mirrored/ludotable_norobot_left.usda@</World>
 )
 {
     def Xform "SynriaArmMount"
@@ -15,7 +15,7 @@ def Xform "World" (
         uniform token[] xformOpOrder = ["xformOp:translate"]
 
         def Xform "Arm" (
-            prepend references = @/home/oedeh/github/physical-ai-jetson-robotics/isaac/usd/robots/synria_6dof_arm_v2/synria_6dof_arm.usd@
+            prepend references = @<home>/github/physical-ai-jetson-robotics/isaac/usd/robots/synria_6dof_arm_v2/synria_6dof_arm.usd@
         )
         {
         }

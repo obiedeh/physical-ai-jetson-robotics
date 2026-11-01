@@ -1,14 +1,14 @@
 flash_attn is not installed. Falling back to sdpa attention. Install flash-attn for better performance: pip install flash-attn
-/home/oedeh/github/Isaac-GR00T/gr00t/model/modules/dit.py:255: FutureWarning: Accessing config attribute `compute_dtype` directly via 'AlternateVLDiT' object attribute is deprecated. Please access 'compute_dtype' over 'AlternateVLDiT's config object instead, e.g. 'unet.config.compute_dtype'.
+<home>/github/Isaac-GR00T/gr00t/model/modules/dit.py:255: FutureWarning: Accessing config attribute `compute_dtype` directly via 'AlternateVLDiT' object attribute is deprecated. Please access 'compute_dtype' over 'AlternateVLDiT's config object instead, e.g. 'unet.config.compute_dtype'.
   embedding_dim=self.inner_dim, compute_dtype=self.compute_dtype
-/home/oedeh/github/Isaac-GR00T/gr00t/model/modules/dit.py:286: FutureWarning: Accessing config attribute `output_dim` directly via 'AlternateVLDiT' object attribute is deprecated. Please access 'output_dim' over 'AlternateVLDiT's config object instead, e.g. 'unet.config.output_dim'.
+<home>/github/Isaac-GR00T/gr00t/model/modules/dit.py:286: FutureWarning: Accessing config attribute `output_dim` directly via 'AlternateVLDiT' object attribute is deprecated. Please access 'output_dim' over 'AlternateVLDiT's config object instead, e.g. 'unet.config.output_dim'.
   self.proj_out_2 = nn.Linear(self.inner_dim, self.output_dim)
 ====================================================================================================
 GR00T INFERENCE BENCHMARK
 ====================================================================================================
 Device: Thor (NVIDIA Thor)
-Model: /home/oedeh/models/gr00t_synria/gr00t_synria_thor_v6_merged40k/gr00t_synria_thor_v6_merged40k/checkpoint-35000
-Dataset: /home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e46_lerobot_v21
+Model: <home>/models/gr00t_synria/gr00t_synria_thor_v6_merged40k/gr00t_synria_thor_v6_merged40k/checkpoint-35000
+Dataset: <home>/github/physical-ai-jetson-robotics/reports/training/synria_e46_lerobot_v21
 Iterations: 100
 Warmup: 10
 Use Trajectory: False
@@ -17,9 +17,9 @@ Loading policy...
 Total number of DiT parameters:  1091722240
 Total number of SelfAttentionTransformer parameters:  201433088
 Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 3/3 [00:00<00:00, 52.62it/s]
-/home/oedeh/github/Isaac-GR00T/gr00t/model/gr00t_n1d7/image_augmentations.py:209: UserWarning: Argument(s) 'always_apply' are not valid for transform BasicTransform
+<home>/github/Isaac-GR00T/gr00t/model/gr00t_n1d7/image_augmentations.py:209: UserWarning: Argument(s) 'always_apply' are not valid for transform BasicTransform
   super().__init__(p=p, always_apply=always_apply)
-/home/oedeh/github/Isaac-GR00T/gr00t/model/gr00t_n1d7/image_augmentations.py:278: UserWarning: Argument(s) 'always_apply' are not valid for transform BasicTransform
+<home>/github/Isaac-GR00T/gr00t/model/gr00t_n1d7/image_augmentations.py:278: UserWarning: Argument(s) 'always_apply' are not valid for transform BasicTransform
   super().__init__(p=p, always_apply=always_apply)
 flash_attn is not installed. Falling back to sdpa attention. Install flash-attn for better performance: pip install flash-attn
 Action Horizon: 40
@@ -44,13 +44,13 @@ Benchmarking TensorRT (n17_full_pipeline)...
 Total number of DiT parameters:  1091722240
 Total number of SelfAttentionTransformer parameters:  201433088
 Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 3/3 [00:00<00:00, 50.90it/s]
-/home/oedeh/github/Isaac-GR00T/gr00t/model/gr00t_n1d7/image_augmentations.py:209: UserWarning: Argument(s) 'always_apply' are not valid for transform BasicTransform
+<home>/github/Isaac-GR00T/gr00t/model/gr00t_n1d7/image_augmentations.py:209: UserWarning: Argument(s) 'always_apply' are not valid for transform BasicTransform
   super().__init__(p=p, always_apply=always_apply)
-/home/oedeh/github/Isaac-GR00T/gr00t/model/gr00t_n1d7/image_augmentations.py:278: UserWarning: Argument(s) 'always_apply' are not valid for transform BasicTransform
+<home>/github/Isaac-GR00T/gr00t/model/gr00t_n1d7/image_augmentations.py:278: UserWarning: Argument(s) 'always_apply' are not valid for transform BasicTransform
   super().__init__(p=p, always_apply=always_apply)
-Loading ViT engine: /home/oedeh/github/Isaac-GR00T/gr00t_trt_deployment/engines/vit.engine
+Loading ViT engine: <home>/github/Isaac-GR00T/gr00t_trt_deployment/engines/vit.engine
 ============= TRT Engine Detail =============
-Engine file: /home/oedeh/github/Isaac-GR00T/gr00t_trt_deployment/engines/vit.engine
+Engine file: <home>/github/Isaac-GR00T/gr00t_trt_deployment/engines/vit.engine
 Inputs: 1
    0. pixel_values: 512x1536 [torch.float32]
 Outputs: 2
@@ -58,9 +58,9 @@ Outputs: 2
    1. deepstack_features: 3x128x2048 [torch.float32]
 =============================================
   Deleted PyTorch ViT (replaced by TRT engine)
-Loading LLM engine: /home/oedeh/github/Isaac-GR00T/gr00t_trt_deployment/engines/llm_bf16.engine
+Loading LLM engine: <home>/github/Isaac-GR00T/gr00t_trt_deployment/engines/llm_bf16.engine
 ============= TRT Engine Detail =============
-Engine file: /home/oedeh/github/Isaac-GR00T/gr00t_trt_deployment/engines/llm_bf16.engine
+Engine file: <home>/github/Isaac-GR00T/gr00t_trt_deployment/engines/llm_bf16.engine
 Inputs: 7
    0. inputs_embeds: 1x-1x2048 [torch.bfloat16]
    1. attention_mask: 1x-1 [torch.int64]
@@ -73,18 +73,18 @@ Outputs: 1
    0. embeddings: 1x-1x2048 [torch.bfloat16]
 =============================================
   Deleted PyTorch LLM layers (replaced by TRT engine)
-Loading VL Self-Attention engine: /home/oedeh/github/Isaac-GR00T/gr00t_trt_deployment/engines/vl_self_attention.engine
+Loading VL Self-Attention engine: <home>/github/Isaac-GR00T/gr00t_trt_deployment/engines/vl_self_attention.engine
 ============= TRT Engine Detail =============
-Engine file: /home/oedeh/github/Isaac-GR00T/gr00t_trt_deployment/engines/vl_self_attention.engine
+Engine file: <home>/github/Isaac-GR00T/gr00t_trt_deployment/engines/vl_self_attention.engine
 Inputs: 1
    0. hidden_states: 1x-1x2048 [torch.bfloat16]
 Outputs: 1
    0. output: 1x-1x2048 [torch.bfloat16]
 =============================================
   Deleted PyTorch vl_self_attention (replaced by TRT engine)
-Loading action head engines from: /home/oedeh/github/Isaac-GR00T/gr00t_trt_deployment/engines
+Loading action head engines from: <home>/github/Isaac-GR00T/gr00t_trt_deployment/engines
 ============= TRT Engine Detail =============
-Engine file: /home/oedeh/github/Isaac-GR00T/gr00t_trt_deployment/engines/state_encoder.engine
+Engine file: <home>/github/Isaac-GR00T/gr00t_trt_deployment/engines/state_encoder.engine
 Inputs: 2
    0. state: 1x1x132 [torch.bfloat16]
    1. embodiment_id: 1 [torch.int64]
@@ -92,7 +92,7 @@ Outputs: 1
    0. output: 1x1x1536 [torch.bfloat16]
 =============================================
 ============= TRT Engine Detail =============
-Engine file: /home/oedeh/github/Isaac-GR00T/gr00t_trt_deployment/engines/action_encoder.engine
+Engine file: <home>/github/Isaac-GR00T/gr00t_trt_deployment/engines/action_encoder.engine
 Inputs: 3
    0. actions: 1x40x132 [torch.bfloat16]
    1. timesteps: 1 [torch.int64]
@@ -101,7 +101,7 @@ Outputs: 1
    0. output: 1x40x1536 [torch.bfloat16]
 =============================================
 ============= TRT Engine Detail =============
-Engine file: /home/oedeh/github/Isaac-GR00T/gr00t_trt_deployment/engines/dit_bf16.engine
+Engine file: <home>/github/Isaac-GR00T/gr00t_trt_deployment/engines/dit_bf16.engine
 Inputs: 5
    0. sa_embs: 1x41x1536 [torch.bfloat16]
    1. vl_embs: 1x-1x2048 [torch.bfloat16]
@@ -112,7 +112,7 @@ Outputs: 1
    0. output: 1x41x1024 [torch.bfloat16]
 =============================================
 ============= TRT Engine Detail =============
-Engine file: /home/oedeh/github/Isaac-GR00T/gr00t_trt_deployment/engines/action_decoder.engine
+Engine file: <home>/github/Isaac-GR00T/gr00t_trt_deployment/engines/action_decoder.engine
 Inputs: 2
    0. model_output: 1x41x1024 [torch.bfloat16]
    1. embodiment_id: 1 [torch.int64]
@@ -153,7 +153,7 @@ DETAILED SUMMARY
 ====================================================================================================
 
 Hardware: NVIDIA Thor
-Model: /home/oedeh/models/gr00t_synria/gr00t_synria_thor_v6_merged40k/gr00t_synria_thor_v6_merged40k/checkpoint-35000
+Model: <home>/models/gr00t_synria/gr00t_synria_thor_v6_merged40k/gr00t_synria_thor_v6_merged40k/checkpoint-35000
 Action Horizon: 40
 Denoising Steps: 4
 

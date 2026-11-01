@@ -1,8 +1,8 @@
 {
   "checkpoint_content_sha256": "509b1dee1db6d1c3b773964982363c732bfd54e0b659758f048641e81720bee6",
-  "checkpoint_path": "/home/oedeh/synria-sim-training/pick_cup_17oct3_w3/simcup17oct3w3_n045/checkpoints/averaged-last4-step-000020000",
+  "checkpoint_path": "<home>/synria-sim-training/pick_cup_17oct3_w3/simcup17oct3w3_n045/checkpoints/averaged-last4-step-000020000",
   "dataset_content_sha256": "283517bcbb74bd6746bbc0968419e12ed7eb45166a8c51a2b8dacf4a659d6568",
-  "dataset_path": "/home/oedeh/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
+  "dataset_path": "<home>/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
   "held_out_episodes": [
     12,
     24,

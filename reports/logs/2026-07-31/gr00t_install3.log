@@ -1,4 +1,4 @@
-Obtaining file:///home/oedeh/Isaac-GR00T
+Obtaining file://<home>/Isaac-GR00T
   Checking if build backend supports build_editable: started
   Checking if build backend supports build_editable: finished with status 'done'
   Preparing editable metadata (pyproject.toml): started
@@ -25,8 +25,8 @@ Collecting peft==0.17.1 (from gr00t==0.1.0)
   Using cached peft-0.17.1-py3-none-any.whl.metadata (14 kB)
 Collecting termcolor==3.2.0 (from gr00t==0.1.0)
   Using cached termcolor-3.2.0-py3-none-any.whl.metadata (6.4 kB)
-Requirement already satisfied: torch==2.9.0 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from gr00t==0.1.0) (2.9.0+cu128)
-Requirement already satisfied: torchvision==0.24.0 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from gr00t==0.1.0) (0.24.0+cu128)
+Requirement already satisfied: torch==2.9.0 in <home>/.venv/gr00t/lib/python3.12/site-packages (from gr00t==0.1.0) (2.9.0+cu128)
+Requirement already satisfied: torchvision==0.24.0 in <home>/.venv/gr00t/lib/python3.12/site-packages (from gr00t==0.1.0) (0.24.0+cu128)
 Collecting transformers==4.57.3 (from gr00t==0.1.0)
   Using cached transformers-4.57.3-py3-none-any.whl.metadata (43 kB)
 Collecting tyro==0.9.17 (from gr00t==0.1.0)
@@ -63,16 +63,16 @@ Collecting deepspeed==0.17.6 (from gr00t==0.1.0)
   Using cached deepspeed-0.17.6.tar.gz (1.6 MB)
   Preparing metadata (pyproject.toml): started
   Preparing metadata (pyproject.toml): finished with status 'done'
-Requirement already satisfied: flash-attn==2.8.3 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from gr00t==0.1.0) (2.8.3)
+Requirement already satisfied: flash-attn==2.8.3 in <home>/.venv/gr00t/lib/python3.12/site-packages (from gr00t==0.1.0) (2.8.3)
 Collecting onnx>=1.20.0 (from gr00t==0.1.0)
   Using cached onnx-1.22.0-cp312-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (8.5 kB)
 Collecting onnxscript (from gr00t==0.1.0)
   Using cached onnxscript-0.7.1-py3-none-any.whl.metadata (13 kB)
-Collecting tensorrt-cu12>=10.15.1.29 (from gr00t==0.1.0)
+Collecting tensorrt-cu12>=<lan-address> (from gr00t==0.1.0)
   Using cached tensorrt_cu12-11.1.0.106.tar.gz (17 kB)
   Preparing metadata (pyproject.toml): started
   Preparing metadata (pyproject.toml): finished with status 'done'
-Collecting tensorrt-cu12-libs>=10.15.1.29 (from gr00t==0.1.0)
+Collecting tensorrt-cu12-libs>=<lan-address> (from gr00t==0.1.0)
   Using cached tensorrt_cu12_libs-11.1.0.106.tar.gz (15 kB)
   Preparing metadata (pyproject.toml): started
   Preparing metadata (pyproject.toml): finished with status 'done'
@@ -86,7 +86,7 @@ Collecting albucore==0.0.17 (from albumentations==1.4.18->gr00t==0.1.0)
   Downloading albucore-0.0.17-py3-none-any.whl.metadata (3.1 kB)
 Collecting eval-type-backport (from albumentations==1.4.18->gr00t==0.1.0)
   Downloading eval_type_backport-0.4.0-py3-none-any.whl.metadata (3.1 kB)
-Requirement already satisfied: filelock in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from datasets==3.6.0->gr00t==0.1.0) (3.29.0)
+Requirement already satisfied: filelock in <home>/.venv/gr00t/lib/python3.12/site-packages (from datasets==3.6.0->gr00t==0.1.0) (3.29.0)
 Collecting pyarrow>=15.0.0 (from datasets==3.6.0->gr00t==0.1.0)
   Downloading pyarrow-25.0.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (3.0 kB)
 Collecting dill<0.3.9,>=0.3.0 (from datasets==3.6.0->gr00t==0.1.0)
@@ -101,11 +101,11 @@ Collecting multiprocess<0.70.17 (from datasets==3.6.0->gr00t==0.1.0)
   Downloading multiprocess-0.70.16-py312-none-any.whl.metadata (7.2 kB)
 Collecting fsspec<=2025.3.0,>=2023.1.0 (from fsspec[http]<=2025.3.0,>=2023.1.0->datasets==3.6.0->gr00t==0.1.0)
   Downloading fsspec-2025.3.0-py3-none-any.whl.metadata (11 kB)
-Requirement already satisfied: packaging in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from datasets==3.6.0->gr00t==0.1.0) (26.2)
+Requirement already satisfied: packaging in <home>/.venv/gr00t/lib/python3.12/site-packages (from datasets==3.6.0->gr00t==0.1.0) (26.2)
 Collecting hjson (from deepspeed==0.17.6->gr00t==0.1.0)
   Downloading hjson-3.1.0-py3-none-any.whl.metadata (2.6 kB)
-Requirement already satisfied: ninja in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from deepspeed==0.17.6->gr00t==0.1.0) (1.13.0)
-Requirement already satisfied: psutil in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from deepspeed==0.17.6->gr00t==0.1.0) (7.2.2)
+Requirement already satisfied: ninja in <home>/.venv/gr00t/lib/python3.12/site-packages (from deepspeed==0.17.6->gr00t==0.1.0) (1.13.0)
+Requirement already satisfied: psutil in <home>/.venv/gr00t/lib/python3.12/site-packages (from deepspeed==0.17.6->gr00t==0.1.0) (7.2.2)
 Collecting py-cpuinfo (from deepspeed==0.17.6->gr00t==0.1.0)
   Using cached py_cpuinfo-9.0.0-py3-none-any.whl.metadata (794 bytes)
 Collecting nvidia-ml-py (from deepspeed==0.17.6->gr00t==0.1.0)
@@ -116,12 +116,12 @@ Collecting regex!=2019.12.17 (from diffusers==0.35.1->gr00t==0.1.0)
   Downloading regex-2026.7.19-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
 Collecting safetensors>=0.3.1 (from diffusers==0.35.1->gr00t==0.1.0)
   Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.2 kB)
-Requirement already satisfied: Pillow in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from diffusers==0.35.1->gr00t==0.1.0) (12.2.0)
+Requirement already satisfied: Pillow in <home>/.venv/gr00t/lib/python3.12/site-packages (from diffusers==0.35.1->gr00t==0.1.0) (12.2.0)
 Collecting gitdb<5,>=4.0.1 (from gitpython==3.1.50->gr00t==0.1.0)
   Using cached gitdb-4.0.12-py3-none-any.whl.metadata (1.2 kB)
 Collecting cloudpickle>=1.2.0 (from gymnasium==1.2.2->gr00t==0.1.0)
   Using cached cloudpickle-3.1.2-py3-none-any.whl.metadata (7.1 kB)
-Requirement already satisfied: typing-extensions>=4.3.0 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from gymnasium==1.2.2->gr00t==0.1.0) (4.15.0)
+Requirement already satisfied: typing-extensions>=4.3.0 in <home>/.venv/gr00t/lib/python3.12/site-packages (from gymnasium==1.2.2->gr00t==0.1.0) (4.15.0)
 Collecting farama-notifications>=0.0.1 (from gymnasium==1.2.2->gr00t==0.1.0)
   Using cached farama_notifications-0.0.6-py3-none-any.whl.metadata (729 bytes)
 Collecting attrs>=19.2.0 (from jsonlines==4.0.0->gr00t==0.1.0)
@@ -146,26 +146,26 @@ Collecting tzdata>=2022.7 (from pandas==2.2.3->gr00t==0.1.0)
   Downloading tzdata-2026.3-py2.py3-none-any.whl.metadata (1.4 kB)
 Collecting accelerate>=0.21.0 (from peft==0.17.1->gr00t==0.1.0)
   Downloading accelerate-1.14.0-py3-none-any.whl.metadata (19 kB)
-Requirement already satisfied: setuptools in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (83.0.0)
-Requirement already satisfied: sympy>=1.13.3 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (1.14.0)
-Requirement already satisfied: networkx>=2.5.1 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (3.6.1)
-Requirement already satisfied: jinja2 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (3.1.6)
-Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.8.93 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (12.8.93)
-Requirement already satisfied: nvidia-cuda-runtime-cu12==12.8.90 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (12.8.90)
-Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (12.8.90)
-Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (9.10.2.21)
-Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (12.8.4.1)
-Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (11.3.3.83)
-Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (10.3.9.90)
-Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (11.7.3.90)
-Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (12.5.8.93)
-Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (0.7.1)
-Requirement already satisfied: nvidia-nccl-cu12==2.27.5 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (2.27.5)
-Requirement already satisfied: nvidia-nvshmem-cu12==3.3.20 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (3.3.20)
-Requirement already satisfied: nvidia-nvtx-cu12==12.8.90 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (12.8.90)
-Requirement already satisfied: nvidia-nvjitlink-cu12==12.8.93 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (12.8.93)
-Requirement already satisfied: nvidia-cufile-cu12==1.13.1.3 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (1.13.1.3)
-Requirement already satisfied: triton==3.5.0 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (3.5.0)
+Requirement already satisfied: setuptools in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (83.0.0)
+Requirement already satisfied: sympy>=1.13.3 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (1.14.0)
+Requirement already satisfied: networkx>=2.5.1 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (3.6.1)
+Requirement already satisfied: jinja2 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (3.1.6)
+Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.8.93 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (12.8.93)
+Requirement already satisfied: nvidia-cuda-runtime-cu12==12.8.90 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (12.8.90)
+Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (12.8.90)
+Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (9.10.2.21)
+Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (12.8.4.1)
+Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (11.3.3.83)
+Requirement already satisfied: nvidia-curand-cu12==<lan-address> in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (<lan-address>)
+Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (11.7.3.90)
+Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (12.5.8.93)
+Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (0.7.1)
+Requirement already satisfied: nvidia-nccl-cu12==2.27.5 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (2.27.5)
+Requirement already satisfied: nvidia-nvshmem-cu12==3.3.20 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (3.3.20)
+Requirement already satisfied: nvidia-nvtx-cu12==12.8.90 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (12.8.90)
+Requirement already satisfied: nvidia-nvjitlink-cu12==12.8.93 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (12.8.93)
+Requirement already satisfied: nvidia-cufile-cu12==1.13.1.3 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (1.13.1.3)
+Requirement already satisfied: triton==3.5.0 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0->gr00t==0.1.0) (3.5.0)
 Collecting huggingface-hub>=0.24.0 (from datasets==3.6.0->gr00t==0.1.0)
   Using cached huggingface_hub-0.36.2-py3-none-any.whl.metadata (15 kB)
 Collecting tokenizers<=0.23.0,>=0.22.0 (from transformers==4.57.3->gr00t==0.1.0)
@@ -239,8 +239,8 @@ Collecting tifffile>=2022.8.12 (from scikit-image>=0.21.0->albumentations==1.4.1
   Downloading tifffile-2026.7.14-py3-none-any.whl.metadata (33 kB)
 Collecting lazy-loader>=0.4 (from scikit-image>=0.21.0->albumentations==1.4.18->gr00t==0.1.0)
   Using cached lazy_loader-0.5-py3-none-any.whl.metadata (5.9 kB)
-Requirement already satisfied: mpmath<1.4,>=1.1.0 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from sympy>=1.13.3->torch==2.9.0->gr00t==0.1.0) (1.3.0)
-Collecting tensorrt_cu12_bindings==11.1.0.106 (from tensorrt-cu12>=10.15.1.29->gr00t==0.1.0)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in <home>/.venv/gr00t/lib/python3.12/site-packages (from sympy>=1.13.3->torch==2.9.0->gr00t==0.1.0) (1.3.0)
+Collecting tensorrt_cu12_bindings==11.1.0.106 (from tensorrt-cu12>=<lan-address>->gr00t==0.1.0)
   Downloading tensorrt_cu12_bindings-11.1.0.106-cp312-none-manylinux_2_28_x86_64.whl.metadata (686 bytes)
 INFO: pip is looking at multiple versions of tifffile to determine which version is compatible with other requirements. This could take a while.
 Collecting tifffile>=2022.8.12 (from scikit-image>=0.21.0->albumentations==1.4.18->gr00t==0.1.0)
@@ -323,7 +323,7 @@ Collecting wcwidth>=0.1.4 (from prompt-toolkit<4.0.0,>=3.0.1->InquirerPy==0.3.4-
   Downloading wcwidth-0.8.2-py3-none-any.whl.metadata (43 kB)
 Collecting zipp>=3.20 (from importlib_metadata->diffusers==0.35.1->gr00t==0.1.0)
   Using cached zipp-4.1.0-py3-none-any.whl.metadata (3.6 kB)
-Requirement already satisfied: MarkupSafe>=2.0 in /home/oedeh/.venv/gr00t/lib/python3.12/site-packages (from jinja2->torch==2.9.0->gr00t==0.1.0) (3.0.3)
+Requirement already satisfied: MarkupSafe>=2.0 in <home>/.venv/gr00t/lib/python3.12/site-packages (from jinja2->torch==2.9.0->gr00t==0.1.0) (3.0.3)
 Collecting onnx_ir<2,>=0.1.16 (from onnxscript->gr00t==0.1.0)
   Using cached onnx_ir-0.2.1-py3-none-any.whl.metadata (3.3 kB)
 Downloading albumentations-1.4.18-py3-none-any.whl (224 kB)
@@ -437,15 +437,15 @@ Building wheels for collected packages: gr00t, deepspeed, tensorrt-cu12, tensorr
   Building wheel for deepspeed (pyproject.toml): started
   Building wheel for deepspeed (pyproject.toml): finished with status 'done'
   Created wheel for deepspeed: filename=deepspeed-0.17.6-py3-none-any.whl size=1740237 sha256=7eb6608058eb2e2d89aacf20bcd4dd441256ccd32b5fad8f2115ac9bf6118ae7
-  Stored in directory: /home/oedeh/.cache/pip/wheels/25/49/67/54ec3b6fa6f9dd03ba2af91e1e5c3d36fc2436261108d0860b
+  Stored in directory: <home>/.cache/pip/wheels/25/49/67/54ec3b6fa6f9dd03ba2af91e1e5c3d36fc2436261108d0860b
   Building wheel for tensorrt-cu12 (pyproject.toml): started
   Building wheel for tensorrt-cu12 (pyproject.toml): finished with status 'done'
   Created wheel for tensorrt-cu12: filename=tensorrt_cu12-11.1.0.106-py3-none-any.whl size=23075 sha256=9d8176483c0cf602a365cd4b67bf0f98dadd24588641215b2891b9c437231df5
-  Stored in directory: /home/oedeh/.cache/pip/wheels/b2/d1/d5/061055ddabc10e5bf740ccf9360719b94c833f847d80ee6867
+  Stored in directory: <home>/.cache/pip/wheels/b2/d1/d5/061055ddabc10e5bf740ccf9360719b94c833f847d80ee6867
   Building wheel for tensorrt-cu12-libs (pyproject.toml): started
   Building wheel for tensorrt-cu12-libs (pyproject.toml): finished with status 'done'
   Created wheel for tensorrt-cu12-libs: filename=tensorrt_cu12_libs-11.1.0.106-py3-none-manylinux_2_28_x86_64.whl size=4312711294 sha256=c06f6d2526b231a94eeb4c08daf2ed58a8b948081bf50313f47262395231c5cb
-  Stored in directory: /home/oedeh/.cache/pip/wheels/7d/c2/3d/869a79c901a4b4f097098ece291d30ad1468924ec49246fff1
+  Stored in directory: <home>/.cache/pip/wheels/7d/c2/3d/869a79c901a4b4f097098ece291d30ad1468924ec49246fff1
 Successfully built gr00t deepspeed tensorrt-cu12 tensorrt-cu12-libs
 Installing collected packages: tensorrt-cu12-libs, tensorrt_cu12_bindings, pytz, py-cpuinfo, nvidia-ml-py, lmdb, hjson, farama-notifications, antlr4-python3-runtime, zipp, xxhash, wrapt, wcwidth, urllib3, tzdata, typing-inspection, typeguard, tqdm, torchcodec, termcolor, tensorrt-cu12, smmap, six, shtab, safetensors, regex, pyzmq, PyYAML, pyparsing, pygments, pydantic-core, pycparser, pyarrow, protobuf, propcache, platformdirs, pfzy, numpy, multidict, msgpack, mdurl, lazy-loader, kiwisolver, idna, hf-xet, fsspec, frozenlist, fonttools, eval-type-backport, einops, docstring-parser, dill, cycler, cloudpickle, click, charset_normalizer, certifi, attrs, annotated-types, aiohappyeyeballs, absl-py, yarl, tifffile, sentry-sdk, scipy, requests, python-dateutil, pydantic, prompt-toolkit, opencv-python-headless, omegaconf, multiprocess, msgpack-numpy, ml_dtypes, markdown-it-py, jsonlines, importlib_metadata, imageio, gymnasium, gitdb, dm-tree, contourpy, cffi, aiosignal, scikit-image, rich, pandas, onnx, matplotlib, InquirerPy, huggingface-hub, gitpython, cryptography, albucore, aiohttp, wandb, tyro, tokenizers, onnx_ir, diffusers, deepspeed, albumentations, accelerate, transformers, onnxscript, datasets, peft, gr00t
   Attempting uninstall: numpy

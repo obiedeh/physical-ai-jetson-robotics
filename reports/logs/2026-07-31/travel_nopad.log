@@ -1,5 +1,5 @@
 [INFO][AppLauncher]: Using device: cuda:0
-[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[INFO][AppLauncher]: Loading experience file: <home>/IsaacLab/apps/isaaclab.python.headless.kit
 [feas] asset: synria_6dof_arm_nopad.usd
 
 [36m======================================================================================[0m
@@ -23,5 +23,5 @@
 [travel] cycle 8: tgt 0.0: L0.01 R-0.0 | tgt 6.2: L6.24 R-6.24 | tgt 12.5: L12.49 R-12.49 | tgt 18.8: L18.75 R-18.74 | tgt 25.0: L25.0 R-24.99 | tgt 0.0: L0.01 R-0.0
 [travel] cycle 9: tgt 0.0: L0.01 R-0.0 | tgt 6.2: L6.24 R-6.24 | tgt 12.5: L12.49 R-12.49 | tgt 18.8: L18.75 R-18.74 | tgt 25.0: L25.0 R-24.99 | tgt 0.0: L0.01 R-0.0
 [travel] ======== FULL TRAVEL PASS (asset=nopad) ========
-[feas] wrote /home/oedeh/github/physical-ai-jetson-robotics-gr00t/reports/synria_travel_nopad.json
+[feas] wrote <home>/github/physical-ai-jetson-robotics-gr00t/reports/synria_travel_nopad.json
 FEAS_EXIT=0

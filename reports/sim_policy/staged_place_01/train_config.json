@@ -83,7 +83,7 @@
   "policy_ledger": "docs/ludo_flagship/SIM_POLICY_LEDGER.md",
   "probe_set": "reports/sim_policy/staged_place_01/probes.json",
   "probe_sha256": "23baf1168798998e88f7d6e23d77b537eeb7929e69edfaee2d31dbb677c1f312",
-  "repository": "/home/oedeh/github/physical-ai-jetson-robotics",
+  "repository": "<home>/github/physical-ai-jetson-robotics",
   "response_timeout_s": 0.5,
   "save_freq": 5000,
   "state_noise": null,

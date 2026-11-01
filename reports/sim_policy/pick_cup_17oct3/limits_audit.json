@@ -1,5 +1,5 @@
 {
-  "dataset_root": "/home/oedeh/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
+  "dataset_root": "<home>/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
   "episode_count": 50,
   "episodes": {
     "0": {

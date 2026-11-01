@@ -11,7 +11,7 @@ echo "=== E41 start $(date -Is)"
 cd ~/github/Isaac-GR00T
 source scripts/activate_thor.sh
 export PATH="$HOME/.venv/gr00t/bin:$PATH"
-CORPUS=/home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e33v3_lerobot_v21:/home/oedeh/github/physical-ai-jetson-robotics/reports/training/synria_e46_lerobot_v21
+CORPUS=$HOME/github/physical-ai-jetson-robotics/reports/training/synria_e33v3_lerobot_v21:$HOME/github/physical-ai-jetson-robotics/reports/training/synria_e46_lerobot_v21
 OUT=~/models/gr00t_synria/gr00t_synria_thor_v6_merged40k
 mkdir -p "$OUT"
 ~/.venv/gr00t/bin/python gr00t/experiment/launch_finetune.py \

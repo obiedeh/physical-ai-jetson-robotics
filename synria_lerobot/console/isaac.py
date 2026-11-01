@@ -13,6 +13,7 @@ rate measurement are injectable so the logic is tested with fakes only.
 from __future__ import annotations
 
 import json
+import math
 import os
 import re
 import signal
@@ -38,6 +39,11 @@ SIM_STATE_TOPIC = "/isaac_joint_states"
 # The recorded trio; the sim's side view is a page preview and is not part of record-mode health.
 SIM_TOPICS = {"state": SIM_STATE_TOPIC, "wrist": "/isaac/wrist_camera/image_raw",
               "front": "/isaac/overhead_camera/image_raw"}
+# The leader arm's joint states, published by the read-only arm driver; in record mode the
+# sim arm mirrors them. The sync check compares the two, joint by joint.
+LEADER_TOPIC = "/joint_states"
+SYNC_TOLERANCE_DEG = 3.0        # the sim arm sags about half a degree under load
+SYNC_STALE_S = 1.0              # a joint state older than this counts as silent
 # The scene publishes every pick object's world pose; a simulation take declares the task's
 # object as its "object" goal channel and, for the place task, the mark as "target", so the
 # dataset carries the goal the strategy of 2026-10-18 requires of every new policy.
@@ -254,7 +260,9 @@ class SimTopicMonitor:
     def __init__(self, window_s: float = RATE_WINDOW_S) -> None:
         """Nothing runs until start()."""
         self.window_s = float(window_s)
-        self._stamps: dict[str, deque] = {name: deque() for name in SIM_TOPICS}
+        self._stamps: dict[str, deque] = {name: deque() for name in (*SIM_TOPICS, "leader")}
+        # Latest joint positions by joint name for the sim ("state") and the leader.
+        self._joints: dict[str, tuple[float, dict[str, float]]] = {}
         self._lock = threading.Lock()
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
@@ -270,6 +278,7 @@ class SimTopicMonitor:
         self.started_at = time.monotonic()
         for stamps in self._stamps.values():
             stamps.clear()
+        self._joints = {}
         self._thread = threading.Thread(target=self._run, name="synria-sim-topic-monitor",
                                         daemon=True)
         self._thread.start()
@@ -291,8 +300,46 @@ class SimTopicMonitor:
             while stamps and now - stamps[0] > self.window_s * 2:
                 stamps.popleft()
 
+    def _joint_state(self, name: str, message: Any) -> None:
+        """Keep one JointState's arrival and its positions by joint name."""
+        self._record(name)
+        try:
+            positions = {str(j): float(v)
+                         for j, v in zip(message.name, message.position, strict=False)}
+        except (AttributeError, TypeError, ValueError):
+            return
+        with self._lock:
+            self._joints[name] = (time.monotonic(), positions)
+
+    def sync(self) -> dict[str, Any]:
+        """Leader against sim: message ages, the leader's rate and the largest joint difference.
+
+        Only the six arm joints are compared (names holding "joint", case-insensitive);
+        the gripper is reported in different units by the two sources.
+        """
+        now = time.monotonic()
+        with self._lock:
+            leader = self._joints.get("leader")
+            sim = self._joints.get("state")
+            recent = [s for s in self._stamps["leader"] if now - s <= self.window_s]
+        rate = len(recent) / self.window_s if recent else 0.0
+        result: dict[str, Any] = {
+            "leader_rate_hz": round(rate, 1),
+            "leader_age_s": None if leader is None else round(now - leader[0], 2),
+            "sim_age_s": None if sim is None else round(now - sim[0], 2),
+            "max_joint_diff_deg": None, "joint_diff_deg": {},
+        }
+        if leader is None or sim is None:
+            return result
+        diffs = {name: abs(math.degrees(leader[1][name] - sim[1][name]))
+                 for name in leader[1] if name in sim[1] and "joint" in name.lower()}
+        if diffs:
+            result["joint_diff_deg"] = {k: round(v, 1) for k, v in diffs.items()}
+            result["max_joint_diff_deg"] = round(max(diffs.values()), 1)
+        return result
+
     def _run(self) -> None:
-        """Own a ROS context, subscribe to the three topics, spin until stopped."""
+        """Own a ROS context, subscribe to the sim topics and the leader, spin until stopped."""
         try:
             import rclpy  # type: ignore[import-not-found]
             from rclpy.context import Context  # type: ignore[import-not-found]
@@ -306,7 +353,9 @@ class SimTopicMonitor:
             rclpy.init(context=context)
             node = rclpy.create_node("synria_console_sim_monitor", context=context)
             node.create_subscription(JointState, SIM_TOPICS["state"],
-                                     lambda m: self._record("state"), 10)
+                                     lambda m: self._joint_state("state", m), 10)
+            node.create_subscription(JointState, LEADER_TOPIC,
+                                     lambda m: self._joint_state("leader", m), 10)
             node.create_subscription(Image, SIM_TOPICS["wrist"], lambda m: self._record("wrist"), 5)
             node.create_subscription(Image, SIM_TOPICS["front"], lambda m: self._record("front"), 5)
             executor = SingleThreadedExecutor(context=context)
@@ -421,6 +470,7 @@ class IsaacSupervisor:
         markers: Callable[[int], dict[str, Any]] = read_log_markers,
         monitor: SimTopicMonitor | None = None,
         topic_rate: Callable[[], float | None] | None = None,
+        sync_probe: Callable[[], dict[str, Any] | None] | None = None,
         send_signal: Callable[[int, int], None] = os.kill,
         spawn: Callable[[list[str], dict[str, str], Path, Path], int] | None = None,
         commit: Callable[[Path], str] = teleop_commit,
@@ -435,6 +485,7 @@ class IsaacSupervisor:
         self._markers = markers
         self._monitor = monitor if monitor is not None else SimTopicMonitor()
         self._rate = topic_rate
+        self._sync_probe = sync_probe
         self._signal = send_signal
         self._spawn = spawn or self._spawn_detached
         self._commit = commit
@@ -568,8 +619,10 @@ class IsaacSupervisor:
             button = {"action": None, "label": "Starting, please wait", "closes": []}
         else:
             button = {"action": None, "label": "Record mode is up; reusing it", "closes": []}
+        sync = self.sync_state(status, bool(record))
         return {
             "available": self.launcher is not None, "status": status, "label": label,
+            "sync": sync,
             "launcher": str(self.launcher) if self.launcher else None, "teleop_commit": current,
             "instances": [item.as_dict() for item in instances],
             "progress": {"process_up": bool(record),
@@ -622,6 +675,56 @@ class IsaacSupervisor:
         if updated != launch:
             self._write_launch(updated)
         return updated
+
+    def sync_state(self, status: str, record_up: bool) -> dict[str, Any]:
+        """Whether the sim arm follows the leader, and the one action that would make it.
+
+        ``status`` is the record-mode status. The leader is read from the arm driver's
+        joint states; the sim from Isaac's. Both must be fresh, then the largest arm-joint
+        difference must sit inside SYNC_TOLERANCE_DEG. The action is ``start-driver`` when
+        the leader is silent and no driver runs, ``resync`` (restart record mode) when both
+        publish but the sim does not follow, and None when nothing would help or all is well.
+        """
+        probe = None
+        if self._sync_probe is not None:
+            probe = self._sync_probe()
+        elif record_up:
+            probe = self._monitor.sync()
+        base = {"max_joint_diff_deg": None, "leader_rate_hz": None,
+                "tolerance_deg": SYNC_TOLERANCE_DEG}
+        if status != "running" or probe is None:
+            return {**base, "status": "no_sim", "action": None,
+                    "label": "Sync is checked once Isaac record mode is running"}
+        base["max_joint_diff_deg"] = probe.get("max_joint_diff_deg")
+        base["leader_rate_hz"] = probe.get("leader_rate_hz")
+        leader_age, sim_age = probe.get("leader_age_s"), probe.get("sim_age_s")
+        if leader_age is None or leader_age > SYNC_STALE_S:
+            driver = self.driver()
+            words = ("Leader arm is silent: no joint states from the arm driver. Start the "
+                     "read-only driver, then move the leader.")
+            if driver["running"]:
+                words = ("Leader arm is silent although a driver runs: check the arm's USB "
+                         "and power, then the driver's log.")
+            return {**base, "status": "leader_silent",
+                    "action": "start-driver" if driver["can_start"] else None, "label": words}
+        if sim_age is None or sim_age > SYNC_STALE_S:
+            return {**base, "status": "sim_silent", "action": "resync",
+                    "label": "Sim arm is silent: restart Isaac record mode"}
+        diff = probe.get("max_joint_diff_deg")
+        if diff is None:
+            return {**base, "status": "unknown", "action": None,
+                    "label": "Leader and sim publish, but share no arm joint names to compare"}
+        if diff <= SYNC_TOLERANCE_DEG:
+            return {**base, "status": "in_sync", "action": None,
+                    "label": f"Leader and sim arm in sync: largest joint difference {diff:.1f} deg"}
+        return {**base, "status": "out_of_sync", "action": "resync",
+                "label": (f"Sim arm is not following the leader: {diff:.1f} deg apart. Re-sync "
+                          "restarts Isaac record mode so it mirrors the leader again.")}
+
+    def resync(self) -> dict[str, Any]:
+        """Restart record mode so the sim arm mirrors the leader: stop, then start."""
+        self.stop()
+        return self.start()
 
     def _topics_snapshot(self, record_up: bool) -> dict[str, Any] | None:
         """Rates of the sim topics: the injected probe in tests, else the background monitor."""

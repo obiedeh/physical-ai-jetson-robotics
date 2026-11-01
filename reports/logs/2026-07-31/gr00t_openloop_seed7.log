@@ -1,5 +1,5 @@
 WARNING:root:Could not find checkpoint-<step> pattern in path: nvidia/GR00T-N1.7-3B
-/home/oedeh/.venv/gr00t/lib/python3.12/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
+<home>/.venv/gr00t/lib/python3.12/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
   check_for_updates()
 `torch_dtype` is deprecated! Use `dtype` instead!
 INFO:gr00t.model.gr00t_n1d7.gr00t_n1d7:Using AlternateVLDiT for diffusion model
@@ -11,12 +11,12 @@ Traceback (most recent call last):
   File "<frozen runpy>", line 286, in run_path
   File "<frozen runpy>", line 98, in _run_module_code
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/oedeh/Isaac-GR00T/gr00t/eval/open_loop_eval.py", line 373, in <module>
+  File "<home>/Isaac-GR00T/gr00t/eval/open_loop_eval.py", line 373, in <module>
     main(config)
-  File "/home/oedeh/Isaac-GR00T/gr00t/eval/open_loop_eval.py", line 303, in main
+  File "<home>/Isaac-GR00T/gr00t/eval/open_loop_eval.py", line 303, in main
     policy = Gr00tPolicy(
              ^^^^^^^^^^^^
-  File "/home/oedeh/Isaac-GR00T/gr00t/policy/gr00t_policy.py", line 154, in __init__
+  File "<home>/Isaac-GR00T/gr00t/policy/gr00t_policy.py", line 154, in __init__
     raise ValueError(
 ValueError: Embodiment tag 'NEW_EMBODIMENT' (value='new_embodiment') is not supported by this checkpoint.
 

@@ -1,5 +1,5 @@
 [INFO][AppLauncher]: Using device: cuda:0
-[INFO][AppLauncher]: Loading experience file: /home/oedeh/IsaacLab/apps/isaaclab.python.headless.kit
+[INFO][AppLauncher]: Loading experience file: <home>/IsaacLab/apps/isaaclab.python.headless.kit
 [feas] asset: synria_6dof_arm.usd
 
 [36m======================================================================================[0m
@@ -23,4 +23,4 @@
 [travel] cycle 8: tgt 0.0: L0.0 R-0.0 | tgt 6.2: L6.25 R-6.23 | tgt 12.5: L12.5 R-12.48 | tgt 18.8: L18.75 R-18.73 | tgt 25.0: L25.0 R-24.98 | tgt 0.0: L0.02 R-0.0
 [travel] cycle 9: tgt 0.0: L0.0 R-0.0 | tgt 6.2: L6.25 R-6.23 | tgt 12.5: L12.5 R-12.48 | tgt 18.8: L18.75 R-18.73 | tgt 25.0: L25.0 R-24.98 | tgt 0.0: L0.02 R-0.0
 [travel] ======== FULL TRAVEL PASS (asset=production) ========
-[feas] wrote /home/oedeh/github/physical-ai-jetson-robotics/reports/synria_travel_production.json
+[feas] wrote <home>/github/physical-ai-jetson-robotics/reports/synria_travel_production.json

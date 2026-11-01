@@ -111,7 +111,7 @@ class RosmasterM3Pro(Robot):
         except ImportError as e:  # pragma: no cover - environment error
             raise ImportError(
                 "ROS 2 Humble + the vendor arm_msgs are required: `source "
-                "/opt/ros/humble/setup.bash && source /home/jetson/yahboomcar_ws/"
+                "/opt/ros/humble/setup.bash && source ~/yahboomcar_ws/"
                 f"install/setup.bash` before running ({e})") from e
         self._Twist, self._ArmJoints = Twist, ArmJoints
         if not rclpy.ok():

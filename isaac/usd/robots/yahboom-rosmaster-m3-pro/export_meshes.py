@@ -13,10 +13,11 @@ import sys
 
 import numpy as np
 
-sys.path.insert(0, "/home/oedeh/isaacsim/extscache/omni.usd.libs-1.0.1+69cbf6ad.lx64.r.cp311")
+HOME = os.path.expanduser("~")
+sys.path.insert(0, f"{HOME}/isaacsim/extscache/omni.usd.libs-1.0.1+69cbf6ad.lx64.r.cp311")
 os.environ["LD_LIBRARY_PATH"] = (
-    "/home/oedeh/isaacsim/kit:"
-    "/home/oedeh/isaacsim/extscache/omni.usd.libs-1.0.1+69cbf6ad.lx64.r.cp311/bin:"
+    f"{HOME}/isaacsim/kit:"
+    f"{HOME}/isaacsim/extscache/omni.usd.libs-1.0.1+69cbf6ad.lx64.r.cp311/bin:"
     + os.environ.get("LD_LIBRARY_PATH", "")
 )
 

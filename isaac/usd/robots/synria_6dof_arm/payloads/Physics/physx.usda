@@ -7,13 +7,13 @@
     doc = """Generated from Composed Stage of root layer /tmp/tmpjzjpssn1/synria_6dof_arm.usdc
 
 
-Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/usdex/synria_6dof_arm.usdc
+Generated from Composed Stage of root layer <home>/physical-ai-jetson-robotics-lab/isaac/usd/robots/usdex/synria_6dof_arm.usdc
 
 
-Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/temp/synria_6dof_arm.usd
+Generated from Composed Stage of root layer <home>/physical-ai-jetson-robotics-lab/isaac/usd/robots/temp/synria_6dof_arm.usd
 
 
-Generated from Composed Stage of root layer /home/oedeh/physical-ai-jetson-robotics-lab/isaac/usd/robots/synria_6dof_arm/payloads/base.usd
+Generated from Composed Stage of root layer <home>/physical-ai-jetson-robotics-lab/isaac/usd/robots/synria_6dof_arm/payloads/base.usd
 """
     kilogramsPerUnit = 1
     metersPerUnit = 1
