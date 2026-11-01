@@ -1,0 +1,2805 @@
+{
+  "record_kind": "sanitized_provenance_amendment",
+  "description": "Publication-only provenance amendments. No new measurement, training or evaluation was performed. Exact raw records remain immutable at their source commit and in private hash-addressed storage. These derivatives must not replace original operator authorization, checkpoint or dataset inputs. All numeric lexemes, result fields, hashes and simulation labels are preserved. Only identifying string metadata is withheld or normalized.",
+  "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+  "records": [
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "docs/ludo_flagship/timeline.jsonl",
+      "source_sha256": "73753a39053b151d82f948476725d3738c104c7b63555dba2ad6f14dda78d9fd",
+      "source_size_bytes": 174704,
+      "publication_path": "docs/evidence/provenance/docs/ludo_flagship/timeline.public.jsonl",
+      "publication_sha256": "b864538ac8b64a37faffbaafd8f6e2b7431111792aff86b8828c6ce0aa6f1293",
+      "publication_size_bytes": 173704,
+      "numeric_lexeme_sha256": "fd0752aac25073e098e717d9d4e643b5800997214dc66c5755d60a6a1ca30044",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/record-43/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-44/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-45/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-46/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-47/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-48/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-49/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-50/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-51/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-52/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-53/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-54/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-55/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-56/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-57/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-58/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-59/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-60/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-61/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-62/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-63/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-64/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-65/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-66/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-67/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-68/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-69/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-70/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-71/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-72/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-73/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-74/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-75/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-76/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-77/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-78/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-80/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-81/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-82/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-83/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-85/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-86/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-87/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-88/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-89/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-90/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-91/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-92/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-93/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-94/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-95/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-96/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-97/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-98/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-99/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-100/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-101/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-102/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-103/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-104/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-105/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-106/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-107/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-108/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-109/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-110/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-111/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-112/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-115/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-116/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-117/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-118/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-120/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-121/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-122/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-123/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-124/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-125/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-126/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-127/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-128/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-129/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-130/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-131/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-132/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-133/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-134/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-135/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-136/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-137/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-138/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-139/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-140/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-141/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-142/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-143/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-144/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-145/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-146/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/record-147/artifact",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ],
+      "prior_main_record": {
+        "commit": "49ecb0eaef8f36be2ec2de11fbcd4a9ffbe8f05f",
+        "sha256": "4ed4fea49c72e611cb586bf522a802b03962390add0f88a7e178dea5006f797e",
+        "size_bytes": 151370,
+        "exact_prefix_of_source_record": true
+      }
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/paired_seed2026_noguard/trials_simplace01_n131_traced_20261022T052654Z.json",
+      "source_sha256": "ad73aa147fa0e1e3ea72568e8fc1c672be93b5f5d5c886fd149484dfbadad443",
+      "source_size_bytes": 54895,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/paired_seed2026_noguard/trials_simplace01_n131_traced_20261022T052654Z.public.json",
+      "publication_sha256": "2677ba421612b0a46f9c4091ed163e4d2163290f97f55f0b165d99c05b22792c",
+      "publication_size_bytes": 54885,
+      "numeric_lexeme_sha256": "2c05282a2c41c059a99529ba4af39cefa9a20999ad3ab5aa793bb2388a44b73b",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/start_pose_source",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/pick_cup_17oct3_margin/study.json",
+      "source_sha256": "87a9b823a7e956d1f373eebb29a330ce6bdbdeeedbfbc30c990e29d2f40df2de",
+      "source_size_bytes": 2488,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/pick_cup_17oct3_margin/study.public.json",
+      "publication_sha256": "ce201309dd22f7cbb6cdb8b235fcf73bf9aa9d3de5af9aedbe22d41d6a6dc6a2",
+      "publication_size_bytes": 2428,
+      "numeric_lexeme_sha256": "9eb7bbd366c3af05edffeb0c1ae770512d2b4720271b50f9d98b219ffab2dbcd",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/dataset_root",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/checkpoint_record",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/evaluation_record",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/trials/report",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/pick_cup_17oct3_margin/train_n045/checkpoint-step-000005000.json",
+      "source_sha256": "975a53cf36d6b3f9d5f828d71b4b55d8275f2796727ada2479f500cfe5808b16",
+      "source_size_bytes": 17232,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/pick_cup_17oct3_margin/train_n045/checkpoint-step-000005000.public.json",
+      "publication_sha256": "4d99bc96d1fbf4e34dff696b2bd831b9e1f2e1d64ecef661a365a5bcdbcb3605",
+      "publication_size_bytes": 17179,
+      "numeric_lexeme_sha256": "3f60bd8f688b0e14d7d13163bc45b14ad3be9b79506591e96ebc2a3ade6d1ed1",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/pick_cup_17oct3_margin/train_n045/checkpoint-step-000010000.json",
+      "source_sha256": "c37940c39f2268245cd1bdb4cfc28cc820ee087976b316dc1bf73e7432b6abf8",
+      "source_size_bytes": 17234,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/pick_cup_17oct3_margin/train_n045/checkpoint-step-000010000.public.json",
+      "publication_sha256": "c29f0fef2530a0a5631a30eab4135904e7b69c5c75518d5219aaf874338c5a9a",
+      "publication_size_bytes": 17181,
+      "numeric_lexeme_sha256": "d29e0679f54db309ee0574236134dec1ed39f00ab810b860fac7a2aab5d57cf9",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/pick_cup_17oct3_margin/train_n045/checkpoint-step-000015000.json",
+      "source_sha256": "40195afb9e419a05c1a6b8b11c66d255961cc4adc9ed1efb15745d4ef1263c0b",
+      "source_size_bytes": 17234,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/pick_cup_17oct3_margin/train_n045/checkpoint-step-000015000.public.json",
+      "publication_sha256": "34569152a97324062e255127a209c308fd0c308ee241ed84298b9b4271048712",
+      "publication_size_bytes": 17181,
+      "numeric_lexeme_sha256": "88d647a8367d7a1ce6b9d845a36bf9e46f4db64c83b4b48e43f010546afdebc9",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/pick_cup_17oct3_margin/train_n045/checkpoint-step-000020000.json",
+      "source_sha256": "187de8235148777c46315c63866b411205f6182085331991fd9d6face78be7b8",
+      "source_size_bytes": 17234,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/pick_cup_17oct3_margin/train_n045/checkpoint-step-000020000.public.json",
+      "publication_sha256": "9114343438f9762df2244df7ceb60fd839bff6ce181f1e969061df357aee08d4",
+      "publication_size_bytes": 17181,
+      "numeric_lexeme_sha256": "30ca5ea55b50a1e8bd356246b6a6ad880d8b8b39f6edaab5826afa7328682353",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/pick_cup_17oct3_margin/train_n045/evaluations/simcup17oct3m1_n045-step-000005000.json",
+      "source_sha256": "63bd23530e1db85dc1538e4c8d506c4508f1a38600430e570d4c0afc42601e77",
+      "source_size_bytes": 4356,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/pick_cup_17oct3_margin/train_n045/evaluations/simcup17oct3m1_n045-step-000005000.public.json",
+      "publication_sha256": "130c58b922831c9b394dc27dee9799333ba759906455fd675c5310104ac6abc8",
+      "publication_size_bytes": 4336,
+      "numeric_lexeme_sha256": "21f2076bde12a83536884970cf4bb08e345f496194f8fbf50e7d01ec588945ba",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/pick_cup_17oct3_margin/train_n045/evaluations/simcup17oct3m1_n045-step-000010000.json",
+      "source_sha256": "b6cc2542854ac4ac61af63cb7e38dd14dd013768293019fd74edea2d9476d3a1",
+      "source_size_bytes": 4352,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/pick_cup_17oct3_margin/train_n045/evaluations/simcup17oct3m1_n045-step-000010000.public.json",
+      "publication_sha256": "d2ae86eb49479004a27a2af7a2661bc9a8c986687519757feb2a134340d9d297",
+      "publication_size_bytes": 4332,
+      "numeric_lexeme_sha256": "17495852fffe26fbcae1b8d3dd1e5a499e7b2bae8fb9f6f79c5cc14b864986e4",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/pick_cup_17oct3_margin/train_n045/evaluations/simcup17oct3m1_n045-step-000015000.json",
+      "source_sha256": "9c7e9adeee276ab57b6b2cfb2ccd2c7ecf95153b33ce26ac88c88da2ad385261",
+      "source_size_bytes": 4358,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/pick_cup_17oct3_margin/train_n045/evaluations/simcup17oct3m1_n045-step-000015000.public.json",
+      "publication_sha256": "ccfb597fe034ea64cdafb057a3b1e37e90218bbb4cdfe3585136e75d6f4a397b",
+      "publication_size_bytes": 4338,
+      "numeric_lexeme_sha256": "3032c3c31b45225c4977259b1dbc337acee9c6d9cbcb6e5317edde6312bf5bb8",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/pick_cup_17oct3_margin/train_n045/evaluations/simcup17oct3m1_n045-step-000020000.json",
+      "source_sha256": "0bbbb4c05b8c9035411d30d361b8934ff37d624dec0d5ef44840a404d2239349",
+      "source_size_bytes": 4357,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/pick_cup_17oct3_margin/train_n045/evaluations/simcup17oct3m1_n045-step-000020000.public.json",
+      "publication_sha256": "e2f560be52df6f1f67315ff025909f4546c2bdffbb18cbe17668b937d3bc882e",
+      "publication_size_bytes": 4337,
+      "numeric_lexeme_sha256": "5cd95aa39753fae387cef85fc566629e7185c4ed1eecded82598235f7e4dc18e",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/pick_cup_17oct3_margin/train_n045/started.json",
+      "source_sha256": "8fb0e0914b4ac716e3e5786075a8c7e4984be6b17e76aefbe4a183a3e31c796f",
+      "source_size_bytes": 17036,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/pick_cup_17oct3_margin/train_n045/started.public.json",
+      "publication_sha256": "9fd57733587c771a76ae6f17475e00ae1143a3aad466cefbb46714650bb1d512",
+      "publication_size_bytes": 16993,
+      "numeric_lexeme_sha256": "866bfb5067e5994e95730b18c63d62c17df0b1dc6c5af67189563e471f228978",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/pick_cup_17oct3_margin/train_n045/training_run.json",
+      "source_sha256": "02ce2b085fde2f9d165cce46aaae2ffe719c1e3fbd6061a3372580fbc580cfba",
+      "source_size_bytes": 18671,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/pick_cup_17oct3_margin/train_n045/training_run.public.json",
+      "publication_sha256": "bce55c53ae269837fe5f9a6f25ecd37c1b6c300e456a02fb9cfc974cc9235341",
+      "publication_size_bytes": 18588,
+      "numeric_lexeme_sha256": "1831a1afdabfd417a86a7bd2b806960bdf21d9f2fb4be64f6530e61a2bbcf21c",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoints/0/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/checkpoints/1/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/checkpoints/2/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/checkpoints/3/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/pick_cup_17oct3_margin/trials_simcup17oct3m1_n045_20261022T045922Z.json",
+      "source_sha256": "9fb46cd34d1398d413c14f224fc3196fcdb7acb2d7e264f8dd2df4ac2a046556",
+      "source_size_bytes": 49834,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/pick_cup_17oct3_margin/trials_simcup17oct3m1_n045_20261022T045922Z.public.json",
+      "publication_sha256": "a4de64ab1444ecd970f28a0417c7e829b1e39711b4f98f051cea281f3085c3ba",
+      "publication_size_bytes": 49824,
+      "numeric_lexeme_sha256": "4ba4acb305a0a640fcaa73c041fe63d6974cbcf6219f66cfecb2969e055d0c52",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/start_pose_source",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_demos/demonstrations_cup_pick_and_place_20261022T065057Z.json",
+      "source_sha256": "8bcb0161b15f3dd4e36176f9cb3682049ffb32b1cf09cb42e263f21c4973a192",
+      "source_size_bytes": 3402361,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_demos/demonstrations_cup_pick_and_place_20261022T065057Z.public.json",
+      "publication_sha256": "56c3c6a985a5bf2b09b0e23768f33390a00f7b92f809ed4864bc8fed0b6d1210",
+      "publication_size_bytes": 3402351,
+      "numeric_lexeme_sha256": "2f141c5258d4efbc13f5308ca32b8e2c23d9190c0768252c3c7b804fe122d0a9",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/dataset_root",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_demos/demonstrations_cup_pick_and_place_20261022T222858Z.json",
+      "source_sha256": "9ad4a5373eee3212f3e129a2394e9e70431ff1febf266c9c31c5229b8f3ee158",
+      "source_size_bytes": 3755991,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_demos/demonstrations_cup_pick_and_place_20261022T222858Z.public.json",
+      "publication_sha256": "2d56435c81583bd89dd14f864e78084ba32c10cdae5018bd23a3d14abb8718c5",
+      "publication_size_bytes": 3755981,
+      "numeric_lexeme_sha256": "e4372e272acba0a631965aa3eaaf5adb5675682b2aa282a95e2ba7eda3db9ac6",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/dataset_root",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_02/spec.json",
+      "source_sha256": "fff0c1f40f809d83da9ab71a030d89fa9c8b68b84eaf6989d2454834933c890b",
+      "source_size_bytes": 650,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_02/spec.public.json",
+      "publication_sha256": "20a9f6fef3de2a3820dc439e97f7aa99506fd9e144e109d9583454ae6e6ff926",
+      "publication_size_bytes": 600,
+      "numeric_lexeme_sha256": "16d541a1cf6d6ac39b771281480566b4ffe74a3d9eff2b11edfb499a80f84665",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/contract",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_root",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/evidence_root",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/raw_output_root",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/training_config",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_02/study.json",
+      "source_sha256": "86d3456c75170132aa5a1b24eb29068f2f57fd74896235d16647fbefef3f357d",
+      "source_size_bytes": 3649,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_02/study.public.json",
+      "publication_sha256": "62a965bf3e9481cfa9893ee1c3ed35139acddc36e70664c8ed6beecc64a2181b",
+      "publication_size_bytes": 3589,
+      "numeric_lexeme_sha256": "0956e562ab06e89f48098b18e8daf9a0bf83334df31ec63b0687058019950a6f",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/dataset_root",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/checkpoint_record",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/evaluation_record",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/trials/report",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_02/train_config.json",
+      "source_sha256": "aa40ffea4ddb2dff958da8b1e5a90914f4472acd58c4a6a6546a6ea54c7b90b4",
+      "source_size_bytes": 3396,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_02/train_config.public.json",
+      "publication_sha256": "0375f8538f55d1ec1f152a018c679c918aeacc9788d905d2e91bec8d63ae682e",
+      "publication_size_bytes": 3386,
+      "numeric_lexeme_sha256": "9d3e7ddc2095d15109cebc37c286a3c96cdad9606423bef4bea7bd677df097cc",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_02/train_n122/checkpoint-step-000005000.json",
+      "source_sha256": "f20dc5d889b6a91116b0c088bc1871e1bf639c717494aaae09fba76c814f7b33",
+      "source_size_bytes": 20705,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_02/train_n122/checkpoint-step-000005000.public.json",
+      "publication_sha256": "487c14fa46de9a3093b38b54f761f20d0697cd7cfff5682beaac5f88e187240f",
+      "publication_size_bytes": 20652,
+      "numeric_lexeme_sha256": "abbc0d64625ccb101d8789faadfe0e5f030dfd224e6177c9d945b58fc0e71480",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_02/train_n122/checkpoint-step-000010000.json",
+      "source_sha256": "01d0527a0de304aa224ef9a7ba96083b6384b1fc80b952a5b0b6452b083f1940",
+      "source_size_bytes": 20707,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_02/train_n122/checkpoint-step-000010000.public.json",
+      "publication_sha256": "22833ce30aaee23a1fe46053fd62b2114643691e30ddf70f24d6b98120ba7c70",
+      "publication_size_bytes": 20654,
+      "numeric_lexeme_sha256": "3aa4884710be4c10c69dd226bdfcbe260fa4cc6a1651b3173cc2ae7b9afce84c",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_02/train_n122/checkpoint-step-000015000.json",
+      "source_sha256": "0590c3f746579d99a0b3e30b4f00733ef6416cd8d1b8396f2124d8caceb19c84",
+      "source_size_bytes": 20707,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_02/train_n122/checkpoint-step-000015000.public.json",
+      "publication_sha256": "2aceea1185a6ae186f2d36acb1c5e3fa0ad27977d814cc6a120a880dc9ace9dc",
+      "publication_size_bytes": 20654,
+      "numeric_lexeme_sha256": "2cd671f9acf4d54f85e29a6faea18b9d3b345ffbf06eca5d2a5495d644098557",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_02/train_n122/checkpoint-step-000020000.json",
+      "source_sha256": "26ea8de36de0056eb53817bba0fb3f96a0e9bd7a1facbf85d8fe2d599185f1c3",
+      "source_size_bytes": 20707,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_02/train_n122/checkpoint-step-000020000.public.json",
+      "publication_sha256": "af14b40de873724da38c790f16cc252e907def711d75354c243f57aa2d0a7a35",
+      "publication_size_bytes": 20654,
+      "numeric_lexeme_sha256": "c0dffccc23d842ce52781e3ca158638cf8c49883391cd876fd2e60047c335e3a",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_02/train_n122/evaluations/simplace02_n122-step-000005000.json",
+      "source_sha256": "b10e922ea18f9f0a756c54de62845e2f9e225e6e4dedd335360cccd9b822e784",
+      "source_size_bytes": 5695,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_02/train_n122/evaluations/simplace02_n122-step-000005000.public.json",
+      "publication_sha256": "26d5e9ee7e23d4a9a885b390d095799ee96584c25451017229c97a1dd41d0dd8",
+      "publication_size_bytes": 5675,
+      "numeric_lexeme_sha256": "0797fffc83c1ec0c2c1767970f8fffafc5da00d1ffb35d5a6347f36cebc2c6bd",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_02/train_n122/evaluations/simplace02_n122-step-000010000.json",
+      "source_sha256": "330de24a4daf0471399fba2af660b20ac8c54cb648dd91985fa6f244993aae4c",
+      "source_size_bytes": 5699,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_02/train_n122/evaluations/simplace02_n122-step-000010000.public.json",
+      "publication_sha256": "c4d47ac64d7171a64b795ed61d3c65ecd6ed4611e9909b14e11a7e5422059b8d",
+      "publication_size_bytes": 5679,
+      "numeric_lexeme_sha256": "d6d9e6fe586dbc7cf5f10bdd30a74425c066734b16e20b6b479bb4218d11c8d0",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_02/train_n122/evaluations/simplace02_n122-step-000015000.json",
+      "source_sha256": "aa8f3eb7a3367741cc335735c908f5544cf8023a1f3fe4804ec012129035d402",
+      "source_size_bytes": 5702,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_02/train_n122/evaluations/simplace02_n122-step-000015000.public.json",
+      "publication_sha256": "d6e1377f974ab22b9bd9ee733dc27861795af0e41c753fbcb7a64ac7614903f6",
+      "publication_size_bytes": 5682,
+      "numeric_lexeme_sha256": "eee4fb81590702591ebe971becf3f4e72bafe8eec2678152b458838f612984e5",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_02/train_n122/evaluations/simplace02_n122-step-000020000.json",
+      "source_sha256": "c6d36ba214662813e4dcf6b111555a9e60a3b67662b1e73ef44f69b9cc02ee60",
+      "source_size_bytes": 5697,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_02/train_n122/evaluations/simplace02_n122-step-000020000.public.json",
+      "publication_sha256": "59e02064b92773283e89ca7111dce33e37de0a01243c42c7a5b53a3d41892e33",
+      "publication_size_bytes": 5677,
+      "numeric_lexeme_sha256": "c107a4fa79739ab043660bfea66ee00ef9b8788f0fd874fa9df481fa79755059",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_02/train_n122/started.json",
+      "source_sha256": "af7b27ecf117d481b4e22b929e89d79c5130d46c381243caa787f8d122bf6f64",
+      "source_size_bytes": 20520,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_02/train_n122/started.public.json",
+      "publication_sha256": "482f986ef777dc1c559d73ced872a89c9ee0b66e8552625c8abbaf4b0c821434",
+      "publication_size_bytes": 20477,
+      "numeric_lexeme_sha256": "c0bd140338fea0183be6ac0fddaf27529766ec6696b42818944e92c69a5f99b4",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_02/train_n122/training_run.json",
+      "source_sha256": "70fadd2f3ef665993144c4f758bf1c0e1cd3c130435bb9cd78a074ea9a233f23",
+      "source_size_bytes": 22109,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_02/train_n122/training_run.public.json",
+      "publication_sha256": "d739f2595dc8a0bc8e28ffb94363a36980194e510e81bc34364dfaad2c507725",
+      "publication_size_bytes": 22026,
+      "numeric_lexeme_sha256": "3ad0e5ddadd68c95a92eeed86c13e462aa9aad6706d6a651b4c69cc660195743",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoints/0/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/checkpoints/1/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/checkpoints/2/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/checkpoints/3/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_02/trials_simplace02_n122_20261022T091708Z.json",
+      "source_sha256": "72e2967d46e9bfda9f82949d812709d598ceaeb7510628c10bc9c494f556d583",
+      "source_size_bytes": 56126,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_02/trials_simplace02_n122_20261022T091708Z.public.json",
+      "publication_sha256": "4e5570005afe3c33266037025244b2d380cb6fa0636702708e14df7a2712983f",
+      "publication_size_bytes": 56116,
+      "numeric_lexeme_sha256": "96a80eb3ebfd75b4860cb7652129874f396174ada8769d9ecbdbffffe9723177",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/start_pose_source",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_02/trials_simplace02_n122_traced_20261022T211224Z.json",
+      "source_sha256": "55351d3a59eb1b52cadae79c6cf08c4683ef8822535276f1a7297a3aa44b04bc",
+      "source_size_bytes": 56350,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_02/trials_simplace02_n122_traced_20261022T211224Z.public.json",
+      "publication_sha256": "7da6e1e719ad316bd58b3125bf306e3876f7c1d9cd87bf8462c8fe005c177f68",
+      "publication_size_bytes": 56340,
+      "numeric_lexeme_sha256": "e5ec4594fae68dacbde1553cc05aef56d76f067a3749ff1b276f5aefcfe23a1c",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/start_pose_source",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03/spec.json",
+      "source_sha256": "551f401f7542dd786a3251f0dc318270deb8727a379ba1c4f1337c0f45847297",
+      "source_size_bytes": 650,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03/spec.public.json",
+      "publication_sha256": "60408cf8fc5e6d62d06588f07b5826dcb4a62b5069160d48f2333fe3f9a4e9d7",
+      "publication_size_bytes": 600,
+      "numeric_lexeme_sha256": "127826d9ccb899a91acc2839323d9db10a8e68e1df44d5f36f5a169d6a40be24",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/contract",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_root",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/evidence_root",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/raw_output_root",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/training_config",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03/study.json",
+      "source_sha256": "73c9cb9a75daa666f8e64041c87c249564177e9b29986b3ed6a4b75474cb8a21",
+      "source_size_bytes": 3648,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03/study.public.json",
+      "publication_sha256": "16b29cf3bb06270798b2313b97f92b17cd093117259f4d783927a5a79fb722ac",
+      "publication_size_bytes": 3588,
+      "numeric_lexeme_sha256": "336c8db05e7410f7ca46373b757d788e922f2507de3603487f69aea60c886298",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/dataset_root",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/checkpoint_record",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/evaluation_record",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/trials/report",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03/train_config.json",
+      "source_sha256": "1dd043e0e2cbb48fa7dd9e07117e6192016027a48c389b03fc34ead22adb87ff",
+      "source_size_bytes": 3396,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03/train_config.public.json",
+      "publication_sha256": "018adbaecfb2ba00bbe7c6cb3d95bcdfc6dc2ae47ca1b071d4c5f5a828597809",
+      "publication_size_bytes": 3386,
+      "numeric_lexeme_sha256": "9d3e7ddc2095d15109cebc37c286a3c96cdad9606423bef4bea7bd677df097cc",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03/train_n130/checkpoint-step-000005000.json",
+      "source_sha256": "95932eed474aa0659969c8012f684682acf57cebf2047b24d479d90e4847a6fa",
+      "source_size_bytes": 20608,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03/train_n130/checkpoint-step-000005000.public.json",
+      "publication_sha256": "a9f773d9829b6803e4b1ce36587f95b5b3096650d05277e59def40d840c116ca",
+      "publication_size_bytes": 20555,
+      "numeric_lexeme_sha256": "d19938384862576dda64a1d314c0007bfe25aff80e24247c43f852c6735328ba",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03/train_n130/checkpoint-step-000010000.json",
+      "source_sha256": "27ce92defdd9a3e21d506e85b14bd731572d22b94355eb2d58ec1e9a2cb1d797",
+      "source_size_bytes": 20610,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03/train_n130/checkpoint-step-000010000.public.json",
+      "publication_sha256": "a5512f59e76d666630e09d7820431877eedaf1acd30923f261e5fc128375d8c1",
+      "publication_size_bytes": 20557,
+      "numeric_lexeme_sha256": "32d9454604069fb8bbb306a0c1d02841a923ca0f13f41d74ea2aca238efdd1ea",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03/train_n130/checkpoint-step-000015000.json",
+      "source_sha256": "f231ac65f1f7d6d399704d7095399076af59f241689d0b458e430042bcaaf59e",
+      "source_size_bytes": 20610,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03/train_n130/checkpoint-step-000015000.public.json",
+      "publication_sha256": "8b72dc5b69e1b051f7d86a1359daddafba2090cd47a773ef775d00fffcfb787c",
+      "publication_size_bytes": 20557,
+      "numeric_lexeme_sha256": "4d7c22ca9bfb640cadca3122f5a735639d01321065ab47bf27babe72303161cc",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03/train_n130/checkpoint-step-000020000.json",
+      "source_sha256": "7e04718e5d1f0769293d4e352b6ce8a406c67ce8e8d5ec71793b7c02239c304b",
+      "source_size_bytes": 20610,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03/train_n130/checkpoint-step-000020000.public.json",
+      "publication_sha256": "c70f8d1b7950b7c05d8629ae2cf12853c5ee4fa4effe83f0cdbe753b08881aaf",
+      "publication_size_bytes": 20557,
+      "numeric_lexeme_sha256": "76ff744e2b5e382067d7ad1e04972df81268faaf1cb71ab6aea9595ab8edfef9",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03/train_n130/evaluations/simplace03_n130-step-000005000.json",
+      "source_sha256": "ece81849f44f4c71d8cf5ca500be21db598a1eddb40f420741f60fb425a83700",
+      "source_size_bytes": 5698,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03/train_n130/evaluations/simplace03_n130-step-000005000.public.json",
+      "publication_sha256": "58c797a1af41af74a46d255034ecb10581890063ea6eeefc9a2d2b3b29d1e78f",
+      "publication_size_bytes": 5678,
+      "numeric_lexeme_sha256": "cb165a4627e3c1941bf31ee8a0e489c262838201a76b667187e227365944fc14",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03/train_n130/evaluations/simplace03_n130-step-000010000.json",
+      "source_sha256": "f42af83b1a08f7690c35f3aa8697d734fdbd28399a39bbe0b4889c7d2b148921",
+      "source_size_bytes": 5703,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03/train_n130/evaluations/simplace03_n130-step-000010000.public.json",
+      "publication_sha256": "883bb87a16341d13bee5db611f9596efb42d27ed536b5551c9d5724fc31ee5eb",
+      "publication_size_bytes": 5683,
+      "numeric_lexeme_sha256": "9b34753b72288d8ea4536771d660eeb48ec80a96fd8f4b823534f7a9f580b35a",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03/train_n130/evaluations/simplace03_n130-step-000015000.json",
+      "source_sha256": "26b87860cdfffc5ea14cdb4383816246ad8da9d28dd49c19ce917d80bb53f081",
+      "source_size_bytes": 5698,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03/train_n130/evaluations/simplace03_n130-step-000015000.public.json",
+      "publication_sha256": "2bf9c028ecf2b29c61369172361cbf89c53d8ab9b6b4da73b9c7185a246e0549",
+      "publication_size_bytes": 5678,
+      "numeric_lexeme_sha256": "57b5332ed791f881c711c97b8e463353e0ba9f61b85708147776adc313a3baf7",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03/train_n130/evaluations/simplace03_n130-step-000020000.json",
+      "source_sha256": "8ae3d2c067834ae6a3feb0edf569ffeb6263cf11c5e0afd0bd0d2b182c5d9d3c",
+      "source_size_bytes": 5699,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03/train_n130/evaluations/simplace03_n130-step-000020000.public.json",
+      "publication_sha256": "78a2ced2316a0cf3ffeafcee69e261df0ca1dfbfc1af7c8106dfcff65e8ec322",
+      "publication_size_bytes": 5679,
+      "numeric_lexeme_sha256": "4bdfc32d5e0a4d3fc54eedbd49808f36620e5b7769ddacb9046af1ff68e38788",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03/train_n130/started.json",
+      "source_sha256": "e5714b30da83acd7eccdfada092768bd0f7e15da7c3f9ab6b3f4be493caa94ad",
+      "source_size_bytes": 20423,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03/train_n130/started.public.json",
+      "publication_sha256": "b068c70d7e04a46026561164805fcd3104d6d1898b9f4bdb0a4f4305033b5e94",
+      "publication_size_bytes": 20380,
+      "numeric_lexeme_sha256": "5d1720a7aba9af05e47990759a7b0bce346c797cc4e95485793d53b260ff7a59",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03/train_n130/training_run.json",
+      "source_sha256": "3094233f0840284f8d5210c6fb5f1d9044115a4658130ee4d35b11729f6c0262",
+      "source_size_bytes": 22014,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03/train_n130/training_run.public.json",
+      "publication_sha256": "acab25cc987eecae95f06913807b7ee1f9d78491a54bb5a6f31d3c007f92fc18",
+      "publication_size_bytes": 21931,
+      "numeric_lexeme_sha256": "801d3796cd04248799328352dde2180df8dc86321fd68cf7f6d6b0fdec12eff5",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoints/0/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/checkpoints/1/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/checkpoints/2/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/checkpoints/3/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03/trials_simplace03_n130_20261023T011836Z.json",
+      "source_sha256": "85f984dff1afc135987965e9048762e3cb6a592b472922ff41e1dcbc14c8cc16",
+      "source_size_bytes": 56072,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03/trials_simplace03_n130_20261023T011836Z.public.json",
+      "publication_sha256": "33b6522a75a44dfd6cbdf7c2aacbaca33d95ed2694e7c097222dc4f485101f84",
+      "publication_size_bytes": 56062,
+      "numeric_lexeme_sha256": "770e3df67a1c9efb412e82d97bae56927c4770cf954253b1cc0591b6963bf0db",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/start_pose_source",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03/trials_simplace03_n130_traced45_20261023T014919Z.json",
+      "source_sha256": "16bc9c92c51913ba53a47c266a5cd02fb7abdbfa828705e23b928c0c36380c4a",
+      "source_size_bytes": 56471,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03/trials_simplace03_n130_traced45_20261023T014919Z.public.json",
+      "publication_sha256": "2433a17a15019f484d52f6574f1f85003308a47ef9326c413785acaf2a6da6ad",
+      "publication_size_bytes": 56461,
+      "numeric_lexeme_sha256": "8d1103eed03b46dfcb4f468d760d92464097999e1f576d1c63dfad3e9a4732d2",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/start_pose_source",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03_trim/spec.json",
+      "source_sha256": "154a0ec8ec6855e77036f2890c1d2a29e3f0db45dba3241a31275ad4a731b129",
+      "source_size_bytes": 674,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03_trim/spec.public.json",
+      "publication_sha256": "6c8525c8083885c1f0a430005beb0c7b5e60ff628a477e891fac936e5f29e2b4",
+      "publication_size_bytes": 624,
+      "numeric_lexeme_sha256": "127826d9ccb899a91acc2839323d9db10a8e68e1df44d5f36f5a169d6a40be24",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/contract",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_root",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/evidence_root",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/raw_output_root",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/training_config",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03_trim/study.json",
+      "source_sha256": "2ef8bf5b72df7102dfe6864b9de3f921b27e40b37bfd1684ddb431a1e8fe476f",
+      "source_size_bytes": 3693,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03_trim/study.public.json",
+      "publication_sha256": "d585ed4ad1fc52b65e6de18ea56ae336531cce302aa6f4e132f13ed262328796",
+      "publication_size_bytes": 3633,
+      "numeric_lexeme_sha256": "830425dba076346cbf8cb5c06623afee9404ab28c02b2199f602c2b5ac24bb48",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/dataset_root",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/checkpoint_record",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/evaluation_record",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/rows/0/trials/report",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03_trim/train_config.json",
+      "source_sha256": "ab6c45e2363f525b516988de0ecafc5a087ea3dbcbd00e9af98335f8d6d768e3",
+      "source_size_bytes": 8812,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03_trim/train_config.public.json",
+      "publication_sha256": "626d16f53b6d9e6000a8e3e2b58c707d2b3975d5fc8dfd9d1845bd28c1b858f6",
+      "publication_size_bytes": 8802,
+      "numeric_lexeme_sha256": "e1e3a27a9b3e05ee248adfe70ef312b61114646eb82297d3d471a4d7e57198fe",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03_trim/train_n130/checkpoint-step-000005000.json",
+      "source_sha256": "8db5fafeea9934d70f5a4e2e166dff859471c2b4764ef345439e0e2a422522f0",
+      "source_size_bytes": 32679,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03_trim/train_n130/checkpoint-step-000005000.public.json",
+      "publication_sha256": "2338aa5aaa74d3220176d04411ddccf7bff75a579772b86832b13768c23c56c5",
+      "publication_size_bytes": 32626,
+      "numeric_lexeme_sha256": "96e49b316a06edd60029d055b0ee29331edbb656f7d09c4a1a33bac46c0fa19c",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03_trim/train_n130/checkpoint-step-000010000.json",
+      "source_sha256": "2788fcb1fdd01a63b01b43990cc5c032317f3407e5f63e3d40024f417ff1d7f1",
+      "source_size_bytes": 32681,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03_trim/train_n130/checkpoint-step-000010000.public.json",
+      "publication_sha256": "4c99d6a24aa30faeafc2b55a272a6a0e5df188db979a7f8d4b37d6670cb1475a",
+      "publication_size_bytes": 32628,
+      "numeric_lexeme_sha256": "c090797e34951a89029f19fe838a7fe3f0f655e8bea65953cf09031a1d1798ae",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03_trim/train_n130/checkpoint-step-000015000.json",
+      "source_sha256": "a697a6d488ae2375f8cd4ab2f50894d9218acc0abd6a04640113f564472b5252",
+      "source_size_bytes": 32681,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03_trim/train_n130/checkpoint-step-000015000.public.json",
+      "publication_sha256": "92247cdedef70527d45d843b1e2e0828b365f53f4964ac7f7cb10103eee069e4",
+      "publication_size_bytes": 32628,
+      "numeric_lexeme_sha256": "7d0783af5e9b4eff786b2b6c49d098a1f6761e91f6334f36f61e72b7977cd5aa",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03_trim/train_n130/checkpoint-step-000020000.json",
+      "source_sha256": "e749d4d012373d4ae31d8bc29824ddbcee81f2e4f3b71791ff35d4478f47014f",
+      "source_size_bytes": 32681,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03_trim/train_n130/checkpoint-step-000020000.public.json",
+      "publication_sha256": "6adb5cb905a697541e22ae750496994ba89514d79009a99486b1139f0b2a9172",
+      "publication_size_bytes": 32628,
+      "numeric_lexeme_sha256": "d5ce24635cb42b4bc064c2b6dc8fe919fde3385038b32e1fff1b197b375d6f4e",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03_trim/train_n130/evaluations/simplace03trim_n130-step-000005000.json",
+      "source_sha256": "052893e831af7cf850f6f1d997ca19e1902d12bfd7a2135e42d8ca1aa932c681",
+      "source_size_bytes": 5711,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03_trim/train_n130/evaluations/simplace03trim_n130-step-000005000.public.json",
+      "publication_sha256": "8218720a13f468f9f1e0e157e7ed49d635939311babfac3d4d37c4795e14d528",
+      "publication_size_bytes": 5691,
+      "numeric_lexeme_sha256": "5cf227990dcc53f08457d392937d2fe6d69fb7527727393a71fd9f1d18792c0a",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03_trim/train_n130/evaluations/simplace03trim_n130-step-000010000.json",
+      "source_sha256": "c2dac7b509f7e3128f26facdb2ace76ddbdeada6bebbdfcffafae3ef50e9b959",
+      "source_size_bytes": 5713,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03_trim/train_n130/evaluations/simplace03trim_n130-step-000010000.public.json",
+      "publication_sha256": "b31f17dd27eed5729958baff8cb5c83aaf55c14458d28e4e2014f5f7ed3c6810",
+      "publication_size_bytes": 5693,
+      "numeric_lexeme_sha256": "c43c3d7b958e5df3834821f37b5a153eea261be03f3b161a291818f707aa2dde",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03_trim/train_n130/evaluations/simplace03trim_n130-step-000015000.json",
+      "source_sha256": "6b731f9ff9711ed3dc263c19794a5b6eba1ab77f4822160980fa455a8d0c1a99",
+      "source_size_bytes": 5717,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03_trim/train_n130/evaluations/simplace03trim_n130-step-000015000.public.json",
+      "publication_sha256": "4e3c166d7b0446d65b2145636c1ace8052814a2be6ec3a15b1363a85c3abc21e",
+      "publication_size_bytes": 5697,
+      "numeric_lexeme_sha256": "c2897f365eed010c36df90af886ae58aa6ec121ebad8cb2dbb446d7686c50b95",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03_trim/train_n130/evaluations/simplace03trim_n130-step-000020000.json",
+      "source_sha256": "d6146602c213568ebc26165b17ae5876d1ab3ee3f9ad50341748fb0b233e185f",
+      "source_size_bytes": 5715,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03_trim/train_n130/evaluations/simplace03trim_n130-step-000020000.public.json",
+      "publication_sha256": "fab522d030a91d5ff1be8427b4b74dbbe85015f8ac2322ce1cce5a34a46c478a",
+      "publication_size_bytes": 5695,
+      "numeric_lexeme_sha256": "941239ab71fcb16ba4b063cf0730ada685f86663c56b8b15650027a94429fbf3",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoint_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03_trim/train_n130/started.json",
+      "source_sha256": "432a3fb009dc95aebdc07294a9186804c075a943e22220554971e0d60e176373",
+      "source_size_bytes": 32485,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03_trim/train_n130/started.public.json",
+      "publication_sha256": "eea979aa6daa9c5bf4885426b52be1aa13b96c0c0ee3d09ed971d2cfb95b56c1",
+      "publication_size_bytes": 32442,
+      "numeric_lexeme_sha256": "27165b48b91d22af1d59dfacba3d78c4775d4c45ddb81588f01e34f581ac287d",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03_trim/train_n130/training_run.json",
+      "source_sha256": "80aa07690baf35e9f75aeda565bb476bb77977d01cd44d7a999b9c3b5888ec5f",
+      "source_size_bytes": 34109,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03_trim/train_n130/training_run.public.json",
+      "publication_sha256": "dd717c48a42dc95c634a4a369cabf29ac11a9a4247d3af61943f86805ef284f6",
+      "publication_size_bytes": 34026,
+      "numeric_lexeme_sha256": "6116c1cded5a362de628314e21651e81806fffbebaaa62258cd294e400d78ada",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/checkpoints/0/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/checkpoints/1/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/checkpoints/2/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/checkpoints/3/path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/evidence_directory",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/configuration/repository",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/dataset_path",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        },
+        {
+          "pointer": "/host",
+          "kinds": [
+            "private_identifier_withheld"
+          ]
+        },
+        {
+          "pointer": "/probe_set",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    },
+    {
+      "source_commit": "e886bdec4d8f3e20bf81d3b455dace9d5967e4e0",
+      "source_path": "reports/sim_policy/staged_place_03_trim/trials_simplace03trim_n130_20261023T032324Z.json",
+      "source_sha256": "d3a6d4f50f507e43d9789aa4f14ab1573c5ff6b667795ca5e82f7d53ca5f4aa5",
+      "source_size_bytes": 55943,
+      "publication_path": "docs/evidence/provenance/reports/sim_policy/staged_place_03_trim/trials_simplace03trim_n130_20261023T032324Z.public.json",
+      "publication_sha256": "6a812eda2805f82dc910974a22c071be761fbaee26affc345a3207fe58d4592c",
+      "publication_size_bytes": 55933,
+      "numeric_lexeme_sha256": "6d8582ac7e1b832baef229f2c2efa52a44660b9ce0db396d12f179550dd34e94",
+      "numeric_values_unchanged": true,
+      "metadata_amendments": [
+        {
+          "pointer": "/start_pose_source",
+          "kinds": [
+            "home_prefix_normalized"
+          ]
+        }
+      ]
+    }
+  ],
+  "jsonl_pointer_convention": "JSONL metadata pointers use the zero-based /record-N/ prefix; the remaining components are JSON pointers within that record.",
+  "operator_artifact_boundary": "Original operator artifacts and fingerprints remain immutable outside Git. The append-only timeline writer keeps its original output contract and must not write to publication derivatives."
+}

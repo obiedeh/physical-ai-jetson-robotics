@@ -51,7 +51,7 @@ def commit(root: Path) -> str:
     return git(
         root,
         "-c",
-        "user.name=oedeh",
+        "user.name=obiedeh",
         "-c",
         "user.email=obiedeh@gmail.com",
         "commit",
@@ -522,7 +522,7 @@ def test_isaac_label_requires_raw_evidence_and_real_provenance(campaign: Any) ->
     with pytest.raises(ValueError, match="evidence"):
         summarize_campaign(suite_for(campaign), [row])
     row["evidence"] = [{"path": "fixture/raw.json", "sha256": "0" * 64}]
-    row["audit"]["provenance"] = {"device": "jetsonthor", "python_version": "3.12.3"}
+    row["audit"]["provenance"] = {"device": "rtx-5090-workstation", "python_version": "3.12.3"}
     with pytest.raises(ValueError, match="Thor timing"):
         summarize_campaign(suite_for(campaign), [row])
 

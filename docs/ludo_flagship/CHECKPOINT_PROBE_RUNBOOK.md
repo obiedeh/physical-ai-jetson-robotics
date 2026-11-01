@@ -77,7 +77,7 @@ come from training episodes alone. Do not apply the dataset lookahead again.
 
 Checkpoint directories, datasets and raw media stay outside git. Put small
 evaluation records in a separate repository report directory, never within
-the hashed dataset or checkpoint; pass `docs/ludo_flagship/timeline.jsonl` as
+the hashed dataset or checkpoint; pass `docs/evidence/provenance/docs/ludo_flagship/timeline.public.jsonl` as
 the timeline. The hook records policy id, training step, UTC time, physical
 contract, fixed split and dataset/checkpoint/probe hashes. It reports MAE,
 RMSE and maximum error per joint in radians and separately for the gripper in

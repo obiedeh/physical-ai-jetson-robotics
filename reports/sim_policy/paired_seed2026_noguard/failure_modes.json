@@ -85,18 +85,62 @@
       "task_id": "cup_pick_and_place",
       "trials": 50,
       "utc": "2026-10-19T14:33:27.406522+00:00"
+    },
+    {
+      "held_share": 0.08546666666666666,
+      "holds": 641,
+      "modes": {
+        "cup untouched, reach not recorded": 0,
+        "held by the safety client most of the trial": 5,
+        "lifted, then dropped": 2,
+        "moved the cup, no lift": 18,
+        "never reached the cup": 13,
+        "reached the cup, no grasp": 12,
+        "reached the mark, not held there": 0,
+        "success": 0
+      },
+      "placement": {
+        "lifted": 2,
+        "median_m": 0.1183403752023867,
+        "p90_m": 0.1183403752023867,
+        "radius_m": 0.03,
+        "within_radius": 0
+      },
+      "policy_id": "simplace01_n131",
+      "reach_recorded": true,
+      "recoveries": 641,
+      "report": "reports/sim_policy/paired_seed2026_noguard/trials_simplace01_n131_traced_20261022T052654Z.json",
+      "rules": {
+        "lift_m": 0.03,
+        "nudge_m": 0.002,
+        "place_radius_m": 0.03,
+        "reach_m": 0.03
+      },
+      "score": "place",
+      "step": 20000,
+      "steps": 7500,
+      "success_interval": [
+        0.0,
+        0.07135003417431873
+      ],
+      "success_rate": 0.0,
+      "successes": 0,
+      "superseded": false,
+      "task_id": "cup_pick_and_place",
+      "trials": 50,
+      "utc": "2026-10-22T05:56:06.561975+00:00"
     }
   ],
   "totals": {
     "cup untouched, reach not recorded": 0,
-    "held by the safety client most of the trial": 5,
-    "lifted, then dropped": 2,
-    "moved the cup, no lift": 23,
-    "never reached the cup": 22,
-    "reached the cup, no grasp": 13,
+    "held by the safety client most of the trial": 10,
+    "lifted, then dropped": 4,
+    "moved the cup, no lift": 41,
+    "never reached the cup": 35,
+    "reached the cup, no grasp": 25,
     "reached the mark, not held there": 0,
     "success": 35
   },
-  "trials": 100,
-  "utc": "2026-10-19T14:34:58.882022+00:00"
+  "trials": 150,
+  "utc": "2026-10-22T05:56:42.706268+00:00"
 }

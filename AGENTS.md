@@ -67,6 +67,18 @@ reason, never silently overwritten.
 
 ---
 
+## Commit Identity Rule
+
+Every commit is authored and committed by the repository owner, under the
+owner's own git identity. Before the first commit in any environment, set
+`git config user.name` and `git config user.email` to the owner's identity and
+check them. Never commit under a tool or vendor identity, and never add
+co-author, session or generated-by trailers to a commit message or a pull
+request description. CI rejects a pull request whose commits break this rule
+(`scripts/check_repo_hygiene.py --commits`).
+
+---
+
 ## Safety Rules
 
 Before any change that touches:
@@ -93,8 +105,7 @@ Do not create:
 - speculative simulation adapters before hardware gates are passed
 - vendor-specific configs or vendor assets in public paths
 - oversized READMEs or architecture essays in code comments
-- handoff, recap, or summary files; session notes belong only in
-  `docs/ludo_flagship/ACTIVITY_LOG.md`
+- handoff, recap, or summary files; keep private notes outside this repository
 
 Every new file must justify at least one of: operational necessity,
 reliability, observability, or deployment readiness.
