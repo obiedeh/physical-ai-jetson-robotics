@@ -41,7 +41,8 @@ PRIVATE_ADDRESS_PATTERN = re.compile(
 # operator, a package name joined by a hyphen, "+", a library or "version" word, or ") ("
 # as in pip's "(from torch==2.9.0) (10.x.y.z)"; or when a hyphen or plus follows it.
 VERSION_BEFORE = re.compile(
-    r"(?:[=<>~!]=|[A-Za-z0-9_]-|\+|\) \(|\b(?:tensorrt|trt|cuda|cudnn|curand|cublas|version|libnvinfer) )$",
+    r"(?:[=<>~!]=|[A-Za-z0-9_]-|\+|\) \("
+    r"|\b(?:tensorrt|trt|cuda|cudnn|curand|cublas|version|libnvinfer) )$",
     re.IGNORECASE,
 )
 VERSION_AFTER = re.compile(r"^[-+][A-Za-z0-9]")

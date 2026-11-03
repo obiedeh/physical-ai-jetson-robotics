@@ -125,5 +125,6 @@ def test_addresses_in_prose_are_still_flagged():
     from scripts.check_repo_hygiene import private_addresses
 
     address = _quad("10", "2", "3", "4")
-    for line in ("ssh jetson@" + address, "the board (" + address + ") answered", "--host " + address):
+    lines = ("ssh jetson@" + address, "the board (" + address + ") answered", "--host " + address)
+    for line in lines:
         assert private_addresses(line) == [address], line
