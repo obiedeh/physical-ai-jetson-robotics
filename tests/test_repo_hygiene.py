@@ -98,3 +98,33 @@ def test_accepts_tokens_and_public_values(tmp_path: Path, line: str) -> None:
     path = Path("evidence.json")
     (tmp_path / path).write_text(line + "\n")
     assert find_violations(tmp_path, [path]) == []
+
+
+def _quad(*parts: str) -> str:
+    """Join parts into a dotted value, so this file holds no literal address."""
+    return ".".join(parts)
+
+
+def test_package_versions_are_not_addresses():
+    """Four-part package versions in install logs and notes are not private addresses."""
+    from scripts.check_repo_hygiene import private_addresses
+
+    version = _quad("10", "3", "7", "77")
+    for line in (
+        "Probe records TensorRT " + version + " and PyTorch 2.5",
+        "Collecting nvidia-curand-cu12==" + version + " (from torch==2.9.0)",
+        "Downloading nvidia_curand_cu12-" + version + "-py3-none-manylinux.whl",
+        "Requirement already satisfied: x (from torch==2.9.0) (" + version + ")",
+        "Collecting tensorrt-cu12>=" + version,
+    ):
+        assert private_addresses(line) == [], line
+
+
+def test_addresses_in_prose_are_still_flagged():
+    """An address in brackets, after a user or after a flag is still reported."""
+    from scripts.check_repo_hygiene import private_addresses
+
+    address = _quad("10", "2", "3", "4")
+    lines = ("ssh jetson@" + address, "the board (" + address + ") answered", "--host " + address)
+    for line in lines:
+        assert private_addresses(line) == [address], line

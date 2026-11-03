@@ -36,6 +36,26 @@ PRIVATE_ADDRESS_PATTERN = re.compile(
     r"|172\.(?:1[6-9]|2[0-9]|3[01])\.[0-9]{1,3}\.[0-9]{1,3}"
     r"|192\.168\.[0-9]{1,3}\.[0-9]{1,3})(?![0-9.])"
 )
+# Four-part package versions (TensorRT 10.x.y.z, nvidia-curand-cu12==10.x.y.z) share the
+# shape of a 10.x address. A match is a version when the text before it is a version
+# operator, a package name joined by a hyphen, "+", a library or "version" word, or ") ("
+# as in pip's "(from torch==2.9.0) (10.x.y.z)"; or when a hyphen or plus follows it.
+VERSION_BEFORE = re.compile(
+    r"(?:[=<>~!]=|[A-Za-z0-9_]-|\+|\) \("
+    r"|\b(?:tensorrt|trt|cuda|cudnn|curand|cublas|version|libnvinfer) )$",
+    re.IGNORECASE,
+)
+VERSION_AFTER = re.compile(r"^[-+][A-Za-z0-9]")
+
+
+def private_addresses(line: str) -> list[str]:
+    """Return the private-range addresses in a line, leaving out package version numbers."""
+    found = []
+    for match in PRIVATE_ADDRESS_PATTERN.finditer(line):
+        if VERSION_BEFORE.search(line[: match.start()]) or VERSION_AFTER.search(line[match.end():]):
+            continue
+        found.append(match.group(0))
+    return found
 CONTENT_ALLOWLIST = (
     Path("agents/ops_copilot"),
     Path("tests/test_agents_ops_copilot.py"),
@@ -79,7 +99,7 @@ def find_violations(root: Path, paths: list[Path] | None = None) -> list[str]:
                 )
             if HOME_PATH_PATTERN.search(line):
                 violations.append(f"{display_path}:{line_number}: home-directory path")
-            if PRIVATE_ADDRESS_PATTERN.search(line):
+            if private_addresses(line):
                 violations.append(f"{display_path}:{line_number}: private-range address")
     return violations
 
