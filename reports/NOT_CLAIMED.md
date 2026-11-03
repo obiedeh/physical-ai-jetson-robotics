@@ -1,6 +1,6 @@
 # What Is Not Established
 
-Updated 2026-09-07. Active work; these exclusions apply to the repository's
+Updated 2026-11-03. Active work; these exclusions apply to the repository's
 current public claims.
 
 - Autonomous real-arm pick and place.
@@ -31,6 +31,17 @@ current public claims.
 6. GR00T eval01 is **0/20 corrected**, not the raw 1/20. The untouched cup
    satisfied the old geometric rule; the current policy lane requires a grasp.
    Its target-blind placement result is not a fair goal-conditioned comparison.
+
+## Learned-Policy Results
+
+1. Every learned-policy result is Isaac Sim; every trial file carries
+   `lane: simulation` and `physical_evidence: false`. No learned policy has run
+   on the physical arm.
+2. The placement results (0, 16 and 20 of 50) are one placement seed (2026).
+   20 against 16 is inside the noise; the second seed (2027) has not run, so
+   neither corpus size is adopted.
+3. The 45-take teleoperated policy is scored on a lift task, not a place task;
+   it is not a direct comparison with the placement policies.
 
 ## Evidence
 
