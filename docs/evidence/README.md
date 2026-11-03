@@ -132,6 +132,22 @@ on the same placements. Every trial file carries `lane: simulation` and
 [campaign table](../../reports/sim_policy/paired_seed2026/PAIRED.md),
 [data-scaling study](../../reports/sim_policy/pick_cup_17oct3/study.json).
 
+### Learned policy: placing the cup on its mark, simulation only
+
+On the harder task of placing the cup on its mark (place score, 3 cm), with the
+same 50 seeded placements (seed 2026) for every row: goal-conditioned ACT on
+131 flawless scripted demonstrations placed **0 of 50** and lifted 2. On 122
+demonstrations that keep deliberate off-target arrivals and their corrections,
+it placed **16 of 50** and lifted 38 (paired exact McNemar p 3e-5). The same
+recipe at 291 demonstrations placed 20 of 50 and lifted 46, inside the noise
+against 16 (paired p 0.57). Corpora that add back-outs and a return to rest
+placed 3 of 50. The scripted executor places 50 of 50. A second placement seed
+(2027) is still to run before either corpus size is adopted. No learned policy
+has run on the physical arm.
+[Paired campaigns](../../reports/sim_policy/paired_seed2026/PAIRED.md),
+[corrections corpus](../../reports/sim_policy/staged_place_02/),
+[291-take study](../../reports/sim_policy/staged_place_05/).
+
 ## What the Corrections Revealed
 
 ![GR00T Ludo raw apparent success of 1 out of 20 corrected to 0 out of 20 because no grasp, lift or release occurred](figures/gr00t_correction.png)
