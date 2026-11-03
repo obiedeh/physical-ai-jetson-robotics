@@ -17,7 +17,7 @@ Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in <home>/.venv/g
 Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (9.10.2.21)
 Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (12.8.4.1)
 Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (11.3.3.83)
-Requirement already satisfied: nvidia-curand-cu12==<lan-address> in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (<lan-address>)
+Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (10.3.9.90)
 Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (11.7.3.90)
 Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (12.5.8.93)
 Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch==2.9.0) (0.7.1)
@@ -70,7 +70,7 @@ Requirement already satisfied: nvidia-cuda-cupti-cu12==12.8.90 in <home>/.venv/g
 Requirement already satisfied: nvidia-cudnn-cu12==9.10.2.21 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (9.10.2.21)
 Requirement already satisfied: nvidia-cublas-cu12==12.8.4.1 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (12.8.4.1)
 Requirement already satisfied: nvidia-cufft-cu12==11.3.3.83 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (11.3.3.83)
-Requirement already satisfied: nvidia-curand-cu12==<lan-address> in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (<lan-address>)
+Requirement already satisfied: nvidia-curand-cu12==10.3.9.90 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (10.3.9.90)
 Requirement already satisfied: nvidia-cusolver-cu12==11.7.3.90 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (11.7.3.90)
 Requirement already satisfied: nvidia-cusparse-cu12==12.5.8.93 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (12.5.8.93)
 Requirement already satisfied: nvidia-cusparselt-cu12==0.7.1 in <home>/.venv/gr00t/lib/python3.12/site-packages (from torch->flash-attn==2.8.3+cu12torch2.9cxx11abitrue) (0.7.1)
@@ -156,11 +156,11 @@ Collecting onnx>=1.20.0 (from gr00t==0.1.0)
   Downloading onnx-1.22.0-cp312-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (8.5 kB)
 Collecting onnxscript (from gr00t==0.1.0)
   Downloading onnxscript-0.7.1-py3-none-any.whl.metadata (13 kB)
-Collecting tensorrt-cu12>=<lan-address> (from gr00t==0.1.0)
+Collecting tensorrt-cu12>=10.15.1.29 (from gr00t==0.1.0)
   Downloading tensorrt_cu12-11.1.0.106.tar.gz (17 kB)
   Preparing metadata (pyproject.toml): started
   Preparing metadata (pyproject.toml): finished with status 'done'
-Collecting tensorrt-cu12-libs>=<lan-address> (from gr00t==0.1.0)
+Collecting tensorrt-cu12-libs>=10.15.1.29 (from gr00t==0.1.0)
   Downloading tensorrt_cu12_libs-11.1.0.106.tar.gz (15 kB)
   Preparing metadata (pyproject.toml): started
   Preparing metadata (pyproject.toml): finished with status 'done'
