@@ -10,6 +10,7 @@ Robot simulation, policy inference, teleoperation and evidence collection on Jet
 
 - Thor GR00T inference and Orin CUDA/camera probes run through to recorded benchmark artifacts, linked below.
 - The Isaac Sim Ludo executor runs commands through scoring and reports, with scripted components and kinematic attach.
+- In Isaac Sim, a learned pick-and-place policy went from 0 to 16 of 50 cup placements when its demonstrations kept deliberate mistakes and their corrections (20 of 50 at 291 demonstrations, inside the noise); see Status by Layer.
 - The Orin ROS/ZMQ host and RTX keyboard recording path are [verified end to end](docs/notes/yahboom_strategy_2026-08-20.md). That record leaves human demonstration collection pending.
 
 **Not established:** autonomous real-arm pick and place; physical object-success ground truth; TensorRT/PyTorch numerical parity; sustained thermal and safety validation. See [NOT_CLAIMED](reports/NOT_CLAIMED.md).
@@ -49,6 +50,7 @@ What is real, in one table. Labels: **measured** (a committed artifact with devi
 | Synria Teleop Console: recording, offline review and audited curation | **implemented, unmeasured**; fake and synthetic sources, no hardware run | 2026-10-10 | none | [Console guide](docs/ludo_flagship/TELEOP_CONSOLE.md) |
 | Ludo D1: physical Synria demonstrations | **planned**, 0/100 qualifying episodes | | | [`reports/ludo_flagship/data/D1_dataset_summary.json`](reports/ludo_flagship/data/D1_dataset_summary.json) |
 | Synria fixed-task ACT training and checkpoint diagnostics/playback | **measured, simulation only**; ACT trained on 45 teleoperated takes (real leader arm driving the Isaac Sim follower), 20,000 steps; closed-loop lift of the cup on 28 of 50 seeded placements (25 of 50 with a second training seed); the scripted executor lifts 50 of 50 on the same placements; no policy has run on the physical arm | 2026-10-18 | RTX 5090, Isaac Sim 5.1 | [45-take trials](reports/sim_policy/paired_seed2026/trials_simcup17oct3_n045_step-000020000_20261018T192549Z.json), [scripted trials](reports/sim_policy/staged_seed2026/trials_staged_expert_pick_cup_20261018T221650Z.json), [paired campaigns](reports/sim_policy/paired_seed2026/PAIRED.md), [data-scaling study](reports/sim_policy/pick_cup_17oct3/study.json), [training guide](docs/ludo_flagship/ACT_TRAINING_RUNBOOK.md), [trainer](scripts/train_synria_act.py) |
+| Synria goal-conditioned pick-and-place, learned policy (ACT), cup placed on its mark | **measured, simulation only**; the same 50 seeded placements (seed 2026) for every row: 131 flawless scripted demonstrations placed 0 of 50; 122 demonstrations that keep deliberate off-target arrivals and their corrections placed 16 of 50 (32%) and lifted 38 (paired exact McNemar p 3e-5 against the 131-take policy); the same recipe at 291 demonstrations placed 20 of 50 (40%) and lifted 46, inside the noise against 16 (paired p 0.57); corpora that add back-outs and a return to rest placed 3 of 50; the scripted executor places 50 of 50; no policy has run on the physical arm | 2026-10-19 to 2026-10-30 | RTX 5090, Isaac Sim | [paired campaigns](reports/sim_policy/paired_seed2026/PAIRED.md), [corrections corpus](reports/sim_policy/staged_place_02/), [291-take study](reports/sim_policy/staged_place_05/) |
 | Synria checkpoint HTTP serving and die-into-cup D2 evaluation | **implemented, unmeasured**; saved model/normalizers, localhost and fake-ROS trials only | 2026-10-08 | none | [server](scripts/serve_synria_policy.py), [D2 protocol](docs/ludo_flagship/D2_EVAL_PROTOCOL.md), [evaluation](synria_lerobot/evaluation.py) |
 | Board, token and die perception | **implemented, unmeasured**; synthetic accuracy fixtures only | 2026-10-08 | none | [`reports/ludo_flagship/perception/`](reports/ludo_flagship/perception/), [`synria_lerobot/perception.py`](synria_lerobot/perception.py) |
 | Synria standalone die-into-cup, roll-and-dump and cup-return sequence | **implemented, unmeasured**; three task-bound policies, fake sources and operator labels, no physical roll | 2026-10-08 | none | [roll runbook](docs/ludo_flagship/D4_OPERATOR_RUNBOOK.md#standalone-fixed-scene-roll), [runner](synria_lerobot/game_runner.py), [tests](tests/test_synria_roll_skills.py) |
@@ -140,6 +142,7 @@ Use [RTX setup](docs/SETUP_RTX.md) for Isaac and [Jetson deployment](docs/JETSON
 
 ## What Is Next
 
+- Run the 291-take and 122-take placement policies on a second placement seed (2027) before adopting either; the seed-2026 difference (20 against 16 of 50) is inside the noise.
 - Complete and accept the Phase 0A safety record, verify the candidate limits,
   and fill the empty operator fields in
   [`reports/synria/phase0a_safety_recovery.md`](reports/synria/phase0a_safety_recovery.md).
