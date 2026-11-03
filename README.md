@@ -115,7 +115,7 @@ Views: [system](docs/diagrams/system-architecture.mmd), [deployment](docs/diagra
 ## Hardware and Environment
 
 - **Jetson AGX Thor 128GB:** benchmark at 120W, L4T R38.4.0, BF16 GR00T n1d7-family pipeline. [Device/run record](reports/thor_trt_benchmark/thor_trt_benchmark.json)
-- **Jetson Orin NX:** Yahboom M3 Pro host, L4T R36.4.4, ROS 2 Humble and Python 3.10.12. Probe records TensorRT <lan-address> and PyTorch 2.5.0a0+872d972e41.nv24.08. [Provenance](reports/jetson/yahboom_day_one/provenance.json)
+- **Jetson Orin NX:** Yahboom M3 Pro host, L4T R36.4.4, ROS 2 Humble and Python 3.10.12. Probe records TensorRT 10.7.0.23 and PyTorch 2.5.0a0+872d972e41.nv24.08. [Provenance](reports/jetson/yahboom_day_one/provenance.json)
 - **RTX 5090 development host:** Isaac Sim 5.1 / Isaac Lab 2.3.2 simulation environment. [Setup](docs/SETUP_RTX.md), [recorded run environment](reports/ludo_soak_s10/provenance.json)
 
 The **Isaac-GR00T checkout, TensorRT engines and required GR00T checkpoints are external**, not vendored here. Historical report paths can refer to files on the original machines. Isaac Sim/Lab, vendor ROS runtime/message packages, robot geometry and external game-table scenes must also be obtained separately. Root-package installation does not install those environments.

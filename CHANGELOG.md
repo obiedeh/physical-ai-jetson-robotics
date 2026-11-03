@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-11-02: Restore 15 package version numbers (TensorRT, cuRAND, pip requirement lines) that the private-address scrub had replaced with `<lan-address>`, from the pre-scrub originals; the hygiene check now tells four-part package versions from private addresses, with tests. Real addresses stay replaced.
+
 - 2026-10-30: Keep study Markdown portable and normalize metadata before JSON escaping.
 
 - 2026-10-30: Normalize native Windows home paths and keep fake process signals portable.
