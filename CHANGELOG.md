@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-11-03: README states the learned pick-and-place results from 2026-10-19 to 2026-10-30 (0, 16 and 20 of 50 placements on seed 2026, recovery corpora 3 of 50) with their records, and lists the seed-2027 confirmation run as next.
+
 - 2026-10-30: Keep study Markdown portable and normalize metadata before JSON escaping.
 
 - 2026-10-30: Normalize native Windows home paths and keep fake process signals portable.
