@@ -1,6 +1,20 @@
 # Synria Teleop Console
 
-**Implemented, unmeasured.** A local recording and review surface for the
+**Measured in simulation only. Physical mode is built but has not run on
+hardware.** Simulation-mode sessions on 17 and 18 October 2026 recorded 50
+takes, 21,746 frames, with the real leader arm driving the Isaac Sim follower
+([dataset audit](../../reports/sim_policy/pick_cup_17oct3/limits_audit.json)).
+An ACT policy trained from scratch on 45 of those demonstrations lifted the
+cup 28 of 50 times on the fixed 50 seeded placements
+([record](../../reports/sim_policy/paired_seed2026/trials_simcup17oct3_n045_step-000020000_20261018T192549Z.json));
+a second training seed gave
+[25 of 50](../../reports/sim_policy/paired_seed2026/trials_simcup17oct3s23_n045_step-000020000_20261019T064722Z.json)
+and the same recipe on 35 demonstrations gave
+[0 of 50](../../reports/sim_policy/paired_seed2026/trials_simcup17oct3_n035_step-000020000_20261018T194946Z.json).
+No take has been recorded with the physical follower arm yet, and no policy
+has run on the real arm.
+
+A local recording and review surface for the
 Synria/Alicia-D leader-follower operator. It observes the existing recorder;
 it does not move the arm or start teleoperation. D1–D5 remain planned.
 
