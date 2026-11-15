@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-11-14: Teleop console guide status changed from implemented, unmeasured to measured in simulation only: simulation-mode sessions on 17 and 18 October 2026 recorded 50 takes, 21,746 frames, with the real leader arm driving the Isaac Sim follower; an ACT policy trained from scratch on 45 of them lifted the cup on 28 of 50 seeded placements (25 of 50 on a second training seed, 0 of 50 at 35 demonstrations). No take has been recorded with the physical follower arm: physical mode is built but has not run on hardware. The README status row for the console says the same.
+
 - 2026-11-14: CI: run the ROS 2 description package build on `ubuntu-24.04` instead of `ubuntu-latest`. ROS 2 Jazzy packages are built for Ubuntu 24.04 only, and the job failed with `Unable to locate package ros-jazzy-desktop` once the latest image moved on. No package or test change.
 
 - 2026-11-03: Evidence page and NOT_CLAIMED state the learned placement results (0, 16 and 20 of 50 on seed 2026) and what they do not establish: simulation only, one placement seed, the lift-task policy not directly comparable.
