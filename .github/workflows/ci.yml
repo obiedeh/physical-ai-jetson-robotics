@@ -105,7 +105,8 @@ jobs:
 
   ros2-lint:
     name: ROS 2 description package build
-    runs-on: ubuntu-latest
+    # ROS 2 Jazzy packages are built for Ubuntu 24.04 only.
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4

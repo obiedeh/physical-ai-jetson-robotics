@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-11-14: CI: run the ROS 2 description package build on `ubuntu-24.04` instead of `ubuntu-latest`. ROS 2 Jazzy packages are built for Ubuntu 24.04 only, and the job failed with `Unable to locate package ros-jazzy-desktop` once the latest image moved on. No package or test change.
+
 - 2026-11-03: Evidence page and NOT_CLAIMED state the learned placement results (0, 16 and 20 of 50 on seed 2026) and what they do not establish: simulation only, one placement seed, the lift-task policy not directly comparable.
 
 - 2026-11-03: README states the learned pick-and-place results from 2026-10-19 to 2026-10-30 (0, 16 and 20 of 50 placements on seed 2026, recovery corpora 3 of 50) with their records, and lists the seed-2027 confirmation run as next.
