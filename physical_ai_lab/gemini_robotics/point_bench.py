@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import math
 import os
 import re
 import statistics
@@ -61,26 +62,49 @@ def to_pixels(point_yx: tuple[float, float], image_wh: tuple[int, int]) -> tuple
     return x / 1000.0 * image_wh[0], y / 1000.0 * image_wh[1]
 
 
-def error_mm(pred_px: tuple[float, float], truth_px: tuple[float, float], mm_per_px: float) -> float:
-    return ((pred_px[0] - truth_px[0]) ** 2 + (pred_px[1] - truth_px[1]) ** 2) ** 0.5 * mm_per_px
+def error_mm(
+    pred_px: tuple[float, float], truth_px: tuple[float, float], mm_per_px: float
+) -> float:
+    return math.hypot(pred_px[0] - truth_px[0], pred_px[1] - truth_px[1]) * mm_per_px
 
 
-def ask(model: str, png: bytes, prompt: str, key: str, temperature: float, timeout: float,
-        retries: int = 4) -> tuple[str | None, float, str | None]:
+def ask(
+    model: str,
+    png: bytes,
+    prompt: str,
+    key: str,
+    temperature: float,
+    timeout: float,
+    retries: int = 4,
+) -> tuple[str | None, float, str | None]:
     """Return (text, seconds of the successful call, last error). Waits between retries."""
-    body = json.dumps({
-        "contents": [{"parts": [
-            {"inline_data": {"mime_type": "image/png", "data": base64.b64encode(png).decode()}},
-            {"text": prompt},
-        ]}],
-        "generationConfig": {"temperature": temperature},
-    }).encode()
+    body = json.dumps(
+        {
+            "contents": [
+                {
+                    "parts": [
+                        {
+                            "inline_data": {
+                                "mime_type": "image/png",
+                                "data": base64.b64encode(png).decode(),
+                            }
+                        },
+                        {"text": prompt},
+                    ]
+                }
+            ],
+            "generationConfig": {"temperature": temperature},
+        }
+    ).encode()
     error = None
     for attempt in range(retries):
         start = time.monotonic()
         try:
-            req = urllib.request.Request(API.format(model=model), data=body, headers={
-                "Content-Type": "application/json", "x-goog-api-key": key})
+            req = urllib.request.Request(
+                API.format(model=model),
+                data=body,
+                headers={"Content-Type": "application/json", "x-goog-api-key": key},
+            )
             with urllib.request.urlopen(req, timeout=timeout) as r:
                 resp = json.load(r)
             parts = resp["candidates"][0]["content"]["parts"]
@@ -89,7 +113,7 @@ def ask(model: str, png: bytes, prompt: str, key: str, temperature: float, timeo
             error = f"HTTP {exc.code}"
         except Exception as exc:  # timeout, connection, malformed response
             error = type(exc).__name__
-        time.sleep(min(60.0, 5.0 * 2 ** attempt))
+        time.sleep(min(60.0, 5.0 * 2**attempt))
     return None, 0.0, error
 
 
@@ -98,13 +122,15 @@ def summarize(model: str, rows: list[dict], total: int) -> dict:
     lat = sorted(r["seconds"] for r in rows if r["ok"])
     out = {"model": model, "n_total": total, "n_answered": len(errs)}
     if errs:
-        out.update({
-            "median_mm": round(statistics.median(errs), 2),
-            "p90_mm": round(errs[min(len(errs) - 1, int(0.9 * len(errs)))], 2),
-            "max_mm": round(errs[-1], 2),
-            "within_20mm": sum(e <= 20 for e in errs),
-            "median_seconds": round(statistics.median(lat), 2),
-        })
+        out.update(
+            {
+                "median_mm": round(statistics.median(errs), 2),
+                "p90_mm": round(errs[min(len(errs) - 1, int(0.9 * len(errs)))], 2),
+                "max_mm": round(errs[-1], 2),
+                "within_20mm": sum(e <= 20 for e in errs),
+                "median_seconds": round(statistics.median(lat), 2),
+            }
+        )
     return out
 
 
@@ -121,7 +147,11 @@ def main() -> int:
     args = p.parse_args()
 
     key = load_key()
-    truth = [json.loads(line) for line in (args.bench / "truth.jsonl").read_text().splitlines() if line.strip()]
+    truth = [
+        json.loads(line)
+        for line in (args.bench / "truth.jsonl").read_text().splitlines()
+        if line.strip()
+    ]
     if args.limit:
         truth = truth[: args.limit]
     prompt = PROMPT.format(target=args.target)
@@ -141,8 +171,16 @@ def main() -> int:
             row["err_mm"] = round(error_mm(px, tuple(t[args.truth_key]), t["mm_per_px"]), 1)
         rows.append(row)
     report = summarize(args.model, rows, len(truth))
-    report.update({"bench": str(args.bench), "target": args.target, "truth_key": args.truth_key,
-                   "temperature": args.temperature, "prompt": prompt, "results": rows})
+    report.update(
+        {
+            "bench": str(args.bench),
+            "target": args.target,
+            "truth_key": args.truth_key,
+            "temperature": args.temperature,
+            "prompt": prompt,
+            "results": rows,
+        }
+    )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=1) + "\n")
     print(json.dumps({k: v for k, v in report.items() if k not in ("results", "prompt")}))

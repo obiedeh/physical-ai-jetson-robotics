@@ -52,7 +52,7 @@ def parse_tokens(text: str) -> list[tuple[str, float, float]] | None:
 
 
 def to_cells(tokens: list[tuple[str, float, float]], cam: OverheadCamera) -> tuple[set, int]:
-    """Map pointed tokens to (color, col, row). Returns the set and the count pointed off the board."""
+    """Map pointed tokens to (color, col, row); also count the points off the board."""
     cells, off = set(), 0
     w, h = cam.image_wh
     for color, y, x in tokens:
@@ -71,14 +71,19 @@ def summarize(model: str, rows: list[dict], total: int) -> dict:
         truth = sum(r["n_truth"] for r in ok)
         pred = sum(r["n_pred"] for r in ok)
         hit = sum(r["n_hit"] for r in ok)
-        out.update({
-            "states_exact": sum(r["exact"] for r in ok),
-            "cells_truth": truth, "cells_pred": pred, "cells_hit": hit,
-            "recall": round(hit / truth, 3), "precision": round(hit / pred, 3) if pred else 0.0,
-            "wrong_color": sum(r["wrong_color"] for r in ok),
-            "off_board": sum(r["off_board"] for r in ok),
-            "median_seconds": round(statistics.median(r["seconds"] for r in ok), 2),
-        })
+        out.update(
+            {
+                "states_exact": sum(r["exact"] for r in ok),
+                "cells_truth": truth,
+                "cells_pred": pred,
+                "cells_hit": hit,
+                "recall": round(hit / truth, 3),
+                "precision": round(hit / pred, 3) if pred else 0.0,
+                "wrong_color": sum(r["wrong_color"] for r in ok),
+                "off_board": sum(r["off_board"] for r in ok),
+                "median_seconds": round(statistics.median(r["seconds"] for r in ok), 2),
+            }
+        )
     return out
 
 
@@ -94,7 +99,11 @@ def main() -> int:
     args = p.parse_args()
 
     key = load_key()
-    states = [json.loads(line) for line in (args.bench / "truth.jsonl").read_text().splitlines() if line.strip()]
+    states = [
+        json.loads(line)
+        for line in (args.bench / "truth.jsonl").read_text().splitlines()
+        if line.strip()
+    ]
     if args.limit:
         states = states[: args.limit]
     rows = []
@@ -102,11 +111,18 @@ def main() -> int:
         png = (args.bench / s["image"]).read_bytes()
         if args.size:
             from PIL import Image
+
             buf = io.BytesIO()
-            Image.open(io.BytesIO(png)).resize((args.size, args.size), Image.LANCZOS).save(buf, "PNG")
+            Image.open(io.BytesIO(png)).resize((args.size, args.size), Image.LANCZOS).save(
+                buf, "PNG"
+            )
             png = buf.getvalue()
-        cam = OverheadCamera(tuple(s["image_wh"]), s["camera"]["focal_mm"], s["camera"]["aperture_mm"],
-                             s["camera"]["distance_m"])
+        cam = OverheadCamera(
+            tuple(s["image_wh"]),
+            s["camera"]["focal_mm"],
+            s["camera"]["aperture_mm"],
+            s["camera"]["distance_m"],
+        )
         text, seconds, error = ask(args.model, png, PROMPT, key, args.temperature, args.timeout)
         tokens = parse_tokens(text) if text else None
         row = {"i": s["i"], "ok": tokens is not None, "seconds": round(seconds, 2)}
@@ -120,10 +136,22 @@ def main() -> int:
             row["off_board"] = off
             row["n_points"] = len(tokens)
         rows.append(row)
-        print(json.dumps({k: row.get(k) for k in ("i", "ok", "n_truth", "n_hit", "n_pred", "exact", "error")}), flush=True)
+        print(
+            json.dumps(
+                {k: row.get(k) for k in ("i", "ok", "n_truth", "n_hit", "n_pred", "exact", "error")}
+            ),
+            flush=True,
+        )
     report = summarize(args.model, rows, len(states))
-    report.update({"bench": str(args.bench), "input_width": args.size or states[0]["image_wh"][0],
-                   "temperature": args.temperature, "prompt": PROMPT, "results": rows})
+    report.update(
+        {
+            "bench": str(args.bench),
+            "input_width": args.size or states[0]["image_wh"][0],
+            "temperature": args.temperature,
+            "prompt": PROMPT,
+            "results": rows,
+        }
+    )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=1) + "\n")
     print(json.dumps({k: v for k, v in report.items() if k not in ("results", "prompt")}))

@@ -1,6 +1,10 @@
 from physical_ai_lab.gemini_robotics.board_bench import parse_tokens, summarize, to_cells
 from physical_ai_lab.gemini_robotics.ludo_board import (
-    OverheadCamera, cell_of, occupied, sample_states, score_state,
+    OverheadCamera,
+    cell_of,
+    occupied,
+    sample_states,
+    score_state,
 )
 
 
@@ -23,8 +27,11 @@ def test_camera_round_trip_covers_every_cell():
 def test_points_map_to_cells_and_score():
     cam = OverheadCamera((672, 672))
     x, y = cam.cell_to_px(1, 6)
-    text = '```json\n[{"point": [%f, %f], "label": "Red token"}, {"point": [1, 1], "label": "blue"}]\n```' % (
-        y / 672 * 1000, x / 672 * 1000)
+    point = f"[{y / 672 * 1000:f}, {x / 672 * 1000:f}]"
+    text = (
+        '```json\n[{"point": ' + point + ', "label": "Red token"}, '
+        '{"point": [1, 1], "label": "blue"}]\n```'
+    )
     cells, off = to_cells(parse_tokens(text), cam)
     assert cells == {("red", 1, 6)} and off == 1
     truth = occupied([{"color": "red", "cell": [1, 6]}, {"color": "blue", "cell": [8, 2]}])
@@ -36,7 +43,23 @@ def test_points_map_to_cells_and_score():
 
 
 def test_summary_counts_only_answered_states():
-    rows = [{"ok": True, "seconds": 2.0, "n_truth": 16, "n_pred": 15, "n_hit": 15, "exact": False,
-             "wrong_color": 0, "off_board": 0}, {"ok": False, "seconds": 0.0}]
+    rows = [
+        {
+            "ok": True,
+            "seconds": 2.0,
+            "n_truth": 16,
+            "n_pred": 15,
+            "n_hit": 15,
+            "exact": False,
+            "wrong_color": 0,
+            "off_board": 0,
+        },
+        {"ok": False, "seconds": 0.0},
+    ]
     out = summarize("m", rows, 2)
-    assert (out["n_answered"], out["states_exact"], out["recall"], out["precision"]) == (1, 0, 0.938, 1.0)
+    assert (out["n_answered"], out["states_exact"], out["recall"], out["precision"]) == (
+        1,
+        0,
+        0.938,
+        1.0,
+    )

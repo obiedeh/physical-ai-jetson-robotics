@@ -14,7 +14,10 @@ def test_pixels_and_error():
 
 
 def test_summarize_counts_unanswered():
-    rows = [{"ok": True, "err_mm": 2.0, "seconds": 1.0}, {"ok": True, "err_mm": 30.0, "seconds": 3.0},
-            {"ok": False, "seconds": 5.0}]
+    rows = [
+        {"ok": True, "err_mm": 2.0, "seconds": 1.0},
+        {"ok": True, "err_mm": 30.0, "seconds": 3.0},
+        {"ok": False, "seconds": 5.0},
+    ]
     s = summarize("m", rows, 3)
     assert s["n_answered"] == 2 and s["within_20mm"] == 1 and s["median_mm"] == 16.0
