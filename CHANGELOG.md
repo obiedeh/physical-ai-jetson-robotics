@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-11-23: Add `scripts/merge_sim_datasets.py`: joins two simulation datasets with identical contracts for one training run (LeRobot aggregation for frames, videos and statistics; the three sidecar logs, final stills and exclusion logs renumbered), keeping the base dataset's episode indices so a frozen probe set's held-out takes stay the same, with tests. Checked by joining the 50-take cup dataset to itself: 100 episodes, episode 12 and its copy 62 identical in actions, states and both camera frames.
+
 - 2026-11-23: The MimicGen-style recorder now writes generated takes under the teleoperated dataset's exact contract (no cup-pose goal channel, integer 15 Hz rate), so the two datasets can be merged for training; a two-take check matched contract and features.
 
 - 2026-11-23: First scene run of the MimicGen-style generator: 10 takes on placement seed 5026 (clear of the evaluation seeds), all 10 lifted the cup past the 3 cm score (maximum lift 10.9 to 18.6 cm); moves of up to 19.2 degrees in bearing and 1.9 cm in radius from 8 different source takes; one take ended early after its lift at a wrist singularity; no command was clamped. Pilot only: the moves stay close to the source takes, nothing has been trained on the generated takes, and no policy result is claimed. Record: `reports/sim_policy/mimic_cup_pilot01/`.
