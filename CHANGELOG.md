@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-11-23: Generated 200 cup takes in the Isaac scene from the teleoperated takes (placement seed 6026): 167 lifted the cup and are kept for training; 17 could not be solved for their placement and 16 slipped. Every slip came from two source takes (episode 47: 3 of 13 held; episode 45: 11 of 17); every other source held on all its moves. Merged with the 50-take dataset into 250 episodes (212 trainable: 45 teleoperated, 167 generated), registered probe set `mimic_cup_01_sim` (same four held-out takes) and a training config identical to the 45-take baseline except for the dataset. Records: `reports/sim_policy/mimic_cup_01/`.
+
 - 2026-11-23: Add `scripts/merge_sim_datasets.py`: joins two simulation datasets with identical contracts for one training run (LeRobot aggregation for frames, videos and statistics; the three sidecar logs, final stills and exclusion logs renumbered), keeping the base dataset's episode indices so a frozen probe set's held-out takes stay the same, with tests. Checked by joining the 50-take cup dataset to itself: 100 episodes, episode 12 and its copy 62 identical in actions, states and both camera frames.
 
 - 2026-11-23: The MimicGen-style recorder now writes generated takes under the teleoperated dataset's exact contract (no cup-pose goal channel, integer 15 Hz rate), so the two datasets can be merged for training; a two-take check matched contract and features.
