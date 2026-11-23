@@ -152,8 +152,16 @@ def main(argv: list[str] | None = None) -> int:
             factory, publisher,  # type: ignore[arg-type]
             (*limits.joint_limits_rad, limits.gripper_limits_m[args.gripper]),
         )
+        recording = recorder_args(args)
+        # The source takes carry no goal channel, and the generated takes are merged with
+        # them for training, so the two datasets must share one contract and one feature
+        # set: record without the cup-pose channel the staged recorder adds.
+        recording.goal_channel = []
+        # The source contract records a whole-number rate as an integer (15, not 15.0).
+        if float(args.fps).is_integer():
+            recording.fps = int(args.fps)
         recorder = stack.enter_context(build_recording_session(
-            recorder_args(args), simulation=True, injected_action_source=actions,
+            recording, simulation=True, injected_action_source=actions,
         ))
         session = DemonstrationSession(
             recorder, actions, publisher, recorder.state_source, cup.read, gripper.read,
