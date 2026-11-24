@@ -5,7 +5,10 @@
 
 The base dataset's episodes keep their indices (0 to N-1), so a probe set's held-out
 episodes stay the same takes; the extra dataset's episodes follow as N, N+1, ...
-LeRobot's own aggregation joins the frames, videos and statistics. The three per-episode
+LeRobot's own aggregation joins the frames, videos and statistics. Each source video
+file is kept as its own file (one per episode for recorded takes): packing every episode
+into one long file per camera made each training sample about 5.7 times slower to decode
+(68 ms against 12 ms, measured 2026-11-23). The three per-episode
 sidecar logs (capture provenance, episode metadata, quality records) are joined with the
 extra episodes renumbered, and each final still is copied under its new episode number
 with the logs pointing at the copy. The exclusion logs beside the two datasets are joined
@@ -103,7 +106,8 @@ def main(argv: list[str] | None = None) -> int:
     from lerobot.datasets.aggregate import aggregate_datasets
 
     aggregate_datasets(repo_ids=["local/merge_base", "local/merge_extra"],
-                       aggr_repo_id=args.repo_id, roots=[base, extra], aggr_root=output)
+                       aggr_repo_id=args.repo_id, roots=[base, extra], aggr_root=output,
+                       concatenate_videos=False)
     shutil.copyfile(base / "physical_contract.json", output / "physical_contract.json")
     still_dir = output / "final_stills"
     still_dir.mkdir(exist_ok=True)
