@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-11-25: Measured eight training data loader workers on the 45-take cup recipe: training took 11 min 25 s instead of 42 min, but the policy lifted 9 of 50 on the seed-2026 placements against 27 of 50 for the original (p 0.0003). The batches the workers deliver are identical to those without workers (40 shuffled batches compared), so the gap comes from the training run, not the data. Workers stay off by default until a repeat run settles it. Records: `reports/sim_policy/pick_cup_17oct3/train_n045_w8/` and its trial report. Simulation lane only.
+
 - 2026-11-25: The policy trained with 167 generated cup takes added (`mimiccup01_merged`) is now the kept `pick_cup` policy. On the second placement seed (2027) it lifted 44 of 50 against 26 of 50 for the 45-take policy re-scored in the same session (19 placements new-only, 1 old-only, exact McNemar p 0.00004); over both seeds 75 of 100 against 53. Register, README status row and evidence page updated. Simulation lane only.
 
 - 2026-11-24: Scored the policy trained on the 45 teleoperated cup takes plus 167 generated ones (`mimiccup01_merged`, 20,000 steps) on the 50 paired placements at seed 2026: 31 of 50 lifts, against 27 of 50 for the 45-take baseline re-scored in the same session (28 of 50 in October). 13 placements lifted only by the new policy, 9 only by the baseline; exact McNemar p 0.52, so a tie under the register's rule and the kept policy stays. Median time to lift fell from 17.6 s to 13.4 s. Simulation lane only. Reports: `reports/sim_policy/mimic_cup_01/`.
