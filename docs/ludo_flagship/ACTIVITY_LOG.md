@@ -733,3 +733,12 @@ Simulation lane; never physical evidence.
 4. A first launch of this scoring on 2026-11-23 ended with the session before
    any trial report was written; this run is the complete one. Reports:
    `reports/sim_policy/mimic_cup_01/trials_*_step-000020000_*.json`.
+5. 2026-11-25, placement seed 2027, same settings: `mimiccup01_merged` 44 of
+   50, the 45-take baseline re-scored 26 of 50 (23 on 2026-10-19). Paired: 25
+   both, 19 new only, 1 baseline only, 5 neither; exact McNemar p 0.00004.
+   Median time to lift 12.6 s against 17.6 s. Over both seeds, 75 of 100
+   against 53 of 100 (32 new-only, 10 baseline-only, p 0.0009). The new policy
+   scored at least as many on the second seed, so under the register's rule it
+   replaces `simcup17oct3_n045` as the kept `pick_cup` policy. Copy at
+   `~/synria-policies/pick_cup/mimiccup01_merged-step020000/`, content hash
+   checked against its record. Simulation only; no policy has run on the arm.

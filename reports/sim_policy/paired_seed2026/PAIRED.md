@@ -188,3 +188,6 @@ What the pairing shows, with the caveat that one seed is one draw of placements:
   27 of 50 (28 on 2026-10-18). 13 new-only, 9 baseline-only, exact McNemar p
   0.52, median time to lift 13.4 s against 17.6 s. A tie under the register's
   rule: the incumbent stays unless the new policy holds on placement seed 2027.
+  On placement seed 2027 it lifts 44 of 50 against the baseline's 26 (19
+  new-only, 1 baseline-only, p 0.00004), so it replaces the baseline as the kept
+  `pick_cup` policy.

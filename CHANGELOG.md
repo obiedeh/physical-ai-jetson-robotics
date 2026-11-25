@@ -1,5 +1,7 @@
 # Changelog
 
+- 2026-11-25: The policy trained with 167 generated cup takes added (`mimiccup01_merged`) is now the kept `pick_cup` policy. On the second placement seed (2027) it lifted 44 of 50 against 26 of 50 for the 45-take policy re-scored in the same session (19 placements new-only, 1 old-only, exact McNemar p 0.00004); over both seeds 75 of 100 against 53. Register, README status row and evidence page updated. Simulation lane only.
+
 - 2026-11-24: Scored the policy trained on the 45 teleoperated cup takes plus 167 generated ones (`mimiccup01_merged`, 20,000 steps) on the 50 paired placements at seed 2026: 31 of 50 lifts, against 27 of 50 for the 45-take baseline re-scored in the same session (28 of 50 in October). 13 placements lifted only by the new policy, 9 only by the baseline; exact McNemar p 0.52, so a tie under the register's rule and the kept policy stays. Median time to lift fell from 17.6 s to 13.4 s. Simulation lane only. Reports: `reports/sim_policy/mimic_cup_01/`.
 
 - 2026-11-23: `scripts/merge_sim_datasets.py` now keeps each source video file as its own file instead of packing every episode into one long file per camera. The packed merge made each training sample about 5.7 times slower to decode (68 ms against 12 ms per sample with the PyAV reader), so a 20,000-step run took about 4 hours instead of 42 minutes with the GPU mostly idle. Re-merging the 250-episode cup dataset this way gave identical samples (zero difference in actions, states and both camera frames) at 12 ms per sample.
