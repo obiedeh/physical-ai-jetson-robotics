@@ -182,3 +182,9 @@ What the pairing shows, with the caveat that one seed is one draw of placements:
   other the rows are 6 and 1 discordant (p 0.125). A gap of 4 is inside the
   register's tie band, so the incumbent stays unless the 291-take policy holds
   on placement seed 2027 (`paired_seed2027`).
+- MimicGen-style cup takes, 2026-11-24: `mimiccup01_merged` (45 teleoperated
+  takes plus 167 generated in the scene, the baseline recipe otherwise) lifts
+  31 of 50; the baseline `simcup17oct3_n045` re-scored in the same session lifts
+  27 of 50 (28 on 2026-10-18). 13 new-only, 9 baseline-only, exact McNemar p
+  0.52, median time to lift 13.4 s against 17.6 s. A tie under the register's
+  rule: the incumbent stays unless the new policy holds on placement seed 2027.
