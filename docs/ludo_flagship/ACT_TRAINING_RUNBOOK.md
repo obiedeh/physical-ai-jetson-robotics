@@ -412,12 +412,18 @@ Three optional levers, each recorded in the manifest and refused when malformed:
   (brightness, contrast, saturation, hue, sharpness; the trainer refuses affine)
   applied to training frames only, never to held-out frames, with the upstream
   default ranges.
-  Augmentation runs on the CPU inside the data loader, so set
-  `dataloader_workers` (default 0, every frame decoded and augmented in the
-  training process) to a few worker processes when it is enabled. The first
-  augmented run on the simulation study host trained about seven times slower
-  per step than the plain baseline with 0 workers. The count is part of the
-  recorded configuration; held-out evaluation always uses 0.
+  Augmentation and video decoding run on the CPU inside the data loader, so
+  set `dataloader_workers` to 8 on the simulation study host (absent means 0,
+  every frame decoded and augmented in the training process; kept so older
+  records keep their meaning). `scripts/prepare_sim_study.py` writes 8 by
+  default. With 8 the 45-take cup recipe trained in 11 min 25 s against 42 min
+  with 0, and the batches are identical to those with 0. The count is part of
+  the recorded configuration; held-out evaluation always uses 0.
+- Judge a recipe over several training runs, not one. GPU training with the
+  same config and seed gives different weights, and the 45-take cup recipe has
+  scored 9, 22, 27 and 28 of 50 on the same placements across runs, wider than
+  the register's tie band. Train each recipe at least three times and compare
+  the runs' scores on the same placement seeds.
 - `episode_weights` in the training configuration maps episode indices
   (`"31"`, or an inclusive range `"30-49"`) to positive weights; frames of a
   weighted episode are drawn that many times as often as frames of an

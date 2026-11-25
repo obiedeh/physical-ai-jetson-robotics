@@ -773,3 +773,8 @@ Simulation lane; never physical evidence.
    run-to-run spread; no mechanism ties it to the workers. Workers stay off by
    default until the owner decides between single runs and several training
    runs per recipe.
+6. Decision (owner, 2026-11-25): workers on. New study configs write
+   `dataloader_workers` 8 (`scripts/prepare_sim_study.py` default, was 2); a
+   config without the key still means 0. Recipes are compared over at least
+   three training runs each; the two cup recipes (`simcup17oct3_n045` and
+   `mimiccup01_merged`) are being repeated on that basis.
