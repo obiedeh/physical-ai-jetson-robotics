@@ -713,3 +713,32 @@ Simulation lane; never physical evidence. Nothing here is a campaign result.
 Change Report: tests 2228 passed, 18 skipped, 2 failed. The same two fail without this work
 (`test_synria_description_structure_is_simulation_ready`,
 `test_clamp_holds_joints_inside_the_bounds_and_keeps_the_gripper`). No hardware was commanded.
+
+## 2026-11-24: MimicGen-style cup takes, trained and scored
+
+Simulation lane; never physical evidence.
+
+1. `mimiccup01_merged`: ACT, the 45-take baseline's config except the dataset,
+   trained 20,000 steps on 212 takes (45 teleoperated, 167 generated in the
+   Isaac scene, commit `92cbe1d`). Held-out probe error at 20,000 steps is close
+   to the baseline's, slightly worse on Joint2 and Joint5.
+2. Paired campaign at placement seed 2026 (0.2 s command period, 0.5 s response
+   timeout, start pose from the frozen human dataset): 31 of 50 lifts. The
+   45-take baseline `simcup17oct3_n045` at 20,000 steps re-scored in the same
+   session: 27 of 50 (28 of 50 on 2026-10-18).
+3. Paired outcome: 18 both, 13 new only, 9 baseline only, 10 neither; exact
+   McNemar p 0.52. Median time to lift 13.4 s against 17.6 s. A gap of 4 is
+   inside the register's tie band, so the kept policy stays. The new policy
+   replaces it only if it scores at least as many on placement seed 2027.
+4. A first launch of this scoring on 2026-11-23 ended with the session before
+   any trial report was written; this run is the complete one. Reports:
+   `reports/sim_policy/mimic_cup_01/trials_*_step-000020000_*.json`.
+5. 2026-11-25, placement seed 2027, same settings: `mimiccup01_merged` 44 of
+   50, the 45-take baseline re-scored 26 of 50 (23 on 2026-10-19). Paired: 25
+   both, 19 new only, 1 baseline only, 5 neither; exact McNemar p 0.00004.
+   Median time to lift 12.6 s against 17.6 s. Over both seeds, 75 of 100
+   against 53 of 100 (32 new-only, 10 baseline-only, p 0.0009). The new policy
+   scored at least as many on the second seed, so under the register's rule it
+   replaces `simcup17oct3_n045` as the kept `pick_cup` policy. Copy at
+   `~/synria-policies/pick_cup/mimiccup01_merged-step020000/`, content hash
+   checked against its record. Simulation only; no policy has run on the arm.

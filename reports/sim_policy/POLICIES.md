@@ -16,8 +16,8 @@ is checked against the record's content hash and serves with
 
 | task | policy, step | data | score | why it is kept |
 |---|---|---|---|---|
-| `pick_cup` (3 cm lift) | `simcup17oct3_n045`, 20000 | 45 teleoperated takes | 28 of 50; 35 guard off; 23 on seed 2027 | best learned pick; held on a second seed and with the guard off |
-| `pick_cup` | `simcup17oct3long_n045`, 40000 | the same 45 takes, 60000-step run | 29 of 50 | ties the champion inside the run-to-run noise; the long-training reference |
+| `pick_cup` (3 cm lift) | `mimiccup01_merged`, 20000 | 45 teleoperated takes plus 167 generated in the scene (MimicGen-style) | 31 of 50; 44 on seed 2027 | best learned pick since 2026-11-25: tied the 45-take policy at seed 2026 (31 against 27, p 0.52) and beat it at seed 2027 (44 against 26, 19 new-only and 1 old-only, p 0.00004) |
+| `pick_cup` | `simcup17oct3long_n045`, 40000 | the 45 teleoperated takes, 60000-step run | 29 of 50 | the long-training reference for the teleoperated-only recipe |
 | `cup_pick_and_place` (place score) | `simplace02_n122`, 20000 | 122 staged-executor takes, seated grasp | 16 of 50 (15 traced); 38 lifted | best learned place |
 
 The scripted staged executor (`staged_expert_v1`, ground-truth poses) places 50 of
@@ -28,6 +28,7 @@ checkpoint, and it is the ceiling a learned policy is measured against.
 
 | policy, step | score | what it showed |
 |---|---|---|
+| `simcup17oct3_n045`, 20000 | 28 of 50 (27 re-scored); 23 and 26 on seed 2027 | the teleoperated-only champion until 2026-11-25; replaced by `mimiccup01_merged`; its store copy is kept |
 | `simcup17oct3_n035`, `_n040` (and seed 23) | 0 to 5 of 50 | fewer than 45 teleoperated takes do not lift |
 | `simcup17oct3_n045` at 5000 to 15000, and the four-checkpoint average | 0 to 9 of 50 | 20000 steps is the point the 45-take recipe reaches |
 | `simcup17oct3s23_n045`, 20000 | 25 of 50 | second training seed; reproduces the champion |

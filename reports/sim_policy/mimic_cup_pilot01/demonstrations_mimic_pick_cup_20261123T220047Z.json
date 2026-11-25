@@ -1,0 +1,467 @@
+{
+  "config": {
+    "approach_s": 2.0,
+    "finish_at_rest": false,
+    "fps": 15.0,
+    "gripper_clear_m": 0.06,
+    "hold_s": 1.0,
+    "lift_m": 0.03,
+    "max_step_rad": 0.05333333333333334,
+    "max_take_s": 45.0,
+    "place_height_m": 0.01,
+    "place_radius_m": 0.03,
+    "placement_seed": 5026,
+    "randomize_scale": 1.0,
+    "score": "lift",
+    "settle_s": 2.0,
+    "start_jitter_rad": [],
+    "start_pose": [
+      -0.008750990955159068,
+      1.591839239001274,
+      -0.582017513513565,
+      0.034139014910906554,
+      -0.7887723721563816,
+      -0.04994584923610091,
+      0.01425838550946537
+    ],
+    "takes": 10
+  },
+  "dataset_contract": {
+    "action_lookahead_steps": 1,
+    "action_source": "leader",
+    "contract_version": "synria_physical_v1",
+    "effective_action_lookahead_steps": 0,
+    "episode_window_override": {
+      "max_episode_s": 120.0,
+      "min_episode_s": 1.0,
+      "reason": "simulation; never qualifying as physical data"
+    },
+    "goal_channels": [
+      "object"
+    ],
+    "gripper_type": "50mm",
+    "image_keys": [
+      "observation.images.wrist",
+      "observation.images.front"
+    ],
+    "max_episode_s": 120.0,
+    "min_episode_s": 1.0,
+    "nominal_action_lookahead_s": 0.0,
+    "recording_purpose": "simulation",
+    "requested_rate_hz": 15.0,
+    "state_has_velocity": false,
+    "state_names": [
+      "Joint1",
+      "Joint2",
+      "Joint3",
+      "Joint4",
+      "Joint5",
+      "Joint6",
+      "Gripper"
+    ],
+    "task_definition": {
+      "declared_fixed_scene": true,
+      "episode_window": {
+        "max_episode_s": null,
+        "min_episode_s": null
+      },
+      "requires_unobserved_goal": false,
+      "scene_requirements": [
+        "The cup occupies its fixed marked location.",
+        "The cup and gripper remain visible during the trial."
+      ],
+      "success_rule": "The take ends with the cup lifted and held clear of the table in the gripper, confirmed by the operator and front-camera evidence.",
+      "task_id": "pick_cup",
+      "task_text": "Pick up the cup from its marked location and hold on to it, lifted clear of the table."
+    },
+    "task_definition_sha256": "1adf24f5b502a8b1911aeb24b0f6bebf94750f2456d5a67dfa08986c7fa41236",
+    "task_id": "pick_cup",
+    "task_text": "Pick up the cup from its marked location and hold on to it, lifted clear of the table."
+  },
+  "dataset_root": "<home>/synria-sim-datasets/mimic_cup_pilot01/dataset",
+  "failures_excluded": 0,
+  "kind": "simulation_mimic_demonstrations",
+  "lane": "simulation",
+  "note": "Teleoperated takes moved to new cup placements (MimicGen method) and replayed in the Isaac scene; failures are labelled and excluded, successes train; never physical evidence.",
+  "operator": "staged_expert",
+  "physical_evidence": false,
+  "source_dataset": "<home>/synria-sim-datasets/pick_cup_17oct3_frozen_2026-10-18/dataset",
+  "source_episodes": [
+    0,
+    1,
+    2,
+    3,
+    6,
+    7,
+    10,
+    11,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    22,
+    23,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    40,
+    41,
+    43,
+    45,
+    46,
+    47,
+    48,
+    49
+  ],
+  "sources_skipped": {
+    "12": "held out",
+    "21": "no grasp found",
+    "24": "held out",
+    "32": "no grasp found",
+    "33": "no grasp found",
+    "34": "no grasp found",
+    "35": "no grasp found",
+    "36": "held out",
+    "37": "no grasp found",
+    "38": "no grasp found",
+    "39": "no grasp found",
+    "4": "no grasp found",
+    "42": "no grasp found",
+    "44": "held out",
+    "5": "label 'failure'",
+    "8": "no grasp found",
+    "9": "no grasp found"
+  },
+  "successes": 10,
+  "takes": [
+    {
+      "clamped_steps": 0,
+      "duration_s": 12.400422130012885,
+      "episode_index": 0,
+      "feasible": true,
+      "final_phase": "done",
+      "index": 0,
+      "max_lift_m": 0.10978691838681698,
+      "seed": 5026,
+      "stage_record": {
+        "cup_xy": [
+          -0.28738656640052795,
+          -0.040541019290685654
+        ],
+        "delta_bearing_deg": 9.203869853044264,
+        "ended_early": false,
+        "failed_frame": null,
+        "feasible": true,
+        "frames": 132,
+        "radial_shift_m": 0.0029813334141086667,
+        "reason": "",
+        "replayed_frames": 132,
+        "source_cup_xy": [
+          -0.2871903397322935,
+          0.005886696670986447
+        ],
+        "source_episode": 25,
+        "walk_steps": 32
+      },
+      "steps": 187,
+      "success": true
+    },
+    {
+      "clamped_steps": 0,
+      "duration_s": 10.800573840038851,
+      "episode_index": 1,
+      "feasible": true,
+      "final_phase": "done",
+      "index": 1,
+      "max_lift_m": 0.13813634030520916,
+      "seed": 5027,
+      "stage_record": {
+        "cup_xy": [
+          -0.3372684717178345,
+          0.04784783348441124
+        ],
+        "delta_bearing_deg": -4.627239116546303,
+        "ended_early": false,
+        "failed_frame": null,
+        "feasible": true,
+        "frames": 104,
+        "radial_shift_m": 0.004280736997112122,
+        "reason": "",
+        "replayed_frames": 104,
+        "source_cup_xy": [
+          -0.33575621940019557,
+          0.02022608281606708
+        ],
+        "source_episode": 46,
+        "walk_steps": 36
+      },
+      "steps": 163,
+      "success": true
+    },
+    {
+      "clamped_steps": 0,
+      "duration_s": 11.933716261992231,
+      "episode_index": 2,
+      "feasible": true,
+      "final_phase": "done",
+      "index": 2,
+      "max_lift_m": 0.10877054743468761,
+      "seed": 5028,
+      "stage_record": {
+        "cup_xy": [
+          -0.36624056100845337,
+          -0.10597553104162216
+        ],
+        "delta_bearing_deg": 13.604736941952558,
+        "ended_early": true,
+        "failed_frame": 113,
+        "feasible": true,
+        "frames": 116,
+        "radial_shift_m": 0.003005761738955781,
+        "reason": "solution jumped branch",
+        "replayed_frames": 113,
+        "source_cup_xy": [
+          -0.37788942366586414,
+          -0.016721142224945737
+        ],
+        "source_episode": 49,
+        "walk_steps": 37
+      },
+      "steps": 180,
+      "success": true
+    },
+    {
+      "clamped_steps": 0,
+      "duration_s": 17.26705797202885,
+      "episode_index": 3,
+      "feasible": true,
+      "final_phase": "done",
+      "index": 3,
+      "max_lift_m": 0.11900429427623749,
+      "seed": 5029,
+      "stage_record": {
+        "cup_xy": [
+          -0.343208909034729,
+          0.07776954770088196
+        ],
+        "delta_bearing_deg": -12.62453950185737,
+        "ended_early": false,
+        "failed_frame": null,
+        "feasible": true,
+        "frames": 198,
+        "radial_shift_m": 0.014903878919028335,
+        "reason": "",
+        "replayed_frames": 198,
+        "source_cup_xy": [
+          -0.33700480374119823,
+          0.0008400307656081568
+        ],
+        "source_episode": 27,
+        "walk_steps": 41
+      },
+      "steps": 260,
+      "success": true
+    },
+    {
+      "clamped_steps": 0,
+      "duration_s": 12.333578035933897,
+      "episode_index": 4,
+      "feasible": true,
+      "final_phase": "done",
+      "index": 4,
+      "max_lift_m": 0.11020284704864025,
+      "seed": 5030,
+      "stage_record": {
+        "cup_xy": [
+          -0.27435487508773804,
+          0.08160588890314102
+        ],
+        "delta_bearing_deg": -15.390665562826852,
+        "ended_early": false,
+        "failed_frame": null,
+        "feasible": true,
+        "frames": 132,
+        "radial_shift_m": -0.0010162877889671185,
+        "reason": "",
+        "replayed_frames": 132,
+        "source_cup_xy": [
+          -0.2871903397322935,
+          0.005886696670986447
+        ],
+        "source_episode": 25,
+        "walk_steps": 32
+      },
+      "steps": 186,
+      "success": true
+    },
+    {
+      "clamped_steps": 0,
+      "duration_s": 20.73368402593769,
+      "episode_index": 5,
+      "feasible": true,
+      "final_phase": "done",
+      "index": 5,
+      "max_lift_m": 0.13091175816953182,
+      "seed": 5031,
+      "stage_record": {
+        "cup_xy": [
+          -0.4000264108181,
+          0.060828737914562225
+        ],
+        "delta_bearing_deg": -19.19440482575449,
+        "ended_early": false,
+        "failed_frame": null,
+        "feasible": true,
+        "frames": 247,
+        "radial_shift_m": 0.0194343443676826,
+        "reason": "",
+        "replayed_frames": 247,
+        "source_cup_xy": [
+          -0.3786813361989791,
+          -0.07051359395283169
+        ],
+        "source_episode": 41,
+        "walk_steps": 39
+      },
+      "steps": 312,
+      "success": true
+    },
+    {
+      "clamped_steps": 0,
+      "duration_s": 12.600347924977541,
+      "episode_index": 6,
+      "feasible": true,
+      "final_phase": "done",
+      "index": 6,
+      "max_lift_m": 0.13084999844431877,
+      "seed": 5032,
+      "stage_record": {
+        "cup_xy": [
+          -0.3426894247531891,
+          -0.05034691467881203
+        ],
+        "delta_bearing_deg": -0.7569285793049514,
+        "ended_early": false,
+        "failed_frame": null,
+        "feasible": true,
+        "frames": 132,
+        "radial_shift_m": -0.00718201493363263,
+        "reason": "",
+        "replayed_frames": 132,
+        "source_cup_xy": [
+          -0.3490857380880209,
+          -0.05600735705995198
+        ],
+        "source_episode": 48,
+        "walk_steps": 34
+      },
+      "steps": 190,
+      "success": true
+    },
+    {
+      "clamped_steps": 0,
+      "duration_s": 10.067057091975585,
+      "episode_index": 7,
+      "feasible": true,
+      "final_phase": "done",
+      "index": 7,
+      "max_lift_m": 0.18601785972714424,
+      "seed": 5033,
+      "stage_record": {
+        "cup_xy": [
+          -0.3061678111553192,
+          0.14441776275634766
+        ],
+        "delta_bearing_deg": -15.179098840800945,
+        "ended_early": false,
+        "failed_frame": null,
+        "feasible": true,
+        "frames": 90,
+        "radial_shift_m": 0.002097728495269735,
+        "reason": "",
+        "replayed_frames": 90,
+        "source_cup_xy": [
+          -0.3312347963054074,
+          0.05884629478785941
+        ],
+        "source_episode": 28,
+        "walk_steps": 36
+      },
+      "steps": 152,
+      "success": true
+    },
+    {
+      "clamped_steps": 0,
+      "duration_s": 11.400411279988475,
+      "episode_index": 8,
+      "feasible": true,
+      "final_phase": "done",
+      "index": 8,
+      "max_lift_m": 0.14341013133525848,
+      "seed": 5034,
+      "stage_record": {
+        "cup_xy": [
+          -0.2984826862812042,
+          0.04394236207008362
+        ],
+        "delta_bearing_deg": -2.3357970384332156,
+        "ended_early": false,
+        "failed_frame": null,
+        "feasible": true,
+        "frames": 116,
+        "radial_shift_m": 0.002120406050717172,
+        "reason": "",
+        "replayed_frames": 116,
+        "source_cup_xy": [
+          -0.2979169638473108,
+          0.031517792937721376
+        ],
+        "source_episode": 29,
+        "walk_steps": 36
+      },
+      "steps": 172,
+      "success": true
+    },
+    {
+      "clamped_steps": 0,
+      "duration_s": 17.267029153066687,
+      "episode_index": 9,
+      "feasible": true,
+      "final_phase": "done",
+      "index": 9,
+      "max_lift_m": 0.12004479393362999,
+      "seed": 5035,
+      "stage_record": {
+        "cup_xy": [
+          -0.35512688755989075,
+          -0.012572124600410461
+        ],
+        "delta_bearing_deg": 2.170343251433675,
+        "ended_early": false,
+        "failed_frame": null,
+        "feasible": true,
+        "frames": 198,
+        "radial_shift_m": 0.018343504998264204,
+        "reason": "",
+        "replayed_frames": 198,
+        "source_cup_xy": [
+          -0.33700480374119823,
+          0.0008400307656081568
+        ],
+        "source_episode": 27,
+        "walk_steps": 41
+      },
+      "steps": 260,
+      "success": true
+    }
+  ],
+  "utc": "2026-11-23T22:04:27.466455+00:00"
+}
