@@ -57,7 +57,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--chunk-size", type=int, default=30)
     parser.add_argument("--command-period-s", type=float, default=0.2)
     parser.add_argument("--response-timeout-s", type=float, default=0.5)
-    parser.add_argument("--dataloader-workers", type=int, default=2)
+    parser.add_argument("--dataloader-workers", type=int, default=8)
     parser.add_argument("--registered-by", required=True)
     parser.add_argument("--base-training-config", type=Path, default=DEFAULT_TRAINING)
     parser.add_argument("--evidence-root", type=Path, default=None,

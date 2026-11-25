@@ -742,3 +742,39 @@ Simulation lane; never physical evidence.
    replaces `simcup17oct3_n045` as the kept `pick_cup` policy. Copy at
    `~/synria-policies/pick_cup/mimiccup01_merged-step020000/`, content hash
    checked against its record. Simulation only; no policy has run on the arm.
+
+## 2026-11-25: Training data loader workers
+
+Simulation lane; never physical evidence.
+
+1. Throughput sweep (2026-11-24, measured while scoring ran): 0, 4, 8 and 12
+   workers gave 61, 422, 666 and 717 samples per second on the merged cup
+   dataset; 8 is the knee.
+2. `simcup17oct3w8_n045`: the 45-take recipe of `simcup17oct3_n045` (seed 17,
+   20,000 steps, same frozen dataset and the same 45 training episodes) with
+   `dataloader_workers` 8. Training took 11 min 25 s against 42 min 18 s with
+   none. Held-out probe error close to the original (Joint2 0.138 against
+   0.123, Joint5 0.127 against 0.110).
+3. Paired campaign at placement seed 2026: 9 of 50, against 27 of 50 for the
+   original re-scored on 2026-11-24 (3 new-only, 21 original-only, exact
+   McNemar p 0.0003).
+4. Batch check: 40 shuffled batches (320 samples) with 0 and 8 workers were
+   identical in sample indices, both camera images, states and actions. The
+   workers do not change what the model sees; the gap comes from the training
+   run, most likely a different random-number stream once decoding leaves the
+   main process. Workers stay at 0 (the default) until a repeat run settles
+   whether this is run-to-run spread of the recipe.
+5. Repeat run `simcup17oct3w8r_n045`, same config and seed as item 2: 22 of
+   50 at placement seed 2026. Against the original (27): 7 new-only, 12
+   original-only, p 0.36. Against the first 8-worker run (9): 13 new-only, 0
+   first-only, p 0.00024. The weights of the two same-seed runs differ, so GPU
+   training is not reproducible, and one recipe has scored from 9 to 28 of 50
+   across runs, wider than the register's 8-trial tie band. The 9 of 50 was
+   run-to-run spread; no mechanism ties it to the workers. Workers stay off by
+   default until the owner decides between single runs and several training
+   runs per recipe.
+6. Decision (owner, 2026-11-25): workers on. New study configs write
+   `dataloader_workers` 8 (`scripts/prepare_sim_study.py` default, was 2); a
+   config without the key still means 0. Recipes are compared over at least
+   three training runs each; the two cup recipes (`simcup17oct3_n045` and
+   `mimiccup01_merged`) are being repeated on that basis.
