@@ -764,3 +764,12 @@ Simulation lane; never physical evidence.
    run, most likely a different random-number stream once decoding leaves the
    main process. Workers stay at 0 (the default) until a repeat run settles
    whether this is run-to-run spread of the recipe.
+5. Repeat run `simcup17oct3w8r_n045`, same config and seed as item 2: 22 of
+   50 at placement seed 2026. Against the original (27): 7 new-only, 12
+   original-only, p 0.36. Against the first 8-worker run (9): 13 new-only, 0
+   first-only, p 0.00024. The weights of the two same-seed runs differ, so GPU
+   training is not reproducible, and one recipe has scored from 9 to 28 of 50
+   across runs, wider than the register's 8-trial tie band. The 9 of 50 was
+   run-to-run spread; no mechanism ties it to the workers. Workers stay off by
+   default until the owner decides between single runs and several training
+   runs per recipe.
