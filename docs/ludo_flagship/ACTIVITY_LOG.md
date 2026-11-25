@@ -778,3 +778,37 @@ Simulation lane; never physical evidence.
    config without the key still means 0. Recipes are compared over at least
    three training runs each; the two cup recipes (`simcup17oct3_n045` and
    `mimiccup01_merged`) are being repeated on that basis.
+
+## 2026-11-25: Cup recipes over three training runs each
+
+Simulation lane; never physical evidence.
+
+1. Two more runs of the generated-take recipe (`mimiccup01w8_merged`,
+   `mimiccup01w8r_merged`): config of `mimiccup01_merged` with
+   `dataloader_workers` 8, seed 17, 20,000 steps, on the packed merged dataset
+   the frozen probes are tied to. 32 min each.
+2. Every run scored with 50 trials at placement seeds 2026 and 2027, period
+   0.2 s, response timeout 0.5 s; the same placements in every report (within
+   0.02 mm). The two 45-take runs with 8 workers were scored on seed 2027 for
+   the first time.
+
+| Recipe | Run | Seed 2026 | Seed 2027 | Total |
+|---|---|---|---|---|
+| 45 human + 167 generated | `mimiccup01_merged` | 31 | 44 | 75 |
+| | `mimiccup01w8_merged` | 44 | 39 | 83 |
+| | `mimiccup01w8r_merged` | 38 | 42 | 80 |
+| | all three | 113 / 150 | 125 / 150 | 238 / 300 |
+| 45 human | `simcup17oct3_n045` (re-scored) | 27 | 26 | 53 |
+| | `simcup17oct3w8_n045` | 9 | 20 | 29 |
+| | `simcup17oct3w8r_n045` | 22 | 26 | 48 |
+| | all three | 58 / 150 | 72 / 150 | 130 / 300 |
+
+3. Paired by placement (lifts summed over the three runs of each recipe): the
+   generated-take recipe did better on 34 and worse on 2 placements at seed
+   2026, better on 31 and worse on 2 at seed 2027; over all 100, 65 against 4,
+   two-sided sign test p 3e-15. The weakest generated-take run (75) beats the
+   strongest 45-take run (53).
+4. The gain holds across training runs. `mimiccup01_merged` stays the kept
+   `pick_cup` policy. The generated moves still stay within 19.2 degrees of
+   bearing and 1.9 cm of radius of their source takes.
+
